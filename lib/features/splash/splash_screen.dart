@@ -1,6 +1,6 @@
-import 'dart:async';
-
+import 'package:demo/core/di/auth_di.dart';
 import 'package:demo/core/theme/app_colors.dart';
+import 'package:demo/features/auth/provider/auth_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
@@ -12,21 +12,24 @@ class SplashScreen extends StatefulWidget {
 }
 
 class _SplashScreenState extends State<SplashScreen> {
-  late final Timer _timer;
-
   @override
   void initState() {
     super.initState();
-    _timer = Timer(const Duration(seconds: 2), () {
-      if (!mounted) return;
-      context.go('/login');
-    });
+    _checkLogin();
   }
 
-  @override
-  void dispose() {
-    _timer.cancel();
-    super.dispose();
+  Future<void> _checkLogin() async {
+    final authProvider = sl<AuthProvider>();
+
+    await authProvider.checkLoginStatus();
+
+    if (!mounted) return;
+
+    if (authProvider.isLoggedIn) {
+      context.go('/home');
+    } else {
+      context.go('/login');
+    }
   }
 
   @override
