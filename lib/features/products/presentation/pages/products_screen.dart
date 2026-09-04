@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
 class ProductsScreen extends StatelessWidget {
   const ProductsScreen({super.key});
@@ -15,7 +16,7 @@ class ProductsScreen extends StatelessWidget {
             const Text('Products Screen'),
             ElevatedButton(
               onPressed: () {
-                Navigator.pushNamed(context, '/productDetails');
+                context.go('/farmers'); // Navigate to the product details page
               },
               child: const Text('Go to Product Details'),
             ),

@@ -10,7 +10,6 @@ Future<void> main() async {
   await Firebase.initializeApp();
 
   FcmTokenService.instance.listenTokenRefresh();
-
   await initGlobalDi();
   runApp(const MyApp());
 }

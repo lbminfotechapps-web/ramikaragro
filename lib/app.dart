@@ -14,11 +14,15 @@ class MyApp extends StatelessWidget {
     return MultiBlocProvider(
       providers: [BlocProvider<AuthBloc>(create: (_) => sl<AuthBloc>()),
       BlocProvider<NotVisitedDealerBloc>(create: (_) => sl<NotVisitedDealerBloc>()),
+      providers: [
+        BlocProvider<AuthBloc>(create: (_) => sl<AuthBloc>()),
+        BlocProvider<FarmerListBloc>(create: (_) => sl<FarmerListBloc>()),
       ],
       child: MaterialApp.router(
         title: 'Flutter Demo',
         theme: AppColor.getLightTheme(),
         themeMode: ThemeMode.light,
+        debugShowCheckedModeBanner: false,
         builder: (context, child) {
           return Container(
             decoration: AppColor.appGradientDecoration,
