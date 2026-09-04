@@ -6,6 +6,7 @@ import 'package:demo/features/auth/data/repoimp/login_repo_imp.dart';
 import 'package:demo/features/auth/domain/repository/login_repo.dart';
 import 'package:demo/features/auth/domain/usecases/login_usecase.dart';
 import 'package:demo/features/auth/presentation/bloc/auth_bloc.dart';
+import 'package:demo/features/auth/provider/auth_provider.dart';
 
 import 'package:get_it/get_it.dart';
 
@@ -30,4 +31,5 @@ Future<void> initAuthDi() async {
   );
 
   sl.registerFactory<AuthBloc>(() => AuthBloc(sl<LoginUsecase>()));
+  sl.registerLazySingleton<AuthProvider>(() => AuthProvider());
 }

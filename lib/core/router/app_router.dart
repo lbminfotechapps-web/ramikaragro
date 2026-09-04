@@ -1,6 +1,7 @@
 import 'package:demo/core/utility/widgets/bottom_navigation.dart';
 import 'package:demo/features/auth/presentation/pages/login_screen.dart';
 import 'package:demo/features/dealer/presentation/pages/DealerListScreen.dart';
+import 'package:demo/features/farmer/farmerlist/presentation/pages/farmerlist_screen.dart';
 
 import 'package:demo/features/home/home.dart';
 import 'package:demo/features/products/presentation/pages/products_screen.dart';
@@ -18,6 +19,7 @@ class AppRouter {
   static const String reports = '/reports';
   static const String visits = '/visits';
   static const String products = '/products';
+  static const String farmers = '/farmers';
 
   static final GoRouter router = GoRouter(
     initialLocation: splash,
@@ -37,6 +39,12 @@ class AppRouter {
         builder: (context, state) {
           return const LoginScreen();
         },
+      ),
+
+      GoRoute(
+        path: farmers,
+        name: 'farmers',
+        builder: (context, state) => const FarmerlistScreen(),
       ),
 
       StatefulShellRoute.indexedStack(
