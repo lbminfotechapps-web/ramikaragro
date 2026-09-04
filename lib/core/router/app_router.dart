@@ -1,5 +1,6 @@
 import 'package:demo/core/utility/widgets/bottom_navigation.dart';
 import 'package:demo/features/auth/presentation/pages/login_screen.dart';
+import 'package:demo/features/dealer/presentation/pages/DealerListScreen.dart';
 import 'package:demo/features/farmer/farmerlist/presentation/pages/farmerlist_screen.dart';
 
 import 'package:demo/features/home/home.dart';
@@ -81,7 +82,7 @@ class AppRouter {
                 path: visits,
                 name: 'visits',
                 builder: (context, state) {
-                  return const VisitsScreen();
+                  return const Dealerlistscreen();
                 },
               ),
             ],
