@@ -11,6 +11,8 @@ extension AppColors on ColorScheme {
     end: Alignment.bottomRight,
   );
 
+  static const Color visitGraphColor = Color(0xFF003D29);
+
   static const Color secondaryColor = Color(0xFF088DC4);
   static const Color backgroundColor = Color(0xFFFFFFFF);
   static const Color cardColor = Color(0xFFFFFFFF);

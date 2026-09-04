@@ -20,6 +20,7 @@ class MyApp extends StatelessWidget {
         title: 'Flutter Demo',
         theme: AppColor.getLightTheme(),
         themeMode: ThemeMode.light,
+        debugShowCheckedModeBanner: false,
         builder: (context, child) {
           return Container(
             decoration: AppColor.appGradientDecoration,
