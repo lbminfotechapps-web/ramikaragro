@@ -4,6 +4,10 @@ import 'package:demo/core/theme/app_theme.dart';
 import 'package:demo/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:demo/features/farmer/famerfollowup/presentation/bloc/famerfollowup_bloc.dart';
 import 'package:demo/features/farmer/farmerlist/presentation/bloc/farmerlist_bloc.dart';
+import 'package:demo/features/home/presentation/home_bloc/home_bloc.dart';
+import 'package:demo/features/home/presentation/quick_aceess_bloc/quick_acess_bloc.dart';
+import 'package:demo/features/reports/presentation/bloc/employee_activity_bloc.dart';
+import 'package:demo/features/reports/presentation/bloc/not_visited_dealer_bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -15,9 +19,16 @@ class MyApp extends StatelessWidget {
     return MultiBlocProvider(
       providers: [
         BlocProvider<AuthBloc>(create: (_) => sl<AuthBloc>()),
+        BlocProvider<NotVisitedDealerBloc>(
+          create: (_) => sl<NotVisitedDealerBloc>(),
+        ),
         BlocProvider<FarmerListBloc>(create: (_) => sl<FarmerListBloc>()),
         BlocProvider<FamerfollowupBloc>(create: (_) => sl<FamerfollowupBloc>()),
+        BlocProvider<HomeBloc>(create: (_) => sl<HomeBloc>()),
+        BlocProvider<QuickAcessBloc>(create: (_) => sl<QuickAcessBloc>()),
+                BlocProvider<EmployeeActivityBloc>(create: (_) => sl<EmployeeActivityBloc>()),
       ],
+
       child: MaterialApp.router(
         title: 'Flutter Demo',
         theme: AppColor.getLightTheme(),
