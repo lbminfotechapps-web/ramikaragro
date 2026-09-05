@@ -1,5 +1,6 @@
 import 'package:demo/core/utility/widgets/bottom_navigation.dart';
 import 'package:demo/features/auth/presentation/pages/login_screen.dart';
+import 'package:demo/features/farmer/famerfollowup/presentation/pages/FamerFollowupPage.dart';
 import 'package:demo/features/farmer/farmerlist/presentation/pages/farmerlist_screen.dart';
 
 import 'package:demo/features/home/home.dart';
@@ -19,6 +20,7 @@ class AppRouter {
   static const String visits = '/visits';
   static const String products = '/products';
   static const String farmers = '/farmers';
+  static const String farmerpin = '/farmerpin';
 
   static final GoRouter router = GoRouter(
     initialLocation: splash,
@@ -45,7 +47,13 @@ class AppRouter {
         name: 'farmers',
         builder: (context, state) => const FarmerlistScreen(),
       ),
-
+      GoRoute(
+        path: farmerpin,
+        name: 'farmerpin',
+        builder: (context, state) {
+          return const FamerFollowupPage();
+        },
+      ),
       StatefulShellRoute.indexedStack(
         builder: (context, state, navigationShell) {
           return HomeShell(navigationShell: navigationShell);

@@ -2,6 +2,7 @@ import 'package:demo/core/di/auth_di.dart';
 import 'package:demo/core/router/app_router.dart';
 import 'package:demo/core/theme/app_theme.dart';
 import 'package:demo/features/auth/presentation/bloc/auth_bloc.dart';
+import 'package:demo/features/farmer/famerfollowup/presentation/bloc/famerfollowup_bloc.dart';
 import 'package:demo/features/farmer/farmerlist/presentation/bloc/farmerlist_bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -15,6 +16,7 @@ class MyApp extends StatelessWidget {
       providers: [
         BlocProvider<AuthBloc>(create: (_) => sl<AuthBloc>()),
         BlocProvider<FarmerListBloc>(create: (_) => sl<FarmerListBloc>()),
+        BlocProvider<FamerfollowupBloc>(create: (_) => sl<FamerfollowupBloc>()),
       ],
       child: MaterialApp.router(
         title: 'Flutter Demo',
