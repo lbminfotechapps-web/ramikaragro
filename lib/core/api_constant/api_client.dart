@@ -5,4 +5,6 @@ class ApiClient {
       "http://192.168.1.253:85/ramikar_agro/uploads/";
 
   static const String login = "/user_login";
+  static const String userMenu = "/getUserMenu_new";
+  static const String punchStatus = "/getLastTransactionInOutStatus";
 }

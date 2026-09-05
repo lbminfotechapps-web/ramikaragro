@@ -1,15 +1,25 @@
 import 'package:demo/core/theme/app_colors.dart';
 import 'package:demo/core/utility/widgets/custom_appbar.dart';
 import 'package:demo/core/utility/widgets/custom_card.dart';
-import 'package:demo/features/home/widgets/quick_action.dart';
-import 'package:demo/features/home/widgets/todays_overwiew.dart';
-import 'package:demo/features/home/widgets/visit_overview.dart';
+import 'package:demo/features/home/presentation/home_bloc/home_bloc.dart';
+import 'package:demo/features/home/presentation/home_bloc/home_state.dart';
+import 'package:demo/features/home/presentation/quick_aceess_bloc/quick_access_state.dart';
+import 'package:demo/features/home/presentation/quick_aceess_bloc/quick_acess_bloc.dart';
+import 'package:demo/features/home/presentation/widgets/quick_action.dart';
+import 'package:demo/features/home/presentation/widgets/todays_overwiew.dart';
+import 'package:demo/features/home/presentation/widgets/visit_overview.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil_plus/flutter_screenutil_plus.dart';
 
-class Home extends StatelessWidget {
+class Home extends StatefulWidget {
   const Home({super.key});
 
+  @override
+  State<Home> createState() => _HomeState();
+}
+
+class _HomeState extends State<Home> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -55,25 +65,55 @@ class Home extends StatelessWidget {
                       child: buildPunchCard("Today's Punch", '09:15 AM'),
                     ),
                   ),
+
                   SizedBox(width: 8.w),
+
                   Expanded(
                     child: SizedBox(
                       height: 120.h,
                       child: buildInfoCard('In Punch Pending', '2'),
                     ),
                   ),
-
-                  // SizedBox(width: 8.w),
-                  //
                 ],
               ),
+
               SizedBox(height: 12.h),
+
               const OverviewSection(),
+
               SizedBox(height: 12.h),
+
               const VisitOverviewCard(),
 
               SizedBox(height: 12.h),
-              QuickAccessSection(items: quickAccessItems),
+
+              BlocBuilder<HomeBloc, HomeState>(
+                builder: (context, homeState) {
+                  if (homeState.status == HomeStatus.loading) {
+                    return const Center(child: CircularProgressIndicator());
+                  }
+
+                  if (homeState.status == HomeStatus.failure) {
+                    return Text(
+                      homeState.errorMessage ?? 'Failed to load menu',
+                    );
+                  }
+
+                  if (homeState.menus.isEmpty) {
+                    return const SizedBox.shrink();
+                  }
+
+                  return BlocBuilder<QuickAcessBloc, QuickAccessState>(
+                    builder: (context, quickAccessState) {
+                      return QuickAccessSection(
+                        menus: homeState.menus,
+                        punchStat: quickAccessState.punchStat,
+                      );
+                    },
+                  );
+                },
+              ),
+
               SizedBox(height: 12.h),
             ],
           ),
