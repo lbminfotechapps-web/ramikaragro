@@ -1,4 +1,5 @@
 import 'package:demo/core/theme/app_colors.dart';
+import 'package:demo/core/secure_storage/secure_storage.dart';
 import 'package:demo/core/utility/widgets/custom_card.dart';
 import 'package:demo/features/home/doman/home_entity/menu_entity.dart';
 import 'package:demo/features/home/doman/home_entity/punch_stat_entity.dart';
@@ -133,7 +134,7 @@ class _QuickAccessSectionState extends State<QuickAccessSection> {
     );
   }
 
-  void _onMenuTap(BuildContext context, MenuEntity menu) {
+  Future<void> _onMenuTap(BuildContext context, MenuEntity menu) async {
     debugPrint(
       'Menu clicked: '
       'ID=${menu.menuId}, '
@@ -143,7 +144,37 @@ class _QuickAccessSectionState extends State<QuickAccessSection> {
     if (menu.menuId == '17') {
       context.go('/punch', extra: widget.punchStat);
       print('punch status data ${widget.punchStat}');
+    } else if (menu.menuId == '65') {
+      context.go('/notVisitDealer');
+    } else if (menu.menuId == '8') {
+      context.go('/farmers');
+    } else if (menu.menuId == '57' ||
+        menu.menuId == '63' ||
+        menu.menuId == '32') {
+      final userData = await SecureStorage.instance.getUserData();
+      final userId = userData?['user_id']?.toString();
+
+      if (!context.mounted) return;
+
+      if (userId == null || userId.isEmpty) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('User information is not available')),
+        );
+        return;
+      }
+
+      final route = switch (menu.menuId) {
+        '57' => '/visitSummaryReport',
+        '63' => '/empOutputReport',
+        _ => '/empActivityReport',
+      };
+
+      context.go(route, extra: userId);
     }
+
+    //farmers
+    //
+    //
     //
     // if (menu.menuId == '8') {
     //   context.go('/farmer-visit');

@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:demo/core/router/app_router.dart';
 import 'package:demo/core/theme/app_colors.dart';
 import 'package:demo/core/theme/app_theme.dart';
 import 'package:demo/features/farmer/farmerlist/data/model/farmerlist_model.dart';
@@ -245,6 +246,17 @@ class _FarmerlistScreenState extends State<FarmerlistScreen> {
             fontWeight: FontWeight.bold,
             color: Colors.black,
           ),
+        ),
+
+        leading: IconButton(
+          icon: const Icon(
+            Icons.arrow_back_ios_new,
+            size: 19,
+            color: AppColors.backgroundColor,
+          ),
+          onPressed: () {
+            context.go(AppRouter.home);
+          },
         ),
       ),
 

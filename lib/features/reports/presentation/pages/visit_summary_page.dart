@@ -1,6 +1,8 @@
+import 'package:demo/core/router/app_router.dart';
 import 'package:demo/core/theme/app_colors.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 
 import '../../domain/entities/visit_report.dart';
@@ -200,7 +202,7 @@ class _VisitSummaryPageState extends State<VisitSummaryPage> {
             color: AppColors.backgroundColor,
           ),
           onPressed: () {
-            Navigator.pop(context);
+           context.go(AppRouter.home);
           },
         ),
 

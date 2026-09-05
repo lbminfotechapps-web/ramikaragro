@@ -1,8 +1,10 @@
+import 'package:demo/core/router/app_router.dart';
 import 'package:demo/core/theme/app_colors.dart';
 import 'package:demo/features/reports/domain/entities/employee_activity.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil_plus/flutter_screenutil_plus.dart';
+import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 
 import 'package:demo/core/api_constant/api_client.dart';
@@ -15,10 +17,7 @@ import '../widgets/activity_timeline_item.dart';
 class EmployeeActivityReportPage extends StatefulWidget {
   final String userId;
 
-  const EmployeeActivityReportPage({
-    super.key,
-    required this.userId,
-  });
+  const EmployeeActivityReportPage({super.key, required this.userId});
 
   @override
   State<EmployeeActivityReportPage> createState() =>
@@ -43,17 +42,15 @@ class _EmployeeActivityReportPageState
   // ============================================================
 
   void _fetchActivities() {
-    final searchDate = DateFormat(
-      'yyyy-MM-dd',
-    ).format(_selectedDate);
+    final searchDate = DateFormat('yyyy-MM-dd').format(_selectedDate);
 
     context.read<EmployeeActivityBloc>().add(
-          GetEmployeeActivityEvent(
-            userId: widget.userId,
-            searchDate: searchDate,
-            logUserId: widget.userId,
-          ),
-        );
+      GetEmployeeActivityEvent(
+        userId: widget.userId,
+        searchDate: searchDate,
+        logUserId: widget.userId,
+      ),
+    );
   }
 
   // ============================================================
@@ -95,32 +92,21 @@ class _EmployeeActivityReportPageState
   // ============================================================
 
   String get _displayDate {
-    return DateFormat(
-      'dd-MM-yyyy',
-    ).format(_selectedDate);
+    return DateFormat('dd-MM-yyyy').format(_selectedDate);
   }
 
   String get _dayName {
-    return DateFormat(
-      'EEEE',
-    ).format(_selectedDate);
+    return DateFormat('EEEE').format(_selectedDate);
   }
 
   // ============================================================
   // ACTIVITY COUNTS
   // ============================================================
 
-  int _countActivity(
-    List<EmployeeActivity> activities,
-    String activity,
-  ) {
-    return activities.where(
-      (item) {
-        return item.activityName.toUpperCase().contains(
-              activity.toUpperCase(),
-            );
-      },
-    ).length;
+  int _countActivity(List<EmployeeActivity> activities, String activity) {
+    return activities.where((item) {
+      return item.activityName.toUpperCase().contains(activity.toUpperCase());
+    }).length;
   }
 
   // ============================================================
@@ -131,10 +117,10 @@ class _EmployeeActivityReportPageState
     _fetchActivities();
 
     await context.read<EmployeeActivityBloc>().stream.firstWhere(
-          (state) =>
-              state.status == EmployeeActivityStatus.success ||
-              state.status == EmployeeActivityStatus.failure,
-        );
+      (state) =>
+          state.status == EmployeeActivityStatus.success ||
+          state.status == EmployeeActivityStatus.failure,
+    );
   }
 
   // ============================================================
@@ -149,7 +135,6 @@ class _EmployeeActivityReportPageState
       // ========================================================
       // APP BAR
       // ========================================================
-
       appBar: AppBar(
         elevation: 0,
         centerTitle: false,
@@ -158,33 +143,25 @@ class _EmployeeActivityReportPageState
 
         title: const Text(
           'Employee Activity',
-          style: TextStyle(
-            fontSize: 20,
-            fontWeight: FontWeight.w700,
-          ),
+          style: TextStyle(fontSize: 20, fontWeight: FontWeight.w700),
         ),
 
-            
-          leading: IconButton(
+        leading: IconButton(
           icon: const Icon(
             Icons.arrow_back_ios_new,
             size: 19,
             color: AppColors.backgroundColor,
           ),
           onPressed: () {
-            Navigator.pop(context);
+            context.go(AppRouter.home);
           },
         ),
-
 
         actions: [
           IconButton(
             tooltip: 'Change Date',
             onPressed: _selectDate,
-            icon: const Icon(
-              Icons.calendar_month_rounded,
-              size: 25,
-            ),
+            icon: const Icon(Icons.calendar_month_rounded, size: 25),
           ),
 
           const SizedBox(width: 6),
@@ -194,9 +171,7 @@ class _EmployeeActivityReportPageState
       // ========================================================
       // BODY
       // ========================================================
-
-      body: BlocBuilder<EmployeeActivityBloc,
-          EmployeeActivityState>(
+      body: BlocBuilder<EmployeeActivityBloc, EmployeeActivityState>(
         builder: (context, state) {
           if (state.status == EmployeeActivityStatus.loading) {
             return const _LoadingView();
@@ -204,8 +179,7 @@ class _EmployeeActivityReportPageState
 
           if (state.status == EmployeeActivityStatus.failure) {
             return _ErrorView(
-              message: state.errorMessage ??
-                  'Something went wrong',
+              message: state.errorMessage ?? 'Something went wrong',
               onRetry: _fetchActivities,
               onChangeDate: _selectDate,
             );
@@ -218,35 +192,18 @@ class _EmployeeActivityReportPageState
             onRefresh: _onRefresh,
 
             child: activities.isEmpty
-                ? _EmptyView(
-                    onChangeDate: _selectDate,
-                  )
+                ? _EmptyView(onChangeDate: _selectDate)
                 : _ActivityContent(
                     selectedDate: _selectedDate,
                     displayDate: _displayDate,
                     dayName: _dayName,
                     activities: activities,
-                    countIn: _countActivity(
-                      activities,
-                      'IN PUNCH',
-                    ),
-                    countOut: _countActivity(
-                      activities,
-                      'OUT PUNCH',
-                    ),
-                    countFarmer: _countActivity(
-                      activities,
-                      'FARMER',
-                    ),
+                    countIn: _countActivity(activities, 'IN PUNCH'),
+                    countOut: _countActivity(activities, 'OUT PUNCH'),
+                    countFarmer: _countActivity(activities, 'FARMER'),
 
-                      countDealer: _countActivity(
-                      activities,
-                      'Dealer',
-                    ),
-                    countLocation: _countActivity(
-                      activities,
-                      'SHARE LOCATION',
-                    ),
+                    countDealer: _countActivity(activities, 'Dealer'),
+                    countLocation: _countActivity(activities, 'SHARE LOCATION'),
                     onChangeDate: _selectDate,
                   ),
           );
@@ -292,17 +249,11 @@ class _ActivityContent extends StatelessWidget {
   Widget build(BuildContext context) {
     return ListView(
       physics: const AlwaysScrollableScrollPhysics(),
-      padding: const EdgeInsets.fromLTRB(
-        16,
-        16,
-        16,
-        30,
-      ),
+      padding: const EdgeInsets.fromLTRB(16, 16, 16, 30),
       children: [
         // ======================================================
         // DATE CARD
         // ======================================================
-
         _DateCard(
           displayDate: displayDate,
           dayName: dayName,
@@ -314,7 +265,6 @@ class _ActivityContent extends StatelessWidget {
         // ======================================================
         // SUMMARY TITLE
         // ======================================================
-
         const Text(
           'Activity Summary',
           style: TextStyle(
@@ -329,7 +279,6 @@ class _ActivityContent extends StatelessWidget {
         // ======================================================
         // SUMMARY CARDS
         // ======================================================
-
         SizedBox(
           height: 55.h,
           child: ListView(
@@ -363,7 +312,6 @@ class _ActivityContent extends StatelessWidget {
 
               const SizedBox(width: 12),
 
-
               ActivitySummaryCard(
                 title: 'Dealer Visit',
                 count: countDealer,
@@ -372,8 +320,6 @@ class _ActivityContent extends StatelessWidget {
               ),
 
               const SizedBox(width: 12),
-
-
 
               ActivitySummaryCard(
                 title: 'Location',
@@ -390,7 +336,6 @@ class _ActivityContent extends StatelessWidget {
         // ======================================================
         // TIMELINE TITLE
         // ======================================================
-
         Row(
           children: [
             const Expanded(
@@ -405,10 +350,7 @@ class _ActivityContent extends StatelessWidget {
             ),
 
             Container(
-              padding: const EdgeInsets.symmetric(
-                horizontal: 10,
-                vertical: 6,
-              ),
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
               decoration: BoxDecoration(
                 color: const Color(0xFFE8F5EC),
                 borderRadius: BorderRadius.circular(20),
@@ -430,7 +372,6 @@ class _ActivityContent extends StatelessWidget {
         // ======================================================
         // TIMELINE
         // ======================================================
-
         ListView.builder(
           shrinkWrap: true,
           physics: const NeverScrollableScrollPhysics(),
@@ -485,7 +426,6 @@ class _DateCard extends StatelessWidget {
           // ====================================================
           // CALENDAR ICON
           // ====================================================
-
           Container(
             height: 52,
             width: 52,
@@ -505,7 +445,6 @@ class _DateCard extends StatelessWidget {
           // ====================================================
           // DATE
           // ====================================================
-
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -547,28 +486,19 @@ class _DateCard extends StatelessWidget {
           // ====================================================
           // CHANGE BUTTON
           // ====================================================
-
           OutlinedButton(
             onPressed: onChangeDate,
             style: OutlinedButton.styleFrom(
               foregroundColor: const Color(0xFF168A45),
-              side: const BorderSide(
-                color: Color(0xFF168A45),
-              ),
+              side: const BorderSide(color: Color(0xFF168A45)),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(10),
               ),
-              padding: const EdgeInsets.symmetric(
-                horizontal: 13,
-                vertical: 9,
-              ),
+              padding: const EdgeInsets.symmetric(horizontal: 13, vertical: 9),
             ),
             child: const Text(
               'Change',
-              style: TextStyle(
-                fontWeight: FontWeight.w700,
-                fontSize: 13,
-              ),
+              style: TextStyle(fontWeight: FontWeight.w700, fontSize: 13),
             ),
           ),
         ],
@@ -602,9 +532,7 @@ class _LoadingView extends StatelessWidget {
 class _EmptyView extends StatelessWidget {
   final VoidCallback onChangeDate;
 
-  const _EmptyView({
-    required this.onChangeDate,
-  });
+  const _EmptyView({required this.onChangeDate});
 
   @override
   Widget build(BuildContext context) {
@@ -665,22 +593,15 @@ class _EmptyView extends StatelessWidget {
               backgroundColor: const Color(0xFF168A45),
               foregroundColor: Colors.white,
               elevation: 0,
-              padding: const EdgeInsets.symmetric(
-                horizontal: 20,
-                vertical: 13,
-              ),
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 13),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(12),
               ),
             ),
-            icon: const Icon(
-              Icons.calendar_month_rounded,
-            ),
+            icon: const Icon(Icons.calendar_month_rounded),
             label: const Text(
               'Change Date',
-              style: TextStyle(
-                fontWeight: FontWeight.w700,
-              ),
+              style: TextStyle(fontWeight: FontWeight.w700),
             ),
           ),
         ),
@@ -732,10 +653,7 @@ class _ErrorView extends StatelessWidget {
           child: Text(
             'Something Went Wrong',
             textAlign: TextAlign.center,
-            style: TextStyle(
-              fontSize: 20,
-              fontWeight: FontWeight.w800,
-            ),
+            style: TextStyle(fontSize: 20, fontWeight: FontWeight.w800),
           ),
         ),
 
@@ -760,15 +678,11 @@ class _ErrorView extends StatelessWidget {
           children: [
             OutlinedButton.icon(
               onPressed: onRetry,
-              icon: const Icon(
-                Icons.refresh_rounded,
-              ),
+              icon: const Icon(Icons.refresh_rounded),
               label: const Text('Retry'),
               style: OutlinedButton.styleFrom(
                 foregroundColor: const Color(0xFF168A45),
-                side: const BorderSide(
-                  color: Color(0xFF168A45),
-                ),
+                side: const BorderSide(color: Color(0xFF168A45)),
               ),
             ),
 
@@ -776,9 +690,7 @@ class _ErrorView extends StatelessWidget {
 
             ElevatedButton.icon(
               onPressed: onChangeDate,
-              icon: const Icon(
-                Icons.calendar_month_rounded,
-              ),
+              icon: const Icon(Icons.calendar_month_rounded),
               label: const Text('Change Date'),
               style: ElevatedButton.styleFrom(
                 backgroundColor: const Color(0xFF168A45),
