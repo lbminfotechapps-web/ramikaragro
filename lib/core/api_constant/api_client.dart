@@ -3,6 +3,8 @@ class ApiClient {
   static const String imageBaseUrl ="http://192.168.1.253:85/ramikar_agro/uploads/";
 
   static const String login = "/user_login";
+  static const String userMenu = "/getUserMenu_new";
+  static const String punchStatus = "/getLastTransactionInOutStatus";
   static const String getLastThirtyNotVisited ="/getLastThiertyNotVisited";
   static const String getEmployeeActivityDetails ='/getEmployeeActivityDetails_new';
   static const String getVisitReportDetails ="/getVisitReportDetails";

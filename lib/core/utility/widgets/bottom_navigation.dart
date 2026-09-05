@@ -1,12 +1,25 @@
 import 'package:demo/core/router/app_router.dart';
+import 'package:demo/core/secure_storage/secure_storage.dart';
 import 'package:demo/core/theme/app_colors.dart';
+import 'package:demo/features/home/presentation/home_bloc/home_bloc.dart';
+import 'package:demo/features/home/presentation/home_bloc/home_event.dart';
+import 'package:demo/features/home/presentation/quick_aceess_bloc/quick_access_event.dart';
+import 'package:demo/features/home/presentation/quick_aceess_bloc/quick_acess_bloc.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
-class HomeShell extends StatelessWidget {
+class HomeShell extends StatefulWidget {
   const HomeShell({super.key, required this.navigationShell});
 
   final StatefulNavigationShell navigationShell;
+
+  @override
+  State<HomeShell> createState() => _HomeShellState();
+}
+
+class _HomeShellState extends State<HomeShell> {
+  int _lastActiveIndex = -1;
 
   static const _tabs = [
     (path: AppRouter.home, icon: Icons.home, label: 'Home'),
@@ -15,11 +28,35 @@ class HomeShell extends StatelessWidget {
     (path: AppRouter.products, icon: Icons.storage, label: 'Products'),
   ];
 
+  Future<void> _refreshHome() async {
+    final userData = await SecureStorage.instance.getUserData();
+    final userId = int.tryParse(userData?['user_id']?.toString() ?? '');
+
+    if (!mounted || userId == null) {
+      return;
+    }
+
+    context.read<HomeBloc>().add(GetMenuEvent(userId, '2'));
+    context.read<QuickAcessBloc>().add(PunchStatEvent(userId));
+  }
+
   @override
   Widget build(BuildContext context) {
+    final activeIndex = widget.navigationShell.currentIndex;
+    if (activeIndex != _lastActiveIndex) {
+      _lastActiveIndex = activeIndex;
+      if (activeIndex == 0) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (mounted) {
+            _refreshHome();
+          }
+        });
+      }
+    }
+
     return Scaffold(
       backgroundColor: Colors.white,
-      body: navigationShell,
+      body: widget.navigationShell,
       bottomNavigationBar: Stack(
         alignment: Alignment.bottomCenter,
         children: [
@@ -73,11 +110,12 @@ class HomeShell extends StatelessWidget {
                 ),
                 child: NavigationBar(
                   height: 72,
-                  selectedIndex: navigationShell.currentIndex,
+                  selectedIndex: widget.navigationShell.currentIndex,
                   onDestinationSelected: (index) {
-                    navigationShell.goBranch(
+                    widget.navigationShell.goBranch(
                       index,
-                      initialLocation: index == navigationShell.currentIndex,
+                      initialLocation:
+                          index == widget.navigationShell.currentIndex,
                     );
                   },
                   destinations: [

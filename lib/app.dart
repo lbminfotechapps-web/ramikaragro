@@ -3,6 +3,8 @@ import 'package:demo/core/router/app_router.dart';
 import 'package:demo/core/theme/app_theme.dart';
 import 'package:demo/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:demo/features/farmer/farmerlist/presentation/bloc/farmerlist_bloc.dart';
+import 'package:demo/features/home/presentation/home_bloc/home_bloc.dart';
+import 'package:demo/features/home/presentation/quick_aceess_bloc/quick_acess_bloc.dart';
 import 'package:demo/features/reports/presentation/bloc/employee_activity_bloc.dart';
 import 'package:demo/features/reports/presentation/bloc/not_visited_dealer_bloc.dart';
 import 'package:flutter/material.dart';
@@ -20,6 +22,8 @@ class MyApp extends StatelessWidget {
           create: (_) => sl<NotVisitedDealerBloc>(),
         ),
         BlocProvider<FarmerListBloc>(create: (_) => sl<FarmerListBloc>()),
+        BlocProvider<HomeBloc>(create: (_) => sl<HomeBloc>()),
+        BlocProvider<QuickAcessBloc>(create: (_) => sl<QuickAcessBloc>()),
                 BlocProvider<EmployeeActivityBloc>(create: (_) => sl<EmployeeActivityBloc>()),
       ],
 

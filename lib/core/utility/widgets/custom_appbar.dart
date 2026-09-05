@@ -1,3 +1,4 @@
+import 'package:demo/core/theme/app_colors.dart';
 import 'package:flutter/material.dart';
 
 class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
@@ -68,18 +69,10 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
           else if (showBackButton)
             GestureDetector(
               onTap: onBackTap ?? () => Navigator.pop(context),
-              child: Container(
-                width: 45,
-                height: 45,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: const Color(0xFFF7FBF3),
-                ),
-                child: const Icon(
-                  Icons.arrow_back_ios_new_rounded,
-                  size: 20,
-                  color: Color(0xFF16803A),
-                ),
+              child: const Icon(
+                Icons.arrow_back_ios_new_rounded,
+                size: 20,
+                color: AppColors.darkBackgroundColor,
               ),
             ),
 
