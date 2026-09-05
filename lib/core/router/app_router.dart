@@ -5,6 +5,7 @@ import 'package:demo/features/farmer/farmerlist/presentation/pages/farmerlist_sc
 
 import 'package:demo/features/home/home.dart';
 import 'package:demo/features/products/presentation/pages/products_screen.dart';
+import 'package:demo/features/reports/presentation/pages/not_visited_dealer_page.dart';
 
 import 'package:demo/features/reports/presentation/pages/reports_scree.dart';
 import 'package:demo/features/splash/splash_screen.dart';
@@ -14,6 +15,7 @@ import 'package:go_router/go_router.dart';
 class AppRouter {
   static const String splash = '/splash';
   static const String login = '/login';
+  static const String noVisitDealer = '/notVisitDealer';
 
   static const String home = '/home';
   static const String reports = '/reports';
@@ -38,6 +40,14 @@ class AppRouter {
         name: 'login',
         builder: (context, state) {
           return const LoginScreen();
+        },
+      ),
+
+      GoRoute(
+        path: noVisitDealer,
+        name: 'notVisitDealer',
+        builder: (context, state) {
+          return const NotVisitedDealerPage();
         },
       ),
 
