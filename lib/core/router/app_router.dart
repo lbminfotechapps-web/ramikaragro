@@ -1,11 +1,13 @@
 import 'package:demo/core/utility/widgets/bottom_navigation.dart';
 import 'package:demo/features/auth/presentation/pages/login_screen.dart';
+import 'package:demo/features/dealer/presentation/pages/DealerListScreen.dart';
 import 'package:demo/features/farmer/farmerlist/presentation/pages/farmerlist_screen.dart';
 
 import 'package:demo/features/home/presentation/home.dart';
 import 'package:demo/features/home/presentation/punch_screen.dart';
 import 'package:demo/features/home/doman/home_entity/punch_stat_entity.dart';
 import 'package:demo/features/products/presentation/pages/products_screen.dart';
+import 'package:demo/features/reports/presentation/pages/not_visited_dealer_page.dart';
 
 import 'package:demo/features/reports/presentation/pages/reports_scree.dart';
 import 'package:demo/features/splash/splash_screen.dart';
@@ -16,6 +18,8 @@ class AppRouter {
   static const String splash = '/splash';
   static const String login = '/login';
   static const String punch = '/punch';
+  static const String noVisitDealer = '/notVisitDealer';
+
   static const String home = '/home';
   static const String reports = '/reports';
   static const String visits = '/visits';
@@ -39,6 +43,14 @@ class AppRouter {
         name: 'login',
         builder: (context, state) {
           return const LoginScreen();
+        },
+      ),
+
+      GoRoute(
+        path: noVisitDealer,
+        name: 'notVisitDealer',
+        builder: (context, state) {
+          return const NotVisitedDealerPage();
         },
       ),
 
@@ -93,7 +105,7 @@ class AppRouter {
                 path: visits,
                 name: 'visits',
                 builder: (context, state) {
-                  return const VisitsScreen();
+                  return const Dealerlistscreen();
                 },
               ),
             ],
