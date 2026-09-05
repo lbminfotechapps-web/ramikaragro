@@ -14,17 +14,6 @@ class FarmerListBloc extends Bloc<FarmerlistEvent, FarmerListState> {
     FarmerListEvent event,
     Emitter<FarmerListState> emit,
   ) async {
-    print('');
-    print('========================================');
-    print('BLOC EVENT RECEIVED');
-    print('========================================');
-
-    print('User ID     : ${event.user_id}');
-    print('Latitude    : ${event.currentLat}');
-    print('Longitude   : ${event.currentLong}');
-    print('Limit       : ${event.limit}');
-    print('Search Key  : ${event.searchKey}');
-
     emit(state.copyWith(status: FarmerlistStatus.loading));
 
     print('BLOC STATUS: LOADING');
@@ -34,16 +23,9 @@ class FarmerListBloc extends Bloc<FarmerlistEvent, FarmerListState> {
         event.user_id,
         event.currentLat,
         event.currentLong,
-        event.limit,
-        event.searchKey,
+        event.startLimit,
+        event.searchText,
       );
-
-      print('');
-      print('========================================');
-      print('BLOC RESPONSE');
-      print('========================================');
-
-      print('Farmers received: ${farmers.length}');
 
       for (final farmer in farmers) {
         print(
@@ -58,14 +40,6 @@ class FarmerListBloc extends Bloc<FarmerlistEvent, FarmerListState> {
 
       print('BLOC STATUS: SUCCESS');
     } catch (e, stackTrace) {
-      print('');
-      print('========================================');
-      print('BLOC ERROR');
-      print('========================================');
-
-      print('ERROR: $e');
-      print('STACK: $stackTrace');
-
       emit(
         state.copyWith(
           status: FarmerlistStatus.failure,

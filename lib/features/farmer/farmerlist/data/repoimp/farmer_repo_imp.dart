@@ -1,5 +1,3 @@
-import 'dart:ffi';
-
 import 'package:demo/features/farmer/farmerlist/data/datasource/farmerlist_datasource.dart';
 import 'package:demo/features/farmer/farmerlist/data/model/farmerlist_model.dart';
 import 'package:demo/features/farmer/farmerlist/domain/repository/farmerlist_repo.dart';
@@ -11,11 +9,7 @@ class FarmerListRepositoryImpl implements FarmerListRepository {
 
   @override
   Future<List<FarmerlistModel>> getFarmers(
-    int userId,
-    String lattitude,
-    String logitude,
-    int limit,
-    String searchKey,
+    int userId,String lattitude, String logitude,int limit,String searchKey,
   ) async {
     try {
       print('');

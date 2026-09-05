@@ -2,6 +2,7 @@ import 'package:demo/core/di/auth_di.dart';
 import 'package:demo/core/router/app_router.dart';
 import 'package:demo/core/theme/app_theme.dart';
 import 'package:demo/features/auth/presentation/bloc/auth_bloc.dart';
+import 'package:demo/features/farmer/famerfollowup/presentation/bloc/famerfollowup_bloc.dart';
 import 'package:demo/features/farmer/farmerlist/presentation/bloc/farmerlist_bloc.dart';
 import 'package:demo/features/home/presentation/home_bloc/home_bloc.dart';
 import 'package:demo/features/home/presentation/quick_aceess_bloc/quick_acess_bloc.dart';
@@ -22,6 +23,7 @@ class MyApp extends StatelessWidget {
           create: (_) => sl<NotVisitedDealerBloc>(),
         ),
         BlocProvider<FarmerListBloc>(create: (_) => sl<FarmerListBloc>()),
+        BlocProvider<FamerfollowupBloc>(create: (_) => sl<FamerfollowupBloc>()),
         BlocProvider<HomeBloc>(create: (_) => sl<HomeBloc>()),
         BlocProvider<QuickAcessBloc>(create: (_) => sl<QuickAcessBloc>()),
                 BlocProvider<EmployeeActivityBloc>(create: (_) => sl<EmployeeActivityBloc>()),
