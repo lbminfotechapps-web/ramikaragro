@@ -11,5 +11,11 @@ class ApiClient {
   static const String getEmployeeOutputReport ="/getEmployeeOutputReport";
    // ApiConfig.getEmployeeUrl() was using.
   static const String getEmployees ="/getAssignedEmployees";
+  static const String organizationDetails ="/getOrganizationDetails";
+  static const String getNotificationList = "/getNotificationList";
 
+  static const String getMyLeaveList = "/getMyLeaveList";
+  static const String addLeave = "/addLeave";
+
+ 
 }

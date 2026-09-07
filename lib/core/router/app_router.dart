@@ -9,15 +9,20 @@ import 'package:demo/features/home/presentation/home.dart';
 import 'package:demo/features/home/presentation/punch_screen.dart';
 import 'package:demo/features/home/doman/home_entity/punch_stat_entity.dart';
 import 'package:demo/features/products/presentation/pages/products_screen.dart';
+import 'package:demo/features/reports/presentation/pages/about_us_page.dart';
+import 'package:demo/features/reports/presentation/pages/contact_us_page.dart';
 import 'package:demo/features/reports/presentation/pages/employee_activity_report_page.dart';
 import 'package:demo/features/reports/presentation/pages/employee_output_report_page.dart';
 import 'package:demo/features/reports/presentation/pages/not_visited_dealer_page.dart';
+import 'package:demo/features/reports/presentation/pages/notification_page.dart';
 
 import 'package:demo/features/reports/presentation/pages/reports_scree.dart';
+import 'package:demo/features/reports/presentation/pages/user_guidelines_page.dart';
 import 'package:demo/features/reports/presentation/pages/visit_summary_page.dart';
 import 'package:demo/features/reports/presentation/bloc/employee_output_bloc.dart';
 import 'package:demo/features/reports/presentation/bloc/visit_report_bloc.dart';
 import 'package:demo/features/splash/splash_screen.dart';
+import 'package:flutter/foundation.dart';
 
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -38,6 +43,11 @@ class AppRouter {
   static const String empActivityReport = '/empActivityReport';
   static const String empOutputReport = '/empOutputReport';
   static const String visitSummaryReport = '/visitSummaryReport';
+
+  static const String aboutUs = '/aboutUs';
+  static const String contactUs = '/contactUs';
+  static const String userGuide = '/userGuide';
+   static const String notification = '/notification';
 
   static final GoRouter router = GoRouter(
     initialLocation: splash,
@@ -125,6 +135,59 @@ class AppRouter {
           );
         },
       ),
+
+
+       GoRoute(
+        path: aboutUs,
+        name: 'aboutUs',
+        builder: (context, state) {
+          return const AboutUsPage();
+        },
+      ),
+
+       GoRoute(
+        path: contactUs,
+        name: 'contactUs',
+        builder: (context, state) {
+          return const ContactUsPage();
+        },
+      ),
+
+       GoRoute(
+        path: userGuide,
+        name: 'userGuide',
+        builder: (context, state) {
+          return const UserGuidelinesPage();
+        },
+      ), 
+      
+      
+        GoRoute(
+          path: notification,
+          name: 'notification',
+          builder: (context, state) {
+            debugPrint('========================================');
+            debugPrint('NOTIFICATION ROUTER');
+            debugPrint('state.extra       : ${state.extra}');
+            debugPrint('state.extra type  : ${state.extra.runtimeType}');
+
+            final userId = state.extra is String
+                ? int.tryParse(state.extra as String) ?? 0
+                : state.extra is int
+                    ? state.extra as int
+                    : 0;
+
+            debugPrint('FINAL USER ID     : $userId');
+            debugPrint('========================================');
+
+            return NotificationPage(
+              userId: userId,
+              isLogin: true,
+              userType: '',
+            );
+          },
+        ),
+
 
       StatefulShellRoute.indexedStack(
         builder: (context, state, navigationShell) {

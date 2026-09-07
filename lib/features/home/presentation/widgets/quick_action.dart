@@ -148,7 +148,40 @@ class _QuickAccessSectionState extends State<QuickAccessSection> {
       context.go('/notVisitDealer');
     } else if (menu.menuId == '8') {
       context.go('/farmers');
-    } else if (menu.menuId == '57' ||
+    } 
+
+     else if (menu.menuId == '20') { 
+      
+     final userData = await SecureStorage.instance.getUserData(); 
+     final userId = userData?['user_id']?.toString(); 
+     debugPrint('========================================'); debugPrint('NOTIFICATION NAVIGATION'); 
+     debugPrint('USER DATA: $userData'); 
+     debugPrint('USER ID: $userId'); debugPrint('========================================'); 
+     if (!context.mounted) return; if (userId == null || userId.isEmpty) 
+     { 
+      ScaffoldMessenger.of(context).showSnackBar( const SnackBar( content: Text( 'User information is not available', ), ), ); return;
+       } context.go( '/notification', extra: userId, ); 
+       
+    }
+      
+
+     else if (menu.menuId == '21') {
+      context.go('/userGuide');
+      } 
+      
+     else if (menu.menuId == '22') {
+      context.go('/aboutUs');
+      } 
+
+      else if (menu.menuId == '23') {
+      context.go('/contactUs');
+      } 
+
+      
+     
+     
+
+    else if (menu.menuId == '57' ||
         menu.menuId == '63' ||
         menu.menuId == '32') {
       final userData = await SecureStorage.instance.getUserData();
@@ -162,6 +195,8 @@ class _QuickAccessSectionState extends State<QuickAccessSection> {
         );
         return;
       }
+
+     
 
       final route = switch (menu.menuId) {
         '57' => '/visitSummaryReport',
