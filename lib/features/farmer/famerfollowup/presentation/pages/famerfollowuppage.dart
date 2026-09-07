@@ -1,18 +1,22 @@
 import 'dart:io';
 
+import 'package:demo/core/router/app_router.dart';
+import 'package:demo/core/secure_storage/secure_storage.dart';
+import 'package:demo/features/farmer/famerfollowup/data/model/followuplist_model.dart';
+import 'package:demo/features/farmer/famerfollowup/presentation/bloc/famerfollowup_bloc.dart';
+import 'package:demo/features/farmer/famerfollowup/presentation/bloc/famerfollowup_event.dart';
+import 'package:demo/features/farmer/famerfollowup/presentation/bloc/famerfollowup_state.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:geocoding/geocoding.dart';
+import 'package:geolocator/geolocator.dart';
+import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
 
-import '../bloc/famerfollowup_bloc.dart';
-import '../bloc/famerfollowup_event.dart';
-import '../bloc/famerfollowup_state.dart';
-
 class FamerFollowupPage extends StatefulWidget {
-  final int farmerId = 12;
-  final String userId = "4";
+  final String farmerId;
 
-  const FamerFollowupPage({super.key});
+  const FamerFollowupPage({super.key, required this.farmerId});
 
   @override
   State<FamerFollowupPage> createState() => _FamerFollowupPageState();
@@ -29,6 +33,14 @@ class _FamerFollowupPageState extends State<FamerFollowupPage> {
 
   String? selectedFollowUpType;
   String? imagePath;
+  String? userId;
+
+  double? latitude;
+  double? longitude;
+
+  String geoAddress = '';
+
+  bool isLocationLoading = false;
 
   final List<String> followUpTypes = [
     'Call',
@@ -39,15 +51,192 @@ class _FamerFollowupPageState extends State<FamerFollowupPage> {
   ];
 
   @override
+  void initState() {
+    super.initState();
+
+    debugPrint('FARMER ID: ${widget.farmerId}');
+
+    _loadUserData();
+    _getCurrentLocation();
+  }
+
+  @override
   void dispose() {
     followUpDateController.dispose();
     remarkController.dispose();
     super.dispose();
   }
 
-  // ----------------------------------------------------------
+  // ==========================================================
+  // GET USER DATA
+  // ==========================================================
+
+  Future<void> _loadUserData() async {
+    try {
+      final userData = await SecureStorage.instance.getUserData();
+
+      debugPrint('USER DATA: $userData');
+
+      if (!mounted) return;
+
+      setState(() {
+        userId = userData?['user_id']?.toString();
+      });
+
+      debugPrint('LOGGED IN USER ID: $userId');
+    } catch (e) {
+      debugPrint('GET USER DATA ERROR: $e');
+
+      if (!mounted) return;
+
+      setState(() {
+        userId = null;
+      });
+    }
+  }
+
+  // ==========================================================
+  // CURRENT LOCATION
+  // ==========================================================
+
+  Future<void> _getCurrentLocation() async {
+    try {
+      if (!mounted) return;
+
+      setState(() {
+        isLocationLoading = true;
+      });
+
+      // ------------------------------------------------------
+      // Check GPS / Location Service
+      // ------------------------------------------------------
+
+      final bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
+
+      if (!serviceEnabled) {
+        if (mounted) {
+          setState(() {
+            isLocationLoading = false;
+          });
+
+          _showMessage('Please enable location/GPS');
+        }
+
+        await Geolocator.openLocationSettings();
+        return;
+      }
+
+      // ------------------------------------------------------
+      // Check Permission
+      // ------------------------------------------------------
+
+      LocationPermission permission = await Geolocator.checkPermission();
+
+      if (permission == LocationPermission.denied) {
+        permission = await Geolocator.requestPermission();
+
+        if (permission == LocationPermission.denied) {
+          if (mounted) {
+            setState(() {
+              isLocationLoading = false;
+            });
+
+            _showMessage('Location permission denied');
+          }
+
+          return;
+        }
+      }
+
+      if (permission == LocationPermission.deniedForever) {
+        if (mounted) {
+          setState(() {
+            isLocationLoading = false;
+          });
+
+          _showMessage(
+            'Location permission permanently denied. '
+            'Please enable it from Settings.',
+          );
+        }
+
+        await Geolocator.openAppSettings();
+        return;
+      }
+
+      // ------------------------------------------------------
+      // Get Current GPS Location
+      // ------------------------------------------------------
+
+      final Position position = await Geolocator.getCurrentPosition(
+        locationSettings: const LocationSettings(
+          accuracy: LocationAccuracy.high,
+        ),
+      );
+
+      latitude = position.latitude;
+      longitude = position.longitude;
+
+      debugPrint('CURRENT LATITUDE: $latitude');
+      debugPrint('CURRENT LONGITUDE: $longitude');
+
+      // ------------------------------------------------------
+      // Convert Lat/Long to Address
+      // ------------------------------------------------------
+
+      try {
+        final List<Placemark> placemarks = await placemarkFromCoordinates(
+          latitude!,
+          longitude!,
+        );
+
+        if (placemarks.isNotEmpty) {
+          final Placemark place = placemarks.first;
+
+          final List<String?> addressParts = [
+            place.name,
+            place.street,
+            place.subLocality,
+            place.locality,
+            place.administrativeArea,
+            place.postalCode,
+            place.country,
+          ];
+
+          geoAddress = addressParts
+              .where((element) => element != null && element.trim().isNotEmpty)
+              .map((element) => element!.trim())
+              .join(', ');
+
+          debugPrint('CURRENT ADDRESS: $geoAddress');
+        }
+      } catch (e) {
+        debugPrint('ADDRESS ERROR: $e');
+
+        geoAddress = 'Lat: $latitude, Long: $longitude';
+      }
+
+      if (!mounted) return;
+
+      setState(() {
+        isLocationLoading = false;
+      });
+    } catch (e) {
+      debugPrint('LOCATION ERROR: $e');
+
+      if (!mounted) return;
+
+      setState(() {
+        isLocationLoading = false;
+      });
+
+      _showMessage('Unable to get current location');
+    }
+  }
+
+  // ==========================================================
   // DATE PICKER
-  // ----------------------------------------------------------
+  // ==========================================================
 
   Future<void> _selectDate() async {
     final DateTime now = DateTime.now();
@@ -82,39 +271,59 @@ class _FamerFollowupPageState extends State<FamerFollowupPage> {
     }
   }
 
-  // ----------------------------------------------------------
-  // IMAGE PICKER
-  // ----------------------------------------------------------
+  // ==========================================================
+  // IMAGE PICKER - CAMERA
+  // ==========================================================
 
   Future<void> _captureImage() async {
-    final XFile? image = await _imagePicker.pickImage(
-      source: ImageSource.camera,
-      imageQuality: 80,
-    );
+    try {
+      final XFile? image = await _imagePicker.pickImage(
+        source: ImageSource.camera,
+        imageQuality: 80,
+      );
 
-    if (image != null) {
-      setState(() {
-        imagePath = image.path;
-      });
+      if (image != null && mounted) {
+        setState(() {
+          imagePath = image.path;
+        });
+      }
+    } catch (e) {
+      debugPrint('CAMERA ERROR: $e');
+
+      if (mounted) {
+        _showMessage('Unable to capture image');
+      }
     }
   }
+
+  // ==========================================================
+  // IMAGE PICKER - GALLERY
+  // ==========================================================
 
   Future<void> _pickFromGallery() async {
-    final XFile? image = await _imagePicker.pickImage(
-      source: ImageSource.gallery,
-      imageQuality: 80,
-    );
+    try {
+      final XFile? image = await _imagePicker.pickImage(
+        source: ImageSource.gallery,
+        imageQuality: 80,
+      );
 
-    if (image != null) {
-      setState(() {
-        imagePath = image.path;
-      });
+      if (image != null && mounted) {
+        setState(() {
+          imagePath = image.path;
+        });
+      }
+    } catch (e) {
+      debugPrint('GALLERY ERROR: $e');
+
+      if (mounted) {
+        _showMessage('Unable to select image');
+      }
     }
   }
 
-  // ----------------------------------------------------------
+  // ==========================================================
   // IMAGE OPTIONS
-  // ----------------------------------------------------------
+  // ==========================================================
 
   void _showImageOptions() {
     showModalBottomSheet(
@@ -164,7 +373,9 @@ class _FamerFollowupPageState extends State<FamerFollowupPage> {
                         },
                       ),
                     ),
+
                     const SizedBox(width: 12),
+
                     Expanded(
                       child: _imageOption(
                         icon: Icons.photo_library_rounded,
@@ -203,7 +414,9 @@ class _FamerFollowupPageState extends State<FamerFollowupPage> {
         child: Column(
           children: [
             Icon(icon, size: 30, color: const Color(0xFF087F5B)),
+
             const SizedBox(height: 8),
+
             Text(title, style: const TextStyle(fontWeight: FontWeight.w600)),
           ],
         ),
@@ -211,50 +424,128 @@ class _FamerFollowupPageState extends State<FamerFollowupPage> {
     );
   }
 
-  // ----------------------------------------------------------
+  // ==========================================================
   // SUBMIT
-  // ----------------------------------------------------------
+  // ==========================================================
 
   void _submitFollowup() {
+    // --------------------------------------------------------
+    // Validate Form
+    // --------------------------------------------------------
+
     if (!_formKey.currentState!.validate()) {
       return;
     }
 
-    if (selectedFollowUpType == null) {
+    // --------------------------------------------------------
+    // Follow-up Type
+    // --------------------------------------------------------
+
+    if (selectedFollowUpType == null || selectedFollowUpType!.isEmpty) {
       _showMessage('Please select follow-up type');
       return;
     }
+
+    // --------------------------------------------------------
+    // Date
+    // --------------------------------------------------------
 
     if (followUpDateController.text.trim().isEmpty) {
       _showMessage('Please select next follow-up date');
       return;
     }
 
+    // --------------------------------------------------------
+    // User ID
+    // --------------------------------------------------------
+
+    if (userId == null || userId!.trim().isEmpty) {
+      _showMessage('User information not available');
+      return;
+    }
+
+    // --------------------------------------------------------
+    // Farmer ID
+    // --------------------------------------------------------
+
+    if (widget.farmerId.trim().isEmpty) {
+      _showMessage('Farmer ID not available');
+      return;
+    }
+
+    // --------------------------------------------------------
+    // Location
+    // --------------------------------------------------------
+
+    if (latitude == null || longitude == null) {
+      _showMessage('Getting current location. Please try again.');
+
+      _getCurrentLocation();
+      return;
+    }
+
+    debugPrint('================ FOLLOW-UP SUBMIT ================');
+
+    debugPrint('FARMER ID: ${widget.farmerId}');
+
+    debugPrint('USER ID: $userId');
+
+    debugPrint(
+      'FOLLOW-UP DATE: '
+      '${followUpDateController.text.trim()}',
+    );
+
+    debugPrint('FOLLOW-UP TYPE: $selectedFollowUpType');
+
+    debugPrint('REMARK: ${remarkController.text.trim()}');
+
+    debugPrint('LATITUDE: $latitude');
+
+    debugPrint('LONGITUDE: $longitude');
+
+    debugPrint('ADDRESS: $geoAddress');
+
+    debugPrint('IMAGE: $imagePath');
+
+    debugPrint('===================================================');
+
+    // --------------------------------------------------------
+    // Dispatch Event
+    // --------------------------------------------------------
+
     context.read<FamerfollowupBloc>().add(
       SubmitFollowupEvent(
         farmerId: widget.farmerId,
-        userId: widget.userId,
+        userId: userId!,
 
         followUpDate: followUpDateController.text.trim(),
+
         followUpType: selectedFollowUpType!,
+
         remark: remarkController.text.trim(),
 
-        // Replace these with your actual location values.
-        latitude: 0.0,
-        longitude: 0.0,
+        latitude: latitude!,
 
-        networkLatitude: 0.0,
-        networkLongitude: 0.0,
+        longitude: longitude!,
 
-        gpsLatitude: 0.0,
-        gpsLongitude: 0.0,
+        networkLatitude: latitude!,
 
-        geoAddress: '',
+        networkLongitude: longitude!,
+
+        gpsLatitude: latitude!,
+
+        gpsLongitude: longitude!,
+
+        geoAddress: geoAddress,
+
         networkInfo: '',
+
         batteryInfo: '',
+
         differenceByAndroid: '0',
 
         statusOfFarmer: '',
+
         activityId: '6',
 
         imagePath: imagePath,
@@ -262,51 +553,69 @@ class _FamerFollowupPageState extends State<FamerFollowupPage> {
     );
   }
 
+  // ==========================================================
+  // MESSAGE
+  // ==========================================================
+
   void _showMessage(String message) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(message),
-        behavior: SnackBarBehavior.floating,
-        margin: const EdgeInsets.all(16),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      ),
-    );
+    if (!mounted) return;
+
+    ScaffoldMessenger.of(context)
+      ..hideCurrentSnackBar()
+      ..showSnackBar(
+        SnackBar(
+          content: Text(message),
+          behavior: SnackBarBehavior.floating,
+          margin: const EdgeInsets.all(16),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+        ),
+      );
   }
 
-  // ----------------------------------------------------------
+  // ==========================================================
   // BUILD
-  // ----------------------------------------------------------
+  // ==========================================================
 
   @override
   Widget build(BuildContext context) {
     return BlocListener<FamerfollowupBloc, FamerfollowupState>(
       listener: (context, state) {
-        if (state is FamerfollowupSuccess) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(state.message),
-              behavior: SnackBarBehavior.floating,
-              backgroundColor: const Color(0xFF087F5B),
-              margin: const EdgeInsets.all(16),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
-              ),
-            ),
-          );
+        // ----------------------------------------------------
+        // SUCCESS
+        // ----------------------------------------------------
 
-          Navigator.pop(context);
+        if (state.status == FamerfollowupStatus.success) {
+          ScaffoldMessenger.of(context)
+            ..hideCurrentSnackBar()
+            ..showSnackBar(
+              const SnackBar(
+                content: Text('Record Submitted Successfully'),
+                behavior: SnackBarBehavior.floating,
+                backgroundColor: Color(0xFF087F5B),
+                margin: EdgeInsets.all(16),
+              ),
+            );
+
+          context.go(AppRouter.home);
         }
 
-        if (state is FamerfollowupFailure) {
-          _showMessage(state.message);
+        // ----------------------------------------------------
+        // FAILURE
+        // ----------------------------------------------------
+
+        if (state.status == FamerfollowupStatus.failure) {
+          _showMessage(state.errorMessage ?? 'Failed to submit record');
         }
       },
+
       child: Scaffold(
         backgroundColor: const Color(0xFFF6F8F7),
 
-        // ----------------------------------------------------
+        // ====================================================
         // APP BAR
-        // ----------------------------------------------------
+        // ====================================================
         appBar: AppBar(
           elevation: 0,
           backgroundColor: Colors.white,
@@ -332,7 +641,9 @@ class _FamerFollowupPageState extends State<FamerFollowupPage> {
                   fontWeight: FontWeight.w700,
                 ),
               ),
+
               SizedBox(height: 2),
+
               Text(
                 'Add farmer follow-up',
                 style: TextStyle(
@@ -345,9 +656,9 @@ class _FamerFollowupPageState extends State<FamerFollowupPage> {
           ),
         ),
 
-        // ----------------------------------------------------
+        // ====================================================
         // BODY
-        // ----------------------------------------------------
+        // ====================================================
         body: SafeArea(
           child: Form(
             key: _formKey,
@@ -357,12 +668,9 @@ class _FamerFollowupPageState extends State<FamerFollowupPage> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Header Card
-                  _buildHeaderCard(),
-
+                  _buildHistoryStrip(),
                   const SizedBox(height: 18),
 
-                  // Follow-up details
                   _sectionTitle(
                     icon: Icons.event_note_rounded,
                     title: 'Follow-up Details',
@@ -382,7 +690,6 @@ class _FamerFollowupPageState extends State<FamerFollowupPage> {
 
                   const SizedBox(height: 22),
 
-                  // Image
                   _sectionTitle(
                     icon: Icons.photo_camera_back_rounded,
                     title: 'Follow-up Image',
@@ -394,7 +701,10 @@ class _FamerFollowupPageState extends State<FamerFollowupPage> {
 
                   const SizedBox(height: 24),
 
-                  // Info
+                  _buildLocationCard(),
+
+                  const SizedBox(height: 16),
+
                   _buildInfoCard(),
                 ],
               ),
@@ -402,12 +712,12 @@ class _FamerFollowupPageState extends State<FamerFollowupPage> {
           ),
         ),
 
-        // ----------------------------------------------------
+        // ====================================================
         // BOTTOM SUBMIT BUTTON
-        // ----------------------------------------------------
+        // ====================================================
         bottomSheet: BlocBuilder<FamerfollowupBloc, FamerfollowupState>(
           builder: (context, state) {
-            final bool loading = state is FamerfollowupLoading;
+            final bool loading = state.status == FamerfollowupStatus.loading;
 
             return Container(
               padding: const EdgeInsets.fromLTRB(16, 12, 16, 14),
@@ -428,14 +738,17 @@ class _FamerFollowupPageState extends State<FamerFollowupPage> {
                   width: double.infinity,
                   child: ElevatedButton(
                     onPressed: loading ? null : _submitFollowup,
+
                     style: ElevatedButton.styleFrom(
                       backgroundColor: const Color(0xFF087F5B),
                       foregroundColor: Colors.white,
                       elevation: 0,
+                      disabledBackgroundColor: const Color(0xFF9DBDB1),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(16),
                       ),
                     ),
+
                     child: loading
                         ? const SizedBox(
                             height: 23,
@@ -452,7 +765,9 @@ class _FamerFollowupPageState extends State<FamerFollowupPage> {
                                 Icons.check_circle_outline_rounded,
                                 size: 21,
                               ),
+
                               SizedBox(width: 9),
+
                               Text(
                                 'Submit Follow-up',
                                 style: TextStyle(
@@ -473,66 +788,6 @@ class _FamerFollowupPageState extends State<FamerFollowupPage> {
   }
 
   // ==========================================================
-  // HEADER CARD
-  // ==========================================================
-
-  Widget _buildHeaderCard() {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(18),
-      decoration: BoxDecoration(
-        gradient: const LinearGradient(
-          colors: [Color(0xFF087F5B), Color(0xFF0B9A70)],
-        ),
-        borderRadius: BorderRadius.circular(22),
-      ),
-      child: Row(
-        children: [
-          Container(
-            height: 50,
-            width: 50,
-            decoration: BoxDecoration(
-              color: Colors.white.withOpacity(.16),
-              borderRadius: BorderRadius.circular(16),
-            ),
-            child: const Icon(
-              Icons.person_pin_circle_rounded,
-              color: Colors.white,
-              size: 28,
-            ),
-          ),
-
-          const SizedBox(width: 13),
-
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Text(
-                  'Farmer Follow-up',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 17,
-                    fontWeight: FontWeight.w700,
-                  ),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  'Record your next interaction',
-                  style: TextStyle(
-                    color: Colors.white.withOpacity(.82),
-                    fontSize: 12.5,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  // ==========================================================
   // SECTION TITLE
   // ==========================================================
 
@@ -547,7 +802,9 @@ class _FamerFollowupPageState extends State<FamerFollowupPage> {
           ),
           child: Icon(icon, size: 17, color: const Color(0xFF087F5B)),
         ),
+
         const SizedBox(width: 9),
+
         Text(
           title,
           style: const TextStyle(
@@ -560,6 +817,98 @@ class _FamerFollowupPageState extends State<FamerFollowupPage> {
     );
   }
 
+  Widget _buildHistoryStrip() {
+    return Material(
+      color: Colors.white,
+      borderRadius: BorderRadius.circular(16),
+      child: InkWell(
+        onTap: _showFollowupHistory,
+        borderRadius: BorderRadius.circular(16),
+        child: Container(
+          width: double.infinity,
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(color: const Color(0xFFDCE5E1)),
+          ),
+          child: Row(
+            children: [
+              Container(
+                height: 40,
+                width: 40,
+                decoration: BoxDecoration(
+                  color: const Color(0xFFE8F5F0),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: const Icon(
+                  Icons.history_rounded,
+                  color: Color(0xFF087F5B),
+                  size: 22,
+                ),
+              ),
+
+              const SizedBox(width: 12),
+
+              const Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Follow-up History',
+                      style: TextStyle(
+                        color: Color(0xFF172B24),
+                        fontSize: 14,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                    SizedBox(height: 3),
+                    Text(
+                      'View previous farmer follow-ups',
+                      style: TextStyle(
+                        color: Color(0xFF7A8983),
+                        fontSize: 11.5,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+
+              Container(
+                height: 34,
+                width: 34,
+                decoration: BoxDecoration(
+                  color: const Color(0xFFF3F8F6),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: const Icon(
+                  Icons.arrow_forward_ios_rounded,
+                  size: 14,
+                  color: Color(0xFF087F5B),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  void _showFollowupHistory() {
+    context.read<FamerfollowupBloc>().add(
+      GetRemarkHistoryEvent(farmerId: widget.farmerId),
+    );
+
+    showDialog(
+      context: context,
+      barrierDismissible: true,
+      builder: (dialogContext) {
+        return BlocProvider.value(
+          value: context.read<FamerfollowupBloc>(),
+          child: _FollowupHistoryDialog(farmerId: widget.farmerId),
+        );
+      },
+    );
+  }
   // ==========================================================
   // FOLLOW-UP TYPE
   // ==========================================================
@@ -603,6 +952,7 @@ class _FamerFollowupPageState extends State<FamerFollowupPage> {
         if (value == null || value.isEmpty) {
           return 'Please select follow-up type';
         }
+
         return null;
       },
     );
@@ -632,6 +982,7 @@ class _FamerFollowupPageState extends State<FamerFollowupPage> {
         if (value == null || value.trim().isEmpty) {
           return 'Please select next follow-up date';
         }
+
         return null;
       },
     );
@@ -695,7 +1046,9 @@ class _FamerFollowupPageState extends State<FamerFollowupPage> {
                   icon: Icons.refresh_rounded,
                   onTap: _showImageOptions,
                 ),
+
                 const SizedBox(width: 8),
+
                 _imageActionButton(
                   icon: Icons.delete_outline_rounded,
                   onTap: () {
@@ -781,6 +1134,122 @@ class _FamerFollowupPageState extends State<FamerFollowupPage> {
   }
 
   // ==========================================================
+  // LOCATION CARD
+  // ==========================================================
+
+  Widget _buildLocationCard() {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(15),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: const Color(0xFFDCE5E1)),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            padding: const EdgeInsets.all(9),
+            decoration: BoxDecoration(
+              color: const Color(0xFFE5F3EE),
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: const Icon(
+              Icons.location_on_rounded,
+              color: Color(0xFF087F5B),
+              size: 20,
+            ),
+          ),
+
+          const SizedBox(width: 12),
+
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text(
+                  'Current Location',
+                  style: TextStyle(
+                    color: Color(0xFF172B24),
+                    fontSize: 13.5,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+
+                const SizedBox(height: 5),
+
+                if (isLocationLoading)
+                  const Row(
+                    children: [
+                      SizedBox(
+                        height: 14,
+                        width: 14,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          color: Color(0xFF087F5B),
+                        ),
+                      ),
+                      SizedBox(width: 8),
+                      Text(
+                        'Getting location...',
+                        style: TextStyle(
+                          color: Color(0xFF7A8983),
+                          fontSize: 12,
+                        ),
+                      ),
+                    ],
+                  )
+                else if (latitude != null && longitude != null)
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        '${latitude!.toStringAsFixed(6)}, '
+                        '${longitude!.toStringAsFixed(6)}',
+                        style: const TextStyle(
+                          color: Color(0xFF087F5B),
+                          fontSize: 12,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+
+                      if (geoAddress.isNotEmpty) ...[
+                        const SizedBox(height: 4),
+                        Text(
+                          geoAddress,
+                          style: const TextStyle(
+                            color: Color(0xFF7A8983),
+                            fontSize: 11.5,
+                            height: 1.35,
+                          ),
+                        ),
+                      ],
+                    ],
+                  )
+                else
+                  const Text(
+                    'Location not available',
+                    style: TextStyle(color: Color(0xFF9AA6A1), fontSize: 12),
+                  ),
+              ],
+            ),
+          ),
+
+          IconButton(
+            onPressed: isLocationLoading ? null : _getCurrentLocation,
+            icon: const Icon(
+              Icons.refresh_rounded,
+              color: Color(0xFF087F5B),
+              size: 20,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // ==========================================================
   // INFO CARD
   // ==========================================================
 
@@ -796,7 +1265,9 @@ class _FamerFollowupPageState extends State<FamerFollowupPage> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Icon(Icons.info_outline_rounded, color: Color(0xFF087F5B), size: 20),
+
           SizedBox(width: 10),
+
           Expanded(
             child: Text(
               'Add the next follow-up date and a clear remark so the farmer interaction can be tracked properly.',
@@ -862,6 +1333,356 @@ class _FamerFollowupPageState extends State<FamerFollowupPage> {
       focusedErrorBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(16),
         borderSide: const BorderSide(color: Colors.redAccent, width: 1.5),
+      ),
+    );
+  }
+}
+
+class _FollowupHistoryDialog extends StatelessWidget {
+  final String farmerId;
+
+  const _FollowupHistoryDialog({required this.farmerId});
+
+  @override
+  Widget build(BuildContext context) {
+    return Dialog(
+      backgroundColor: Colors.transparent,
+      insetPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 30),
+      child: Container(
+        constraints: const BoxConstraints(maxHeight: 650),
+        decoration: BoxDecoration(
+          color: const Color(0xFFF6F8F7),
+          borderRadius: BorderRadius.circular(24),
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            _buildHeader(context),
+
+            Expanded(
+              child: BlocBuilder<FamerfollowupBloc, FamerfollowupState>(
+                builder: (context, state) {
+                  if (state.historyStatus == FollowupHistoryStatus.loading) {
+                    return const Center(
+                      child: CircularProgressIndicator(
+                        color: Color(0xFF087F5B),
+                      ),
+                    );
+                  }
+
+                  if (state.historyStatus == FollowupHistoryStatus.failure) {
+                    return _buildError(context, state.historyError);
+                  }
+
+                  if (state.historyList.isEmpty) {
+                    return _buildEmpty();
+                  }
+
+                  return ListView.separated(
+                    padding: const EdgeInsets.fromLTRB(16, 12, 16, 20),
+                    physics: const BouncingScrollPhysics(),
+                    itemCount: state.historyList.length,
+                    separatorBuilder: (_, __) => const SizedBox(height: 10),
+                    itemBuilder: (context, index) {
+                      final item = state.historyList[index];
+
+                      return _buildHistoryItem(item);
+                    },
+                  );
+                },
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildHeader(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.fromLTRB(18, 18, 10, 16),
+      decoration: const BoxDecoration(
+        gradient: LinearGradient(
+          colors: [Color(0xFF087F5B), Color(0xFF0B9A70)],
+        ),
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      child: Row(
+        children: [
+          Container(
+            height: 42,
+            width: 42,
+            decoration: BoxDecoration(
+              color: Colors.white.withOpacity(.16),
+              borderRadius: BorderRadius.circular(13),
+            ),
+            child: const Icon(
+              Icons.history_rounded,
+              color: Colors.white,
+              size: 23,
+            ),
+          ),
+
+          const SizedBox(width: 12),
+
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text(
+                  'Follow-up History',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 17,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+
+                const SizedBox(height: 3),
+
+                Text(
+                  'Farmer ID: $farmerId',
+                  style: TextStyle(
+                    color: Colors.white.withOpacity(.8),
+                    fontSize: 11.5,
+                  ),
+                ),
+              ],
+            ),
+          ),
+
+          IconButton(
+            onPressed: () {
+              Navigator.pop(context);
+            },
+            icon: const Icon(Icons.close_rounded, color: Colors.white),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildHistoryItem(RemarkListModel item) {
+    return Container(
+      padding: const EdgeInsets.all(15),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(17),
+        border: Border.all(color: const Color(0xFFDCE5E1)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // DATE + TIME
+          Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 6),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFE8F5F0),
+                  borderRadius: BorderRadius.circular(9),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Icon(
+                      Icons.calendar_today_rounded,
+                      size: 13,
+                      color: Color(0xFF087F5B),
+                    ),
+                    const SizedBox(width: 5),
+                    Text(
+                      item.fldDate,
+                      style: const TextStyle(
+                        color: Color(0xFF087F5B),
+                        fontSize: 11.5,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+
+              const Spacer(),
+
+              const Icon(
+                Icons.access_time_rounded,
+                size: 15,
+                color: Color(0xFF8A9792),
+              ),
+
+              const SizedBox(width: 4),
+
+              Text(
+                item.fldTime,
+                style: const TextStyle(
+                  color: Color(0xFF7A8983),
+                  fontSize: 11.5,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ],
+          ),
+
+          const SizedBox(height: 13),
+
+          // ADMIN
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Icon(
+                Icons.person_outline_rounded,
+                size: 18,
+                color: Color(0xFF087F5B),
+              ),
+
+              const SizedBox(width: 8),
+
+              Expanded(
+                child: Text(
+                  item.fldAdmName.isEmpty ? '-' : item.fldAdmName,
+                  style: const TextStyle(
+                    color: Color(0xFF172B24),
+                    fontSize: 13,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+              ),
+            ],
+          ),
+
+          const SizedBox(height: 8),
+
+          // OUTLET
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Icon(
+                Icons.storefront_outlined,
+                size: 18,
+                color: Color(0xFF087F5B),
+              ),
+
+              const SizedBox(width: 8),
+
+              Expanded(
+                child: Text(
+                  item.fldOutletName.isEmpty ? '-' : item.fldOutletName,
+                  style: const TextStyle(
+                    color: Color(0xFF53645D),
+                    fontSize: 12.5,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ),
+            ],
+          ),
+
+          const SizedBox(height: 13),
+
+          // REMARK
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: const Color(0xFFF5F8F6),
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Icon(
+                  Icons.notes_rounded,
+                  size: 17,
+                  color: Color(0xFF087F5B),
+                ),
+
+                const SizedBox(width: 8),
+
+                Expanded(
+                  child: Text(
+                    item.fldRemark.isEmpty ? 'No remark' : item.fldRemark,
+                    style: const TextStyle(
+                      color: Color(0xFF40534B),
+                      fontSize: 12.5,
+                      height: 1.4,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildEmpty() {
+    return const Center(
+      child: Padding(
+        padding: EdgeInsets.all(30),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(
+              Icons.history_toggle_off_rounded,
+              size: 55,
+              color: Color(0xFFB4C3BD),
+            ),
+
+            SizedBox(height: 14),
+
+            Text(
+              'No Follow-up History',
+              style: TextStyle(
+                color: Color(0xFF172B24),
+                fontSize: 15,
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+
+            SizedBox(height: 5),
+
+            Text(
+              'No previous follow-ups found for this farmer.',
+              textAlign: TextAlign.center,
+              style: TextStyle(color: Color(0xFF7A8983), fontSize: 12),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildError(BuildContext context, String? error) {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(30),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Icon(
+              Icons.error_outline_rounded,
+              size: 50,
+              color: Colors.redAccent,
+            ),
+
+            const SizedBox(height: 12),
+
+            const Text(
+              'Unable to load history',
+              style: TextStyle(fontSize: 15, fontWeight: FontWeight.w700),
+            ),
+
+            const SizedBox(height: 5),
+
+            Text(
+              error ?? 'Something went wrong',
+              textAlign: TextAlign.center,
+              style: const TextStyle(color: Color(0xFF7A8983), fontSize: 12),
+            ),
+          ],
+        ),
       ),
     );
   }

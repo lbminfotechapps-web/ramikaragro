@@ -1,8 +1,8 @@
 import 'package:demo/core/utility/widgets/bottom_navigation.dart';
 import 'package:demo/core/di/auth_di.dart';
 import 'package:demo/features/auth/presentation/pages/login_screen.dart';
-import 'package:demo/features/farmer/famerfollowup/presentation/pages/FamerFollowupPage.dart';
 import 'package:demo/features/dealer/presentation/pages/DealerListScreen.dart';
+import 'package:demo/features/farmer/famerfollowup/presentation/pages/famerfollowuppage.dart';
 import 'package:demo/features/farmer/farmerlist/presentation/pages/farmerlist_screen.dart';
 
 import 'package:demo/features/home/presentation/home.dart';
@@ -76,7 +76,8 @@ class AppRouter {
         path: farmerpin,
         name: 'farmerpin',
         builder: (context, state) {
-          return const FamerFollowupPage();
+          final farmerId = state.extra is String ? state.extra as String : '';
+          return FamerFollowupPage(farmerId: farmerId);
         },
       ),
       GoRoute(
