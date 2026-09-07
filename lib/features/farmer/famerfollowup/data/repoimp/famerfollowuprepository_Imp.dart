@@ -1,4 +1,5 @@
 import 'package:demo/features/farmer/famerfollowup/data/datasource/famerfollowup_datasource.dart';
+import 'package:demo/features/farmer/famerfollowup/data/model/followuplist_model.dart';
 import 'package:demo/features/farmer/famerfollowup/data/model/submitFollowup_mode.dart';
 import 'package:demo/features/farmer/famerfollowup/domain/repository/famerfollowup_repository.dart';
 
@@ -9,7 +10,7 @@ class FamerfollowupRepositoryImpl implements FamerfollowupRepository {
 
   @override
   Future<SubmitFollowupModel> submitFollowup({
-    required int farmerId,
+    required String farmerId,
     required String userId,
     required String followUpDate,
     required String followUpType,
@@ -49,9 +50,13 @@ class FamerfollowupRepositoryImpl implements FamerfollowupRepository {
       imagePath: imagePath,
     );
 
-    return SubmitFollowupModel(
-      status: response.status,
-      message: response.message,
-    );
+    return SubmitFollowupModel(status: response.status);
+  }
+
+  @override
+  Future<List<RemarkListModel>> getRemarkHistory({
+    required String farmerId,
+  }) async {
+    return await datasource.getRemarkHistory(farmerId: farmerId);
   }
 }

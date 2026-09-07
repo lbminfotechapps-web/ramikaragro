@@ -763,7 +763,7 @@ class _FarmerListItem extends StatelessWidget {
                   // PIN BUTTON WITH WHITE CIRCLE BACKGROUND
                   InkWell(
                     onTap: () {
-                      context.go('/farmerpin');
+                      context.go('/farmerpin', extra: farmer.farmerId);
                     },
                     borderRadius: BorderRadius.circular(20),
                     child: Container(

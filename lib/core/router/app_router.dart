@@ -1,13 +1,14 @@
 import 'package:demo/core/utility/widgets/bottom_navigation.dart';
 import 'package:demo/core/di/auth_di.dart';
 import 'package:demo/features/auth/presentation/pages/login_screen.dart';
-import 'package:demo/features/farmer/famerfollowup/presentation/pages/FamerFollowupPage.dart';
 import 'package:demo/features/dealer/presentation/pages/DealerListScreen.dart';
+import 'package:demo/features/farmer/famerfollowup/presentation/pages/famerfollowuppage.dart';
 import 'package:demo/features/farmer/farmerlist/presentation/pages/farmerlist_screen.dart';
 
 import 'package:demo/features/home/presentation/home.dart';
 import 'package:demo/features/home/presentation/punch_screen.dart';
 import 'package:demo/features/home/doman/home_entity/punch_stat_entity.dart';
+import 'package:demo/features/home/presentation/punch_out_screen.dart';
 import 'package:demo/features/products/presentation/pages/products_screen.dart';
 import 'package:demo/features/reports/presentation/pages/about_us_page.dart';
 import 'package:demo/features/reports/presentation/pages/contact_us_page.dart';
@@ -30,7 +31,8 @@ import 'package:go_router/go_router.dart';
 class AppRouter {
   static const String splash = '/splash';
   static const String login = '/login';
-  static const String punch = '/punch';
+  static const String punch = '/punchIn';
+  static const String punchOut = '/punchOut';
   static const String noVisitDealer = '/notVisitDealer';
 
   static const String home = '/home';
@@ -86,17 +88,29 @@ class AppRouter {
         path: farmerpin,
         name: 'farmerpin',
         builder: (context, state) {
-          return const FamerFollowupPage();
+          final farmerId = state.extra is String ? state.extra as String : '';
+          return FamerFollowupPage(farmerId: farmerId);
         },
       ),
       GoRoute(
         path: punch,
-        name: 'punch',
+        name: 'punchIn',
         builder: (context, state) {
           final punchStat = state.extra is PunchStatEntity
               ? state.extra as PunchStatEntity
               : null;
           return PunchScreen(punchStat: punchStat);
+        },
+      ),
+
+      GoRoute(
+        path: punchOut,
+        name: 'punchOut',
+        builder: (context, state) {
+          final punchStat = state.extra is PunchStatEntity
+              ? state.extra as PunchStatEntity
+              : null;
+          return PunchOutScreen(punchStat);
         },
       ),
 

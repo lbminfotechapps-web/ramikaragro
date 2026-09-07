@@ -1,42 +1,39 @@
 import 'dart:io';
 
-import 'package:demo/core/theme/app_colors.dart';
+import 'package:demo/core/router/app_router.dart';
 import 'package:demo/core/secure_storage/secure_storage.dart';
+import 'package:demo/core/theme/app_colors.dart';
 import 'package:demo/core/utility/app_image_picker.dart';
 import 'package:demo/core/utility/device_info_util.dart';
 import 'package:demo/core/utility/location_util.dart';
 import 'package:demo/core/utility/widgets/custom_appbar.dart';
-import 'package:demo/core/router/app_router.dart';
 import 'package:demo/core/utility/widgets/custom_button.dart';
 import 'package:demo/core/utility/widgets/custom_textformfield.dart';
 import 'package:demo/features/home/doman/home_entity/punch_stat_entity.dart';
 import 'package:demo/features/home/doman/home_entity/vehicle_type_entity.dart';
-import 'package:demo/features/home/presentation/quick_aceess_bloc/quick_acess_bloc.dart';
-import 'package:demo/features/home/presentation/quick_aceess_bloc/quick_access_event.dart';
+import 'package:demo/features/home/presentation/quick_aceess_bloc/quick_access_event.dart' show PunchInOutDetailsAddEvent, VehicleTypeEvent;
 import 'package:demo/features/home/presentation/quick_aceess_bloc/quick_access_state.dart';
+import 'package:demo/features/home/presentation/quick_aceess_bloc/quick_acess_bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil_plus/flutter_screenutil_plus.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 
-class PunchScreen extends StatefulWidget {
+class PunchOutScreen extends StatefulWidget {
   final PunchStatEntity? punchStat;
-
-  const PunchScreen({super.key, this.punchStat});
+  const PunchOutScreen(this.punchStat, {super.key});
 
   @override
-  State<PunchScreen> createState() => _PunchScreenState();
+  State<PunchOutScreen> createState() => _PunchOutScreenState();
 }
 
-class _PunchScreenState extends State<PunchScreen> {
+class _PunchOutScreenState extends State<PunchOutScreen> {
   String get nextInOutStatus {
     final currentStatus = widget.punchStat?.inOutStatus ?? '0';
 
     return currentStatus == '0' ? '1' : '0';
   }
-
-  bool _isSubmitting = false;
 
   final _formKey = GlobalKey<FormState>();
 
@@ -100,8 +97,6 @@ class _PunchScreenState extends State<PunchScreen> {
   }
 
   Future<void> _submitPunch() async {
-    if (_isSubmitting) return;
-
     if (!_formKey.currentState!.validate()) {
       return;
     }
@@ -120,7 +115,43 @@ class _PunchScreenState extends State<PunchScreen> {
       return;
     }
 
+    // -----------------------------
+    // Device information
+    // -----------------------------
+
+    final batteryInfo = await DeviceInfoUtil.instance.getBatteryInfo();
+
+    final networkInfo = await DeviceInfoUtil.instance.getNetworkInfo();
+
+    // -----------------------------
+    // Location information
+    // -----------------------------
+
+    final position = await LocationUtil.instance.getCurrentLocation();
+
+    String latitude = '';
+    String longitude = '';
+    String address = '';
+
+    if (position != null) {
+      latitude = position.latitude.toString();
+      longitude = position.longitude.toString();
+
+      address = await LocationUtil.instance.getAddress(
+        position.latitude,
+        position.longitude,
+      );
+    }
+
+    // -----------------------------
+    // Submit Event
+    // -----------------------------
+
+    if (!mounted) return;
+
     final vehicleTypeId = selectedVehicleId;
+
+    print('FINAL vehicleTypeId: $vehicleTypeId');
 
     if (vehicleTypeId == null || vehicleTypeId.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -129,218 +160,42 @@ class _PunchScreenState extends State<PunchScreen> {
       return;
     }
 
-    // Start button loader
-    setState(() {
-      _isSubmitting = true;
-    });
+    context.read<QuickAcessBloc>().add(
+      PunchInOutDetailsAddEvent(
+        userId: userId,
+        inOutStatus: nextInOutStatus,
 
-    try {
-      // -----------------------------
-      // Device information
-      // -----------------------------
+        batteryInfo: batteryInfo,
+        networkInfo: networkInfo,
 
-      final batteryInfo = await DeviceInfoUtil.instance.getBatteryInfo();
+        latitude: latitude,
+        longitude: longitude,
 
-      final networkInfo = await DeviceInfoUtil.instance.getNetworkInfo();
+        networkLatitude: latitude,
+        networkLongitude: longitude,
 
-      // -----------------------------
-      // Location information
-      // -----------------------------
+        gpsLatitude: latitude,
+        gpsLongitude: longitude,
 
-      final position = await LocationUtil.instance.getCurrentLocation();
+        geoAddress: address,
 
-      String latitude = '';
-      String longitude = '';
-      String address = '';
+        pinRemark: remarkController.text.trim(),
 
-      if (position != null) {
-        latitude = position.latitude.toString();
-        longitude = position.longitude.toString();
+        startingClosingKmAmount: isPunchIn
+            ? closingKmController.text.trim()
+            : openingKmController.text.trim(),
 
-        address = await LocationUtil.instance.getAddress(
-          position.latitude,
-          position.longitude,
-        );
-      }
+        vehicleTypeId: vehicleTypeId,
 
-      if (!mounted) return;
+        route: routeController.text.trim(),
 
-      debugPrint('FINAL vehicleTypeId: $vehicleTypeId');
+        startingKmImage: isPunchIn ? '' : _uploadedImage?.path ?? '',
 
-      debugPrint(
-        'Current status: '
-        '${widget.punchStat?.inOutStatus}',
-      );
+        closingKmImage: isPunchIn ? _uploadedImage?.path ?? '' : '',
 
-      debugPrint('Next status: $nextInOutStatus');
-
-      // -----------------------------
-      // Submit event
-      // -----------------------------
-
-      context.read<QuickAcessBloc>().add(
-        PunchInOutDetailsAddEvent(
-          userId: userId,
-
-          // 0 -> 1
-          // 1 -> 0
-          inOutStatus: nextInOutStatus,
-
-          batteryInfo: batteryInfo,
-          networkInfo: networkInfo,
-
-          latitude: latitude,
-          longitude: longitude,
-
-          networkLatitude: latitude,
-          networkLongitude: longitude,
-
-          gpsLatitude: latitude,
-          gpsLongitude: longitude,
-
-          geoAddress: address,
-
-          pinRemark: remarkController.text.trim(),
-
-          startingClosingKmAmount: isPunchIn
-              ? closingKmController.text.trim()
-              : openingKmController.text.trim(),
-
-          vehicleTypeId: vehicleTypeId,
-
-          route: routeController.text.trim(),
-
-          startingKmImage: isPunchIn ? '' : _uploadedImage?.path ?? '',
-
-          closingKmImage: isPunchIn ? _uploadedImage?.path ?? '' : '',
-
-          // IMPORTANT:
-          // Don't use widget.punchStat.toString()
-          activityId: widget.punchStat?.dailyTranId ?? '',
-        ),
-      );
-    } catch (e) {
-      if (!mounted) return;
-
-      setState(() {
-        _isSubmitting = false;
-      });
-
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text(e.toString())));
-    }
-  }
-
-  // Future<void> _submitPunch() async {
-  //   if (!_formKey.currentState!.validate()) {
-  //     return;
-  //   }
-
-  //   final userData = await SecureStorage.instance.getUserData();
-
-  //   final userId = int.tryParse(userData?['user_id']?.toString() ?? '');
-
-  //   if (userId == null) {
-  //     if (!mounted) return;
-
-  //     ScaffoldMessenger.of(context).showSnackBar(
-  //       const SnackBar(content: Text('User information not found')),
-  //     );
-
-  //     return;
-  //   }
-
-  //   // -----------------------------
-  //   // Device information
-  //   // -----------------------------
-
-  //   final batteryInfo = await DeviceInfoUtil.instance.getBatteryInfo();
-
-  //   final networkInfo = await DeviceInfoUtil.instance.getNetworkInfo();
-
-  //   // -----------------------------
-  //   // Location information
-  //   // -----------------------------
-
-  //   final position = await LocationUtil.instance.getCurrentLocation();
-
-  //   String latitude = '';
-  //   String longitude = '';
-  //   String address = '';
-
-  //   if (position != null) {
-  //     latitude = position.latitude.toString();
-  //     longitude = position.longitude.toString();
-
-  //     address = await LocationUtil.instance.getAddress(
-  //       position.latitude,
-  //       position.longitude,
-  //     );
-  //   }
-
-  //   // -----------------------------
-  //   // Submit Event
-  //   // -----------------------------
-
-  //   if (!mounted) return;
-
-  //   final vehicleTypeId = selectedVehicleId;
-
-  //   print('FINAL vehicleTypeId: $vehicleTypeId');
-
-  //   if (vehicleTypeId == null || vehicleTypeId.isEmpty) {
-  //     ScaffoldMessenger.of(context).showSnackBar(
-  //       const SnackBar(content: Text('Please select a vehicle type')),
-  //     );
-  //     return;
-  //   }
-
-  //   context.read<QuickAcessBloc>().add(
-  //     PunchInOutDetailsAddEvent(
-  //       userId: userId,
-  //       inOutStatus: nextInOutStatus,
-
-  //       batteryInfo: batteryInfo,
-  //       networkInfo: networkInfo,
-
-  //       latitude: latitude,
-  //       longitude: longitude,
-
-  //       networkLatitude: latitude,
-  //       networkLongitude: longitude,
-
-  //       gpsLatitude: latitude,
-  //       gpsLongitude: longitude,
-
-  //       geoAddress: address,
-
-  //       pinRemark: remarkController.text.trim(),
-
-  //       startingClosingKmAmount: isPunchIn
-  //           ? closingKmController.text.trim()
-  //           : openingKmController.text.trim(),
-
-  //       vehicleTypeId: vehicleTypeId,
-
-  //       route: routeController.text.trim(),
-
-  //       startingKmImage: isPunchIn ? '' : _uploadedImage?.path ?? '',
-
-  //       closingKmImage: isPunchIn ? _uploadedImage?.path ?? '' : '',
-
-  //       activityId: widget.punchStat.toString(),
-  //     ),
-  //   );
-  // }
-
-  @override
-  void dispose() {
-    openingKmController.dispose();
-    closingKmController.dispose();
-    routeController.dispose();
-    remarkController.dispose();
-    super.dispose();
+        activityId: widget.punchStat.toString(),
+      ),
+    );
   }
 
   @override
@@ -472,10 +327,7 @@ class _PunchScreenState extends State<PunchScreen> {
     );
   }
 
-  // ------------------------------------------------------------
-  // VEHICLE DROPDOWN
-  // ------------------------------------------------------------
-
+    // ------------------------------------------------------------
   VehicleTypeEntity? _selectedVehicle(QuickAccessState state) {
     if (state.vehicleList.isEmpty) {
       return state.selectedVehicle;
