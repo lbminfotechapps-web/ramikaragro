@@ -24,7 +24,7 @@ class FamerFollowupPage extends StatefulWidget {
 
 class _FamerFollowupPageState extends State<FamerFollowupPage> {
   final _formKey = GlobalKey<FormState>();
-
+  final Geocoding _geocoding = Geocoding();
   final TextEditingController followUpDateController = TextEditingController();
 
   final TextEditingController remarkController = TextEditingController();
@@ -185,10 +185,8 @@ class _FamerFollowupPageState extends State<FamerFollowupPage> {
       // ------------------------------------------------------
 
       try {
-        final List<Placemark> placemarks = await placemarkFromCoordinates(
-          latitude!,
-          longitude!,
-        );
+        final List<Placemark> placemarks = await _geocoding
+            .placemarkFromCoordinates(latitude!, longitude!);
 
         if (placemarks.isNotEmpty) {
           final Placemark place = placemarks.first;
