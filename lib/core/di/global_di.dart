@@ -4,6 +4,8 @@ import 'package:demo/core/di/employee_activity_report_di.dart';
 import 'package:demo/core/di/employee_output_di.dart';
 import 'package:demo/core/di/farmer_di.dart';
 import 'package:demo/core/di/home_di.dart';
+import 'package:demo/core/di/notification_di.dart';
+import 'package:demo/core/di/organization_di.dart';
 import 'package:demo/core/di/visit_report_di.dart';
 import 'package:get_it/get_it.dart';
 
@@ -29,5 +31,8 @@ Future<void> initGlobalDi() async {
   await initEmployeeActivityDi();
   await initVisitReportDi();
   await initEmployeeOutputDi();
+
+
+  await initNotificationDi();
   
 }

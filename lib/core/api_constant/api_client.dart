@@ -7,16 +7,17 @@ class ApiClient {
   static const String login = "/user_login";
   static const String userMenu = "/getUserMenu_new";
   static const String punchStatus = "/getLastTransactionInOutStatus";
-  static const String getLastThirtyNotVisited = "/getLastThiertyNotVisited";
-  static const String getEmployeeActivityDetails =
-      '/getEmployeeActivityDetails_new';
-  static const String getVisitReportDetails = "/getVisitReportDetails";
-  static const String getEmployeeOutputReport = "/getEmployeeOutputReport";
-  // ApiConfig.getEmployeeUrl() was using.
-  static const String getEmployees = "/getAssignedEmployees";
+  static const String getLastThirtyNotVisited ="/getLastThiertyNotVisited";
+  static const String getEmployeeActivityDetails ='/getEmployeeActivityDetails_new';
+  static const String getVisitReportDetails ="/getVisitReportDetails";
+  static const String getEmployeeOutputReport ="/getEmployeeOutputReport";
+   // ApiConfig.getEmployeeUrl() was using.
+  static const String getEmployees ="/getAssignedEmployees";
+  static const String organizationDetails ="/getOrganizationDetails";
+  static const String getNotificationList = "/getNotificationList";
 
-  static const String getEmployees = "/getAssignedEmployees";
+  static const String getMyLeaveList = "/getMyLeaveList";
+  static const String addLeave = "/addLeave";
 
-  static const String getVehicleType = "/getVehicleType";
-  static const String punchAddInOut = "/add_in_out_details";
+ 
 }
