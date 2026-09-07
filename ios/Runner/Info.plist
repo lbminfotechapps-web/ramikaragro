@@ -27,6 +27,11 @@
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
 	<key>UIApplicationSceneManifest</key>
+	    <key>NSCameraUsageDescription</key>
+    <string>This app uses the camera to capture punch and vehicle images.</string>
+
+    <key>NSLocationWhenInUseUsageDescription</key>
+    <string>This app uses your location to record your punch location and address.</string>
 	<dict>
 		<key>UIApplicationSupportsMultipleScenes</key>
 		<false/>
@@ -66,5 +71,7 @@
 		<string>UIInterfaceOrientationLandscapeLeft</string>
 		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>
+
+
 </dict>
 </plist>

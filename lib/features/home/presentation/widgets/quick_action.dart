@@ -142,8 +142,15 @@ class _QuickAccessSectionState extends State<QuickAccessSection> {
     );
 
     if (menu.menuId == '17') {
-      context.go('/punch', extra: widget.punchStat);
-      print('punch status data ${widget.punchStat}');
+      final status = widget.punchStat?.inOutStatus ?? 0;
+      debugPrint('Punch status: $status');
+      debugPrint('Punch status data: ${widget.punchStat}');
+
+      if (status == '0') {
+        context.go('/punchIn', extra: widget.punchStat);
+      } else if (status == '1') {
+        context.go('/punchOut', extra: widget.punchStat);
+      }
     } else if (menu.menuId == '65') {
       context.go('/notVisitDealer');
     } else if (menu.menuId == '8') {
