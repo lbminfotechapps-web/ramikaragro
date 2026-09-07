@@ -1,13 +1,9 @@
 class SubmitFollowupModel {
-  final bool status;
-  final String message;
+  final String status;
 
-  SubmitFollowupModel({required this.status, required this.message});
+  SubmitFollowupModel({required this.status});
 
   factory SubmitFollowupModel.fromJson(Map<String, dynamic> json) {
-    return SubmitFollowupModel(
-      status: json['status'] ?? false,
-      message: json['message']?.toString() ?? '',
-    );
+    return SubmitFollowupModel(status: json['status'].toString());
   }
 }

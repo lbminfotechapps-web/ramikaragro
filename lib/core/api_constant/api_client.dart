@@ -12,6 +12,8 @@ class ApiClient {
       '/getEmployeeActivityDetails_new';
   static const String getVisitReportDetails = "/getVisitReportDetails";
   static const String getEmployeeOutputReport = "/getEmployeeOutputReport";
+  // ApiConfig.getEmployeeUrl() was using.
+  static const String getEmployees = "/getAssignedEmployees";
 
   static const String getEmployees = "/getAssignedEmployees";
 

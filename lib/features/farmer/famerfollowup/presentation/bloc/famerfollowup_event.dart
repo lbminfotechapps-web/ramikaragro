@@ -1,7 +1,7 @@
 abstract class FamerfollowupEvent {}
 
 class SubmitFollowupEvent extends FamerfollowupEvent {
-  final int farmerId;
+  final String farmerId;
   final String userId;
   final String followUpDate;
   final String followUpType;
@@ -40,4 +40,10 @@ class SubmitFollowupEvent extends FamerfollowupEvent {
     required this.activityId,
     this.imagePath,
   });
+}
+
+class GetRemarkHistoryEvent extends FamerfollowupEvent {
+  final String farmerId;
+
+  GetRemarkHistoryEvent({required this.farmerId});
 }

@@ -1,8 +1,9 @@
+import 'package:demo/features/farmer/famerfollowup/data/model/followuplist_model.dart';
 import 'package:demo/features/farmer/famerfollowup/data/model/submitFollowup_mode.dart';
 
 abstract class FamerfollowupRepository {
   Future<SubmitFollowupModel> submitFollowup({
-    required int farmerId,
+    required String farmerId,
     required String userId,
     required String followUpDate,
     required String followUpType,
@@ -21,4 +22,6 @@ abstract class FamerfollowupRepository {
     required String activityId,
     String? imagePath,
   });
+
+  Future<List<RemarkListModel>> getRemarkHistory({required String farmerId});
 }
