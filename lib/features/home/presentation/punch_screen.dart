@@ -30,13 +30,20 @@ class PunchScreen extends StatefulWidget {
 }
 
 class _PunchScreenState extends State<PunchScreen> {
-  String get nextInOutStatus {
-    final currentStatus = widget.punchStat?.inOutStatus ?? '0';
+  // String get nextInOutStatus {
+  //   final currentStatus = widget.punchStat?.inOutStatus ?? '0';
 
-    return currentStatus == '0' ? '1' : '0';
-  }
+  //   if (currentStatus == '0') {
+  //     return '1';
+  //   } else if (currentStatus == '1') {
+  //     return '2';
+  //   }
 
-  bool _isSubmitting = false;
+  //   return '1';
+  // }
+
+  bool isLoading = false;
+  bool _submissionSent = false;
 
   final _formKey = GlobalKey<FormState>();
 
@@ -52,16 +59,23 @@ class _PunchScreenState extends State<PunchScreen> {
 
   String? selectedVehicleId;
 
-  bool get isPunchIn => widget.punchStat?.inOutStatus != '0';
+  // bool get isPunchOut => widget.punchStat?.inOutStatus == '1';
 
+  @override
   @override
   void initState() {
     super.initState();
 
-    print('punch status $isPunchIn');
-    if (!isPunchIn) {
-      openingKmController.text = widget.punchStat?.startingKm ?? '';
-    }
+    // debugPrint('Punch Out: $isPunchOut');
+    // debugPrint('Starting KM: ${widget.punchStat?.startingKm}');
+
+    // if (isPunchOut) {
+    //   final startingKm = widget.punchStat?.startingKm?.trim() ?? '';
+
+    //   if (startingKm.isNotEmpty) {
+    //     openingKmController.text = startingKm;
+    //   }
+    // }
 
     _loadVehicleTypes();
   }
@@ -100,7 +114,7 @@ class _PunchScreenState extends State<PunchScreen> {
   }
 
   Future<void> _submitPunch() async {
-    if (_isSubmitting) return;
+    if (isLoading) return;
 
     if (!_formKey.currentState!.validate()) {
       return;
@@ -131,14 +145,11 @@ class _PunchScreenState extends State<PunchScreen> {
 
     // Start button loader
     setState(() {
-      _isSubmitting = true;
+      isLoading = true;
+      _submissionSent = false;
     });
 
     try {
-      // -----------------------------
-      // Device information
-      // -----------------------------
-
       final batteryInfo = await DeviceInfoUtil.instance.getBatteryInfo();
 
       final networkInfo = await DeviceInfoUtil.instance.getNetworkInfo();
@@ -172,7 +183,7 @@ class _PunchScreenState extends State<PunchScreen> {
         '${widget.punchStat?.inOutStatus}',
       );
 
-      debugPrint('Next status: $nextInOutStatus');
+      // debugPrint('Next status: $nextInOutStatus');
 
       // -----------------------------
       // Submit event
@@ -184,7 +195,7 @@ class _PunchScreenState extends State<PunchScreen> {
 
           // 0 -> 1
           // 1 -> 0
-          inOutStatus: nextInOutStatus,
+          inOutStatus: '1',
 
           batteryInfo: batteryInfo,
           networkInfo: networkInfo,
@@ -202,28 +213,32 @@ class _PunchScreenState extends State<PunchScreen> {
 
           pinRemark: remarkController.text.trim(),
 
-          startingClosingKmAmount: isPunchIn
-              ? closingKmController.text.trim()
-              : openingKmController.text.trim(),
+          startingClosingKmAmount:
+              //  isPunchOut
+              //     ? closingKmController.text.trim()
+              // :
+              openingKmController.text.trim(),
 
           vehicleTypeId: vehicleTypeId,
 
           route: routeController.text.trim(),
 
-          startingKmImage: isPunchIn ? '' : _uploadedImage?.path ?? '',
+          startingKmImage: _uploadedImage?.path ?? '',
 
-          closingKmImage: isPunchIn ? _uploadedImage?.path ?? '' : '',
+          closingKmImage: _uploadedImage?.path ?? '',
 
           // IMPORTANT:
           // Don't use widget.punchStat.toString()
           activityId: widget.punchStat?.dailyTranId ?? '',
         ),
       );
+      _submissionSent = true;
     } catch (e) {
       if (!mounted) return;
 
       setState(() {
-        _isSubmitting = false;
+        isLoading = false;
+        _submissionSent = false;
       });
 
       ScaffoldMessenger.of(
@@ -231,108 +246,6 @@ class _PunchScreenState extends State<PunchScreen> {
       ).showSnackBar(SnackBar(content: Text(e.toString())));
     }
   }
-
-  // Future<void> _submitPunch() async {
-  //   if (!_formKey.currentState!.validate()) {
-  //     return;
-  //   }
-
-  //   final userData = await SecureStorage.instance.getUserData();
-
-  //   final userId = int.tryParse(userData?['user_id']?.toString() ?? '');
-
-  //   if (userId == null) {
-  //     if (!mounted) return;
-
-  //     ScaffoldMessenger.of(context).showSnackBar(
-  //       const SnackBar(content: Text('User information not found')),
-  //     );
-
-  //     return;
-  //   }
-
-  //   // -----------------------------
-  //   // Device information
-  //   // -----------------------------
-
-  //   final batteryInfo = await DeviceInfoUtil.instance.getBatteryInfo();
-
-  //   final networkInfo = await DeviceInfoUtil.instance.getNetworkInfo();
-
-  //   // -----------------------------
-  //   // Location information
-  //   // -----------------------------
-
-  //   final position = await LocationUtil.instance.getCurrentLocation();
-
-  //   String latitude = '';
-  //   String longitude = '';
-  //   String address = '';
-
-  //   if (position != null) {
-  //     latitude = position.latitude.toString();
-  //     longitude = position.longitude.toString();
-
-  //     address = await LocationUtil.instance.getAddress(
-  //       position.latitude,
-  //       position.longitude,
-  //     );
-  //   }
-
-  //   // -----------------------------
-  //   // Submit Event
-  //   // -----------------------------
-
-  //   if (!mounted) return;
-
-  //   final vehicleTypeId = selectedVehicleId;
-
-  //   print('FINAL vehicleTypeId: $vehicleTypeId');
-
-  //   if (vehicleTypeId == null || vehicleTypeId.isEmpty) {
-  //     ScaffoldMessenger.of(context).showSnackBar(
-  //       const SnackBar(content: Text('Please select a vehicle type')),
-  //     );
-  //     return;
-  //   }
-
-  //   context.read<QuickAcessBloc>().add(
-  //     PunchInOutDetailsAddEvent(
-  //       userId: userId,
-  //       inOutStatus: nextInOutStatus,
-
-  //       batteryInfo: batteryInfo,
-  //       networkInfo: networkInfo,
-
-  //       latitude: latitude,
-  //       longitude: longitude,
-
-  //       networkLatitude: latitude,
-  //       networkLongitude: longitude,
-
-  //       gpsLatitude: latitude,
-  //       gpsLongitude: longitude,
-
-  //       geoAddress: address,
-
-  //       pinRemark: remarkController.text.trim(),
-
-  //       startingClosingKmAmount: isPunchIn
-  //           ? closingKmController.text.trim()
-  //           : openingKmController.text.trim(),
-
-  //       vehicleTypeId: vehicleTypeId,
-
-  //       route: routeController.text.trim(),
-
-  //       startingKmImage: isPunchIn ? '' : _uploadedImage?.path ?? '',
-
-  //       closingKmImage: isPunchIn ? _uploadedImage?.path ?? '' : '',
-
-  //       activityId: widget.punchStat.toString(),
-  //     ),
-  //   );
-  // }
 
   @override
   void dispose() {
@@ -349,122 +262,204 @@ class _PunchScreenState extends State<PunchScreen> {
       backgroundColor: AppColors.backgroundColor,
 
       appBar: CustomAppBar(
-        title: isPunchIn ? 'Punch Out' : 'Punch In',
+        title: 'Punch In',
         showBackButton: true,
         onBackTap: () => context.go(AppRouter.home),
       ),
 
       body: SafeArea(
-        child: BlocBuilder<QuickAcessBloc, QuickAccessState>(
+        child: BlocConsumer<QuickAcessBloc, QuickAccessState>(
+          listener: (context, state) {
+            if (!isLoading || !_submissionSent) return;
+
+            if (state.quickAccessStatus == QuickAccessStatus.success) {
+              setState(() {
+                isLoading = false;
+                _submissionSent = false;
+              });
+              context.go(AppRouter.home);
+            } else if (state.quickAccessStatus == QuickAccessStatus.failure) {
+              setState(() {
+                isLoading = false;
+                _submissionSent = false;
+              });
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text(state.errorMessage ?? 'Submission failed'),
+                ),
+              );
+            }
+          },
           builder: (context, vehicleState) {
             final selectedVehicle = _selectedVehicle(vehicleState);
 
-            return Form(
-              key: _formKey,
-              child: SingleChildScrollView(
-                child: Padding(
-                  padding: const EdgeInsets.only(left: 16, right: 16),
-                  child: Column(
-                    children: [
-                      SizedBox(height: 14.h),
-                      _vehicleDropdown(vehicleState),
+            return Stack(
+              children: [
+                Form(
+                  key: _formKey,
+                  child: SingleChildScrollView(
+                    child: Padding(
+                      padding: const EdgeInsets.only(left: 16, right: 16),
+                      child: Column(
+                        children: [
+                          SizedBox(height: 14.h),
+                          _vehicleDropdown(vehicleState),
+                          SizedBox(height: 12.h),
 
-                      if (selectedVehicle?.openingClosingKm == '1') ...[
-                        SizedBox(height: 14.h),
+                          // if (selectedVehicle?.openingClosingKm == '1') ...[
+                          //   SizedBox(height: 14.h),
 
-                        Row(
-                          children: [
-                            Expanded(
-                              child: isPunchIn
-                                  ? _kmField(
-                                      controller: closingKmController,
-                                      hintText: 'Closing KM',
-                                      enabled: true,
-                                      validator: (value) =>
-                                          _validateKm(value, 'Closing KM'),
-                                    )
-                                  : _kmField(
-                                      controller: openingKmController,
-                                      hintText: 'Opening KM',
-                                      enabled: true,
-                                      validator: (value) =>
-                                          _validateKm(value, 'Opening KM'),
-                                    ),
+                          //   if (isPunchOut) ...[
+
+                          //     Row(
+                          //       children: [
+                          //         Expanded(
+                          //           child: _kmField(
+                          //             controller: openingKmController,
+                          //             hintText: 'Opening KM',
+                          //             enabled: false,
+                          //             validator: (value) =>
+                          //                 _validateKm(value, 'opening KM'),
+                          //           ),
+                          //         ),
+
+                          //         SizedBox(width: 12.w),
+
+                          //         Expanded(
+                          //           child: _kmField(
+                          //             controller: closingKmController,
+                          //             hintText: 'Closing KM',
+                          //             enabled: true,
+                          //             validator: (value) =>
+                          //                 _validateKm(value, 'Closing KM'),
+                          //           ),
+                          //         ),
+                          //       ],
+                          //     ),
+                          //   ] else ...[
+                          if (selectedVehicle?.openingClosingKm != '0') ...[
+                            _kmField(
+                              controller: openingKmController,
+                              hintText: 'Opening KM*',
+                              enabled: true,
+                              validator: (value) =>
+                                  _validateKm(value, 'Opening KM'),
                             ),
+                            SizedBox(height: 14.h),
                           ],
-                        ),
-                      ],
+                          //   ],
+                          // ],
 
-                      SizedBox(height: 14.h),
+                          // if (selectedVehicle?.openingClosingKm == '1') ...[
+                          //   SizedBox(height: 14.h),
 
-                      // Route
-                      _textField(
-                        controller: routeController,
-                        hintText: 'Enter Route*',
-                        icon: Icons.route_outlined,
-                        validator: (value) {
-                          if (value == null || value.trim().isEmpty) {
-                            return 'Please enter route';
-                          }
+                          //   Row(
+                          //     children: [
+                          //       Expanded(
+                          //         child: isPunchIn
+                          //             ? _kmField(
+                          //                 controller: closingKmController,
+                          //                 hintText: 'Closing KM',
+                          //                 enabled: true,
+                          //                 validator: (value) =>
+                          //                     _validateKm(value, 'Closing KM'),
+                          //               )
+                          //             : _kmField(
+                          //                 controller: openingKmController,
+                          //                 hintText: 'Opening KM',
+                          //                 enabled: true,
+                          //                 validator: (value) =>
+                          //                     _validateKm(value, 'Opening KM'),
+                          //               ),
+                          //       ),
+                          //     ],
+                          //   ),
+                          // ],
 
-                          return null;
-                        },
-                      ),
+                          // Route
+                          _textField(
+                            controller: routeController,
+                            hintText: 'Enter Route*',
+                            icon: Icons.route_outlined,
+                            validator: (value) {
+                              if (value == null || value.trim().isEmpty) {
+                                return 'Please enter route';
+                              }
 
-                      SizedBox(height: 14.h),
+                              return null;
+                            },
+                          ),
 
-                      // Remark
-                      _textField(
-                        controller: remarkController,
-                        hintText: 'Enter Remark',
-                        icon: Icons.note_add_outlined,
-                        maxLines: 1,
-                      ),
+                          SizedBox(height: 14.h),
 
-                      SizedBox(height: 14.h),
+                          // Remark
+                          _textField(
+                            controller: remarkController,
+                            hintText: 'Enter Remark',
+                            icon: Icons.note_add_outlined,
+                            maxLines: 1,
+                          ),
 
-                      // Upload photo
-                      FormField<bool>(
-                        initialValue: _uploadedImage != null,
-                        validator: (_) {
-                          if (_uploadedImage == null) {
-                            return 'Please upload an image';
-                          }
+                          SizedBox(height: 14.h),
 
-                          return null;
-                        },
-                        builder: (field) {
-                          return Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              _uploadPhotoCard(),
-                              if (field.hasError)
-                                Padding(
-                                  padding: EdgeInsets.only(
-                                    left: 16.w,
-                                    top: 4.h,
-                                  ),
-                                  child: Text(
-                                    field.errorText!,
-                                    style: TextStyle(
-                                      color: Colors.red,
-                                      fontSize: 12.sp,
+                          // Upload photo
+                          FormField<bool>(
+                            initialValue: _uploadedImage != null,
+                            validator: (_) {
+                              if (_uploadedImage == null) {
+                                return 'Please upload an image';
+                              }
+
+                              return null;
+                            },
+                            builder: (field) {
+                              return Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  _uploadPhotoCard(),
+                                  if (field.hasError)
+                                    Padding(
+                                      padding: EdgeInsets.only(
+                                        left: 16.w,
+                                        top: 4.h,
+                                      ),
+                                      child: Text(
+                                        field.errorText!,
+                                        style: TextStyle(
+                                          color: Colors.red,
+                                          fontSize: 12.sp,
+                                        ),
+                                      ),
                                     ),
-                                  ),
-                                ),
-                            ],
-                          );
-                        },
-                      ),
-                      SizedBox(height: 14.h),
+                                ],
+                              );
+                            },
+                          ),
+                          SizedBox(height: 14.h),
 
-                      // Submit
-                      _submitButton(),
-                      SizedBox(height: 14.h),
-                    ],
+                          // Submit
+                          _submitButton(),
+                          SizedBox(height: 14.h),
+                        ],
+                      ),
+                    ),
                   ),
                 ),
-              ),
+
+                ///********* */ if we want to add center loader*********************
+                // if (isLoading)
+                //   Positioned.fill(
+                //     child: AbsorbPointer(
+                //       child: Container(
+                //         color: Colors.black26,
+                //         alignment: Alignment.center,
+                //         child: const CircularProgressIndicator(
+                //           color: AppColors.accentGreen,
+                //         ),
+                //       ),
+                //     ),
+                //   ),
+              ],
             );
           },
         ),
@@ -623,8 +618,32 @@ class _PunchScreenState extends State<PunchScreen> {
       return 'Enter a valid $fieldName';
     }
 
+    // if (isPunchOut && fieldName == 'Closing KM') {
+    //   final openingText = openingKmController.text.trim();
+    //   final openingKm = double.tryParse(openingText);
+
+    //   if (openingKm != null && km < openingKm) {
+    //     return 'Closing KM cannot be less than Opening KM';
+    //   }
+    // }
+
     return null;
   }
+
+  // String? _validateKm(String? value, String fieldName) {
+  //   final text = value?.trim() ?? '';
+  //   final km = double.tryParse(text);
+
+  //   if (text.isEmpty) {
+  //     return '$fieldName is required';
+  //   }
+
+  //   if (km == null || km < 0) {
+  //     return 'Enter a valid $fieldName';
+  //   }
+
+  //   return null;
+  // }
 
   Widget _textField({
     required TextEditingController controller,
@@ -750,6 +769,7 @@ class _PunchScreenState extends State<PunchScreen> {
       width: double.infinity,
       textSize: 15.sp,
       text: 'SUBMIT',
+      isLoading: isLoading,
       onPressed: _submitPunch,
     );
   }

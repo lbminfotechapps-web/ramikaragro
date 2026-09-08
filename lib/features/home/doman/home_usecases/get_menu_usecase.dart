@@ -13,4 +13,20 @@ class GetMenuUsecase {
       throw Exception('Failed to fetch home menu: $e');
     }
   }
+
+  Future<Map<String, dynamic>> getVisitCountGraph(
+    int userId,
+    String searchFromDate,
+    String searchToDate,
+  ) async {
+    try {
+      return await homeRepo.getVisitCountGraph(
+        userId,
+        searchFromDate,
+        searchToDate,
+      );
+    } catch (e) {
+      throw Exception('Failed to fetch visit count graph: $e');
+    }
+  }
 }
