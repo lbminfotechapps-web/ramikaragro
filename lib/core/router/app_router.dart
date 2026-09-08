@@ -4,6 +4,7 @@ import 'package:demo/features/auth/presentation/pages/login_screen.dart';
 import 'package:demo/features/dealer/presentation/pages/DealerListScreen.dart';
 import 'package:demo/features/farmer/famerfollowup/presentation/pages/famerfollowuppage.dart';
 import 'package:demo/features/farmer/farmerlist/presentation/pages/farmerlist_screen.dart';
+import 'package:demo/features/gallery/presentation/pages/galleryscreen.dart';
 
 import 'package:demo/features/home/presentation/home.dart';
 import 'package:demo/features/home/presentation/punch_screen.dart';
@@ -28,6 +29,7 @@ import 'package:demo/features/reports/presentation/pages/user_guidelines_page.da
 import 'package:demo/features/reports/presentation/pages/visit_summary_page.dart';
 import 'package:demo/features/reports/presentation/bloc/employee_output_bloc.dart';
 import 'package:demo/features/reports/presentation/bloc/visit_report_bloc.dart';
+import 'package:demo/features/scheme/presentation/pages/schemescreen.dart';
 import 'package:demo/features/splash/splash_screen.dart';
 import 'package:flutter/foundation.dart';
 
@@ -58,6 +60,8 @@ class AppRouter {
   static const String contactUs = '/contactUs';
   static const String userGuide = '/userGuide';
   static const String notification = '/notification';
+  static const String gallery = '/gallery';
+  static const String scheme = '/scheme';
   static const String leaveList = '/leaveList';
   static const String addLeave = '/addLeave';
 
@@ -92,9 +96,23 @@ class AppRouter {
           return const NotVisitedDealerPage();
         },
       ),
+      GoRoute(
+        path: gallery,
+        name: 'gallery',
+        builder: (context, state) {
+          return const GalleryScreen();
+        },
+      ),
 
+      GoRoute(
+        path: scheme,
+        name: 'scheme',
+        builder: (context, state) {
+          return const SchemeScreen();
+        },
+      ),
 
-        GoRoute(
+      GoRoute(
         path: leaveList,
         name: 'leaveList',
         builder: (context, state) {
@@ -102,41 +120,37 @@ class AppRouter {
         },
       ),
 
-        GoRoute(
-          path: '/add-leave',
-          name: 'addLeave',
-          builder: (context, state) {
-            return const AddLeavePage();
-          },
-        ),
+      GoRoute(
+        path: '/add-leave',
+        name: 'addLeave',
+        builder: (context, state) {
+          return const AddLeavePage();
+        },
+      ),
 
+      GoRoute(
+        path: topTenDealer,
+        name: 'topTenDealer',
+        builder: (context, state) {
+          return const TopTenDealerPage();
+        },
+      ),
 
-        GoRoute(
-          path: topTenDealer,
-          name: 'topTenDealer',
-          builder: (context, state) {
-            return const TopTenDealerPage();
-          },
-        ),
+      GoRoute(
+        path: social,
+        name: 'social',
+        builder: (context, state) {
+          return const SocialMediaPage();
+        },
+      ),
 
-
-         GoRoute(
-          path: social,
-          name: 'social',
-          builder: (context, state) {
-            return const SocialMediaPage();
-          },
-        ),
-
-
-        GoRoute(
-          path: teamLeaveList,
-          name: 'teamLeaveList',
-          builder: (context, state) {
-            return const TeamLeaveListPage();
-          },
-        ),
-
+      GoRoute(
+        path: teamLeaveList,
+        name: 'teamLeaveList',
+        builder: (context, state) {
+          return const TeamLeaveListPage();
+        },
+      ),
 
       GoRoute(
         path: farmers,

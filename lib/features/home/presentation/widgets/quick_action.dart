@@ -155,6 +155,8 @@ class _QuickAccessSectionState extends State<QuickAccessSection> {
       }
     } else if (menu.menuId == '65') {
       context.go('/notVisitDealer');
+    } else if (menu.menuId == '18') {
+      context.go('/scheme');
     } else if (menu.menuId == '8') {
       context.go('/farmers');
     } else if (menu.menuId == '20') {
@@ -173,36 +175,22 @@ class _QuickAccessSectionState extends State<QuickAccessSection> {
         return;
       }
       context.go('/notification', extra: userId);
+    } else if (menu.menuId == '14') {
+      context.go('/leaveList');
+    } else if (menu.menuId == '64') {
+      context.go('/topTenDealer');
+    } else if (menu.menuId == '56') {
+      context.go('/social');
+    } else if (menu.menuId == '68') {
+      context.go('/teamLeaveList');
     } else if (menu.menuId == '21') {
       context.go('/userGuide');
     } else if (menu.menuId == '22') {
       context.go('/aboutUs');
     } else if (menu.menuId == '23') {
       context.go('/contactUs');
-      } 
-
-      else if (menu.menuId == '14') {
-      context.go('/leaveList');
-      } 
-
-      else if (menu.menuId == '64') {
-      context.go('/topTenDealer');
-      }
-
-       else if (menu.menuId == '56') {
-      context.go('/social');
-      }
-
-       else if (menu.menuId == '68') {
-      context.go('/teamLeaveList');
-      }
-
-
-      
-     
-     
-
-    else if (menu.menuId == '57' ||
+    } else if (menu.menuId == '19') {
+      context.go('/gallery');
     } else if (menu.menuId == '57' ||
         menu.menuId == '63' ||
         menu.menuId == '32') {

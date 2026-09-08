@@ -9,20 +9,13 @@ class FarmerListRepositoryImpl implements FarmerListRepository {
 
   @override
   Future<List<FarmerlistModel>> getFarmers(
-    int userId,String lattitude, String logitude,int limit,String searchKey,
+    int userId,
+    String lattitude,
+    String logitude,
+    int limit,
+    String searchKey,
   ) async {
     try {
-      print('');
-      print('========================================');
-      print('REPOSITORY START');
-      print('========================================');
-
-      print('userId: $userId');
-      print('latitude: $lattitude');
-      print('longitude: $logitude');
-      print('limit: $limit');
-      print('searchKey: $searchKey');
-
       final response = await farmerListDatasource.fetchFarmerList(
         userId,
         lattitude,
@@ -30,14 +23,6 @@ class FarmerListRepositoryImpl implements FarmerListRepository {
         limit,
         searchKey,
       );
-
-      print('');
-      print('========================================');
-      print('REPOSITORY RESPONSE');
-      print('========================================');
-
-      print('Farmer count: ${response.length}');
-      print('Farmers: $response');
 
       for (final farmer in response) {
         print(
@@ -48,14 +33,6 @@ class FarmerListRepositoryImpl implements FarmerListRepository {
 
       return response;
     } catch (e, stackTrace) {
-      print('');
-      print('========================================');
-      print('REPOSITORY ERROR');
-      print('========================================');
-
-      print('ERROR: $e');
-      print('STACK: $stackTrace');
-
       throw Exception('Failed to fetch farmer list: $e');
     }
   }

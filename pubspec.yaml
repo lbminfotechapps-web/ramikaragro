@@ -52,6 +52,7 @@ dependencies:
   geocoding: ^5.0.0
   image: ^4.9.2
   url_launcher: ^6.3.2
+  syncfusion_flutter_pdfviewer: ^34.2.6
   intl: ^0.20.2
 
 

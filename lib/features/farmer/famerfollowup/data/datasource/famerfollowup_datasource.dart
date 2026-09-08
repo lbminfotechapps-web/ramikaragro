@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:demo/core/api_constant/dio_client.dart';
@@ -60,12 +61,6 @@ class FamerfollowupDatasource {
 
       final exists = await file.exists();
 
-      debugPrint('==========================================');
-      debugPrint('IMAGE INFORMATION');
-      debugPrint('Image Path : $imagePath');
-      debugPrint('File Exists: $exists');
-      debugPrint('==========================================');
-
       if (exists) {
         final fileSize = await file.length();
 
@@ -120,12 +115,73 @@ class FamerfollowupDatasource {
     required String farmerId,
   }) async {
     try {
+      debugPrint('==========================================');
+      debugPrint('FARMER REMARK HISTORY API');
+      debugPrint('FARMER ID = [$farmerId]');
+      debugPrint('==========================================');
+
+      final formData = FormData.fromMap({'farmer_id': farmerId});
+
+      debugPrint('Sending FormData: farmer_id = $farmerId');
+
       final response = await dioClient.client.post(
         '/farmer_remark_list',
-        data: {'farmer_id': farmerId},
+        data: formData,
       );
 
+      debugPrint('==========================================');
+      debugPrint('RAW HISTORY RESPONSE');
+      debugPrint('STATUS CODE = ${response.statusCode}');
+      debugPrint('RESPONSE TYPE = ${response.data.runtimeType}');
+      debugPrint('RESPONSE DATA = ${response.data}');
+      debugPrint('==========================================');
+
       final data = response.data;
+
+      if (data is String) {
+        final decoded = jsonDecode(data);
+
+        if (decoded is Map) {
+          final responseMap = Map<String, dynamic>.from(decoded);
+
+          final historyData = responseMap['data'];
+
+          if (historyData is List) {
+            final result = historyData
+                .whereType<Map>()
+                .map(
+                  (item) =>
+                      RemarkListModel.fromJson(Map<String, dynamic>.from(item)),
+                )
+                .toList();
+
+            debugPrint('PARSED HISTORY COUNT = ${result.length}');
+
+            return result;
+          }
+
+          if (responseMap['status'] == 'no_records') {
+            debugPrint('API returned no_records');
+            return [];
+          }
+        }
+      }
+
+      if (data is Map) {
+        final responseMap = Map<String, dynamic>.from(data);
+
+        final historyData = responseMap['data'];
+
+        if (historyData is List) {
+          return historyData
+              .whereType<Map>()
+              .map(
+                (item) =>
+                    RemarkListModel.fromJson(Map<String, dynamic>.from(item)),
+              )
+              .toList();
+        }
+      }
 
       if (data is List) {
         return data
@@ -137,32 +193,20 @@ class FamerfollowupDatasource {
             .toList();
       }
 
-      if (data is Map) {
-        // If API returns:
-        // {"data":[...]}
-
-        final list = data['data'];
-
-        if (list is List) {
-          return list
-              .whereType<Map>()
-              .map(
-                (item) =>
-                    RemarkListModel.fromJson(Map<String, dynamic>.from(item)),
-              )
-              .toList();
-        }
-      }
-
       return [];
     } on DioException catch (e) {
-      debugPrint('HISTORY DIO ERROR: ${e.message}');
-      debugPrint('STATUS: ${e.response?.statusCode}');
-      debugPrint('DATA: ${e.response?.data}');
+      debugPrint('==========================================');
+      debugPrint('HISTORY DIO ERROR');
+      debugPrint('MESSAGE = ${e.message}');
+      debugPrint('STATUS = ${e.response?.statusCode}');
+      debugPrint('RESPONSE = ${e.response?.data}');
+      debugPrint('==========================================');
+
       rethrow;
     } catch (e, stackTrace) {
-      debugPrint('HISTORY ERROR: $e');
-      debugPrint('STACK: $stackTrace');
+      debugPrint('HISTORY ERROR = $e');
+      debugPrint('STACKTRACE = $stackTrace');
+
       rethrow;
     }
   }

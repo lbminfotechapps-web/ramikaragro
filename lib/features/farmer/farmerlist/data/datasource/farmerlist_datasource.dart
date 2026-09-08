@@ -17,16 +17,6 @@ class FarmerListDataSource {
     String searchKey,
   ) async {
     try {
-      print('========================================');
-      print('FARMER API REQUEST');
-      print('========================================');
-      print('user_id    : $userId');
-      print('currentLat : $lattitude');
-      print('currentLong: $logitude');
-      print('searchText : $searchKey');
-      print('startLimit : $limit');
-      print('========================================');
-
       // ------------------------------------------
       // FORM DATA
       // ------------------------------------------
@@ -47,13 +37,6 @@ class FarmerListDataSource {
       );
 
       dynamic data = response.data;
-
-      print('========================================');
-      print('FARMER API RESPONSE');
-      print('========================================');
-      print('RAW RESPONSE: $data');
-      print('RESPONSE TYPE: ${data.runtimeType}');
-      print('========================================');
 
       // ------------------------------------------
       // If response is String, decode JSON
@@ -82,30 +65,6 @@ class FarmerListDataSource {
       final String message = data['message']?.toString() ?? '';
 
       final dynamic records = data['result'];
-
-      print('========================================');
-      print('FARMER API STATUS');
-      print('========================================');
-      print('status   : ${data['status']}');
-      print('response : ${data['response']}');
-      print('message  : $message');
-      print('result   : $records');
-      print('resultType: ${records.runtimeType}');
-      print('========================================');
-
-      // =====================================================
-      // IMPORTANT:
-      //
-      // API returns:
-      //
-      // status   = true
-      // response = false
-      // result   = []
-      // message  = Record Not Found
-      //
-      // This is NOT an API error.
-      // It means there are simply no matching farmers.
-      // =====================================================
 
       if (apiStatus && !apiResponse && records is List && records.isEmpty) {
         print('========================================');
@@ -173,19 +132,8 @@ class FarmerListDataSource {
         }
       }
 
-      print('========================================');
-      print('FARMER PARSING COMPLETE');
-      print('TOTAL PARSED: ${farmers.length}');
-      print('========================================');
-
       return farmers;
     } catch (e, stackTrace) {
-      print('========================================');
-      print('FARMER API ERROR');
-      print('ERROR: $e');
-      print('STACK TRACE: $stackTrace');
-      print('========================================');
-
       rethrow;
     }
   }
