@@ -8,6 +8,7 @@ import 'package:demo/features/home/presentation/quick_aceess_bloc/quick_acess_bl
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:intl/intl.dart';
 
 class HomeShell extends StatefulWidget {
   const HomeShell({super.key, required this.navigationShell});
@@ -36,8 +37,25 @@ class _HomeShellState extends State<HomeShell> {
       return;
     }
 
+    final now = DateTime.now();
+
+    // 1 month previous
+    final startDate = DateTime(now.year, now.month - 1, now.day);
+
+    final searchFromDate = DateFormat('yyyy-MM-dd').format(startDate);
+
+    // Today's date
+    final searchToDate = DateFormat('yyyy-MM-dd').format(now);
+
+    debugPrint('GRAPH USER ID: $userId');
+    debugPrint('GRAPH FROM DATE: $searchFromDate');
+    debugPrint('GRAPH TO DATE: $searchToDate');
+
     context.read<HomeBloc>().add(GetMenuEvent(userId, '2'));
     context.read<QuickAcessBloc>().add(PunchStatEvent(userId));
+    context.read<HomeBloc>().add(
+      VisitGraphCountEvent(userId, '2026-08-07', '2026-09-07'),
+    );
   }
 
   @override

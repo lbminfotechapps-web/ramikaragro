@@ -38,7 +38,7 @@ class _QuickAccessSectionState extends State<QuickAccessSection> {
   static const int initialItemCount = 7;
 
   // Every time More is clicked, show 4 more items.
-  static const int loadMoreCount = 4;
+  static const int loadMoreCount = 8;
 
   int visibleItemCount = initialItemCount;
 
@@ -143,13 +143,15 @@ class _QuickAccessSectionState extends State<QuickAccessSection> {
 
     if (menu.menuId == '17') {
       final status = widget.punchStat?.inOutStatus ?? 0;
-      debugPrint('Punch status: $status');
+      debugPrint('Punch status inout: ${widget.punchStat?.inOutStatus}');
       debugPrint('Punch status data: ${widget.punchStat}');
 
       if (status == '0') {
         context.go('/punchIn', extra: widget.punchStat);
       } else if (status == '1') {
         context.go('/punchOut', extra: widget.punchStat);
+      } else if (status == '2') {
+        context.go('/lastPunchOut', extra: widget.punchStat);
       }
     } else if (menu.menuId == '65') {
       context.go('/notVisitDealer');

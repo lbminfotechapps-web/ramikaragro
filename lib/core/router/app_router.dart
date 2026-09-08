@@ -10,6 +10,12 @@ import 'package:demo/features/home/presentation/home.dart';
 import 'package:demo/features/home/presentation/punch_screen.dart';
 import 'package:demo/features/home/doman/home_entity/punch_stat_entity.dart';
 import 'package:demo/features/home/presentation/punch_out_screen.dart';
+import 'package:demo/features/home/presentation/social_media_page.dart';
+import 'package:demo/features/leave/presentation/pages/add_leave_page.dart';
+import 'package:demo/features/leave/presentation/pages/leave_list_page.dart';
+import 'package:demo/features/leave/presentation/pages/team_leave_list_page.dart';
+import 'package:demo/features/leave/presentation/pages/top_ten_dealer_page.dart';
+import 'package:demo/features/home/presentation/last_force_out_screen.dart';
 import 'package:demo/features/products/presentation/pages/products_screen.dart';
 import 'package:demo/features/reports/presentation/pages/about_us_page.dart';
 import 'package:demo/features/reports/presentation/pages/contact_us_page.dart';
@@ -35,6 +41,8 @@ class AppRouter {
   static const String login = '/login';
   static const String punch = '/punchIn';
   static const String punchOut = '/punchOut';
+  static const String lastPunchOut = '/lastPunchOut';
+
   static const String noVisitDealer = '/notVisitDealer';
 
   static const String home = '/home';
@@ -54,6 +62,12 @@ class AppRouter {
   static const String notification = '/notification';
   static const String gallery = '/gallery';
   static const String scheme = '/scheme';
+  static const String leaveList = '/leaveList';
+  static const String addLeave = '/addLeave';
+
+  static const String topTenDealer = '/topTenDealer';
+  static const String social = '/social';
+  static const String teamLeaveList = '/teamLeaveList';
 
   static final GoRouter router = GoRouter(
     initialLocation: splash,
@@ -98,6 +112,51 @@ class AppRouter {
         },
       ),
 
+
+        GoRoute(
+        path: leaveList,
+        name: 'leaveList',
+        builder: (context, state) {
+          return const LeaveListPage();
+        },
+      ),
+
+        GoRoute(
+          path: '/add-leave',
+          name: 'addLeave',
+          builder: (context, state) {
+            return const AddLeavePage();
+          },
+        ),
+
+
+        GoRoute(
+          path: topTenDealer,
+          name: 'topTenDealer',
+          builder: (context, state) {
+            return const TopTenDealerPage();
+          },
+        ),
+
+
+         GoRoute(
+          path: social,
+          name: 'social',
+          builder: (context, state) {
+            return const SocialMediaPage();
+          },
+        ),
+
+
+        GoRoute(
+          path: teamLeaveList,
+          name: 'teamLeaveList',
+          builder: (context, state) {
+            return const TeamLeaveListPage();
+          },
+        ),
+
+
       GoRoute(
         path: farmers,
         name: 'farmers',
@@ -130,6 +189,16 @@ class AppRouter {
               ? state.extra as PunchStatEntity
               : null;
           return PunchOutScreen(punchStat);
+        },
+      ),
+      GoRoute(
+        path: lastPunchOut,
+        name: 'lastPunchOut',
+        builder: (context, state) {
+          final punchStat = state.extra is PunchStatEntity
+              ? state.extra as PunchStatEntity
+              : null;
+          return LastForceOutScreen(punchStat);
         },
       ),
 
@@ -192,6 +261,25 @@ class AppRouter {
           return const UserGuidelinesPage();
         },
       ),
+
+      GoRoute(
+        path: notification,
+        name: 'notification',
+        builder: (context, state) {
+          debugPrint('========================================');
+          debugPrint('NOTIFICATION ROUTER');
+          debugPrint('state.extra       : ${state.extra}');
+          debugPrint('state.extra type  : ${state.extra.runtimeType}');
+
+          final userId = state.extra is String
+              ? int.tryParse(state.extra as String) ?? 0
+              : state.extra is int
+              ? state.extra as int
+              : 0;
+
+          debugPrint('FINAL USER ID     : $userId');
+          debugPrint('========================================');
+
 
       GoRoute(
         path: notification,

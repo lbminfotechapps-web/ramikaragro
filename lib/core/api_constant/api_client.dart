@@ -25,4 +25,10 @@ class ApiClient {
   static const String getVehicleType = "/getVehicleType";
   static const String getGalleryDetails = "/getGalleryDetails";
   static const String getSchemedetails = "/getSchemes";
+  static const String getTopTenDealerVisit = "/getHighestTopDealer";
+  static const String getSocialMedia = "/getSocialMedia";
+  static const String getMyEmployeeLeaveList = "/getMyEmployeeLeaveList";
+  static const String updateLeaveStatus = "/updateLeaveStatus";
+
+  static const String visitCountgraph = "/getEmployeevisitcount";
 }
