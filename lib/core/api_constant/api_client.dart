@@ -6,5 +6,6 @@ class ApiClient {
 
   static const String login = "/user_login";
   static const String getLastThirtyNotVisited ="/getLastThiertyNotVisited";
+  static const String getNearByOutlets ="/getNearByOutlets";
 
 }

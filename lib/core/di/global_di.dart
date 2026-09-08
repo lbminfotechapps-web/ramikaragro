@@ -1,4 +1,5 @@
 import 'package:demo/core/di/auth_di.dart';
+import 'package:demo/core/di/dealer_di.dart';
 import 'package:demo/core/di/farmer_di.dart';
 import 'package:get_it/get_it.dart';
 
@@ -11,17 +12,10 @@ Future<void> initGlobalDi() async {
 
   await initAuthDi();
 
-  // =========================
-  // DEALER
-  // =========================
-
-  // await initDealerDi();
-
-  // =========================
-  // FUTURE FEATURES
-  // =========================
+  
 
   await initFarmerDi();
+  await initDealerDi();
   // await initExpenseDi();
   // await initScheduleDi();
   // await initProfileDi();

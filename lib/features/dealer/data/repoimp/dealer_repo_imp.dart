@@ -1,57 +1,67 @@
-import 'package:demo/core/secure_storage/secure_storage.dart';
-import 'package:demo/features/auth/data/datasource/auth_datasource.dart';
 
-import 'package:demo/features/auth/domain/entity/login_entity.dart';
-import 'package:demo/features/auth/domain/repository/login_repo.dart';
+import 'package:demo/features/dealer/data/datasource/dealer_datasource.dart';
+import 'package:demo/features/dealer/data/models/DealerListModel.dart';
+import 'package:demo/features/dealer/domain/repository/dealer_repo.dart';
 
-class LoginRepoImp implements LoginRepository {
-  final AuthDatasource authDatasource;
-  final SecureStorage secureStorage;
+class DealerListRepositoryImpl implements DealerListRepository {
+  final DealerListDataSource dealerListDatasource;
 
-  LoginRepoImp(this.authDatasource, this.secureStorage);
+  DealerListRepositoryImpl(this.dealerListDatasource);
 
   @override
-  Future<UserLoginEntity> loginUser(
-    String username,
-    String password,
-    String fcmToken,
+  Future<List<DealerListModel>> getDealers(
+    String userId,
+    String lattitude,
+    String logitude,
+    String searchKey,
+    String type
   ) async {
     try {
-      final response = await authDatasource.loginUser(
-        username,
-        password,
-        fcmToken,
+      print('');
+      print('========================================');
+      print('DEALER REPOSITORY START');
+      print('========================================');
+
+      print('userId: $userId');
+      print('latitude: $lattitude');
+      print('longitude: $logitude');
+      print('searchKey: $searchKey');
+      print('type: $type');
+
+      final response = await dealerListDatasource.fetchDealerList(
+        userId,
+        lattitude,
+        logitude,
+        searchKey,
+        type,
       );
 
-      await secureStorage.saveUserData({
-        'user_id': response.userId,
-        'user_name': response.userName,
-        'user_email': response.userEmail,
-        'daKm': response.daKm,
-        'daRate': response.daRate,
-        'haltAtDaRate': response.haltAtDaRate,
-        'fld_mobile_no': response.fldMobileNo,
-        'fld_address': response.fldAddress,
-        'assignedStates': response.assignedStates,
-        'self_target_flag': response.selfTargetFlag,
-        'designation': response.designation,
-        'mpinuser': response.mpinuser,
-        'user_type': response.userType,
-        'minLocationRadius': response.minLocationRadius,
-        'minLocationCheckCount': response.minLocationCheckCount,
-        'locationTryTimeout': response.locationTryTimeout,
-        'payoutRate': response.payoutRate,
-        'shopInOutDistance': response.shopInOutDistance,
-        'inPunch': response.inPunch,
-        'lastLatitude': response.lastLatitude,
-        'lastLongitude': response.lastLongitude,
-      });
+      print('');
+      print('========================================');
+      print('DEALER REPOSITORY RESPONSE');
+      print('========================================');
 
-      print('Login successful repo: $response');
+      print('Dealer count: ${response.length}');
+      print('Dealers: $response');
+
+      for (final dealer in response) {
+        print(
+          'Dealer ID: ${dealer.outletId} | '
+          'Name: ${dealer.outletName}',
+        );
+      }
 
       return response;
-    } catch (e) {
-      throw Exception('Failed to login: $e');
+    } catch (e, stackTrace) {
+      print('');
+      print('========================================');
+      print('DEALER REPOSITORY ERROR');
+      print('========================================');
+
+      print('ERROR: $e');
+      print('STACK: $stackTrace');
+
+      throw Exception('Failed to fetch dealer list: $e');
     }
   }
 }
