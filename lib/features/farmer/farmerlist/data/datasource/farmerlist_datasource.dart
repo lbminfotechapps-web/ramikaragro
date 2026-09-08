@@ -1,11 +1,6 @@
-import 'dart:ffi';
+import 'dart:convert';
 
 import 'package:demo/core/api_constant/dio_client.dart';
-import 'package:demo/features/farmer/farmerlist/data/model/farmerlist_model.dart';
-
-import 'dart:convert';
-import 'dart:convert';
-
 import 'package:demo/features/farmer/farmerlist/data/model/farmerlist_model.dart';
 import 'package:dio/dio.dart';
 
@@ -22,7 +17,9 @@ class FarmerListDataSource {
     String searchKey,
   ) async {
     try {
+      // ------------------------------------------
       // FORM DATA
+      // ------------------------------------------
       final formData = FormData.fromMap({
         'user_id': userId.toString(),
         'currentLat': lattitude,
@@ -31,6 +28,9 @@ class FarmerListDataSource {
         'startLimit': limit.toString(),
       });
 
+      // ------------------------------------------
+      // API CALL
+      // ------------------------------------------
       final response = await dioClient.client.post(
         '/getFarmerDetails',
         data: formData,
@@ -45,7 +45,7 @@ class FarmerListDataSource {
         try {
           data = jsonDecode(data);
         } catch (e) {
-          throw FormatException('Invalid JSON response from farmer API');
+          throw const FormatException('Invalid JSON response from farmer API');
         }
       }
 
@@ -57,28 +57,36 @@ class FarmerListDataSource {
       }
 
       // ------------------------------------------
-      // Check API status
+      // Read API fields
       // ------------------------------------------
-      final apiStatus = data['status'];
-      final apiResponse = data['response'];
-      final message = data['message'];
+      final bool apiStatus = data['status'] == true;
+      final bool apiResponse = data['response'] == true;
 
-      if (apiStatus != true || apiResponse != true) {
-        throw Exception(message?.toString() ?? 'Failed to fetch farmer list');
+      final String message = data['message']?.toString() ?? '';
+
+      final dynamic records = data['result'];
+
+      if (apiStatus && !apiResponse && records is List && records.isEmpty) {
+        print('========================================');
+        print('NO FARMER RECORDS FOUND');
+        print('Returning EMPTY LIST');
+        print('========================================');
+
+        return [];
       }
 
       // ------------------------------------------
-      // Get result
+      // Actual API error
       // ------------------------------------------
-      final records = data['result'];
+      if (!apiStatus || !apiResponse) {
+        throw Exception(
+          message.isNotEmpty ? message : 'Failed to fetch farmer list',
+        );
+      }
 
-      print('========================================');
-      print('RESULT DETAILS');
-      print('========================================');
-
-      print('RESULT      : $records');
-      print('RESULT TYPE : ${records.runtimeType}');
-
+      // ------------------------------------------
+      // Validate result
+      // ------------------------------------------
       if (records is! List) {
         throw FormatException(
           'Farmer result is not a List. '
@@ -88,6 +96,9 @@ class FarmerListDataSource {
 
       print('TOTAL FARMER RECORDS: ${records.length}');
 
+      // ------------------------------------------
+      // Empty result
+      // ------------------------------------------
       if (records.isEmpty) {
         print('NO FARMER RECORDS FOUND');
         return [];
@@ -96,23 +107,33 @@ class FarmerListDataSource {
       // ------------------------------------------
       // Convert JSON → Model
       // ------------------------------------------
-      final farmers = records.whereType<Map<String, dynamic>>().map((json) {
-        final farmer = FarmerlistModel.fromJson(json);
+      final List<FarmerlistModel> farmers = [];
 
-        print(
-          'PARSED FARMER -> '
-          'ID: ${farmer.farmerId}, '
-          'NAME: ${farmer.farmerName}',
-        );
+      for (final item in records) {
+        if (item is Map<String, dynamic>) {
+          try {
+            final farmer = FarmerlistModel.fromJson(item);
 
-        return farmer;
-      }).toList();
+            farmers.add(farmer);
+
+            print(
+              'PARSED FARMER -> '
+              'ID: ${farmer.farmerId}, '
+              'NAME: ${farmer.farmerName}',
+            );
+          } catch (e) {
+            print('FAILED TO PARSE FARMER RECORD: $e');
+          }
+        } else {
+          print(
+            'SKIPPED INVALID FARMER RECORD: '
+            '${item.runtimeType}',
+          );
+        }
+      }
 
       return farmers;
     } catch (e, stackTrace) {
-      print('ERROR: $e');
-      print('STACK TRACE: $stackTrace');
-
       rethrow;
     }
   }

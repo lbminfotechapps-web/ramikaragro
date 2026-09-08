@@ -1,14 +1,10 @@
-import 'dart:ui';
-
 import 'package:demo/core/theme/app_colors.dart';
 import 'package:demo/core/utility/widgets/custom_button.dart';
-import 'package:demo/core/utility/widgets/custom_text.dart';
 import 'package:demo/core/utility/widgets/custom_textformfield.dart';
 import 'package:demo/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:demo/features/auth/presentation/bloc/auth_event.dart';
 
 import 'package:demo/features/auth/presentation/bloc/auth_state.dart';
-import 'package:demo/features/auth/presentation/widgets/app_logo.dart';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -25,8 +21,11 @@ class LoginScreen extends StatefulWidget {
 class _LoginScreenState extends State<LoginScreen> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
+
   final _formKey = GlobalKey<FormState>();
+
   bool _isPasswordVisible = false;
+
   @override
   void dispose() {
     _emailController.dispose();
@@ -37,8 +36,9 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.white,
       resizeToAvoidBottomInset: true,
-      backgroundColor: AppColors.backgroundColor,
+
       body: BlocConsumer<AuthBloc, AuthState>(
         listener: (context, state) {
           if (state.loginStatus == LoginStatus.success) {
@@ -47,127 +47,40 @@ class _LoginScreenState extends State<LoginScreen> {
             ).showSnackBar(const SnackBar(content: Text('Login successful')));
 
             context.go('/home');
-          } else if (state.loginStatus == LoginStatus.failure) {
+          }
+
+          if (state.loginStatus == LoginStatus.failure) {
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(content: Text(state.errorMessage ?? 'Login failed')),
             );
           }
         },
+
         builder: (context, state) {
           if (state.loginStatus == LoginStatus.loading) {
             return const Center(
-              child: CircularProgressIndicator(color: Colors.white),
+              child: CircularProgressIndicator(color: Color(0xFF087C3A)),
             );
           }
 
-          return Container(
-            width: double.infinity,
-            height: double.infinity,
-            decoration: const BoxDecoration(gradient: AppColors.appGradient),
-            child: SafeArea(
-              child: LayoutBuilder(
-                builder: (context, constraints) {
-                  return SingleChildScrollView(
-                    keyboardDismissBehavior:
-                        ScrollViewKeyboardDismissBehavior.onDrag,
-                    child: ConstrainedBox(
-                      constraints: BoxConstraints(
-                        minHeight: constraints.maxHeight,
-                      ),
-                      child: Padding(
-                        padding: EdgeInsets.symmetric(
-                          horizontal: 18.w,
-                          vertical: 20.h,
-                        ),
-                        child: Form(
-                          key: _formKey,
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            children: [
-                              // Logo
-                              logo(),
+          return SafeArea(
+            bottom: false,
+            child: SingleChildScrollView(
+              keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+              child: Column(
+                children: [
+                  // =========================
+                  // HERO SECTION
+                  // =========================
+                  _heroSection(),
 
-                              SizedBox(height: 18.h),
+                  // =========================
+                  // LOGIN SECTION
+                  // =========================
+                  _loginSection(),
 
-                              // Welcome title
-                              CustomText(
-                                text: 'Welcome Back',
-                                fontSize: 26.sp,
-                                fontWeight: FontWeight.w700,
-                                color: Colors.white,
-                                textAlign: TextAlign.center,
-                              ),
-
-                              SizedBox(height: 6.h),
-
-                              // Subtitle
-                              CustomText(
-                                text: 'Login to your account',
-                                fontSize: 14.sp,
-                                fontWeight: FontWeight.w600,
-                                color: Colors.white.withOpacity(0.8),
-                                textAlign: TextAlign.center,
-                              ),
-
-                              SizedBox(height: 24.h),
-
-                              // Login Card
-                              Container(
-                                width: double.infinity,
-                                padding: EdgeInsets.all(18.w),
-                                decoration: BoxDecoration(
-                                  color: Colors.white.withOpacity(0.12),
-                                  borderRadius: BorderRadius.circular(24.r),
-                                  border: Border.all(
-                                    color: Colors.white.withOpacity(0.25),
-                                  ),
-                                  boxShadow: [
-                                    BoxShadow(
-                                      color: Colors.black.withOpacity(0.08),
-                                      blurRadius: 18,
-                                      offset: const Offset(0, 10),
-                                    ),
-                                  ],
-                                ),
-                                child: ClipRRect(
-                                  borderRadius: BorderRadius.circular(24.r),
-                                  child: BackdropFilter(
-                                    filter: ImageFilter.blur(
-                                      sigmaX: 10,
-                                      sigmaY: 10,
-                                    ),
-                                    child: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.stretch,
-                                      children: [
-                                        SizedBox(height: 12.h),
-
-                                        email(),
-
-                                        SizedBox(height: 12.h),
-
-                                        password(),
-
-                                        SizedBox(height: 20.h),
-
-                                        submitButton(),
-
-                                        SizedBox(height: 8.h),
-                                      ],
-                                    ),
-                                  ),
-                                ),
-                              ),
-
-                              SizedBox(height: 20.h),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ),
-                  );
-                },
+                  _bottomLogo(),
+                ],
               ),
             ),
           );
@@ -176,53 +89,244 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 
+  // ============================================================
+  // HERO
+  // ============================================================
+
+  Widget _heroSection() {
+    final heroHeight = (MediaQuery.sizeOf(context).height * 0.38).clamp(
+      180.0,
+      340.0,
+    );
+
+    return Stack(
+      children: [
+        // Farm background
+        SizedBox(
+          height: heroHeight,
+          child: Image.asset(
+            'assets/images/login_background.png',
+            width: double.infinity,
+            fit: BoxFit.fill,
+          ),
+        ),
+
+        // RAI Logo
+        Positioned(
+          top: heroHeight * 0.08,
+          left: 18.w,
+          child: _raiLogo(heroHeight),
+        ),
+      ],
+    );
+  }
+
+  // ============================================================
+  // RAI LOGO
+  // ============================================================
+
+  Widget _raiLogo(double heroHeight) {
+    final logoSize = heroHeight * 0.9;
+
+    return SizedBox(
+      width: logoSize,
+      height: logoSize,
+      child: ClipRect(
+        child: Align(
+          alignment: Alignment.topLeft,
+          widthFactor: 0.55,
+          heightFactor: 0.60,
+          child: Image.asset(
+            'assets/images/rai_logo.jpg.png',
+            width: logoSize * 2,
+            fit: BoxFit.contain,
+          ),
+        ),
+      ),
+    );
+  }
+
+  // Widget _bottomLogo() {
+  //   return SizedBox(
+  //     width: double.infinity,
+  //     // height: 100.h,
+  //     child: ClipRect(
+  //       child: Align(
+  //         alignment: Alignment.topLeft,
+  //         widthFactor: 0.55,
+  //         heightFactor: 0.60,
+  //         child: Image.asset(
+  //           'assets/images/login_bottom_logo.png',
+  //           width: double.infinity,
+  //           fit: BoxFit.contain,
+  //         ),
+  //       ),
+  //     ),
+  //   );
+  // }
+
+  // ============================================================
+  // LOGIN SECTION
+  // ============================================================
+
+  Widget _loginSection() {
+    return Padding(
+      padding: EdgeInsets.symmetric(horizontal: 24.w),
+      child: Form(
+        key: _formKey,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            SizedBox(height: 10.h),
+
+            // Title
+            Text(
+              'Login to your account',
+              style: TextStyle(
+                color: Color(0xFF087C3A),
+                fontSize: 25.sp,
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+
+            SizedBox(height: 4.h),
+
+            // Subtitle
+            Text(
+              'Welcome back! Please login to continue.',
+              style: TextStyle(
+                color: Colors.grey.shade600,
+                fontSize: 14.sp,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+
+            SizedBox(height: 10.h),
+
+            // Mobile
+            email(),
+
+            SizedBox(height: 15.h),
+
+            // Password
+            password(),
+
+            SizedBox(height: 10.h),
+
+            // Forgot password
+            Align(
+              alignment: Alignment.centerRight,
+              child: GestureDetector(
+                onTap: () {
+                  // Forgot password
+                },
+                child: Text(
+                  'Forgot Password?',
+                  style: TextStyle(
+                    color: Color(0xFF087C3A),
+                    fontSize: 14.sp,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ),
+            ),
+
+            SizedBox(height: 20.h),
+
+            submitButton(),
+
+            // const SizedBox(height: 80),
+          ],
+        ),
+      ),
+    );
+  }
+
+  // ============================================================
+  // EMAIL / MOBILE
+  // ============================================================
+
   Widget email() {
     return CustomTextFormField(
       controller: _emailController,
-      // labelText: AppLocalizations.of(context)!.email,
-      hintText: 'Enter your username',
-      prefixIcon: Icons.email,
+      hintText: 'Enter Usrname',
+      prefixIcon: Icons.person_outline,
       keyboardType: TextInputType.text,
 
       validator: (value) {
         if (value == null || value.isEmpty) {
           return 'Please enter your username';
         }
+
         return null;
       },
     );
   }
 
+  Widget _bottomLogo() {
+    return SizedBox(
+      width: double.infinity,
+      height: 100.h,
+      child: ClipRect(
+        child: Align(
+          alignment: Alignment.topLeft,
+          // widthFactor: 0.55,
+          // heightFactor: 0.60,
+          child: Image.asset(
+            'assets/images/login_bottom_logo.png',
+            width: double.infinity,
+            fit: BoxFit.fill,
+          ),
+        ),
+      ),
+    );
+  }
+
+  // ============================================================
+  // PASSWORD
+  // ============================================================
+
   Widget password() {
     return CustomTextFormField(
       controller: _passwordController,
-      // labelText: AppLocalizations.of(context)!.password,
-      hintText: 'Enter your password',
-      prefixIcon: Icons.lock,
-      suffixIcon: _isPasswordVisible ? Icons.visibility_off : Icons.visibility,
+      hintText: 'Password',
+      prefixIcon: Icons.lock_outline,
+
+      suffixIcon: _isPasswordVisible
+          ? Icons.visibility_off_outlined
+          : Icons.visibility_outlined,
+
       onSuffixIconTap: () {
         setState(() {
           _isPasswordVisible = !_isPasswordVisible;
         });
       },
+
       obscureText: !_isPasswordVisible,
+
       validator: (value) {
         if (value == null || value.isEmpty) {
           return 'Please enter your password';
         }
+
         if (value.length < 6) {
           return 'Password must be at least 6 characters';
         }
+
         return null;
       },
     );
   }
 
+  // ============================================================
+  // LOGIN BUTTON
+  // ============================================================
+
   Widget submitButton() {
     return CustomButton(
       width: double.infinity,
       textSize: 15.sp,
-      text: 'Login',
+      text: 'LOGIN',
       onPressed: () {
         if (_formKey.currentState!.validate()) {
           context.read<AuthBloc>().add(

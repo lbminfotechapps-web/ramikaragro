@@ -1,5 +1,3 @@
-import 'dart:ffi';
-
 import 'package:equatable/equatable.dart';
 
 class FarmerlistEvent extends Equatable {
@@ -13,15 +11,15 @@ class FarmerListEvent extends FarmerlistEvent {
   final int user_id;
   final String currentLat;
   final String currentLong;
-  final int limit;
-  final String searchKey;
+  final int startLimit;
+  final String searchText;
 
   const FarmerListEvent({
     required this.user_id,
     required this.currentLat,
     required this.currentLong,
-    required this.limit,
-    required this.searchKey,
+    required this.startLimit,
+    required this.searchText,
   });
 
   @override
@@ -29,7 +27,7 @@ class FarmerListEvent extends FarmerlistEvent {
     user_id,
     currentLat,
     currentLong,
-    limit,
-    searchKey,
+    startLimit,
+    searchText,
   ];
 }

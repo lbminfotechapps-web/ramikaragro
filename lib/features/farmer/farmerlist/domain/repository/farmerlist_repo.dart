@@ -1,5 +1,3 @@
-import 'dart:ffi';
-
 import 'package:demo/features/farmer/farmerlist/data/model/farmerlist_model.dart';
 import 'package:demo/features/farmer/farmerlist/data/model/farmerlist_model.dart';
 

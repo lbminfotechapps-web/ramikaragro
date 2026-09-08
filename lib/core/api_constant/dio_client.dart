@@ -16,6 +16,13 @@ class DioClient {
       receiveTimeout: const Duration(seconds: 20),
       headers: {'Accept': 'application/json'},
     ),
+  )..interceptors.add(
+    InterceptorsWrapper(
+      onRequest: (options, handler) {
+        print('API ${options.method}: ${options.uri}');
+        handler.next(options);
+      },
+    ),
   );
 
   Dio get client => _dio;

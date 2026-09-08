@@ -14,6 +14,7 @@ class CustomButton extends StatelessWidget {
   final double? borderRadius;
   final bool isLoading;
   final Widget? icon;
+  final Widget? child; // ADDED - optional
   final EdgeInsetsGeometry? padding;
   final TextStyle? textStyle;
   final Color? borderColor;
@@ -32,6 +33,7 @@ class CustomButton extends StatelessWidget {
     this.borderRadius,
     this.isLoading = false,
     this.icon,
+    this.child, // ADDED
     this.padding,
     this.textStyle,
     this.borderColor,
@@ -41,7 +43,9 @@ class CustomButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final radius = BorderRadius.circular((borderRadius ?? 12).r);
+    final radius = BorderRadius.circular(
+      (borderRadius ?? 12).r,
+    );
 
     return SizedBox(
       width: width ?? double.infinity,
@@ -52,7 +56,10 @@ class CustomButton extends StatelessWidget {
           color: backgroundColor,
           borderRadius: radius,
           border: borderColor != null
-              ? Border.all(color: borderColor!, width: borderWidth ?? 1)
+              ? Border.all(
+                  color: borderColor!,
+                  width: borderWidth ?? 1,
+                )
               : null,
           boxShadow: [
             BoxShadow(
@@ -71,31 +78,46 @@ class CustomButton extends StatelessWidget {
             elevation: 0,
             padding:
                 padding ??
-                EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
-            shape: RoundedRectangleBorder(borderRadius: radius),
-          ),
-          child: isLoading
-              ? SizedBox(
-                  width: 20.w,
-                  height: 20.h,
-                  child: const CircularProgressIndicator(
-                    strokeWidth: 2,
-                    valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                  ),
-                )
-              : Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  mainAxisSize: MainAxisSize.max,
-                  children: [
-                    if (icon != null) ...[icon!, SizedBox(width: 8.w)],
-                    CustomText(
-                      text: text,
-                      fontSize: textSize ?? 15.sp,
-                      fontWeight: FontWeight.w600,
-                      color: textStyle?.color ?? Colors.white,
-                    ),
-                  ],
+                EdgeInsets.symmetric(
+                  horizontal: 16.w,
+                  vertical: 12.h,
                 ),
+            shape: RoundedRectangleBorder(
+              borderRadius: radius,
+            ),
+          ),
+
+          // child has priority, otherwise existing behavior
+          child: child ??
+              (isLoading
+                  ? SizedBox(
+                      width: 20.w,
+                      height: 20.h,
+                      child: const CircularProgressIndicator(
+                        strokeWidth: 2,
+                        valueColor:
+                            AlwaysStoppedAnimation<Color>(
+                          Colors.white,
+                        ),
+                      ),
+                    )
+                  : Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      mainAxisSize: MainAxisSize.max,
+                      children: [
+                        if (icon != null) ...[
+                          icon!,
+                          SizedBox(width: 8.w),
+                        ],
+                        CustomText(
+                          text: text,
+                          fontSize: textSize ?? 15.sp,
+                          fontWeight: FontWeight.w600,
+                          color: textStyle?.color ??
+                              Colors.white,
+                        ),
+                      ],
+                    )),
         ),
       ),
     );
