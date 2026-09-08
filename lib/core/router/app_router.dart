@@ -4,6 +4,7 @@ import 'package:demo/features/auth/presentation/pages/login_screen.dart';
 import 'package:demo/features/dealer/presentation/pages/DealerListScreen.dart';
 import 'package:demo/features/farmer/famerfollowup/presentation/pages/famerfollowuppage.dart';
 import 'package:demo/features/farmer/farmerlist/presentation/pages/farmerlist_screen.dart';
+import 'package:demo/features/gallery/presentation/pages/galleryscreen.dart';
 
 import 'package:demo/features/home/presentation/home.dart';
 import 'package:demo/features/home/presentation/punch_screen.dart';
@@ -22,6 +23,7 @@ import 'package:demo/features/reports/presentation/pages/user_guidelines_page.da
 import 'package:demo/features/reports/presentation/pages/visit_summary_page.dart';
 import 'package:demo/features/reports/presentation/bloc/employee_output_bloc.dart';
 import 'package:demo/features/reports/presentation/bloc/visit_report_bloc.dart';
+import 'package:demo/features/scheme/presentation/pages/schemescreen.dart';
 import 'package:demo/features/splash/splash_screen.dart';
 import 'package:flutter/foundation.dart';
 
@@ -49,7 +51,9 @@ class AppRouter {
   static const String aboutUs = '/aboutUs';
   static const String contactUs = '/contactUs';
   static const String userGuide = '/userGuide';
-   static const String notification = '/notification';
+  static const String notification = '/notification';
+  static const String gallery = '/gallery';
+  static const String scheme = '/scheme';
 
   static final GoRouter router = GoRouter(
     initialLocation: splash,
@@ -76,6 +80,21 @@ class AppRouter {
         name: 'notVisitDealer',
         builder: (context, state) {
           return const NotVisitedDealerPage();
+        },
+      ),
+      GoRoute(
+        path: gallery,
+        name: 'gallery',
+        builder: (context, state) {
+          return const GalleryScreen();
+        },
+      ),
+
+      GoRoute(
+        path: scheme,
+        name: 'scheme',
+        builder: (context, state) {
+          return const SchemeScreen();
         },
       ),
 
@@ -150,8 +169,7 @@ class AppRouter {
         },
       ),
 
-
-       GoRoute(
+      GoRoute(
         path: aboutUs,
         name: 'aboutUs',
         builder: (context, state) {
@@ -159,7 +177,7 @@ class AppRouter {
         },
       ),
 
-       GoRoute(
+      GoRoute(
         path: contactUs,
         name: 'contactUs',
         builder: (context, state) {
@@ -167,41 +185,35 @@ class AppRouter {
         },
       ),
 
-       GoRoute(
+      GoRoute(
         path: userGuide,
         name: 'userGuide',
         builder: (context, state) {
           return const UserGuidelinesPage();
         },
-      ), 
-      
-      
-        GoRoute(
-          path: notification,
-          name: 'notification',
-          builder: (context, state) {
-            debugPrint('========================================');
-            debugPrint('NOTIFICATION ROUTER');
-            debugPrint('state.extra       : ${state.extra}');
-            debugPrint('state.extra type  : ${state.extra.runtimeType}');
+      ),
 
-            final userId = state.extra is String
-                ? int.tryParse(state.extra as String) ?? 0
-                : state.extra is int
-                    ? state.extra as int
-                    : 0;
+      GoRoute(
+        path: notification,
+        name: 'notification',
+        builder: (context, state) {
+          debugPrint('========================================');
+          debugPrint('NOTIFICATION ROUTER');
+          debugPrint('state.extra       : ${state.extra}');
+          debugPrint('state.extra type  : ${state.extra.runtimeType}');
 
-            debugPrint('FINAL USER ID     : $userId');
-            debugPrint('========================================');
+          final userId = state.extra is String
+              ? int.tryParse(state.extra as String) ?? 0
+              : state.extra is int
+              ? state.extra as int
+              : 0;
 
-            return NotificationPage(
-              userId: userId,
-              isLogin: true,
-              userType: '',
-            );
-          },
-        ),
+          debugPrint('FINAL USER ID     : $userId');
+          debugPrint('========================================');
 
+          return NotificationPage(userId: userId, isLogin: true, userType: '');
+        },
+      ),
 
       StatefulShellRoute.indexedStack(
         builder: (context, state, navigationShell) {

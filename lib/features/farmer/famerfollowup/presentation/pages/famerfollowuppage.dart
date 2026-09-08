@@ -1565,7 +1565,7 @@ class _FollowupHistoryDialog extends StatelessWidget {
 
               Expanded(
                 child: Text(
-                  item.fldOutletName.isEmpty ? '-' : item.fldOutletName,
+                  item.fldFarmerName.isEmpty ? '-' : item.fldFarmerName,
                   style: const TextStyle(
                     color: Color(0xFF53645D),
                     fontSize: 12.5,
