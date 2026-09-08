@@ -11,7 +11,8 @@ import 'package:demo/core/utility/widgets/custom_button.dart';
 import 'package:demo/core/utility/widgets/custom_textformfield.dart';
 import 'package:demo/features/home/doman/home_entity/punch_stat_entity.dart';
 import 'package:demo/features/home/doman/home_entity/vehicle_type_entity.dart';
-import 'package:demo/features/home/presentation/quick_aceess_bloc/quick_access_event.dart' show PunchInOutDetailsAddEvent, VehicleTypeEvent;
+import 'package:demo/features/home/presentation/quick_aceess_bloc/quick_access_event.dart'
+    show PunchInOutDetailsAddEvent, VehicleTypeEvent;
 import 'package:demo/features/home/presentation/quick_aceess_bloc/quick_access_state.dart';
 import 'package:demo/features/home/presentation/quick_aceess_bloc/quick_acess_bloc.dart';
 import 'package:flutter/material.dart';
@@ -29,12 +30,6 @@ class PunchOutScreen extends StatefulWidget {
 }
 
 class _PunchOutScreenState extends State<PunchOutScreen> {
-  String get nextInOutStatus {
-    final currentStatus = widget.punchStat?.inOutStatus ?? '0';
-
-    return currentStatus == '0' ? '1' : '0';
-  }
-
   final _formKey = GlobalKey<FormState>();
 
   File? _uploadedImage;
@@ -46,26 +41,26 @@ class _PunchOutScreenState extends State<PunchOutScreen> {
   final TextEditingController routeController = TextEditingController();
 
   final TextEditingController remarkController = TextEditingController();
+  final TextEditingController vehicleController = TextEditingController();
+  // String? punchVehicleId;
 
-  String? selectedVehicleId;
-
-  bool get isPunchIn => widget.punchStat?.inOutStatus != '0';
+  bool isLoading = false;
+  bool _submissionSent = false;
 
   @override
   void initState() {
     super.initState();
 
-    print('punch status $isPunchIn');
-    if (!isPunchIn) {
-      openingKmController.text = widget.punchStat?.startingKm ?? '';
-    }
-
+    openingKmController.text = widget.punchStat?.startingKm?.trim() ?? '';
     _loadVehicleTypes();
   }
 
   Future<void> _loadVehicleTypes() async {
     final userData = await SecureStorage.instance.getUserData();
+
     final userId = int.tryParse(userData?['user_id']?.toString() ?? '');
+
+    // punchVehicleId = userData?['vehicle_type_id']?.toString();
 
     if (!mounted || userId == null) return;
 
@@ -73,6 +68,29 @@ class _PunchOutScreenState extends State<PunchOutScreen> {
       VehicleTypeEvent(userId, DateFormat('yyyy-MM-dd').format(DateTime.now())),
     );
   }
+
+  VehicleTypeEntity? _getMatchedVehicle(QuickAccessState state) {
+    try {
+      return state.vehicleList.firstWhere(
+        (vehicle) =>
+            vehicle.vehicleTypeId.isNotEmpty &&
+            vehicle.vehicleTypeId != '0' &&
+            vehicle.vehicleTypeId == vehicle.vehicleTypeIdValue,
+      );
+    } catch (_) {
+      return null;
+    }
+  }
+  // Future<void> _loadVehicleTypes() async {
+  //   final userData = await SecureStorage.instance.getUserData();
+  //   final userId = int.tryParse(userData?['user_id']?.toString() ?? '');
+
+  //   if (!mounted || userId == null) return;
+
+  //   context.read<QuickAcessBloc>().add(
+  //     VehicleTypeEvent(userId, DateFormat('yyyy-MM-dd').format(DateTime.now())),
+  //   );
+  // }
 
   Future<void> _captureImage() async {
     try {
@@ -97,7 +115,22 @@ class _PunchOutScreenState extends State<PunchOutScreen> {
   }
 
   Future<void> _submitPunch() async {
+    if (isLoading) return;
     if (!_formKey.currentState!.validate()) {
+      return;
+    }
+
+    final vehicleState = context.read<QuickAcessBloc>().state;
+
+    final matchedVehicle = _getMatchedVehicle(vehicleState);
+
+    if (matchedVehicle == null) {
+      if (!mounted) return;
+
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Vehicle type not found')));
+
       return;
     }
 
@@ -114,18 +147,14 @@ class _PunchOutScreenState extends State<PunchOutScreen> {
 
       return;
     }
-
-    // -----------------------------
-    // Device information
-    // -----------------------------
-
+    // Start button loader
+    setState(() {
+      isLoading = true;
+      _submissionSent = true;
+    });
     final batteryInfo = await DeviceInfoUtil.instance.getBatteryInfo();
 
     final networkInfo = await DeviceInfoUtil.instance.getNetworkInfo();
-
-    // -----------------------------
-    // Location information
-    // -----------------------------
 
     final position = await LocationUtil.instance.getCurrentLocation();
 
@@ -143,27 +172,12 @@ class _PunchOutScreenState extends State<PunchOutScreen> {
       );
     }
 
-    // -----------------------------
-    // Submit Event
-    // -----------------------------
-
     if (!mounted) return;
-
-    final vehicleTypeId = selectedVehicleId;
-
-    print('FINAL vehicleTypeId: $vehicleTypeId');
-
-    if (vehicleTypeId == null || vehicleTypeId.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please select a vehicle type')),
-      );
-      return;
-    }
 
     context.read<QuickAcessBloc>().add(
       PunchInOutDetailsAddEvent(
         userId: userId,
-        inOutStatus: nextInOutStatus,
+        inOutStatus: '2',
 
         batteryInfo: batteryInfo,
         networkInfo: networkInfo,
@@ -181,21 +195,31 @@ class _PunchOutScreenState extends State<PunchOutScreen> {
 
         pinRemark: remarkController.text.trim(),
 
-        startingClosingKmAmount: isPunchIn
-            ? closingKmController.text.trim()
-            : openingKmController.text.trim(),
+        startingClosingKmAmount: closingKmController.text.trim(),
 
-        vehicleTypeId: vehicleTypeId,
+        // fld_vehicle_type_id
+        vehicleTypeId: matchedVehicle.vehicleTypeId,
 
         route: routeController.text.trim(),
 
-        startingKmImage: isPunchIn ? '' : _uploadedImage?.path ?? '',
+        startingKmImage: _uploadedImage?.path ?? '',
 
-        closingKmImage: isPunchIn ? _uploadedImage?.path ?? '' : '',
+        closingKmImage: _uploadedImage?.path ?? '',
 
-        activityId: widget.punchStat.toString(),
+        activityId: widget.punchStat?.dailyTranId ?? '',
       ),
     );
+  }
+
+  @override
+  void dispose() {
+    openingKmController.dispose();
+    closingKmController.dispose();
+    routeController.dispose();
+    remarkController.dispose();
+    vehicleController.dispose();
+
+    super.dispose();
   }
 
   @override
@@ -204,16 +228,58 @@ class _PunchOutScreenState extends State<PunchOutScreen> {
       backgroundColor: AppColors.backgroundColor,
 
       appBar: CustomAppBar(
-        title: isPunchIn ? 'Punch Out' : 'Punch In',
+        title: 'Punch Out',
         showBackButton: true,
         onBackTap: () => context.go(AppRouter.home),
       ),
 
       body: SafeArea(
-        child: BlocBuilder<QuickAcessBloc, QuickAccessState>(
-          builder: (context, vehicleState) {
-            final selectedVehicle = _selectedVehicle(vehicleState);
+        child: BlocConsumer<QuickAcessBloc, QuickAccessState>(
+          listener: (context, state) {
+            // -------------------------------
+            // -------------------------------
+            // VEHICLE TYPE API SUCCESS
+            // -------------------------------
+            if (state.quickAccessStatus == QuickAccessStatus.success &&
+                !_submissionSent) {
+              final vehicle = _getMatchedVehicle(state);
 
+              if (vehicle != null) {
+                vehicleController.text = vehicle.vehicleType;
+              }
+            }
+
+            // -------------------------------
+            // PUNCH OUT API RESPONSE
+            // -------------------------------
+            if (!_submissionSent) {
+              return;
+            }
+
+            if (state.quickAccessStatus == QuickAccessStatus.success) {
+              setState(() {
+                isLoading = false;
+                _submissionSent = false;
+              });
+
+              context.go(AppRouter.home);
+            }
+
+            if (state.quickAccessStatus == QuickAccessStatus.failure) {
+              setState(() {
+                isLoading = false;
+                _submissionSent = false;
+              });
+
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text(state.errorMessage ?? 'Punch Out failed'),
+                ),
+              );
+            }
+          },
+          builder: (context, vehicleState) {
+            final selectedVehicle = _getMatchedVehicle(vehicleState);
             return Form(
               key: _formKey,
               child: SingleChildScrollView(
@@ -222,33 +288,36 @@ class _PunchOutScreenState extends State<PunchOutScreen> {
                   child: Column(
                     children: [
                       SizedBox(height: 14.h),
-                      _vehicleDropdown(vehicleState),
 
-                      if (selectedVehicle?.openingClosingKm == '1') ...[
-                        SizedBox(height: 14.h),
+                      // _vehicleDropdown(vehicleState),
+                      SizedBox(height: 14.h),
 
-                        Row(
-                          children: [
-                            Expanded(
-                              child: isPunchIn
-                                  ? _kmField(
-                                      controller: closingKmController,
-                                      hintText: 'Closing KM',
-                                      enabled: true,
-                                      validator: (value) =>
-                                          _validateKm(value, 'Closing KM'),
-                                    )
-                                  : _kmField(
-                                      controller: openingKmController,
-                                      hintText: 'Opening KM',
-                                      enabled: true,
-                                      validator: (value) =>
-                                          _validateKm(value, 'Opening KM'),
-                                    ),
-                            ),
-                          ],
-                        ),
-                      ],
+                      _textField(
+                        controller: vehicleController,
+                        hintText: 'Vehicle Type',
+                        icon: Icons.directions_car_outlined,
+                        enabled: false,
+                      ),
+
+                      SizedBox(height: 14.h),
+
+                      // Opening KM - READ ONLY
+                      _kmField(
+                        controller: openingKmController,
+                        hintText: 'Opening KM',
+                        enabled: false,
+                        validator: (_) => null,
+                      ),
+
+                      SizedBox(height: 14.h),
+
+                      // Closing KM - EDITABLE
+                      _kmField(
+                        controller: closingKmController,
+                        hintText: 'Closing KM*',
+                        enabled: true,
+                        validator: (value) => _validateKm(value, 'Closing KM'),
+                      ),
 
                       SizedBox(height: 14.h),
 
@@ -323,126 +392,129 @@ class _PunchOutScreenState extends State<PunchOutScreen> {
             );
           },
         ),
-      ),
-    );
-  }
 
-    // ------------------------------------------------------------
-  VehicleTypeEntity? _selectedVehicle(QuickAccessState state) {
-    if (state.vehicleList.isEmpty) {
-      return state.selectedVehicle;
-    }
+        /*
+        BlocBuilder<QuickAcessBloc, QuickAccessState>(
+          builder: (context, vehicleState) {
+            final selectedVehicle = _getMatchedVehicle(vehicleState);
 
-    // If user has selected a vehicle, find it.
-    if (selectedVehicleId != null) {
-      try {
-        return state.vehicleList.firstWhere(
-          (vehicle) => vehicle.vehicleTypeId == selectedVehicleId,
-        );
-      } catch (_) {
-        // Selected ID is no longer available in the list.
-      }
-    }
+            return Form(
+              key: _formKey,
+              child: SingleChildScrollView(
+                child: Padding(
+                  padding: const EdgeInsets.only(left: 16, right: 16),
+                  child: Column(
+                    children: [
+                      SizedBox(height: 14.h),
 
-    // If Bloc already has a selected vehicle, use it.
-    if (state.selectedVehicle != null) {
-      return state.selectedVehicle;
-    }
+                      // _vehicleDropdown(vehicleState),
+                      SizedBox(height: 14.h),
 
-    // Otherwise select the first vehicle.
-    return state.vehicleList.first;
-  }
+                      // Vehicle Type - READ ONLY
+                      _textField(
+                        controller: TextEditingController(
+                          text: selectedVehicle?.vehicleType ?? '',
+                        ),
+                        hintText: 'Vehicle Type',
+                        icon: Icons.directions_car_outlined,
+                        // enabled: false,
+                      ),
 
-  Widget _vehicleDropdown(QuickAccessState state) {
-    // If the list has loaded and nothing is selected,
-    // automatically select the first vehicle.
-    if (state.vehicleList.isNotEmpty && selectedVehicleId == null) {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (!mounted) return;
+                      SizedBox(height: 14.h),
 
-        final firstVehicle = state.vehicleList.first;
+                      // Opening KM - READ ONLY
+                      _kmField(
+                        controller: openingKmController,
+                        hintText: 'Opening KM',
+                        enabled: false,
+                        validator: (_) => null,
+                      ),
 
-        setState(() {
-          selectedVehicleId = firstVehicle.vehicleTypeId;
-        });
+                      SizedBox(height: 14.h),
 
-        print('Default vehicle selected: ${firstVehicle.vehicleTypeId}');
-      });
-    }
+                      // Closing KM - EDITABLE
+                      _kmField(
+                        controller: closingKmController,
+                        hintText: 'Closing KM*',
+                        enabled: true,
+                        validator: (value) => _validateKm(value, 'Closing KM'),
+                      ),
 
-    // Find currently selected vehicle.
-    VehicleTypeEntity? selectedVehicle;
+                      SizedBox(height: 14.h),
 
-    if (selectedVehicleId != null) {
-      for (final vehicle in state.vehicleList) {
-        if (vehicle.vehicleTypeId == selectedVehicleId) {
-          selectedVehicle = vehicle;
-          break;
-        }
-      }
-    }
+                      // Route
+                      _textField(
+                        controller: routeController,
+                        hintText: 'Enter Route*',
+                        icon: Icons.route_outlined,
+                        validator: (value) {
+                          if (value == null || value.trim().isEmpty) {
+                            return 'Please enter route';
+                          }
 
-    // If still null, use first vehicle.
-    selectedVehicle ??= state.vehicleList.isNotEmpty
-        ? state.vehicleList.first
-        : null;
+                          return null;
+                        },
+                      ),
 
-    return Container(
-      height: 60.h,
-      padding: EdgeInsets.symmetric(horizontal: 18.w),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(18.r),
-        border: Border.all(color: Colors.grey.shade200),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.03),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
-      child: DropdownButtonHideUnderline(
-        child: DropdownButton<String>(
-          value: selectedVehicle?.vehicleTypeId,
+                      SizedBox(height: 14.h),
 
-          isExpanded: true,
+                      // Remark
+                      _textField(
+                        controller: remarkController,
+                        hintText: 'Enter Remark',
+                        icon: Icons.note_add_outlined,
+                        maxLines: 1,
+                      ),
 
-          hint: const Text('Select Vehicle Type'),
+                      SizedBox(height: 14.h),
 
-          icon: Icon(
-            Icons.keyboard_arrow_down_rounded,
-            color: Colors.grey.shade500,
-          ),
+                      // Upload photo
+                      FormField<bool>(
+                        initialValue: _uploadedImage != null,
+                        validator: (_) {
+                          if (_uploadedImage == null) {
+                            return 'Please upload an image';
+                          }
 
-          style: TextStyle(
-            color: Colors.grey.shade700,
-            fontSize: 16.sp,
-            fontWeight: FontWeight.w500,
-          ),
+                          return null;
+                        },
+                        builder: (field) {
+                          return Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              _uploadPhotoCard(),
+                              if (field.hasError)
+                                Padding(
+                                  padding: EdgeInsets.only(
+                                    left: 16.w,
+                                    top: 4.h,
+                                  ),
+                                  child: Text(
+                                    field.errorText!,
+                                    style: TextStyle(
+                                      color: Colors.red,
+                                      fontSize: 12.sp,
+                                    ),
+                                  ),
+                                ),
+                            ],
+                          );
+                        },
+                      ),
+                      SizedBox(height: 14.h),
 
-          items: state.vehicleList.map((vehicle) {
-            return DropdownMenuItem<String>(
-              value: vehicle.vehicleTypeId,
-              child: Text(vehicle.vehicleType),
-            );
-          }).toList(),
-
-          onChanged: (value) {
-            if (value == null) return;
-
-            print('Vehicle selected from dropdown: $value');
-
-            setState(() {
-              selectedVehicleId = value;
-            });
-
-            print(
-              'selectedVehicleId after setState: '
-              '$selectedVehicleId',
+                      // Submit
+                      _submitButton(),
+                      SizedBox(height: 14.h),
+                    ],
+                  ),
+                ),
+              ),
             );
           },
         ),
+
+        */
       ),
     );
   }
@@ -465,14 +537,25 @@ class _PunchOutScreenState extends State<PunchOutScreen> {
 
   String? _validateKm(String? value, String fieldName) {
     final text = value?.trim() ?? '';
-    final km = double.tryParse(text);
 
+    // Empty field
     if (text.isEmpty) {
-      return '$fieldName is required';
+      return 'Please enter $fieldName';
     }
 
-    if (km == null || km < 0) {
-      return 'Enter a valid $fieldName';
+    final km = double.tryParse(text);
+
+    // Invalid number
+    if (km == null) {
+      return 'Please enter a valid $fieldName';
+    }
+
+    final openingText = openingKmController.text.trim();
+    final openingKm = double.tryParse(openingText);
+
+    // Compare only when opening KM is available
+    if (openingKm != null && km < openingKm) {
+      return 'Closing KM cannot be less than Opening KM';
     }
 
     return null;
@@ -484,12 +567,14 @@ class _PunchOutScreenState extends State<PunchOutScreen> {
     required IconData icon,
     String? Function(String?)? validator,
     int maxLines = 1,
+    bool enabled = true,
   }) {
     return CustomTextFormField(
       controller: controller,
       hintText: hintText,
       prefixIcon: icon,
       maxLines: maxLines,
+      enabled: enabled,
       validator: validator,
     );
   }
@@ -603,6 +688,7 @@ class _PunchOutScreenState extends State<PunchOutScreen> {
       textSize: 15.sp,
       text: 'SUBMIT',
       onPressed: _submitPunch,
+      isLoading: isLoading,
     );
   }
 }

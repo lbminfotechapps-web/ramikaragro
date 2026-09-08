@@ -7,8 +7,15 @@ import 'package:flutter_screenutil_plus/flutter_screenutil_plus.dart';
 
 class VisitOverviewCard extends StatelessWidget {
   final VoidCallback? onViewReport;
+  final String dealerCount;
+  final String farmerCount;
 
-  const VisitOverviewCard({super.key, this.onViewReport});
+  const VisitOverviewCard({
+    super.key,
+    this.onViewReport,
+    required this.dealerCount,
+    required this.farmerCount,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -22,7 +29,6 @@ class VisitOverviewCard extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          // Header
           Row(
             children: [
               Expanded(
@@ -35,7 +41,6 @@ class VisitOverviewCard extends StatelessWidget {
                   ),
                 ),
               ),
-
               GestureDetector(
                 onTap: onViewReport,
                 child: const Row(
@@ -62,7 +67,6 @@ class VisitOverviewCard extends StatelessWidget {
 
           SizedBox(height: 12.h),
 
-          // Legend
           const Row(
             children: [
               _LegendItem(color: Color(0xFF22E66B), label: 'Dealer Visit'),
@@ -73,10 +77,10 @@ class VisitOverviewCard extends StatelessWidget {
 
           SizedBox(height: 10.h),
 
-        
           LayoutBuilder(
             builder: (context, constraints) {
               final contentHeight = 136.h;
+
               final statsWidth = math.min(
                 math.max(constraints.maxWidth * 0.25, 105.w),
                 130.w,
@@ -87,8 +91,15 @@ class VisitOverviewCard extends StatelessWidget {
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    Expanded(child: _VisitLineChart()),
+                    Expanded(
+                      child: _VisitLineChart(
+                        dealerCount: int.tryParse(dealerCount) ?? 0,
+                        farmerCount: int.tryParse(farmerCount) ?? 0,
+                      ),
+                    ),
+
                     SizedBox(width: 25.w),
+
                     SizedBox(
                       width: statsWidth,
                       child: Column(
@@ -96,7 +107,7 @@ class VisitOverviewCard extends StatelessWidget {
                           Expanded(
                             child: _VisitStatCard(
                               title: 'Dealer Visit',
-                              value: '32',
+                              value: dealerCount,
                               color: const Color(0xFF087C43),
                             ),
                           ),
@@ -106,7 +117,7 @@ class VisitOverviewCard extends StatelessWidget {
                           Expanded(
                             child: _VisitStatCard(
                               title: 'Farmer Visit',
-                              value: '28',
+                              value: farmerCount,
                               color: const Color(0xFF075E8A),
                             ),
                           ),
@@ -154,14 +165,21 @@ class _LegendItem extends StatelessWidget {
 }
 
 class _VisitLineChart extends StatelessWidget {
-  const _VisitLineChart();
+  final int dealerCount;
+  final int farmerCount;
+
+  const _VisitLineChart({required this.dealerCount, required this.farmerCount});
 
   @override
   Widget build(BuildContext context) {
+    final maxCount = math.max(dealerCount, farmerCount);
+
+    final maxY = maxCount == 0 ? 10.0 : (maxCount * 1.2).ceilToDouble();
+
     return LineChart(
       LineChartData(
         minY: 0,
-        maxY: 1.5,
+        maxY: maxY,
 
         minX: 0,
         maxX: 5,
@@ -176,12 +194,14 @@ class _VisitLineChart extends StatelessWidget {
 
         gridData: FlGridData(
           show: true,
-          horizontalInterval: 0.5,
+          horizontalInterval: maxY / 3,
           verticalInterval: 1,
           drawVerticalLine: true,
+
           getDrawingHorizontalLine: (value) {
             return FlLine(color: Colors.white.withOpacity(0.2), strokeWidth: 1);
           },
+
           getDrawingVerticalLine: (value) {
             return FlLine(
               color: Colors.white.withOpacity(0.16),
@@ -203,10 +223,11 @@ class _VisitLineChart extends StatelessWidget {
             sideTitles: SideTitles(
               showTitles: true,
               reservedSize: 35,
-              interval: 0.5,
+              interval: maxY / 3,
+
               getTitlesWidget: (value, meta) {
                 return Text(
-                  value.toStringAsFixed(value == 0 ? 0 : 1),
+                  value.toInt().toString(),
                   style: TextStyle(
                     color: Colors.white.withOpacity(0.65),
                     fontSize: 11,
@@ -221,6 +242,7 @@ class _VisitLineChart extends StatelessWidget {
               showTitles: true,
               interval: 1,
               reservedSize: 35,
+
               getTitlesWidget: (value, meta) {
                 const dates = [
                   '15 Aug',
@@ -252,6 +274,7 @@ class _VisitLineChart extends StatelessWidget {
 
         lineTouchData: LineTouchData(
           enabled: true,
+
           touchTooltipData: LineTouchTooltipData(
             getTooltipItems: (touchedSpots) {
               return touchedSpots.map((spot) {
@@ -268,16 +291,14 @@ class _VisitLineChart extends StatelessWidget {
         ),
 
         lineBarsData: [
-          // Dealer
+          // =========================
+          // DEALER LINE
+          // =========================
+          // =========================
+          // DEALER LINE
+          // =========================
           LineChartBarData(
-            spots: const [
-              FlSpot(0, 0.95),
-              FlSpot(1, 1.02),
-              FlSpot(2, 0.90),
-              FlSpot(3, 1.20),
-              FlSpot(4, 0.72),
-              FlSpot(5, 1.00),
-            ],
+            spots: [FlSpot(0, 0), FlSpot(5, dealerCount.toDouble())],
             isCurved: true,
             curveSmoothness: 0.25,
             color: const Color(0xFF22E66B),
@@ -299,16 +320,37 @@ class _VisitLineChart extends StatelessWidget {
             belowBarData: BarAreaData(show: false),
           ),
 
-          // Farmer
+          // =========================
+          // FARMER LINE
+          // =========================
           LineChartBarData(
-            spots: const [
-              FlSpot(0, 0.58),
-              FlSpot(1, 0.53),
-              FlSpot(2, 0.58),
-              FlSpot(3, 0.82),
-              FlSpot(4, 0.40),
-              FlSpot(5, 0.72),
-            ],
+            spots: [FlSpot(0, 0), FlSpot(5, farmerCount.toDouble())],
+            isCurved: true,
+            curveSmoothness: 0.25,
+            color: const Color(0xFF4285F4),
+            barWidth: 3,
+            isStrokeCapRound: true,
+
+            dotData: FlDotData(
+              show: true,
+              getDotPainter: (spot, percent, barData, index) {
+                return FlDotCirclePainter(
+                  radius: 5,
+                  color: const Color(0xFF003D29),
+                  strokeWidth: 3,
+                  strokeColor: const Color(0xFF4285F4),
+                );
+              },
+            ),
+
+            belowBarData: BarAreaData(show: false),
+          ),
+
+          // =========================
+          // FARMER LINE
+          // =========================
+          LineChartBarData(
+            spots: [FlSpot(0, 0), FlSpot(5, farmerCount.toDouble())],
             isCurved: true,
             curveSmoothness: 0.25,
             color: const Color(0xFF4285F4),
