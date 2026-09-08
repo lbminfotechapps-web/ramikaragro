@@ -40,7 +40,7 @@ Future<void> initGlobalDi() async {
   await initEmployeeOutputDi();
 
   await initNotificationDi();
-  await initNotificationDi();
+
   await initLeaveListDi();
   await initTopTenDealerDi();
   await initSocialMediaDi();

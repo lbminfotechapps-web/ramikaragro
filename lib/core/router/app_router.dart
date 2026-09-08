@@ -112,8 +112,7 @@ class AppRouter {
         },
       ),
 
-
-        GoRoute(
+      GoRoute(
         path: leaveList,
         name: 'leaveList',
         builder: (context, state) {
@@ -121,41 +120,37 @@ class AppRouter {
         },
       ),
 
-        GoRoute(
-          path: '/add-leave',
-          name: 'addLeave',
-          builder: (context, state) {
-            return const AddLeavePage();
-          },
-        ),
+      GoRoute(
+        path: '/add-leave',
+        name: 'addLeave',
+        builder: (context, state) {
+          return const AddLeavePage();
+        },
+      ),
 
+      GoRoute(
+        path: topTenDealer,
+        name: 'topTenDealer',
+        builder: (context, state) {
+          return const TopTenDealerPage();
+        },
+      ),
 
-        GoRoute(
-          path: topTenDealer,
-          name: 'topTenDealer',
-          builder: (context, state) {
-            return const TopTenDealerPage();
-          },
-        ),
+      GoRoute(
+        path: social,
+        name: 'social',
+        builder: (context, state) {
+          return const SocialMediaPage();
+        },
+      ),
 
-
-         GoRoute(
-          path: social,
-          name: 'social',
-          builder: (context, state) {
-            return const SocialMediaPage();
-          },
-        ),
-
-
-        GoRoute(
-          path: teamLeaveList,
-          name: 'teamLeaveList',
-          builder: (context, state) {
-            return const TeamLeaveListPage();
-          },
-        ),
-
+      GoRoute(
+        path: teamLeaveList,
+        name: 'teamLeaveList',
+        builder: (context, state) {
+          return const TeamLeaveListPage();
+        },
+      ),
 
       GoRoute(
         path: farmers,
@@ -261,25 +256,6 @@ class AppRouter {
           return const UserGuidelinesPage();
         },
       ),
-
-      GoRoute(
-        path: notification,
-        name: 'notification',
-        builder: (context, state) {
-          debugPrint('========================================');
-          debugPrint('NOTIFICATION ROUTER');
-          debugPrint('state.extra       : ${state.extra}');
-          debugPrint('state.extra type  : ${state.extra.runtimeType}');
-
-          final userId = state.extra is String
-              ? int.tryParse(state.extra as String) ?? 0
-              : state.extra is int
-              ? state.extra as int
-              : 0;
-
-          debugPrint('FINAL USER ID     : $userId');
-          debugPrint('========================================');
-
 
       GoRoute(
         path: notification,

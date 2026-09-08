@@ -175,6 +175,14 @@ class _QuickAccessSectionState extends State<QuickAccessSection> {
         return;
       }
       context.go('/notification', extra: userId);
+    } else if (menu.menuId == '14') {
+      context.go('/leaveList');
+    } else if (menu.menuId == '64') {
+      context.go('/topTenDealer');
+    } else if (menu.menuId == '56') {
+      context.go('/social');
+    } else if (menu.menuId == '68') {
+      context.go('/teamLeaveList');
     } else if (menu.menuId == '21') {
       context.go('/userGuide');
     } else if (menu.menuId == '22') {
