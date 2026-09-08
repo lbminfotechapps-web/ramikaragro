@@ -14,6 +14,7 @@ import 'package:demo/features/leave/presentation/pages/add_leave_page.dart';
 import 'package:demo/features/leave/presentation/pages/leave_list_page.dart';
 import 'package:demo/features/leave/presentation/pages/team_leave_list_page.dart';
 import 'package:demo/features/leave/presentation/pages/top_ten_dealer_page.dart';
+import 'package:demo/features/home/presentation/last_force_out_screen.dart';
 import 'package:demo/features/products/presentation/pages/products_screen.dart';
 import 'package:demo/features/reports/presentation/pages/about_us_page.dart';
 import 'package:demo/features/reports/presentation/pages/contact_us_page.dart';
@@ -38,6 +39,8 @@ class AppRouter {
   static const String login = '/login';
   static const String punch = '/punchIn';
   static const String punchOut = '/punchOut';
+  static const String lastPunchOut = '/lastPunchOut';
+
   static const String noVisitDealer = '/notVisitDealer';
 
   static const String home = '/home';
@@ -169,6 +172,16 @@ class AppRouter {
           return PunchOutScreen(punchStat);
         },
       ),
+      GoRoute(
+        path: lastPunchOut,
+        name: 'lastPunchOut',
+        builder: (context, state) {
+          final punchStat = state.extra is PunchStatEntity
+              ? state.extra as PunchStatEntity
+              : null;
+          return LastForceOutScreen(punchStat);
+        },
+      ),
 
       GoRoute(
         path: empActivityReport,
@@ -206,8 +219,7 @@ class AppRouter {
         },
       ),
 
-
-       GoRoute(
+      GoRoute(
         path: aboutUs,
         name: 'aboutUs',
         builder: (context, state) {
@@ -215,7 +227,7 @@ class AppRouter {
         },
       ),
 
-       GoRoute(
+      GoRoute(
         path: contactUs,
         name: 'contactUs',
         builder: (context, state) {
@@ -223,41 +235,35 @@ class AppRouter {
         },
       ),
 
-       GoRoute(
+      GoRoute(
         path: userGuide,
         name: 'userGuide',
         builder: (context, state) {
           return const UserGuidelinesPage();
         },
-      ), 
-      
-      
-        GoRoute(
-          path: notification,
-          name: 'notification',
-          builder: (context, state) {
-            debugPrint('========================================');
-            debugPrint('NOTIFICATION ROUTER');
-            debugPrint('state.extra       : ${state.extra}');
-            debugPrint('state.extra type  : ${state.extra.runtimeType}');
+      ),
 
-            final userId = state.extra is String
-                ? int.tryParse(state.extra as String) ?? 0
-                : state.extra is int
-                    ? state.extra as int
-                    : 0;
+      GoRoute(
+        path: notification,
+        name: 'notification',
+        builder: (context, state) {
+          debugPrint('========================================');
+          debugPrint('NOTIFICATION ROUTER');
+          debugPrint('state.extra       : ${state.extra}');
+          debugPrint('state.extra type  : ${state.extra.runtimeType}');
 
-            debugPrint('FINAL USER ID     : $userId');
-            debugPrint('========================================');
+          final userId = state.extra is String
+              ? int.tryParse(state.extra as String) ?? 0
+              : state.extra is int
+              ? state.extra as int
+              : 0;
 
-            return NotificationPage(
-              userId: userId,
-              isLogin: true,
-              userType: '',
-            );
-          },
-        ),
+          debugPrint('FINAL USER ID     : $userId');
+          debugPrint('========================================');
 
+          return NotificationPage(userId: userId, isLogin: true, userType: '');
+        },
+      ),
 
       StatefulShellRoute.indexedStack(
         builder: (context, state, navigationShell) {

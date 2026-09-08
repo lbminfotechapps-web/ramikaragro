@@ -57,6 +57,7 @@ class QuickAccessDatasource {
     return PunchStatModel.fromJson(Map<String, dynamic>.from(transaction));
   }
 
+
   Future<List<VehicleTypeModel>> getVehicleType(
     int userId,
     String lastDate,

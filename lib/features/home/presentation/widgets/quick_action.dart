@@ -38,7 +38,7 @@ class _QuickAccessSectionState extends State<QuickAccessSection> {
   static const int initialItemCount = 7;
 
   // Every time More is clicked, show 4 more items.
-  static const int loadMoreCount = 4;
+  static const int loadMoreCount = 8;
 
   int visibleItemCount = initialItemCount;
 
@@ -143,44 +143,41 @@ class _QuickAccessSectionState extends State<QuickAccessSection> {
 
     if (menu.menuId == '17') {
       final status = widget.punchStat?.inOutStatus ?? 0;
-      debugPrint('Punch status: $status');
+      debugPrint('Punch status inout: ${widget.punchStat?.inOutStatus}');
       debugPrint('Punch status data: ${widget.punchStat}');
 
       if (status == '0') {
         context.go('/punchIn', extra: widget.punchStat);
       } else if (status == '1') {
         context.go('/punchOut', extra: widget.punchStat);
+      } else if (status == '2') {
+        context.go('/lastPunchOut', extra: widget.punchStat);
       }
     } else if (menu.menuId == '65') {
       context.go('/notVisitDealer');
     } else if (menu.menuId == '8') {
       context.go('/farmers');
-    } 
-
-     else if (menu.menuId == '20') { 
-      
-     final userData = await SecureStorage.instance.getUserData(); 
-     final userId = userData?['user_id']?.toString(); 
-     debugPrint('========================================'); debugPrint('NOTIFICATION NAVIGATION'); 
-     debugPrint('USER DATA: $userData'); 
-     debugPrint('USER ID: $userId'); debugPrint('========================================'); 
-     if (!context.mounted) return; if (userId == null || userId.isEmpty) 
-     { 
-      ScaffoldMessenger.of(context).showSnackBar( const SnackBar( content: Text( 'User information is not available', ), ), ); return;
-       } context.go( '/notification', extra: userId, ); 
-       
-    }
-      
-
-     else if (menu.menuId == '21') {
+    } else if (menu.menuId == '20') {
+      final userData = await SecureStorage.instance.getUserData();
+      final userId = userData?['user_id']?.toString();
+      debugPrint('========================================');
+      debugPrint('NOTIFICATION NAVIGATION');
+      debugPrint('USER DATA: $userData');
+      debugPrint('USER ID: $userId');
+      debugPrint('========================================');
+      if (!context.mounted) return;
+      if (userId == null || userId.isEmpty) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('User information is not available')),
+        );
+        return;
+      }
+      context.go('/notification', extra: userId);
+    } else if (menu.menuId == '21') {
       context.go('/userGuide');
-      } 
-      
-     else if (menu.menuId == '22') {
+    } else if (menu.menuId == '22') {
       context.go('/aboutUs');
-      } 
-
-      else if (menu.menuId == '23') {
+    } else if (menu.menuId == '23') {
       context.go('/contactUs');
       } 
 
@@ -206,6 +203,7 @@ class _QuickAccessSectionState extends State<QuickAccessSection> {
      
 
     else if (menu.menuId == '57' ||
+    } else if (menu.menuId == '57' ||
         menu.menuId == '63' ||
         menu.menuId == '32') {
       final userData = await SecureStorage.instance.getUserData();
@@ -219,8 +217,6 @@ class _QuickAccessSectionState extends State<QuickAccessSection> {
         );
         return;
       }
-
-     
 
       final route = switch (menu.menuId) {
         '57' => '/visitSummaryReport',

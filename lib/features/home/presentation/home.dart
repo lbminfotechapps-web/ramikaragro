@@ -83,7 +83,17 @@ class _HomeState extends State<Home> {
 
               SizedBox(height: 12.h),
 
-              const VisitOverviewCard(),
+              BlocBuilder<HomeBloc, HomeState>(
+                builder: (context, state) {
+                  // if (state.status == HomeStatus.loading) {
+                  //   return const Center(child: CircularProgressIndicator());
+                  // }
+                  return VisitOverviewCard(
+                    dealerCount: state.totalDealerCount ?? '0',
+                    farmerCount: state.totalFarmerCount ?? '0',
+                  );
+                },
+              ),
 
               SizedBox(height: 12.h),
 

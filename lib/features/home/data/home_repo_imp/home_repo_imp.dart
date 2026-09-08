@@ -12,4 +12,17 @@ class HomeRepoImp implements HomeRepo {
     final menus = await homeDatasource.fetchHomeMenu(userID, menuName);
     return menus;
   }
+
+  @override
+  Future<Map<String, dynamic>> getVisitCountGraph(
+    int userId,
+    String searchFromDate,
+    String searchToDate,
+  ) {
+    return homeDatasource.fetchVisitCountGraph(
+      userId,
+      searchFromDate,
+      searchToDate,
+    );
+  }
 }

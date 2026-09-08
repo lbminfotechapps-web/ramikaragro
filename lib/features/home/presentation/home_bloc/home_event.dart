@@ -11,3 +11,11 @@ class GetMenuEvent extends HomeEvent {
 
   GetMenuEvent(this.userId, this.menuType);
 }
+
+class VisitGraphCountEvent extends HomeEvent {
+  final int userId;
+  final String searchFromDate;
+  final String searchToDate;
+
+  VisitGraphCountEvent(this.userId, this.searchFromDate, this.searchToDate);
+}

@@ -16,7 +16,7 @@ class HomeDatasource {
     });
 
     print('userid $userId');
-     print('menuid $menuType');
+    print('menuid $menuType');
 
     final response = await dioClient.client.post(
       ApiClient.userMenu,
@@ -50,6 +50,53 @@ class HomeDatasource {
         .toList();
   }
 
-  
-  
+  Future<Map<String, dynamic>> fetchVisitCountGraph(
+    int userId,
+    String searchFromDate,
+    String searchToDate,
+  ) async {
+    final formData = FormData.fromMap({
+      'userId':userId,
+      'searchfromDate': searchFromDate,
+      'searchtoDate': searchToDate,
+    });
+    print('userId $userId');
+    print('searchfromDate $searchFromDate');
+    print('searchtoDate $searchToDate');
+
+    final response = await dioClient.client.post(
+      ApiClient.visitCountgraph,
+      data: formData,
+    );
+
+    print('Home graph status: ${response.statusCode}');
+    print('Home graph response: ${response.data}');
+
+    dynamic data = response.data;
+    if (data is String) {
+      try {
+        data = jsonDecode(data);
+      } on FormatException {
+        throw const FormatException('Invalid JSON response from menu API');
+      }
+    }
+
+    if (data is! Map) {
+      throw const FormatException(
+        'Visit count API response is not a JSON object',
+      );
+    }
+
+    final responseData = Map<String, dynamic>.from(data);
+    if (!responseData.containsKey('status') ||
+        !responseData.containsKey('message') ||
+        !responseData.containsKey('tot_dealer_cnt') ||
+        !responseData.containsKey('tot_farmer_cnt')) {
+      throw const FormatException(
+        'Visit count API response has an invalid format',
+      );
+    }
+
+    return responseData;
+  }
 }
