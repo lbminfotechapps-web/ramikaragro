@@ -21,15 +21,7 @@ Future<void> initGlobalDi() async {
   await initAuthDi();
   await initHomeDi();
 
-  // =========================
-  // DEALER
-  // =========================
-
-  // await initDealerDi();
-
-  // =========================
-  // FUTURE FEATURES
-  // =========================
+  
 
   await initFarmerDi();
   await initGalleryDi();

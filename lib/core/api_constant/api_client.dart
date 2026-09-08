@@ -7,6 +7,8 @@ class ApiClient {
       "http://192.168.1.253:85/ramikar_agro/uploads/gallery/";
 
   static const String login = "/user_login";
+  static const String getLastThirtyNotVisited ="/getLastThiertyNotVisited";
+  static const String getNearByOutlets ="/getNearByOutlets";
   static const String userMenu = "/getUserMenu_new";
   static const String punchStatus = "/getLastTransactionInOutStatus";
   static const String getLastThirtyNotVisited = "/getLastThiertyNotVisited";

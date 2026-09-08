@@ -1,5 +1,12 @@
 import 'package:demo/features/auth/domain/entity/login_entity.dart';
+import 'package:demo/features/dealer/data/models/DealerListModel.dart';
 
-abstract class LoginRepository {
-  Future<UserLoginEntity> loginUser(String username, String password, String fcmToken);
+abstract class DealerListRepository {
+  Future<List<DealerListModel>> getDealers(
+    String user_id,
+    String lattitude,
+    String logitude,
+    String limit,
+    String searchKey,
+  );
 }

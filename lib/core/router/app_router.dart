@@ -314,7 +314,7 @@ class AppRouter {
                 path: visits,
                 name: 'visits',
                 builder: (context, state) {
-                  return const Dealerlistscreen();
+                  return const DealerListScreen();
                 },
               ),
             ],
