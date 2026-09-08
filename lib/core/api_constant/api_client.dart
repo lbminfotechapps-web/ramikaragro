@@ -19,6 +19,10 @@ class ApiClient {
   static const String getMyLeaveList = "/getMyLeaveList";
   static const String addLeave = "/addLeave";
   static const String punchAddInOut = "/add_in_out_details";
- static const String getVehicleType = "/getVehicleType";
- 
+  static const String getVehicleType = "/getVehicleType";
+  static const String getTopTenDealerVisit ="/getHighestTopDealer";
+  static const String getSocialMedia = "/getSocialMedia";
+  static const String getMyEmployeeLeaveList ="/getMyEmployeeLeaveList";
+  static const String updateLeaveStatus ="/updateLeaveStatus";
+
 }

@@ -184,6 +184,23 @@ class _QuickAccessSectionState extends State<QuickAccessSection> {
       context.go('/contactUs');
       } 
 
+      else if (menu.menuId == '14') {
+      context.go('/leaveList');
+      } 
+
+      else if (menu.menuId == '64') {
+      context.go('/topTenDealer');
+      }
+
+       else if (menu.menuId == '56') {
+      context.go('/social');
+      }
+
+       else if (menu.menuId == '68') {
+      context.go('/teamLeaveList');
+      }
+
+
       
      
      
