@@ -2,12 +2,14 @@ import 'dart:io';
 
 import 'package:demo/core/router/app_router.dart';
 import 'package:demo/core/secure_storage/secure_storage.dart';
+import 'package:demo/core/utility/widgets/custom_appbar.dart';
 import 'package:demo/features/farmer/famerfollowup/data/model/followuplist_model.dart';
 import 'package:demo/features/farmer/famerfollowup/presentation/bloc/famerfollowup_bloc.dart';
 import 'package:demo/features/farmer/famerfollowup/presentation/bloc/famerfollowup_event.dart';
 import 'package:demo/features/farmer/famerfollowup/presentation/bloc/famerfollowup_state.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_screenutil_plus/flutter_screenutil_plus.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:go_router/go_router.dart';
@@ -614,45 +616,51 @@ class _FamerFollowupPageState extends State<FamerFollowupPage> {
         // ====================================================
         // APP BAR
         // ====================================================
-        appBar: AppBar(
-          elevation: 0,
-          backgroundColor: Colors.white,
-          surfaceTintColor: Colors.white,
-
-          leading: IconButton(
-            icon: const Icon(
-              Icons.arrow_back_ios_new_rounded,
-              size: 20,
-              color: Color(0xFF172B24),
-            ),
-            onPressed: () => Navigator.pop(context),
-          ),
-
-          title: const Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                'Follow-up',
-                style: TextStyle(
-                  color: Color(0xFF172B24),
-                  fontSize: 19,
-                  fontWeight: FontWeight.w700,
-                ),
-              ),
-
-              SizedBox(height: 2),
-
-              Text(
-                'Add farmer follow-up',
-                style: TextStyle(
-                  color: Color(0xFF7A8983),
-                  fontSize: 12,
-                  fontWeight: FontWeight.w400,
-                ),
-              ),
-            ],
-          ),
+        appBar: CustomAppBar(
+          title: 'Follow-up',
+          // subtitle: 'Add farmer follow-up',
+          showBackButton: true,
+          onBackTap: () => Navigator.pop(context),
         ),
+        // appBar: AppBar(
+        //   elevation: 0,
+        //   backgroundColor: Colors.white,
+        //   surfaceTintColor: Colors.white,
+
+        //   leading: IconButton(
+        //     icon: const Icon(
+        //       Icons.arrow_back_ios_new_rounded,
+        //       size: 20,
+        //       color: Color(0xFF172B24),
+        //     ),
+        //     onPressed: () => Navigator.pop(context),
+        //   ),
+
+        //   title: const Column(
+        //     crossAxisAlignment: CrossAxisAlignment.start,
+        //     children: [
+        //       Text(
+        //         'Follow-up',
+        //         style: TextStyle(
+        //           color: Color(0xFF172B24),
+        //           fontSize: 19,
+        //           fontWeight: FontWeight.w700,
+        //         ),
+        //       ),
+
+        //       SizedBox(height: 2),
+
+        //       Text(
+        //         'Add farmer follow-up',
+        //         style: TextStyle(
+        //           color: Color(0xFF7A8983),
+        //           fontSize: 12,
+        //           fontWeight: FontWeight.w400,
+        //         ),
+        //       ),
+        //     ],
+        //   ),
+        // ),
 
         // ====================================================
         // BODY
@@ -662,10 +670,11 @@ class _FamerFollowupPageState extends State<FamerFollowupPage> {
             key: _formKey,
             child: SingleChildScrollView(
               physics: const BouncingScrollPhysics(),
-              padding: const EdgeInsets.fromLTRB(16, 18, 16, 120),
+              padding: const EdgeInsets.only(left: 16, right: 16),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  SizedBox(height: 14.h),
                   _buildHistoryStrip(),
                   const SizedBox(height: 18),
 

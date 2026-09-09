@@ -9,6 +9,7 @@ import 'package:demo/features/farmer/farmerlist/presentation/bloc/farmerlist_blo
 import 'package:demo/features/gallery/presentation/boc/gallery_bloc.dart';
 import 'package:demo/features/home/presentation/home_bloc/home_bloc.dart';
 import 'package:demo/features/home/presentation/quick_aceess_bloc/quick_acess_bloc.dart';
+import 'package:demo/features/products/presentation/bloc/product_bloc.dart';
 import 'package:demo/features/reports/presentation/bloc/employee_activity_bloc.dart';
 import 'package:demo/features/reports/presentation/bloc/not_visited_dealer_bloc.dart';
 import 'package:demo/features/scheme/presentation/bloc/scheme_bloc.dart';
@@ -23,12 +24,14 @@ class MyApp extends StatelessWidget {
     return MultiBlocProvider(
       providers: [
         BlocProvider<AuthBloc>(create: (_) => sl<AuthBloc>()),
-      BlocProvider<NotVisitedDealerBloc>(create: (_) => sl<NotVisitedDealerBloc>()),
+        BlocProvider<NotVisitedDealerBloc>(
+          create: (_) => sl<NotVisitedDealerBloc>(),
+        ),
 
         BlocProvider<AuthBloc>(create: (_) => sl<AuthBloc>()),
         BlocProvider<FarmerListBloc>(create: (_) => sl<FarmerListBloc>()),
         BlocProvider<DealerListBloc>(create: (_) => sl<DealerListBloc>()),
-  
+
         BlocProvider<NotVisitedDealerBloc>(
           create: (_) => sl<NotVisitedDealerBloc>(),
         ),
@@ -41,6 +44,7 @@ class MyApp extends StatelessWidget {
         ),
         BlocProvider<GalleryBloc>(create: (_) => sl<GalleryBloc>()),
         BlocProvider<SchemeBloc>(create: (_) => sl<SchemeBloc>()),
+        BlocProvider<ProductBloc>(create: (_) => sl<ProductBloc>()),
       ],
 
       child: MaterialApp.router(

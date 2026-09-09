@@ -1,17 +1,13 @@
 import 'dart:async';
 
+import 'package:demo/core/theme/app_colors.dart';
+import 'package:demo/core/utility/widgets/custom_appbar.dart';
 import 'package:demo/features/dealer/data/models/DealerListModel.dart';
 import 'package:demo/features/dealer/presentation/bloc/dealerlist_bloc.dart';
 import 'package:demo/features/dealer/presentation/bloc/dealerlist_event.dart';
 import 'package:demo/features/dealer/presentation/bloc/dealerlist_state.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-
-import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-
-import '../../data/models/DealerListModel.dart';
-import '../bloc/dealerlist_bloc.dart';
 
 class DealerListScreen extends StatefulWidget {
   const DealerListScreen({super.key});
@@ -21,8 +17,7 @@ class DealerListScreen extends StatefulWidget {
 }
 
 class _DealerListScreenState extends State<DealerListScreen> {
-  final TextEditingController _searchController =
-      TextEditingController();
+  final TextEditingController _searchController = TextEditingController();
 
   Timer? _searchDebounce;
 
@@ -62,34 +57,27 @@ class _DealerListScreenState extends State<DealerListScreen> {
     _searchDebounce?.cancel();
 
     // Wait 500 ms before calling API
-    _searchDebounce = Timer(
-      const Duration(milliseconds: 500),
-      () {
-        _loadDealers(
-          searchText: searchText,
-        );
-      },
-    );
+    _searchDebounce = Timer(const Duration(milliseconds: 500), () {
+      _loadDealers(searchText: searchText);
+    });
   }
 
   // =========================================================
   // LOAD DEALERS
   // =========================================================
 
-  void _loadDealers({
-    String? searchText,
-  }) {
+  void _loadDealers({String? searchText}) {
     final search = searchText ?? _searchController.text.trim();
 
     context.read<DealerListBloc>().add(
-          DealerListEvent(
-            user_id: '4',
-            latitude: '19.9675697',
-            longitude: '73.7774614',
-            searchText: search,
-            type: 'Dealer',
-          ),
-        );
+      DealerListEvent(
+        user_id: '4',
+        latitude: '19.9675697',
+        longitude: '73.7774614',
+        searchText: search,
+        type: 'Dealer',
+      ),
+    );
   }
 
   // =========================================================
@@ -104,25 +92,50 @@ class _DealerListScreenState extends State<DealerListScreen> {
       // =====================================================
       // APP BAR
       // =====================================================
-
-      appBar: AppBar(
-        backgroundColor: Colors.white,
-        elevation: 0,
-        centerTitle: false,
-        title: const Text(
-          'Dealer List',
-          style: TextStyle(
-            fontSize: 20,
-            fontWeight: FontWeight.w600,
-            color: Colors.black87,
+      appBar: CustomAppBar(
+        leading: Container(
+          width: 45,
+          height: 45,
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            border: Border.all(color: AppColors.borderColor),
+          ),
+          child: IconButton(
+            padding: EdgeInsets.zero,
+            icon: const Icon(
+              Icons.person_2_outlined,
+              color: AppColors.textColor,
+            ),
+            onPressed: () {
+              Scaffold.of(context).openDrawer();
+            },
           ),
         ),
+        title: 'Dealer List',
+
+        showBackButton: false,
+        onNotificationTap: () {
+          // Handle notification tap
+        },
       ),
+
+      // AppBar(
+      //   backgroundColor: Colors.white,
+      //   elevation: 0,
+      //   centerTitle: false,
+      //   title: const Text(
+      //     'Dealer List',
+      //     style: TextStyle(
+      //       fontSize: 20,
+      //       fontWeight: FontWeight.w600,
+      //       color: Colors.black87,
+      //     ),
+      //   ),
+      // ),
 
       // =====================================================
       // BODY
       // =====================================================
-
       body: BlocBuilder<DealerListBloc, DealerListState>(
         builder: (context, state) {
           // -------------------------------------------------
@@ -134,9 +147,7 @@ class _DealerListScreenState extends State<DealerListScreen> {
               children: [
                 _buildSearchBar(),
                 const Expanded(
-                  child: Center(
-                    child: CircularProgressIndicator(),
-                  ),
+                  child: Center(child: CircularProgressIndicator()),
                 ),
               ],
             );
@@ -167,8 +178,7 @@ class _DealerListScreenState extends State<DealerListScreen> {
                           const SizedBox(height: 12),
 
                           Text(
-                            state.errorMessage ??
-                                'Something went wrong',
+                            state.errorMessage ?? 'Something went wrong',
                             textAlign: TextAlign.center,
                             style: const TextStyle(
                               fontSize: 15,
@@ -208,21 +218,14 @@ class _DealerListScreenState extends State<DealerListScreen> {
               // =================================================
               // SEARCH BAR
               // =================================================
-
               _buildSearchBar(),
 
               // =================================================
               // DEALER COUNT
               // =================================================
-
               if (dealers.isNotEmpty)
                 Padding(
-                  padding: const EdgeInsets.fromLTRB(
-                    16,
-                    3,
-                    16,
-                    4,
-                  ),
+                  padding: const EdgeInsets.fromLTRB(16, 3, 16, 4),
                   child: Row(
                     children: [
                       Text(
@@ -240,7 +243,6 @@ class _DealerListScreenState extends State<DealerListScreen> {
               // =================================================
               // LIST
               // =================================================
-
               Expanded(
                 child: dealers.isEmpty
                     ? _buildEmptyView()
@@ -249,24 +251,13 @@ class _DealerListScreenState extends State<DealerListScreen> {
                           _loadDealers();
                         },
                         child: ListView.builder(
-                          physics:
-                              const AlwaysScrollableScrollPhysics(),
-                          padding: const EdgeInsets.fromLTRB(
-                            12,
-                            6,
-                            12,
-                            20,
-                          ),
+                          physics: const AlwaysScrollableScrollPhysics(),
+                          padding: const EdgeInsets.fromLTRB(12, 6, 12, 20),
                           itemCount: dealers.length,
-                          itemBuilder: (
-                            context,
-                            index,
-                          ) {
+                          itemBuilder: (context, index) {
                             final dealer = dealers[index];
 
-                            return _DealerListItem(
-                              dealer: dealer,
-                            );
+                            return _DealerListItem(dealer: dealer);
                           },
                         ),
                       ),
@@ -279,16 +270,12 @@ class _DealerListScreenState extends State<DealerListScreen> {
       // =====================================================
       // FLOATING BUTTON
       // =====================================================
-
       floatingActionButton: FloatingActionButton(
         backgroundColor: const Color(0xFF087A2F),
         onPressed: () {
           _loadDealers();
         },
-        child: const Icon(
-          Icons.refresh,
-          color: Colors.white,
-        ),
+        child: const Icon(Icons.refresh, color: Colors.white),
       ),
     );
   }
@@ -299,12 +286,7 @@ class _DealerListScreenState extends State<DealerListScreen> {
 
   Widget _buildSearchBar() {
     return Padding(
-      padding: const EdgeInsets.fromLTRB(
-        12,
-        10,
-        12,
-        8,
-      ),
+      padding: const EdgeInsets.fromLTRB(12, 10, 12, 8),
       child: Row(
         children: [
           Expanded(
@@ -313,9 +295,7 @@ class _DealerListScreenState extends State<DealerListScreen> {
               decoration: BoxDecoration(
                 color: Colors.white,
                 borderRadius: BorderRadius.circular(24),
-                border: Border.all(
-                  color: Colors.grey.shade300,
-                ),
+                border: Border.all(color: Colors.grey.shade300),
               ),
               child: TextField(
                 controller: _searchController,
@@ -333,25 +313,18 @@ class _DealerListScreenState extends State<DealerListScreen> {
                     color: Colors.grey.shade700,
                   ),
 
-                  suffixIcon:
-                      _searchController.text.isNotEmpty
-                          ? IconButton(
-                              icon: const Icon(
-                                Icons.clear,
-                                size: 19,
-                              ),
-                              onPressed: () {
-                                _searchController.clear();
-                              },
-                            )
-                          : null,
+                  suffixIcon: _searchController.text.isNotEmpty
+                      ? IconButton(
+                          icon: const Icon(Icons.clear, size: 19),
+                          onPressed: () {
+                            _searchController.clear();
+                          },
+                        )
+                      : null,
 
                   border: InputBorder.none,
 
-                  contentPadding:
-                      const EdgeInsets.symmetric(
-                    vertical: 13,
-                  ),
+                  contentPadding: const EdgeInsets.symmetric(vertical: 13),
                 ),
               ),
             ),
@@ -362,8 +335,6 @@ class _DealerListScreenState extends State<DealerListScreen> {
           // =================================================
           // FILTER BUTTON
           // =================================================
-
-        
         ],
       ),
     );
@@ -379,9 +350,7 @@ class _DealerListScreenState extends State<DealerListScreen> {
         mainAxisSize: MainAxisSize.min,
         children: [
           Icon(
-            _searchText.isNotEmpty
-                ? Icons.search_off
-                : Icons.store_outlined,
+            _searchText.isNotEmpty ? Icons.search_off : Icons.store_outlined,
             size: 48,
             color: Colors.grey.shade400,
           ),
@@ -389,9 +358,7 @@ class _DealerListScreenState extends State<DealerListScreen> {
           const SizedBox(height: 12),
 
           Text(
-            _searchText.isNotEmpty
-                ? 'No dealers found'
-                : 'NO DEALERS FOUND',
+            _searchText.isNotEmpty ? 'No dealers found' : 'NO DEALERS FOUND',
             style: TextStyle(
               color: Colors.grey.shade600,
               fontSize: 15,
@@ -403,10 +370,7 @@ class _DealerListScreenState extends State<DealerListScreen> {
             const SizedBox(height: 5),
             Text(
               'Try another search',
-              style: TextStyle(
-                color: Colors.grey.shade500,
-                fontSize: 12,
-              ),
+              style: TextStyle(color: Colors.grey.shade500, fontSize: 12),
             ),
           ],
         ],
@@ -422,9 +386,7 @@ class _DealerListScreenState extends State<DealerListScreen> {
 class _DealerListItem extends StatelessWidget {
   final DealerListModel dealer;
 
-  const _DealerListItem({
-    required this.dealer,
-  });
+  const _DealerListItem({required this.dealer});
 
   @override
   Widget build(BuildContext context) {
@@ -446,38 +408,27 @@ class _DealerListItem extends StatelessWidget {
           // ===================================================
           // TOP DEALER INFORMATION
           // ===================================================
-
           Padding(
-            padding: const EdgeInsets.fromLTRB(
-              12,
-              12,
-              8,
-              8,
-            ),
+            padding: const EdgeInsets.fromLTRB(12, 12, 8, 8),
             child: Row(
-              crossAxisAlignment:
-                  CrossAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 // =================================================
                 // DEALER INITIAL
                 // =================================================
-
                 Container(
                   height: 50,
                   width: 50,
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
                     color: const Color(0xFFE7F2E9),
-                    border: Border.all(
-                      color: Colors.grey.shade300,
-                    ),
+                    border: Border.all(color: Colors.grey.shade300),
                   ),
                   child: Center(
                     child: Text(
                       dealer.outletName.isEmpty
                           ? '?'
-                          : dealer.outletName[0]
-                              .toUpperCase(),
+                          : dealer.outletName[0].toUpperCase(),
                       style: const TextStyle(
                         fontSize: 20,
                         fontWeight: FontWeight.bold,
@@ -492,11 +443,9 @@ class _DealerListItem extends StatelessWidget {
                 // =================================================
                 // NAME + MOBILE + ADDRESS
                 // =================================================
-
                 Expanded(
                   child: Column(
-                    crossAxisAlignment:
-                        CrossAxisAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Row(
                         children: [
@@ -506,8 +455,7 @@ class _DealerListItem extends StatelessWidget {
                                   ? 'Unknown Dealer'
                                   : dealer.outletName,
                               maxLines: 1,
-                              overflow:
-                                  TextOverflow.ellipsis,
+                              overflow: TextOverflow.ellipsis,
                               style: const TextStyle(
                                 fontSize: 14,
                                 fontWeight: FontWeight.w600,
@@ -520,28 +468,22 @@ class _DealerListItem extends StatelessWidget {
 
                           // ACTIVE
                           Container(
-                            padding:
-                                const EdgeInsets.symmetric(
+                            padding: const EdgeInsets.symmetric(
                               horizontal: 7,
                               vertical: 3,
                             ),
                             decoration: BoxDecoration(
-                              color:
-                                  const Color(0xFFE8F7EC),
-                              borderRadius:
-                                  BorderRadius.circular(12),
+                              color: const Color(0xFFE8F7EC),
+                              borderRadius: BorderRadius.circular(12),
                             ),
                             child: Row(
-                              mainAxisSize:
-                                  MainAxisSize.min,
+                              mainAxisSize: MainAxisSize.min,
                               children: [
                                 Container(
                                   height: 6,
                                   width: 6,
-                                  decoration:
-                                      const BoxDecoration(
-                                    color:
-                                        Color(0xFF00B83D),
+                                  decoration: const BoxDecoration(
+                                    color: Color(0xFF00B83D),
                                     shape: BoxShape.circle,
                                   ),
                                 ),
@@ -552,10 +494,8 @@ class _DealerListItem extends StatelessWidget {
                                   'Active',
                                   style: TextStyle(
                                     fontSize: 10,
-                                    fontWeight:
-                                        FontWeight.w600,
-                                    color:
-                                        Color(0xFF087A2F),
+                                    fontWeight: FontWeight.w600,
+                                    color: Color(0xFF087A2F),
                                   ),
                                 ),
                               ],
@@ -567,9 +507,7 @@ class _DealerListItem extends StatelessWidget {
                       const SizedBox(height: 3),
 
                       // MOBILE
-                      if ((dealer.outletPersonMobile ??
-                              '')
-                          .isNotEmpty)
+                      if ((dealer.outletPersonMobile ?? '').isNotEmpty)
                         Text(
                           dealer.outletPersonMobile!,
                           style: TextStyle(
@@ -586,8 +524,7 @@ class _DealerListItem extends StatelessWidget {
                             ? 'Address not available'
                             : dealer.outletAddress,
                         maxLines: 1,
-                        overflow:
-                            TextOverflow.ellipsis,
+                        overflow: TextOverflow.ellipsis,
                         style: TextStyle(
                           fontSize: 10,
                           color: Colors.grey.shade600,
@@ -624,15 +561,9 @@ class _DealerListItem extends StatelessWidget {
           // ===================================================
           // LAST CALL / LAST VISIT
           // ===================================================
-
           Container(
-            margin: const EdgeInsets.symmetric(
-              horizontal: 8,
-            ),
-            padding: const EdgeInsets.symmetric(
-              vertical: 9,
-              horizontal: 8,
-            ),
+            margin: const EdgeInsets.symmetric(horizontal: 8),
+            padding: const EdgeInsets.symmetric(vertical: 9, horizontal: 8),
             decoration: BoxDecoration(
               color: const Color(0xFFF4F8F4),
               borderRadius: BorderRadius.circular(10),
@@ -643,32 +574,22 @@ class _DealerListItem extends StatelessWidget {
                 Expanded(
                   child: _ActivityInfo(
                     icon: Icons.phone,
-                    iconColor:
-                        const Color(0xFF087A2F),
+                    iconColor: const Color(0xFF087A2F),
                     title: 'Last Call',
-                    value: _displayDate(
-                      dealer.lastDateTime,
-                    ),
+                    value: _displayDate(dealer.lastDateTime),
                     subtitle: 'Today',
                   ),
                 ),
 
-                Container(
-                  height: 38,
-                  width: 1,
-                  color: Colors.grey.shade300,
-                ),
+                Container(height: 38, width: 1, color: Colors.grey.shade300),
 
                 // LAST VISIT
                 Expanded(
                   child: _ActivityInfo(
                     icon: Icons.calendar_month,
-                    iconColor:
-                        const Color(0xFF087A2F),
+                    iconColor: const Color(0xFF087A2F),
                     title: 'Last Visit',
-                    value: _displayDate(
-                      dealer.lastVisitDateTime,
-                    ),
+                    value: _displayDate(dealer.lastVisitDateTime),
                     subtitle: 'Today',
                   ),
                 ),
@@ -681,14 +602,8 @@ class _DealerListItem extends StatelessWidget {
           // ===================================================
           // BOTTOM ACTION BAR
           // ===================================================
-
           Padding(
-            padding: const EdgeInsets.fromLTRB(
-              8,
-              0,
-              8,
-              9,
-            ),
+            padding: const EdgeInsets.fromLTRB(8, 0, 8, 9),
             child: Row(
               children: [
                 // PIN
@@ -709,10 +624,7 @@ class _DealerListItem extends StatelessWidget {
                       onPressed: () {
                         _callDealer(dealer);
                       },
-                      icon: const Icon(
-                        Icons.phone,
-                        size: 17,
-                      ),
+                      icon: const Icon(Icons.phone, size: 17),
                       label: const Text(
                         'Call Now',
                         style: TextStyle(
@@ -721,14 +633,11 @@ class _DealerListItem extends StatelessWidget {
                         ),
                       ),
                       style: ElevatedButton.styleFrom(
-                        backgroundColor:
-                            const Color(0xFF087A2F),
+                        backgroundColor: const Color(0xFF087A2F),
                         foregroundColor: Colors.white,
                         elevation: 0,
-                        shape:
-                            RoundedRectangleBorder(
-                          borderRadius:
-                              BorderRadius.circular(22),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(22),
                         ),
                       ),
                     ),
@@ -741,10 +650,7 @@ class _DealerListItem extends StatelessWidget {
                 _CircleActionButton(
                   icon: Icons.info_outline,
                   onTap: () {
-                    _showDealerDetails(
-                      context,
-                      dealer,
-                    );
+                    _showDealerDetails(context, dealer);
                   },
                 ),
               ],
@@ -774,21 +680,14 @@ class _DealerListItem extends StatelessWidget {
   // ===========================================================
 
   void _callDealer(DealerListModel dealer) {
-    final mobile =
-        dealer.outletPersonMobile ??
-        dealer.outletMobile ??
-        '';
+    final mobile = dealer.outletPersonMobile ?? dealer.outletMobile ?? '';
 
     if (mobile.isEmpty) {
-      debugPrint(
-        'Dealer mobile number not available',
-      );
+      debugPrint('Dealer mobile number not available');
       return;
     }
 
-    debugPrint(
-      'Calling dealer: $mobile',
-    );
+    debugPrint('Calling dealer: $mobile');
 
     // Add url_launcher here if required.
   }
@@ -866,17 +765,12 @@ class _DealerListItem extends StatelessWidget {
   // DEALER DETAILS
   // ===========================================================
 
-  void _showDealerDetails(
-    BuildContext context,
-    DealerListModel dealer,
-  ) {
+  void _showDealerDetails(BuildContext context, DealerListModel dealer) {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
       shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(
-          top: Radius.circular(20),
-        ),
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
       builder: (context) {
         return SafeArea(
@@ -884,8 +778,7 @@ class _DealerListItem extends StatelessWidget {
             padding: const EdgeInsets.all(20),
             child: Column(
               mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment:
-                  CrossAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Center(
                   child: Container(
@@ -893,8 +786,7 @@ class _DealerListItem extends StatelessWidget {
                     width: 40,
                     decoration: BoxDecoration(
                       color: Colors.grey.shade300,
-                      borderRadius:
-                          BorderRadius.circular(10),
+                      borderRadius: BorderRadius.circular(10),
                     ),
                   ),
                 ),
@@ -911,34 +803,20 @@ class _DealerListItem extends StatelessWidget {
 
                 const SizedBox(height: 15),
 
-                _DetailRow(
-                  label: 'Person',
-                  value: dealer.outletPerson,
-                ),
+                _DetailRow(label: 'Person', value: dealer.outletPerson),
 
                 _DetailRow(
                   label: 'Mobile',
-                  value:
-                      dealer.outletPersonMobile ??
-                          '--',
+                  value: dealer.outletPersonMobile ?? '--',
                 ),
 
-                _DetailRow(
-                  label: 'Address',
-                  value:
-                      dealer.outletAddress,
-                ),
+                _DetailRow(label: 'Address', value: dealer.outletAddress),
 
-                _DetailRow(
-                  label: 'Type',
-                  value:
-                      dealer.outletType ?? '--',
-                ),
+                _DetailRow(label: 'Type', value: dealer.outletType ?? '--'),
 
                 _DetailRow(
                   label: 'Distance',
-                  value:
-                      dealer.outletDistance ?? '--',
+                  value: dealer.outletDistance ?? '--',
                 ),
 
                 const SizedBox(height: 15),
@@ -981,26 +859,18 @@ class _ActivityInfo extends StatelessWidget {
             color: Color(0xFFE1F2E5),
             shape: BoxShape.circle,
           ),
-          child: Icon(
-            icon,
-            color: iconColor,
-            size: 18,
-          ),
+          child: Icon(icon, color: iconColor, size: 18),
         ),
 
         const SizedBox(width: 7),
 
         Expanded(
           child: Column(
-            crossAxisAlignment:
-                CrossAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
                 title,
-                style: TextStyle(
-                  fontSize: 9,
-                  color: Colors.grey.shade700,
-                ),
+                style: TextStyle(fontSize: 9, color: Colors.grey.shade700),
               ),
 
               const SizedBox(height: 1),
@@ -1018,10 +888,7 @@ class _ActivityInfo extends StatelessWidget {
 
               Text(
                 subtitle,
-                style: const TextStyle(
-                  fontSize: 8,
-                  color: Color(0xFF087A2F),
-                ),
+                style: const TextStyle(fontSize: 8, color: Color(0xFF087A2F)),
               ),
             ],
           ),
@@ -1039,10 +906,7 @@ class _CircleActionButton extends StatelessWidget {
   final IconData icon;
   final VoidCallback onTap;
 
-  const _CircleActionButton({
-    required this.icon,
-    required this.onTap,
-  });
+  const _CircleActionButton({required this.icon, required this.onTap});
 
   @override
   Widget build(BuildContext context) {
@@ -1055,15 +919,9 @@ class _CircleActionButton extends StatelessWidget {
         decoration: BoxDecoration(
           color: Colors.white,
           shape: BoxShape.circle,
-          border: Border.all(
-            color: Colors.grey.shade300,
-          ),
+          border: Border.all(color: Colors.grey.shade300),
         ),
-        child: Icon(
-          icon,
-          size: 17,
-          color: const Color(0xFF087A2F),
-        ),
+        child: Icon(icon, size: 17, color: const Color(0xFF087A2F)),
       ),
     );
   }
@@ -1077,37 +935,27 @@ class _DetailRow extends StatelessWidget {
   final String label;
   final String value;
 
-  const _DetailRow({
-    required this.label,
-    required this.value,
-  });
+  const _DetailRow({required this.label, required this.value});
 
   @override
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 10),
       child: Row(
-        crossAxisAlignment:
-            CrossAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           SizedBox(
             width: 80,
             child: Text(
               label,
-              style: TextStyle(
-                fontSize: 12,
-                color: Colors.grey.shade600,
-              ),
+              style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
             ),
           ),
 
           Expanded(
             child: Text(
               value.isEmpty ? '--' : value,
-              style: const TextStyle(
-                fontSize: 13,
-                fontWeight: FontWeight.w500,
-              ),
+              style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w500),
             ),
           ),
         ],
