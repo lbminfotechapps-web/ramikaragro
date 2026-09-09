@@ -1,5 +1,6 @@
 import 'package:demo/core/router/app_router.dart';
 import 'package:demo/core/theme/app_colors.dart';
+import 'package:demo/core/utility/widgets/custom_appbar.dart';
 import 'package:demo/features/reports/domain/entities/employee_activity.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -130,11 +131,20 @@ class _EmployeeActivityReportPageState
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF5F7F6),
+      backgroundColor: AppColors.backgroundColor,
 
       // ========================================================
       // APP BAR
       // ========================================================
+      appBar: CustomAppBar(
+        title: 'Employee Activity',
+        showBackButton: true,
+        onBackTap: () => context.go(AppRouter.home),
+
+        actionIcon: Icons.calendar_month_rounded,
+        onActionIconTap: _selectDate,
+      ),
+      /*
       appBar: AppBar(
         elevation: 0,
         centerTitle: false,
@@ -167,6 +177,7 @@ class _EmployeeActivityReportPageState
           const SizedBox(width: 6),
         ],
       ),
+      */
 
       // ========================================================
       // BODY

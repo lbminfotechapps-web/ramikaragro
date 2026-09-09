@@ -1,4 +1,5 @@
 import 'package:demo/core/di/auth_di.dart';
+import 'package:demo/core/di/collection_di.dart';
 import 'package:demo/core/di/dealer_di.dart';
 import 'package:demo/core/di/employee_activity_report_di.dart';
 import 'package:demo/core/di/employee_output_di.dart';
@@ -6,8 +7,10 @@ import 'package:demo/core/di/farmer_di.dart';
 import 'package:demo/core/di/gallery_di.dart';
 import 'package:demo/core/di/home_di.dart';
 import 'package:demo/core/di/leave_list_di.dart';
+import 'package:demo/core/di/not_visited_dealer_di.dart';
 import 'package:demo/core/di/notification_di.dart';
-import 'package:demo/core/di/organization_di.dart';
+import 'package:demo/core/di/product_di.dart';
+
 import 'package:demo/core/di/scheme_di.dart';
 import 'package:demo/core/di/social_media_di.dart';
 import 'package:demo/core/di/team_leave_di.dart';
@@ -20,8 +23,6 @@ final sl = GetIt.instance;
 Future<void> initGlobalDi() async {
   await initAuthDi();
   await initHomeDi();
-
-  
 
   await initFarmerDi();
   await initGalleryDi();
@@ -37,4 +38,7 @@ Future<void> initGlobalDi() async {
   await initTopTenDealerDi();
   await initSocialMediaDi();
   await initTeamLeaveDi();
+  await initCollectionWiseFormDi();
+  await initNotVisitedDealerDi();
+  await initProductDi();
 }

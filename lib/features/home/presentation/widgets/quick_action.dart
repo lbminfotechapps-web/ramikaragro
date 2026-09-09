@@ -147,18 +147,18 @@ class _QuickAccessSectionState extends State<QuickAccessSection> {
       debugPrint('Punch status data: ${widget.punchStat}');
 
       if (status == '0') {
-        context.go('/punchIn', extra: widget.punchStat);
+        context.push('/punchIn', extra: widget.punchStat);
       } else if (status == '1') {
-        context.go('/punchOut', extra: widget.punchStat);
+        context.push('/punchOut', extra: widget.punchStat);
       } else if (status == '2') {
-        context.go('/lastPunchOut', extra: widget.punchStat);
+        context.push('/lastPunchOut', extra: widget.punchStat);
       }
     } else if (menu.menuId == '65') {
-      context.go('/notVisitDealer');
+      context.push('/notVisitDealer');
     } else if (menu.menuId == '18') {
-      context.go('/scheme');
+      context.push('/scheme');
     } else if (menu.menuId == '8') {
-      context.go('/farmers');
+      context.push('/farmers');
     } else if (menu.menuId == '20') {
       final userData = await SecureStorage.instance.getUserData();
       final userId = userData?['user_id']?.toString();
@@ -174,23 +174,42 @@ class _QuickAccessSectionState extends State<QuickAccessSection> {
         );
         return;
       }
-      context.go('/notification', extra: userId);
+      context.push('/notification', extra: userId);
     } else if (menu.menuId == '14') {
-      context.go('/leaveList');
+      context.push('/leaveList');
+    } else if (menu.menuId == '3') {
+      context.push('/visits');
+    } else if (menu.menuId == '2') {
+      context.push('/products');
     } else if (menu.menuId == '64') {
-      context.go('/topTenDealer');
+      context.push('/topTenDealer');
     } else if (menu.menuId == '56') {
-      context.go('/social');
+      context.push('/social');
     } else if (menu.menuId == '68') {
-      context.go('/teamLeaveList');
+      context.push('/teamLeaveList');
     } else if (menu.menuId == '21') {
-      context.go('/userGuide');
+      context.push('/userGuide');
     } else if (menu.menuId == '22') {
-      context.go('/aboutUs');
+      context.push('/aboutUs');
     } else if (menu.menuId == '23') {
       context.go('/contactUs');
-    } else if (menu.menuId == '19') {
+    } 
+    else if (menu.menuId == '19') {
       context.go('/gallery');
+    } 
+
+    else if (menu.menuId == '71') {
+      context.go('/addCollection');
+    } 
+
+    else if (menu.menuId == '72') {
+      context.go('/collectionList');
+    } 
+    
+    else if (menu.menuId == '57' ||
+      context.push('/contactUs');
+    } else if (menu.menuId == '19') {
+      context.push('/gallery');
     } else if (menu.menuId == '57' ||
         menu.menuId == '63' ||
         menu.menuId == '32') {
@@ -212,7 +231,7 @@ class _QuickAccessSectionState extends State<QuickAccessSection> {
         _ => '/empActivityReport',
       };
 
-      context.go(route, extra: userId);
+      context.push(route, extra: userId);
     }
 
     //farmers

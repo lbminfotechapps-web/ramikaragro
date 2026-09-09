@@ -1,5 +1,6 @@
 import 'package:demo/core/router/app_router.dart';
 import 'package:demo/core/theme/app_colors.dart';
+import 'package:demo/core/utility/widgets/custom_appbar.dart';
 import 'package:demo/features/home/presentation/home_bloc/social_media_bloc.dart';
 import 'package:demo/features/home/presentation/home_bloc/social_media_event.dart';
 import 'package:demo/features/home/presentation/home_bloc/social_media_state.dart';
@@ -11,20 +12,14 @@ import 'package:url_launcher/url_launcher.dart';
 import '../../../../core/di/social_media_di.dart';
 import '../../../../core/secure_storage/secure_storage.dart';
 
-
 class SocialMediaPage extends StatefulWidget {
-  const SocialMediaPage({
-    super.key,
-  });
+  const SocialMediaPage({super.key});
 
   @override
-  State<SocialMediaPage> createState() =>
-      _SocialMediaPageState();
+  State<SocialMediaPage> createState() => _SocialMediaPageState();
 }
 
-class _SocialMediaPageState
-    extends State<SocialMediaPage> {
-
+class _SocialMediaPageState extends State<SocialMediaPage> {
   late final SocialMediaBloc bloc;
 
   @override
@@ -37,23 +32,15 @@ class _SocialMediaPageState
   }
 
   Future<void> _loadSocialMedia() async {
-    final userData =
-        await SecureStorage.instance.getUserData();
+    final userData = await SecureStorage.instance.getUserData();
 
-    final userId =
-        userData?['user_id']?.toString() ?? '';
+    final userId = userData?['user_id']?.toString() ?? '';
 
-    debugPrint(
-      'SOCIAL MEDIA USER ID = $userId',
-    );
+    debugPrint('SOCIAL MEDIA USER ID = $userId');
 
     if (!mounted) return;
 
-    bloc.add(
-      GetSocialMediaEvent(
-        userId: userId,
-      ),
-    );
+    bloc.add(GetSocialMediaEvent(userId: userId));
   }
 
   @override
@@ -62,15 +49,11 @@ class _SocialMediaPageState
     super.dispose();
   }
 
-  Future<void> _openSocialLink(
-    String link,
-  ) async {
+  Future<void> _openSocialLink(String link) async {
     final cleanLink = link.trim();
 
     if (cleanLink.isEmpty) {
-      _showMessage(
-        'Social media link is not available',
-      );
+      _showMessage('Social media link is not available');
       return;
     }
 
@@ -78,86 +61,48 @@ class _SocialMediaPageState
       final uri = Uri.parse(cleanLink);
 
       if (!uri.hasScheme) {
-        _showMessage(
-          'Invalid social media URL',
-        );
+        _showMessage('Invalid social media URL');
         return;
       }
 
-      final opened = await launchUrl(
-        uri,
-        mode: LaunchMode.externalApplication,
-      );
+      final opened = await launchUrl(uri, mode: LaunchMode.externalApplication);
 
       if (!opened) {
-        _showMessage(
-          'Unable to open this link',
-        );
+        _showMessage('Unable to open this link');
       }
     } catch (e) {
-      debugPrint(
-        'OPEN SOCIAL LINK ERROR = $e',
-      );
+      debugPrint('OPEN SOCIAL LINK ERROR = $e');
 
-      _showMessage(
-        'Unable to open link',
-      );
+      _showMessage('Unable to open link');
     }
   }
 
   void _showMessage(String message) {
     if (!mounted) return;
 
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(message),
-      ),
-    );
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text(message)));
   }
 
   @override
   Widget build(BuildContext context) {
     return BlocProvider.value(
       value: bloc,
-      child: BlocConsumer<
-          SocialMediaBloc,
-          SocialMediaState>(
+      child: BlocConsumer<SocialMediaBloc, SocialMediaState>(
         listener: (context, state) {
-          if (state.status ==
-              SocialMediaStatus.failure) {
-            _showMessage(
-              state.errorMessage ??
-                  'Something went wrong',
-            );
+          if (state.status == SocialMediaStatus.failure) {
+            _showMessage(state.errorMessage ?? 'Something went wrong');
           }
         },
         builder: (context, state) {
           return Scaffold(
-            backgroundColor:
-                const Color(0xfff5f7f9),
+            backgroundColor: AppColors.backgroundColor,
 
-            appBar: AppBar(
-
-            leading: IconButton(
-              icon: const Icon(
-                Icons.arrow_back_ios_new,
-                size: 19,
-                color: AppColors.backgroundColor,
-              ),
-              onPressed: () {
-                context.go(AppRouter.home);
-              },
-            ),
-
-              title: const Text(
-                'Social Media',
-                style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              backgroundColor: Colors.green,
-              foregroundColor: Colors.white,
-              elevation: 0,
+            appBar: CustomAppBar(
+              title: 'Social Media',
+              showBackButton: true,
+              onBackTap: () => context.go(AppRouter.home),
             ),
 
             body: RefreshIndicator(
@@ -175,38 +120,26 @@ class _SocialMediaPageState
     );
   }
 
-  Widget _buildBody(
-    SocialMediaState state,
-  ) {
-    if (state.status ==
-        SocialMediaStatus.loading) {
+  Widget _buildBody(SocialMediaState state) {
+    if (state.status == SocialMediaStatus.loading) {
       return const Center(
-        child: CircularProgressIndicator(
-          color: Colors.green,
-        ),
+        child: CircularProgressIndicator(color: Colors.green),
       );
     }
 
-    if (state.status ==
-        SocialMediaStatus.failure) {
-      return _buildError(
-        state.errorMessage,
-      );
+    if (state.status == SocialMediaStatus.failure) {
+      return _buildError(state.errorMessage);
     }
 
     if (state.socialMedia.isEmpty) {
       return ListView(
-        physics:
-            const AlwaysScrollableScrollPhysics(),
+        physics: const AlwaysScrollableScrollPhysics(),
         children: const [
           SizedBox(height: 250),
           Center(
             child: Text(
               'Social media links not available',
-              style: TextStyle(
-                color: Colors.grey,
-                fontSize: 15,
-              ),
+              style: TextStyle(color: Colors.grey, fontSize: 15),
             ),
           ),
         ],
@@ -214,8 +147,7 @@ class _SocialMediaPageState
     }
 
     return ListView(
-      physics:
-          const AlwaysScrollableScrollPhysics(),
+      physics: const AlwaysScrollableScrollPhysics(),
       padding: const EdgeInsets.all(16),
       children: [
         _buildHeader(),
@@ -225,20 +157,12 @@ class _SocialMediaPageState
         ...state.socialMedia.map(
           (social) => SocialMediaCard(
             title: social.type,
-            subtitle: _getSubtitle(
-              social.type,
-            ),
+            subtitle: _getSubtitle(social.type),
             link: social.link,
-            icon: _getIcon(
-              social.type,
-            ),
-            iconColor: _getIconColor(
-              social.type,
-            ),
+            icon: _getIcon(social.type),
+            iconColor: _getIconColor(social.type),
             onTap: () {
-              _openSocialLink(
-                social.link,
-              );
+              _openSocialLink(social.link);
             },
           ),
         ),
@@ -254,10 +178,7 @@ class _SocialMediaPageState
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         gradient: LinearGradient(
-          colors: [
-            Colors.green.shade700,
-            Colors.green.shade500,
-          ],
+          colors: [Colors.green.shade700, Colors.green.shade500],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
@@ -272,11 +193,7 @@ class _SocialMediaPageState
       ),
       child: const Column(
         children: [
-          Icon(
-            Icons.share,
-            color: Colors.white,
-            size: 45,
-          ),
+          Icon(Icons.share, color: Colors.white, size: 45),
 
           SizedBox(height: 10),
 
@@ -294,31 +211,21 @@ class _SocialMediaPageState
           Text(
             'Follow Ramikar Agro Industries',
             textAlign: TextAlign.center,
-            style: TextStyle(
-              color: Colors.white70,
-              fontSize: 14,
-            ),
+            style: TextStyle(color: Colors.white70, fontSize: 14),
           ),
         ],
       ),
     );
   }
 
-  Widget _buildError(
-    String? error,
-  ) {
+  Widget _buildError(String? error) {
     return ListView(
-      physics:
-          const AlwaysScrollableScrollPhysics(),
+      physics: const AlwaysScrollableScrollPhysics(),
       padding: const EdgeInsets.all(20),
       children: [
         const SizedBox(height: 120),
 
-        const Icon(
-          Icons.error_outline,
-          size: 55,
-          color: Colors.red,
-        ),
+        const Icon(Icons.error_outline, size: 55, color: Colors.red),
 
         const SizedBox(height: 15),
 
@@ -326,10 +233,7 @@ class _SocialMediaPageState
           child: Text(
             'Unable to load social media',
             textAlign: TextAlign.center,
-            style: TextStyle(
-              fontSize: 17,
-              fontWeight: FontWeight.bold,
-            ),
+            style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold),
           ),
         ),
 
@@ -339,9 +243,7 @@ class _SocialMediaPageState
           child: Text(
             error ?? 'Something went wrong',
             textAlign: TextAlign.center,
-            style: const TextStyle(
-              color: Colors.grey,
-            ),
+            style: const TextStyle(color: Colors.grey),
           ),
         ),
 

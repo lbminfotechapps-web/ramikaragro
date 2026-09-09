@@ -1,16 +1,14 @@
 class ApiClient {
-  static const String baseUrl =
-      "http://192.168.1.253:85/ramikar_agro/mobileapi/Mobile_app_for_businessplus_kotlin_new";
-  static const String imageBaseUrl =
-      "http://192.168.1.253:85/ramikar_agro/uploads/";
-  static const String imageGalleryUrl =
-      "http://192.168.1.253:85/ramikar_agro/uploads/gallery/";
-
+  static const String baseUrl ="http://192.168.1.253:85/ramikar_agro/mobileapi/Mobile_app_for_businessplus_kotlin_new";
+  static const String imageBaseUrl = "http://192.168.1.253:85/ramikar_agro/uploads/";
+  static const String imageGalleryUrl ="http://192.168.1.253:85/ramikar_agro/uploads/gallery/";
   static const String login = "/user_login";
   static const String getLastThirtyNotVisited = "/getLastThiertyNotVisited";
   static const String getNearByOutlets = "/getNearByOutlets";
   static const String userMenu = "/getUserMenu_new";
   static const String punchStatus = "/getLastTransactionInOutStatus";
+  static const String getEmployeeActivityDetails ='/getEmployeeActivityDetails_new';
+
   static const String getEmployeeActivityDetails =
       '/getEmployeeActivityDetails_new';
   static const String getVisitReportDetails = "/getVisitReportDetails";
@@ -30,7 +28,14 @@ class ApiClient {
   static const String getSocialMedia = "/getSocialMedia";
   static const String getMyEmployeeLeaveList = "/getMyEmployeeLeaveList";
   static const String updateLeaveStatus = "/updateLeaveStatus";
-
   static const String visitCountgraph = "/getEmployeevisitcount";
   static const String getState = "/get_state";
+  static const String  submitPaymentDetails = "/submitPaymentDetails";
+  
+  static const String  getBankDetails = "/getBankDetails";
+  static const String  getTalukaWiseOutletForOrderNew = "/getTalukaWiseOutletForOrderNew";
+
+  
+  static const String getCategoryproductDetails =
+      "/get_category_product_details";
 }
