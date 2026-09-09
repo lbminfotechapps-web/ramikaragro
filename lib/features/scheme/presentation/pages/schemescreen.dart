@@ -60,6 +60,8 @@ class _SchemeScreenState extends State<SchemeScreen> {
     years = List.generate(7, (i) => (now.year - i).toString());
 
     selectedYear = now.year.toString();
+
+    context.read<SchemeBloc>().add(LoadAssignedStatesEvent());
   }
 
   @override
@@ -623,9 +625,13 @@ class _SchemeScreenState extends State<SchemeScreen> {
   // ============================================================
 
   String fileUrl(String file) {
-    return '${ApiClient.imageGalleryUrl}'
-        'Scheme/'
-        '$file';
+    final String value = file.trim();
+
+    if (value.startsWith('http://') || value.startsWith('https://')) {
+      return value;
+    }
+
+    return '${ApiClient.imageBaseUrl}Scheme/$value';
   }
 
   // ============================================================

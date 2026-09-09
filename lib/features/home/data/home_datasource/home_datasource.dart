@@ -56,7 +56,7 @@ class HomeDatasource {
     String searchToDate,
   ) async {
     final formData = FormData.fromMap({
-      'userId':userId,
+      'userId': userId,
       'searchfromDate': searchFromDate,
       'searchtoDate': searchToDate,
     });

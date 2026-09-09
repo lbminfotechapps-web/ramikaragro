@@ -29,6 +29,7 @@ class ApiClient {
   static const String getMyEmployeeLeaveList = "/getMyEmployeeLeaveList";
   static const String updateLeaveStatus = "/updateLeaveStatus";
   static const String visitCountgraph = "/getEmployeevisitcount";
+  static const String getState = "/get_state";
   static const String  submitPaymentDetails = "/submitPaymentDetails";
   
   static const String  getBankDetails = "/getBankDetails";
