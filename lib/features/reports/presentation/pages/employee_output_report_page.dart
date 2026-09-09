@@ -1,6 +1,8 @@
 import 'dart:async';
 
 import 'package:demo/core/router/app_router.dart';
+import 'package:demo/core/theme/app_colors.dart';
+import 'package:demo/core/utility/widgets/custom_appbar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -319,35 +321,15 @@ class _EmployeeOutputReportPageState extends State<EmployeeOutputReportPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF5F7F6),
+      backgroundColor: AppColors.backgroundColor,
 
       // ==========================================================
       // APP BAR
       // ==========================================================
-      appBar: AppBar(
-        elevation: 0,
-
-        backgroundColor: const Color(0xFF287A4B),
-
-        foregroundColor: Colors.white,
-
-        // ========================================================
-        // MANUAL BACK ARROW
-        // ========================================================
-        automaticallyImplyLeading: false,
-
-        leading: IconButton(
-          onPressed: () {
-            context.go(AppRouter.home);
-          },
-
-          icon: const Icon(Icons.arrow_back_rounded, size: 25),
-        ),
-
-        title: const Text(
-          'Employee Output Report',
-          style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
-        ),
+      appBar: CustomAppBar(
+        title: 'Employee Output Report',
+        showBackButton: true,
+        onBackTap: () => context.go(AppRouter.home),
       ),
 
       // ==========================================================

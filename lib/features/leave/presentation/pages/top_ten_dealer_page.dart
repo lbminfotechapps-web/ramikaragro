@@ -1,5 +1,6 @@
 import 'package:demo/core/router/app_router.dart';
 import 'package:demo/core/theme/app_colors.dart';
+import 'package:demo/core/utility/widgets/custom_appbar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -16,17 +17,13 @@ import '../widgets/monthly_visit_dialog.dart';
 import '../widgets/top_ten_header.dart';
 
 class TopTenDealerPage extends StatefulWidget {
-  const TopTenDealerPage({
-    super.key,
-  });
+  const TopTenDealerPage({super.key});
 
   @override
-  State<TopTenDealerPage> createState() =>
-      _TopTenDealerPageState();
+  State<TopTenDealerPage> createState() => _TopTenDealerPageState();
 }
 
-class _TopTenDealerPageState
-    extends State<TopTenDealerPage> {
+class _TopTenDealerPageState extends State<TopTenDealerPage> {
   late final TopTenDealerBloc bloc;
 
   @override
@@ -35,11 +32,7 @@ class _TopTenDealerPageState
 
     bloc = sl<TopTenDealerBloc>();
 
-    bloc.add(
-      const GetTopTenDealerEvent(
-        days: 30,
-      ),
-    );
+    bloc.add(const GetTopTenDealerEvent(days: 30));
   }
 
   @override
@@ -52,66 +45,48 @@ class _TopTenDealerPageState
   Widget build(BuildContext context) {
     return BlocProvider.value(
       value: bloc,
-      child: BlocConsumer<
-          TopTenDealerBloc,
-          TopTenDealerState>(
+      child: BlocConsumer<TopTenDealerBloc, TopTenDealerState>(
         listener: (context, state) {
-          if (state.status ==
-              TopTenDealerStatus.failure) {
-            _showMessage(
-              state.errorMessage ??
-                  'Something went wrong',
-            );
+          if (state.status == TopTenDealerStatus.failure) {
+            _showMessage(state.errorMessage ?? 'Something went wrong');
           }
         },
         builder: (context, state) {
           return Scaffold(
-            backgroundColor:
-                const Color(0xFFF5F7FA),
-
-            appBar: _buildAppBar(
-              state.selectedDays,
+            backgroundColor: AppColors.backgroundColor,
+            appBar: CustomAppBar(
+              title: 'Top 10 Dealers',
+              showBackButton: true,
+              onBackTap: () => context.go(AppRouter.home),
+              actionIcon: Icons.refresh_rounded,
+              onActionIconTap: () {
+                bloc.add(GetTopTenDealerEvent(days: state.selectedDays));
+              },
             ),
 
+            //  _buildAppBar(
+            //   state.selectedDays,
+            // ),
             body: RefreshIndicator(
-              color:
-                  const Color(0xFF2E7D32),
+              color: const Color(0xFF2E7D32),
               onRefresh: () async {
-                bloc.add(
-                  GetTopTenDealerEvent(
-                    days: state.selectedDays,
-                  ),
-                );
+                bloc.add(GetTopTenDealerEvent(days: state.selectedDays));
               },
               child: ListView(
-                physics:
-                    const AlwaysScrollableScrollPhysics(),
-                padding:
-                    const EdgeInsets.fromLTRB(
-                  16,
-                  16,
-                  16,
-                  30,
-                ),
+                physics: const AlwaysScrollableScrollPhysics(),
+                padding: const EdgeInsets.fromLTRB(16, 16, 16, 30),
                 children: [
                   TopTenHeader(
-                    selectedDays:
-                        state.selectedDays,
-                    count:
-                        state.dealers.length,
+                    selectedDays: state.selectedDays,
+                    count: state.dealers.length,
                   ),
 
                   const SizedBox(height: 18),
 
                   DealerFilter(
-                    selectedDays:
-                        state.selectedDays,
+                    selectedDays: state.selectedDays,
                     onChanged: (days) {
-                      bloc.add(
-                        GetTopTenDealerEvent(
-                          days: days,
-                        ),
-                      );
+                      bloc.add(GetTopTenDealerEvent(days: days));
                     },
                   ),
 
@@ -131,141 +106,95 @@ class _TopTenDealerPageState
     );
   }
 
-  PreferredSizeWidget _buildAppBar(
-    int selectedDays,
-  ) {
+  PreferredSizeWidget _buildAppBar(int selectedDays) {
     return AppBar(
       elevation: 0,
       backgroundColor: Colors.green,
       surfaceTintColor: Colors.white,
       titleSpacing: 20,
-      iconTheme: const IconThemeData(
-        color: Colors.white,
-      ),
+      iconTheme: const IconThemeData(color: Colors.white),
       title: const Column(
-        crossAxisAlignment:
-            CrossAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
             'Top 10 Dealers',
             style: TextStyle(
               fontSize: 21,
-              fontWeight:
-                  FontWeight.w700,
+              fontWeight: FontWeight.w700,
               color: Colors.white,
             ),
           ),
-
-    
 
           SizedBox(height: 2),
           Text(
             'Dealer visit performance',
-            style: TextStyle(
-              fontSize: 12,
-              color: Colors.white,
-            ),
+            style: TextStyle(fontSize: 12, color: Colors.white),
           ),
         ],
       ),
 
-       leading: IconButton(
-          icon: const Icon(
-            Icons.arrow_back_ios_new,
-            size: 19,
-            color: AppColors.backgroundColor,
-          ),
-          onPressed: () {
-            context.go(AppRouter.home);
-          },
+      leading: IconButton(
+        icon: const Icon(
+          Icons.arrow_back_ios_new,
+          size: 19,
+          color: AppColors.backgroundColor,
         ),
-
+        onPressed: () {
+          context.go(AppRouter.home);
+        },
+      ),
 
       actions: [
         Container(
-          margin:
-              const EdgeInsets.only(
-            right: 16,
-          ),
+          margin: const EdgeInsets.only(right: 16),
           decoration: BoxDecoration(
-            color:
-                const Color(0xFFE8F5E9),
-            borderRadius:
-                BorderRadius.circular(12),
+            color: const Color(0xFFE8F5E9),
+            borderRadius: BorderRadius.circular(12),
           ),
           child: IconButton(
             onPressed: () {
-              bloc.add(
-                GetTopTenDealerEvent(
-                  days: selectedDays,
-                ),
-              );
+              bloc.add(GetTopTenDealerEvent(days: selectedDays));
             },
-            icon: const Icon(
-              Icons.refresh_rounded,
-              color:
-                  Color(0xFF2E7D32),
-            ),
+            icon: const Icon(Icons.refresh_rounded, color: Color(0xFF2E7D32)),
           ),
         ),
       ],
     );
   }
 
-  Widget _buildContent(
-    TopTenDealerState state,
-  ) {
-    if (state.status ==
-        TopTenDealerStatus.loading) {
+  Widget _buildContent(TopTenDealerState state) {
+    if (state.status == TopTenDealerStatus.loading) {
       return _buildLoading();
     }
 
     if (state.dealers.isEmpty) {
-      return _buildNoRecords(
-        state.selectedDays,
-      );
+      return _buildNoRecords(state.selectedDays);
     }
 
     return Column(
-      children: List.generate(
-        state.dealers.length,
-        (index) {
-          final dealer =
-              state.dealers[index];
+      children: List.generate(state.dealers.length, (index) {
+        final dealer = state.dealers[index];
 
-          return Padding(
-            padding:
-                const EdgeInsets.only(
-              bottom: 10,
-            ),
-            child: DealerCard(
-              dealer: dealer,
-              index: index,
-              onTap: () {
-                showMonthlyVisitDialog(
-                  context,
-                  dealer,
-                );
-              },
-            ),
-          );
-        },
-      ),
+        return Padding(
+          padding: const EdgeInsets.only(bottom: 10),
+          child: DealerCard(
+            dealer: dealer,
+            index: index,
+            onTap: () {
+              showMonthlyVisitDialog(context, dealer);
+            },
+          ),
+        );
+      }),
     );
   }
 
   Widget _buildTableHeader() {
     return Container(
-      padding:
-          const EdgeInsets.symmetric(
-        horizontal: 14,
-        vertical: 13,
-      ),
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 13),
       decoration: BoxDecoration(
-        color:
-            const Color(0xFFE8F5E9),
-        borderRadius:
-            BorderRadius.circular(12),
+        color: const Color(0xFFE8F5E9),
+        borderRadius: BorderRadius.circular(12),
       ),
       child: const Row(
         children: [
@@ -276,10 +205,8 @@ class _TopTenDealerPageState
               'Dealer Name / Address',
               style: TextStyle(
                 fontSize: 13,
-                fontWeight:
-                    FontWeight.w800,
-                color:
-                    Color(0xFF17202A),
+                fontWeight: FontWeight.w800,
+                color: Color(0xFF17202A),
               ),
             ),
           ),
@@ -287,10 +214,7 @@ class _TopTenDealerPageState
           SizedBox(
             width: 1,
             height: 25,
-            child: ColoredBox(
-              color:
-                  Color(0xFFD0D8D2),
-            ),
+            child: ColoredBox(color: Color(0xFFD0D8D2)),
           ),
 
           SizedBox(width: 12),
@@ -299,14 +223,11 @@ class _TopTenDealerPageState
             width: 62,
             child: Text(
               'Visits',
-              textAlign:
-                  TextAlign.center,
+              textAlign: TextAlign.center,
               style: TextStyle(
                 fontSize: 13,
-                fontWeight:
-                    FontWeight.w800,
-                color:
-                    Color(0xFF17202A),
+                fontWeight: FontWeight.w800,
+                color: Color(0xFF17202A),
               ),
             ),
           ),
@@ -317,49 +238,31 @@ class _TopTenDealerPageState
 
   Widget _buildLoading() {
     return const Padding(
-      padding:
-          EdgeInsets.symmetric(
-        vertical: 70,
-      ),
-      child: Center(
-        child:
-            CircularProgressIndicator(
-          color:
-              Color(0xFF2E7D32),
-        ),
-      ),
+      padding: EdgeInsets.symmetric(vertical: 70),
+      child: Center(child: CircularProgressIndicator(color: Color(0xFF2E7D32))),
     );
   }
 
-  Widget _buildNoRecords(
-    int days,
-  ) {
+  Widget _buildNoRecords(int days) {
     return Container(
-      padding:
-          const EdgeInsets.symmetric(
-        vertical: 60,
-      ),
+      padding: const EdgeInsets.symmetric(vertical: 60),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius:
-            BorderRadius.circular(18),
+        borderRadius: BorderRadius.circular(18),
       ),
       child: Column(
         children: [
           Container(
             width: 80,
             height: 80,
-            decoration:
-                const BoxDecoration(
-              color:
-                  Color(0xFFF1F3F5),
+            decoration: const BoxDecoration(
+              color: Color(0xFFF1F3F5),
               shape: BoxShape.circle,
             ),
             child: const Icon(
               Icons.storefront_outlined,
               size: 40,
-              color:
-                  Color(0xFF9AA3AF),
+              color: Color(0xFF9AA3AF),
             ),
           ),
 
@@ -367,11 +270,7 @@ class _TopTenDealerPageState
 
           const Text(
             'No Dealers Found',
-            style: TextStyle(
-              fontSize: 17,
-              fontWeight:
-                  FontWeight.w700,
-            ),
+            style: TextStyle(fontSize: 17, fontWeight: FontWeight.w700),
           ),
 
           const SizedBox(height: 6),
@@ -379,29 +278,18 @@ class _TopTenDealerPageState
           Text(
             'No dealer visits found for last $days days',
             textAlign: TextAlign.center,
-            style: const TextStyle(
-              fontSize: 12,
-              color:
-                  Color(0xFF8A94A6),
-            ),
+            style: const TextStyle(fontSize: 12, color: Color(0xFF8A94A6)),
           ),
         ],
       ),
     );
   }
 
-  void _showMessage(
-    String message,
-  ) {
+  void _showMessage(String message) {
     if (!mounted) return;
 
-    ScaffoldMessenger.of(context)
-        .showSnackBar(
-      SnackBar(
-        content: Text(message),
-        behavior:
-            SnackBarBehavior.floating,
-      ),
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(message), behavior: SnackBarBehavior.floating),
     );
   }
 }
