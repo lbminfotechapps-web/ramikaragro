@@ -6,7 +6,7 @@ class CategoryCard extends StatelessWidget {
   final FertilizerCategoryEntity category;
   final VoidCallback onTap;
 
-  const CategoryCard({required this.category, required this.onTap});
+  const CategoryCard({super.key, required this.category, required this.onTap});
 
   @override
   Widget build(BuildContext context) {

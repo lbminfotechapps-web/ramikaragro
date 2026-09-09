@@ -192,24 +192,13 @@ class _QuickAccessSectionState extends State<QuickAccessSection> {
     } else if (menu.menuId == '22') {
       context.push('/aboutUs');
     } else if (menu.menuId == '23') {
-      context.go('/contactUs');
-    } 
-    else if (menu.menuId == '19') {
-      context.go('/gallery');
-    } 
-
-    else if (menu.menuId == '71') {
-      context.go('/addCollection');
-    } 
-
-    else if (menu.menuId == '72') {
-      context.go('/collectionList');
-    } 
-    
-    else if (menu.menuId == '57' ||
       context.push('/contactUs');
     } else if (menu.menuId == '19') {
       context.push('/gallery');
+    } else if (menu.menuId == '71') {
+      context.push('/addCollection');
+    } else if (menu.menuId == '72') {
+      context.push('/collectionList');
     } else if (menu.menuId == '57' ||
         menu.menuId == '63' ||
         menu.menuId == '32') {

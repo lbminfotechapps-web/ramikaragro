@@ -9,8 +9,6 @@ class ApiClient {
   static const String punchStatus = "/getLastTransactionInOutStatus";
   static const String getEmployeeActivityDetails ='/getEmployeeActivityDetails_new';
 
-  static const String getEmployeeActivityDetails =
-      '/getEmployeeActivityDetails_new';
   static const String getVisitReportDetails = "/getVisitReportDetails";
   static const String getEmployeeOutputReport = "/getEmployeeOutputReport";
   // ApiConfig.getEmployeeUrl() was using.

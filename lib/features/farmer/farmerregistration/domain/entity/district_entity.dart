@@ -1,3 +1,5 @@
+import 'package:demo/features/farmer/farmerregistration/domain/entity/taluka_entity.dart';
+
 class DistrictEntity
 {
   final String fld_dist_id;

@@ -1,9 +1,10 @@
-
 import 'dart:io';
 
 import 'package:demo/core/di/collection_di.dart';
 import 'package:demo/core/router/app_router.dart';
 import 'package:demo/core/secure_storage/secure_storage.dart';
+import 'package:demo/core/theme/app_colors.dart';
+import 'package:demo/core/utility/widgets/custom_appbar.dart';
 import 'package:demo/features/collection/domain/entities/dealer.dart';
 import 'package:demo/features/collection/presentation/bloc/collection_bloc.dart';
 import 'package:demo/features/collection/presentation/bloc/collection_event.dart';
@@ -15,50 +16,37 @@ import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
 
 class CollectionWiseFormPage extends StatefulWidget {
-  const CollectionWiseFormPage({
-    super.key,
-  });
+  const CollectionWiseFormPage({super.key});
 
   @override
-  State<CollectionWiseFormPage> createState() =>
-      _CollectionWiseFormPageState();
+  State<CollectionWiseFormPage> createState() => _CollectionWiseFormPageState();
 }
 
-class _CollectionWiseFormPageState
-    extends State<CollectionWiseFormPage> {
+class _CollectionWiseFormPageState extends State<CollectionWiseFormPage> {
   // ============================================================
   // CONTROLLERS
   // ============================================================
 
-  final TextEditingController amountController =
-      TextEditingController();
+  final TextEditingController amountController = TextEditingController();
 
-  final TextEditingController rtgsController =
-      TextEditingController();
+  final TextEditingController rtgsController = TextEditingController();
 
-  final TextEditingController neftController =
-      TextEditingController();
+  final TextEditingController neftController = TextEditingController();
 
-  final TextEditingController chequeNumberController =
-      TextEditingController();
+  final TextEditingController chequeNumberController = TextEditingController();
 
-  final TextEditingController chequeDateController =
-      TextEditingController();
+  final TextEditingController chequeDateController = TextEditingController();
 
-  final TextEditingController bankNameController =
-      TextEditingController();
+  final TextEditingController bankNameController = TextEditingController();
 
   final TextEditingController depositBankNameController =
       TextEditingController();
 
-  final TextEditingController depositBranchController =
-      TextEditingController();
+  final TextEditingController depositBranchController = TextEditingController();
 
-  final TextEditingController remarkController =
-      TextEditingController();
+  final TextEditingController remarkController = TextEditingController();
 
-  final TextEditingController upiController =
-      TextEditingController();
+  final TextEditingController upiController = TextEditingController();
 
   final TextEditingController upiTransactionController =
       TextEditingController();
@@ -91,13 +79,7 @@ class _CollectionWiseFormPageState
   // PAYMENT MODES
   // ============================================================
 
-  final List<String> paymentModes = [
-    'Cash',
-    'Cheque',
-    'RTGS',
-    'NEFT',
-    'UPI',
-  ];
+  final List<String> paymentModes = ['Cash', 'Cheque', 'RTGS', 'NEFT', 'UPI'];
 
   // ============================================================
   // INIT
@@ -118,30 +100,22 @@ class _CollectionWiseFormPageState
 
   Future<void> _loadUser() async {
     try {
-      final userData =
-          await SecureStorage.instance.getUserData();
+      final userData = await SecureStorage.instance.getUserData();
 
       if (!mounted) return;
 
-      final loadedUserId =
-          userData?['user_id']?.toString() ?? '';
+      final loadedUserId = userData?['user_id']?.toString() ?? '';
 
       setState(() {
         userId = loadedUserId;
       });
 
-      debugPrint(
-        '=========================================',
-      );
+      debugPrint('=========================================');
       debugPrint('COLLECTION USER');
       debugPrint('USER ID = $userId');
-      debugPrint(
-        '=========================================',
-      );
+      debugPrint('=========================================');
     } catch (e) {
-      debugPrint(
-        'Error loading user: $e',
-      );
+      debugPrint('Error loading user: $e');
     }
   }
 
@@ -172,9 +146,7 @@ class _CollectionWiseFormPageState
   // PAYMENT MODE CHANGE
   // ============================================================
 
-  void _onPaymentModeChanged(
-    String? mode,
-  ) {
+  void _onPaymentModeChanged(String? mode) {
     if (mode == null) return;
 
     _clearPaymentFields();
@@ -210,16 +182,10 @@ class _CollectionWiseFormPageState
       initialDate: DateTime.now(),
       firstDate: DateTime(2000),
       lastDate: DateTime.now(),
-      builder: (
-        context,
-        child,
-      ) {
+      builder: (context, child) {
         return Theme(
           data: Theme.of(context).copyWith(
-            colorScheme:
-                const ColorScheme.light(
-              primary: Color(0xFF166534),
-            ),
+            colorScheme: const ColorScheme.light(primary: Color(0xFF166534)),
           ),
           child: child!,
         );
@@ -230,16 +196,11 @@ class _CollectionWiseFormPageState
       return;
     }
 
-    final day = pickedDate.day
-        .toString()
-        .padLeft(2, '0');
+    final day = pickedDate.day.toString().padLeft(2, '0');
 
-    final month = pickedDate.month
-        .toString()
-        .padLeft(2, '0');
+    final month = pickedDate.month.toString().padLeft(2, '0');
 
-    chequeDateController.text =
-        '$day-$month-${pickedDate.year}';
+    chequeDateController.text = '$day-$month-${pickedDate.year}';
 
     setState(() {});
   }
@@ -250,8 +211,7 @@ class _CollectionWiseFormPageState
 
   Future<void> _pickImages() async {
     try {
-      final files =
-          await imagePicker.pickMultiImage(
+      final files = await imagePicker.pickMultiImage(
         imageQuality: 80,
         maxWidth: 1080,
         maxHeight: 1080,
@@ -262,24 +222,14 @@ class _CollectionWiseFormPageState
       }
 
       setState(() {
-        selectedImages = files
-            .map(
-              (e) => File(e.path),
-            )
-            .toList();
+        selectedImages = files.map((e) => File(e.path)).toList();
       });
 
-      debugPrint(
-        'Selected images = ${selectedImages.length}',
-      );
+      debugPrint('Selected images = ${selectedImages.length}');
     } catch (e) {
-      debugPrint(
-        'Image picker error: $e',
-      );
+      debugPrint('Image picker error: $e');
 
-      _showMessage(
-        'Unable to select images',
-      );
+      _showMessage('Unable to select images');
     }
   }
 
@@ -287,11 +237,8 @@ class _CollectionWiseFormPageState
   // REMOVE IMAGE
   // ============================================================
 
-  void _removeImage(
-    int index,
-  ) {
-    if (index < 0 ||
-        index >= selectedImages.length) {
+  void _removeImage(int index) {
+    if (index < 0 || index >= selectedImages.length) {
       return;
     }
 
@@ -306,43 +253,29 @@ class _CollectionWiseFormPageState
 
   Future<void> _selectDealer() async {
     if (userId.trim().isEmpty) {
-      _showMessage(
-        'User information not available',
-      );
+      _showMessage('User information not available');
 
       return;
     }
 
-    debugPrint(
-      '=========================================',
-    );
-    debugPrint(
-      'OPEN DEALER SEARCH',
-    );
-    debugPrint(
-      'USER ID = $userId',
-    );
-    debugPrint(
-      '=========================================',
-    );
+    debugPrint('=========================================');
+    debugPrint('OPEN DEALER SEARCH');
+    debugPrint('USER ID = $userId');
+    debugPrint('=========================================');
 
-    final Dealer? selectedDealer =
-        await showModalBottomSheet<Dealer>(
+    final Dealer? selectedDealer = await showModalBottomSheet<Dealer>(
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
       builder: (_) {
         return BlocProvider.value(
           value: bloc,
-          child: DealerSearchBottomSheet(
-            userId: userId,
-          ),
+          child: DealerSearchBottomSheet(userId: userId),
         );
       },
     );
 
-    if (!mounted ||
-        selectedDealer == null) {
+    if (!mounted || selectedDealer == null) {
       return;
     }
 
@@ -351,21 +284,11 @@ class _CollectionWiseFormPageState
       dealerName = selectedDealer.name;
     });
 
-    debugPrint(
-      '=========================================',
-    );
-    debugPrint(
-      'DEALER SELECTED',
-    );
-    debugPrint(
-      'DEALER ID = $dealerId',
-    );
-    debugPrint(
-      'DEALER NAME = $dealerName',
-    );
-    debugPrint(
-      '=========================================',
-    );
+    debugPrint('=========================================');
+    debugPrint('DEALER SELECTED');
+    debugPrint('DEALER ID = $dealerId');
+    debugPrint('DEALER NAME = $dealerName');
+    debugPrint('=========================================');
   }
 
   // ============================================================
@@ -378,9 +301,7 @@ class _CollectionWiseFormPageState
     // ----------------------------------------------------------
 
     if (dealerId.trim().isEmpty) {
-      _showMessage(
-        'Please select dealer',
-      );
+      _showMessage('Please select dealer');
 
       return false;
     }
@@ -389,11 +310,8 @@ class _CollectionWiseFormPageState
     // PAYMENT MODE
     // ----------------------------------------------------------
 
-    if (paymentMode == null ||
-        paymentMode!.trim().isEmpty) {
-      _showMessage(
-        'Please select payment mode',
-      );
+    if (paymentMode == null || paymentMode!.trim().isEmpty) {
+      _showMessage('Please select payment mode');
 
       return false;
     }
@@ -402,25 +320,16 @@ class _CollectionWiseFormPageState
     // AMOUNT
     // ----------------------------------------------------------
 
-    if (amountController.text
-        .trim()
-        .isEmpty) {
-      _showMessage(
-        'Please enter amount',
-      );
+    if (amountController.text.trim().isEmpty) {
+      _showMessage('Please enter amount');
 
       return false;
     }
 
-    final amount = double.tryParse(
-      amountController.text.trim(),
-    );
+    final amount = double.tryParse(amountController.text.trim());
 
-    if (amount == null ||
-        amount <= 0) {
-      _showMessage(
-        'Please enter valid amount',
-      );
+    if (amount == null || amount <= 0) {
+      _showMessage('Please enter valid amount');
 
       return false;
     }
@@ -430,52 +339,32 @@ class _CollectionWiseFormPageState
     // ----------------------------------------------------------
 
     if (paymentMode == 'Cheque') {
-      if (chequeNumberController.text
-          .trim()
-          .isEmpty) {
-        _showMessage(
-          'Please enter cheque number',
-        );
+      if (chequeNumberController.text.trim().isEmpty) {
+        _showMessage('Please enter cheque number');
 
         return false;
       }
 
-      if (chequeDateController.text
-          .trim()
-          .isEmpty) {
-        _showMessage(
-          'Please select cheque date',
-        );
+      if (chequeDateController.text.trim().isEmpty) {
+        _showMessage('Please select cheque date');
 
         return false;
       }
 
-      if (bankNameController.text
-          .trim()
-          .isEmpty) {
-        _showMessage(
-          'Please enter bank name',
-        );
+      if (bankNameController.text.trim().isEmpty) {
+        _showMessage('Please enter bank name');
 
         return false;
       }
 
-      if (depositBankNameController.text
-          .trim()
-          .isEmpty) {
-        _showMessage(
-          'Please enter deposit bank name',
-        );
+      if (depositBankNameController.text.trim().isEmpty) {
+        _showMessage('Please enter deposit bank name');
 
         return false;
       }
 
-      if (depositBranchController.text
-          .trim()
-          .isEmpty) {
-        _showMessage(
-          'Please enter deposit branch',
-        );
+      if (depositBranchController.text.trim().isEmpty) {
+        _showMessage('Please enter deposit branch');
 
         return false;
       }
@@ -485,13 +374,8 @@ class _CollectionWiseFormPageState
     // RTGS
     // ----------------------------------------------------------
 
-    if (paymentMode == 'RTGS' &&
-        rtgsController.text
-            .trim()
-            .isEmpty) {
-      _showMessage(
-        'Please enter RTGS number',
-      );
+    if (paymentMode == 'RTGS' && rtgsController.text.trim().isEmpty) {
+      _showMessage('Please enter RTGS number');
 
       return false;
     }
@@ -500,13 +384,8 @@ class _CollectionWiseFormPageState
     // NEFT
     // ----------------------------------------------------------
 
-    if (paymentMode == 'NEFT' &&
-        neftController.text
-            .trim()
-            .isEmpty) {
-      _showMessage(
-        'Please enter NEFT number',
-      );
+    if (paymentMode == 'NEFT' && neftController.text.trim().isEmpty) {
+      _showMessage('Please enter NEFT number');
 
       return false;
     }
@@ -516,22 +395,14 @@ class _CollectionWiseFormPageState
     // ----------------------------------------------------------
 
     if (paymentMode == 'UPI') {
-      if (upiController.text
-          .trim()
-          .isEmpty) {
-        _showMessage(
-          'Please enter UPI ID',
-        );
+      if (upiController.text.trim().isEmpty) {
+        _showMessage('Please enter UPI ID');
 
         return false;
       }
 
-      if (upiTransactionController.text
-          .trim()
-          .isEmpty) {
-        _showMessage(
-          'Please enter UPI transaction number',
-        );
+      if (upiTransactionController.text.trim().isEmpty) {
+        _showMessage('Please enter UPI transaction number');
 
         return false;
       }
@@ -542,9 +413,7 @@ class _CollectionWiseFormPageState
     // ----------------------------------------------------------
 
     if (userId.trim().isEmpty) {
-      _showMessage(
-        'User information not available',
-      );
+      _showMessage('User information not available');
 
       return false;
     }
@@ -558,8 +427,7 @@ class _CollectionWiseFormPageState
 
   void _submit() {
     // Prevent duplicate API calls
-    if (bloc.state.status ==
-        CollectionStatus.loading) {
+    if (bloc.state.status == CollectionStatus.loading) {
       return;
     }
 
@@ -567,43 +435,23 @@ class _CollectionWiseFormPageState
       return;
     }
 
-    debugPrint(
-      '=========================================',
-    );
-    debugPrint(
-      'SUBMIT COLLECTION',
-    );
-    debugPrint(
-      '=========================================',
-    );
+    debugPrint('=========================================');
+    debugPrint('SUBMIT COLLECTION');
+    debugPrint('=========================================');
 
-    debugPrint(
-      'Dealer ID: $dealerId',
-    );
+    debugPrint('Dealer ID: $dealerId');
 
-    debugPrint(
-      'Dealer Name: $dealerName',
-    );
+    debugPrint('Dealer Name: $dealerName');
 
-    debugPrint(
-      'Payment Mode: $paymentMode',
-    );
+    debugPrint('Payment Mode: $paymentMode');
 
-    debugPrint(
-      'Amount: ${amountController.text.trim()}',
-    );
+    debugPrint('Amount: ${amountController.text.trim()}');
 
-    debugPrint(
-      'User ID: $userId',
-    );
+    debugPrint('User ID: $userId');
 
-    debugPrint(
-      'Images: ${selectedImages.length}',
-    );
+    debugPrint('Images: ${selectedImages.length}');
 
-    debugPrint(
-      '=========================================',
-    );
+    debugPrint('=========================================');
 
     bloc.add(
       SubmitPaymentEvent(
@@ -611,38 +459,25 @@ class _CollectionWiseFormPageState
 
         paymentMode: paymentMode!,
 
-        amount:
-            amountController.text.trim(),
+        amount: amountController.text.trim(),
 
-        rtgsNo:
-            rtgsController.text.trim(),
+        rtgsNo: rtgsController.text.trim(),
 
-        neftNo:
-            neftController.text.trim(),
+        neftNo: neftController.text.trim(),
 
-        chequeDate:
-            chequeDateController.text.trim(),
+        chequeDate: chequeDateController.text.trim(),
 
-        chequeNumber:
-            chequeNumberController.text.trim(),
+        chequeNumber: chequeNumberController.text.trim(),
 
-        bankName:
-            bankNameController.text.trim(),
+        bankName: bankNameController.text.trim(),
 
-        depositBankName:
-            depositBankNameController.text
-                .trim(),
+        depositBankName: depositBankNameController.text.trim(),
 
-        depositBranchName:
-            depositBranchController.text
-                .trim(),
+        depositBranchName: depositBranchController.text.trim(),
 
-        remark:
-            remarkController.text.trim(),
+        remark: remarkController.text.trim(),
 
-        transaction:
-            upiTransactionController.text
-                .trim(),
+        transaction: upiTransactionController.text.trim(),
 
         userId: userId,
 
@@ -655,9 +490,7 @@ class _CollectionWiseFormPageState
   // SUCCESS DIALOG
   // ============================================================
 
-  Future<void> _showSuccessDialog(
-    String message,
-  ) async {
+  Future<void> _showSuccessDialog(String message) async {
     if (!mounted) return;
 
     await showDialog<void>(
@@ -665,142 +498,91 @@ class _CollectionWiseFormPageState
       barrierDismissible: false,
       builder: (dialogContext) {
         return AlertDialog(
-          shape:
-              RoundedRectangleBorder(
-            borderRadius:
-                BorderRadius.circular(22),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(22),
           ),
 
-          contentPadding:
-              const EdgeInsets.fromLTRB(
-            24,
-            28,
-            24,
-            20,
-          ),
+          contentPadding: const EdgeInsets.fromLTRB(24, 28, 24, 20),
 
           content: Column(
-            mainAxisSize:
-                MainAxisSize.min,
+            mainAxisSize: MainAxisSize.min,
 
             children: [
               // ==================================================
               // SUCCESS ICON
               // ==================================================
-
               Container(
                 height: 76,
                 width: 76,
-                decoration:
-                    const BoxDecoration(
-                  color:
-                      Color(0xFFE8F7ED),
-                  shape:
-                      BoxShape.circle,
+                decoration: const BoxDecoration(
+                  color: Color(0xFFE8F7ED),
+                  shape: BoxShape.circle,
                 ),
-                child:
-                    const Icon(
-                  Icons
-                      .check_circle_rounded,
-                  color:
-                      Color(0xFF166534),
+                child: const Icon(
+                  Icons.check_circle_rounded,
+                  color: Color(0xFF166534),
                   size: 54,
                 ),
               ),
 
-              const SizedBox(
-                height: 18,
-              ),
+              const SizedBox(height: 18),
 
               // ==================================================
               // TITLE
               // ==================================================
-
               const Text(
                 'Collection Submitted!',
-                textAlign:
-                    TextAlign.center,
+                textAlign: TextAlign.center,
                 style: TextStyle(
                   fontSize: 20,
-                  fontWeight:
-                      FontWeight.w800,
-                  color:
-                      Color(0xFF17201B),
+                  fontWeight: FontWeight.w800,
+                  color: Color(0xFF17201B),
                 ),
               ),
 
-              const SizedBox(
-                height: 8,
-              ),
+              const SizedBox(height: 8),
 
               // ==================================================
               // MESSAGE
               // ==================================================
-
               Text(
                 message,
-                textAlign:
-                    TextAlign.center,
+                textAlign: TextAlign.center,
                 style: const TextStyle(
                   fontSize: 13,
                   height: 1.45,
-                  color:
-                      Color(0xFF66736B),
+                  color: Color(0xFF66736B),
                 ),
               ),
 
-              const SizedBox(
-                height: 24,
-              ),
+              const SizedBox(height: 24),
 
               // ==================================================
               // OK BUTTON
               // ==================================================
-
               SizedBox(
-                width:
-                    double.infinity,
+                width: double.infinity,
                 height: 48,
-                child:
-                    ElevatedButton(
+                child: ElevatedButton(
                   onPressed: () {
-                    Navigator.of(
-                      dialogContext,
-                    ).pop();
+                    Navigator.of(dialogContext).pop();
                   },
 
-                  style:
-                      ElevatedButton
-                          .styleFrom(
-                    backgroundColor:
-                        const Color(
-                      0xFF166534,
-                    ),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFF166534),
 
-                    foregroundColor:
-                        Colors.white,
+                    foregroundColor: Colors.white,
 
                     elevation: 0,
 
-                    shape:
-                        RoundedRectangleBorder(
-                      borderRadius:
-                          BorderRadius
-                              .circular(
-                        14,
-                      ),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(14),
                     ),
                   ),
 
-                  child:
-                      const Text(
+                  child: const Text(
                     'OK',
-                    style:
-                        TextStyle(
-                      fontSize: 14,
-                      fontWeight:
-                          FontWeight.w800,
-                    ),
+                    style: TextStyle(fontSize: 14, fontWeight: FontWeight.w800),
                   ),
                 ),
               ),
@@ -825,41 +607,24 @@ class _CollectionWiseFormPageState
   // MESSAGE
   // ============================================================
 
-  void _showMessage(
-    String message,
-  ) {
+  void _showMessage(String message) {
     if (!mounted) return;
 
-    ScaffoldMessenger.of(context)
-        .hideCurrentSnackBar();
+    ScaffoldMessenger.of(context).hideCurrentSnackBar();
 
-    ScaffoldMessenger.of(context)
-        .showSnackBar(
+    ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        behavior:
-            SnackBarBehavior.floating,
+        behavior: SnackBarBehavior.floating,
 
-        margin:
-            const EdgeInsets.all(16),
+        margin: const EdgeInsets.all(16),
 
-        duration:
-            const Duration(
-          seconds: 2,
-        ),
+        duration: const Duration(seconds: 2),
 
-        shape:
-            RoundedRectangleBorder(
-          borderRadius:
-              BorderRadius.circular(14),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
 
         content: Text(
           message,
-          style:
-              const TextStyle(
-            fontWeight:
-                FontWeight.w600,
-          ),
+          style: const TextStyle(fontWeight: FontWeight.w600),
         ),
       ),
     );
@@ -870,28 +635,19 @@ class _CollectionWiseFormPageState
   // ============================================================
 
   @override
-  Widget build(
-    BuildContext context,
-  ) {
+  Widget build(BuildContext context) {
     return BlocProvider.value(
       value: bloc,
 
-      child: BlocListener<
-          CollectionBloc,
-          CollectionState>(
-        listener: (
-          context,
-          state,
-        ) {
+      child: BlocListener<CollectionBloc, CollectionState>(
+        listener: (context, state) {
           // ======================================================
           // SUCCESS
           // ======================================================
 
-          if (state.status ==
-              CollectionStatus.success) {
+          if (state.status == CollectionStatus.success) {
             _showSuccessDialog(
-              state.message ??
-                  'Collection submitted successfully.',
+              state.message ?? 'Collection submitted successfully.',
             );
 
             return;
@@ -901,103 +657,97 @@ class _CollectionWiseFormPageState
           // FAILURE
           // ======================================================
 
-          if (state.status ==
-              CollectionStatus.failure) {
-            _showMessage(
-              state.message ??
-                  'Payment submission failed',
-            );
+          if (state.status == CollectionStatus.failure) {
+            _showMessage(state.message ?? 'Payment submission failed');
           }
         },
 
         child: Scaffold(
-          backgroundColor:
-              const Color(0xFFF6F8F7),
+          backgroundColor: const Color(0xFFF6F8F7),
 
-              // ====================================================================
-        // APP BAR
-        // ====================================================================
-        appBar: AppBar(
-          backgroundColor: const Color(0xFF287A4B),
-
-          foregroundColor: Colors.white,
-
-          elevation: 0,
-
-          automaticallyImplyLeading: false,
-
-          leading: IconButton(
-            onPressed: () {
-              context.go(AppRouter.home);
-            },
-            icon: const Icon(Icons.arrow_back_rounded, size: 25),
+          // ====================================================================
+          // APP BAR
+          // ====================================================================
+          appBar: CustomAppBar(
+            backgroundColor: AppColors.backgroundColor,
+            leading: IconButton(
+              icon: const Icon(
+                Icons.arrow_back_ios_new,
+                size: 19,
+                color: AppColors.darkBackgroundColor,
+              ),
+              onPressed: () {
+                context.go(AppRouter.home);
+              },
+            ),
+            title: 'Add Collection',
+            // titleStyle: const TextStyle(
+            //   fontSize: 22,
+            //   fontWeight: FontWeight.w600,
+            //   color: AppColors.backgroundColor,
+            // ),
           ),
 
-          title: const Text(
-            'Add Collection',
-            style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
-          ),
+          // AppBar(
+          //   backgroundColor: const Color(0xFF287A4B),
 
-         
-        ),
+          //   foregroundColor: Colors.white,
 
+          //   elevation: 0,
+
+          //   automaticallyImplyLeading: false,
+
+          //   leading: IconButton(
+          //     onPressed: () {
+          //       context.go(AppRouter.home);
+          //     },
+          //     icon: const Icon(Icons.arrow_back_rounded, size: 25),
+          //   ),
+
+          //   title: const Text(
+          //     'Add Collection',
+          //     style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
+          //   ),
+
+          // ),
           body: CustomScrollView(
             slivers: [
               // ==================================================
               // HEADER
               // ==================================================
-
-              _buildHeader(),
+              // _buildHeader(),
 
               // ==================================================
               // BODY
               // ==================================================
-
               SliverPadding(
-                padding:
-                    const EdgeInsets.fromLTRB(
-                  14,
-                  12,
-                  14,
-                  24,
-                ),
+                padding: const EdgeInsets.fromLTRB(14, 12, 14, 24),
 
                 sliver: SliverList(
-                  delegate:
-                      SliverChildListDelegate(
-                    [
-                      // DEALER
-                      _buildDealerCard(),
+                  delegate: SliverChildListDelegate([
+                    // DEALER
+                    _buildDealerCard(),
 
-                      const SizedBox(
-                        height: 12,
-                      ),
+                    const SizedBox(height: 12),
 
-                      // PAYMENT
-                      _buildPaymentCard(),
+                    // PAYMENT
+                    _buildPaymentCard(),
 
-                      const SizedBox(
-                        height: 12,
-                      ),
+                    const SizedBox(height: 12),
 
-                      // REMARK
-                      _buildRemarkCard(),
+                    // REMARK
+                    _buildRemarkCard(),
 
-                      const SizedBox(
-                        height: 12,
-                      ),
+                    const SizedBox(height: 12),
 
-                      // IMAGES
-                      _buildImageCard(),
+                    // IMAGES
+                    _buildImageCard(),
 
-                      const SizedBox(
-                        height: 18,
-                      ),
+                    const SizedBox(height: 18),
 
-                      // SUBMIT
-                      _buildSubmitButton(),
-                    ],
-                  ),
+                    // SUBMIT
+                    _buildSubmitButton(),
+                  ]),
                 ),
               ),
             ],
@@ -1019,95 +769,56 @@ class _CollectionWiseFormPageState
 
       elevation: 0,
 
-      backgroundColor:
-          const Color(0xFF166534),
+      backgroundColor: const Color(0xFF166534),
 
-  
-      flexibleSpace:
-          FlexibleSpaceBar(
-        background:
-            Container(
-          decoration:
-              const BoxDecoration(
-            gradient:
-                LinearGradient(
-              begin:
-                  Alignment.topLeft,
-              end:
-                  Alignment.bottomRight,
-              colors: [
-                Color(0xFF14532D),
-                Color(0xFF166534),
-                Color(0xFF22C55E),
-              ],
-            ),
+      flexibleSpace: FlexibleSpaceBar(
+        background: Container(
+          decoration: const BoxDecoration(
+            color: const Color(0xFF287A4B),
+            // gradient: LinearGradient(
+            //   begin: Alignment.topLeft,
+            //   end: Alignment.bottomRight,
+            //   colors: [Color(0xFF14532D), Color(0xFF166534), Color(0xFF22C55E)],
+            // ),
           ),
 
           child: SafeArea(
-            child:
-                Padding(
-              padding:
-                  const EdgeInsets
-                      .fromLTRB(
-                18,
-                70,
-                18,
-                14,
-              ),
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(18, 70, 18, 14),
 
-              child:
-                  Align(
-                alignment:
-                    Alignment.bottomLeft,
+              child: Align(
+                alignment: Alignment.bottomLeft,
 
-                child:
-                    Row(
+                child: Row(
                   children: [
                     Container(
                       height: 46,
                       width: 46,
 
-                      child:
-                          const Icon(
-                        Icons
-                            .account_balance_wallet_rounded,
-                        color:
-                            Colors.white,
+                      child: const Icon(
+                        Icons.account_balance_wallet_rounded,
+                        color: Colors.white,
                         size: 25,
                       ),
                     ),
 
-                    const SizedBox(
-                      width: 12,
-                    ),
+                    const SizedBox(width: 12),
 
                     const Expanded(
-                      child:
-                          Column(
-                        mainAxisAlignment:
-                            MainAxisAlignment
-                                .end,
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.end,
 
-                        crossAxisAlignment:
-                            CrossAxisAlignment
-                                .start,
+                        crossAxisAlignment: CrossAxisAlignment.start,
 
                         children: [
                           Text(
                             'Record Collection',
-                            style:
-                                TextStyle(
-                              color:
-                                  Colors.white,
-                              fontSize:
-                                  20,
-                              fontWeight:
-                                  FontWeight
-                                      .w800,
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 20,
+                              fontWeight: FontWeight.w800,
                             ),
                           ),
-
-                  
                         ],
                       ),
                     ),
@@ -1128,150 +839,89 @@ class _CollectionWiseFormPageState
   Widget _buildDealerCard() {
     return _buildCard(
       child: Column(
-        crossAxisAlignment:
-            CrossAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.start,
 
         children: [
           _sectionHeader(
-            icon:
-                Icons.storefront_rounded,
-            title:
-                'Dealer',
-            subtitle:
-                'Select dealer for this collection',
+            icon: Icons.storefront_rounded,
+            title: 'Dealer',
+            subtitle: 'Select dealer for this collection',
           ),
 
-          const SizedBox(
-            height: 12,
-          ),
+          const SizedBox(height: 12),
 
           InkWell(
-            onTap:
-                _selectDealer,
+            onTap: _selectDealer,
 
-            borderRadius:
-                BorderRadius.circular(
-              14,
-            ),
+            borderRadius: BorderRadius.circular(14),
 
-            child:
-                Container(
-              width:
-                  double.infinity,
+            child: Container(
+              width: double.infinity,
 
-              padding:
-                  const EdgeInsets.all(
-                13,
+              padding: const EdgeInsets.all(13),
+
+              decoration: BoxDecoration(
+                color: const Color(0xFFF5F7F6),
+
+                borderRadius: BorderRadius.circular(14),
+
+                border: Border.all(color: const Color(0xFFE2E8E5)),
               ),
 
-              decoration:
-                  BoxDecoration(
-                color:
-                    const Color(
-                  0xFFF5F7F6,
-                ),
-
-                borderRadius:
-                    BorderRadius.circular(
-                  14,
-                ),
-
-                border:
-                    Border.all(
-                  color:
-                      const Color(
-                    0xFFE2E8E5,
-                  ),
-                ),
-              ),
-
-              child:
-                  Row(
+              child: Row(
                 children: [
                   Container(
                     height: 40,
                     width: 40,
 
-                    decoration:
-                        BoxDecoration(
-                      color:
-                          const Color(
-                        0xFFE7F5EC,
-                      ),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFE7F5EC),
 
-                      borderRadius:
-                          BorderRadius
-                              .circular(
-                        12,
-                      ),
+                      borderRadius: BorderRadius.circular(12),
                     ),
 
-                    child:
-                        const Icon(
+                    child: const Icon(
                       Icons.store_rounded,
-                      color:
-                          Color(0xFF166534),
+                      color: Color(0xFF166534),
                       size: 21,
                     ),
                   ),
 
-                  const SizedBox(
-                    width: 11,
-                  ),
+                  const SizedBox(width: 11),
 
                   Expanded(
-                    child:
-                        Column(
-                      crossAxisAlignment:
-                          CrossAxisAlignment
-                              .start,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
 
                       children: [
                         Text(
-                          dealerName.isEmpty
-                              ? 'Select dealer'
-                              : dealerName,
+                          dealerName.isEmpty ? 'Select dealer' : dealerName,
 
                           maxLines: 1,
 
-                          overflow:
-                              TextOverflow
-                                  .ellipsis,
+                          overflow: TextOverflow.ellipsis,
 
-                          style:
-                              TextStyle(
+                          style: TextStyle(
                             fontSize: 14,
 
-                            fontWeight:
-                                FontWeight
-                                    .w700,
+                            fontWeight: FontWeight.w700,
 
-                            color:
-                                dealerName
-                                        .isEmpty
-                                    ? Colors
-                                        .black54
-                                    : const Color(
-                                        0xFF17201B,
-                                      ),
+                            color: dealerName.isEmpty
+                                ? Colors.black54
+                                : const Color(0xFF17201B),
                           ),
                         ),
 
-                        const SizedBox(
-                          height: 3,
-                        ),
+                        const SizedBox(height: 3),
 
                         Text(
                           dealerName.isEmpty
                               ? 'Tap to search dealer'
                               : 'Dealer ID: $dealerId',
 
-                          style:
-                              const TextStyle(
+                          style: const TextStyle(
                             fontSize: 11,
-                            color:
-                                Colors
-                                    .black45,
+                            color: Colors.black45,
                           ),
                         ),
                       ],
@@ -1282,25 +932,15 @@ class _CollectionWiseFormPageState
                     height: 34,
                     width: 34,
 
-                    decoration:
-                        BoxDecoration(
-                      color:
-                          const Color(
-                        0xFFE7F5EC,
-                      ),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFE7F5EC),
 
-                      borderRadius:
-                          BorderRadius
-                              .circular(
-                        10,
-                      ),
+                      borderRadius: BorderRadius.circular(10),
                     ),
 
-                    child:
-                        const Icon(
+                    child: const Icon(
                       Icons.search_rounded,
-                      color:
-                          Color(0xFF166534),
+                      color: Color(0xFF166534),
                       size: 19,
                     ),
                   ),
@@ -1320,44 +960,30 @@ class _CollectionWiseFormPageState
   Widget _buildPaymentCard() {
     return _buildCard(
       child: Column(
-        crossAxisAlignment:
-            CrossAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.start,
 
         children: [
           _sectionHeader(
-            icon:
-                Icons.payments_rounded,
-            title:
-                'Payment Details',
-            subtitle:
-                'Select method and enter amount',
+            icon: Icons.payments_rounded,
+            title: 'Payment Details',
+            subtitle: 'Select method and enter amount',
           ),
 
-          const SizedBox(
-            height: 12,
-          ),
+          const SizedBox(height: 12),
 
           _buildAmountField(),
 
-          const SizedBox(
-            height: 12,
-          ),
+          const SizedBox(height: 12),
 
           _buildPaymentDropdown(),
 
           if (paymentMode != null) ...[
-            const SizedBox(
-              height: 12,
-            ),
+            const SizedBox(height: 12),
 
             AnimatedSwitcher(
-              duration:
-                  const Duration(
-                milliseconds: 200,
-              ),
+              duration: const Duration(milliseconds: 200),
 
-              child:
-                  _buildConditionalFields(),
+              child: _buildConditionalFields(),
             ),
           ],
         ],
@@ -1371,104 +997,63 @@ class _CollectionWiseFormPageState
 
   Widget _buildAmountField() {
     return Container(
-      padding:
-          const EdgeInsets.symmetric(
-        horizontal: 13,
-        vertical: 3,
+      padding: const EdgeInsets.symmetric(horizontal: 13, vertical: 3),
+
+      decoration: BoxDecoration(
+        gradient: const LinearGradient(
+          colors: [Color(0xFFF0FDF4), Color(0xFFE7F8ED)],
+        ),
+
+        borderRadius: BorderRadius.circular(16),
+
+        border: Border.all(color: const Color(0xFFBBE8C9)),
       ),
 
-      decoration:
-          BoxDecoration(
-        gradient:
-            const LinearGradient(
-          colors: [
-            Color(0xFFF0FDF4),
-            Color(0xFFE7F8ED),
-          ],
-        ),
-
-        borderRadius:
-            BorderRadius.circular(
-          16,
-        ),
-
-        border:
-            Border.all(
-          color:
-              const Color(0xFFBBE8C9),
-        ),
-      ),
-
-      child:
-          Row(
+      child: Row(
         children: [
           Container(
             height: 40,
             width: 40,
 
-            decoration:
-                BoxDecoration(
-              color:
-                  const Color(
-                0xFF166534,
-              ),
+            decoration: BoxDecoration(
+              color: const Color(0xFF166534),
 
-              borderRadius:
-                  BorderRadius.circular(
-                12,
-              ),
+              borderRadius: BorderRadius.circular(12),
             ),
 
-            child:
-                const Icon(
+            child: const Icon(
               Icons.currency_rupee_rounded,
-              color:
-                  Colors.white,
+              color: Colors.white,
               size: 21,
             ),
           ),
 
-          const SizedBox(
-            width: 10,
-          ),
+          const SizedBox(width: 10),
 
           Expanded(
-            child:
-                TextField(
-              controller:
-                  amountController,
+            child: TextField(
+              controller: amountController,
 
-              keyboardType:
-                  const TextInputType
-                      .numberWithOptions(
+              keyboardType: const TextInputType.numberWithOptions(
                 decimal: true,
               ),
 
-              style:
-                  const TextStyle(
+              style: const TextStyle(
                 fontSize: 20,
-                fontWeight:
-                    FontWeight.w800,
-                color:
-                    Color(0xFF17201B),
+                fontWeight: FontWeight.w800,
+                color: Color(0xFF17201B),
               ),
 
-              decoration:
-                  const InputDecoration(
-                border:
-                    InputBorder.none,
+              decoration: const InputDecoration(
+                border: InputBorder.none,
 
-                labelText:
-                    'Collection Amount *',
+                labelText: 'Collection Amount *',
 
-                hintText:
-                    '0.00',
+                hintText: '0.00',
 
-                labelStyle:
-                    TextStyle(
+                labelStyle: TextStyle(
                   fontSize: 11,
-                  fontWeight:
-                      FontWeight.w600,
+                  fontWeight: FontWeight.w600,
                 ),
               ),
             ),
@@ -1484,142 +1069,85 @@ class _CollectionWiseFormPageState
 
   Widget _buildPaymentDropdown() {
     return DropdownButtonFormField<String>(
-      value:
-          paymentMode,
+      value: paymentMode,
 
-      isExpanded:
-          true,
+      isExpanded: true,
 
-      decoration:
-          InputDecoration(
-        labelText:
-            'Payment Method *',
+      decoration: InputDecoration(
+        labelText: 'Payment Method *',
 
-        hintText:
-            'Select payment method',
+        hintText: 'Select payment method',
 
-        prefixIcon:
-            const Icon(
-          Icons
-              .account_balance_wallet_rounded,
+        prefixIcon: const Icon(
+          Icons.account_balance_wallet_rounded,
           size: 20,
-          color:
-              Color(0xFF166534),
+          color: Color(0xFF166534),
         ),
 
-        filled:
-            true,
+        filled: true,
 
-        fillColor:
-            const Color(0xFFF6F8F7),
+        fillColor: const Color(0xFFF6F8F7),
 
-        contentPadding:
-            const EdgeInsets
-                .symmetric(
+        contentPadding: const EdgeInsets.symmetric(
           horizontal: 12,
           vertical: 13,
         ),
 
-        border:
-            OutlineInputBorder(
-          borderRadius:
-              BorderRadius.circular(
-            14,
-          ),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(14),
 
-          borderSide:
-              BorderSide.none,
+          borderSide: BorderSide.none,
         ),
 
-        enabledBorder:
-            OutlineInputBorder(
-          borderRadius:
-              BorderRadius.circular(
-            14,
-          ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(14),
 
-          borderSide:
-              const BorderSide(
-            color:
-                Color(0xFFE1E7E3),
-          ),
+          borderSide: const BorderSide(color: Color(0xFFE1E7E3)),
         ),
 
-        focusedBorder:
-            OutlineInputBorder(
-          borderRadius:
-              BorderRadius.circular(
-            14,
-          ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(14),
 
-          borderSide:
-              const BorderSide(
-            color:
-                Color(0xFF166534),
-            width: 1.4,
-          ),
+          borderSide: const BorderSide(color: Color(0xFF166534), width: 1.4),
         ),
       ),
 
-      icon:
-          const Icon(
-        Icons
-            .keyboard_arrow_down_rounded,
-        color:
-            Color(0xFF166534),
+      icon: const Icon(
+        Icons.keyboard_arrow_down_rounded,
+        color: Color(0xFF166534),
       ),
 
-      items:
-          paymentModes.map(
-        (mode) {
-          return DropdownMenuItem<String>(
-            value:
+      items: paymentModes.map((mode) {
+        return DropdownMenuItem<String>(
+          value: mode,
+
+          child: Row(
+            children: [
+              Icon(
+                _paymentIcon(mode),
+
+                size: 19,
+
+                color: const Color(0xFF166534),
+              ),
+
+              const SizedBox(width: 10),
+
+              Text(
                 mode,
 
-            child:
-                Row(
-              children: [
-                Icon(
-                  _paymentIcon(
-                    mode,
-                  ),
-
-                  size:
-                      19,
-
-                  color:
-                      const Color(
-                    0xFF166534,
-                  ),
+                style: const TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w600,
+                  color: Color(0xFF17201B),
                 ),
+              ),
+            ],
+          ),
+        );
+      }).toList(),
 
-                const SizedBox(
-                  width: 10,
-                ),
-
-                Text(
-                  mode,
-
-                  style:
-                      const TextStyle(
-                    fontSize: 14,
-                    fontWeight:
-                        FontWeight
-                            .w600,
-                    color:
-                        Color(
-                      0xFF17201B,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          );
-        },
-      ).toList(),
-
-      onChanged:
-          _onPaymentModeChanged,
+      onChanged: _onPaymentModeChanged,
     );
   }
 
@@ -1627,33 +1155,25 @@ class _CollectionWiseFormPageState
   // PAYMENT ICON
   // ============================================================
 
-  IconData _paymentIcon(
-    String mode,
-  ) {
+  IconData _paymentIcon(String mode) {
     switch (mode) {
       case 'Cash':
-        return Icons
-            .payments_outlined;
+        return Icons.payments_outlined;
 
       case 'Cheque':
-        return Icons
-            .receipt_long_outlined;
+        return Icons.receipt_long_outlined;
 
       case 'RTGS':
-        return Icons
-            .account_balance_outlined;
+        return Icons.account_balance_outlined;
 
       case 'NEFT':
-        return Icons
-            .swap_horiz_rounded;
+        return Icons.swap_horiz_rounded;
 
       case 'UPI':
-        return Icons
-            .qr_code_2_rounded;
+        return Icons.qr_code_2_rounded;
 
       default:
-        return Icons
-            .payment_rounded;
+        return Icons.payment_rounded;
     }
   }
 
@@ -1668,42 +1188,28 @@ class _CollectionWiseFormPageState
 
       case 'RTGS':
         return _buildSingleField(
-          key:
-              const ValueKey(
-            'rtgs',
-          ),
+          key: const ValueKey('rtgs'),
 
-          controller:
-              rtgsController,
+          controller: rtgsController,
 
-          label:
-              'RTGS Number',
+          label: 'RTGS Number',
 
-          hint:
-              'Enter RTGS transaction number',
+          hint: 'Enter RTGS transaction number',
 
-          icon:
-              Icons.account_balance_rounded,
+          icon: Icons.account_balance_rounded,
         );
 
       case 'NEFT':
         return _buildSingleField(
-          key:
-              const ValueKey(
-            'neft',
-          ),
+          key: const ValueKey('neft'),
 
-          controller:
-              neftController,
+          controller: neftController,
 
-          label:
-              'NEFT Number',
+          label: 'NEFT Number',
 
-          hint:
-              'Enter NEFT transaction number',
+          hint: 'Enter NEFT transaction number',
 
-          icon:
-              Icons.swap_horiz_rounded,
+          icon: Icons.swap_horiz_rounded,
         );
 
       case 'UPI':
@@ -1723,66 +1229,37 @@ class _CollectionWiseFormPageState
 
   Widget _buildCashInfo() {
     return Container(
-      key:
-          const ValueKey(
-        'cash',
+      key: const ValueKey('cash'),
+
+      width: double.infinity,
+
+      padding: const EdgeInsets.all(12),
+
+      decoration: BoxDecoration(
+        color: const Color(0xFFF0FDF4),
+
+        borderRadius: BorderRadius.circular(12),
+
+        border: Border.all(color: const Color(0xFFBBE8C9)),
       ),
 
-      width:
-          double.infinity,
-
-      padding:
-          const EdgeInsets.all(
-        12,
-      ),
-
-      decoration:
-          BoxDecoration(
-        color:
-            const Color(
-          0xFFF0FDF4,
-        ),
-
-        borderRadius:
-            BorderRadius.circular(
-          12,
-        ),
-
-        border:
-            Border.all(
-          color:
-              const Color(
-            0xFFBBE8C9,
-          ),
-        ),
-      ),
-
-      child:
-          const Row(
+      child: const Row(
         children: [
           Icon(
-            Icons
-                .check_circle_outline_rounded,
-            color:
-                Color(0xFF166534),
+            Icons.check_circle_outline_rounded,
+            color: Color(0xFF166534),
             size: 20,
           ),
 
-          SizedBox(
-            width: 8,
-          ),
+          SizedBox(width: 8),
 
           Expanded(
-            child:
-                Text(
+            child: Text(
               'Cash payment selected. No transaction details required.',
-              style:
-                  TextStyle(
+              style: TextStyle(
                 fontSize: 12,
-                fontWeight:
-                    FontWeight.w600,
-                color:
-                    Color(0xFF166534),
+                fontWeight: FontWeight.w600,
+                color: Color(0xFF166534),
               ),
             ),
           ),
@@ -1797,113 +1274,68 @@ class _CollectionWiseFormPageState
 
   Widget _buildChequeFields() {
     return Container(
-      key:
-          const ValueKey(
-        'cheque',
+      key: const ValueKey('cheque'),
+
+      padding: const EdgeInsets.all(12),
+
+      decoration: BoxDecoration(
+        color: const Color(0xFFFFFBEB),
+
+        borderRadius: BorderRadius.circular(14),
+
+        border: Border.all(color: const Color(0xFFF5D98B)),
       ),
 
-      padding:
-          const EdgeInsets.all(
-        12,
-      ),
-
-      decoration:
-          BoxDecoration(
-        color:
-            const Color(
-          0xFFFFFBEB,
-        ),
-
-        borderRadius:
-            BorderRadius.circular(
-          14,
-        ),
-
-        border:
-            Border.all(
-          color:
-              const Color(
-            0xFFF5D98B,
-          ),
-        ),
-      ),
-
-      child:
-          Column(
+      child: Column(
         children: [
           _buildInput(
-            controller:
-                chequeNumberController,
+            controller: chequeNumberController,
 
-            label:
-                'Cheque Number *',
+            label: 'Cheque Number *',
 
-            hint:
-                'Enter cheque number',
+            hint: 'Enter cheque number',
 
-            icon:
-                Icons.receipt_long_rounded,
+            icon: Icons.receipt_long_rounded,
           ),
 
-          const SizedBox(
-            height: 10,
-          ),
+          const SizedBox(height: 10),
 
           _buildDateInput(),
 
-          const SizedBox(
-            height: 10,
-          ),
+          const SizedBox(height: 10),
 
           _buildInput(
-            controller:
-                bankNameController,
+            controller: bankNameController,
 
-            label:
-                'Bank Name *',
+            label: 'Bank Name *',
 
-            hint:
-                'Enter bank name',
+            hint: 'Enter bank name',
 
-            icon:
-                Icons.account_balance_rounded,
+            icon: Icons.account_balance_rounded,
           ),
 
-          const SizedBox(
-            height: 10,
-          ),
+          const SizedBox(height: 10),
 
           _buildInput(
-            controller:
-                depositBankNameController,
+            controller: depositBankNameController,
 
-            label:
-                'Deposit Bank Name *',
+            label: 'Deposit Bank Name *',
 
-            hint:
-                'Enter deposit bank',
+            hint: 'Enter deposit bank',
 
-            icon:
-                Icons
-                    .account_balance_wallet_rounded,
+            icon: Icons.account_balance_wallet_rounded,
           ),
 
-          const SizedBox(
-            height: 10,
-          ),
+          const SizedBox(height: 10),
 
           _buildInput(
-            controller:
-                depositBranchController,
+            controller: depositBranchController,
 
-            label:
-                'Deposit Branch *',
+            label: 'Deposit Branch *',
 
-            hint:
-                'Enter deposit branch',
+            hint: 'Enter deposit branch',
 
-            icon:
-                Icons.location_city_rounded,
+            icon: Icons.location_city_rounded,
           ),
         ],
       ),
@@ -1916,75 +1348,42 @@ class _CollectionWiseFormPageState
 
   Widget _buildUpiFields() {
     return Container(
-      key:
-          const ValueKey(
-        'upi',
+      key: const ValueKey('upi'),
+
+      padding: const EdgeInsets.all(12),
+
+      decoration: BoxDecoration(
+        color: const Color(0xFFF5F3FF),
+
+        borderRadius: BorderRadius.circular(14),
+
+        border: Border.all(color: const Color(0xFFDCD2FF)),
       ),
 
-      padding:
-          const EdgeInsets.all(
-        12,
-      ),
-
-      decoration:
-          BoxDecoration(
-        color:
-            const Color(
-          0xFFF5F3FF,
-        ),
-
-        borderRadius:
-            BorderRadius.circular(
-          14,
-        ),
-
-        border:
-            Border.all(
-          color:
-              const Color(
-            0xFFDCD2FF,
-          ),
-        ),
-      ),
-
-      child:
-          Column(
+      child: Column(
         children: [
           _buildInput(
-            controller:
-                upiController,
+            controller: upiController,
 
-            label:
-                'UPI ID *',
+            label: 'UPI ID *',
 
-            hint:
-                'example@upi',
+            hint: 'example@upi',
 
-            icon:
-                Icons.qr_code_rounded,
+            icon: Icons.qr_code_rounded,
 
-            keyboardType:
-                TextInputType
-                    .emailAddress,
+            keyboardType: TextInputType.emailAddress,
           ),
 
-          const SizedBox(
-            height: 10,
-          ),
+          const SizedBox(height: 10),
 
           _buildInput(
-            controller:
-                upiTransactionController,
+            controller: upiTransactionController,
 
-            label:
-                'Transaction Number *',
+            label: 'Transaction Number *',
 
-            hint:
-                'Enter UPI transaction number',
+            hint: 'Enter UPI transaction number',
 
-            icon:
-                Icons
-                    .confirmation_number_rounded,
+            icon: Icons.confirmation_number_rounded,
           ),
         ],
       ),
@@ -1997,55 +1396,32 @@ class _CollectionWiseFormPageState
 
   Widget _buildSingleField({
     required Key key,
-    required TextEditingController
-        controller,
+    required TextEditingController controller,
     required String label,
     required String hint,
     required IconData icon,
   }) {
     return Container(
-      key:
-          key,
+      key: key,
 
-      padding:
-          const EdgeInsets.all(
-        12,
+      padding: const EdgeInsets.all(12),
+
+      decoration: BoxDecoration(
+        color: const Color(0xFFF5F7F6),
+
+        borderRadius: BorderRadius.circular(14),
+
+        border: Border.all(color: const Color(0xFFE3E8E5)),
       ),
 
-      decoration:
-          BoxDecoration(
-        color:
-            const Color(
-          0xFFF5F7F6,
-        ),
+      child: _buildInput(
+        controller: controller,
 
-        borderRadius:
-            BorderRadius.circular(
-          14,
-        ),
+        label: label,
 
-        border:
-            Border.all(
-          color:
-              const Color(
-            0xFFE3E8E5,
-          ),
-        ),
-      ),
+        hint: hint,
 
-      child:
-          _buildInput(
-        controller:
-            controller,
-
-        label:
-            label,
-
-        hint:
-            hint,
-
-        icon:
-            icon,
+        icon: icon,
       ),
     );
   }
@@ -2056,29 +1432,19 @@ class _CollectionWiseFormPageState
 
   Widget _buildDateInput() {
     return InkWell(
-      onTap:
-          _selectChequeDate,
+      onTap: _selectChequeDate,
 
-      borderRadius:
-          BorderRadius.circular(
-        13,
-      ),
+      borderRadius: BorderRadius.circular(13),
 
-      child:
-          IgnorePointer(
-        child:
-            _buildInput(
-          controller:
-              chequeDateController,
+      child: IgnorePointer(
+        child: _buildInput(
+          controller: chequeDateController,
 
-          label:
-              'Cheque Date *',
+          label: 'Cheque Date *',
 
-          hint:
-              'Select cheque date',
+          hint: 'Select cheque date',
 
-          icon:
-              Icons.calendar_month_rounded,
+          icon: Icons.calendar_month_rounded,
         ),
       ),
     );
@@ -2089,104 +1455,54 @@ class _CollectionWiseFormPageState
   // ============================================================
 
   Widget _buildInput({
-    required TextEditingController
-        controller,
+    required TextEditingController controller,
     required String label,
     required String hint,
     required IconData icon,
     TextInputType? keyboardType,
   }) {
     return TextField(
-      controller:
-          controller,
+      controller: controller,
 
-      keyboardType:
-          keyboardType,
+      keyboardType: keyboardType,
 
-      style:
-          const TextStyle(
-        fontSize: 13,
-        fontWeight:
-            FontWeight.w600,
-      ),
+      style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
 
-      decoration:
-          InputDecoration(
-        labelText:
-            label,
+      decoration: InputDecoration(
+        labelText: label,
 
-        hintText:
-            hint,
+        hintText: hint,
 
-        prefixIcon:
-            Icon(
-          icon,
+        prefixIcon: Icon(icon, size: 19, color: const Color(0xFF607068)),
 
-          size: 19,
+        filled: true,
 
-          color:
-              const Color(
-            0xFF607068,
-          ),
-        ),
+        fillColor: Colors.white,
 
-        filled:
-            true,
-
-        fillColor:
-            Colors.white,
-
-        contentPadding:
-            const EdgeInsets
-                .symmetric(
+        contentPadding: const EdgeInsets.symmetric(
           horizontal: 12,
           vertical: 13,
         ),
 
-        border:
-            OutlineInputBorder(
-          borderRadius:
-              BorderRadius.circular(
-            13,
-          ),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(13),
 
-          borderSide:
-              BorderSide.none,
+          borderSide: BorderSide.none,
         ),
 
-        enabledBorder:
-            OutlineInputBorder(
-          borderRadius:
-              BorderRadius.circular(
-            13,
-          ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(13),
 
-          borderSide:
-              const BorderSide(
-            color:
-                Color(0xFFE1E7E3),
-          ),
+          borderSide: const BorderSide(color: Color(0xFFE1E7E3)),
         ),
 
-        focusedBorder:
-            OutlineInputBorder(
-          borderRadius:
-              BorderRadius.circular(
-            13,
-          ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(13),
 
-          borderSide:
-              const BorderSide(
-            color:
-                Color(0xFF166534),
-            width: 1.3,
-          ),
+          borderSide: const BorderSide(color: Color(0xFF166534), width: 1.3),
         ),
 
-        labelStyle:
-            const TextStyle(
-          fontSize: 12,
-        ),
+        labelStyle: const TextStyle(fontSize: 12),
       ),
     );
   }
@@ -2197,81 +1513,46 @@ class _CollectionWiseFormPageState
 
   Widget _buildRemarkCard() {
     return _buildCard(
-      child:
-          Column(
-        crossAxisAlignment:
-            CrossAxisAlignment.start,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
 
         children: [
           _sectionHeader(
-            icon:
-                Icons.notes_rounded,
+            icon: Icons.notes_rounded,
 
-            title:
-                'Remark',
+            title: 'Remark',
 
-            subtitle:
-                'Add additional information',
+            subtitle: 'Add additional information',
           ),
 
-          const SizedBox(
-            height: 12,
-          ),
+          const SizedBox(height: 12),
 
           TextField(
-            controller:
-                remarkController,
+            controller: remarkController,
 
-            maxLines:
-                3,
+            maxLines: 3,
 
-            style:
-                const TextStyle(
-              fontSize: 13,
-            ),
+            style: const TextStyle(fontSize: 13),
 
-            decoration:
-                InputDecoration(
-              hintText:
-                  'Write a remark...',
+            decoration: InputDecoration(
+              hintText: 'Write a remark...',
 
-              filled:
-                  true,
+              filled: true,
 
-              fillColor:
-                  const Color(
-                0xFFF6F8F7,
+              fillColor: const Color(0xFFF6F8F7),
+
+              prefixIcon: const Padding(
+                padding: EdgeInsets.only(bottom: 35),
+
+                child: Icon(Icons.edit_note_rounded, size: 21),
               ),
 
-              prefixIcon:
-                  const Padding(
-                padding:
-                    EdgeInsets.only(
-                  bottom: 35,
-                ),
+              contentPadding: const EdgeInsets.all(13),
 
-                child:
-                    Icon(
-                  Icons
-                      .edit_note_rounded,
-                  size: 21,
-                ),
-              ),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(14),
 
-              contentPadding:
-                  const EdgeInsets.all(
-                13,
-              ),
-
-              border:
-                  OutlineInputBorder(
-                borderRadius:
-                    BorderRadius.circular(
-                  14,
-                ),
-
-                borderSide:
-                    BorderSide.none,
+                borderSide: BorderSide.none,
               ),
             ),
           ),
@@ -2286,133 +1567,74 @@ class _CollectionWiseFormPageState
 
   Widget _buildImageCard() {
     return _buildCard(
-      child:
-          Column(
-        crossAxisAlignment:
-            CrossAxisAlignment.start,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
 
         children: [
           _sectionHeader(
-            icon:
-                Icons.photo_library_rounded,
+            icon: Icons.photo_library_rounded,
 
-            title:
-                'Payment Proof',
+            title: 'Payment Proof',
 
-            subtitle:
-                'Attach payment related images',
+            subtitle: 'Attach payment related images',
           ),
 
-          const SizedBox(
-            height: 12,
-          ),
+          const SizedBox(height: 12),
 
           InkWell(
-            onTap:
-                _pickImages,
+            onTap: _pickImages,
 
-            borderRadius:
-                BorderRadius.circular(
-              14,
-            ),
+            borderRadius: BorderRadius.circular(14),
 
-            child:
-                Container(
-              width:
-                  double.infinity,
+            child: Container(
+              width: double.infinity,
 
-              padding:
-                  const EdgeInsets
-                      .symmetric(
-                vertical: 16,
+              padding: const EdgeInsets.symmetric(vertical: 16),
+
+              decoration: BoxDecoration(
+                color: const Color(0xFFF5F7F6),
+
+                borderRadius: BorderRadius.circular(14),
+
+                border: Border.all(color: const Color(0xFFD9E1DC)),
               ),
 
-              decoration:
-                  BoxDecoration(
-                color:
-                    const Color(
-                  0xFFF5F7F6,
-                ),
-
-                borderRadius:
-                    BorderRadius.circular(
-                  14,
-                ),
-
-                border:
-                    Border.all(
-                  color:
-                      const Color(
-                    0xFFD9E1DC,
-                  ),
-                ),
-              ),
-
-              child:
-                  Column(
+              child: Column(
                 children: [
                   Container(
                     height: 42,
                     width: 42,
 
-                    decoration:
-                        BoxDecoration(
-                      color:
-                          const Color(
-                        0xFFE7F5EC,
-                      ),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFE7F5EC),
 
-                      borderRadius:
-                          BorderRadius
-                              .circular(
-                        13,
-                      ),
+                      borderRadius: BorderRadius.circular(13),
                     ),
 
-                    child:
-                        const Icon(
-                      Icons
-                          .add_photo_alternate_rounded,
+                    child: const Icon(
+                      Icons.add_photo_alternate_rounded,
 
-                      color:
-                          Color(
-                        0xFF166534,
-                      ),
+                      color: Color(0xFF166534),
 
                       size: 22,
                     ),
                   ),
 
-                  const SizedBox(
-                    height: 8,
-                  ),
+                  const SizedBox(height: 8),
 
                   const Text(
                     'Add payment images',
-                    style:
-                        TextStyle(
-                      fontSize: 13,
-                      fontWeight:
-                          FontWeight
-                              .w700,
-                    ),
+                    style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700),
                   ),
 
-                  const SizedBox(
-                    height: 3,
-                  ),
+                  const SizedBox(height: 3),
 
                   Text(
                     selectedImages.isEmpty
                         ? 'Tap to select photos'
                         : '${selectedImages.length} image(s) selected',
 
-                    style:
-                        const TextStyle(
-                      fontSize: 11,
-                      color:
-                          Colors.black45,
-                    ),
+                    style: const TextStyle(fontSize: 11, color: Colors.black45),
                   ),
                 ],
               ),
@@ -2422,55 +1644,35 @@ class _CollectionWiseFormPageState
           // ======================================================
           // SELECTED IMAGES
           // ======================================================
-
-          if (selectedImages
-              .isNotEmpty) ...[
-            const SizedBox(
-              height: 12,
-            ),
+          if (selectedImages.isNotEmpty) ...[
+            const SizedBox(height: 12),
 
             GridView.builder(
-              shrinkWrap:
-                  true,
+              shrinkWrap: true,
 
-              physics:
-                  const NeverScrollableScrollPhysics(),
+              physics: const NeverScrollableScrollPhysics(),
 
-              itemCount:
-                  selectedImages.length,
+              itemCount: selectedImages.length,
 
-              gridDelegate:
-                  const SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount:
-                    3,
+              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 3,
 
-                crossAxisSpacing:
-                    7,
+                crossAxisSpacing: 7,
 
-                mainAxisSpacing:
-                    7,
+                mainAxisSpacing: 7,
               ),
 
-              itemBuilder:
-                  (context, index) {
+              itemBuilder: (context, index) {
                 return Stack(
                   children: [
                     Positioned.fill(
-                      child:
-                          ClipRRect(
-                        borderRadius:
-                            BorderRadius
-                                .circular(
-                          12,
-                        ),
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(12),
 
-                        child:
-                            Image.file(
-                          selectedImages[
-                              index],
+                        child: Image.file(
+                          selectedImages[index],
 
-                          fit:
-                              BoxFit.cover,
+                          fit: BoxFit.cover,
                         ),
                       ),
                     ),
@@ -2479,38 +1681,23 @@ class _CollectionWiseFormPageState
                       top: 5,
                       right: 5,
 
-                      child:
-                          GestureDetector(
-                        onTap:
-                            () =>
-                                _removeImage(
-                          index,
-                        ),
+                      child: GestureDetector(
+                        onTap: () => _removeImage(index),
 
-                        child:
-                            Container(
+                        child: Container(
                           height: 25,
                           width: 25,
 
-                          decoration:
-                              const BoxDecoration(
-                            color:
-                                Colors
-                                    .black54,
+                          decoration: const BoxDecoration(
+                            color: Colors.black54,
 
-                            shape:
-                                BoxShape
-                                    .circle,
+                            shape: BoxShape.circle,
                           ),
 
-                          child:
-                              const Icon(
-                            Icons
-                                .close_rounded,
+                          child: const Icon(
+                            Icons.close_rounded,
 
-                            color:
-                                Colors
-                                    .white,
+                            color: Colors.white,
 
                             size: 16,
                           ),
@@ -2532,140 +1719,77 @@ class _CollectionWiseFormPageState
   // ============================================================
 
   Widget _buildSubmitButton() {
-    return BlocBuilder<
-        CollectionBloc,
-        CollectionState>(
-      builder: (
-        context,
-        state,
-      ) {
-        final bool loading =
-            state.status ==
-                CollectionStatus.loading;
+    return BlocBuilder<CollectionBloc, CollectionState>(
+      builder: (context, state) {
+        final bool loading = state.status == CollectionStatus.loading;
 
         return Container(
-          decoration:
-              BoxDecoration(
-            borderRadius:
-                BorderRadius.circular(
-              16,
-            ),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(16),
 
             boxShadow: [
               BoxShadow(
-                color:
-                    const Color(
-                  0xFF166534,
-                ).withValues(
-                  alpha: 0.20,
-                ),
+                color: const Color(0xFF166534).withValues(alpha: 0.20),
 
-                blurRadius:
-                    15,
+                blurRadius: 15,
 
-                offset:
-                    const Offset(
-                  0,
-                  6,
-                ),
+                offset: const Offset(0, 6),
               ),
             ],
           ),
 
-          child:
-              SizedBox(
-            width:
-                double.infinity,
+          child: SizedBox(
+            width: double.infinity,
 
-            height:
-                52,
+            height: 52,
 
-            child:
-                ElevatedButton(
-              onPressed:
-                  loading
-                      ? null
-                      : _submit,
+            child: ElevatedButton(
+              onPressed: loading ? null : _submit,
 
-              style:
-                  ElevatedButton
-                      .styleFrom(
-                backgroundColor:
-                    const Color(
-                  0xFF166534,
-                ),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFF166534),
 
-                foregroundColor:
-                    Colors.white,
+                foregroundColor: Colors.white,
 
-                disabledBackgroundColor:
-                    const Color(
-                  0xFF86A891,
-                ),
+                disabledBackgroundColor: const Color(0xFF86A891),
 
-                elevation:
-                    0,
+                elevation: 0,
 
-                shape:
-                    RoundedRectangleBorder(
-                  borderRadius:
-                      BorderRadius.circular(
-                    16,
-                  ),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(16),
                 ),
               ),
 
-              child:
-                  loading
-                      ? const SizedBox(
-                          height:
-                              21,
+              child: loading
+                  ? const SizedBox(
+                      height: 21,
 
-                          width:
-                              21,
+                      width: 21,
 
-                          child:
-                              CircularProgressIndicator(
-                            strokeWidth:
-                                2.4,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2.4,
 
-                            color:
-                                Colors
-                                    .white,
+                        color: Colors.white,
+                      ),
+                    )
+                  : const Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+
+                      children: [
+                        Icon(Icons.check_circle_outline_rounded, size: 20),
+
+                        SizedBox(width: 8),
+
+                        Text(
+                          'Submit Collection',
+                          style: TextStyle(
+                            fontSize: 14,
+
+                            fontWeight: FontWeight.w800,
                           ),
-                        )
-                      : const Row(
-                          mainAxisAlignment:
-                              MainAxisAlignment
-                                  .center,
-
-                          children: [
-                            Icon(
-                              Icons
-                                  .check_circle_outline_rounded,
-                              size:
-                                  20,
-                            ),
-
-                            SizedBox(
-                              width:
-                                  8,
-                            ),
-
-                            Text(
-                              'Submit Collection',
-                              style:
-                                  TextStyle(
-                                fontSize:
-                                    14,
-
-                                fontWeight:
-                                    FontWeight
-                                        .w800,
-                              ),
-                            ),
-                          ],
                         ),
+                      ],
+                    ),
             ),
           ),
         );
@@ -2677,57 +1801,31 @@ class _CollectionWiseFormPageState
   // COMMON CARD
   // ============================================================
 
-  Widget _buildCard({
-    required Widget child,
-  }) {
+  Widget _buildCard({required Widget child}) {
     return Container(
-      width:
-          double.infinity,
+      width: double.infinity,
 
-      padding:
-          const EdgeInsets.all(
-        14,
-      ),
+      padding: const EdgeInsets.all(14),
 
-      decoration:
-          BoxDecoration(
-        color:
-            Colors.white,
+      decoration: BoxDecoration(
+        color: Colors.white,
 
-        borderRadius:
-            BorderRadius.circular(
-          18,
-        ),
+        borderRadius: BorderRadius.circular(18),
 
-        border:
-            Border.all(
-          color:
-              const Color(
-            0xFFE8ECE9,
-          ),
-        ),
+        border: Border.all(color: const Color(0xFFE8ECE9)),
 
         boxShadow: [
           BoxShadow(
-            color:
-                Colors.black.withValues(
-              alpha: 0.025,
-            ),
+            color: Colors.black.withValues(alpha: 0.025),
 
-            blurRadius:
-                12,
+            blurRadius: 12,
 
-            offset:
-                const Offset(
-              0,
-              4,
-            ),
+            offset: const Offset(0, 4),
           ),
         ],
       ),
 
-      child:
-          child,
+      child: child,
     );
   }
 
@@ -2743,95 +1841,51 @@ class _CollectionWiseFormPageState
     return Row(
       children: [
         Container(
-          height:
-              38,
+          height: 38,
 
-          width:
-              38,
+          width: 38,
 
-          decoration:
-              BoxDecoration(
-            color:
-                const Color(
-              0xFFEAF6EE,
-            ),
+          decoration: BoxDecoration(
+            color: const Color(0xFFEAF6EE),
 
-            borderRadius:
-                BorderRadius.circular(
-              11,
-            ),
+            borderRadius: BorderRadius.circular(11),
           ),
 
-          child:
-              Icon(
-            icon,
-
-            color:
-                const Color(
-              0xFF166534,
-            ),
-
-            size:
-                20,
-          ),
+          child: Icon(icon, color: const Color(0xFF166534), size: 20),
         ),
 
-        const SizedBox(
-          width:
-              10,
-        ),
+        const SizedBox(width: 10),
 
         Expanded(
-          child:
-              Column(
-            crossAxisAlignment:
-                CrossAxisAlignment
-                    .start,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
 
             children: [
               Text(
                 title,
 
-                style:
-                    const TextStyle(
-                  fontSize:
-                      15,
+                style: const TextStyle(
+                  fontSize: 15,
 
-                  fontWeight:
-                      FontWeight
-                          .w800,
+                  fontWeight: FontWeight.w800,
 
-                  color:
-                      Color(
-                    0xFF17201B,
-                  ),
+                  color: Color(0xFF17201B),
                 ),
               ),
 
-              const SizedBox(
-                height:
-                    2,
-              ),
+              const SizedBox(height: 2),
 
               Text(
                 subtitle,
 
-                maxLines:
-                    1,
+                maxLines: 1,
 
-                overflow:
-                    TextOverflow
-                        .ellipsis,
+                overflow: TextOverflow.ellipsis,
 
-                style:
-                    const TextStyle(
-                  fontSize:
-                      10.5,
+                style: const TextStyle(
+                  fontSize: 10.5,
 
-                  color:
-                      Color(
-                    0xFF7A867F,
-                  ),
+                  color: Color(0xFF7A867F),
                 ),
               ),
             ],
@@ -2841,4 +1895,3 @@ class _CollectionWiseFormPageState
     );
   }
 }
-
