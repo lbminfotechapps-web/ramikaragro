@@ -1,6 +1,7 @@
 import 'package:demo/core/utility/widgets/bottom_navigation.dart';
 import 'package:demo/core/di/auth_di.dart';
 import 'package:demo/features/auth/presentation/pages/login_screen.dart';
+import 'package:demo/features/collection/presentation/pages/collection_wise_form_page.dart';
 import 'package:demo/features/dealer/presentation/pages/DealerListScreen.dart';
 import 'package:demo/features/farmer/famerfollowup/presentation/pages/famerfollowuppage.dart';
 import 'package:demo/features/farmer/farmerlist/presentation/pages/farmerlist_screen.dart';
@@ -68,6 +69,9 @@ class AppRouter {
   static const String topTenDealer = '/topTenDealer';
   static const String social = '/social';
   static const String teamLeaveList = '/teamLeaveList';
+
+   static const String addCollection = '/addCollection';
+   static const String collectionList = '/collectionList';
 
   static final GoRouter router = GoRouter(
     initialLocation: splash,
@@ -151,6 +155,25 @@ class AppRouter {
           return const TeamLeaveListPage();
         },
       ),
+
+       GoRoute(
+        path: addCollection,
+        name: 'addCollection',
+        builder: (context, state) {
+          return const CollectionWiseFormPage();
+        },
+      ),
+
+
+       GoRoute(
+        path: collectionList,
+        name: 'collectionList',
+        builder: (context, state) {
+          return const CollectionWiseFormPage();
+        },
+      ),
+
+
 
       GoRoute(
         path: farmers,

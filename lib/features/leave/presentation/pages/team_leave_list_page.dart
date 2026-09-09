@@ -1,24 +1,26 @@
+
+import 'package:demo/core/router/app_router.dart';
+import 'package:demo/core/secure_storage/secure_storage.dart';
+import 'package:demo/core/theme/app_colors.dart';
 import 'package:demo/features/leave/domain/entities/team_leave.dart';
 import 'package:demo/features/leave/presentation/bloc/team_leave_bloc.dart';
 import 'package:demo/features/leave/presentation/bloc/team_leave_event.dart';
 import 'package:demo/features/leave/presentation/bloc/team_leave_state.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-
-import '../../../../core/di/team_leave_di.dart';
-import '../../../../core/secure_storage/secure_storage.dart';
-
+import 'package:get_it/get_it.dart';
+import 'package:go_router/go_router.dart';
 
 class TeamLeaveListPage extends StatefulWidget {
   const TeamLeaveListPage({super.key});
 
   @override
-  State<TeamLeaveListPage> createState() =>
-      _TeamLeaveListPageState();
+  State<TeamLeaveListPage> createState() => _TeamLeaveListPageState();
 }
 
-class _TeamLeaveListPageState
-    extends State<TeamLeaveListPage> {
+class _TeamLeaveListPageState extends State<TeamLeaveListPage> {
+  final GetIt sl = GetIt.instance;
+
   late final TeamLeaveBloc bloc;
 
   final TextEditingController fromDateController =
@@ -34,8 +36,6 @@ class _TeamLeaveListPageState
 
   bool showFilter = false;
 
-  int startLimit = 0;
-
   @override
   void initState() {
     super.initState();
@@ -43,20 +43,17 @@ class _TeamLeaveListPageState
     bloc = sl<TeamLeaveBloc>();
 
     _setInitialDates();
+
     _loadUserAndLeaveList();
   }
 
+  // ============================================================
+  // INITIAL DATE
+  // ============================================================
+
   void _setInitialDates() {
-    final now = DateTime.now();
-
-    final sevenDaysAgo =
-        now.subtract(const Duration(days: 7));
-
-    fromDateController.text =
-        _formatDate(sevenDaysAgo);
-
-    toDateController.text =
-        _formatDate(now);
+    fromDateController.text = '01-08-2026';
+    toDateController.text = '07-09-2026';
   }
 
   String _formatDate(DateTime date) {
@@ -65,46 +62,163 @@ class _TeamLeaveListPageState
         '${date.year}';
   }
 
+  // ============================================================
+  // LOAD USER
+  // ============================================================
+
   Future<void> _loadUserAndLeaveList() async {
-    final userData =
-        await SecureStorage.instance.getUserData();
+    try {
+      final userData =
+          await SecureStorage.instance.getUserData();
 
-    userId =
-        userData?['user_id']?.toString() ?? '';
+      debugPrint('');
+      debugPrint('==========================================');
+      debugPrint('TEAM LEAVE - SECURE STORAGE');
+      debugPrint('USER DATA = $userData');
+      debugPrint('==========================================');
 
-    debugPrint(
-      'TEAM LEAVE USER ID = $userId',
-    );
+      final storedUserId =
+          userData?['user_id']?.toString() ?? '';
 
-    if (!mounted) return;
+      debugPrint(
+        'STORED USER ID = $storedUserId',
+      );
 
-    _fetchLeaveList();
+      if (storedUserId.isEmpty) {
+        debugPrint(
+          'ERROR: USER ID IS EMPTY',
+        );
+
+        if (mounted) {
+          _showMessage(
+            'User ID not found. Please login again.',
+            isError: true,
+          );
+        }
+
+        return;
+      }
+
+      if (!mounted) return;
+
+      setState(() {
+        userId = storedUserId;
+      });
+
+      debugPrint(
+        'TEAM LEAVE USER ID = $userId',
+      );
+
+      // ONLY ONE INITIAL GET CALL
+      _fetchLeaveList();
+    } catch (e, stackTrace) {
+      debugPrint(
+        'LOAD USER ERROR = $e',
+      );
+
+      debugPrint(
+        '$stackTrace',
+      );
+
+      if (mounted) {
+        _showMessage(
+          'Unable to load user information',
+          isError: true,
+        );
+      }
+    }
   }
 
+  // ============================================================
+  // FETCH
+  // ============================================================
+
   void _fetchLeaveList() {
-    startLimit = 0;
+    if (userId.isEmpty) {
+      debugPrint(
+        'FETCH CANCELLED: USER ID EMPTY',
+      );
+      return;
+    }
+
+    final fromDate =
+        fromDateController.text.trim();
+
+    final toDate =
+        toDateController.text.trim();
+
+    final search =
+        searchController.text.trim();
+
+    debugPrint('');
+    debugPrint(
+      '==========================================',
+    );
+    debugPrint(
+      'FETCH TEAM LEAVE LIST',
+    );
+    debugPrint(
+      '==========================================',
+    );
+    debugPrint(
+      'USER ID     = $userId',
+    );
+    debugPrint(
+      'FROM DATE   = $fromDate',
+    );
+    debugPrint(
+      'TO DATE     = $toDate',
+    );
+    debugPrint(
+      'START LIMIT = 0',
+    );
+    debugPrint(
+      'SEARCH      = "$search"',
+    );
+    debugPrint(
+      '==========================================',
+    );
 
     bloc.add(
       GetTeamLeaveListEvent(
         userId: userId,
-        fromDate: fromDateController.text.trim(),
-        toDate: toDateController.text.trim(),
-        startLimit: startLimit,
-        searchText: searchController.text.trim(),
+        fromDate: fromDate,
+        toDate: toDate,
+        startLimit: 0,
+        searchText: search,
       ),
     );
   }
 
+  // ============================================================
+  // REFRESH
+  // ============================================================
+
   Future<void> _refresh() async {
+    if (userId.isEmpty) {
+      return;
+    }
+
+    debugPrint(
+      'REFRESHING TEAM LEAVE LIST',
+    );
+
     bloc.add(
       RefreshTeamLeaveListEvent(
         userId: userId,
-        fromDate: fromDateController.text.trim(),
-        toDate: toDateController.text.trim(),
-        searchText: searchController.text.trim(),
+        fromDate:
+            fromDateController.text.trim(),
+        toDate:
+            toDateController.text.trim(),
+        searchText:
+            searchController.text.trim(),
       ),
     );
   }
+
+  // ============================================================
+  // DISPOSE
+  // ============================================================
 
   @override
   void dispose() {
@@ -117,12 +231,78 @@ class _TeamLeaveListPageState
     super.dispose();
   }
 
+  // ============================================================
+  // BUILD
+  // ============================================================
+
   @override
   Widget build(BuildContext context) {
     return BlocProvider.value(
       value: bloc,
       child: BlocConsumer<TeamLeaveBloc, TeamLeaveState>(
         listener: (context, state) {
+          debugPrint('');
+          debugPrint(
+            '==========================================',
+          );
+          debugPrint(
+            'TEAM LEAVE STATE CHANGED',
+          );
+          debugPrint(
+            '==========================================',
+          );
+
+          debugPrint(
+            'STATE STATUS = ${state.status}',
+          );
+
+          debugPrint(
+            'LEAVES COUNT = ${state.leaves.length}',
+          );
+
+          debugPrint(
+            'ERROR MESSAGE = ${state.errorMessage}',
+          );
+
+          debugPrint(
+            'UPDATE STATUS = ${state.updateStatus}',
+          );
+
+          if (state.leaves.isNotEmpty) {
+            debugPrint(
+              'FIRST LEAVE = '
+              '${state.leaves.first.leaveId}',
+            );
+
+            debugPrint(
+              'FIRST EMPLOYEE = '
+              '${state.leaves.first.employeeName}',
+            );
+
+            debugPrint(
+              'FIRST FROM DATE = '
+              '${state.leaves.first.fromDate}',
+            );
+
+            debugPrint(
+              'FIRST TO DATE = '
+              '${state.leaves.first.toDate}',
+            );
+          }
+
+          debugPrint(
+            '==========================================',
+          );
+
+          // ======================================================
+          // UPDATE SUCCESS
+          //
+          // IMPORTANT:
+          // DO NOT CALL _fetchLeaveList() HERE.
+          //
+          // Bloc already updates the local list.
+          // ======================================================
+
           if (state.updateStatus ==
               UpdateLeaveStatus.success) {
             _showMessage(
@@ -131,8 +311,16 @@ class _TeamLeaveListPageState
               isError: false,
             );
 
-            _fetchLeaveList();
+            // ❌ DO NOT DO THIS:
+            //
+            // _fetchLeaveList();
+            //
+            // This was causing another GET API call.
           }
+
+          // ======================================================
+          // UPDATE FAILURE
+          // ======================================================
 
           if (state.updateStatus ==
               UpdateLeaveStatus.failure) {
@@ -142,19 +330,29 @@ class _TeamLeaveListPageState
               isError: true,
             );
           }
+
+          // ======================================================
+          // GET FAILURE
+          // ======================================================
+
+          if (state.status ==
+              TeamLeaveStatus.failure) {
+            _showMessage(
+              state.errorMessage ??
+                  'Unable to load team leave list',
+              isError: true,
+            );
+          }
         },
+
         builder: (context, state) {
           return Scaffold(
             backgroundColor:
                 const Color(0xffF5F7FA),
-
             appBar: _buildAppBar(),
-
-            floatingActionButton:
-                _buildAddLeaveButton(),
-
             body: RefreshIndicator(
-              color: const Color(0xff0F8A4B),
+              color:
+                  const Color(0xff0F8A4B),
               onRefresh: _refresh,
               child: _buildBody(state),
             ),
@@ -164,12 +362,28 @@ class _TeamLeaveListPageState
     );
   }
 
+  // ============================================================
+  // APP BAR
+  // ============================================================
+
   PreferredSizeWidget _buildAppBar() {
     return AppBar(
       elevation: 0,
       backgroundColor:
           const Color(0xff0F8A4B),
       foregroundColor: Colors.white,
+
+       leading: IconButton(
+              icon: const Icon(
+                Icons.arrow_back_ios_new,
+                size: 19,
+                color: AppColors.backgroundColor,
+              ),
+              onPressed: () {
+                context.go(AppRouter.home);
+              },
+              ),
+
 
       title: const Text(
         'Team Leave List',
@@ -178,7 +392,6 @@ class _TeamLeaveListPageState
           fontWeight: FontWeight.w700,
         ),
       ),
-
       actions: [
         IconButton(
           onPressed: () {
@@ -196,38 +409,71 @@ class _TeamLeaveListPageState
     );
   }
 
-  Widget _buildBody(TeamLeaveState state) {
+  // ============================================================
+  // BODY
+  // ============================================================
+
+  Widget _buildBody(
+    TeamLeaveState state,
+  ) {
+    debugPrint(
+      'BUILD BODY -> '
+      'status=${state.status}, '
+      'leaves=${state.leaves.length}',
+    );
+
+    // ==========================================================
+    // INITIAL LOADING
+    // ==========================================================
+
     if (state.status ==
-        TeamLeaveStatus.loading) {
-      return const Center(
-        child: CircularProgressIndicator(
-          color: Color(0xff0F8A4B),
-        ),
+            TeamLeaveStatus.loading &&
+        state.leaves.isEmpty) {
+      return ListView(
+        physics:
+            const AlwaysScrollableScrollPhysics(),
+        children: const [
+          SizedBox(height: 250),
+          Center(
+            child:
+                CircularProgressIndicator(
+              color:
+                  Color(0xff0F8A4B),
+            ),
+          ),
+        ],
       );
     }
 
+    // ==========================================================
+    // FAILURE
+    // ==========================================================
+
     if (state.status ==
-        TeamLeaveStatus.failure) {
+            TeamLeaveStatus.failure &&
+        state.leaves.isEmpty) {
       return _buildError(
         state.errorMessage,
       );
     }
 
+    // ==========================================================
+    // SUCCESS / EXISTING DATA
+    // ==========================================================
+
     return ListView(
       physics:
           const AlwaysScrollableScrollPhysics(),
-
-      padding: const EdgeInsets.fromLTRB(
+      padding:
+          const EdgeInsets.fromLTRB(
         16,
         16,
         16,
         100,
       ),
-
       children: [
         if (showFilter) ...[
           _buildFilter(),
-
           const SizedBox(height: 20),
         ],
 
@@ -239,34 +485,42 @@ class _TeamLeaveListPageState
           _buildEmpty()
         else
           ...state.leaves.map(
-            (leave) => Padding(
-              padding:
-                  const EdgeInsets.only(bottom: 14),
-              child: _buildLeaveCard(leave),
-            ),
+            (leave) {
+              debugPrint(
+                'DISPLAYING LEAVE = '
+                '${leave.leaveId}',
+              );
+
+              return Padding(
+                padding:
+                    const EdgeInsets.only(
+                  bottom: 14,
+                ),
+                child:
+                    _buildLeaveCard(leave),
+              );
+            },
           ),
       ],
     );
   }
 
+  // ============================================================
+  // FILTER
+  // ============================================================
+
   Widget _buildFilter() {
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding:
+          const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius:
             BorderRadius.circular(20),
         border: Border.all(
-          color: const Color(0xffE6E9ED),
+          color:
+              const Color(0xffE6E9ED),
         ),
-        boxShadow: [
-          BoxShadow(
-            color:
-                Colors.black.withOpacity(0.04),
-            blurRadius: 12,
-            offset: const Offset(0, 4),
-          ),
-        ],
       ),
       child: Column(
         crossAxisAlignment:
@@ -277,14 +531,16 @@ class _TeamLeaveListPageState
               Icon(
                 Icons.filter_alt_rounded,
                 size: 20,
-                color: Color(0xff0F8A4B),
+                color:
+                    Color(0xff0F8A4B),
               ),
               SizedBox(width: 8),
               Text(
                 'Search & Filter',
                 style: TextStyle(
                   fontSize: 17,
-                  fontWeight: FontWeight.w700,
+                  fontWeight:
+                      FontWeight.w700,
                 ),
               ),
             ],
@@ -301,7 +557,9 @@ class _TeamLeaveListPageState
                   label: 'From Date',
                 ),
               ),
+
               const SizedBox(width: 12),
+
               Expanded(
                 child: _dateField(
                   controller:
@@ -315,22 +573,34 @@ class _TeamLeaveListPageState
           const SizedBox(height: 14),
 
           TextField(
-            controller: searchController,
-            decoration: InputDecoration(
+            controller:
+                searchController,
+            textInputAction:
+                TextInputAction.search,
+            decoration:
+                InputDecoration(
               hintText:
                   'Search employee...',
-              prefixIcon: const Icon(
+              prefixIcon:
+                  const Icon(
                 Icons.search_rounded,
               ),
               filled: true,
               fillColor:
                   const Color(0xffF6F8FA),
-              border: OutlineInputBorder(
+              border:
+                  OutlineInputBorder(
                 borderRadius:
-                    BorderRadius.circular(14),
-                borderSide: BorderSide.none,
+                    BorderRadius.circular(
+                  14,
+                ),
+                borderSide:
+                    BorderSide.none,
               ),
             ),
+            onSubmitted: (_) {
+              _fetchLeaveList();
+            },
           ),
 
           const SizedBox(height: 14),
@@ -338,7 +608,8 @@ class _TeamLeaveListPageState
           Row(
             children: [
               Expanded(
-                child: ElevatedButton.icon(
+                child:
+                    ElevatedButton.icon(
                   onPressed: () {
                     setState(() {
                       showFilter = false;
@@ -349,22 +620,28 @@ class _TeamLeaveListPageState
                   icon: const Icon(
                     Icons.search_rounded,
                   ),
-                  label: const Text('Search'),
+                  label:
+                      const Text('Search'),
                   style:
                       ElevatedButton.styleFrom(
                     backgroundColor:
-                        const Color(0xff0F8A4B),
+                        const Color(
+                      0xff0F8A4B,
+                    ),
                     foregroundColor:
                         Colors.white,
                     elevation: 0,
                     padding:
-                        const EdgeInsets.symmetric(
+                        const EdgeInsets
+                            .symmetric(
                       vertical: 14,
                     ),
                     shape:
                         RoundedRectangleBorder(
                       borderRadius:
-                          BorderRadius.circular(14),
+                          BorderRadius.circular(
+                        14,
+                      ),
                     ),
                   ),
                 ),
@@ -373,24 +650,32 @@ class _TeamLeaveListPageState
               const SizedBox(width: 10),
 
               Expanded(
-                child: OutlinedButton.icon(
-                  onPressed: _resetFilter,
+                child:
+                    OutlinedButton.icon(
+                  onPressed:
+                      _resetFilter,
                   icon: const Icon(
                     Icons.refresh_rounded,
                   ),
-                  label: const Text('Reset'),
+                  label:
+                      const Text('Reset'),
                   style:
                       OutlinedButton.styleFrom(
                     foregroundColor:
-                        const Color(0xff0F8A4B),
+                        const Color(
+                      0xff0F8A4B,
+                    ),
                     padding:
-                        const EdgeInsets.symmetric(
+                        const EdgeInsets
+                            .symmetric(
                       vertical: 14,
                     ),
                     shape:
                         RoundedRectangleBorder(
                       borderRadius:
-                          BorderRadius.circular(14),
+                          BorderRadius.circular(
+                        14,
+                      ),
                     ),
                   ),
                 ),
@@ -402,33 +687,44 @@ class _TeamLeaveListPageState
     );
   }
 
+  // ============================================================
+  // DATE FIELD
+  // ============================================================
+
   Widget _dateField({
-    required TextEditingController controller,
+    required TextEditingController
+        controller,
     required String label,
   }) {
     return TextField(
       controller: controller,
       readOnly: true,
-      onTap: () => _selectDate(
-        controller,
-      ),
+      onTap: () =>
+          _selectDate(controller),
       decoration: InputDecoration(
         labelText: label,
-        suffixIcon: const Icon(
+        suffixIcon:
+            const Icon(
           Icons.calendar_month_rounded,
           size: 20,
         ),
         filled: true,
         fillColor:
             const Color(0xffF6F8FA),
-        border: OutlineInputBorder(
+        border:
+            OutlineInputBorder(
           borderRadius:
               BorderRadius.circular(14),
-          borderSide: BorderSide.none,
+          borderSide:
+              BorderSide.none,
         ),
       ),
     );
   }
+
+  // ============================================================
+  // DATE PICKER
+  // ============================================================
 
   Future<void> _selectDate(
     TextEditingController controller,
@@ -449,16 +745,19 @@ class _TeamLeaveListPageState
       }
     } catch (_) {}
 
-    final picked = await showDatePicker(
+    final picked =
+        await showDatePicker(
       context: context,
       initialDate: initialDate,
       firstDate:
           DateTime(2020),
       lastDate:
           DateTime(2035),
-      builder: (context, child) {
+      builder:
+          (context, child) {
         return Theme(
-          data: Theme.of(context).copyWith(
+          data:
+              Theme.of(context).copyWith(
             colorScheme:
                 const ColorScheme.light(
               primary:
@@ -476,6 +775,10 @@ class _TeamLeaveListPageState
     }
   }
 
+  // ============================================================
+  // RESET
+  // ============================================================
+
   void _resetFilter() {
     _setInitialDates();
 
@@ -488,6 +791,10 @@ class _TeamLeaveListPageState
     _fetchLeaveList();
   }
 
+  // ============================================================
+  // SUMMARY
+  // ============================================================
+
   Widget _buildSummary(
     TeamLeaveState state,
   ) {
@@ -498,7 +805,8 @@ class _TeamLeaveListPageState
         vertical: 16,
       ),
       decoration: BoxDecoration(
-        gradient: const LinearGradient(
+        gradient:
+            const LinearGradient(
           colors: [
             Color(0xff0F8A4B),
             Color(0xff19B866),
@@ -512,11 +820,14 @@ class _TeamLeaveListPageState
           Container(
             height: 48,
             width: 48,
-            decoration: BoxDecoration(
+            decoration:
+                BoxDecoration(
               color: Colors.white
                   .withOpacity(0.15),
               borderRadius:
-                  BorderRadius.circular(14),
+                  BorderRadius.circular(
+                14,
+              ),
             ),
             child: const Icon(
               Icons.event_note_rounded,
@@ -559,14 +870,16 @@ class _TeamLeaveListPageState
               horizontal: 12,
               vertical: 8,
             ),
-            decoration: BoxDecoration(
+            decoration:
+                BoxDecoration(
               color: Colors.white,
               borderRadius:
                   BorderRadius.circular(20),
             ),
             child: Text(
               '${state.leaves.length}',
-              style: const TextStyle(
+              style:
+                  const TextStyle(
                 color:
                     Color(0xff0F8A4B),
                 fontWeight:
@@ -580,11 +893,18 @@ class _TeamLeaveListPageState
     );
   }
 
+  // ============================================================
+  // LEAVE CARD
+  // ============================================================
+
   Widget _buildLeaveCard(
     TeamLeave leave,
   ) {
-    final status =
-        leave.status;
+    // IMPORTANT:
+    // Manager approve/reject status comes from
+    // managerStatus, not fld_status.
+    final managerStatus =
+        leave.managerStatus;
 
     return Container(
       decoration: BoxDecoration(
@@ -597,8 +917,8 @@ class _TeamLeaveListPageState
         ),
         boxShadow: [
           BoxShadow(
-            color:
-                Colors.black.withOpacity(0.035),
+            color: Colors.black
+                .withOpacity(0.035),
             blurRadius: 12,
             offset:
                 const Offset(0, 4),
@@ -617,8 +937,10 @@ class _TeamLeaveListPageState
                 Container(
                   height: 48,
                   width: 48,
-                  decoration: BoxDecoration(
-                    color: const Color(
+                  decoration:
+                      BoxDecoration(
+                    color:
+                        const Color(
                       0xff0F8A4B,
                     ).withOpacity(0.10),
                     borderRadius:
@@ -652,7 +974,11 @@ class _TeamLeaveListPageState
                               FontWeight.w700,
                         ),
                       ),
-                      const SizedBox(height: 3),
+
+                      const SizedBox(
+                        height: 3,
+                      ),
+
                       Text(
                         'Leave ID: ${leave.leaveId}',
                         style:
@@ -666,7 +992,9 @@ class _TeamLeaveListPageState
                   ),
                 ),
 
-                _statusBadge(status),
+                _statusBadge(
+                  managerStatus,
+                ),
               ],
             ),
 
@@ -676,11 +1004,13 @@ class _TeamLeaveListPageState
               children: [
                 Expanded(
                   child: _infoItem(
-                    Icons.calendar_today_rounded,
+                    Icons
+                        .calendar_today_rounded,
                     'From',
                     leave.fromDate,
                   ),
                 ),
+
                 Expanded(
                   child: _infoItem(
                     Icons.event_rounded,
@@ -688,9 +1018,11 @@ class _TeamLeaveListPageState
                     leave.toDate,
                   ),
                 ),
+
                 Expanded(
                   child: _infoItem(
-                    Icons.timelapse_rounded,
+                    Icons
+                        .timelapse_rounded,
                     'Days',
                     leave.leaveDays,
                   ),
@@ -703,7 +1035,17 @@ class _TeamLeaveListPageState
             _detailRow(
               'Reporting',
               leave.reportingStatus,
-              Icons.person_search_rounded,
+              Icons
+                  .person_search_rounded,
+            ),
+
+            const SizedBox(height: 10),
+
+            _detailRow(
+              'Manager Status',
+              leave.managerStatus,
+              Icons
+                  .manage_accounts_rounded,
             ),
 
             const SizedBox(height: 10),
@@ -711,12 +1053,36 @@ class _TeamLeaveListPageState
             _detailRow(
               'Admin',
               leave.adminStatus,
-              Icons.admin_panel_settings_rounded,
+              Icons
+                  .admin_panel_settings_rounded,
             ),
 
-            if (leave.remark.isNotEmpty) ...[
+            if (leave.statusUpdateBy
+                .isNotEmpty) ...[
               const SizedBox(height: 10),
+              _detailRow(
+                'Updated By',
+                leave.statusUpdateBy,
+                Icons
+                    .person_outline_rounded,
+              ),
+            ],
 
+            if (leave.leaveApplicationDate
+                .isNotEmpty) ...[
+              const SizedBox(height: 10),
+              _detailRow(
+                'Applied On',
+                leave.leaveApplicationDate,
+                Icons
+                    .access_time_rounded,
+              ),
+            ],
+
+            if (leave.remark
+                .trim()
+                .isNotEmpty) ...[
+              const SizedBox(height: 10),
               _detailRow(
                 'Remark',
                 leave.remark,
@@ -724,9 +1090,10 @@ class _TeamLeaveListPageState
               ),
             ],
 
-            if (leave.teamRemark.isNotEmpty) ...[
+            if (leave.teamRemark
+                .trim()
+                .isNotEmpty) ...[
               const SizedBox(height: 10),
-
               _detailRow(
                 'Team Remark',
                 leave.teamRemark,
@@ -734,9 +1101,15 @@ class _TeamLeaveListPageState
               ),
             ],
 
-            const SizedBox(height: 16),
+            // ==================================================
+            // ACTION BUTTONS
+            //
+            // Show buttons only when manager status is pending.
+            // ==================================================
 
-            if (status == '0')
+            if (managerStatus == '0') ...[
+              const SizedBox(height: 16),
+
               Row(
                 children: [
                   Expanded(
@@ -745,7 +1118,9 @@ class _TeamLeaveListPageState
                       icon:
                           Icons.check_rounded,
                       color:
-                          const Color(0xff0F8A4B),
+                          const Color(
+                        0xff0F8A4B,
+                      ),
                       onTap: () {
                         _approveLeave(
                           leave,
@@ -762,7 +1137,9 @@ class _TeamLeaveListPageState
                       icon:
                           Icons.close_rounded,
                       color:
-                          const Color(0xffD64545),
+                          const Color(
+                        0xffD64545,
+                      ),
                       onTap: () {
                         _showRejectDialog(
                           leave,
@@ -772,13 +1149,20 @@ class _TeamLeaveListPageState
                   ),
                 ],
               ),
+            ],
           ],
         ),
       ),
     );
   }
 
-  Widget _statusBadge(String status) {
+  // ============================================================
+  // STATUS
+  // ============================================================
+
+  Widget _statusBadge(
+    String status,
+  ) {
     String text;
     Color color;
 
@@ -807,8 +1191,10 @@ class _TeamLeaveListPageState
         horizontal: 10,
         vertical: 6,
       ),
-      decoration: BoxDecoration(
-        color: color.withOpacity(0.10),
+      decoration:
+          BoxDecoration(
+        color:
+            color.withOpacity(0.10),
         borderRadius:
             BorderRadius.circular(20),
       ),
@@ -823,6 +1209,10 @@ class _TeamLeaveListPageState
       ),
     );
   }
+
+  // ============================================================
+  // INFO ITEM
+  // ============================================================
 
   Widget _infoItem(
     IconData icon,
@@ -839,18 +1229,27 @@ class _TeamLeaveListPageState
           color:
               const Color(0xff0F8A4B),
         ),
+
         const SizedBox(height: 5),
+
         Text(
           label,
-          style: const TextStyle(
+          style:
+              const TextStyle(
             color: Colors.grey,
             fontSize: 10,
           ),
         ),
+
         const SizedBox(height: 2),
+
         Text(
           value,
-          style: const TextStyle(
+          maxLines: 2,
+          overflow:
+              TextOverflow.ellipsis,
+          style:
+              const TextStyle(
             fontSize: 12,
             fontWeight:
                 FontWeight.w700,
@@ -860,6 +1259,10 @@ class _TeamLeaveListPageState
     );
   }
 
+  // ============================================================
+  // DETAIL ROW
+  // ============================================================
+
   Widget _detailRow(
     String title,
     String value,
@@ -868,7 +1271,8 @@ class _TeamLeaveListPageState
     return Container(
       padding:
           const EdgeInsets.all(11),
-      decoration: BoxDecoration(
+      decoration:
+          BoxDecoration(
         color:
             const Color(0xffF7F8FA),
         borderRadius:
@@ -889,7 +1293,8 @@ class _TeamLeaveListPageState
 
           Text(
             '$title:',
-            style: const TextStyle(
+            style:
+                const TextStyle(
               fontSize: 12,
               fontWeight:
                   FontWeight.w700,
@@ -903,7 +1308,8 @@ class _TeamLeaveListPageState
           Expanded(
             child: Text(
               value,
-              style: const TextStyle(
+              style:
+                  const TextStyle(
                 fontSize: 12,
                 color:
                     Color(0xff68717C),
@@ -914,6 +1320,10 @@ class _TeamLeaveListPageState
       ),
     );
   }
+
+  // ============================================================
+  // ACTION BUTTON
+  // ============================================================
 
   Widget _actionButton({
     required String title,
@@ -928,9 +1338,11 @@ class _TeamLeaveListPageState
         size: 18,
       ),
       label: Text(title),
-      style: ElevatedButton.styleFrom(
+      style:
+          ElevatedButton.styleFrom(
         backgroundColor: color,
-        foregroundColor: Colors.white,
+        foregroundColor:
+            Colors.white,
         elevation: 0,
         padding:
             const EdgeInsets.symmetric(
@@ -945,9 +1357,26 @@ class _TeamLeaveListPageState
     );
   }
 
+  // ============================================================
+  // APPROVE
+  // ============================================================
+
   void _approveLeave(
     TeamLeave leave,
   ) {
+    debugPrint(
+      '==========================================',
+    );
+    debugPrint(
+      'APPROVE LEAVE = ${leave.leaveId}',
+    );
+    debugPrint(
+      'USER ID = $userId',
+    );
+    debugPrint(
+      '==========================================',
+    );
+
     bloc.add(
       UpdateTeamLeaveStatusEvent(
         leaveId: leave.leaveId,
@@ -957,6 +1386,10 @@ class _TeamLeaveListPageState
       ),
     );
   }
+
+  // ============================================================
+  // REJECT
+  // ============================================================
 
   void _showRejectDialog(
     TeamLeave leave,
@@ -990,7 +1423,9 @@ class _TeamLeaveListPageState
                   'Enter rejection remark',
               filled: true,
               fillColor:
-                  const Color(0xffF5F6F8),
+                  const Color(
+                0xffF5F6F8,
+              ),
               border:
                   OutlineInputBorder(
                 borderRadius:
@@ -1009,10 +1444,10 @@ class _TeamLeaveListPageState
                   dialogContext,
                 );
               },
-              child: const Text(
-                'Cancel',
-              ),
+              child:
+                  const Text('Cancel'),
             ),
+
             ElevatedButton(
               onPressed: () {
                 final remark =
@@ -1030,11 +1465,33 @@ class _TeamLeaveListPageState
                       ),
                     ),
                   );
+
                   return;
                 }
 
                 Navigator.pop(
                   dialogContext,
+                );
+
+                debugPrint(
+                  '==========================================',
+                );
+
+                debugPrint(
+                  'REJECT LEAVE = '
+                  '${leave.leaveId}',
+                );
+
+                debugPrint(
+                  'USER ID = $userId',
+                );
+
+                debugPrint(
+                  'REMARK = $remark',
+                );
+
+                debugPrint(
+                  '==========================================',
                 );
 
                 bloc.add(
@@ -1056,9 +1513,8 @@ class _TeamLeaveListPageState
                 foregroundColor:
                     Colors.white,
               ),
-              child: const Text(
-                'Reject',
-              ),
+              child:
+                  const Text('Reject'),
             ),
           ],
         );
@@ -1067,6 +1523,10 @@ class _TeamLeaveListPageState
       remarkController.dispose();
     });
   }
+
+  // ============================================================
+  // EMPTY
+  // ============================================================
 
   Widget _buildEmpty() {
     return Padding(
@@ -1079,11 +1539,14 @@ class _TeamLeaveListPageState
           Container(
             height: 90,
             width: 90,
-            decoration: BoxDecoration(
+            decoration:
+                BoxDecoration(
               color:
-                  const Color(0xff0F8A4B)
-                      .withOpacity(0.08),
-              shape: BoxShape.circle,
+                  const Color(
+                0xff0F8A4B,
+              ).withOpacity(0.08),
+              shape:
+                  BoxShape.circle,
             ),
             child: const Icon(
               Icons.event_busy_rounded,
@@ -1106,12 +1569,37 @@ class _TeamLeaveListPageState
 
           const SizedBox(height: 6),
 
-          const Text(
-            'No leave applications are available\nfor the selected date range.',
-            textAlign: TextAlign.center,
-            style: TextStyle(
+          Text(
+            'No leave applications are available\n'
+            'for ${fromDateController.text} '
+            'to ${toDateController.text}.',
+            textAlign:
+                TextAlign.center,
+            style:
+                const TextStyle(
               color: Colors.grey,
               fontSize: 13,
+            ),
+          ),
+
+          const SizedBox(height: 20),
+
+          ElevatedButton.icon(
+            onPressed:
+                _fetchLeaveList,
+            icon: const Icon(
+              Icons.refresh_rounded,
+            ),
+            label:
+                const Text('Reload'),
+            style:
+                ElevatedButton.styleFrom(
+              backgroundColor:
+                  const Color(
+                0xff0F8A4B,
+              ),
+              foregroundColor:
+                  Colors.white,
             ),
           ),
         ],
@@ -1119,7 +1607,13 @@ class _TeamLeaveListPageState
     );
   }
 
-  Widget _buildError(String? error) {
+  // ============================================================
+  // ERROR
+  // ============================================================
+
+  Widget _buildError(
+    String? error,
+  ) {
     return ListView(
       physics:
           const AlwaysScrollableScrollPhysics(),
@@ -1147,12 +1641,18 @@ class _TeamLeaveListPageState
 
         const SizedBox(height: 8),
 
-        Center(
+        Padding(
+          padding:
+              const EdgeInsets.symmetric(
+            horizontal: 30,
+          ),
           child: Text(
             error ??
                 'Something went wrong',
-            textAlign: TextAlign.center,
-            style: const TextStyle(
+            textAlign:
+                TextAlign.center,
+            style:
+                const TextStyle(
               color: Colors.grey,
             ),
           ),
@@ -1161,8 +1661,10 @@ class _TeamLeaveListPageState
         const SizedBox(height: 20),
 
         Center(
-          child: ElevatedButton.icon(
-            onPressed: _fetchLeaveList,
+          child:
+              ElevatedButton.icon(
+            onPressed:
+                _fetchLeaveList,
             icon: const Icon(
               Icons.refresh_rounded,
             ),
@@ -1183,27 +1685,9 @@ class _TeamLeaveListPageState
     );
   }
 
-  Widget _buildAddLeaveButton() {
-    return FloatingActionButton.extended(
-      onPressed: () {
-        // Replace with your GoRouter route
-        // context.push('/add-leave');
-      },
-      backgroundColor:
-          const Color(0xff0F8A4B),
-      foregroundColor: Colors.white,
-      elevation: 5,
-      icon: const Icon(
-        Icons.add_rounded,
-      ),
-      label: const Text(
-        'Add Leave',
-        style: TextStyle(
-          fontWeight: FontWeight.w700,
-        ),
-      ),
-    );
-  }
+  // ============================================================
+  // MESSAGE
+  // ============================================================
 
   void _showMessage(
     String message, {
@@ -1211,21 +1695,21 @@ class _TeamLeaveListPageState
   }) {
     if (!mounted) return;
 
-    ScaffoldMessenger.of(context)
+    ScaffoldMessenger
+        .of(context)
         .showSnackBar(
       SnackBar(
         behavior:
             SnackBarBehavior.floating,
         backgroundColor: isError
             ? Colors.red
-            : const Color(0xff0F8A4B),
-        shape:
-            RoundedRectangleBorder(
-          borderRadius:
-              BorderRadius.circular(12),
-        ),
-        content: Text(message),
+            : const Color(
+                0xff0F8A4B,
+              ),
+        content:
+            Text(message),
       ),
     );
   }
 }
+
