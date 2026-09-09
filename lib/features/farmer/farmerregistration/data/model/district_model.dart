@@ -1,1 +1,1 @@
-class DistrictModel extends  {}
+// class DistrictModel extends  {}
