@@ -3,11 +3,14 @@ class ApiClient {
   static const String imageBaseUrl = "http://192.168.1.253:85/ramikar_agro/uploads/";
   static const String imageGalleryUrl ="http://192.168.1.253:85/ramikar_agro/uploads/gallery/";
   static const String login = "/user_login";
-  static const String getLastThirtyNotVisited ="/getLastThiertyNotVisited";
-  static const String getNearByOutlets ="/getNearByOutlets";
+  static const String getLastThirtyNotVisited = "/getLastThiertyNotVisited";
+  static const String getNearByOutlets = "/getNearByOutlets";
   static const String userMenu = "/getUserMenu_new";
   static const String punchStatus = "/getLastTransactionInOutStatus";
   static const String getEmployeeActivityDetails ='/getEmployeeActivityDetails_new';
+
+  static const String getEmployeeActivityDetails =
+      '/getEmployeeActivityDetails_new';
   static const String getVisitReportDetails = "/getVisitReportDetails";
   static const String getEmployeeOutputReport = "/getEmployeeOutputReport";
   // ApiConfig.getEmployeeUrl() was using.
@@ -32,4 +35,6 @@ class ApiClient {
   static const String  getTalukaWiseOutletForOrderNew = "/getTalukaWiseOutletForOrderNew";
 
   
+  static const String getCategoryproductDetails =
+      "/get_category_product_details";
 }

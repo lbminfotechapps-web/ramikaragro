@@ -17,6 +17,7 @@ import 'package:demo/features/leave/presentation/pages/leave_list_page.dart';
 import 'package:demo/features/leave/presentation/pages/team_leave_list_page.dart';
 import 'package:demo/features/leave/presentation/pages/top_ten_dealer_page.dart';
 import 'package:demo/features/home/presentation/last_force_out_screen.dart';
+import 'package:demo/features/products/domain/entity/fertilizer_category_entity.dart';
 import 'package:demo/features/products/presentation/pages/products_screen.dart';
 import 'package:demo/features/reports/presentation/pages/about_us_page.dart';
 import 'package:demo/features/reports/presentation/pages/contact_us_page.dart';
@@ -125,7 +126,7 @@ class AppRouter {
       ),
 
       GoRoute(
-        path: '/add-leave',
+        path: 'add-leave',
         name: 'addLeave',
         builder: (context, state) {
           return const AddLeavePage();
@@ -243,6 +244,24 @@ class AppRouter {
         },
       ),
 
+      // GoRoute(
+      //   path: products,
+      //   name: 'products',
+      //   builder: (context, state) {
+      //     final productCat = state.extra is FertilizerCategoryEntity
+      //         ? state.extra as FertilizerCategoryEntity
+      //         : null;
+      //     return const ProductCategoryScreen();
+
+      //     //    builder: (context, state) {
+      //     // final punchStat = state.extra is PunchStatEntity
+      //     //     ? state.extra as PunchStatEntity
+      //     //     : null;
+      //     //   return LastForceOutScreen(punchStat);
+      //     // },
+      //   },
+      // ),
+
       GoRoute(
         path: visitSummaryReport,
         name: 'visitSummaryReport',
@@ -348,7 +367,7 @@ class AppRouter {
                 path: products,
                 name: 'products',
                 builder: (context, state) {
-                  return const ProductsScreen();
+                  return const ProductCategoryScreen();
                 },
               ),
             ],

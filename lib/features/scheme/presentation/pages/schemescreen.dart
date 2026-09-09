@@ -1,7 +1,9 @@
 import 'package:demo/core/api_constant/api_client.dart';
+import 'package:demo/core/theme/app_colors.dart';
 import 'package:demo/core/utility/appdialog.dart';
 import 'package:demo/core/utility/fullimage.dart';
 import 'package:demo/core/utility/pdfviewerscreen.dart';
+import 'package:demo/core/utility/widgets/custom_appbar.dart';
 import 'package:demo/features/scheme/data/model/statedata.dart';
 import 'package:demo/features/scheme/domain/entity/scheme_entity.dart';
 import 'package:demo/features/scheme/presentation/bloc/scheme_bloc.dart';
@@ -9,6 +11,7 @@ import 'package:demo/features/scheme/presentation/bloc/scheme_event.dart';
 import 'package:demo/features/scheme/presentation/bloc/scheme_state.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_screenutil_plus/flutter_screenutil_plus.dart';
 import 'package:intl/intl.dart';
 
 class SchemeScreen extends StatefulWidget {
@@ -71,19 +74,13 @@ class _SchemeScreenState extends State<SchemeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF6F8FB),
+      backgroundColor: AppColors.backgroundColor
+      ,
 
-      appBar: AppBar(
-        title: const Text(
-          'Scheme',
-          style: TextStyle(
-            fontSize: 21,
-            fontWeight: FontWeight.w700,
-            color: Colors.white,
-          ),
-        ),
-        backgroundColor: Colors.green,
-        foregroundColor: Colors.white,
+      appBar: CustomAppBar(
+        title: 'Schemes',
+        showBackButton: true,
+        onBackTap: () => Navigator.pop(context),
       ),
 
       body: BlocConsumer<SchemeBloc, SchemeState>(
@@ -122,18 +119,19 @@ class _SchemeScreenState extends State<SchemeScreen> {
         },
 
         builder: (context, state) {
-          return Column(
-            children: [
-              // =================================================
-              // FILTER
-              // =================================================
-              _buildFilter(state),
+          return Padding(
+            padding: const EdgeInsets.only(left: 16, right: 16),
+            child: Column(
+              children: [
+                SizedBox(height: 14.h),
+                _buildFilter(state),
 
-              // =================================================
-              // LIST
-              // =================================================
-              Expanded(child: _buildSchemeList(state)),
-            ],
+                // =================================================
+                // LIST
+                // =================================================
+                Expanded(child: _buildSchemeList(state)),
+              ],
+            ),
           );
         },
       ),
