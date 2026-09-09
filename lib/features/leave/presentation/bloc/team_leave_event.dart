@@ -7,6 +7,10 @@ abstract class TeamLeaveEvent extends Equatable {
   List<Object?> get props => [];
 }
 
+// ============================================================
+// GET LIST
+// ============================================================
+
 class GetTeamLeaveListEvent extends TeamLeaveEvent {
   final String userId;
   final String fromDate;
@@ -32,8 +36,11 @@ class GetTeamLeaveListEvent extends TeamLeaveEvent {
       ];
 }
 
-class RefreshTeamLeaveListEvent
-    extends TeamLeaveEvent {
+// ============================================================
+// REFRESH LIST
+// ============================================================
+
+class RefreshTeamLeaveListEvent extends TeamLeaveEvent {
   final String userId;
   final String fromDate;
   final String toDate;
@@ -55,8 +62,11 @@ class RefreshTeamLeaveListEvent
       ];
 }
 
-class UpdateTeamLeaveStatusEvent
-    extends TeamLeaveEvent {
+// ============================================================
+// UPDATE STATUS
+// ============================================================
+
+class UpdateTeamLeaveStatusEvent extends TeamLeaveEvent {
   final String leaveId;
   final String userId;
   final String remark;

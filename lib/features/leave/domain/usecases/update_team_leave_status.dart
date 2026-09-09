@@ -1,4 +1,3 @@
-
 import 'package:demo/features/leave/domain/repositories/team_leave_repository.dart';
 
 class UpdateTeamLeaveStatus {
@@ -13,8 +12,8 @@ class UpdateTeamLeaveStatus {
     required String userId,
     required String remark,
     required String status,
-  }) async {
-    return await repository.updateLeaveStatus(
+  }) {
+    return repository.updateLeaveStatus(
       leaveId: leaveId,
       userId: userId,
       remark: remark,
