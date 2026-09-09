@@ -6,8 +6,8 @@ class Statedata {
 
   factory Statedata.fromJson(Map<String, dynamic> json) {
     return Statedata(
-      stateId: json['state_id']?.toString(),
-      stateName: json['state_name']?.toString(),
+      stateId: (json['fld_state_id'] ?? json['state_id'])?.toString(),
+      stateName: (json['fld_name'] ?? json['state_name'])?.toString(),
     );
   }
 }
