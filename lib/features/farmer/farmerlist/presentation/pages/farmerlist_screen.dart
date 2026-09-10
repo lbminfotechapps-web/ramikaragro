@@ -470,7 +470,7 @@ class _FarmerlistScreenState extends State<FarmerlistScreen> {
         foregroundColor: Colors.white,
         elevation: 3,
         onPressed: () {
-          // TODO: Open Add Farmer screen
+          context.push('/farmerregistration');
         },
         child: const Icon(Icons.person_add_alt_1),
       ),
@@ -743,7 +743,7 @@ class _FarmerListItem extends StatelessWidget {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                 // PIN BUTTON WITH WHITE CIRCLE BACKGROUND
+                  // PIN BUTTON WITH WHITE CIRCLE BACKGROUND
                   InkWell(
                     onTap: () {
                       context.push('/farmerpin', extra: farmer.farmerId);
