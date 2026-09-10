@@ -1,5 +1,8 @@
 import 'package:demo/core/di/auth_di.dart';
 import 'package:demo/core/di/collection_di.dart';
+import 'package:demo/core/di/collection_list_di.dart';
+import 'package:demo/core/di/collection_target_di.dart';
+import 'package:demo/core/di/crop_schedule_di.dart';
 import 'package:demo/core/di/dealer_di.dart';
 import 'package:demo/core/di/employee_activity_report_di.dart';
 import 'package:demo/core/di/employee_output_di.dart';
@@ -31,9 +34,7 @@ Future<void> initGlobalDi() async {
   await initEmployeeActivityDi();
   await initVisitReportDi();
   await initEmployeeOutputDi();
-
   await initNotificationDi();
-
   await initLeaveListDi();
   await initTopTenDealerDi();
   await initSocialMediaDi();
@@ -41,4 +42,7 @@ Future<void> initGlobalDi() async {
   await initCollectionWiseFormDi();
   await initNotVisitedDealerDi();
   await initProductDi();
+  await initCollectionListDi();
+  await initDealerTargetDi();
+  await initCropScheduleDi();
 }

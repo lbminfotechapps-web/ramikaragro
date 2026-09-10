@@ -688,28 +688,7 @@ class _CollectionWiseFormPageState extends State<CollectionWiseFormPage> {
             // ),
           ),
 
-          // AppBar(
-          //   backgroundColor: const Color(0xFF287A4B),
-
-          //   foregroundColor: Colors.white,
-
-          //   elevation: 0,
-
-          //   automaticallyImplyLeading: false,
-
-          //   leading: IconButton(
-          //     onPressed: () {
-          //       context.go(AppRouter.home);
-          //     },
-          //     icon: const Icon(Icons.arrow_back_rounded, size: 25),
-          //   ),
-
-          //   title: const Text(
-          //     'Add Collection',
-          //     style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
-          //   ),
-
-          // ),
+         
           body: CustomScrollView(
             slivers: [
               // ==================================================

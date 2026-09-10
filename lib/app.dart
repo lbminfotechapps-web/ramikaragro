@@ -2,6 +2,7 @@ import 'package:demo/core/di/auth_di.dart';
 import 'package:demo/core/router/app_router.dart';
 import 'package:demo/core/theme/app_theme.dart';
 import 'package:demo/features/auth/presentation/bloc/auth_bloc.dart';
+import 'package:demo/features/collection/presentation/bloc/dealer_target_bloc.dart';
 import 'package:demo/features/dealer/presentation/bloc/dealerlist_bloc.dart';
 import 'package:demo/features/farmer/farmerlist/presentation/bloc/farmerlist_bloc.dart';
 import 'package:demo/features/farmer/famerfollowup/presentation/bloc/famerfollowup_bloc.dart';
@@ -9,6 +10,7 @@ import 'package:demo/features/farmer/farmerlist/presentation/bloc/farmerlist_blo
 import 'package:demo/features/gallery/presentation/boc/gallery_bloc.dart';
 import 'package:demo/features/home/presentation/home_bloc/home_bloc.dart';
 import 'package:demo/features/home/presentation/quick_aceess_bloc/quick_acess_bloc.dart';
+import 'package:demo/features/leave/presentation/bloc/top_ten_dealer_bloc.dart';
 import 'package:demo/features/products/presentation/bloc/product_bloc.dart';
 import 'package:demo/features/reports/presentation/bloc/employee_activity_bloc.dart';
 import 'package:demo/features/reports/presentation/bloc/not_visited_dealer_bloc.dart';
@@ -32,9 +34,11 @@ class MyApp extends StatelessWidget {
         BlocProvider<FarmerListBloc>(create: (_) => sl<FarmerListBloc>()),
         BlocProvider<DealerListBloc>(create: (_) => sl<DealerListBloc>()),
 
-        BlocProvider<NotVisitedDealerBloc>(
-          create: (_) => sl<NotVisitedDealerBloc>(),
-        ),
+        BlocProvider<NotVisitedDealerBloc>(create: (_) => sl<NotVisitedDealerBloc>(),),
+        BlocProvider<DealerTargetBloc>(create: (_) => sl<DealerTargetBloc>()),
+        BlocProvider<TopTenDealerBloc>(create: (_) => sl<TopTenDealerBloc>()),
+
+
         BlocProvider<FarmerListBloc>(create: (_) => sl<FarmerListBloc>()),
         BlocProvider<FamerfollowupBloc>(create: (_) => sl<FamerfollowupBloc>()),
         BlocProvider<HomeBloc>(create: (_) => sl<HomeBloc>()),
