@@ -38,7 +38,7 @@ class _ProductCategoryScreenState extends State<ProductCategoryScreen> {
     context.read<ProductBloc>().add(ProductListingEvent(value.trim()));
   }
 
-  void _openProducts(FertilizerCategoryEntity category) {
+  void openProducts(FertilizerCategoryEntity category) {
     context.push('/productList', extra: category);
   }
 
@@ -51,34 +51,37 @@ class _ProductCategoryScreenState extends State<ProductCategoryScreen> {
         showBackButton: true,
         onBackTap: () => context.go(AppRouter.home),
       ),
-      body: Column(
-        children: [
-          _buildSearchBar(),
+      body: Padding(
+        padding: const EdgeInsets.only(left: 16, right: 16),
+        child: Column(
+          children: [
+            _buildSearchBar(),
 
-          const SizedBox(height: 8),
+            const SizedBox(height: 8),
 
-          Expanded(
-            child: BlocBuilder<ProductBloc, ProductState>(
-              builder: (context, state) {
-                if (state.productStatus == ProductStatus.loading) {
-                  return const Center(child: CircularProgressIndicator());
-                }
+            Expanded(
+              child: BlocBuilder<ProductBloc, ProductState>(
+                builder: (context, state) {
+                  if (state.productStatus == ProductStatus.loading) {
+                    return const Center(child: CircularProgressIndicator());
+                  }
 
-                if (state.productStatus == ProductStatus.failure) {
-                  return Center(
-                    child: Text(state.message, textAlign: TextAlign.center),
-                  );
-                }
+                  if (state.productStatus == ProductStatus.failure) {
+                    return Center(
+                      child: Text(state.message, textAlign: TextAlign.center),
+                    );
+                  }
 
-                if (state.fertilizerCategoryList.isEmpty) {
-                  return const Center(child: Text('No categories found'));
-                }
+                  if (state.fertilizerCategoryList.isEmpty) {
+                    return const Center(child: Text('No categories found'));
+                  }
 
-                return _buildCategoryGrid(state.fertilizerCategoryList);
-              },
+                  return _buildCategoryGrid(state.fertilizerCategoryList);
+                },
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -127,20 +130,23 @@ class _ProductCategoryScreenState extends State<ProductCategoryScreen> {
 
   Widget _buildCategoryGrid(List<FertilizerCategoryEntity> categories) {
     return GridView.builder(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.only(top: 8, bottom: 16),
+      itemCount: categories.length,
       gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
         crossAxisCount: 2,
         crossAxisSpacing: 12,
         mainAxisSpacing: 12,
-        childAspectRatio: 0.95,
+        childAspectRatio: 0.85,
       ),
-      itemCount: categories.length,
       itemBuilder: (context, index) {
         final category = categories[index];
 
         return CategoryCard(
           category: category,
-          onTap: () => _openProducts(category),
+          index: index,
+
+          // IMPORTANT
+          onTap: () => openProducts(category),
         );
       },
     );

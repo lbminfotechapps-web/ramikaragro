@@ -230,6 +230,9 @@ class _PunchScreenState extends State<PunchScreen> {
           // IMPORTANT:
           // Don't use widget.punchStat.toString()
           activityId: widget.punchStat?.dailyTranId ?? '',
+          date: '',
+          newTime: '',
+          isForceOutPunch: false,
         ),
       );
       _submissionSent = true;
