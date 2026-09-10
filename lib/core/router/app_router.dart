@@ -5,6 +5,7 @@ import 'package:demo/features/collection/presentation/pages/collection_wise_form
 import 'package:demo/features/dealer/presentation/pages/DealerListScreen.dart';
 import 'package:demo/features/farmer/famerfollowup/presentation/pages/famerfollowuppage.dart';
 import 'package:demo/features/farmer/farmerlist/presentation/pages/farmerlist_screen.dart';
+import 'package:demo/features/farmer/farmerregistration/presentation/pages/farmerregistration_page.dart';
 import 'package:demo/features/gallery/presentation/pages/galleryscreen.dart';
 
 import 'package:demo/features/home/presentation/home.dart';
@@ -71,8 +72,9 @@ class AppRouter {
   static const String social = '/social';
   static const String teamLeaveList = '/teamLeaveList';
 
-   static const String addCollection = '/addCollection';
-   static const String collectionList = '/collectionList';
+  static const String addCollection = '/addCollection';
+  static const String collectionList = '/collectionList';
+  static const String farmerregistration = '/farmerregistration';
 
   static final GoRouter router = GoRouter(
     initialLocation: splash,
@@ -118,6 +120,14 @@ class AppRouter {
       ),
 
       GoRoute(
+        path: farmerregistration,
+        name: 'farmerregistration',
+        builder: (context, state) {
+          return const FarmerregistrationPage();
+        },
+      ),
+
+      GoRoute(
         path: leaveList,
         name: 'leaveList',
         builder: (context, state) {
@@ -157,7 +167,7 @@ class AppRouter {
         },
       ),
 
-       GoRoute(
+      GoRoute(
         path: addCollection,
         name: 'addCollection',
         builder: (context, state) {
@@ -165,16 +175,13 @@ class AppRouter {
         },
       ),
 
-
-       GoRoute(
+      GoRoute(
         path: collectionList,
         name: 'collectionList',
         builder: (context, state) {
           return const CollectionWiseFormPage();
         },
       ),
-
-
 
       GoRoute(
         path: farmers,
@@ -261,7 +268,6 @@ class AppRouter {
       //     // },
       //   },
       // ),
-
       GoRoute(
         path: visitSummaryReport,
         name: 'visitSummaryReport',
