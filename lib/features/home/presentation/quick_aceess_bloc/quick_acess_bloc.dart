@@ -180,6 +180,9 @@ class QuickAcessBloc extends Bloc<QuickAccessEvent, QuickAccessState> {
         'gpsLongitude': event.gpsLongitude,
         'geoAddress': event.geoAddress,
         'activityId': event.activityId,
+        'date': event.date,
+        "time": event.newTime,
+        "isForceOutPunch": event.isForceOutPunch,
       };
 
       // ============================================
@@ -201,6 +204,9 @@ class QuickAcessBloc extends Bloc<QuickAccessEvent, QuickAccessState> {
       // ============================================
       print('========== PUNCH REQUEST ==========');
       print('user_id: ${event.userId}');
+      print('date: ${event.date}');
+      print('newTime: ${event.newTime}');
+      print('isForceOut: ${event.isForceOutPunch}');
       print('in_out_status: ${event.inOutStatus}');
       print('vehicle_type_id: ${event.vehicleTypeId}');
       print(

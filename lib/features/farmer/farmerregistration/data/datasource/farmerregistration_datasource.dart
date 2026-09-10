@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:demo/core/api_constant/api_client.dart';
 import 'package:demo/core/api_constant/dio_client.dart';
 import 'package:demo/features/farmer/farmerregistration/data/model/baseresponse_model.dart';
@@ -27,11 +29,23 @@ class FarmerregistrationDatasource {
       ApiClient.getState,
       data: formData,
     );
-    print('response $response');
-    final data = response.data;
-    final List<dynamic> result = data['result'] ?? [];
-    return result
+
+    print('API RESPONSE TYPE: ${response.data.runtimeType}');
+    print('API RESPONSE: ${response.data}');
+
+    // API response is a JSON String
+    final List<dynamic> result = jsonDecode(response.data.toString());
+
+    print('STATE LIST LENGTH: ${result.length}');
+
+    final List<StateModel> states = result
         .map((json) => StateModel.fromJson(Map<String, dynamic>.from(json)))
         .toList();
+
+    for (final state in states) {
+      print('STATE -> ID: ${state.stateId} | NAME: ${state.stateName}');
+    }
+
+    return states;
   }
 }

@@ -207,6 +207,9 @@ class _PunchOutScreenState extends State<PunchOutScreen> {
         closingKmImage: _uploadedImage?.path ?? '',
 
         activityId: widget.punchStat?.dailyTranId ?? '',
+        date: '',
+        newTime: '',
+        isForceOutPunch: false,
       ),
     );
   }
@@ -279,7 +282,7 @@ class _PunchOutScreenState extends State<PunchOutScreen> {
             }
           },
           builder: (context, vehicleState) {
-            final selectedVehicle = _getMatchedVehicle(vehicleState);
+            // final selectedVehicle = _getMatchedVehicle(vehicleState);
             return Form(
               key: _formKey,
               child: SingleChildScrollView(

@@ -4,9 +4,9 @@ import 'package:demo/core/theme/app_theme.dart';
 import 'package:demo/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:demo/features/collection/presentation/bloc/dealer_target_bloc.dart';
 import 'package:demo/features/dealer/presentation/bloc/dealerlist_bloc.dart';
-import 'package:demo/features/farmer/farmerlist/presentation/bloc/farmerlist_bloc.dart';
 import 'package:demo/features/farmer/famerfollowup/presentation/bloc/famerfollowup_bloc.dart';
 import 'package:demo/features/farmer/farmerlist/presentation/bloc/farmerlist_bloc.dart';
+import 'package:demo/features/farmer/farmerregistration/presentation/bloc/state_bloc.dart';
 import 'package:demo/features/gallery/presentation/boc/gallery_bloc.dart';
 import 'package:demo/features/home/presentation/home_bloc/home_bloc.dart';
 import 'package:demo/features/home/presentation/quick_aceess_bloc/quick_acess_bloc.dart';
@@ -41,6 +41,7 @@ class MyApp extends StatelessWidget {
 
         BlocProvider<FarmerListBloc>(create: (_) => sl<FarmerListBloc>()),
         BlocProvider<FamerfollowupBloc>(create: (_) => sl<FamerfollowupBloc>()),
+        BlocProvider<StateBloc>(create: (_) => sl<StateBloc>()),
         BlocProvider<HomeBloc>(create: (_) => sl<HomeBloc>()),
         BlocProvider<QuickAcessBloc>(create: (_) => sl<QuickAcessBloc>()),
         BlocProvider<EmployeeActivityBloc>(

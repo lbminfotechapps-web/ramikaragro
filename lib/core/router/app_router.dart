@@ -7,6 +7,7 @@ import 'package:demo/features/collection/presentation/pages/dealer_wise_target_p
 import 'package:demo/features/dealer/presentation/pages/DealerListScreen.dart';
 import 'package:demo/features/farmer/famerfollowup/presentation/pages/famerfollowuppage.dart';
 import 'package:demo/features/farmer/farmerlist/presentation/pages/farmerlist_screen.dart';
+import 'package:demo/features/farmer/farmerregistration/presentation/pages/farmerregistration_page.dart';
 import 'package:demo/features/gallery/presentation/pages/galleryscreen.dart';
 import 'package:demo/features/home/presentation/crop_schedule_page.dart';
 
@@ -21,6 +22,9 @@ import 'package:demo/features/leave/presentation/pages/team_leave_list_page.dart
 import 'package:demo/features/leave/presentation/pages/top_ten_dealer_page.dart';
 import 'package:demo/features/home/presentation/last_force_out_screen.dart';
 import 'package:demo/features/products/domain/entity/fertilizer_category_entity.dart';
+import 'package:demo/features/products/domain/entity/fertilizer_product_entity.dart';
+import 'package:demo/features/products/presentation/pages/product_details.dart';
+import 'package:demo/features/products/presentation/pages/product_list.dart';
 import 'package:demo/features/products/presentation/pages/products_screen.dart';
 import 'package:demo/features/reports/presentation/pages/about_us_page.dart';
 import 'package:demo/features/reports/presentation/pages/contact_us_page.dart';
@@ -54,6 +58,8 @@ class AppRouter {
   static const String reports = '/reports';
   static const String visits = '/visits';
   static const String products = '/products';
+  static const String productList = '/productList';
+  static const String productDetails = '/productDetails';
   static const String farmers = '/farmers';
   static const String farmerpin = '/farmerpin';
 
@@ -78,6 +84,8 @@ class AppRouter {
    static const String collectionList = '/collectionList';
    static const String collectionTargetAndAchievement = '/collectionTargetAndAchievement';
   static const String cropSchedule = '/cropSchedule';
+
+static const String farmerregistration = '/farmerregistration';
 
   static final GoRouter router = GoRouter(
     initialLocation: splash,
@@ -123,6 +131,14 @@ class AppRouter {
       ),
 
       GoRoute(
+        path: farmerregistration,
+        name: 'farmerregistration',
+        builder: (context, state) {
+          return const FarmerregistrationPage();
+        },
+      ),
+
+      GoRoute(
         path: leaveList,
         name: 'leaveList',
         builder: (context, state) {
@@ -162,7 +178,7 @@ class AppRouter {
         },
       ),
 
-       GoRoute(
+      GoRoute(
         path: addCollection,
         name: 'addCollection',
         builder: (context, state) {
@@ -170,8 +186,7 @@ class AppRouter {
         },
       ),
 
-
-       GoRoute(
+      GoRoute(
         path: collectionList,
         name: 'collectionList',
         builder: (context, state) {
@@ -242,6 +257,29 @@ class AppRouter {
       ),
 
       GoRoute(
+        path: productList,
+        name: 'productList',
+        builder: (context, state) {
+          final productList = state.extra is FertilizerCategoryEntity
+              ? state.extra as FertilizerCategoryEntity
+              : null;
+          return ProductList(productList);
+        },
+      ),
+
+      // ProductDetails
+      GoRoute(
+        path: productDetails,
+        name: 'productDetails',
+        builder: (context, state) {
+          final productDetails = state.extra is FertilizerProductEntity
+              ? state.extra as FertilizerProductEntity
+              : null;
+          return ProductDetails(productDetails);
+        },
+      ),
+
+      GoRoute(
         path: empActivityReport,
         name: 'empActivityReport',
         builder: (context, state) {
@@ -281,7 +319,6 @@ class AppRouter {
       //     // },
       //   },
       // ),
-
       GoRoute(
         path: visitSummaryReport,
         name: 'visitSummaryReport',
