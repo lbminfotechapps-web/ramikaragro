@@ -114,7 +114,7 @@ class _DealerListScreenState extends State<DealerListScreen> {
         title: 'Dealer List',
 
         showBackButton: false,
-        onNotificationTap: () {
+        onLogOutTap: () {
           // Handle notification tap
         },
       ),

@@ -1,7 +1,6 @@
 import 'package:demo/core/theme/app_colors.dart';
 import 'package:flutter/material.dart';
 
-
 class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   // Main title
   final String? title;
@@ -21,7 +20,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
 
   // Notification
   final int notificationCount;
-  final VoidCallback? onNotificationTap;
+  final VoidCallback? onLogOutTap;
 
   // Generic right-side icon
   final IconData? actionIcon;
@@ -56,7 +55,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
 
     // Notification
     this.notificationCount = 0,
-    this.onNotificationTap,
+    this.onLogOutTap,
 
     // Generic action icon
     this.actionIcon,
@@ -83,9 +82,10 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
       automaticallyImplyLeading: false,
       backgroundColor: backgroundColor,
       surfaceTintColor: Colors.transparent,
-      elevation: 0,
+      elevation: 2,
       toolbarHeight: toolbarHeight,
       titleSpacing: 16,
+      shadowColor: Colors.black.withOpacity(0.12),
 
       title: Row(
         children: [
@@ -104,8 +104,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
               ),
             ),
 
-          if (leading != null || showBackButton)
-            const SizedBox(width: 12),
+          if (leading != null || showBackButton) const SizedBox(width: 12),
 
           // ------------------------------------------------
           // PROFILE
@@ -116,10 +115,8 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
               height: 52,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                color: const Color(0xFFF1F8E9),
-                border: Border.all(
-                  color: const Color(0xFFE5E5E5),
-                ),
+                color: const Color.fromARGB(255, 101, 158, 35),
+                border: Border.all(color: const Color(0xFFE5E5E5)),
               ),
               alignment: Alignment.center,
               child: Text(
@@ -148,9 +145,10 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
                     title!,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
-                    style: titleStyle ??
+                    style:
+                        titleStyle ??
                         const TextStyle(
-                          fontSize: 22,
+                          fontSize: 18,
                           fontWeight: FontWeight.w600,
                           color: Colors.black,
                         ),
@@ -162,7 +160,8 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
                     subtitle!,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
-                    style: subtitleStyle ??
+                    style:
+                        subtitleStyle ??
                         const TextStyle(
                           fontSize: 11,
                           fontWeight: FontWeight.w400,
@@ -179,7 +178,8 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
                     userName!,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
-                    style: titleStyle ??
+                    style:
+                        titleStyle ??
                         const TextStyle(
                           fontSize: 22,
                           fontWeight: FontWeight.w600,
@@ -193,16 +193,12 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
           // ------------------------------------------------
           // CUSTOM ACTION
           // ------------------------------------------------
-          if (action != null) ...[
-            const SizedBox(width: 10),
-            action!,
-          ],
+          if (action != null) ...[const SizedBox(width: 10), action!],
 
           // ------------------------------------------------
           // GENERIC ACTION ICON
           // ------------------------------------------------
-          if (actionIcon != null &&
-              onActionIconTap != null) ...[
+          if (actionIcon != null && onActionIconTap != null) ...[
             const SizedBox(width: 10),
 
             GestureDetector(
@@ -226,24 +222,24 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
           // ------------------------------------------------
           // NOTIFICATION
           // ------------------------------------------------
-          if (onNotificationTap != null) ...[
+          if (onLogOutTap != null) ...[
             const SizedBox(width: 10),
 
             GestureDetector(
-              onTap: onNotificationTap,
+              onTap: onLogOutTap,
               child: Stack(
                 clipBehavior: Clip.none,
                 children: [
                   Container(
-                    width: 50,
-                    height: 50,
+                    width: 40,
+                    height: 40,
                     decoration: const BoxDecoration(
                       shape: BoxShape.circle,
                       color: Color(0xFFF7FBF3),
                     ),
                     child: const Icon(
-                      Icons.notifications_none_rounded,
-                      size: 31,
+                      Icons.logout_outlined,
+                      size: 20,
                       color: Color(0xFF16803A),
                     ),
                   ),
@@ -257,9 +253,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
                           minWidth: 18,
                           minHeight: 18,
                         ),
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 4,
-                        ),
+                        padding: const EdgeInsets.symmetric(horizontal: 4),
                         decoration: BoxDecoration(
                           color: Colors.red,
                           shape: notificationCount < 10
@@ -268,10 +262,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
                           borderRadius: notificationCount >= 10
                               ? BorderRadius.circular(10)
                               : null,
-                          border: Border.all(
-                            color: Colors.white,
-                            width: 2,
-                          ),
+                          border: Border.all(color: Colors.white, width: 2),
                         ),
                         alignment: Alignment.center,
                         child: notificationCount >= 10
@@ -297,6 +288,3 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
     );
   }
 }
-
-
-

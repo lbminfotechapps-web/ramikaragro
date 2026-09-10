@@ -177,7 +177,7 @@ class _ReportsScreeState extends State<ReportsScree> {
         title: 'Report',
 
         showBackButton: false,
-        onNotificationTap: () {
+        onLogOutTap: () {
           // Handle notification tap
         },
       ),
