@@ -1,8 +1,10 @@
+import 'package:demo/core/router/app_router.dart';
 import 'package:demo/core/secure_storage/secure_storage.dart';
 import 'package:demo/core/theme/app_colors.dart';
 import 'package:demo/core/utility/widgets/custom_appbar.dart';
 import 'package:demo/core/utility/widgets/custom_card.dart';
 import 'package:demo/features/home/presentation/home_bloc/home_bloc.dart';
+import 'package:demo/features/home/presentation/home_bloc/home_event.dart';
 import 'package:demo/features/home/presentation/home_bloc/home_state.dart';
 import 'package:demo/features/home/presentation/quick_aceess_bloc/quick_access_state.dart';
 import 'package:demo/features/home/presentation/quick_aceess_bloc/quick_acess_bloc.dart';
@@ -13,6 +15,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil_plus/flutter_screenutil_plus.dart';
+import 'package:go_router/go_router.dart';
 
 class Home extends StatefulWidget {
   const Home({super.key});
@@ -82,6 +85,55 @@ class _HomeState extends State<Home> {
     return result ?? false;
   }
 
+  Future<void> _logout() async {
+    final shouldLogout = await showDialog<bool>(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text('Logout'),
+          content: const Text('Are you sure you want to logout?'),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop(false);
+              },
+              child: Text(
+                'CANCEL',
+                style: TextStyle(color: AppColors.darkBackgroundColor),
+              ),
+            ),
+
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppColors.accentGreen,
+                foregroundColor: Colors.white,
+              ),
+              onPressed: () {
+                Navigator.of(context).pop(true);
+              },
+              child: const Text('LOGOUT'),
+            ),
+          ],
+        );
+      },
+    );
+
+    if (shouldLogout != true) {
+      return;
+    }
+
+    try {
+      await SecureStorage.instance.clearAll();
+
+      if (!mounted) return;
+
+      context.go(AppRouter.login);
+    } catch (e) {
+      debugPrint('Logout error: $e');
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return PopScope(
@@ -99,8 +151,8 @@ class _HomeState extends State<Home> {
         backgroundColor: AppColors.backgroundColor,
         appBar: CustomAppBar(
           leading: Container(
-            width: 45,
-            height: 45,
+            width: 40,
+            height: 40,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
               border: Border.all(color: AppColors.borderColor),
@@ -119,8 +171,8 @@ class _HomeState extends State<Home> {
           title: _username,
           subtitle: 'Good Morning',
           showBackButton: false,
-          onNotificationTap: () {
-            // Handle notification tap
+          onLogOutTap: () {
+            _logout();
           },
         ),
         body: Padding(

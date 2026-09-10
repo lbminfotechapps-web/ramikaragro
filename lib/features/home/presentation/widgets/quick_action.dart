@@ -35,10 +35,9 @@ class QuickAccessSection extends StatefulWidget {
 
 class _QuickAccessSectionState extends State<QuickAccessSection> {
   // Initially show 7 API items.
-  static const int initialItemCount = 7;
+  static const int initialItemCount = 5;
 
-  // Every time More is clicked, show 4 more items.
-  static const int loadMoreCount = 8;
+  static const int loadMoreCount = 6;
 
   int visibleItemCount = initialItemCount;
 
@@ -89,7 +88,7 @@ class _QuickAccessSectionState extends State<QuickAccessSection> {
 
           LayoutBuilder(
             builder: (context, constraints) {
-              final crossAxisCount = constraints.maxWidth < 600 ? 4 : 8;
+              final crossAxisCount = constraints.maxWidth < 600 ? 3 : 6;
 
               // API items currently visible.
               final List<MenuEntity> visibleMenus = widget.menus
@@ -288,6 +287,7 @@ class QuickAccessMenuItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return CustomCard(
+      elevation: 1,
       color: _getBackgroundColor(menu.menuId),
       borderRadius: 14.r,
       padding: EdgeInsets.all(8.w),
@@ -295,40 +295,38 @@ class QuickAccessMenuItem extends StatelessWidget {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Expanded(
-            child: Center(
-              child: Image.network(
-                menu.iconImage,
-                width: 30.w,
-                height: 30.h,
-                fit: BoxFit.contain,
-                errorBuilder: (context, error, stackTrace) {
-                  return Icon(
-                    Icons.apps_rounded,
-                    size: 30.sp,
-                    color: AppColors.textColor,
-                  );
-                },
-                loadingBuilder: (context, child, loadingProgress) {
-                  if (loadingProgress == null) {
-                    return child;
-                  }
+          Center(
+            child: Image.network(
+              menu.iconImage,
+              width: 40.w,
+              height: 40.h,
+              fit: BoxFit.contain,
+              errorBuilder: (context, error, stackTrace) {
+                return Icon(
+                  Icons.apps_rounded,
+                  size: 30.sp,
+                  color: AppColors.textColor,
+                );
+              },
+              loadingBuilder: (context, child, loadingProgress) {
+                if (loadingProgress == null) {
+                  return child;
+                }
 
-                  return SizedBox(
-                    width: 24.w,
-                    height: 24.h,
-                    child: const CircularProgressIndicator(strokeWidth: 2),
-                  );
-                },
-              ),
+                return SizedBox(
+                  width: 24.w,
+                  height: 24.h,
+                  child: const CircularProgressIndicator(strokeWidth: 2),
+                );
+              },
             ),
           ),
 
-          SizedBox(height: 4.h),
+          SizedBox(height: 16.h),
 
           Text(
             displayName,
-            maxLines: 1,
+            maxLines: 3,
             overflow: TextOverflow.ellipsis,
             textAlign: TextAlign.center,
             style: TextStyle(fontSize: 10.sp, fontWeight: FontWeight.w500),

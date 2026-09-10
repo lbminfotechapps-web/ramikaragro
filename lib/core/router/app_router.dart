@@ -18,6 +18,9 @@ import 'package:demo/features/leave/presentation/pages/team_leave_list_page.dart
 import 'package:demo/features/leave/presentation/pages/top_ten_dealer_page.dart';
 import 'package:demo/features/home/presentation/last_force_out_screen.dart';
 import 'package:demo/features/products/domain/entity/fertilizer_category_entity.dart';
+import 'package:demo/features/products/domain/entity/fertilizer_product_entity.dart';
+import 'package:demo/features/products/presentation/pages/product_details.dart';
+import 'package:demo/features/products/presentation/pages/product_list.dart';
 import 'package:demo/features/products/presentation/pages/products_screen.dart';
 import 'package:demo/features/reports/presentation/pages/about_us_page.dart';
 import 'package:demo/features/reports/presentation/pages/contact_us_page.dart';
@@ -51,6 +54,8 @@ class AppRouter {
   static const String reports = '/reports';
   static const String visits = '/visits';
   static const String products = '/products';
+  static const String productList = '/productList';
+  static const String productDetails = '/productDetails';
   static const String farmers = '/farmers';
   static const String farmerpin = '/farmerpin';
 
@@ -71,8 +76,8 @@ class AppRouter {
   static const String social = '/social';
   static const String teamLeaveList = '/teamLeaveList';
 
-   static const String addCollection = '/addCollection';
-   static const String collectionList = '/collectionList';
+  static const String addCollection = '/addCollection';
+  static const String collectionList = '/collectionList';
 
   static final GoRouter router = GoRouter(
     initialLocation: splash,
@@ -157,7 +162,7 @@ class AppRouter {
         },
       ),
 
-       GoRoute(
+      GoRoute(
         path: addCollection,
         name: 'addCollection',
         builder: (context, state) {
@@ -165,16 +170,13 @@ class AppRouter {
         },
       ),
 
-
-       GoRoute(
+      GoRoute(
         path: collectionList,
         name: 'collectionList',
         builder: (context, state) {
           return const CollectionWiseFormPage();
         },
       ),
-
-
 
       GoRoute(
         path: farmers,
@@ -222,6 +224,29 @@ class AppRouter {
       ),
 
       GoRoute(
+        path: productList,
+        name: 'productList',
+        builder: (context, state) {
+          final productList = state.extra is FertilizerCategoryEntity
+              ? state.extra as FertilizerCategoryEntity
+              : null;
+          return ProductList(productList);
+        },
+      ),
+
+      // ProductDetails
+      GoRoute(
+        path: productDetails,
+        name: 'productDetails',
+        builder: (context, state) {
+          final productDetails = state.extra is FertilizerProductEntity
+              ? state.extra as FertilizerProductEntity
+              : null;
+          return ProductDetails(productDetails);
+        },
+      ),
+
+      GoRoute(
         path: empActivityReport,
         name: 'empActivityReport',
         builder: (context, state) {
@@ -261,7 +286,6 @@ class AppRouter {
       //     // },
       //   },
       // ),
-
       GoRoute(
         path: visitSummaryReport,
         name: 'visitSummaryReport',

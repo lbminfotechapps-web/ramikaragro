@@ -11,6 +11,8 @@ class CustomTextFormField extends StatelessWidget {
   final String? Function(String?)? validator;
   final bool enabled;
   final int maxLines;
+  final bool readOnly;
+  final VoidCallback? onTap;
 
   const CustomTextFormField({
     super.key,
@@ -24,6 +26,8 @@ class CustomTextFormField extends StatelessWidget {
     this.validator,
     this.enabled = true,
     this.maxLines = 1,
+    this.readOnly = false,
+    this.onTap,
   });
 
   @override
@@ -47,6 +51,8 @@ class CustomTextFormField extends StatelessWidget {
         validator: validator,
         enabled: enabled,
         maxLines: maxLines,
+        readOnly: readOnly,
+        onTap: onTap,
 
         style: const TextStyle(
           fontSize: 16,
