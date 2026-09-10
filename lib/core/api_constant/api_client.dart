@@ -32,8 +32,9 @@ class ApiClient {
   
   static const String  getBankDetails = "/getBankDetails";
   static const String  getTalukaWiseOutletForOrderNew = "/getTalukaWiseOutletForOrderNew";
-
-  
-  static const String getCategoryproductDetails =
-      "/get_category_product_details";
+  static const String getCategoryproductDetails = "/get_category_product_details";
+  static const String getCollectionList = "/getCollectionList";
+  static const String getCollectionWiseTarget ='/getCollectionWiseTarget';
+  static const String getTargetDates ='/getTargetDates';
+  static const String getCropsSchedule ='$baseUrl/getCropsSchedule';
 }

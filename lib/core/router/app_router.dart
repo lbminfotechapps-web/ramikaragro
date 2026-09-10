@@ -1,12 +1,15 @@
 import 'package:demo/core/utility/widgets/bottom_navigation.dart';
 import 'package:demo/core/di/auth_di.dart';
 import 'package:demo/features/auth/presentation/pages/login_screen.dart';
+import 'package:demo/features/collection/presentation/pages/collection_list_page.dart';
 import 'package:demo/features/collection/presentation/pages/collection_wise_form_page.dart';
+import 'package:demo/features/collection/presentation/pages/dealer_wise_target_page.dart';
 import 'package:demo/features/dealer/presentation/pages/DealerListScreen.dart';
 import 'package:demo/features/farmer/famerfollowup/presentation/pages/famerfollowuppage.dart';
 import 'package:demo/features/farmer/farmerlist/presentation/pages/farmerlist_screen.dart';
 import 'package:demo/features/farmer/farmerregistration/presentation/pages/farmerregistration_page.dart';
 import 'package:demo/features/gallery/presentation/pages/galleryscreen.dart';
+import 'package:demo/features/home/presentation/crop_schedule_page.dart';
 
 import 'package:demo/features/home/presentation/home.dart';
 import 'package:demo/features/home/presentation/punch_screen.dart';
@@ -77,9 +80,12 @@ class AppRouter {
   static const String social = '/social';
   static const String teamLeaveList = '/teamLeaveList';
 
-  static const String addCollection = '/addCollection';
-  static const String collectionList = '/collectionList';
-  static const String farmerregistration = '/farmerregistration';
+   static const String addCollection = '/addCollection';
+   static const String collectionList = '/collectionList';
+   static const String collectionTargetAndAchievement = '/collectionTargetAndAchievement';
+  static const String cropSchedule = '/cropSchedule';
+
+static const String farmerregistration = '/farmerregistration';
 
   static final GoRouter router = GoRouter(
     initialLocation: splash,
@@ -184,7 +190,24 @@ class AppRouter {
         path: collectionList,
         name: 'collectionList',
         builder: (context, state) {
-          return const CollectionWiseFormPage();
+          return const CollectionListPage();
+        },
+      ),
+
+      GoRoute(
+        path: collectionTargetAndAchievement,
+        name: 'collectionTargetAndAchievement',
+        builder: (context, state) {
+          return const DealerWiseTargetPage();
+        },
+      ),
+      
+
+       GoRoute(
+        path: cropSchedule,
+        name: 'cropSchedule',
+        builder: (context, state) {
+          return const CropSchedulePage();
         },
       ),
 

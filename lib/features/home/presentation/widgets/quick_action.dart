@@ -198,7 +198,17 @@ class _QuickAccessSectionState extends State<QuickAccessSection> {
       context.push('/addCollection');
     } else if (menu.menuId == '72') {
       context.push('/collectionList');
-    } else if (menu.menuId == '57' ||
+    } 
+    else if (menu.menuId == '16') {
+      context.push('/collectionTargetAndAchievement');
+    } 
+
+    else if (menu.menuId == '60') {
+      context.push('/cropSchedule');
+    } 
+    
+
+    else if (menu.menuId == '57' ||
         menu.menuId == '63' ||
         menu.menuId == '32') {
       final userData = await SecureStorage.instance.getUserData();
