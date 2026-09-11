@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:demo/core/utility/widgets/custom_loader.dart';
 import 'package:demo/features/collection/data/models/dealer_model.dart';
 import 'package:demo/features/collection/domain/entities/dealer.dart';
 import 'package:demo/features/collection/presentation/bloc/collection_bloc.dart';
@@ -262,11 +263,10 @@ class _DealerSearchBottomSheetState
                   // ----------------------------------------------
 
                   if (state.dealerLoading) {
-                    return const Center(
-                      child: CircularProgressIndicator(
-                        color: Color(0xFF166534),
-                      ),
-                    );
+                    return const CustomLoader(
+              showMessage: true,
+      
+            );
                   }
 
                   // ----------------------------------------------

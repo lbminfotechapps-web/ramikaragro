@@ -1,6 +1,7 @@
 import 'package:demo/core/api_constant/api_client.dart';
 import 'package:demo/core/utility/fullimage.dart';
 import 'package:demo/core/utility/widgets/custom_appbar.dart';
+import 'package:demo/core/utility/widgets/custom_loader.dart';
 import 'package:demo/features/gallery/presentation/boc/gallery_bloc.dart';
 import 'package:demo/features/gallery/presentation/boc/gallery_event.dart';
 import 'package:demo/features/gallery/presentation/boc/gallery_state.dart';
@@ -566,9 +567,8 @@ class _GalleryScreenState extends State<GalleryScreen>
           width: 25,
           height: 25,
 
-          child: CircularProgressIndicator(
-            strokeWidth: 2,
-            color: Color(0xFF218838),
+          child: CustomLoader(
+ 
           ),
         ),
       ),

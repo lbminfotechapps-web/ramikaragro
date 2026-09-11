@@ -1,6 +1,7 @@
 import 'package:demo/core/router/app_router.dart';
 import 'package:demo/core/theme/app_colors.dart';
 import 'package:demo/core/utility/widgets/custom_appbar.dart';
+import 'package:demo/core/utility/widgets/custom_loader.dart';
 import 'package:demo/features/home/presentation/home_bloc/social_media_bloc.dart';
 import 'package:demo/features/home/presentation/home_bloc/social_media_event.dart';
 import 'package:demo/features/home/presentation/home_bloc/social_media_state.dart';
@@ -123,7 +124,7 @@ class _SocialMediaPageState extends State<SocialMediaPage> {
   Widget _buildBody(SocialMediaState state) {
     if (state.status == SocialMediaStatus.loading) {
       return const Center(
-        child: CircularProgressIndicator(color: Colors.green),
+        child: CustomLoader(color: Colors.green),
       );
     }
 

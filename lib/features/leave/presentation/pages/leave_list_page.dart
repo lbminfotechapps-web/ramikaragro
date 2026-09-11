@@ -1,6 +1,7 @@
 import 'package:demo/core/router/app_router.dart';
 import 'package:demo/core/theme/app_colors.dart';
 import 'package:demo/core/utility/widgets/custom_appbar.dart';
+import 'package:demo/core/utility/widgets/custom_loader.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil_plus/flutter_screenutil_plus.dart';
@@ -615,7 +616,7 @@ class _LeaveListPageState extends State<LeaveListPage>
               color: Colors.green.withOpacity(0.08),
               shape: BoxShape.circle,
             ),
-            child: const CircularProgressIndicator(
+            child: const CustomLoader(
               strokeWidth: 3,
               color: Colors.green,
             ),

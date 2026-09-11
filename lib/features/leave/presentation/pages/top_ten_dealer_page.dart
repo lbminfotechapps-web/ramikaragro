@@ -1,6 +1,7 @@
 import 'package:demo/core/router/app_router.dart';
 import 'package:demo/core/theme/app_colors.dart';
 import 'package:demo/core/utility/widgets/custom_appbar.dart';
+import 'package:demo/core/utility/widgets/custom_loader.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -237,10 +238,9 @@ class _TopTenDealerPageState extends State<TopTenDealerPage> {
   }
 
   Widget _buildLoading() {
-    return const Padding(
-      padding: EdgeInsets.symmetric(vertical: 70),
-      child: Center(child: CircularProgressIndicator(color: Color(0xFF2E7D32))),
-    );
+  return const CustomLoader(
+           
+            );
   }
 
   Widget _buildNoRecords(int days) {

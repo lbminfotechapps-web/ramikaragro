@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:demo/core/router/app_router.dart';
 import 'package:demo/core/secure_storage/secure_storage.dart';
 import 'package:demo/core/utility/widgets/custom_appbar.dart';
+import 'package:demo/core/utility/widgets/custom_loader.dart';
 import 'package:demo/features/farmer/famerfollowup/data/model/followuplist_model.dart';
 import 'package:demo/features/farmer/famerfollowup/presentation/bloc/famerfollowup_bloc.dart';
 import 'package:demo/features/farmer/famerfollowup/presentation/bloc/famerfollowup_event.dart';
@@ -1370,11 +1371,9 @@ class _FollowupHistoryDialog extends StatelessWidget {
               child: BlocBuilder<FamerfollowupBloc, FamerfollowupState>(
                 builder: (context, state) {
                   if (state.historyStatus == FollowupHistoryStatus.loading) {
-                    return const Center(
-                      child: CircularProgressIndicator(
-                        color: Color(0xFF087F5B),
-                      ),
-                    );
+                  return const CustomLoader(
+           
+            );
                   }
 
                   if (state.historyStatus == FollowupHistoryStatus.failure) {
