@@ -203,6 +203,10 @@ class _QuickAccessSectionState extends State<QuickAccessSection> {
       context.push('/collectionTargetAndAchievement');
     } else if (menu.menuId == '60') {
       context.push('/cropSchedule');
+    } else if (menu.menuId == '13') {
+      context.push('/expenseList');
+    } else if (menu.menuId == '67') {
+      context.push('/teamExpenseList');
     } else if (menu.menuId == '57' ||
         menu.menuId == '63' ||
         menu.menuId == '32') {
