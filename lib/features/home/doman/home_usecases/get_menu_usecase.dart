@@ -1,3 +1,4 @@
+import 'package:demo/features/home/doman/home_entity/homevisit_entity.dart';
 import 'package:demo/features/home/doman/home_entity/menu_entity.dart';
 import 'package:demo/features/home/doman/home_repository/home_repo.dart';
 
@@ -28,5 +29,9 @@ class GetMenuUsecase {
     } catch (e) {
       throw Exception('Failed to fetch visit count graph: $e');
     }
+  }
+
+  Future<HomeVisitEntity> getHomeVisitCount({required String userId}) async {
+    return await homeRepo.getHomeVisitCount(userId: userId);
   }
 }

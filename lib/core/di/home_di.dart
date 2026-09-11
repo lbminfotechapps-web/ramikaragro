@@ -1,14 +1,20 @@
 import 'package:demo/core/api_constant/dio_client.dart';
 import 'package:demo/features/home/data/home_datasource/home_datasource.dart';
+
 import 'package:demo/features/home/data/home_datasource/quick_access_datasource.dart';
 import 'package:demo/features/home/data/home_repo_imp/home_repo_imp.dart';
+
 import 'package:demo/features/home/data/home_repo_imp/quick_access_repo_imp.dart';
 import 'package:demo/features/home/doman/home_repository/home_repo.dart';
+
 import 'package:demo/features/home/doman/home_repository/qick_access_repo.dart';
+
 import 'package:demo/features/home/doman/home_usecases/get_menu_usecase.dart';
 import 'package:demo/features/home/doman/home_usecases/get_punch_status_usecase.dart';
 import 'package:demo/features/home/presentation/home_bloc/home_bloc.dart';
+
 import 'package:demo/features/home/presentation/quick_aceess_bloc/quick_acess_bloc.dart';
+import 'package:dio/dio.dart';
 import 'package:get_it/get_it.dart';
 
 final sl = GetIt.instance;

@@ -3,14 +3,19 @@ import 'package:demo/core/secure_storage/secure_storage.dart';
 import 'package:demo/core/theme/app_colors.dart';
 import 'package:demo/core/utility/widgets/custom_appbar.dart';
 import 'package:demo/core/utility/widgets/custom_card.dart';
+import 'package:demo/features/home/doman/home_entity/homevisit_entity.dart';
 import 'package:demo/features/home/presentation/home_bloc/home_bloc.dart';
 import 'package:demo/features/home/presentation/home_bloc/home_event.dart';
 import 'package:demo/features/home/presentation/home_bloc/home_state.dart';
+
+import 'package:demo/features/home/presentation/home_bloc/home_visit_state.dart';
 import 'package:demo/features/home/presentation/quick_aceess_bloc/quick_access_state.dart';
 import 'package:demo/features/home/presentation/quick_aceess_bloc/quick_acess_bloc.dart';
+import 'package:demo/features/home/presentation/widgets/notvisited.dart';
 import 'package:demo/features/home/presentation/widgets/quick_action.dart';
 import 'package:demo/features/home/presentation/widgets/todays_overwiew.dart';
 import 'package:demo/features/home/presentation/widgets/visit_overview.dart';
+import 'package:demo/features/reports/presentation/bloc/visit_report_bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -202,17 +207,81 @@ class _HomeState extends State<Home> {
                   ],
                 ),
 
-                SizedBox(height: 12.h),
+                SizedBox(height: 8.h),
+                BlocBuilder<HomeBloc, HomeState>(
+                  builder: (context, state) {
+                    if (state.status == HomeStatus.loading) {
+                      return Container(
+                        margin: EdgeInsets.symmetric(
+                          horizontal: 8.w,
+                          vertical: 8.h,
+                        ),
+                        height: 140.h,
+                        child: const Center(child: CircularProgressIndicator()),
+                      );
+                    }
 
-                const OverviewSection(),
-
-                SizedBox(height: 12.h),
+                    // If API has data, use it.
+                    // If API returns empty/null, use zero values.
+                    final homeData =
+                        state.homedata ??
+                        HomeVisitEntity(
+                          status: false,
+                          message: '',
+                          todayTotalVisit: '0',
+                          todayDealerCnt: '0',
+                          todayFarmerCnt: '0',
+                          monthlyTotalVisit: '0',
+                          monthlyDealerCnt: '0',
+                          monthlyFarmerCnt: '0',
+                          monthlyUniqueDealerCnt: '0',
+                          monthlyUniqueFarmerCnt: '0',
+                        );
+                    print(
+                      "Data ----->: ${state.homedata?.monthlyUniqueDealerCnt.toString()}",
+                    );
+                    return VisitStatisticsTable(homeData);
+                  },
+                ),
 
                 BlocBuilder<HomeBloc, HomeState>(
                   builder: (context, state) {
-                    // if (state.status == HomeStatus.loading) {
-                    //   return const Center(child: CircularProgressIndicator());
-                    // }
+                    if (state.status == HomeStatus.loading) {
+                      return Container(
+                        margin: EdgeInsets.symmetric(
+                          horizontal: 8.w,
+                          vertical: 8.h,
+                        ),
+                        height: 140.h,
+                        child: const Center(child: CircularProgressIndicator()),
+                      );
+                    }
+
+                    // If API has data, use it.
+                    // If API returns empty/null, use zero values.
+                    final homeData =
+                        state.homedata ??
+                        HomeVisitEntity(
+                          status: false,
+                          message: '',
+                          todayTotalVisit: '0',
+                          todayDealerCnt: '0',
+                          todayFarmerCnt: '0',
+                          monthlyTotalVisit: '0',
+                          monthlyDealerCnt: '0',
+                          monthlyFarmerCnt: '0',
+                          monthlyUniqueDealerCnt: '0',
+                          monthlyUniqueFarmerCnt: '0',
+                        );
+
+                    return NotVisitedCard(homeData);
+                  },
+                ),
+
+                SizedBox(height: 8.h),
+
+                BlocBuilder<HomeBloc, HomeState>(
+                  builder: (context, state) {
                     return VisitOverviewCard(
                       dealerCount: state.totalDealerCount ?? '0',
                       farmerCount: state.totalFarmerCount ?? '0',

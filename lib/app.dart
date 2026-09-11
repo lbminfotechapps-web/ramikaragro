@@ -9,6 +9,7 @@ import 'package:demo/features/farmer/farmerlist/presentation/bloc/farmerlist_blo
 import 'package:demo/features/farmer/farmerregistration/presentation/bloc/state_bloc.dart';
 import 'package:demo/features/gallery/presentation/boc/gallery_bloc.dart';
 import 'package:demo/features/home/presentation/home_bloc/home_bloc.dart';
+
 import 'package:demo/features/home/presentation/quick_aceess_bloc/quick_acess_bloc.dart';
 import 'package:demo/features/leave/presentation/bloc/top_ten_dealer_bloc.dart';
 import 'package:demo/features/products/presentation/bloc/product_bloc.dart';
@@ -34,10 +35,11 @@ class MyApp extends StatelessWidget {
         BlocProvider<FarmerListBloc>(create: (_) => sl<FarmerListBloc>()),
         BlocProvider<DealerListBloc>(create: (_) => sl<DealerListBloc>()),
 
-        BlocProvider<NotVisitedDealerBloc>(create: (_) => sl<NotVisitedDealerBloc>(),),
+        BlocProvider<NotVisitedDealerBloc>(
+          create: (_) => sl<NotVisitedDealerBloc>(),
+        ),
         BlocProvider<DealerTargetBloc>(create: (_) => sl<DealerTargetBloc>()),
         BlocProvider<TopTenDealerBloc>(create: (_) => sl<TopTenDealerBloc>()),
-
 
         BlocProvider<FarmerListBloc>(create: (_) => sl<FarmerListBloc>()),
         BlocProvider<FamerfollowupBloc>(create: (_) => sl<FamerfollowupBloc>()),
