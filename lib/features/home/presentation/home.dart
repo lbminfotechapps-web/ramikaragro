@@ -3,6 +3,7 @@ import 'package:demo/core/secure_storage/secure_storage.dart';
 import 'package:demo/core/theme/app_colors.dart';
 import 'package:demo/core/utility/widgets/custom_appbar.dart';
 import 'package:demo/core/utility/widgets/custom_card.dart';
+import 'package:demo/core/utility/widgets/custom_loader.dart';
 import 'package:demo/features/home/presentation/home_bloc/home_bloc.dart';
 import 'package:demo/features/home/presentation/home_bloc/home_event.dart';
 import 'package:demo/features/home/presentation/home_bloc/home_state.dart';
@@ -225,7 +226,10 @@ class _HomeState extends State<Home> {
                 BlocBuilder<HomeBloc, HomeState>(
                   builder: (context, homeState) {
                     if (homeState.status == HomeStatus.loading) {
-                      return const Center(child: CircularProgressIndicator());
+                 
+  return const CustomLoader();
+
+                  //    return const Center(child: CircularProgressIndicator());
                     }
 
                     if (homeState.status == HomeStatus.failure) {
