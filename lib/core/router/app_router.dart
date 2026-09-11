@@ -5,6 +5,8 @@ import 'package:demo/features/collection/presentation/pages/collection_list_page
 import 'package:demo/features/collection/presentation/pages/collection_wise_form_page.dart';
 import 'package:demo/features/collection/presentation/pages/dealer_wise_target_page.dart';
 import 'package:demo/features/dealer/presentation/pages/DealerListScreen.dart';
+import 'package:demo/features/expense/presentation/pages/my_expense_page.dart';
+import 'package:demo/features/expense/presentation/pages/team_expense_page.dart';
 import 'package:demo/features/farmer/famerfollowup/presentation/pages/famerfollowuppage.dart';
 import 'package:demo/features/farmer/farmerlist/presentation/pages/farmerlist_screen.dart';
 import 'package:demo/features/farmer/farmerregistration/presentation/pages/farmerregistration_page.dart';
@@ -80,12 +82,13 @@ class AppRouter {
   static const String social = '/social';
   static const String teamLeaveList = '/teamLeaveList';
 
-   static const String addCollection = '/addCollection';
-   static const String collectionList = '/collectionList';
-   static const String collectionTargetAndAchievement = '/collectionTargetAndAchievement';
+  static const String addCollection = '/addCollection';
+  static const String collectionList = '/collectionList';
+  static const String collectionTargetAndAchievement = '/collectionTargetAndAchievement';
   static const String cropSchedule = '/cropSchedule';
-
-static const String farmerregistration = '/farmerregistration';
+  static const String farmerregistration = '/farmerregistration';
+  static const String expenseList = '/expenseList';
+  static const String teamExpenseList = '/teamExpenseList';
 
   static final GoRouter router = GoRouter(
     initialLocation: splash,
@@ -210,6 +213,26 @@ static const String farmerregistration = '/farmerregistration';
           return const CropSchedulePage();
         },
       ),
+
+    
+       GoRoute(
+        path: expenseList,
+        name: 'expenseList',
+        builder: (context, state) {
+          return const MyExpensePage();
+        },
+      ),
+
+
+       GoRoute(
+        path: teamExpenseList,
+        name: 'teamExpenseList',
+        builder: (context, state) {
+          return const TeamExpensePage();
+        },
+      ),
+
+
 
       GoRoute(
         path: farmers,

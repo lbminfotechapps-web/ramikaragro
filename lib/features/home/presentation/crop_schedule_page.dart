@@ -1,10 +1,13 @@
 
+import 'package:demo/core/router/app_router.dart';
+import 'package:demo/core/utility/widgets/custom_appbar.dart';
 import 'package:demo/features/home/presentation/home_bloc/crop_schedule_bloc.dart';
 import 'package:demo/features/home/presentation/home_bloc/crop_schedule_event.dart';
 import 'package:demo/features/home/presentation/home_bloc/crop_schedule_state.dart';
 import 'package:demo/features/home/presentation/widgets/crop_schedule_card.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../../../core/di/crop_schedule_di.dart';
 
@@ -36,35 +39,14 @@ class CropScheduleView extends StatelessWidget {
     return Scaffold(
       backgroundColor: const Color(0xFFF7F9F7),
 
-      appBar: AppBar(
-        elevation: 0,
-        backgroundColor: const Color(0xFF176B3A),
-        foregroundColor: Colors.white,
-        centerTitle: false,
-        titleSpacing: 20,
-        title: const Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'Crop Schedule',
-              style: TextStyle(
-                fontSize: 21,
-                fontWeight: FontWeight.w700,
-                letterSpacing: -0.3,
-              ),
-            ),
-            SizedBox(height: 2),
-            Text(
-              'Manage your crop activities',
-              style: TextStyle(
-                fontSize: 12,
-                fontWeight: FontWeight.w400,
-                color: Colors.white70,
-              ),
-            ),
-          ],
+    
+       appBar: CustomAppBar(
+          title: 'Crop Schedule',
+          showBackButton: true,
+          onBackTap: () => context.go(AppRouter.home),
+
+      
         ),
-      ),
 
       body: BlocBuilder<CropScheduleBloc, CropScheduleState>(
         builder: (context, state) {

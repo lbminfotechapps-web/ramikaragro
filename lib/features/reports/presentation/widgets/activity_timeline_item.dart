@@ -375,7 +375,7 @@ class _SelfieImage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final imageUrl =
-        '${ApiClient.imageBaseUrl}$imageName';
+        '${ApiClient.imageEmployeeActivityReportUrl}$imageName';
 
     return ClipRRect(
       borderRadius: BorderRadius.circular(10),
