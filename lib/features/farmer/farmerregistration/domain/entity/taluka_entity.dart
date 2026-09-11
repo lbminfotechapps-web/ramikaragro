@@ -1,7 +1,20 @@
-class TalukaEntity {
-  final String fld_disc_id;
-  final String fld_taluka_id;
-  final String fld_name;
+import 'package:equatable/equatable.dart';
 
-  TalukaEntity(this.fld_disc_id, this.fld_taluka_id, this.fld_name);
+class TalukaEntity extends Equatable {
+  final String fldDiscId;
+  final String fldTalukaId;
+  final String fldName;
+
+  const TalukaEntity({
+    required this.fldDiscId,
+    required this.fldTalukaId,
+    required this.fldName,
+  });
+
+  @override
+  List<Object?> get props => [
+        fldDiscId,
+        fldTalukaId,
+        fldName,
+      ];
 }

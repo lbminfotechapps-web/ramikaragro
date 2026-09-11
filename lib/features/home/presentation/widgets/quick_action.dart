@@ -1,6 +1,7 @@
 import 'package:demo/core/theme/app_colors.dart';
 import 'package:demo/core/secure_storage/secure_storage.dart';
 import 'package:demo/core/utility/widgets/custom_card.dart';
+import 'package:demo/core/utility/widgets/custom_loader.dart';
 import 'package:demo/features/home/doman/home_entity/menu_entity.dart';
 import 'package:demo/features/home/doman/home_entity/punch_stat_entity.dart';
 import 'package:flutter/material.dart';
@@ -317,11 +318,9 @@ class QuickAccessMenuItem extends StatelessWidget {
                   return child;
                 }
 
-                return SizedBox(
-                  width: 24.w,
-                  height: 24.h,
-                  child: const CircularProgressIndicator(strokeWidth: 2),
-                );
+               return const CustomLoader(
+           
+            );
               },
             ),
           ),

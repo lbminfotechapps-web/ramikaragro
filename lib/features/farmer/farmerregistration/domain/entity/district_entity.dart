@@ -1,10 +1,21 @@
-import 'package:demo/features/farmer/farmerregistration/domain/entity/taluka_entity.dart';
+import 'package:equatable/equatable.dart';
+import 'taluka_entity.dart';
 
-class DistrictEntity
-{
-  final String fld_dist_id;
-  final String fld_dist_name;
-  final List<TalukaEntity> talukas;
+class DistrictEntity extends Equatable {
+  final String fldDistId;
+  final String fldDistName;
+  final List<TalukaEntity> taluka;
 
-  DistrictEntity(this.fld_dist_name, this.fld_dist_id, this.talukas);
+  const DistrictEntity({
+    required this.fldDistId,
+    required this.fldDistName,
+    required this.taluka,
+  });
+
+  @override
+  List<Object?> get props => [
+        fldDistId,
+        fldDistName,
+        taluka,
+      ];
 }

@@ -1,5 +1,6 @@
 
 import 'package:demo/core/api_constant/api_client.dart';
+import 'package:demo/core/utility/widgets/custom_loader.dart';
 import 'package:demo/features/home/doman/home_entity/crop_schedule_detail.dart';
 import 'package:flutter/material.dart';
 
@@ -131,19 +132,9 @@ class CropScheduleDetailCard extends StatelessWidget {
                                   return child;
                                 }
 
-                                return Container(
-                                  color: Colors.grey.shade100,
-                                  child: const Center(
-                                    child: SizedBox(
-                                      width: 20,
-                                      height: 20,
-                                      child:
-                                          CircularProgressIndicator(
-                                        strokeWidth: 2,
-                                      ),
-                                    ),
-                                  ),
-                                );
+                              return const CustomLoader(
+           
+            );
                               },
                             )
                           : Container(

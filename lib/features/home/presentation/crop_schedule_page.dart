@@ -1,4 +1,5 @@
 
+import 'package:demo/core/utility/widgets/custom_loader.dart';
 import 'package:demo/features/home/presentation/home_bloc/crop_schedule_bloc.dart';
 import 'package:demo/features/home/presentation/home_bloc/crop_schedule_event.dart';
 import 'package:demo/features/home/presentation/home_bloc/crop_schedule_state.dart';
@@ -282,8 +283,8 @@ class _LoadingView extends StatelessWidget {
         const SizedBox(height: 20),
 
         const Center(
-          child: CircularProgressIndicator(
-            color: Color(0xFF176B3A),
+          child: CustomLoader(
+      
           ),
         ),
       ],
