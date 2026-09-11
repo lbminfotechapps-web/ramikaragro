@@ -10,6 +10,7 @@ class QuickAccessState extends Equatable {
   final String? errorMessage;
   final List<VehicleTypeEntity> vehicleList;
   final VehicleTypeEntity? selectedVehicle;
+  final String? punchStatus;
 
   const QuickAccessState({
     this.quickAccessStatus = QuickAccessStatus.initial,
@@ -17,6 +18,7 @@ class QuickAccessState extends Equatable {
     this.errorMessage,
     this.vehicleList = const [],
     this.selectedVehicle,
+    this.punchStatus,
   });
 
   QuickAccessState copyWith({
@@ -25,6 +27,7 @@ class QuickAccessState extends Equatable {
     String? errorMessage,
     List<VehicleTypeEntity>? vehicleList,
     VehicleTypeEntity? selectedVehicle,
+    String? punchStatus,
   }) {
     return QuickAccessState(
       quickAccessStatus: quickAccessStatus ?? this.quickAccessStatus,
@@ -32,6 +35,7 @@ class QuickAccessState extends Equatable {
       errorMessage: errorMessage ?? this.errorMessage,
       vehicleList: vehicleList ?? this.vehicleList,
       selectedVehicle: selectedVehicle ?? this.selectedVehicle,
+      punchStatus: punchStatus ?? this.punchStatus,
     );
   }
 

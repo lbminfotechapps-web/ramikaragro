@@ -43,6 +43,7 @@ class ApiClient {
   static const String getCollectionWiseTarget = '/getCollectionWiseTarget';
   static const String getTargetDates = '/getTargetDates';
   static const String getCropsSchedule = '$baseUrl/getCropsSchedule';
+  static const String getEmployeeVisitCount = '$baseUrl/getVisitCount';
   static const String getDistrictTaluka = '/get_district_taluka';
   static const String getCropAndIrigationDetails =
       '/getCropAndIrigationDetails';

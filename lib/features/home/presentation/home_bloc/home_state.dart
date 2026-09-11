@@ -1,3 +1,4 @@
+import 'package:demo/features/home/doman/home_entity/homevisit_entity.dart';
 import 'package:equatable/equatable.dart';
 import 'package:demo/features/home/doman/home_entity/menu_entity.dart';
 
@@ -9,6 +10,7 @@ class HomeState extends Equatable {
   final String? errorMessage;
   final String? totalDealerCount;
   final String? totalFarmerCount;
+  final HomeVisitEntity? homedata;
 
   const HomeState({
     this.status = HomeStatus.initial,
@@ -16,6 +18,7 @@ class HomeState extends Equatable {
     this.errorMessage,
     this.totalDealerCount,
     this.totalFarmerCount,
+    this.homedata,
   });
 
   HomeState copyWith({
@@ -24,6 +27,7 @@ class HomeState extends Equatable {
     String? errorMessage,
     String? totalDealerCount,
     String? totalFarmerCount,
+    HomeVisitEntity? homedata,
   }) {
     return HomeState(
       status: status ?? this.status,
@@ -31,6 +35,7 @@ class HomeState extends Equatable {
       errorMessage: errorMessage ?? this.errorMessage,
       totalDealerCount: totalDealerCount ?? this.totalDealerCount,
       totalFarmerCount: totalFarmerCount ?? this.totalFarmerCount,
+      homedata: homedata ?? this.homedata,
     );
   }
 
@@ -41,5 +46,6 @@ class HomeState extends Equatable {
     errorMessage,
     totalDealerCount,
     totalFarmerCount,
+    homedata,
   ];
 }

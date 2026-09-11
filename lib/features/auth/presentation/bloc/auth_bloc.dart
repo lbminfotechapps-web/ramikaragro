@@ -19,7 +19,6 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       final response = await _loginUsecase.loginUser(
         event.email,
         event.password,
-        
       );
       print('Response: ${response}');
       if (response.status == 'success' || response.userId != null) {
@@ -28,7 +27,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
         emit(
           state.copyWith(
             loginStatus: LoginStatus.failure,
-            errorMessage: 'Login failed',
+            errorMessage: response.status,
           ),
         );
       }
@@ -41,7 +40,4 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       );
     }
   }
-
-
-  
 }

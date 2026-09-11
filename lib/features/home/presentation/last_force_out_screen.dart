@@ -71,7 +71,7 @@ class _LastForceOutScreenState extends State<LastForceOutScreen> {
 
     if (!mounted || selectedTime == null) return;
 
-    // Convert selected time to 24-hour HH:mm:ss format
+    // Show the selected time in 12-hour format with seconds and AM/PM.
     final now = DateTime.now();
 
     final selectedDateTime = DateTime(
@@ -83,7 +83,7 @@ class _LastForceOutScreenState extends State<LastForceOutScreen> {
       0,
     );
 
-    newTimeController.text = DateFormat('HH:mm:ss').format(selectedDateTime);
+    newTimeController.text = DateFormat('hh:mm a').format(selectedDateTime);
 
     _formKey.currentState?.validate();
 
@@ -186,7 +186,7 @@ class _LastForceOutScreenState extends State<LastForceOutScreen> {
           startingKmImage: '',
           closingKmImage: '',
 
-          activityId: widget.punchStat?.dailyTranId ?? '',
+          activityId: "4" ?? '',
           date: dateController.text.trim(),
           newTime: newTimeController.text.trim(),
           isForceOutPunch: true,
