@@ -2,6 +2,7 @@ import 'package:demo/core/router/app_router.dart';
 import 'package:demo/core/secure_storage/secure_storage.dart';
 import 'package:demo/core/theme/app_colors.dart';
 import 'package:demo/core/utility/widgets/custom_appbar.dart';
+import 'package:demo/core/utility/widgets/custom_loader.dart';
 import 'package:demo/features/leave/domain/entities/team_leave.dart';
 import 'package:demo/features/leave/presentation/bloc/team_leave_bloc.dart';
 import 'package:demo/features/leave/presentation/bloc/team_leave_event.dart';
@@ -371,7 +372,7 @@ class _TeamLeaveListPageState extends State<TeamLeaveListPage> {
         physics: const AlwaysScrollableScrollPhysics(),
         children: const [
           SizedBox(height: 250),
-          Center(child: CircularProgressIndicator(color: Color(0xff0F8A4B))),
+          Center(child: CustomLoader(color: Color(0xff0F8A4B))),
         ],
       );
     }

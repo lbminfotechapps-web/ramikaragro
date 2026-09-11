@@ -3,6 +3,7 @@ import 'package:demo/core/router/app_router.dart';
 import 'package:demo/core/secure_storage/secure_storage.dart';
 import 'package:demo/core/theme/app_colors.dart';
 import 'package:demo/core/utility/widgets/custom_appbar.dart';
+import 'package:demo/core/utility/widgets/custom_loader.dart';
 import 'package:demo/features/collection/domain/entities/target_date_entity.dart';
 import 'package:demo/features/collection/presentation/bloc/dealer_target_bloc.dart';
 import 'package:demo/features/collection/presentation/bloc/dealer_target_event.dart';
@@ -134,11 +135,10 @@ class _DealerWiseTargetPageState
                   builder: (context, state) {
                     if (state.datesStatus ==
                         TargetDatesStatus.loading) {
-                      return const Center(
-                        child: CircularProgressIndicator(
-                          color: primaryGreen,
-                        ),
-                      );
+                        return const CustomLoader(
+       
+       
+            );
                     }
 
                     if (state.datesStatus ==
@@ -377,14 +377,10 @@ class _DealerWiseTargetPageState
   ) {
     if (state.targetStatus ==
         CollectionTargetStatus.loading) {
-      return const Padding(
-        padding: EdgeInsets.only(top: 80),
-        child: Center(
-          child: CircularProgressIndicator(
-            color: primaryGreen,
-          ),
-        ),
-      );
+      
+  return const CustomLoader(
+           
+            );
     }
 
     if (state.targetStatus ==

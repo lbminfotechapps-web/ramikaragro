@@ -206,7 +206,7 @@ class _PunchOutScreenState extends State<PunchOutScreen> {
 
         closingKmImage: _uploadedImage?.path ?? '',
 
-        activityId: widget.punchStat?.dailyTranId ?? '',
+        activityId: "4" ?? '',
         date: '',
         newTime: '',
         isForceOutPunch: false,

@@ -225,6 +225,8 @@ class _HomeShellState extends State<HomeShell> {
 
     context.read<HomeBloc>().add(GetMenuEvent(userId, '2'));
 
+    context.read<HomeBloc>().add(GetHomeVisitEvent(userId.toString()));
+
     context.read<QuickAcessBloc>().add(PunchStatEvent(userId));
 
     context.read<HomeBloc>().add(

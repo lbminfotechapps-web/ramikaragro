@@ -1,6 +1,7 @@
 import 'package:demo/core/router/app_router.dart';
 import 'package:demo/core/theme/app_colors.dart';
 import 'package:demo/core/utility/widgets/custom_appbar.dart';
+import 'package:demo/core/utility/widgets/custom_loader.dart';
 import 'package:demo/features/products/domain/entity/fertilizer_category_entity.dart';
 import 'package:demo/features/products/presentation/bloc/product_bloc.dart';
 import 'package:demo/features/products/presentation/bloc/product_event.dart';
@@ -63,7 +64,9 @@ class _ProductCategoryScreenState extends State<ProductCategoryScreen> {
               child: BlocBuilder<ProductBloc, ProductState>(
                 builder: (context, state) {
                   if (state.productStatus == ProductStatus.loading) {
-                    return const Center(child: CircularProgressIndicator());
+                    return const CustomLoader(
+           
+            );
                   }
 
                   if (state.productStatus == ProductStatus.failure) {

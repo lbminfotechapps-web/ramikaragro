@@ -264,8 +264,8 @@ class _LoadingView extends StatelessWidget {
         const SizedBox(height: 20),
 
         const Center(
-          child: CircularProgressIndicator(
-            color: Color(0xFF176B3A),
+          child: CustomLoader(
+      
           ),
         ),
       ],

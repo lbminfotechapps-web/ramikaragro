@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:demo/core/theme/app_colors.dart';
 import 'package:demo/core/utility/widgets/custom_appbar.dart';
+import 'package:demo/core/utility/widgets/custom_loader.dart';
 import 'package:demo/features/dealer/data/models/DealerListModel.dart';
 import 'package:demo/features/dealer/presentation/bloc/dealerlist_bloc.dart';
 import 'package:demo/features/dealer/presentation/bloc/dealerlist_event.dart';
@@ -147,7 +148,7 @@ class _DealerListScreenState extends State<DealerListScreen> {
               children: [
                 _buildSearchBar(),
                 const Expanded(
-                  child: Center(child: CircularProgressIndicator()),
+                  child: Center(child: CustomLoader()),
                 ),
               ],
             );

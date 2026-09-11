@@ -48,7 +48,7 @@ class PunchInOutDetailsAddEvent extends QuickAccessEvent {
 
   final String date;
   final String newTime;
-  final bool isForceOutPunch;
+  final bool? isForceOutPunch;
 
   PunchInOutDetailsAddEvent({
     required this.userId,
@@ -73,7 +73,7 @@ class PunchInOutDetailsAddEvent extends QuickAccessEvent {
     required this.activityId,
     required this.date,
     required this.newTime,
-    required this.isForceOutPunch,
+    this.isForceOutPunch,
   });
 
   @override
