@@ -11,7 +11,6 @@ class ApiClient {
   static const String getNearByOutlets ="/getNearByOutlets";
   static const String userMenu = "/getUserMenu_new";
   static const String punchStatus = "/getLastTransactionInOutStatus";
-  static const String getLastThirtyNotVisited = "/getLastThiertyNotVisited";
   static const String getEmployeeActivityDetails =
       '/getEmployeeActivityDetails_new';
   static const String getVisitReportDetails = "/getVisitReportDetails";
@@ -31,6 +30,8 @@ class ApiClient {
   static const String getSocialMedia = "/getSocialMedia";
   static const String getMyEmployeeLeaveList = "/getMyEmployeeLeaveList";
   static const String updateLeaveStatus = "/updateLeaveStatus";
-
   static const String visitCountgraph = "/getEmployeevisitcount";
+  static const String remark_list = "/remark_list";
+  static const String add_remark = "/add_remark";
+  static const String getdealervisitpurpose = "/getdealervisitpurpose";
 }
