@@ -5,6 +5,7 @@ import 'package:demo/features/collection/presentation/pages/collection_list_page
 import 'package:demo/features/collection/presentation/pages/collection_wise_form_page.dart';
 import 'package:demo/features/collection/presentation/pages/dealer_wise_target_page.dart';
 import 'package:demo/features/dealer/presentation/pages/DealerListScreen.dart';
+import 'package:demo/features/dealer_visit/presentation/pages/add_remark_page.dart';
 import 'package:demo/features/expense/presentation/pages/my_expense_page.dart';
 import 'package:demo/features/expense/presentation/pages/team_expense_page.dart';
 import 'package:demo/features/farmer/famerfollowup/presentation/pages/famerfollowuppage.dart';
@@ -64,6 +65,7 @@ class AppRouter {
   static const String productDetails = '/productDetails';
   static const String farmers = '/farmers';
   static const String farmerpin = '/farmerpin';
+  static const String dealerpin = '/dealerpin';
 
   static const String empActivityReport = '/empActivityReport';
   static const String empOutputReport = '/empOutputReport';
@@ -242,6 +244,14 @@ class AppRouter {
       GoRoute(
         path: farmerpin,
         name: 'farmerpin',
+        builder: (context, state) {
+          final dealerId = state.extra is String ? state.extra as String : '';
+          return AddDealerVisitPage(dealerId: dealerId);
+        },
+      ),
+      GoRoute(
+        path: dealerpin,
+        name: 'dealerpin',
         builder: (context, state) {
           final farmerId = state.extra is String ? state.extra as String : '';
           return FamerFollowupPage(farmerId: farmerId);
