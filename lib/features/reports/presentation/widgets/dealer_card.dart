@@ -17,7 +17,6 @@ class DealerCard extends StatelessWidget {
         : 'Unknown Dealer';
 
     final initials = _getInitials(name);
-
     final hasMobile = dealer.mobile.trim().isNotEmpty;
     final hasAddress = dealer.address.trim().isNotEmpty;
     final lastVisit = dealer.lastTransactionDate?.trim();

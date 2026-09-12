@@ -1,9 +1,13 @@
-import '../entities/not_visited_dealer.dart';
-import '../repositories/dealer_repository.dart';
-class GetNotVisitedDealers {
-  final DealerRepository repository;
 
-  GetNotVisitedDealers(this.repository);
+import '../entities/not_visited_dealer.dart';
+import '../repositories/not_visited_dealer_repository.dart';
+
+class GetNotVisitedDealers {
+  final NotVisitedDealerRepository repository;
+
+  GetNotVisitedDealers({
+    required this.repository,
+  });
 
   Future<List<NotVisitedDealer>> call({
     required int days,
@@ -15,3 +19,4 @@ class GetNotVisitedDealers {
     );
   }
 }
+

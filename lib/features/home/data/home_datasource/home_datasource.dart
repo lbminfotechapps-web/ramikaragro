@@ -1,5 +1,6 @@
 import 'package:demo/core/api_constant/api_client.dart';
 import 'package:demo/core/api_constant/dio_client.dart';
+import 'package:demo/features/home/data/home_model/homevisit_model.dart';
 import 'package:demo/features/home/data/home_model/menu_model.dart';
 import 'package:dio/dio.dart';
 import 'dart:convert';
@@ -56,7 +57,7 @@ class HomeDatasource {
     String searchToDate,
   ) async {
     final formData = FormData.fromMap({
-      'userId':userId,
+      'userId': userId,
       'searchfromDate': searchFromDate,
       'searchtoDate': searchToDate,
     });
@@ -98,5 +99,21 @@ class HomeDatasource {
     }
 
     return responseData;
+  }
+
+  Future<HomeVisitModel> getHomeVisitCount({required String userId}) async {
+    final formdata = FormData.fromMap({"userId": userId});
+    final response = await dioClient.client.post(
+      ApiClient.getEmployeeVisitCount,
+      data: formdata,
+    );
+
+    print('home visit data %%%%%%%%$response');
+
+    final responseString = response.data.toString().trim();
+
+    final Map<String, dynamic> jsonData = jsonDecode(responseString);
+
+    return HomeVisitModel.fromJson(jsonData);
   }
 }

@@ -1,6 +1,7 @@
 import 'package:demo/core/theme/app_colors.dart';
 import 'package:demo/core/secure_storage/secure_storage.dart';
 import 'package:demo/core/utility/widgets/custom_card.dart';
+import 'package:demo/core/utility/widgets/custom_loader.dart';
 import 'package:demo/features/home/doman/home_entity/menu_entity.dart';
 import 'package:demo/features/home/doman/home_entity/punch_stat_entity.dart';
 import 'package:flutter/material.dart';
@@ -35,10 +36,9 @@ class QuickAccessSection extends StatefulWidget {
 
 class _QuickAccessSectionState extends State<QuickAccessSection> {
   // Initially show 7 API items.
-  static const int initialItemCount = 7;
+  static const int initialItemCount = 5;
 
-  // Every time More is clicked, show 4 more items.
-  static const int loadMoreCount = 8;
+  static const int loadMoreCount = 6;
 
   int visibleItemCount = initialItemCount;
 
@@ -89,7 +89,7 @@ class _QuickAccessSectionState extends State<QuickAccessSection> {
 
           LayoutBuilder(
             builder: (context, constraints) {
-              final crossAxisCount = constraints.maxWidth < 600 ? 4 : 8;
+              final crossAxisCount = constraints.maxWidth < 600 ? 3 : 6;
 
               // API items currently visible.
               final List<MenuEntity> visibleMenus = widget.menus
@@ -147,18 +147,18 @@ class _QuickAccessSectionState extends State<QuickAccessSection> {
       debugPrint('Punch status data: ${widget.punchStat}');
 
       if (status == '0') {
-        context.go('/punchIn', extra: widget.punchStat);
+        context.push('/punchIn', extra: widget.punchStat);
       } else if (status == '1') {
-        context.go('/punchOut', extra: widget.punchStat);
+        context.push('/punchOut', extra: widget.punchStat);
       } else if (status == '2') {
-        context.go('/lastPunchOut', extra: widget.punchStat);
+        context.push('/lastPunchOut', extra: widget.punchStat);
       }
     } else if (menu.menuId == '65') {
-      context.go('/notVisitDealer');
+      context.push('/notVisitDealer');
     } else if (menu.menuId == '18') {
-      context.go('/scheme');
+      context.push('/scheme');
     } else if (menu.menuId == '8') {
-      context.go('/farmers');
+      context.push('/farmers');
     } else if (menu.menuId == '20') {
       final userData = await SecureStorage.instance.getUserData();
       final userId = userData?['user_id']?.toString();
@@ -174,23 +174,39 @@ class _QuickAccessSectionState extends State<QuickAccessSection> {
         );
         return;
       }
-      context.go('/notification', extra: userId);
+      context.push('/notification', extra: userId);
     } else if (menu.menuId == '14') {
-      context.go('/leaveList');
+      context.push('/leaveList');
+    } else if (menu.menuId == '3') {
+      context.push('/visits');
+    } else if (menu.menuId == '2') {
+      context.push('/products');
     } else if (menu.menuId == '64') {
-      context.go('/topTenDealer');
+      context.push('/topTenDealer');
     } else if (menu.menuId == '56') {
-      context.go('/social');
+      context.push('/social');
     } else if (menu.menuId == '68') {
-      context.go('/teamLeaveList');
+      context.push('/teamLeaveList');
     } else if (menu.menuId == '21') {
-      context.go('/userGuide');
+      context.push('/userGuide');
     } else if (menu.menuId == '22') {
-      context.go('/aboutUs');
+      context.push('/aboutUs');
     } else if (menu.menuId == '23') {
-      context.go('/contactUs');
+      context.push('/contactUs');
     } else if (menu.menuId == '19') {
-      context.go('/gallery');
+      context.push('/gallery');
+    } else if (menu.menuId == '71') {
+      context.push('/addCollection');
+    } else if (menu.menuId == '72') {
+      context.push('/collectionList');
+    } else if (menu.menuId == '16') {
+      context.push('/collectionTargetAndAchievement');
+    } else if (menu.menuId == '60') {
+      context.push('/cropSchedule');
+    } else if (menu.menuId == '13') {
+      context.push('/expenseList');
+    } else if (menu.menuId == '67') {
+      context.push('/teamExpenseList');
     } else if (menu.menuId == '57' ||
         menu.menuId == '63' ||
         menu.menuId == '32') {
@@ -212,7 +228,7 @@ class _QuickAccessSectionState extends State<QuickAccessSection> {
         _ => '/empActivityReport',
       };
 
-      context.go(route, extra: userId);
+      context.push(route, extra: userId);
     }
 
     //farmers
@@ -280,6 +296,7 @@ class QuickAccessMenuItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return CustomCard(
+      elevation: 1,
       color: _getBackgroundColor(menu.menuId),
       borderRadius: 14.r,
       padding: EdgeInsets.all(8.w),
@@ -287,40 +304,36 @@ class QuickAccessMenuItem extends StatelessWidget {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Expanded(
-            child: Center(
-              child: Image.network(
-                menu.iconImage,
-                width: 30.w,
-                height: 30.h,
-                fit: BoxFit.contain,
-                errorBuilder: (context, error, stackTrace) {
-                  return Icon(
-                    Icons.apps_rounded,
-                    size: 30.sp,
-                    color: AppColors.textColor,
-                  );
-                },
-                loadingBuilder: (context, child, loadingProgress) {
-                  if (loadingProgress == null) {
-                    return child;
-                  }
+          Center(
+            child: Image.network(
+              menu.iconImage,
+              width: 40.w,
+              height: 40.h,
+              fit: BoxFit.contain,
+              errorBuilder: (context, error, stackTrace) {
+                return Icon(
+                  Icons.apps_rounded,
+                  size: 30.sp,
+                  color: AppColors.textColor,
+                );
+              },
+              loadingBuilder: (context, child, loadingProgress) {
+                if (loadingProgress == null) {
+                  return child;
+                }
 
-                  return SizedBox(
-                    width: 24.w,
-                    height: 24.h,
-                    child: const CircularProgressIndicator(strokeWidth: 2),
-                  );
-                },
-              ),
+               return const CustomLoader(
+           
+            );
+              },
             ),
           ),
 
-          SizedBox(height: 4.h),
+          SizedBox(height: 16.h),
 
           Text(
             displayName,
-            maxLines: 1,
+            maxLines: 3,
             overflow: TextOverflow.ellipsis,
             textAlign: TextAlign.center,
             style: TextStyle(fontSize: 10.sp, fontWeight: FontWeight.w500),

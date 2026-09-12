@@ -1,3 +1,4 @@
+import 'package:demo/features/home/doman/home_entity/homevisit_entity.dart';
 import 'package:demo/features/home/doman/home_entity/menu_entity.dart';
 
 abstract class HomeRepo {
@@ -7,4 +8,6 @@ abstract class HomeRepo {
     String searchFromDate,
     String searchToDate,
   );
+
+  Future<HomeVisitEntity> getHomeVisitCount({required String userId});
 }

@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:demo/core/router/app_router.dart';
 import 'package:demo/core/theme/app_colors.dart';
 import 'package:demo/core/theme/app_theme.dart';
+import 'package:demo/core/utility/widgets/custom_appbar.dart';
 import 'package:demo/features/farmer/farmerlist/data/model/farmerlist_model.dart';
 import 'package:demo/features/farmer/farmerlist/presentation/bloc/farmerlist_bloc.dart';
 import 'package:demo/features/farmer/farmerlist/presentation/bloc/farmerlist_event.dart';
@@ -10,6 +11,7 @@ import 'package:demo/features/farmer/farmerlist/presentation/bloc/farmerlist_sta
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_screenutil_plus/flutter_screenutil_plus.dart';
 import 'package:go_router/go_router.dart';
 
 const platform = MethodChannel('phone_dialer');
@@ -235,29 +237,10 @@ class _FarmerlistScreenState extends State<FarmerlistScreen> {
       // ========================================================
       // APP BAR
       // ========================================================
-      appBar: AppBar(
-        backgroundColor: Colors.white,
-        elevation: 0,
-        centerTitle: false,
-        title: const Text(
-          'Farmer List',
-          style: TextStyle(
-            fontSize: 20,
-            fontWeight: FontWeight.bold,
-            color: Colors.black,
-          ),
-        ),
-
-        leading: IconButton(
-          icon: const Icon(
-            Icons.arrow_back_ios_new,
-            size: 19,
-            color: AppColors.backgroundColor,
-          ),
-          onPressed: () {
-            context.go(AppRouter.home);
-          },
-        ),
+      appBar: CustomAppBar(
+        title: 'Farmer List',
+        showBackButton: true,
+        onBackTap: () => context.go(AppRouter.home),
       ),
 
       // ========================================================
@@ -319,10 +302,10 @@ class _FarmerlistScreenState extends State<FarmerlistScreen> {
               // SEARCH + FILTER
               // =================================================
               Padding(
-                padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
+                padding: const EdgeInsets.only(left: 16, right: 16),
                 child: Row(
                   children: [
-                    // SEARCH
+                    SizedBox(height: 14.h),
                     Expanded(
                       child: Container(
                         height: 48,
@@ -487,7 +470,7 @@ class _FarmerlistScreenState extends State<FarmerlistScreen> {
         foregroundColor: Colors.white,
         elevation: 3,
         onPressed: () {
-          // TODO: Open Add Farmer screen
+          context.push('/farmerregistration');
         },
         child: const Icon(Icons.person_add_alt_1),
       ),
@@ -616,7 +599,7 @@ class _FarmerListItem extends StatelessWidget {
                           ),
                           const SizedBox(width: 5),
                           Text(
-                            farmer.farmerPhone ?? '9865473214',
+                            farmer.farmerPhone,
                             style: TextStyle(
                               fontSize: 13,
                               fontWeight: FontWeight.w500,
@@ -630,7 +613,7 @@ class _FarmerListItem extends StatelessWidget {
 
                       // ADDRESS
                       Text(
-                        farmer.farmerAddress ?? 'Address not available',
+                        farmer.farmerAddress,
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
                         style: TextStyle(
@@ -763,7 +746,7 @@ class _FarmerListItem extends StatelessWidget {
                   // PIN BUTTON WITH WHITE CIRCLE BACKGROUND
                   InkWell(
                     onTap: () {
-                      context.go('/farmerpin', extra: farmer.farmerId);
+                      context.push('/farmerpin', extra: farmer.farmerId);
                     },
                     borderRadius: BorderRadius.circular(20),
                     child: Container(

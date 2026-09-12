@@ -19,3 +19,9 @@ class VisitGraphCountEvent extends HomeEvent {
 
   VisitGraphCountEvent(this.userId, this.searchFromDate, this.searchToDate);
 }
+
+class GetHomeVisitEvent extends HomeEvent {
+  final String userId;
+
+  GetHomeVisitEvent(this.userId);
+}

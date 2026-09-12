@@ -1,11 +1,18 @@
 import 'package:demo/core/utility/widgets/bottom_navigation.dart';
 import 'package:demo/core/di/auth_di.dart';
 import 'package:demo/features/auth/presentation/pages/login_screen.dart';
+import 'package:demo/features/collection/presentation/pages/collection_list_page.dart';
+import 'package:demo/features/collection/presentation/pages/collection_wise_form_page.dart';
+import 'package:demo/features/collection/presentation/pages/dealer_wise_target_page.dart';
 import 'package:demo/features/dealer/presentation/pages/DealerListScreen.dart';
 import 'package:demo/features/dealer_visit/presentation/pages/add_remark_page.dart';
+import 'package:demo/features/expense/presentation/pages/my_expense_page.dart';
+import 'package:demo/features/expense/presentation/pages/team_expense_page.dart';
 import 'package:demo/features/farmer/famerfollowup/presentation/pages/famerfollowuppage.dart';
 import 'package:demo/features/farmer/farmerlist/presentation/pages/farmerlist_screen.dart';
+import 'package:demo/features/farmer/farmerregistration/presentation/pages/farmerregistration_page.dart';
 import 'package:demo/features/gallery/presentation/pages/galleryscreen.dart';
+import 'package:demo/features/home/presentation/crop_schedule_page.dart';
 
 import 'package:demo/features/home/presentation/home.dart';
 import 'package:demo/features/home/presentation/punch_screen.dart';
@@ -17,6 +24,10 @@ import 'package:demo/features/leave/presentation/pages/leave_list_page.dart';
 import 'package:demo/features/leave/presentation/pages/team_leave_list_page.dart';
 import 'package:demo/features/leave/presentation/pages/top_ten_dealer_page.dart';
 import 'package:demo/features/home/presentation/last_force_out_screen.dart';
+import 'package:demo/features/products/domain/entity/fertilizer_category_entity.dart';
+import 'package:demo/features/products/domain/entity/fertilizer_product_entity.dart';
+import 'package:demo/features/products/presentation/pages/product_details.dart';
+import 'package:demo/features/products/presentation/pages/product_list.dart';
 import 'package:demo/features/products/presentation/pages/products_screen.dart';
 import 'package:demo/features/reports/presentation/pages/about_us_page.dart';
 import 'package:demo/features/reports/presentation/pages/contact_us_page.dart';
@@ -50,6 +61,8 @@ class AppRouter {
   static const String reports = '/reports';
   static const String visits = '/visits';
   static const String products = '/products';
+  static const String productList = '/productList';
+  static const String productDetails = '/productDetails';
   static const String farmers = '/farmers';
   static const String farmerpin = '/farmerpin';
   static const String dealerpin = '/dealerpin';
@@ -70,6 +83,14 @@ class AppRouter {
   static const String topTenDealer = '/topTenDealer';
   static const String social = '/social';
   static const String teamLeaveList = '/teamLeaveList';
+
+  static const String addCollection = '/addCollection';
+  static const String collectionList = '/collectionList';
+  static const String collectionTargetAndAchievement = '/collectionTargetAndAchievement';
+  static const String cropSchedule = '/cropSchedule';
+  static const String farmerregistration = '/farmerregistration';
+  static const String expenseList = '/expenseList';
+  static const String teamExpenseList = '/teamExpenseList';
 
   static final GoRouter router = GoRouter(
     initialLocation: splash,
@@ -115,6 +136,14 @@ class AppRouter {
       ),
 
       GoRoute(
+        path: farmerregistration,
+        name: 'farmerregistration',
+        builder: (context, state) {
+          return const FarmerregistrationPage();
+        },
+      ),
+
+      GoRoute(
         path: leaveList,
         name: 'leaveList',
         builder: (context, state) {
@@ -123,7 +152,7 @@ class AppRouter {
       ),
 
       GoRoute(
-        path: '/add-leave',
+        path: 'add-leave',
         name: 'addLeave',
         builder: (context, state) {
           return const AddLeavePage();
@@ -153,6 +182,59 @@ class AppRouter {
           return const TeamLeaveListPage();
         },
       ),
+
+      GoRoute(
+        path: addCollection,
+        name: 'addCollection',
+        builder: (context, state) {
+          return const CollectionWiseFormPage();
+        },
+      ),
+
+      GoRoute(
+        path: collectionList,
+        name: 'collectionList',
+        builder: (context, state) {
+          return const CollectionListPage();
+        },
+      ),
+
+      GoRoute(
+        path: collectionTargetAndAchievement,
+        name: 'collectionTargetAndAchievement',
+        builder: (context, state) {
+          return const DealerWiseTargetPage();
+        },
+      ),
+      
+
+       GoRoute(
+        path: cropSchedule,
+        name: 'cropSchedule',
+        builder: (context, state) {
+          return const CropSchedulePage();
+        },
+      ),
+
+    
+       GoRoute(
+        path: expenseList,
+        name: 'expenseList',
+        builder: (context, state) {
+          return const MyExpensePage();
+        },
+      ),
+
+
+       GoRoute(
+        path: teamExpenseList,
+        name: 'teamExpenseList',
+        builder: (context, state) {
+          return const TeamExpensePage();
+        },
+      ),
+
+
 
       GoRoute(
         path: farmers,
@@ -208,6 +290,29 @@ class AppRouter {
       ),
 
       GoRoute(
+        path: productList,
+        name: 'productList',
+        builder: (context, state) {
+          final productList = state.extra is FertilizerCategoryEntity
+              ? state.extra as FertilizerCategoryEntity
+              : null;
+          return ProductList(productList);
+        },
+      ),
+
+      // ProductDetails
+      GoRoute(
+        path: productDetails,
+        name: 'productDetails',
+        builder: (context, state) {
+          final productDetails = state.extra is FertilizerProductEntity
+              ? state.extra as FertilizerProductEntity
+              : null;
+          return ProductDetails(productDetails);
+        },
+      ),
+
+      GoRoute(
         path: empActivityReport,
         name: 'empActivityReport',
         builder: (context, state) {
@@ -230,6 +335,23 @@ class AppRouter {
         },
       ),
 
+      // GoRoute(
+      //   path: products,
+      //   name: 'products',
+      //   builder: (context, state) {
+      //     final productCat = state.extra is FertilizerCategoryEntity
+      //         ? state.extra as FertilizerCategoryEntity
+      //         : null;
+      //     return const ProductCategoryScreen();
+
+      //     //    builder: (context, state) {
+      //     // final punchStat = state.extra is PunchStatEntity
+      //     //     ? state.extra as PunchStatEntity
+      //     //     : null;
+      //     //   return LastForceOutScreen(punchStat);
+      //     // },
+      //   },
+      // ),
       GoRoute(
         path: visitSummaryReport,
         name: 'visitSummaryReport',
@@ -335,7 +457,7 @@ class AppRouter {
                 path: products,
                 name: 'products',
                 builder: (context, state) {
-                  return const ProductsScreen();
+                  return const ProductCategoryScreen();
                 },
               ),
             ],

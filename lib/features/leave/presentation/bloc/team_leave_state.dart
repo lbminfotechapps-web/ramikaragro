@@ -1,7 +1,6 @@
-import 'package:demo/features/leave/domain/entities/team_leave.dart';
 import 'package:equatable/equatable.dart';
 
-
+import '../../domain/entities/team_leave.dart';
 
 enum TeamLeaveStatus {
   initial,
@@ -18,12 +17,23 @@ enum UpdateLeaveStatus {
 }
 
 class TeamLeaveState extends Equatable {
+  // ==========================================================
+  // LIST
+  // ==========================================================
+
   final TeamLeaveStatus status;
   final List<TeamLeave> leaves;
   final String? errorMessage;
 
+  // ==========================================================
+  // UPDATE
+  // ==========================================================
+
   final UpdateLeaveStatus updateStatus;
   final String? updateMessage;
+
+  // Leave ID currently being updated
+  final String? updatingLeaveId;
 
   const TeamLeaveState({
     this.status = TeamLeaveStatus.initial,
@@ -31,6 +41,7 @@ class TeamLeaveState extends Equatable {
     this.errorMessage,
     this.updateStatus = UpdateLeaveStatus.initial,
     this.updateMessage,
+    this.updatingLeaveId,
   });
 
   TeamLeaveState copyWith({
@@ -39,14 +50,29 @@ class TeamLeaveState extends Equatable {
     String? errorMessage,
     UpdateLeaveStatus? updateStatus,
     String? updateMessage,
+    String? updatingLeaveId,
+    bool clearError = false,
+    bool clearUpdateMessage = false,
+    bool clearUpdatingLeaveId = false,
   }) {
     return TeamLeaveState(
       status: status ?? this.status,
       leaves: leaves ?? this.leaves,
-      errorMessage: errorMessage,
+
+      errorMessage: clearError
+          ? null
+          : errorMessage ?? this.errorMessage,
+
       updateStatus:
           updateStatus ?? this.updateStatus,
-      updateMessage: updateMessage,
+
+      updateMessage: clearUpdateMessage
+          ? null
+          : updateMessage ?? this.updateMessage,
+
+      updatingLeaveId: clearUpdatingLeaveId
+          ? null
+          : updatingLeaveId ?? this.updatingLeaveId,
     );
   }
 
@@ -57,5 +83,6 @@ class TeamLeaveState extends Equatable {
         errorMessage,
         updateStatus,
         updateMessage,
+        updatingLeaveId,
       ];
 }

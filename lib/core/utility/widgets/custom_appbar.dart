@@ -8,13 +8,23 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   // Optional subtitle
   final String? subtitle;
 
+  // Dynamic title style
+  final TextStyle? titleStyle;
+
+  // Dynamic subtitle style
+  final TextStyle? subtitleStyle;
+
   // Home/profile data
   final String? userName;
   final String? initials;
 
   // Notification
   final int notificationCount;
-  final VoidCallback? onNotificationTap;
+  final VoidCallback? onLogOutTap;
+
+  // Generic right-side icon
+  final IconData? actionIcon;
+  final VoidCallback? onActionIconTap;
 
   // Back button
   final bool showBackButton;
@@ -23,7 +33,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   // Optional leading widget
   final Widget? leading;
 
-  // Optional action on right side
+  // Optional custom action
   final Widget? action;
 
   // App bar appearance
@@ -32,16 +42,33 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
 
   const CustomAppBar({
     super.key,
+
     this.title,
     this.subtitle,
+
+    // Dynamic styles
+    this.titleStyle,
+    this.subtitleStyle,
+
     this.userName,
     this.initials,
+
+    // Notification
     this.notificationCount = 0,
-    this.onNotificationTap,
+    this.onLogOutTap,
+
+    // Generic action icon
+    this.actionIcon,
+    this.onActionIconTap,
+
+    // Back
     this.showBackButton = false,
     this.onBackTap,
+
+    // Leading / custom action
     this.leading,
     this.action,
+
     this.backgroundColor = Colors.white,
     this.toolbarHeight = 60,
   });
@@ -55,9 +82,10 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
       automaticallyImplyLeading: false,
       backgroundColor: backgroundColor,
       surfaceTintColor: Colors.transparent,
-      elevation: 0,
+      elevation: 2,
       toolbarHeight: toolbarHeight,
       titleSpacing: 16,
+      shadowColor: Colors.black.withOpacity(0.12),
 
       title: Row(
         children: [
@@ -87,7 +115,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
               height: 52,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                color: const Color(0xFFF1F8E9),
+                color: const Color.fromARGB(255, 101, 158, 35),
                 border: Border.all(color: const Color(0xFFE5E5E5)),
               ),
               alignment: Alignment.center,
@@ -104,50 +132,59 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
           ],
 
           // ------------------------------------------------
-          // TITLE / USER NAME
+          // TITLE / SUBTITLE / USER NAME
           // ------------------------------------------------
           Expanded(
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                if (subtitle != null)
-                  Text(
-                    subtitle!,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(
-                      fontSize: 15,
-                      fontWeight: FontWeight.w400,
-                      color: Color(0xFF666666),
-                    ),
-                  ),
-
-                if (subtitle != null && title != null)
-                  const SizedBox(height: 2),
-
+                // TITLE
                 if (title != null)
                   Text(
                     title!,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(
-                      fontSize: 22,
-                      fontWeight: FontWeight.w600,
-                      color: Colors.black,
-                    ),
+                    style:
+                        titleStyle ??
+                        const TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.w600,
+                          color: Colors.black,
+                        ),
                   ),
 
+                // SUBTITLE
+                if (subtitle != null)
+                  Text(
+                    subtitle!,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style:
+                        subtitleStyle ??
+                        const TextStyle(
+                          fontSize: 11,
+                          fontWeight: FontWeight.w400,
+                          color: Colors.black,
+                        ),
+                  ),
+
+                if (subtitle != null && title != null)
+                  const SizedBox(height: 2),
+
+                // USER NAME
                 if (userName != null)
                   Text(
                     userName!,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(
-                      fontSize: 22,
-                      fontWeight: FontWeight.w600,
-                      color: Colors.black,
-                    ),
+                    style:
+                        titleStyle ??
+                        const TextStyle(
+                          fontSize: 22,
+                          fontWeight: FontWeight.w600,
+                          color: Colors.black,
+                        ),
                   ),
               ],
             ),
@@ -159,26 +196,50 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
           if (action != null) ...[const SizedBox(width: 10), action!],
 
           // ------------------------------------------------
+          // GENERIC ACTION ICON
+          // ------------------------------------------------
+          if (actionIcon != null && onActionIconTap != null) ...[
+            const SizedBox(width: 10),
+
+            GestureDetector(
+              onTap: onActionIconTap,
+              child: Container(
+                width: 50,
+                height: 50,
+                decoration: const BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: Color(0xFFF7FBF3),
+                ),
+                child: Icon(
+                  actionIcon,
+                  size: 28,
+                  color: const Color(0xFF16803A),
+                ),
+              ),
+            ),
+          ],
+
+          // ------------------------------------------------
           // NOTIFICATION
           // ------------------------------------------------
-          if (onNotificationTap != null) const SizedBox(width: 10),
+          if (onLogOutTap != null) ...[
+            const SizedBox(width: 10),
 
-          if (onNotificationTap != null)
             GestureDetector(
-              onTap: onNotificationTap,
+              onTap: onLogOutTap,
               child: Stack(
                 clipBehavior: Clip.none,
                 children: [
                   Container(
-                    width: 50,
-                    height: 50,
+                    width: 40,
+                    height: 40,
                     decoration: const BoxDecoration(
                       shape: BoxShape.circle,
                       color: Color(0xFFF7FBF3),
                     ),
                     child: const Icon(
-                      Icons.notifications_none_rounded,
-                      size: 31,
+                      Icons.logout_outlined,
+                      size: 20,
                       color: Color(0xFF16803A),
                     ),
                   ),
@@ -221,6 +282,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
                 ],
               ),
             ),
+          ],
         ],
       ),
     );

@@ -1,5 +1,3 @@
-
-
 import 'package:demo/features/leave/domain/entities/team_leave.dart';
 import 'package:demo/features/leave/domain/repositories/team_leave_repository.dart';
 
@@ -16,8 +14,8 @@ class GetTeamLeaveList {
     required String toDate,
     required int startLimit,
     required String searchText,
-  }) async {
-    return await repository.getTeamLeaveList(
+  }) {
+    return repository.getTeamLeaveList(
       userId: userId,
       fromDate: fromDate,
       toDate: toDate,

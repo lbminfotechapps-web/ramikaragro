@@ -1,16 +1,27 @@
+import 'package:demo/core/router/app_router.dart';
+import 'package:demo/core/secure_storage/secure_storage.dart';
 import 'package:demo/core/theme/app_colors.dart';
 import 'package:demo/core/utility/widgets/custom_appbar.dart';
 import 'package:demo/core/utility/widgets/custom_card.dart';
+import 'package:demo/features/home/doman/home_entity/homevisit_entity.dart';
+import 'package:demo/core/utility/widgets/custom_loader.dart';
 import 'package:demo/features/home/presentation/home_bloc/home_bloc.dart';
+import 'package:demo/features/home/presentation/home_bloc/home_event.dart';
 import 'package:demo/features/home/presentation/home_bloc/home_state.dart';
+
+import 'package:demo/features/home/presentation/home_bloc/home_visit_state.dart';
 import 'package:demo/features/home/presentation/quick_aceess_bloc/quick_access_state.dart';
 import 'package:demo/features/home/presentation/quick_aceess_bloc/quick_acess_bloc.dart';
+import 'package:demo/features/home/presentation/widgets/notvisited.dart';
 import 'package:demo/features/home/presentation/widgets/quick_action.dart';
 import 'package:demo/features/home/presentation/widgets/todays_overwiew.dart';
 import 'package:demo/features/home/presentation/widgets/visit_overview.dart';
+import 'package:demo/features/reports/presentation/bloc/visit_report_bloc.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil_plus/flutter_screenutil_plus.dart';
+import 'package:go_router/go_router.dart';
 
 class Home extends StatefulWidget {
   const Home({super.key});
@@ -20,209 +31,402 @@ class Home extends StatefulWidget {
 }
 
 class _HomeState extends State<Home> {
+  String _username = 'user';
+
+  @override
+  void initState() {
+    super.initState();
+    getUserName();
+  }
+
+  Future<void> getUserName() async {
+    final userData = await SecureStorage.instance.getUserData();
+
+    if (userData != null) {
+      final userName = userData['user_name']?.toString();
+      print('user name $userName');
+
+      if (userName != null && userName.isNotEmpty) {
+        if (mounted) {
+          setState(() {
+            _username = userName;
+          });
+        }
+      }
+    }
+  }
+
+  Future<bool> _showExitDialog() async {
+    final result = await showDialog<bool>(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Exit'),
+          content: const Text('Do you want to exit the app?'),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop(false);
+              },
+              child: Text(
+                'CANCEL',
+                style: TextStyle(color: AppColors.darkBackgroundColor),
+              ),
+            ),
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppColors.accentGreen,
+                foregroundColor: Colors.white,
+              ),
+              onPressed: () {
+                Navigator.of(context).pop(true);
+              },
+              child: const Text('OK'),
+            ),
+          ],
+        );
+      },
+    );
+    return result ?? false;
+  }
+
+  Future<void> _logout() async {
+    final shouldLogout = await showDialog<bool>(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text('Logout'),
+          content: const Text('Are you sure you want to logout?'),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop(false);
+              },
+              child: Text(
+                'CANCEL',
+                style: TextStyle(color: AppColors.darkBackgroundColor),
+              ),
+            ),
+
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppColors.accentGreen,
+                foregroundColor: Colors.white,
+              ),
+              onPressed: () {
+                Navigator.of(context).pop(true);
+              },
+              child: const Text('LOGOUT'),
+            ),
+          ],
+        );
+      },
+    );
+
+    if (shouldLogout != true) {
+      return;
+    }
+
+    try {
+      await SecureStorage.instance.clearAll();
+
+      if (!mounted) return;
+
+      context.go(AppRouter.login);
+    } catch (e) {
+      debugPrint('Logout error: $e');
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: AppColors.backgroundColor,
-      appBar: CustomAppBar(
-        leading: Container(
-          width: 45,
-          height: 45,
-          decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            border: Border.all(color: AppColors.borderColor),
-          ),
-          child: IconButton(
-            padding: EdgeInsets.zero,
-            icon: const Icon(
-              Icons.person_2_outlined,
-              color: AppColors.textColor,
+    return PopScope(
+      canPop: false,
+      onPopInvokedWithResult: (bool didPop, Object? result) async {
+        if (didPop) return;
+
+        final shouldExit = await _showExitDialog();
+
+        if (shouldExit) {
+          SystemNavigator.pop();
+        }
+      },
+      child: Scaffold(
+        backgroundColor: AppColors.backgroundColor,
+        appBar: CustomAppBar(
+          leading: Container(
+            width: 40,
+            height: 40,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              border: Border.all(color: AppColors.borderColor),
             ),
-            onPressed: () {
-              Scaffold.of(context).openDrawer();
-            },
+            child: IconButton(
+              padding: EdgeInsets.zero,
+              icon: const Icon(
+                Icons.person_2_outlined,
+                color: AppColors.textColor,
+              ),
+              onPressed: () {
+                Scaffold.of(context).openDrawer();
+              },
+            ),
           ),
+          title: _username,
+          subtitle: 'Good Morning',
+          showBackButton: false,
+          onLogOutTap: () {
+            _logout();
+          },
         ),
-        title: 'User',
-        subtitle: 'Good Morning',
-        showBackButton: false,
-        onNotificationTap: () {
-          // Handle notification tap
-        },
-      ),
-      body: Padding(
-        padding: const EdgeInsets.only(left: 10, right: 10),
-        child: SingleChildScrollView(
-          child: Column(
-            children: [
-              SizedBox(height: 12.h),
+        body: Padding(
+          padding: const EdgeInsets.only(left: 10, right: 10),
+          child: SingleChildScrollView(
+            child: Column(
+              children: [
+                SizedBox(height: 12.h),
 
-              Row(
-                children: [
-                  Expanded(
-                    child: SizedBox(
-                      height: 120.h,
-                      child: buildPunchCard("Today's Punch", '09:15 AM'),
+                Row(
+                  children: [
+                    Expanded(
+                      child: SizedBox(
+                        height: 120.h,
+                        child: buildPunchCard("Today's Punch", '09:15 AM'),
+                      ),
                     ),
-                  ),
 
-                  SizedBox(width: 8.w),
+                    SizedBox(width: 8.w),
 
-                  Expanded(
-                    child: SizedBox(
-                      height: 120.h,
-                      child: buildInfoCard('In Punch Pending', '2'),
+                    Expanded(
+                      child: SizedBox(
+                        height: 120.h,
+                        child: buildInfoCard('In Punch Pending', '2'),
+                      ),
                     ),
-                  ),
-                ],
-              ),
+                  ],
+                ),
 
-              SizedBox(height: 12.h),
-
-              const OverviewSection(),
-
-              SizedBox(height: 12.h),
-
-              BlocBuilder<HomeBloc, HomeState>(
-                builder: (context, state) {
-                  // if (state.status == HomeStatus.loading) {
-                  //   return const Center(child: CircularProgressIndicator());
-                  // }
-                  return VisitOverviewCard(
-                    dealerCount: state.totalDealerCount ?? '0',
-                    farmerCount: state.totalFarmerCount ?? '0',
-                  );
-                },
-              ),
-
-              SizedBox(height: 12.h),
-
-              BlocBuilder<HomeBloc, HomeState>(
-                builder: (context, homeState) {
-                  if (homeState.status == HomeStatus.loading) {
-                    return const Center(child: CircularProgressIndicator());
-                  }
-
-                  if (homeState.status == HomeStatus.failure) {
-                    return Text(
-                      homeState.errorMessage ?? 'Failed to load menu',
-                    );
-                  }
-
-                  if (homeState.menus.isEmpty) {
-                    return const SizedBox.shrink();
-                  }
-
-                  return BlocBuilder<QuickAcessBloc, QuickAccessState>(
-                    builder: (context, quickAccessState) {
-                      return QuickAccessSection(
-                        menus: homeState.menus,
-                        punchStat: quickAccessState.punchStat,
+                SizedBox(height: 8.h),
+                BlocBuilder<HomeBloc, HomeState>(
+                  builder: (context, state) {
+                    if (state.status == HomeStatus.loading) {
+                      return Container(
+                        margin: EdgeInsets.symmetric(
+                          horizontal: 8.w,
+                          vertical: 8.h,
+                        ),
+                        height: 140.h,
+                        child: const Center(child: CircularProgressIndicator()),
                       );
-                    },
-                  );
-                },
-              ),
+                    }
 
-              SizedBox(height: 12.h),
-            ],
+                    // If API has data, use it.
+                    // If API returns empty/null, use zero values.
+                    final homeData =
+                        state.homedata ??
+                        HomeVisitEntity(
+                          status: false,
+                          message: '',
+                          todayTotalVisit: '0',
+                          todayDealerCnt: '0',
+                          todayFarmerCnt: '0',
+                          monthlyTotalVisit: '0',
+                          monthlyDealerCnt: '0',
+                          monthlyFarmerCnt: '0',
+                          monthlyUniqueDealerCnt: '0',
+                          monthlyUniqueFarmerCnt: '0',
+                        );
+                    print(
+                      "Data ----->: ${state.homedata?.monthlyUniqueDealerCnt.toString()}",
+                    );
+                    return VisitStatisticsTable(homeData);
+                  },
+                ),
+
+                BlocBuilder<HomeBloc, HomeState>(
+                  builder: (context, state) {
+                    if (state.status == HomeStatus.loading) {
+                      return Container(
+                        margin: EdgeInsets.symmetric(
+                          horizontal: 8.w,
+                          vertical: 8.h,
+                        ),
+                        height: 140.h,
+                        child: const Center(child: CircularProgressIndicator()),
+                      );
+                    }
+
+                    // If API has data, use it.
+                    // If API returns empty/null, use zero values.
+                    final homeData =
+                        state.homedata ??
+                        HomeVisitEntity(
+                          status: false,
+                          message: '',
+                          todayTotalVisit: '0',
+                          todayDealerCnt: '0',
+                          todayFarmerCnt: '0',
+                          monthlyTotalVisit: '0',
+                          monthlyDealerCnt: '0',
+                          monthlyFarmerCnt: '0',
+                          monthlyUniqueDealerCnt: '0',
+                          monthlyUniqueFarmerCnt: '0',
+                        );
+
+                    return NotVisitedCard(homeData);
+                  },
+                ),
+
+                SizedBox(height: 8.h),
+
+                BlocBuilder<HomeBloc, HomeState>(
+                  builder: (context, state) {
+                    return VisitOverviewCard(
+                      dealerCount: state.totalDealerCount ?? '0',
+                      farmerCount: state.totalFarmerCount ?? '0',
+                    );
+                  },
+                ),
+
+                SizedBox(height: 12.h),
+
+                BlocBuilder<HomeBloc, HomeState>(
+                  builder: (context, homeState) {
+                    if (homeState.status == HomeStatus.loading) {
+                 
+  return const CustomLoader();
+
+                  //    return const Center(child: CircularProgressIndicator());
+                    }
+
+                    if (homeState.status == HomeStatus.failure) {
+                      return Text(
+                        homeState.errorMessage ?? 'Failed to load menu',
+                      );
+                    }
+
+                    if (homeState.menus.isEmpty) {
+                      return const SizedBox.shrink();
+                    }
+
+                    return BlocBuilder<QuickAcessBloc, QuickAccessState>(
+                      builder: (context, quickAccessState) {
+                        return QuickAccessSection(
+                          menus: homeState.menus,
+                          punchStat: quickAccessState.punchStat,
+                        );
+                      },
+                    );
+                  },
+                ),
+
+                SizedBox(height: 12.h),
+              ],
+            ),
           ),
         ),
+
+        // FutureBuilder<Map<String, dynamic>?>(
+        //   future: SecureStorage.instance.getUserData(),
+        //   builder: (context, snapshot) {
+        //     if (snapshot.connectionState == ConnectionState.waiting) {
+        //       return const Center(child: CircularProgressIndicator());
+        //     }
+
+        //     if (snapshot.hasError) {
+        //       return Center(
+        //         child: Text('Error loading user data: ${snapshot.error}'),
+        //       );
+        //     }
+
+        //     final user = snapshot.data;
+
+        //     if (user == null || user.isEmpty) {
+        //       return const Center(child: Text('No stored user data found.'));
+        //     }
+
+        //     final userName = user['user_name'] ?? 'N/A';
+        //     final userEmail = user['user_email'] ?? 'N/A';
+        //     final userId = user['user_id'] ?? 'N/A';
+        //     final mobile = user['fld_mobile_no'] ?? 'N/A';
+        //     final designation = user['designation'] ?? 'N/A';
+
+        //     final items = <MapEntry<String, String>>[
+        //       MapEntry('User Name', userName.toString()),
+        //       MapEntry('Email', userEmail.toString()),
+        //       MapEntry('User ID', userId.toString()),
+        //       MapEntry('Mobile', mobile.toString()),
+        //       MapEntry('Designation', designation.toString()),
+        //     ];
+
+        //     return Padding(
+        //       padding: const EdgeInsets.all(20),
+        //       child: Column(
+        //         crossAxisAlignment: CrossAxisAlignment.start,
+        //         children: [
+        //           const SizedBox(height: 12),
+
+        //           Text(
+        //             'Welcome, $userName',
+        //             style: const TextStyle(
+        //               fontSize: 24,
+        //               fontWeight: FontWeight.bold,
+        //             ),
+        //           ),
+
+        //           const SizedBox(height: 20),
+
+        //           Card(
+        //             elevation: 2,
+        //             child: Padding(
+        //               padding: const EdgeInsets.all(16),
+        //               child: ListView.separated(
+        //                 shrinkWrap: true,
+        //                 physics: const NeverScrollableScrollPhysics(),
+        //                 itemCount: items.length,
+        //                 separatorBuilder: (_, __) => const Divider(),
+        //                 itemBuilder: (context, index) {
+        //                   final item = items[index];
+
+        //                   return Row(
+        //                     crossAxisAlignment: CrossAxisAlignment.start,
+        //                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        //                     children: [
+        //                       Text(
+        //                         item.key,
+        //                         style: const TextStyle(
+        //                           fontWeight: FontWeight.w600,
+        //                         ),
+        //                       ),
+
+        //                       const SizedBox(width: 12),
+
+        //                       Expanded(
+        //                         child: Text(
+        //                           item.value,
+        //                           textAlign: TextAlign.right,
+        //                         ),
+        //                       ),
+        //                     ],
+        //                   );
+        //                 },
+        //               ),
+        //             ),
+        //           ),
+        //         ],
+        //       ),
+        //     );
+        //   },
+        // ),
       ),
-
-      // FutureBuilder<Map<String, dynamic>?>(
-      //   future: SecureStorage.instance.getUserData(),
-      //   builder: (context, snapshot) {
-      //     if (snapshot.connectionState == ConnectionState.waiting) {
-      //       return const Center(child: CircularProgressIndicator());
-      //     }
-
-      //     if (snapshot.hasError) {
-      //       return Center(
-      //         child: Text('Error loading user data: ${snapshot.error}'),
-      //       );
-      //     }
-
-      //     final user = snapshot.data;
-
-      //     if (user == null || user.isEmpty) {
-      //       return const Center(child: Text('No stored user data found.'));
-      //     }
-
-      //     final userName = user['user_name'] ?? 'N/A';
-      //     final userEmail = user['user_email'] ?? 'N/A';
-      //     final userId = user['user_id'] ?? 'N/A';
-      //     final mobile = user['fld_mobile_no'] ?? 'N/A';
-      //     final designation = user['designation'] ?? 'N/A';
-
-      //     final items = <MapEntry<String, String>>[
-      //       MapEntry('User Name', userName.toString()),
-      //       MapEntry('Email', userEmail.toString()),
-      //       MapEntry('User ID', userId.toString()),
-      //       MapEntry('Mobile', mobile.toString()),
-      //       MapEntry('Designation', designation.toString()),
-      //     ];
-
-      //     return Padding(
-      //       padding: const EdgeInsets.all(20),
-      //       child: Column(
-      //         crossAxisAlignment: CrossAxisAlignment.start,
-      //         children: [
-      //           const SizedBox(height: 12),
-
-      //           Text(
-      //             'Welcome, $userName',
-      //             style: const TextStyle(
-      //               fontSize: 24,
-      //               fontWeight: FontWeight.bold,
-      //             ),
-      //           ),
-
-      //           const SizedBox(height: 20),
-
-      //           Card(
-      //             elevation: 2,
-      //             child: Padding(
-      //               padding: const EdgeInsets.all(16),
-      //               child: ListView.separated(
-      //                 shrinkWrap: true,
-      //                 physics: const NeverScrollableScrollPhysics(),
-      //                 itemCount: items.length,
-      //                 separatorBuilder: (_, __) => const Divider(),
-      //                 itemBuilder: (context, index) {
-      //                   final item = items[index];
-
-      //                   return Row(
-      //                     crossAxisAlignment: CrossAxisAlignment.start,
-      //                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      //                     children: [
-      //                       Text(
-      //                         item.key,
-      //                         style: const TextStyle(
-      //                           fontWeight: FontWeight.w600,
-      //                         ),
-      //                       ),
-
-      //                       const SizedBox(width: 12),
-
-      //                       Expanded(
-      //                         child: Text(
-      //                           item.value,
-      //                           textAlign: TextAlign.right,
-      //                         ),
-      //                       ),
-      //                     ],
-      //                   );
-      //                 },
-      //               ),
-      //             ),
-      //           ),
-      //         ],
-      //       ),
-      //     );
-      //   },
-      // ),
     );
+
+    /* 
+   
+
+    */
   }
 
   Widget buildPunchCard(String label, String value) {

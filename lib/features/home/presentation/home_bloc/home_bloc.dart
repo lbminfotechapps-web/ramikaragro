@@ -12,6 +12,7 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
   HomeBloc(this.getMenuUsecase) : super(const HomeState()) {
     on<GetMenuEvent>(_onGetMenus);
     on<VisitGraphCountEvent>(_onGetGraphCount);
+    on<GetHomeVisitEvent>(_onGetHomeVisitCount);
   }
 
   Future<void> _onGetMenus(GetMenuEvent event, Emitter<HomeState> emit) async {
@@ -31,43 +32,61 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
     }
   }
 
-FutureOr<void> _onGetGraphCount(
-  VisitGraphCountEvent event,
-  Emitter<HomeState> emit,
-) async {
-  emit(state.copyWith(status: HomeStatus.loading));
+  FutureOr<void> _onGetGraphCount(
+    VisitGraphCountEvent event,
+    Emitter<HomeState> emit,
+  ) async {
+    emit(state.copyWith(status: HomeStatus.loading));
 
-  try {
-    final graphcount = await getMenuUsecase.getVisitCountGraph(
-      event.userId,
-      event.searchFromDate,
-      event.searchToDate,
-    );
+    try {
+      final graphcount = await getMenuUsecase.getVisitCountGraph(
+        event.userId,
+        event.searchFromDate,
+        event.searchToDate,
+      );
 
-    debugPrint('GRAPH API RESPONSE: $graphcount');
+      debugPrint('GRAPH API RESPONSE: $graphcount');
 
-    final dealerCount =
-        int.tryParse(graphcount['tot_dealer_cnt']?.toString() ?? '0') ?? 0;
+      final dealerCount =
+          int.tryParse(graphcount['tot_dealer_cnt']?.toString() ?? '0') ?? 0;
 
-    final farmerCount =
-        int.tryParse(graphcount['tot_farmer_cnt']?.toString() ?? '0') ?? 0;
+      final farmerCount =
+          int.tryParse(graphcount['tot_farmer_cnt']?.toString() ?? '0') ?? 0;
 
-    emit(
-      state.copyWith(
-        status: HomeStatus.success,
-        totalDealerCount: dealerCount.toString(),
-        totalFarmerCount: farmerCount.toString(),
-      ),
-    );
-  } catch (error) {
-    debugPrint('GRAPH API ERROR: $error');
+      emit(
+        state.copyWith(
+          status: HomeStatus.success,
+          totalDealerCount: dealerCount.toString(),
+          totalFarmerCount: farmerCount.toString(),
+        ),
+      );
+    } catch (error) {
+      debugPrint('GRAPH API ERROR: $error');
 
-    emit(
-      state.copyWith(
-        status: HomeStatus.failure,
-        errorMessage: error.toString(),
-      ),
-    );
+      emit(
+        state.copyWith(
+          status: HomeStatus.failure,
+          errorMessage: error.toString(),
+        ),
+      );
+    }
   }
-}
+
+  FutureOr<void> _onGetHomeVisitCount(
+    GetHomeVisitEvent event,
+    Emitter<HomeState> emit,
+  ) async {
+    emit(state.copyWith(status: HomeStatus.loading));
+
+    final response = await getMenuUsecase.getHomeVisitCount(
+      userId: event.userId,
+    );
+    // if (response.status == true) {
+    print("Block Data ++++++> : $response");
+    emit(state.copyWith(status: HomeStatus.success, homedata: response));
+  }
+
+  // else {
+  //   emit(state.copyWith(status: HomeStatus.failure));
+  // }
 }

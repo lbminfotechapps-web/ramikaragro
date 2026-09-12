@@ -15,7 +15,6 @@ import 'package:demo/features/reports/presentation/pages/visit_summary_page.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil_plus/flutter_screenutil_plus.dart';
-import 'package:go_router/go_router.dart';
 
 class ReportsScree extends StatefulWidget {
   const ReportsScree({super.key});
@@ -141,14 +140,12 @@ class _ReportsScreeState extends State<ReportsScree> {
   // ============================================================
   // NOT VISITED
   // ============================================================
- 
+
   void _openNotVisited() {
-  Navigator.of(context).push(
-    MaterialPageRoute(
-      builder: (_) => const NotVisitedDealerPage(),
-    ),
-  );
-}
+    Navigator.of(
+      context,
+    ).push(MaterialPageRoute(builder: (_) => const NotVisitedDealerPage()));
+  }
 
   // ============================================================
   // BUILD
@@ -157,7 +154,33 @@ class _ReportsScreeState extends State<ReportsScree> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor:AppColors.backgroundColor,
+      backgroundColor: AppColors.backgroundColor,
+      appBar: CustomAppBar(
+        leading: Container(
+          width: 45,
+          height: 45,
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            border: Border.all(color: AppColors.borderColor),
+          ),
+          child: IconButton(
+            padding: EdgeInsets.zero,
+            icon: const Icon(
+              Icons.person_2_outlined,
+              color: AppColors.textColor,
+            ),
+            onPressed: () {
+              Scaffold.of(context).openDrawer();
+            },
+          ),
+        ),
+        title: 'Report',
+
+        showBackButton: false,
+        onLogOutTap: () {
+          // Handle notification tap
+        },
+      ),
 
       // ========================================================
       // APP BAR
@@ -166,7 +189,7 @@ class _ReportsScreeState extends State<ReportsScree> {
       //   title: 'Reports',
       //   subtitle: 'Business performance overview',
       // ),
-/*
+      /*
       AppBar(
         backgroundColor: Colors.white,
         surfaceTintColor: Colors.white,
@@ -224,7 +247,7 @@ class _ReportsScreeState extends State<ReportsScree> {
 
       // ========================================================
       // BODY
-      // ========================================================
+      // ========================================================s
       body: RefreshIndicator(
         color: const Color(0xFF168A4A),
         onRefresh: _loadUserId,
@@ -232,7 +255,7 @@ class _ReportsScreeState extends State<ReportsScree> {
         child: SingleChildScrollView(
           physics: const AlwaysScrollableScrollPhysics(),
 
-          padding: const EdgeInsets.fromLTRB(14, 12, 14, 20),
+          padding: const EdgeInsets.only(left: 10, right: 10),
 
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -240,7 +263,7 @@ class _ReportsScreeState extends State<ReportsScree> {
               // ==================================================
               // HEADER
               // ==================================================
-              SizedBox(height: 45.h),
+              SizedBox(height: 12.h),
               _buildHeader(),
 
               SizedBox(height: 16.h),
@@ -347,7 +370,6 @@ class _ReportsScreeState extends State<ReportsScree> {
           // ======================================================
           // HEADER TOP
           // ======================================================
-
           Row(
             children: [
               Container(
@@ -461,7 +483,6 @@ class _ReportsScreeState extends State<ReportsScree> {
             // ==================================================
             // NOT VISITED
             // ==================================================
-
             _ReportCard(
               icon: Icons.store_mall_directory_rounded,
 
@@ -743,7 +764,6 @@ class _ReportCard extends StatelessWidget {
               // ==================================================
               // ICON + ARROW
               // ==================================================
-
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
 
