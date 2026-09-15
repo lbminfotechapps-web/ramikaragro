@@ -39,6 +39,7 @@ class GetTeamExpensesEvent extends TeamExpenseEvent {
       ];
 }
 
+
 // ============================================================================
 // APPROVE / REJECT TEAM EXPENSE
 // ============================================================================
@@ -48,10 +49,15 @@ class UpdateTeamExpenseEvent extends TeamExpenseEvent {
   final String expenseId;
   final String status;
 
+  final String expenseJson;
+  final String remark;
+
   const UpdateTeamExpenseEvent({
     required this.userId,
     required this.expenseId,
     required this.status,
+    required this.expenseJson,
+    required this.remark,
   });
 
   @override
@@ -59,5 +65,7 @@ class UpdateTeamExpenseEvent extends TeamExpenseEvent {
         userId,
         expenseId,
         status,
+        expenseJson,
+        remark,
       ];
 }

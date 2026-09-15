@@ -13,7 +13,9 @@ import 'package:demo/core/di/leave_list_di.dart';
 import 'package:demo/core/di/my_expense_di.dart';
 import 'package:demo/core/di/not_visited_dealer_di.dart';
 import 'package:demo/core/di/notification_di.dart';
+import 'package:demo/core/di/place_order_target_di.dart';
 import 'package:demo/core/di/product_di.dart';
+import 'package:demo/core/di/sales_target_di.dart';
 
 import 'package:demo/core/di/scheme_di.dart';
 import 'package:demo/core/di/social_media_di.dart';
@@ -49,4 +51,6 @@ Future<void> initGlobalDi() async {
   await initCropScheduleDi();
   await initMyExpenseFeature();
   await initTeamExpenseFeature();
+  await initSalesTargetDi();
+  await initPlaceOrderTargetDi();
 }
