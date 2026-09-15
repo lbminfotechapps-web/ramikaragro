@@ -22,4 +22,11 @@ class DealerVisitRepositoryImpl implements AddDealerVisitRepository {
     return menus;
   }
 
+
+
+   @override
+  Future<List<PurposeEntity>> getFollowupList(String outletId) async {
+    final menus = await remoteDataSource.getFollowupList(outletId);
+    return menus;
+  }
 }

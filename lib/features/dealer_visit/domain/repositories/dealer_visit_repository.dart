@@ -9,7 +9,8 @@ abstract class AddDealerVisitRepository {
   Future<Map<String, dynamic>> addRemark(Map<String, dynamic> jsonData);
 
   Future<List<PurposeEntity>> getPurpose(String userID);
+  
  
-
+Future<List<PurposeEntity>> getFollowupList(String outletId);
   
 }

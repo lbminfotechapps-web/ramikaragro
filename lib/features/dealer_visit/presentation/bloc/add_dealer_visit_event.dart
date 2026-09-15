@@ -59,5 +59,9 @@ class GetPurposeEvent extends AddDealerRemarkEvent{
  const GetPurposeEvent(this.userId);
 
 
-
 }
+class GetFollowupEvent extends AddDealerRemarkEvent{
+   final String outletId;
+
+ const GetFollowupEvent(this.outletId);
+ }

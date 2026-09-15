@@ -26,4 +26,13 @@ class AddRemark {
     }
   }
 
+
+     Future<List<PurposeEntity>> getFollowupList(String outletId) async {
+    try {
+      return await repository.getFollowupList(outletId);
+    } catch (e) {
+      throw Exception('Failed to fetch home menu: $e');
+    }
+  }
+
 }

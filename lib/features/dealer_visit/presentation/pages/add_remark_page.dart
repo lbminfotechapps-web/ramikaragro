@@ -106,8 +106,7 @@ class _AddDealerVisitPageState extends State<AddDealerVisitPage> {
   // ============================================================
   // STATIC DATA
   // ============================================================
-final List<String> followUpTypes = ['Select Follow Up Type','Phone','Visit',
-];
+final List<String> followUpTypes = ['Select Follow Up Type','Phone','Visit'];
  
 
   final List<String> purposeTypes = ['Item 1', 'Item 2', 'Item 3', 'Item 4'];
@@ -138,6 +137,7 @@ final List<String> followUpTypes = ['Select Follow Up Type','Phone','Visit',
     _loadUserId();
    _loadDeviceData();
     _getPurposeData();
+   
   }
 
   Future<void> _loadUserId() async {
@@ -275,6 +275,12 @@ Future<void> _loadDeviceData() async {
 void _getPurposeData() {
   dealerVisitBloc.add(
     GetPurposeEvent(""),
+  );
+}
+
+void _getFollowupData() {
+  dealerVisitBloc.add(
+    GetFollowupEvent(""),
   );
 }
   // ============================================================

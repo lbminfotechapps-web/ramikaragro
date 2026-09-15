@@ -18,6 +18,7 @@ class AddDealerVisitBlock
     // on<GetLeaveListEvent>(_onGetLeaveList);
     on<AddDealerRemarkSubmitEvent>(_onAddRemark);
     on<GetPurposeEvent>(_onGetPurpose);
+    on<GetFollowupEvent>(_onGetFollowup);
     // on<ClearLeaveMessageEvent>(_onClearMessage);
   }
 
@@ -76,7 +77,7 @@ final postData=addLeave.call(formData);
         message = e.toString();
       }
 
-      emit(
+     emit(
         state.copyWith(
           addLeaveStatus: AddDealerVisitStatus.failure,
           errorMessage: message,
@@ -104,5 +105,23 @@ final postData=addLeave.call(formData);
       );
     }
   }
+
+
+    Future<void> _onGetFollowup(GetFollowupEvent event, Emitter<AddDealerVisitState> emit) async {
+    emit(state.copyWith(addLeaveStatus: AddDealerVisitStatus.loading));
+
+    try {
+      final purpose = await addLeave.getPurpose(event.outletId);
+      print('bloc response$purpose');
+      emit(state.copyWith(addLeaveStatus: AddDealerVisitStatus.success, purpose: purpose));
+    } catch (error) {
+      emit(
+        state.copyWith(
+          addLeaveStatus: AddDealerVisitStatus.failure,
+          errorMessage: error.toString(),
+        ),
+      );
+    }
+  } 
 
 }
