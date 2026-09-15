@@ -4,6 +4,7 @@ import 'package:demo/core/di/collection_list_di.dart';
 import 'package:demo/core/di/collection_target_di.dart';
 import 'package:demo/core/di/crop_schedule_di.dart';
 import 'package:demo/core/di/dealer_di.dart';
+import 'package:demo/core/di/dispatch_di.dart';
 import 'package:demo/core/di/employee_activity_report_di.dart';
 import 'package:demo/core/di/employee_output_di.dart';
 import 'package:demo/core/di/farmer_di.dart';
@@ -13,7 +14,9 @@ import 'package:demo/core/di/leave_list_di.dart';
 import 'package:demo/core/di/my_expense_di.dart';
 import 'package:demo/core/di/not_visited_dealer_di.dart';
 import 'package:demo/core/di/notification_di.dart';
+import 'package:demo/core/di/order_history_di.dart';
 import 'package:demo/core/di/product_di.dart';
+import 'package:demo/core/di/sales_return_history_di.dart';
 
 import 'package:demo/core/di/scheme_di.dart';
 import 'package:demo/core/di/social_media_di.dart';
@@ -49,4 +52,7 @@ Future<void> initGlobalDi() async {
   await initCropScheduleDi();
   await initMyExpenseFeature();
   await initTeamExpenseFeature();
+  await initOrderHistoryDi();
+  await initDispatchDi();
+  await initSalesReturnHistoryDi();
 }

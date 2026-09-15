@@ -1,5 +1,6 @@
 import 'package:demo/features/home/data/home_datasource/home_datasource.dart';
 import 'package:demo/features/home/doman/home_entity/homevisit_entity.dart';
+import 'package:demo/features/home/doman/home_entity/inpunch_pending_entity.dart';
 import 'package:demo/features/home/doman/home_entity/menu_entity.dart';
 import 'package:demo/features/home/doman/home_repository/home_repo.dart';
 
@@ -30,5 +31,10 @@ class HomeRepoImp implements HomeRepo {
   @override
   Future<HomeVisitEntity> getHomeVisitCount({required String userId}) async {
     return await homeDatasource.getHomeVisitCount(userId: userId);
+  }
+
+  @override
+  Future<List<InpunchPendingEntity>> getInpunchPending(String userId) async {
+    return await homeDatasource.getInpunchPending(userId);
   }
 }

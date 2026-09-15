@@ -1,26 +1,29 @@
+import 'dart:convert';
+
+import 'package:android_intent_plus/android_intent.dart';
+import 'package:demo/core/api_constant/api_client.dart';
+import 'package:demo/core/api_constant/dio_client.dart';
 import 'package:demo/core/router/app_router.dart';
 import 'package:demo/core/secure_storage/secure_storage.dart';
 import 'package:demo/core/theme/app_colors.dart';
 import 'package:demo/core/utility/widgets/custom_appbar.dart';
 import 'package:demo/core/utility/widgets/custom_card.dart';
 import 'package:demo/features/home/doman/home_entity/homevisit_entity.dart';
-import 'package:demo/core/utility/widgets/custom_loader.dart';
 import 'package:demo/features/home/presentation/home_bloc/home_bloc.dart';
-import 'package:demo/features/home/presentation/home_bloc/home_event.dart';
 import 'package:demo/features/home/presentation/home_bloc/home_state.dart';
 
-import 'package:demo/features/home/presentation/home_bloc/home_visit_state.dart';
 import 'package:demo/features/home/presentation/quick_aceess_bloc/quick_access_state.dart';
 import 'package:demo/features/home/presentation/quick_aceess_bloc/quick_acess_bloc.dart';
 import 'package:demo/features/home/presentation/widgets/notvisited.dart';
 import 'package:demo/features/home/presentation/widgets/quick_action.dart';
 import 'package:demo/features/home/presentation/widgets/todays_overwiew.dart';
 import 'package:demo/features/home/presentation/widgets/visit_overview.dart';
-import 'package:demo/features/reports/presentation/bloc/visit_report_bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil_plus/flutter_screenutil_plus.dart';
+import 'package:dio/dio.dart';
+import 'package:get_it/get_it.dart';
 import 'package:go_router/go_router.dart';
 
 class Home extends StatefulWidget {
@@ -36,7 +39,37 @@ class _HomeState extends State<Home> {
   @override
   void initState() {
     super.initState();
-    getUserName();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+
+      showDeveloperOptionWarning();
+    });
+    _loadUserData();
+  }
+
+  Future<void> _loadUserData() async {
+    final userData = await SecureStorage.instance.getUserData();
+
+    if (userData == null) {
+      debugPrint('No stored user data found');
+      return;
+    }
+
+    final userId = userData['user_id']?.toString() ?? '';
+
+    if (userId.isEmpty) {
+      debugPrint('Stored user data has no user_id');
+    } else {
+      await getEmployeeStatus(userId);
+    }
+
+    final userName = userData['user_name']?.toString();
+
+    if (!mounted || userName == null || userName.isEmpty) return;
+
+    setState(() {
+      _username = userName;
+    });
   }
 
   Future<void> getUserName() async {
@@ -156,23 +189,27 @@ class _HomeState extends State<Home> {
       child: Scaffold(
         backgroundColor: AppColors.backgroundColor,
         appBar: CustomAppBar(
-          leading: Container(
-            width: 40,
-            height: 40,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              border: Border.all(color: AppColors.borderColor),
-            ),
-            child: IconButton(
-              padding: EdgeInsets.zero,
-              icon: const Icon(
-                Icons.person_2_outlined,
-                color: AppColors.textColor,
-              ),
-              onPressed: () {
-                Scaffold.of(context).openDrawer();
-              },
-            ),
+          leading: Builder(
+            builder: (scaffoldContext) {
+              return Container(
+                width: 40,
+                height: 40,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  border: Border.all(color: AppColors.borderColor),
+                ),
+                child: IconButton(
+                  padding: EdgeInsets.zero,
+                  icon: const Icon(
+                    Icons.person_2_outlined,
+                    color: AppColors.textColor,
+                  ),
+                  onPressed: () {
+                    Scaffold.of(scaffoldContext).openDrawer();
+                  },
+                ),
+              );
+            },
           ),
           title: _username,
           subtitle: 'Good Morning',
@@ -192,7 +229,7 @@ class _HomeState extends State<Home> {
                   children: [
                     Expanded(
                       child: SizedBox(
-                        height: 120.h,
+                        height: 100.h,
                         child: buildPunchCard("Today's Punch", '09:15 AM'),
                       ),
                     ),
@@ -201,8 +238,21 @@ class _HomeState extends State<Home> {
 
                     Expanded(
                       child: SizedBox(
-                        height: 120.h,
-                        child: buildInfoCard('In Punch Pending', '2'),
+                        height: 100.h,
+                        child: BlocBuilder<HomeBloc, HomeState>(
+                          builder: (context, state) {
+                            int pendingCount = 0;
+
+                            if (state.status == HomeStatus.loading) {
+                              pendingCount = state.data.length;
+                            }
+
+                            return buildInfoCard(
+                              'In Punch Pending',
+                              pendingCount.toString(),
+                            );
+                          },
+                        ),
                       ),
                     ),
                   ],
@@ -238,9 +288,7 @@ class _HomeState extends State<Home> {
                           monthlyUniqueDealerCnt: '0',
                           monthlyUniqueFarmerCnt: '0',
                         );
-                    print(
-                      "Data ----->: ${state.homedata?.monthlyUniqueDealerCnt.toString()}",
-                    );
+
                     return VisitStatisticsTable(homeData);
                   },
                 ),
@@ -295,10 +343,7 @@ class _HomeState extends State<Home> {
                 BlocBuilder<HomeBloc, HomeState>(
                   builder: (context, homeState) {
                     if (homeState.status == HomeStatus.loading) {
-                 
-  return const CustomLoader();
-
-                  //    return const Center(child: CircularProgressIndicator());
+                      return const Center(child: CircularProgressIndicator());
                     }
 
                     if (homeState.status == HomeStatus.failure) {
@@ -327,99 +372,6 @@ class _HomeState extends State<Home> {
             ),
           ),
         ),
-
-        // FutureBuilder<Map<String, dynamic>?>(
-        //   future: SecureStorage.instance.getUserData(),
-        //   builder: (context, snapshot) {
-        //     if (snapshot.connectionState == ConnectionState.waiting) {
-        //       return const Center(child: CircularProgressIndicator());
-        //     }
-
-        //     if (snapshot.hasError) {
-        //       return Center(
-        //         child: Text('Error loading user data: ${snapshot.error}'),
-        //       );
-        //     }
-
-        //     final user = snapshot.data;
-
-        //     if (user == null || user.isEmpty) {
-        //       return const Center(child: Text('No stored user data found.'));
-        //     }
-
-        //     final userName = user['user_name'] ?? 'N/A';
-        //     final userEmail = user['user_email'] ?? 'N/A';
-        //     final userId = user['user_id'] ?? 'N/A';
-        //     final mobile = user['fld_mobile_no'] ?? 'N/A';
-        //     final designation = user['designation'] ?? 'N/A';
-
-        //     final items = <MapEntry<String, String>>[
-        //       MapEntry('User Name', userName.toString()),
-        //       MapEntry('Email', userEmail.toString()),
-        //       MapEntry('User ID', userId.toString()),
-        //       MapEntry('Mobile', mobile.toString()),
-        //       MapEntry('Designation', designation.toString()),
-        //     ];
-
-        //     return Padding(
-        //       padding: const EdgeInsets.all(20),
-        //       child: Column(
-        //         crossAxisAlignment: CrossAxisAlignment.start,
-        //         children: [
-        //           const SizedBox(height: 12),
-
-        //           Text(
-        //             'Welcome, $userName',
-        //             style: const TextStyle(
-        //               fontSize: 24,
-        //               fontWeight: FontWeight.bold,
-        //             ),
-        //           ),
-
-        //           const SizedBox(height: 20),
-
-        //           Card(
-        //             elevation: 2,
-        //             child: Padding(
-        //               padding: const EdgeInsets.all(16),
-        //               child: ListView.separated(
-        //                 shrinkWrap: true,
-        //                 physics: const NeverScrollableScrollPhysics(),
-        //                 itemCount: items.length,
-        //                 separatorBuilder: (_, __) => const Divider(),
-        //                 itemBuilder: (context, index) {
-        //                   final item = items[index];
-
-        //                   return Row(
-        //                     crossAxisAlignment: CrossAxisAlignment.start,
-        //                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        //                     children: [
-        //                       Text(
-        //                         item.key,
-        //                         style: const TextStyle(
-        //                           fontWeight: FontWeight.w600,
-        //                         ),
-        //                       ),
-
-        //                       const SizedBox(width: 12),
-
-        //                       Expanded(
-        //                         child: Text(
-        //                           item.value,
-        //                           textAlign: TextAlign.right,
-        //                         ),
-        //                       ),
-        //                     ],
-        //                   );
-        //                 },
-        //               ),
-        //             ),
-        //           ),
-        //         ],
-        //       ),
-        //     );
-        //   },
-        // ),
       ),
     );
 
@@ -542,55 +494,270 @@ class _HomeState extends State<Home> {
       ),
     );
   }
+
+  Future<void> getEmployeeStatus(String userId) async {
+    try {
+      final dioClient = GetIt.instance<DioClient>();
+      final formData = FormData.fromMap({'userId': userId});
+
+      final response = await dioClient.client.post(
+        ApiClient.getEmployeeStatus,
+        data: formData,
+      );
+
+      dynamic data = response.data;
+
+      if (data is String) {
+        data = jsonDecode(data.trim());
+      }
+
+      if (data is! Map) {
+        return;
+      }
+      if (data['status'] != true) {
+        return;
+      }
+
+      final result = data['result'];
+
+      if (result is! List || result.isEmpty) {
+        return;
+      }
+
+      final firstResult = result.first;
+
+      if (firstResult is! Map) {
+        return;
+      }
+
+      final empStatus = firstResult['fld_status']?.toString().trim() ?? '';
+      if (empStatus.isEmpty) {
+        return;
+      }
+
+      if (empStatus == 'Active') {
+        return;
+      }
+      await SecureStorage.instance.clearAll();
+
+      if (!mounted) {
+        return;
+      }
+      context.go(AppRouter.login);
+    } catch (e, stackTrace) {
+      debugPrint('Error: $e');
+      debugPrint('StackTrace: $stackTrace');
+    }
+  }
+
+  Future<void> showDeveloperOptionWarning() async {
+    if (!mounted) return;
+
+    await showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (dialogContext) {
+        return AlertDialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(18),
+          ),
+
+          titlePadding: const EdgeInsets.fromLTRB(20, 20, 20, 8),
+
+          contentPadding: const EdgeInsets.fromLTRB(20, 8, 20, 10),
+
+          actionsPadding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+
+          // ----------------------------------------------------
+          // TITLE
+          // ----------------------------------------------------
+          title: Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: Colors.orange.withOpacity(0.12),
+                  shape: BoxShape.circle,
+                ),
+                child: const Icon(
+                  Icons.warning_amber_rounded,
+                  color: Colors.orange,
+                  size: 28,
+                ),
+              ),
+
+              const SizedBox(width: 12),
+
+              const Expanded(
+                child: Text(
+                  'Warning',
+                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                ),
+              ),
+            ],
+          ),
+
+          // ----------------------------------------------------
+          // CONTENT
+          // ----------------------------------------------------
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text(
+                'It looks like Developer Options are enabled on your device.',
+                style: TextStyle(
+                  fontSize: 15,
+                  fontWeight: FontWeight.w500,
+                  height: 1.4,
+                ),
+              ),
+
+              const SizedBox(height: 10),
+
+              const Text(
+                'For security purposes, please disable Developer Options before continuing.',
+                style: TextStyle(
+                  fontSize: 13,
+                  color: Colors.black54,
+                  height: 1.4,
+                ),
+              ),
+
+              const SizedBox(height: 18),
+
+              const Text(
+                'Please follow these steps:',
+                style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+              ),
+
+              const SizedBox(height: 12),
+
+              _buildStep(number: '1', text: 'Go to Settings'),
+
+              _buildStep(number: '2', text: "Search for 'Developer Options'"),
+
+              _buildStep(number: '3', text: 'Disable Developer Options'),
+            ],
+          ),
+
+          // ----------------------------------------------------
+          // BUTTONS
+          // ----------------------------------------------------
+          actions: [
+            OutlinedButton(
+              onPressed: () async {
+                try {
+                  // Open Developer Options directly
+                  const intent = AndroidIntent(
+                    action: 'android.settings.DEVELOPMENT_SETTINGS',
+                  );
+
+                  await intent.launch();
+                } catch (e) {
+                  debugPrint('Could not open Developer Options: $e');
+
+                  // Fallback: open general Settings
+                  try {
+                    const intent = AndroidIntent(
+                      action: 'android.settings.SETTINGS',
+                    );
+
+                    await intent.launch();
+                  } catch (e) {
+                    debugPrint('Could not open Settings: $e');
+                  }
+                }
+              },
+
+              style: OutlinedButton.styleFrom(
+                foregroundColor: AppColors.accentGreen,
+                side: BorderSide(color: AppColors.accentGreen),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 10,
+                ),
+              ),
+
+              child: const Text(
+                'SETTINGS',
+                style: TextStyle(fontWeight: FontWeight.w600),
+              ),
+            ),
+
+            ElevatedButton(
+              onPressed: () {
+                Navigator.of(dialogContext).pop();
+              },
+
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppColors.accentGreen,
+                foregroundColor: Colors.white,
+                elevation: 0,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 18,
+                  vertical: 11,
+                ),
+              ),
+
+              child: const Text(
+                'CONTINUE',
+                style: TextStyle(fontWeight: FontWeight.w600),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  // ------------------------------------------------------------
+  // WARNING STEP
+  // ------------------------------------------------------------
+
+  Widget _buildStep({required String number, required String text}) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 10),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            width: 26,
+            height: 26,
+            alignment: Alignment.center,
+            decoration: BoxDecoration(
+              color: AppColors.accentGreen,
+              shape: BoxShape.circle,
+            ),
+            child: Text(
+              number,
+              style: const TextStyle(
+                color: Colors.white,
+                fontWeight: FontWeight.bold,
+                fontSize: 13,
+              ),
+            ),
+          ),
+
+          const SizedBox(width: 10),
+
+          Expanded(
+            child: Padding(
+              padding: const EdgeInsets.only(top: 4),
+              child: Text(
+                text,
+                style: const TextStyle(fontSize: 13, height: 1.3),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 }
-
-
-
-
-
-// class CustomCard extends StatelessWidget {
-//   final Widget child;
-//   final Color color;
-//   final EdgeInsetsGeometry padding;
-//   final double borderRadius;
-//   final VoidCallback? onTap;
-
-//   const CustomCard({
-//     super.key,
-//     required this.child,
-//     this.color = Colors.white,
-//     this.padding = const EdgeInsets.all(16),
-//     this.borderRadius = 20,
-//     this.onTap,
-//   });
-
-//   @override
-//   Widget build(BuildContext context) {
-//     final card = Container(
-//       padding: padding,
-//       decoration: BoxDecoration(
-//         color: color,
-//         borderRadius: BorderRadius.circular(borderRadius),
-//         boxShadow: [
-//           BoxShadow(
-//             color: Colors.black.withOpacity(0.05),
-//             blurRadius: 10,
-//             offset: const Offset(0, 3),
-//           ),
-//         ],
-//       ),
-//       child: child,
-//     );
-
-//     if (onTap == null) {
-//       return card;
-//     }
-
-//     return InkWell(
-//       onTap: onTap,
-//       borderRadius: BorderRadius.circular(borderRadius),
-//       child: card,
-//     );
-//   }
-// }
-

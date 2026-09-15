@@ -1,6 +1,7 @@
 import 'package:demo/core/api_constant/api_client.dart';
 import 'package:demo/core/api_constant/dio_client.dart';
 import 'package:demo/features/home/data/home_model/homevisit_model.dart';
+import 'package:demo/features/home/data/home_model/inpunchpending_model.dart';
 import 'package:demo/features/home/data/home_model/menu_model.dart';
 import 'package:dio/dio.dart';
 import 'dart:convert';
@@ -115,5 +116,56 @@ class HomeDatasource {
     final Map<String, dynamic> jsonData = jsonDecode(responseString);
 
     return HomeVisitModel.fromJson(jsonData);
+  }
+
+  @override
+  Future<List<InpunchPendingModel>> getInpunchPending(String userId) async {
+    try {
+      final response = await dioClient.client.post(
+        ApiClient.getInpunchPending,
+        data: FormData.fromMap({'user_id': userId}),
+      );
+
+      dynamic data = response.data;
+
+      // PHP API may return String
+      if (data is String) {
+        data = jsonDecode(data.trim());
+      }
+
+      if (data is! Map) {
+        throw Exception('Invalid response format');
+      }
+
+      final status = data['status'];
+
+      if (status != true) {
+        throw Exception(
+          data['message']?.toString() ?? 'Failed to get inpunch pending data',
+        );
+      }
+
+      final result = data['result'];
+
+      if (result == null) {
+        return [];
+      }
+
+      if (result is! List) {
+        throw Exception('Invalid result format');
+      }
+
+      return result
+          .whereType<Map>()
+          .map(
+            (item) =>
+                InpunchPendingModel.fromJson(Map<String, dynamic>.from(item)),
+          )
+          .toList();
+    } on DioException catch (e) {
+      throw Exception(e.message ?? 'Network error');
+    } catch (e) {
+      rethrow;
+    }
   }
 }

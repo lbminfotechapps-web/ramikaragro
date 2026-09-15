@@ -1,6 +1,6 @@
-
 import 'package:demo/core/router/app_router.dart';
 import 'package:demo/core/utility/widgets/custom_appbar.dart';
+import 'package:demo/core/utility/widgets/custom_loader.dart';
 import 'package:demo/features/home/presentation/home_bloc/crop_schedule_bloc.dart';
 import 'package:demo/features/home/presentation/home_bloc/crop_schedule_event.dart';
 import 'package:demo/features/home/presentation/home_bloc/crop_schedule_state.dart';
@@ -20,9 +20,7 @@ class CropSchedulePage extends StatelessWidget {
       create: (_) {
         final bloc = sl<CropScheduleBloc>();
 
-        bloc.add(
-          const GetCropSchedulesEvent(),
-        );
+        bloc.add(const GetCropSchedulesEvent());
 
         return bloc;
       },
@@ -39,14 +37,11 @@ class CropScheduleView extends StatelessWidget {
     return Scaffold(
       backgroundColor: const Color(0xFFF7F9F7),
 
-    
-       appBar: CustomAppBar(
-          title: 'Crop Schedule',
-          showBackButton: true,
-          onBackTap: () => context.go(AppRouter.home),
-
-      
-        ),
+      appBar: CustomAppBar(
+        title: 'Crop Schedule',
+        showBackButton: true,
+        onBackTap: () => context.go(AppRouter.home),
+      ),
 
       body: BlocBuilder<CropScheduleBloc, CropScheduleState>(
         builder: (context, state) {
@@ -66,8 +61,7 @@ class CropScheduleView extends StatelessWidget {
           if (state.status == CropScheduleStatus.failure &&
               state.schedules.isEmpty) {
             return _ErrorView(
-              message: state.errorMessage ??
-                  'Unable to load crop schedule.',
+              message: state.errorMessage ?? 'Unable to load crop schedule.',
             );
           }
 
@@ -88,31 +82,20 @@ class CropScheduleView extends StatelessWidget {
             color: const Color(0xFF176B3A),
             onRefresh: () async {
               context.read<CropScheduleBloc>().add(
-                    const RefreshCropSchedulesEvent(),
-                  );
+                const RefreshCropSchedulesEvent(),
+              );
             },
             child: ListView(
               physics: const AlwaysScrollableScrollPhysics(),
-              padding: const EdgeInsets.fromLTRB(
-                16,
-                18,
-                16,
-                30,
-              ),
+              padding: const EdgeInsets.fromLTRB(16, 18, 16, 30),
               children: [
-                _SummaryHeader(
-                  count: state.schedules.length,
-                ),
+                _SummaryHeader(count: state.schedules.length),
 
                 const SizedBox(height: 20),
 
-                ...state.schedules.map(
-                  (schedule) {
-                    return CropScheduleCard(
-                      schedule: schedule,
-                    );
-                  },
-                ),
+                ...state.schedules.map((schedule) {
+                  return CropScheduleCard(schedule: schedule);
+                }),
               ],
             ),
           );
@@ -129,9 +112,7 @@ class CropScheduleView extends StatelessWidget {
 class _SummaryHeader extends StatelessWidget {
   final int count;
 
-  const _SummaryHeader({
-    required this.count,
-  });
+  const _SummaryHeader({required this.count});
 
   @override
   Widget build(BuildContext context) {
@@ -141,10 +122,7 @@ class _SummaryHeader extends StatelessWidget {
         gradient: const LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
-          colors: [
-            Color(0xFF176B3A),
-            Color(0xFF2E8B57),
-          ],
+          colors: [Color(0xFF176B3A), Color(0xFF2E8B57)],
         ),
         borderRadius: BorderRadius.circular(22),
         boxShadow: [
@@ -192,10 +170,7 @@ class _SummaryHeader extends StatelessWidget {
                   count == 1
                       ? '1 crop schedule available'
                       : '$count crop schedules available',
-                  style: const TextStyle(
-                    color: Colors.white70,
-                    fontSize: 13,
-                  ),
+                  style: const TextStyle(color: Colors.white70, fontSize: 13),
                 ),
               ],
             ),
@@ -203,10 +178,7 @@ class _SummaryHeader extends StatelessWidget {
 
           // Count
           Container(
-            padding: const EdgeInsets.symmetric(
-              horizontal: 14,
-              vertical: 10,
-            ),
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
             decoration: BoxDecoration(
               color: Colors.white,
               borderRadius: BorderRadius.circular(14),
@@ -263,11 +235,7 @@ class _LoadingView extends StatelessWidget {
 
         const SizedBox(height: 20),
 
-        const Center(
-          child: CustomLoader(
-      
-          ),
-        ),
+        const Center(child: CustomLoader()),
       ],
     );
   }
@@ -280,9 +248,7 @@ class _LoadingView extends StatelessWidget {
 class _ErrorView extends StatelessWidget {
   final String message;
 
-  const _ErrorView({
-    required this.message,
-  });
+  const _ErrorView({required this.message});
 
   @override
   Widget build(BuildContext context) {
@@ -311,10 +277,7 @@ class _ErrorView extends StatelessWidget {
             const Text(
               'Unable to load schedules',
               textAlign: TextAlign.center,
-              style: TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.w700,
-              ),
+              style: TextStyle(fontSize: 20, fontWeight: FontWeight.w700),
             ),
 
             const SizedBox(height: 8),
@@ -334,8 +297,8 @@ class _ErrorView extends StatelessWidget {
             ElevatedButton.icon(
               onPressed: () {
                 context.read<CropScheduleBloc>().add(
-                      const GetCropSchedulesEvent(),
-                    );
+                  const GetCropSchedulesEvent(),
+                );
               },
               style: ElevatedButton.styleFrom(
                 backgroundColor: const Color(0xFF176B3A),
@@ -351,9 +314,7 @@ class _ErrorView extends StatelessWidget {
               icon: const Icon(Icons.refresh_rounded),
               label: const Text(
                 'Try Again',
-                style: TextStyle(
-                  fontWeight: FontWeight.w600,
-                ),
+                style: TextStyle(fontWeight: FontWeight.w600),
               ),
             ),
           ],
@@ -375,16 +336,12 @@ class _EmptyView extends StatelessWidget {
     return RefreshIndicator(
       color: const Color(0xFF176B3A),
       onRefresh: () async {
-        context.read<CropScheduleBloc>().add(
-              const RefreshCropSchedulesEvent(),
-            );
+        context.read<CropScheduleBloc>().add(const RefreshCropSchedulesEvent());
       },
       child: ListView(
         physics: const AlwaysScrollableScrollPhysics(),
         children: [
-          SizedBox(
-            height: MediaQuery.of(context).size.height * 0.27,
-          ),
+          SizedBox(height: MediaQuery.of(context).size.height * 0.27),
 
           Center(
             child: Container(
@@ -407,10 +364,7 @@ class _EmptyView extends StatelessWidget {
           const Center(
             child: Text(
               'No Crop Schedule',
-              style: TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.w700,
-              ),
+              style: TextStyle(fontSize: 20, fontWeight: FontWeight.w700),
             ),
           ),
 
@@ -418,9 +372,7 @@ class _EmptyView extends StatelessWidget {
 
           Center(
             child: Padding(
-              padding: const EdgeInsets.symmetric(
-                horizontal: 40,
-              ),
+              padding: const EdgeInsets.symmetric(horizontal: 40),
               child: Text(
                 'There are currently no crop schedules available.',
                 textAlign: TextAlign.center,
@@ -437,4 +389,3 @@ class _EmptyView extends StatelessWidget {
     );
   }
 }
-

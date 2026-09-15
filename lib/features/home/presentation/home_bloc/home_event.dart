@@ -25,3 +25,12 @@ class GetHomeVisitEvent extends HomeEvent {
 
   GetHomeVisitEvent(this.userId);
 }
+
+class GetInpunchPendingEvent extends HomeEvent {
+  final String userId;
+
+  GetInpunchPendingEvent({required this.userId});
+
+  @override
+  List<Object?> get props => [userId];
+}
