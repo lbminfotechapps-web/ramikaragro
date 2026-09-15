@@ -5,9 +5,13 @@ import 'package:demo/features/collection/presentation/pages/collection_list_page
 import 'package:demo/features/collection/presentation/pages/collection_wise_form_page.dart';
 import 'package:demo/features/collection/presentation/pages/dealer_wise_target_page.dart';
 import 'package:demo/features/dealer/presentation/pages/DealerListScreen.dart';
+import 'package:demo/features/distpatchistory/presentation/pages/dispatch_page.dart';
+import 'package:demo/features/dealer_visit/presentation/pages/add_remark_page.dart';
 import 'package:demo/features/expense/presentation/pages/my_expense_page.dart';
 import 'package:demo/features/expense/presentation/pages/team_expense_page.dart';
 import 'package:demo/features/farmer/famerfollowup/presentation/pages/famerfollowuppage.dart';
+import 'package:demo/features/farmer/farmerlist/data/model/farmerlist_model.dart';
+import 'package:demo/features/farmer/farmerregistration/presentation/pages/farmer_edit_update_scren.dart';
 import 'package:demo/features/farmer/farmerlist/presentation/pages/farmerlist_screen.dart';
 import 'package:demo/features/farmer/farmerregistration/presentation/pages/farmerregistration_page.dart';
 import 'package:demo/features/gallery/presentation/pages/galleryscreen.dart';
@@ -24,6 +28,7 @@ import 'package:demo/features/leave/presentation/pages/team_leave_list_page.dart
 import 'package:demo/features/leave/presentation/pages/top_ten_dealer_page.dart';
 import 'package:demo/features/home/presentation/last_force_out_screen.dart';
 import 'package:demo/features/place_order/presentation/pages/place_order_page.dart';
+import 'package:demo/features/orderhistory/presentation/presentattion/order_history_page.dart';
 import 'package:demo/features/products/domain/entity/fertilizer_category_entity.dart';
 import 'package:demo/features/products/domain/entity/fertilizer_product_entity.dart';
 import 'package:demo/features/products/presentation/pages/product_details.dart';
@@ -42,6 +47,7 @@ import 'package:demo/features/reports/presentation/pages/visit_summary_page.dart
 import 'package:demo/features/reports/presentation/bloc/employee_output_bloc.dart';
 import 'package:demo/features/reports/presentation/bloc/visit_report_bloc.dart';
 import 'package:demo/features/sales_targrt_achievement/presentation/pages/sales_wise_target_page.dart';
+import 'package:demo/features/salesreturnhistory/presentation/presentation/sales_return_history_page.dart';
 import 'package:demo/features/scheme/presentation/pages/schemescreen.dart';
 import 'package:demo/features/splash/splash_screen.dart';
 import 'package:flutter/foundation.dart';
@@ -66,6 +72,7 @@ class AppRouter {
   static const String productDetails = '/productDetails';
   static const String farmers = '/farmers';
   static const String farmerpin = '/farmerpin';
+  static const String dealerpin = '/dealerpin';
 
   static const String empActivityReport = '/empActivityReport';
   static const String empOutputReport = '/empOutputReport';
@@ -86,7 +93,8 @@ class AppRouter {
 
   static const String addCollection = '/addCollection';
   static const String collectionList = '/collectionList';
-  static const String collectionTargetAndAchievement = '/collectionTargetAndAchievement';
+  static const String collectionTargetAndAchievement =
+      '/collectionTargetAndAchievement';
   static const String cropSchedule = '/cropSchedule';
   static const String farmerregistration = '/farmerregistration';
   static const String expenseList = '/expenseList';
@@ -94,6 +102,10 @@ class AppRouter {
   static const String salesTargetAndAchievement = '/salesTargetAndAchievement';
    static const String placeOrder = '/placeOrder';
 
+  static const String orderHistoy = '/orderHistoy';
+  static const String dispatchHistoy = '/dispatchHistoy';
+  static const String salesHistoy = '/salesHistoy';
+  static const String farmerEdit = '/farmerEdit';
 
   static final GoRouter router = GoRouter(
     initialLocation: splash,
@@ -122,6 +134,30 @@ class AppRouter {
           return const NotVisitedDealerPage();
         },
       ),
+
+      GoRoute(
+        path: orderHistoy,
+        name: 'orderHistoy',
+        builder: (context, state) {
+          return const OrderHistoryPage();
+        },
+      ),
+      GoRoute(
+        path: dispatchHistoy,
+        name: 'dispatchHistoy',
+        builder: (context, state) {
+          return const DispatchPage();
+        },
+      ),
+
+      GoRoute(
+        path: salesHistoy,
+        name: 'salesHistoy',
+        builder: (context, state) {
+          return const SalesReturnHistoryPage();
+        },
+      ),
+
       GoRoute(
         path: gallery,
         name: 'gallery',
@@ -209,7 +245,6 @@ class AppRouter {
           return const DealerWiseTargetPage();
         },
       ),
-      
 
        GoRoute(
         path: salesTargetAndAchievement,
@@ -232,6 +267,7 @@ class AppRouter {
 
 
        GoRoute(
+      GoRoute(
         path: cropSchedule,
         name: 'cropSchedule',
         builder: (context, state) {
@@ -239,8 +275,7 @@ class AppRouter {
         },
       ),
 
-    
-       GoRoute(
+      GoRoute(
         path: expenseList,
         name: 'expenseList',
         builder: (context, state) {
@@ -248,16 +283,13 @@ class AppRouter {
         },
       ),
 
-
-       GoRoute(
+      GoRoute(
         path: teamExpenseList,
         name: 'teamExpenseList',
         builder: (context, state) {
           return const TeamExpensePage();
         },
       ),
-
-
 
       GoRoute(
         path: farmers,
@@ -268,10 +300,31 @@ class AppRouter {
         path: farmerpin,
         name: 'farmerpin',
         builder: (context, state) {
+          final dealerId = state.extra is String ? state.extra as String : '';
+          return AddDealerVisitPage(dealerId: dealerId);
+        },
+      ),
+      GoRoute(
+        path: dealerpin,
+        name: 'dealerpin',
+        builder: (context, state) {
           final farmerId = state.extra is String ? state.extra as String : '';
           return FamerFollowupPage(farmerId: farmerId);
         },
       ),
+
+      GoRoute(
+        path: farmerEdit,
+        name: 'farmerEdit',
+        builder: (context, state) {
+          final farmerDetails = state.extra is FarmerlistModel
+              ? state.extra as FarmerlistModel
+              : null;
+          //  final farmerId = state.extra is String ? state.extra as String : '';
+          return FarmerEditUpdateScren(farmerDetails: farmerDetails);
+        },
+      ),
+
       GoRoute(
         path: punch,
         name: 'punchIn',

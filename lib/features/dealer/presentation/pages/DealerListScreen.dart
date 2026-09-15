@@ -10,6 +10,13 @@ import 'package:demo/features/dealer/presentation/bloc/dealerlist_state.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
+
+import '../../data/models/DealerListModel.dart';
+import '../bloc/dealerlist_bloc.dart';
+
 class DealerListScreen extends StatefulWidget {
   const DealerListScreen({super.key});
 
@@ -611,7 +618,7 @@ class _DealerListItem extends StatelessWidget {
                 _CircleActionButton(
                   icon: Icons.push_pin,
                   onTap: () {
-                    // Pin dealer
+                    context.go('/farmerpin', extra: dealer.outletId);
                   },
                 ),
 

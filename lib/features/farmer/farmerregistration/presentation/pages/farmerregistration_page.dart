@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:demo/core/router/app_router.dart';
 import 'package:demo/core/secure_storage/secure_storage.dart';
+import 'package:demo/core/theme/app_colors.dart';
 import 'package:demo/core/utility/app_image_picker.dart';
 import 'package:demo/core/utility/data_list.dart';
 import 'package:demo/core/utility/device_info_util.dart';
@@ -18,6 +19,7 @@ import 'package:demo/features/farmer/farmerregistration/presentation/bloc/state_
 import 'package:demo/features/farmer/farmerregistration/presentation/bloc/state_event.dart';
 import 'package:demo/features/farmer/farmerregistration/presentation/bloc/states_state.dart';
 import 'package:demo/features/farmer/farmerregistration/presentation/widgets/crop_details_dialog.dart';
+import 'package:demo/features/farmer/farmerregistration/presentation/widgets/product_selection_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil_plus/flutter_screenutil_plus.dart';
@@ -60,8 +62,13 @@ class _FarmerregistrationPageState extends State<FarmerregistrationPage> {
   String? _selectedTalukaId = '0';
   String? _selectedFarmerStatus;
   File? _uploadedImage;
-  String? _selectedProductId;
+  final List<String> _selectedProductIds = [];
   final List<SelectedCropDetail> _selectedCropDetails = [];
+
+  String selectedSowingDates = '';
+  String selectedAcers = '';
+  String selectedIrrigationId = '';
+  String selectedCropId = '';
   @override
   void initState() {
     super.initState();
@@ -246,8 +253,75 @@ class _FarmerregistrationPageState extends State<FarmerregistrationPage> {
         _selectedCropDetails
           ..clear()
           ..addAll(result);
+
+        // ============================================
+        // CONVERT DIALOG DATA TO API FORMAT
+        // ============================================
+
+        // Example:
+        // 16-09-2026,14-09-2026,22-09-2026
+        selectedSowingDates = _selectedCropDetails
+            .map((item) => _formatApiDate(item.date))
+            .join(',');
+
+        // Example:
+        // 258,523,,66,,
+        selectedAcers = _selectedCropDetails
+            .map((item) => item.acre.trim())
+            .join(',');
+
+        // Example:
+        // 1,2,1
+        selectedIrrigationId = _selectedCropDetails
+            .map((item) => item.irrigationId)
+            .join(',');
+
+        // Example:
+        // 145,146,148
+        selectedCropId = _selectedCropDetails
+            .map((item) => item.cropId)
+            .join(',');
       });
+
+      // ============================================
+      // DEBUG
+      // ============================================
+
+      debugPrint('================================');
+      debugPrint('SELECTED CROP DETAILS');
+      debugPrint('================================');
+
+      debugPrint('selectedSowingDates: $selectedSowingDates');
+
+      debugPrint('selectedAcers: $selectedAcers');
+
+      debugPrint('selectedIrrigationId: $selectedIrrigationId');
+
+      debugPrint('selectedCropId: $selectedCropId');
+
+      debugPrint('================================');
     }
+  }
+
+  String _formatApiDate(DateTime date) {
+    return '${date.day.toString().padLeft(2, '0')}-'
+        '${date.month.toString().padLeft(2, '0')}-'
+        '${date.year}';
+  }
+
+  String get _selectedProductNames {
+    final productList =
+        context
+            .read<StateBloc>()
+            .state
+            .farmerDetailsEntity
+            ?.productDetailsData ??
+        [];
+
+    return productList
+        .where((product) => _selectedProductIds.contains(product.fldProductId))
+        .map((product) => product.fldProductName)
+        .join(', ');
   }
 
   void _submit() async {
@@ -298,84 +372,265 @@ class _FarmerregistrationPageState extends State<FarmerregistrationPage> {
       ).showSnackBar(const SnackBar(content: Text('Please select taluka')));
       return;
     }
+    debugPrint('================================');
+    debugPrint('FARMER REGISTRATION - ALL PARAMS');
+    debugPrint('================================');
+
+    debugPrint('FARMER LATTTT - $latitude');
+    debugPrint('FARMER LONG - $longitude');
+    debugPrint('================================');
+
+    // Basic farmer details
+    debugPrint('fld_farmer_name: ${farmerNameController.text.trim()}');
+    debugPrint('fld_address: ${addressController.text.trim()}');
+
+    debugPrint('fld_category_id: ');
+    debugPrint('state: ${_selectedStateId ?? '0'}');
+    debugPrint('fld_demo_type_id: ');
+    debugPrint('district: ${_selectedDistrictId ?? '0'}');
+    debugPrint('taluka: ${_selectedTalukaId ?? '0'}');
+
+    // Farmer status
+    debugPrint('status_of_farmer: ${_selectedFarmerStatus ?? ''}');
+    debugPrint('campaign_radio: Yes');
+
+    // Mobile / contact
+    debugPrint('fld_mobile_no: ${mobileController.text.trim()}');
+    debugPrint('fld_mobile_no2: ${alternateMobileController.text.trim()}');
+    debugPrint('fld_email_id: ${emailController.text.trim()}');
+    debugPrint('contactPersonName: ${contactPersonController.text.trim()}');
+
+    // Address
+    debugPrint('fld_village: ${villageController.text.trim()}');
+    debugPrint('geoAddress: $address');
+    debugPrint('meetingLocation: ');
+    debugPrint('marketNearby: ');
+
+    // Other farmer details
+    debugPrint('fld_tractor_mode: ');
+    debugPrint(
+      'fld_total_acre: ${_selectedCropDetails.fold<double>(0.0, (sum, item) => sum + (double.tryParse(item.acre) ?? 0)).toStringAsFixed(2)}',
+    );
+
+    debugPrint('aadhaarNo: ');
+    debugPrint('remark: ${remarkController.text.trim()}');
+    debugPrint(
+      'currentProductUsed: '
+      '${currentProductUsedController.text.trim()}',
+    );
+
+    // Products / crops
+    debugPrint('selectedProductId: ${_selectedProductIds.join(',')}');
+    debugPrint('selectedProductId LIST: $_selectedProductIds');
+
+    debugPrint(
+      'selectedCropId: ${_selectedCropDetails.map((crop) => crop.cropId.toString()).join(',')}',
+    );
+
+    debugPrint(
+      'selectedCropId LIST: ${_selectedCropDetails.map((crop) => crop.cropId.toString()).toList()}',
+    );
+
+    debugPrint('selectedAcers: $selectedAcers');
+
+    debugPrint('selectedSowingDates: $selectedSowingDates');
+
+    debugPrint('selectedIrrigationId: $selectedIrrigationId');
+
+    debugPrint('selectedCattleId: ');
+    debugPrint('selectedCattleCount: ');
+
+    // Crop details
+    debugPrint('--------------------------------');
+    debugPrint('SELECTED CROP DETAILS');
+    debugPrint('--------------------------------');
+
+    debugPrint('Selected Crop Details Count: ${_selectedCropDetails.length}');
+
+    for (final crop in _selectedCropDetails) {
+      debugPrint(
+        'Crop -> '
+        'ID: ${crop.cropId}, '
+        'Name: ${crop.cropName}, '
+        'Date: ${_formatApiDate(crop.date)}, '
+        'Acre: ${crop.acre}, '
+        'Irrigation ID: ${crop.irrigationId}, '
+        'Irrigation: ${crop.irrigationName}',
+      );
+    }
+
+    // Location
+    debugPrint('--------------------------------');
+    debugPrint('LOCATION');
+    debugPrint('--------------------------------');
+
+    debugPrint('latitude: $latitude');
+    debugPrint('longitude: $longitude');
+
+    debugPrint('networkLatitude: $latitude');
+    debugPrint('networkLongitude: $longitude');
+
+    debugPrint('gpsLatitude: $latitude');
+    debugPrint('gpsLongitude: $longitude');
+
+    debugPrint('differenceByAndroid: 0.0');
+
+    // Device information
+    debugPrint('--------------------------------');
+    debugPrint('DEVICE INFORMATION');
+    debugPrint('--------------------------------');
+
+    debugPrint('strNetworkInfo: $networkInfo');
+    debugPrint('strBatteryInfo: $batteryInfo');
+
+    // Activity
+    debugPrint('activityId: 2');
+
+    // Image
+    debugPrint('--------------------------------');
+    debugPrint('IMAGE');
+    debugPrint('--------------------------------');
+
+    debugPrint(
+      'selfie_capture_image: '
+      '${_uploadedImage?.path ?? 'No image selected'}',
+    );
 
     debugPrint('================================');
-    debugPrint('FARMER REGISTRATION');
+    debugPrint('END FARMER REGISTRATION PARAMS');
     debugPrint('================================');
 
-    debugPrint('Farmer Name: ${farmerNameController.text}');
-
-    debugPrint('Contact Person: ${contactPersonController.text}');
-
-    debugPrint('Address: ${addressController.text}');
-
-    debugPrint('Mobile: ${mobileController.text}');
-
-    debugPrint('Alternate Mobile: ${alternateMobileController.text}');
-
-    debugPrint('Email: ${emailController.text}');
-
-    debugPrint('Village: ${villageController.text}');
-
-    debugPrint('State ID: $_selectedStateId');
-
-    debugPrint('District ID: $_selectedDistrictId');
-
-    debugPrint('Taluka ID: $_selectedTalukaId');
-
     debugPrint('================================');
+
     final userData = await SecureStorage.instance.getUserData();
 
     final userId = int.tryParse(userData?['user_id']?.toString() ?? '');
-    /*
-    context.read<StateBloc>().add(
-      FarmerSubmitDetailsEvent(
-        selectedSowingDates: selectedSowingDates, // came frmom dalog
-        marketNearby: address,
-        gpsLongitude: longitude,
-        networkLatitude: latitude,
-        latitude: latitude,
-        statusOfFarmer: _selectedFarmerStatus.toString(),
-        fldTractorMode: fldTractorMode, // dont know
-        remark: remarkController.text.trim(),
-        selectedAcers: selectedAcers, // -> acre come from dialog
-        selectedCattleCount: selectedCattleCount, // dont know
-        selectedIrrigationId:
-            selectedIrrigationId, // irrigationDetailsData ->fld_id
-        selectedProductId:
-            selectedProductId, //-> productDetailsData -> fld_product_id
-        activityId: activityId,
-        campaignRadio: campaignRadio, // dont know
-        currentProductUsed: currentProductUsed,
-        selectedCattleId: selectedCattleId, //dont know
-        fldCategoryId: fldCategoryId, // dont know
-        state: _selectedStateId.toString(),
-        fldDemoTypeId: fldDemoTypeId, // dont know
-        fldVillage: villageController.text.trim(),
-        geoAddress: address,
-        strNetworkInfo: networkInfo,
-        longitude: longitude,
-        gpsLatitude: latitude,
-        fldTotalAcre: ac, // -> acre come from dialog
-        aadhaarNo: addressController.text.trim(),
-        fldEmailId: emailController.text.trim(),
-        fldAddress: addressController.text.trim(),
-        fldMobileNo: mobileController.text.trim(),
-        strBatteryInfo: batteryInfo,
-        differenceByAndroid: '0.0',
-        contactPersonName: contactPersonController.text.trim(),
-        userId: userId.toString(),
-        fldFarmerName: farmerNameController.text.trim(),
-        district: _selectedDistrictId.toString(),
-        taluka: _selectedDistrictId.toString(),
-        fldMobileNo2: mobileController.text.trim(),
-        networkLongitude: latitude,
-        image: _uploadedImage.toString(),
-      ),
-    );
 
+    debugPrint('User ID: $userId');
 
-    */
+    final selectedProductId = _selectedProductIds.join(',');
+
+    debugPrint('Final selectedProductId: $selectedProductId');
+
+    setState(() {
+      isLoading = true;
+      _submissionSent = false;
+    });
+
+    try {
+      context.read<StateBloc>().add(
+        FarmerSubmitDetailsEvent(
+          fldFarmerName: farmerNameController.text.trim(),
+
+          fldAddress: addressController.text.trim(),
+
+          userId: userId?.toString() ?? '',
+
+          fldCategoryId: '',
+
+          state: _selectedStateId ?? '0',
+
+          fldDemoTypeId: '',
+
+          district: _selectedDistrictId ?? '0',
+
+          taluka: _selectedTalukaId ?? '0',
+
+          statusOfFarmer: _selectedFarmerStatus ?? '',
+
+          campaignRadio: 'Yes',
+
+          fldMobileNo: mobileController.text.trim(),
+
+          fldMobileNo2: alternateMobileController.text.trim(),
+
+          fldTotalAcre: _selectedCropDetails
+              .fold<double>(
+                0.0,
+                (sum, item) => sum + (double.tryParse(item.acre) ?? 0),
+              )
+              .toStringAsFixed(2),
+
+          fldEmailId: emailController.text.trim(),
+
+          fldTractorMode: '',
+
+          fldVillage: villageController.text.trim(),
+
+          selectedProductId: selectedProductId,
+
+          // Example: 145,146
+          selectedCropId: _selectedCropDetails
+              .map((item) => item.cropId.toString())
+              .join(','),
+
+          // Example: 10,14
+          selectedAcers: selectedAcers,
+
+          // Example: 11-09-2026,12-09-2026
+          selectedSowingDates: selectedSowingDates,
+
+          // Example: 1,1
+          selectedIrrigationId: selectedIrrigationId,
+
+          selectedCattleId: '',
+
+          selectedCattleCount: '',
+
+          latitude: latitude,
+
+          longitude: longitude,
+
+          networkLatitude: latitude,
+
+          networkLongitude: longitude,
+
+          gpsLatitude: latitude,
+
+          gpsLongitude: longitude,
+
+          differenceByAndroid: '0.0',
+
+          contactPersonName: contactPersonController.text.trim(),
+
+          meetingLocation: '',
+
+          marketNearby: '',
+
+          aadhaarNo: '',
+
+          remark: remarkController.text.trim(),
+
+          geoAddress: address,
+
+          strNetworkInfo: networkInfo,
+
+          currentProductUsed: currentProductUsedController.text.trim(),
+
+          strBatteryInfo: batteryInfo,
+
+          activityId: '2',
+
+          image: _uploadedImage?.path ?? '',
+        ),
+      );
+      _submissionSent = true;
+
+      debugPrint('================================');
+      debugPrint('FARMER SUBMIT EVENT SENT');
+      debugPrint('================================');
+    } catch (e) {
+      if (!mounted) return;
+
+      setState(() {
+        isLoading = false;
+        _submissionSent = false;
+      });
+
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(e.toString())));
+    }
   }
 
   @override
@@ -387,6 +642,8 @@ class _FarmerregistrationPageState extends State<FarmerregistrationPage> {
     alternateMobileController.dispose();
     emailController.dispose();
     villageController.dispose();
+    currentProductUsedController.dispose();
+    remarkController.dispose();
 
     super.dispose();
   }
@@ -401,17 +658,56 @@ class _FarmerregistrationPageState extends State<FarmerregistrationPage> {
         onBackTap: () => context.go(AppRouter.home),
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
-      floatingActionButton: CustomButton(
-        text: 'Register Farmer',
-        onPressed: _submit,
-        width: double.infinity,
-        height: 52,
-        borderRadius: 22,
-        backgroundColor: const Color(0xFF087C3A),
-        textColor: Colors.white,
+      floatingActionButton: BlocBuilder<StateBloc, StatsState>(
+        builder: (context, state) {
+          return CustomButton(
+            text: 'Register Farmer',
+            onPressed: _submit,
+            isLoading: isLoading,
+            width: double.infinity,
+            height: 52,
+            borderRadius: 22,
+            backgroundColor: const Color(0xFF087C3A),
+            textColor: Colors.white,
+          );
+        },
       ),
 
-      body: BlocBuilder<StateBloc, StatsState>(
+      body: BlocConsumer<StateBloc, StatsState>(
+        listener: (context, state) {
+          if (!isLoading || !_submissionSent) return;
+          if (state.status == StatesStatus.farmerRegiSuccess) {
+            setState(() {
+              isLoading = false;
+              _submissionSent = false;
+            });
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                backgroundColor: AppColors.backgroundColor,
+                content: Text(
+                  style: TextStyle(color: AppColors.accentGreen),
+                  state.errorMessage ?? 'Farmer Added Successfully',
+                ),
+              ),
+            );
+            context.go(AppRouter.home);
+          }
+          // ============================================
+          // API ERROR
+          // ============================================
+          else if (state.status == StatesStatus.failed) {
+            setState(() {
+              isLoading = false;
+              _submissionSent = false;
+            });
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                backgroundColor: AppColors.darkErrorColor,
+                content: Text(state.errorMessage ?? 'Submission failed'),
+              ),
+            );
+          }
+        },
         builder: (context, state) {
           final productDetailData =
               state.farmerDetailsEntity?.productDetailsData ?? [];
@@ -519,11 +815,13 @@ class _FarmerregistrationPageState extends State<FarmerregistrationPage> {
                       prefixIcon: Icons.phone_outlined,
                       keyboardType: TextInputType.phone,
                       validator: (value) {
-                        if (value == null || value.trim().isEmpty) {
+                        final mobileNumber = value?.trim() ?? '';
+
+                        if (mobileNumber.isEmpty) {
                           return 'Please enter mobile number';
                         }
 
-                        if (value.length != 10) {
+                        if (!RegExp(r'^\d{10}$').hasMatch(mobileNumber)) {
                           return 'Enter valid 10 digit mobile number';
                         }
 
@@ -539,11 +837,13 @@ class _FarmerregistrationPageState extends State<FarmerregistrationPage> {
                       prefixIcon: Icons.phone_outlined,
                       keyboardType: TextInputType.phone,
                       validator: (value) {
-                        if (value == null || value.trim().isEmpty) {
+                        final mobileNumber = value?.trim() ?? '';
+
+                        if (mobileNumber.isEmpty) {
                           return null;
                         }
 
-                        if (value.length != 10) {
+                        if (!RegExp(r'^\d{10}$').hasMatch(mobileNumber)) {
                           return 'Enter valid 10 digit mobile number';
                         }
 
@@ -757,39 +1057,133 @@ class _FarmerregistrationPageState extends State<FarmerregistrationPage> {
                         color: Colors.black87,
                       ),
                     ),
-                    CustomDropdown<String>(
-                      value: _selectedProductId,
 
-                      hintText: 'Select Suggested Product',
-
-                      prefixIcon: Icons.inventory_2_outlined,
-
-                      enabled: productDetailData.isNotEmpty,
-
-                      items: productDetailData.map((product) {
-                        return DropdownMenuItem<String>(
-                          value: product.fldProductId,
-                          child: Text(
-                            product.fldProductName,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                        );
-                      }).toList(),
-
-                      onChanged: (value) {
-                        setState(() {
-                          _selectedProductId = value;
-                        });
-
-                        debugPrint('Selected Product ID: $_selectedProductId');
-                      },
-
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return 'Please select suggested product';
+                    FormField<bool>(
+                      initialValue: _selectedProductIds.isNotEmpty,
+                      validator: (_) {
+                        if (_selectedProductIds.isEmpty) {
+                          return 'Please select a suggested product';
                         }
 
                         return null;
+                      },
+                      builder: (field) {
+                        return Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            InkWell(
+                              onTap: productDetailData.isEmpty
+                                  ? null
+                                  : () async {
+                                      final result =
+                                          await showDialog<List<String>>(
+                                            context: context,
+                                            barrierDismissible: false,
+                                            builder: (dialogContext) {
+                                              return ProductSelectionDialog(
+                                                productList: productDetailData,
+                                                selectedProductIds:
+                                                    _selectedProductIds,
+                                              );
+                                            },
+                                          );
+
+                                      if (result != null && mounted) {
+                                        setState(() {
+                                          _selectedProductIds
+                                            ..clear()
+                                            ..addAll(result);
+                                        });
+
+                                        debugPrint(
+                                          'Selected Product IDs: '
+                                          '${_selectedProductIds.join(',')}',
+                                        );
+
+                                        debugPrint(
+                                          'Selected Product IDs List: '
+                                          '$_selectedProductIds',
+                                        );
+                                      }
+                                    },
+                              child: Container(
+                                width: double.infinity,
+                                padding: EdgeInsets.symmetric(
+                                  horizontal: 14.w,
+                                  vertical: 15.h,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: productDetailData.isEmpty
+                                      ? Colors.grey.shade100
+                                      : Colors.white,
+                                  borderRadius: BorderRadius.circular(22.r),
+                                  boxShadow: productDetailData.isNotEmpty
+                                      ? [
+                                          BoxShadow(
+                                            color: Colors.black.withValues(
+                                              alpha: 0.08,
+                                            ),
+                                            blurRadius: 8,
+                                            offset: const Offset(0, 2),
+                                          ),
+                                        ]
+                                      : [],
+                                ),
+                                child: Row(
+                                  children: [
+                                    Icon(
+                                      Icons.inventory_2_outlined,
+                                      color: productDetailData.isEmpty
+                                          ? Colors.grey
+                                          : const Color(0xFF087C3A),
+                                    ),
+
+                                    SizedBox(width: 12.w),
+
+                                    Expanded(
+                                      child: _selectedProductIds.isEmpty
+                                          ? Text(
+                                              'Select Suggested Product',
+                                              style: TextStyle(
+                                                fontSize: 14.sp,
+                                                color: Colors.grey.shade500,
+                                              ),
+                                            )
+                                          : Text(
+                                              _selectedProductNames,
+                                              maxLines: 2,
+                                              overflow: TextOverflow.ellipsis,
+                                              style: TextStyle(
+                                                fontSize: 14.sp,
+                                                color: Colors.black87,
+                                                fontWeight: FontWeight.w500,
+                                              ),
+                                            ),
+                                    ),
+
+                                    Icon(
+                                      Icons.keyboard_arrow_down,
+                                      color: productDetailData.isEmpty
+                                          ? Colors.grey
+                                          : Colors.grey.shade600,
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                            if (field.hasError)
+                              Padding(
+                                padding: EdgeInsets.only(left: 16.w, top: 4.h),
+                                child: Text(
+                                  field.errorText!,
+                                  style: TextStyle(
+                                    color: Colors.red,
+                                    fontSize: 12.sp,
+                                  ),
+                                ),
+                              ),
+                          ],
+                        );
                       },
                     ),
 
@@ -886,6 +1280,67 @@ class _FarmerregistrationPageState extends State<FarmerregistrationPage> {
           );
         },
       ),
+
+      //  BlocBuilder<StateBloc, StatsState>(
+      //   builder: (context, state) {
+      //   final productDetailData =
+      //       state.farmerDetailsEntity?.productDetailsData ?? [];
+      //   DistrictEntity? selectedDistrict;
+
+      //   final cropList = state.farmerDetailsEntity?.cropDetailsData ?? [];
+
+      //   final irrigationList =
+      //       state.farmerDetailsEntity?.irrigationDetailsData ?? [];
+
+      //   if (_selectedDistrictId != null && _selectedDistrictId != '0') {
+      //     for (final district in state.districtList) {
+      //       if (district.fldDistId == _selectedDistrictId) {
+      //         selectedDistrict = district;
+      //         break;
+      //       }
+      //     }
+      //   }
+
+      //   final talukaList = selectedDistrict?.taluka ?? [];
+
+      //   final districtItems = [
+      //     const DropdownMenuItem<String>(
+      //       value: '0',
+      //       child: Text('Select District'),
+      //     ),
+
+      //     ...state.districtList
+      //         .where((district) => district.fldDistId != '0')
+      //         .map(
+      //           (district) => DropdownMenuItem<String>(
+      //             value: district.fldDistId,
+      //             child: Text(district.fldDistName),
+      //           ),
+      //         ),
+      //   ];
+
+      //   final talukaItems = [
+      //     const DropdownMenuItem<String>(
+      //       value: '0',
+      //       child: Text('Select Taluka'),
+      //     ),
+
+      //     ...talukaList
+      //         .where((taluka) => taluka.fldTalukaId != '0')
+      //         .map(
+      //           (taluka) => DropdownMenuItem<String>(
+      //             value: taluka.fldTalukaId,
+      //             child: Text(taluka.fldName),
+      //           ),
+      //         ),
+      //   ];
+
+      //   final farmerStatusItems = farmerStatus.map((status) {
+      //     return DropdownMenuItem<String>(value: status, child: Text(status));
+      //   }).toList();
+
+      // },
+      // ),
     );
   }
 

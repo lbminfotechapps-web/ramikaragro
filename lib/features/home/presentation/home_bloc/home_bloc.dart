@@ -1,18 +1,23 @@
 import 'dart:async';
 
+import 'package:demo/features/home/doman/home_usecases/get_inpunch_pending_usecase.dart';
 import 'package:demo/features/home/doman/home_usecases/get_menu_usecase.dart';
 import 'package:demo/features/home/presentation/home_bloc/home_event.dart';
 import 'package:demo/features/home/presentation/home_bloc/home_state.dart';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class HomeBloc extends Bloc<HomeEvent, HomeState> {
   final GetMenuUsecase getMenuUsecase;
+  final GetInpunchPendingUseCase getInpunchPendingUseCase;
 
-  HomeBloc(this.getMenuUsecase) : super(const HomeState()) {
+  HomeBloc(this.getMenuUsecase, this.getInpunchPendingUseCase)
+    : super(const HomeState()) {
     on<GetMenuEvent>(_onGetMenus);
     on<VisitGraphCountEvent>(_onGetGraphCount);
     on<GetHomeVisitEvent>(_onGetHomeVisitCount);
+    on<GetInpunchPendingEvent>(_getInpunchPending);
   }
 
   Future<void> _onGetMenus(GetMenuEvent event, Emitter<HomeState> emit) async {
@@ -86,7 +91,25 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
     emit(state.copyWith(status: HomeStatus.success, homedata: response));
   }
 
-  // else {
-  //   emit(state.copyWith(status: HomeStatus.failure));
-  // }
+  FutureOr<void> _getInpunchPending(
+    GetInpunchPendingEvent event,
+    Emitter<HomeState> emit,
+  ) async {
+    emit(state.copyWith(status: HomeStatus.loading));
+
+    try {
+      final result = await getInpunchPendingUseCase.getInpunchPending(
+        event.userId,
+      );
+      print('in punch pending status resonse $result');
+
+      emit(state.copyWith(status: HomeStatus.success, data: result));
+    } catch (e) {
+      debugPrint('GRAPH API ERROR: $e');
+
+      emit(
+        state.copyWith(status: HomeStatus.failure, errorMessage: e.toString()),
+      );
+    }
+  }
 }

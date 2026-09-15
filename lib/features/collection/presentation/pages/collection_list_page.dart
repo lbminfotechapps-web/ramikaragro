@@ -251,7 +251,7 @@ class _CollectionListPageState
                           .loading) {
                       return const CustomLoader(
               showMessage: true,
-              message: 'Authentication....',
+            
             );
                   }
 

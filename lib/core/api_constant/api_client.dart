@@ -19,6 +19,7 @@ class ApiClient {
   static const String punchStatus = "/getLastTransactionInOutStatus";
   static const String getEmployeeActivityDetails =
       '/getEmployeeActivityDetails_new';
+  static const String getEmployeeStatus = '/getEmployeeStatus';
 
   static const String getVisitReportDetails = "/getVisitReportDetails";
   static const String getEmployeeOutputReport = "/getEmployeeOutputReport";
@@ -38,6 +39,9 @@ class ApiClient {
   static const String getMyEmployeeLeaveList = "/getMyEmployeeLeaveList";
   static const String updateLeaveStatus = "/updateLeaveStatus";
   static const String visitCountgraph = "/getEmployeevisitcount";
+  static const String remark_list = "/remark_list";
+  static const String add_remark = "/add_remark";
+  static const String getdealervisitpurpose = "/getdealervisitpurpose";
   static const String getState = "/get_state";
   static const String submitPaymentDetails = "/submitPaymentDetails";
 
@@ -80,4 +84,13 @@ class ApiClient {
   static const String placeOrder ="/placeOrder";
   static const String getProductDetailRatesKvat ="/getProductDetailRatesKvat";
 
+  static const String getOrderHistory = '/getOrderList';
+  static const String updateOrderStatus = '/updateOrderStatus';
+  static const String getDispatchList = '/getDispatchDetails';
+
+  static const String salesReturnHistory = '/getSalesReturnDetails';
+
+  static const String getDealerName = '/getTalukaWiseOutletForOrderNew';
+
+  static const String getInpunchPending = '/getPendingInpunchStatus';
 }

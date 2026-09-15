@@ -220,6 +220,13 @@ class _QuickAccessSectionState extends State<QuickAccessSection> {
     
     
      else if (menu.menuId == '57' ||
+    } else if (menu.menuId == '74') {
+      context.push('/orderHistoy');
+    } else if (menu.menuId == '75') {
+      context.push('/dispatchHistoy');
+    } else if (menu.menuId == '78') {
+      context.push('/salesHistoy');
+    } else if (menu.menuId == '57' ||
         menu.menuId == '63' ||
         menu.menuId == '32') {
       final userData = await SecureStorage.instance.getUserData();
@@ -334,9 +341,7 @@ class QuickAccessMenuItem extends StatelessWidget {
                   return child;
                 }
 
-               return const CustomLoader(
-           
-            );
+                return const CustomLoader();
               },
             ),
           ),

@@ -156,44 +156,52 @@ class StateBloc extends Bloc<StatesEvent, StatsState> {
       // REQUEST DATA
       // ============================================
       final jsonData = <String, dynamic>{
-        'selectedSowingDates': event.selectedSowingDates,
-        'marketNearby': event.marketNearby,
-        'gpsLongitude': event.gpsLongitude,
-        'networkLatitude': event.networkLatitude,
-        'latitude': event.latitude,
-        'status_of_farmer': event.statusOfFarmer,
-        'fld_tractor_mode': event.fldTractorMode,
-        'remark': event.remark,
-        'selectedAcers': event.selectedAcers,
-        'selectedCattleCount': event.selectedCattleCount,
-        'selectedIrrigationId': event.selectedIrrigationId,
-        'selectedProductId': event.selectedProductId,
-        'activityId': event.activityId,
-        'campaign_radio': event.campaignRadio,
-        'currentProductUsed': event.currentProductUsed,
-        'selectedCattleId': event.selectedCattleId,
+        'fld_farmer_name': event.fldFarmerName,
+        'fld_address': event.fldAddress,
+        'user_id': event.userId,
         'fld_category_id': event.fldCategoryId,
         'state': event.state,
         'fld_demo_type_id': event.fldDemoTypeId,
-        'fld_village': event.fldVillage,
-        'geoAddress': event.geoAddress,
-        'strNetworkInfo': event.strNetworkInfo,
-        'longitude': event.longitude,
-        'gpsLatitude': event.gpsLatitude,
-        'fld_total_acre': event.fldTotalAcre,
-        'aadhaarNo': event.aadhaarNo,
-        'fld_email_id': event.fldEmailId,
-        'fld_address': event.fldAddress,
-        'fld_mobile_no': event.fldMobileNo,
-        'strBatteryInfo': event.strBatteryInfo,
-        'differenceByAndroid': event.differenceByAndroid,
-        'contactPersonName': event.contactPersonName,
-        'user_id': event.userId,
-        'fld_farmer_name': event.fldFarmerName,
         'district': event.district,
         'taluka': event.taluka,
+
+        'status_of_farmer': event.statusOfFarmer,
+        'campaign_radio': event.campaignRadio,
+
+        'fld_mobile_no': event.fldMobileNo,
         'fld_mobile_no2': event.fldMobileNo2,
+        'fld_total_acre': event.fldTotalAcre,
+        'fld_email_id': event.fldEmailId,
+        'fld_tractor_mode': event.fldTractorMode,
+        'fld_village': event.fldVillage,
+
+        'selectedProductId': event.selectedProductId,
+        'selectedCropId': event.selectedCropId,
+        'selectedAcers': event.selectedAcers,
+        'selectedSowingDates': event.selectedSowingDates,
+        'selectedIrrigationId': event.selectedIrrigationId,
+
+        'selectedCattleId': event.selectedCattleId,
+        'selectedCattleCount': event.selectedCattleCount,
+
+        'latitude': event.latitude,
+        'longitude': event.longitude,
+        'networkLatitude': event.networkLatitude,
         'networkLongitude': event.networkLongitude,
+        'gpsLatitude': event.gpsLatitude,
+        'gpsLongitude': event.gpsLongitude,
+        'differenceByAndroid': event.differenceByAndroid,
+
+        'contactPersonName': event.contactPersonName,
+        'meetingLocation': event.meetingLocation,
+        'marketNearby': event.marketNearby,
+        'aadhaarNo': event.aadhaarNo,
+        'remark': event.remark,
+        'geoAddress': event.geoAddress,
+        'strNetworkInfo': event.strNetworkInfo,
+        'currentProductUsed': event.currentProductUsed,
+        'strBatteryInfo': event.strBatteryInfo,
+        'activityId': event.activityId,
       };
 
       // ============================================
@@ -295,7 +303,22 @@ class StateBloc extends Bloc<StatesEvent, StatsState> {
       // ============================================
       // SUCCESS
       // ============================================
-      emit(state.copyWith(status: StatesStatus.sucess, errorMessage: null));
+
+      if (response['status'] == true) {
+        emit(
+          state.copyWith(
+            status: StatesStatus.farmerRegiSuccess,
+            errorMessage: response['message'],
+          ),
+        );
+      } else {
+        emit(
+          state.copyWith(
+            status: StatesStatus.failed,
+            errorMessage: response['message'],
+          ),
+        );
+      }
     } catch (error) {
       print('Farmer details error: $error');
 
