@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../domain/entities/team_expense_entity.dart';
@@ -106,89 +107,124 @@ class TeamExpenseBloc
   // APPROVE / REJECT EXPENSE
   // ============================================================
 
-  Future<void> _updateTeamExpense(
-    UpdateTeamExpenseEvent event,
-    Emitter<TeamExpenseState> emit,
-  ) async {
-    final currentState = state;
 
-    List<TeamExpenseEntity> currentExpenses = [];
+Future<void> _updateTeamExpense(
+  UpdateTeamExpenseEvent event,
+  Emitter<TeamExpenseState> emit,
+) async {
+  final currentState = state;
 
-    if (currentState is TeamExpenseLoaded) {
-      currentExpenses = currentState.expenses;
-    } else if (currentState is TeamExpenseUpdateLoading) {
-      currentExpenses = currentState.expenses;
-    } else if (currentState is TeamExpenseUpdateSuccess) {
-      currentExpenses = currentState.expenses;
-    } else if (currentState is TeamExpenseUpdateError) {
-      currentExpenses = currentState.expenses;
-    }
+  List<TeamExpenseEntity> currentExpenses = [];
 
-    try {
-      // ========================================================
-      // SHOW BUTTON LOADER
-      // ========================================================
-
-      emit(
-        TeamExpenseUpdateLoading(
-          expenses: List<TeamExpenseEntity>.from(
-            currentExpenses,
-          ),
-          expenseId: event.expenseId,
-        ),
-      );
-
-   
-      // ========================================================
-      // SUCCESS MESSAGE
-      // ========================================================
-
-      String message;
-
-      if (event.status == '1') {
-        message = 'Expense approved successfully';
-      } else if (event.status == '2') {
-        message = 'Expense rejected successfully';
-      } else {
-        message = 'Expense updated successfully';
-      }
-
-     final response=
-
-      emit(
-        TeamExpenseUpdateSuccess(
-          expenses: List<TeamExpenseEntity>.from(
-            currentExpenses,
-          ),
-          message: message,
-        ),
-      );
-    } catch (e) {
-      emit(
-        TeamExpenseUpdateError(
-          expenses: List<TeamExpenseEntity>.from(
-            currentExpenses,
-          ),
-          message: e.toString().replaceFirst(
-                'Exception: ',
-                '',
-              ),
-        ),
-      );
-
-      // ========================================================
-      // RETURN TO LOADED STATE
-      // ========================================================
-
-      emit(
-        TeamExpenseLoaded(
-          expenses: List<TeamExpenseEntity>.from(
-            currentExpenses,
-          ),
-          isLoadingMore: false,
-          hasReachedEnd: false,
-        ),
-      );
-    }
+  if (currentState is TeamExpenseLoaded) {
+    currentExpenses = currentState.expenses;
+  } else if (currentState is TeamExpenseUpdateLoading) {
+    currentExpenses = currentState.expenses;
+  } else if (currentState is TeamExpenseUpdateSuccess) {
+    currentExpenses = currentState.expenses;
+  } else if (currentState is TeamExpenseUpdateError) {
+    currentExpenses = currentState.expenses;
   }
+
+  try {
+    // ============================================================
+    // SHOW BUTTON LOADER
+    // ============================================================
+
+    emit(
+      TeamExpenseUpdateLoading(
+        expenses: List<TeamExpenseEntity>.from(
+          currentExpenses,
+        ),
+        expenseId: event.expenseId,
+      ),
+    );
+
+    // ============================================================
+    // CALL UPDATE API
+    // ============================================================
+
+    final response = await updateTeamExpenseUsecase(
+      userId: event.userId,
+      expenseId: event.expenseId,
+      expenseJson: event.expenseJson,
+      expenseStatus: event.status,
+      remark: event.remark,
+    );
+
+    debugPrint(
+      '==========================================',
+    );
+    debugPrint(
+      'TEAM EXPENSE UPDATE RESPONSE: $response',
+    );
+    debugPrint(
+      'USER ID: ${event.userId}',
+    );
+    debugPrint(
+      'EXPENSE ID: ${event.expenseId}',
+    );
+    debugPrint(
+      'STATUS: ${event.status}',
+    );
+    debugPrint(
+      'EXPENSE JSON: ${event.expenseJson}',
+    );
+    debugPrint(
+      'REMARK: ${event.remark}',
+    );
+    debugPrint(
+      '==========================================',
+    );
+
+    // ============================================================
+    // SUCCESS MESSAGE
+    // ============================================================
+
+    String message;
+
+    if (event.status == '1') {
+      message = 'Expense approved successfully';
+    } else if (event.status == '2') {
+      message = 'Expense rejected successfully';
+    } else {
+      message = 'Expense updated successfully';
+    }
+
+    // ============================================================
+    // SUCCESS STATE
+    // ============================================================
+
+    emit(
+      TeamExpenseUpdateSuccess(
+        expenses: List<TeamExpenseEntity>.from(
+          currentExpenses,
+        ),
+        message: message,
+      ),
+    );
+  } catch (e) {
+    debugPrint(
+      'TEAM EXPENSE UPDATE ERROR: $e',
+    );
+
+    // ============================================================
+    // ERROR STATE
+    // ============================================================
+
+    emit(
+      TeamExpenseUpdateError(
+        expenses: List<TeamExpenseEntity>.from(
+          currentExpenses,
+        ),
+        message: e.toString().replaceFirst(
+              'Exception: ',
+              '',
+            ),
+      ),
+    );
+  }
+}
+
+
 }

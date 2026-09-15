@@ -1,4 +1,6 @@
 
+import 'dart:convert';
+
 import 'package:demo/core/api_constant/api_client.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -906,21 +908,58 @@ class TeamExpenseCard extends StatelessWidget {
   // ===========================================================================
   // UPDATE EXPENSE
   // ===========================================================================
+void _updateExpense(
+  BuildContext context,
+  TeamExpenseEntity expense,
+  String status,
+) {
+  final String expenseJson = jsonEncode({
+    'expenseId': expense.expenseId,
+    'expenseBy': expense.expenseBy,
+    'expenseDate': expense.expenseDate,
+    'visitedPlace': expense.visitedPlace,
+    'travellingMode': expense.travellingMode,
+    'dailyTotal': expense.dailyTotal,
+    'daExpenses': expense.daExpenses,
+    'approveAmount': expense.approveAmount,
+    'remark': expense.remark,
+  });
 
-  void _updateExpense(
-    BuildContext context,
-    TeamExpenseEntity expense,
-    String status,
-  ) {
-    context.read<TeamExpenseBloc>().add(
-          UpdateTeamExpenseEvent(
-            // FIX: userId now comes from TeamExpenseCard
-            userId: userId,
-            expenseId: expense.expenseId,
-            status: status,
-          ),
-        );
-  }
+  debugPrint(
+    '==========================================',
+  );
+  debugPrint(
+    'UPDATE EXPENSE',
+  );
+  debugPrint(
+    'User ID: $userId',
+  );
+  debugPrint(
+    'Expense ID: ${expense.expenseId}',
+  );
+  debugPrint(
+    'Status: $status',
+  );
+  debugPrint(
+    'Expense JSON: $expenseJson',
+  );
+  debugPrint(
+    'Remark: ${expense.remark}',
+  );
+  debugPrint(
+    '==========================================',
+  );
+
+  context.read<TeamExpenseBloc>().add(
+        UpdateTeamExpenseEvent(
+          userId: userId,
+          expenseId: expense.expenseId,
+          status: status,
+          expenseJson: expenseJson,
+          remark: expense.remark,
+        ),
+      );
+}
 
   // ===========================================================================
   // EXPENSE DETAILS BOTTOM SHEET

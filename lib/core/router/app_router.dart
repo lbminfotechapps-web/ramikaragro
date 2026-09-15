@@ -27,6 +27,7 @@ import 'package:demo/features/leave/presentation/pages/leave_list_page.dart';
 import 'package:demo/features/leave/presentation/pages/team_leave_list_page.dart';
 import 'package:demo/features/leave/presentation/pages/top_ten_dealer_page.dart';
 import 'package:demo/features/home/presentation/last_force_out_screen.dart';
+import 'package:demo/features/place_order/presentation/pages/place_order_page.dart';
 import 'package:demo/features/orderhistory/presentation/presentattion/order_history_page.dart';
 import 'package:demo/features/products/domain/entity/fertilizer_category_entity.dart';
 import 'package:demo/features/products/domain/entity/fertilizer_product_entity.dart';
@@ -45,6 +46,7 @@ import 'package:demo/features/reports/presentation/pages/user_guidelines_page.da
 import 'package:demo/features/reports/presentation/pages/visit_summary_page.dart';
 import 'package:demo/features/reports/presentation/bloc/employee_output_bloc.dart';
 import 'package:demo/features/reports/presentation/bloc/visit_report_bloc.dart';
+import 'package:demo/features/sales_targrt_achievement/presentation/pages/sales_wise_target_page.dart';
 import 'package:demo/features/salesreturnhistory/presentation/presentation/sales_return_history_page.dart';
 import 'package:demo/features/scheme/presentation/pages/schemescreen.dart';
 import 'package:demo/features/splash/splash_screen.dart';
@@ -97,6 +99,9 @@ class AppRouter {
   static const String farmerregistration = '/farmerregistration';
   static const String expenseList = '/expenseList';
   static const String teamExpenseList = '/teamExpenseList';
+  static const String salesTargetAndAchievement = '/salesTargetAndAchievement';
+   static const String placeOrder = '/placeOrder';
+
   static const String orderHistoy = '/orderHistoy';
   static const String dispatchHistoy = '/dispatchHistoy';
   static const String salesHistoy = '/salesHistoy';
@@ -241,6 +246,27 @@ class AppRouter {
         },
       ),
 
+       GoRoute(
+        path: salesTargetAndAchievement,
+        name: 'salesTargetAndAchievement',
+        builder: (context, state) {
+          return const SalesWiseTargetPage();
+        },
+      ),
+
+
+
+        GoRoute(
+        path: placeOrder,
+        name: 'placeOrder',
+        builder: (context, state) {
+          return const PlaceOrderPage();
+        },
+      ),
+
+
+
+       GoRoute(
       GoRoute(
         path: cropSchedule,
         name: 'cropSchedule',

@@ -207,6 +207,19 @@ class _QuickAccessSectionState extends State<QuickAccessSection> {
       context.push('/expenseList');
     } else if (menu.menuId == '67') {
       context.push('/teamExpenseList');
+    }
+
+     else if (menu.menuId == '69') {
+      context.push('/placeOrder');
+    }
+
+
+    else if (menu.menuId == '82') {
+      context.push('/salesTargetAndAchievement');
+    }
+    
+    
+     else if (menu.menuId == '57' ||
     } else if (menu.menuId == '74') {
       context.push('/orderHistoy');
     } else if (menu.menuId == '75') {

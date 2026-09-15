@@ -66,6 +66,24 @@ class ApiClient {
       '/getCropAndIrigationDetails';
 
   static const String addFarmerDetails = '/add_farmer_details';
+
+  static const String getSalesWiseTarget = '/getSalesWiseTarget';
+
+  static const String getSalesTargetDates = '/getSalesTargetDates';
+
+
+   // =========================================================
+  // PLACE ORDER
+  // =========================================================
+
+  static const String getGodown ="/get_godown";
+
+  static const String getCategory = "/getCategory";
+
+  static const String getCatgoryProducts ="/getCatgoryProducts";
+  static const String placeOrder ="/placeOrder";
+  static const String getProductDetailRatesKvat ="/getProductDetailRatesKvat";
+
   static const String getOrderHistory = '/getOrderList';
   static const String updateOrderStatus = '/updateOrderStatus';
   static const String getDispatchList = '/getDispatchDetails';

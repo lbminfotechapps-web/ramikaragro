@@ -42,6 +42,66 @@ extension AppColors on ColorScheme {
   static const Color accentPurple = Color(0xFFB478FF);
   static const Color accentBlue = Color(0xFF78C8FF);
 
+
+
+    // ==========================================================
+  // PRIMARY GREEN
+  // ==========================================================
+
+  static const Color primary = Color(0xFF1B4332);
+
+  static const Color primaryLight = Color(0xFF2D6A4F);
+
+  static const Color primaryDark = Color(0xFF143728);
+
+  // ==========================================================
+  // BACKGROUND
+  // ==========================================================
+
+  static const Color background = Color(0xFFF7FAF7);
+
+  static const Color lightGreen = Color(0xFFE8F5E9);
+
+  // ==========================================================
+  // BASIC COLORS
+  // ==========================================================
+
+  static const Color white = Colors.white;
+
+  static const Color black = Colors.black;
+
+  // ==========================================================
+  // TEXT
+  // ==========================================================
+
+  static const Color textPrimary = Color(0xFF1F2937);
+
+  static const Color textSecondary = Color(0xFF6B7280);
+
+  static const Color textHint = Color(0xFF9CA3AF);
+
+  // ==========================================================
+  // BORDER
+  // ==========================================================
+
+  static const Color border = Color(0xFFDDE5DD);
+
+  // ==========================================================
+  // STATUS
+  // ==========================================================
+
+  static const Color success = Color(0xFF2E7D32);
+
+  static const Color error = Color(0xFFD32F2F);
+
+  static const Color warning = Color(0xFFF9A825);
+
+  // ==========================================================
+  // CARD
+  // ==========================================================
+
+  static const Color card = Colors.white;
+
   Color get oppColorChange =>
       brightness == Brightness.dark ? cardLightColor : darkBackgroundColor;
   Color get sameColorChange =>
