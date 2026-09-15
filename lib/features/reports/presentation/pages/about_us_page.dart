@@ -39,36 +39,35 @@ class AboutUsPage extends StatelessWidget {
             },
           ),
           title: 'About Us',
-            titleStyle: const TextStyle(
-    fontSize: 22,
-                          fontWeight: FontWeight.w600,
-                          color: AppColors.backgroundColor,
-  ),
+          titleStyle: const TextStyle(
+            fontSize: 22,
+            fontWeight: FontWeight.w600,
+            color: AppColors.backgroundColor,
+          ),
         ),
 
         backgroundColor: backgroundColor,
         body: Column(
           children: [
-            
             _buildHeader(context),
-        
+
             Expanded(
               child: BlocBuilder<OrganizationBloc, OrganizationState>(
                 builder: (context, state) {
                   if (state is OrganizationLoading) {
                     return _buildLoading();
                   }
-        
+
                   if (state is OrganizationError) {
                     return _buildError(context, state.message);
                   }
-        
+
                   if (state is OrganizationLoaded) {
                     return _buildContent(
                       state.organization.organizationAboutUs,
                     );
                   }
-        
+
                   return const SizedBox();
                 },
               ),

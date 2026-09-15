@@ -5,16 +5,19 @@ import 'package:demo/core/secure_storage/secure_storage.dart';
 import 'package:demo/core/theme/app_colors.dart';
 import 'package:demo/core/utility/app_image_picker.dart';
 import 'package:demo/core/utility/data_list.dart';
-import 'package:demo/core/utility/device_info_util.dart';
-import 'package:demo/core/utility/location_util.dart';
 import 'package:demo/core/utility/widgets/custom_appbar.dart';
 import 'package:demo/core/utility/widgets/custom_button.dart';
 import 'package:demo/core/utility/widgets/custom_dropdown.dart';
 import 'package:demo/core/utility/widgets/custom_textformfield.dart';
+import 'package:demo/features/farmer/farmerlist/data/model/farmerlist_model.dart';
 import 'package:demo/features/farmer/farmerregistration/domain/entity/crop_entity.dart';
 import 'package:demo/features/farmer/farmerregistration/domain/entity/district_entity.dart';
 import 'package:demo/features/farmer/farmerregistration/domain/entity/irrigation_entity.dart';
+import 'package:demo/features/farmer/farmerregistration/domain/entity/product_entity.dart'
+    show ProductEntity;
 import 'package:demo/features/farmer/farmerregistration/domain/entity/selected_crop_detail.dart';
+import 'package:demo/features/farmer/farmerregistration/domain/entity/state_entity.dart';
+import 'package:demo/features/farmer/farmerregistration/domain/entity/taluka_entity.dart';
 import 'package:demo/features/farmer/farmerregistration/presentation/bloc/state_bloc.dart';
 import 'package:demo/features/farmer/farmerregistration/presentation/bloc/state_event.dart';
 import 'package:demo/features/farmer/farmerregistration/presentation/bloc/states_state.dart';
@@ -25,14 +28,15 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil_plus/flutter_screenutil_plus.dart';
 import 'package:go_router/go_router.dart';
 
-class FarmerregistrationPage extends StatefulWidget {
-  const FarmerregistrationPage({super.key});
+class FarmerEditUpdateScren extends StatefulWidget {
+  final FarmerlistModel? farmerDetails;
+  const FarmerEditUpdateScren({super.key, this.farmerDetails});
 
   @override
-  State<FarmerregistrationPage> createState() => _FarmerregistrationPageState();
+  State<FarmerEditUpdateScren> createState() => _FarmerEditUpdateScrenState();
 }
 
-class _FarmerregistrationPageState extends State<FarmerregistrationPage> {
+class _FarmerEditUpdateScrenState extends State<FarmerEditUpdateScren> {
   final _formKey = GlobalKey<FormState>();
 
   final TextEditingController farmerNameController = TextEditingController();
@@ -56,69 +60,73 @@ class _FarmerregistrationPageState extends State<FarmerregistrationPage> {
   final TextEditingController remarkController = TextEditingController();
 
   bool isLoading = false;
-  bool _submissionSent = false;
+  // bool _submissionSent = false;
   String? _selectedStateId = '0';
   String? _selectedDistrictId = '0';
   String? _selectedTalukaId = '0';
   String? _selectedFarmerStatus;
-  File? _uploadedImage;
+
   final List<String> _selectedProductIds = [];
+  String? _existingProductIds;
+  bool _productsMapped = false;
   final List<SelectedCropDetail> _selectedCropDetails = [];
 
   String selectedSowingDates = '';
   String selectedAcers = '';
   String selectedIrrigationId = '';
   String selectedCropId = '';
+
+  String? _existingSowingDates;
+  String? _existingAcers;
+  String? _existingIrrigationIds;
+  String? _existingCropIds;
+
+  bool _cropDetailsMapped = false;
+
   @override
   void initState() {
     super.initState();
-    _loadStates();
 
+    if (widget.farmerDetails != null) {
+      setData();
+    }
+
+    loadApiData();
     context.read<StateBloc>().add(FarmerDropEvent());
   }
 
-  Future<void> getUserId() async {
+  void loadApiData() async {
     final userData = await SecureStorage.instance.getUserData();
 
-    final userId = userData?['user_id']?.toString();
-
-    if (!mounted || userId == null || userId.isEmpty) {
-      return;
+    final userId = userData?['user_id'];
+    context.read<StateBloc>().add(StateListEvent(userId: userId.toString()));
+    if (_selectedStateId != null && _selectedStateId != '0') {
+      context.read<StateBloc>().add(
+        DistrictEvent(userId: userId.toString(), stateId: _selectedStateId!),
+      );
     }
 
-    debugPrint('USER ID: $userId');
-
-    context.read<StateBloc>().add(StateListEvent(userId: userId));
+    // context.read<StateBloc>().add(
+    //      FarmerDropEvent(),
+    //   );
   }
 
-  Future<void> _loadStates() async {
-    await getUserId();
-  }
-
-  Future<void> _onStateSelected(String? stateId) async {
+  void _onStateSelected(String? stateId, StatsState state) async {
     if (stateId == null || stateId.isEmpty) {
       return;
     }
 
     debugPrint('================================');
     debugPrint('STATE SELECTED');
-    debugPrint('STATE ID: $stateId');
+    debugPrint('New State ID: $stateId');
     debugPrint('================================');
 
     if (stateId == '0') {
       setState(() {
         _selectedStateId = '0';
-
-        // Reset district
         _selectedDistrictId = '0';
-
-        // Reset taluka
         _selectedTalukaId = '0';
       });
-
-      debugPrint('Select State selected');
-      debugPrint('District reset to Select District');
-      debugPrint('Taluka reset to Select Taluka');
 
       return;
     }
@@ -126,26 +134,25 @@ class _FarmerregistrationPageState extends State<FarmerregistrationPage> {
     setState(() {
       _selectedStateId = stateId;
 
+      // IMPORTANT:
+      // User manually changed state,
+      // therefore old district/taluka are invalid.
       _selectedDistrictId = '0';
       _selectedTalukaId = '0';
     });
 
     final userData = await SecureStorage.instance.getUserData();
 
-    final userId = userData?['user_id']?.toString();
+    final int? userId = int.tryParse(userData?['user_id']?.toString() ?? '');
 
-    if (!mounted || userId == null || userId.isEmpty) {
+    if (userId == null) {
+      debugPrint('Invalid user ID');
       return;
     }
 
-    debugPrint('================================');
-    debugPrint('CALLING DISTRICT API');
-    debugPrint('USER ID: $userId');
-    debugPrint('STATE ID: $stateId');
-    debugPrint('================================');
-
+    // Load districts for NEW state
     context.read<StateBloc>().add(
-      DistrictEvent(userId: userId, stateId: stateId),
+      DistrictEvent(userId: userId.toString(), stateId: stateId),
     );
   }
 
@@ -154,19 +161,12 @@ class _FarmerregistrationPageState extends State<FarmerregistrationPage> {
       return;
     }
 
-    debugPrint('================================');
-    debugPrint('DISTRICT SELECTED');
-    debugPrint('DISTRICT ID: $districtId');
-    debugPrint('================================');
-
+    // Reset district
     if (districtId == '0') {
       setState(() {
         _selectedDistrictId = '0';
         _selectedTalukaId = '0';
       });
-
-      debugPrint('Select District selected');
-      debugPrint('Taluka reset to Select Taluka');
 
       return;
     }
@@ -181,41 +181,45 @@ class _FarmerregistrationPageState extends State<FarmerregistrationPage> {
     }
 
     if (selectedDistrict == null) {
-      debugPrint('Selected district not found');
+      debugPrint('District not found: $districtId');
+
       return;
     }
 
-    debugPrint('DISTRICT NAME: ${selectedDistrict.fldDistName}');
+    debugPrint('Selected District ID: ${selectedDistrict.fldDistId}');
 
-    debugPrint('TALUKA COUNT: ${selectedDistrict.taluka.length}');
+    debugPrint('Selected District Name: ${selectedDistrict.fldDistName}');
+
+    debugPrint('Taluka Count: ${selectedDistrict.taluka.length}');
 
     setState(() {
       _selectedDistrictId = districtId;
 
+      // Whenever district changes,
+      // old taluka must be cleared.
       _selectedTalukaId = '0';
     });
   }
 
-  Future<void> _captureImage() async {
-    try {
-      final File? image = await AppImagePicker.instance.pickFromCamera();
+  String _formatApiDate(DateTime date) {
+    return '${date.day.toString().padLeft(2, '0')}-'
+        '${date.month.toString().padLeft(2, '0')}-'
+        '${date.year}';
+  }
 
-      if (image == null) {
-        return;
-      }
+  String get _selectedProductNames {
+    final productList =
+        context
+            .read<StateBloc>()
+            .state
+            .farmerDetailsEntity
+            ?.productDetailsData ??
+        [];
 
-      if (!mounted) return;
-
-      setState(() {
-        _uploadedImage = image;
-      });
-    } catch (e) {
-      if (!mounted) return;
-
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text('Failed to capture image')));
-    }
+    return productList
+        .where((product) => _selectedProductIds.contains(product.fldProductId))
+        .map((product) => product.fldProductName)
+        .join(', ');
   }
 
   Future<void> _showCropDetailsDialog(
@@ -254,24 +258,14 @@ class _FarmerregistrationPageState extends State<FarmerregistrationPage> {
           ..clear()
           ..addAll(result);
 
-        // ============================================
-        // CONVERT DIALOG DATA TO API FORMAT
-        // ============================================
-
-        // Example:
-        // 16-09-2026,14-09-2026,22-09-2026
         selectedSowingDates = _selectedCropDetails
             .map((item) => _formatApiDate(item.date))
             .join(',');
 
-        // Example:
-        // 258,523,,66,,
         selectedAcers = _selectedCropDetails
             .map((item) => item.acre.trim())
             .join(',');
 
-        // Example:
-        // 1,2,1
         selectedIrrigationId = _selectedCropDetails
             .map((item) => item.irrigationId)
             .join(',');
@@ -303,415 +297,473 @@ class _FarmerregistrationPageState extends State<FarmerregistrationPage> {
     }
   }
 
-  String _formatApiDate(DateTime date) {
-    return '${date.day.toString().padLeft(2, '0')}-'
-        '${date.month.toString().padLeft(2, '0')}-'
-        '${date.year}';
-  }
+  void setData() {
+    if (widget.farmerDetails == null) return;
+    farmerNameController.text = widget.farmerDetails!.farmerName.toString();
+    contactPersonController.text = widget.farmerDetails!.contactPersonName
+        .toString();
+    addressController.text = widget.farmerDetails!.farmerAddress.toString();
+    mobileController.text = widget.farmerDetails!.farmerPhone.toString();
 
-  String get _selectedProductNames {
-    final productList =
-        context
-            .read<StateBloc>()
-            .state
-            .farmerDetailsEntity
-            ?.productDetailsData ??
-        [];
+    alternateMobileController.text = widget.farmerDetails!.mobileNo2.toString();
+    emailController.text = widget.farmerDetails!.emailId.toString();
+    addressController.text = widget.farmerDetails!.farmerAddress.toString();
+    villageController.text = widget.farmerDetails!.city.toString();
 
-    return productList
-        .where((product) => _selectedProductIds.contains(product.fldProductId))
-        .map((product) => product.fldProductName)
-        .join(', ');
-  }
+    _selectedStateId = widget.farmerDetails!.stateId?.toString() ?? '0';
+    _selectedDistrictId = widget.farmerDetails!.distId?.toString() ?? '0';
+    _selectedTalukaId = widget.farmerDetails!.talukaId?.toString() ?? '0';
 
-  void _submit() async {
-    FocusScope.of(context).unfocus();
+    debugPrint('================================');
+    debugPrint('State ID: $_selectedStateId');
+    debugPrint('District ID: $_selectedDistrictId');
+    debugPrint('Taluka ID: $_selectedTalukaId');
+    debugPrint('================================');
 
-    if (isLoading) return;
-    if (!_formKey.currentState!.validate()) {
-      return;
-    }
+    final existingStatus = widget.farmerDetails!.statusOfFarmer?.trim();
 
-    if (_selectedStateId == null || _selectedStateId!.isEmpty) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(const SnackBar(content: Text('Please select state')));
-      return;
-    }
-
-    if (_selectedDistrictId == null || _selectedDistrictId!.isEmpty) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(const SnackBar(content: Text('Please select district')));
-      return;
-    }
-
-    final batteryInfo = await DeviceInfoUtil.instance.getBatteryInfo();
-
-    final networkInfo = await DeviceInfoUtil.instance.getNetworkInfo();
-
-    final position = await LocationUtil.instance.getCurrentLocation();
-
-    String latitude = '';
-    String longitude = '';
-    String address = '';
-
-    if (position != null) {
-      latitude = position.latitude.toString();
-      longitude = position.longitude.toString();
-
-      address = await LocationUtil.instance.getAddress(
-        position.latitude,
-        position.longitude,
+    if (existingStatus == null || existingStatus.isEmpty) {
+      _selectedFarmerStatus = farmerStatus.first;
+    } else {
+      _selectedFarmerStatus = farmerStatus.firstWhere(
+        (status) => status.toLowerCase() == existingStatus.toLowerCase(),
+        orElse: () => farmerStatus.first,
       );
     }
 
-    if (_selectedTalukaId == null || _selectedTalukaId!.isEmpty) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(const SnackBar(content: Text('Please select taluka')));
+    _existingProductIds = widget.farmerDetails!.productId?.toString();
+    debugPrint('Existing Product IDs: $_existingProductIds');
+    _existingSowingDates = widget.farmerDetails!.sowingDate?.toString();
+
+    _existingAcers = widget.farmerDetails!.acre?.toString();
+
+    _existingIrrigationIds = widget.farmerDetails!.irrigationId?.toString();
+
+    _existingCropIds = widget.farmerDetails!.cropId?.toString();
+
+    debugPrint('================================');
+    debugPrint('EXISTING CROP DATA');
+    debugPrint('================================');
+    debugPrint('Sowing Dates: $_existingSowingDates');
+    debugPrint('Acres: $_existingAcers');
+    debugPrint('Irrigation IDs: $_existingIrrigationIds');
+    debugPrint('Crop IDs: $_existingCropIds');
+    debugPrint('================================');
+    currentProductUsedController.text = widget.farmerDetails!.currentProductUsed
+        .toString();
+
+    // _uploadedImage = widget.farmerDetails!.u;
+    remarkController.text = widget.farmerDetails!.remark.toString();
+  }
+
+  void _matchExistingProducts(List<ProductEntity> productList) {
+    if (_existingProductIds == null || _existingProductIds!.trim().isEmpty) {
+      _selectedProductIds.clear();
       return;
     }
-    debugPrint('================================');
-    debugPrint('FARMER REGISTRATION - ALL PARAMS');
-    debugPrint('================================');
 
-    debugPrint('FARMER LATTTT - $latitude');
-    debugPrint('FARMER LONG - $longitude');
-    debugPrint('================================');
+    final existingIds = _existingProductIds!
+        .split(',')
+        .map((id) => id.trim())
+        .where((id) => id.isNotEmpty)
+        .toSet()
+        .toList();
 
-    // Basic farmer details
-    debugPrint('fld_farmer_name: ${farmerNameController.text.trim()}');
-    debugPrint('fld_address: ${addressController.text.trim()}');
+    debugPrint('Parsed Existing Product IDs: $existingIds');
 
-    debugPrint('fld_category_id: ');
-    debugPrint('state: ${_selectedStateId ?? '0'}');
-    debugPrint('fld_demo_type_id: ');
-    debugPrint('district: ${_selectedDistrictId ?? '0'}');
-    debugPrint('taluka: ${_selectedTalukaId ?? '0'}');
-
-    // Farmer status
-    debugPrint('status_of_farmer: ${_selectedFarmerStatus ?? ''}');
-    debugPrint('campaign_radio: Yes');
-
-    // Mobile / contact
-    debugPrint('fld_mobile_no: ${mobileController.text.trim()}');
-    debugPrint('fld_mobile_no2: ${alternateMobileController.text.trim()}');
-    debugPrint('fld_email_id: ${emailController.text.trim()}');
-    debugPrint('contactPersonName: ${contactPersonController.text.trim()}');
-
-    // Address
-    debugPrint('fld_village: ${villageController.text.trim()}');
-    debugPrint('geoAddress: $address');
-    debugPrint('meetingLocation: ');
-    debugPrint('marketNearby: ');
-
-    // Other farmer details
-    debugPrint('fld_tractor_mode: ');
-    debugPrint(
-      'fld_total_acre: ${_selectedCropDetails.fold<double>(0.0, (sum, item) => sum + (double.tryParse(item.acre) ?? 0)).toStringAsFixed(2)}',
-    );
-
-    debugPrint('aadhaarNo: ');
-    debugPrint('remark: ${remarkController.text.trim()}');
-    debugPrint(
-      'currentProductUsed: '
-      '${currentProductUsedController.text.trim()}',
-    );
-
-    // Products / crops
-    debugPrint('selectedProductId: ${_selectedProductIds.join(',')}');
-    debugPrint('selectedProductId LIST: $_selectedProductIds');
-
-    debugPrint(
-      'selectedCropId: ${_selectedCropDetails.map((crop) => crop.cropId.toString()).join(',')}',
-    );
-
-    debugPrint(
-      'selectedCropId LIST: ${_selectedCropDetails.map((crop) => crop.cropId.toString()).toList()}',
-    );
-
-    debugPrint('selectedAcers: $selectedAcers');
-
-    debugPrint('selectedSowingDates: $selectedSowingDates');
-
-    debugPrint('selectedIrrigationId: $selectedIrrigationId');
-
-    debugPrint('selectedCattleId: ');
-    debugPrint('selectedCattleCount: ');
-
-    // Crop details
-    debugPrint('--------------------------------');
-    debugPrint('SELECTED CROP DETAILS');
-    debugPrint('--------------------------------');
-
-    debugPrint('Selected Crop Details Count: ${_selectedCropDetails.length}');
-
-    for (final crop in _selectedCropDetails) {
-      debugPrint(
-        'Crop -> '
-        'ID: ${crop.cropId}, '
-        'Name: ${crop.cropName}, '
-        'Date: ${_formatApiDate(crop.date)}, '
-        'Acre: ${crop.acre}, '
-        'Irrigation ID: ${crop.irrigationId}, '
-        'Irrigation: ${crop.irrigationName}',
-      );
-    }
-
-    // Location
-    debugPrint('--------------------------------');
-    debugPrint('LOCATION');
-    debugPrint('--------------------------------');
-
-    debugPrint('latitude: $latitude');
-    debugPrint('longitude: $longitude');
-
-    debugPrint('networkLatitude: $latitude');
-    debugPrint('networkLongitude: $longitude');
-
-    debugPrint('gpsLatitude: $latitude');
-    debugPrint('gpsLongitude: $longitude');
-
-    debugPrint('differenceByAndroid: 0.0');
-
-    // Device information
-    debugPrint('--------------------------------');
-    debugPrint('DEVICE INFORMATION');
-    debugPrint('--------------------------------');
-
-    debugPrint('strNetworkInfo: $networkInfo');
-    debugPrint('strBatteryInfo: $batteryInfo');
-
-    // Activity
-    debugPrint('activityId: 2');
-
-    // Image
-    debugPrint('--------------------------------');
-    debugPrint('IMAGE');
-    debugPrint('--------------------------------');
-
-    debugPrint(
-      'selfie_capture_image: '
-      '${_uploadedImage?.path ?? 'No image selected'}',
-    );
-
-    debugPrint('================================');
-    debugPrint('END FARMER REGISTRATION PARAMS');
-    debugPrint('================================');
-
-    debugPrint('================================');
-
-    final userData = await SecureStorage.instance.getUserData();
-
-    final userId = int.tryParse(userData?['user_id']?.toString() ?? '');
-
-    debugPrint('User ID: $userId');
-
-    final selectedProductId = _selectedProductIds.join(',');
-
-    debugPrint('Final selectedProductId: $selectedProductId');
+    // Match only IDs which actually exist
+    // in the product API response.
+    final matchedIds = productList
+        .where((product) => existingIds.contains(product.fldProductId.trim()))
+        .map((product) => product.fldProductId.trim())
+        .toSet()
+        .toList();
 
     setState(() {
-      isLoading = true;
-      _submissionSent = false;
+      _selectedProductIds
+        ..clear()
+        ..addAll(matchedIds);
     });
 
+    debugPrint('Matched Product IDs: $_selectedProductIds');
+
+    debugPrint('Matched Product Names: $_selectedProductNames');
+  }
+
+  DateTime? _parseApiDate(String value) {
+    final parts = value.split('-');
+
+    if (parts.length != 3) {
+      return null;
+    }
+
     try {
-      context.read<StateBloc>().add(
-        FarmerSubmitDetailsEvent(
-          fldFarmerName: farmerNameController.text.trim(),
+      final day = int.parse(parts[0]);
+      final month = int.parse(parts[1]);
+      final year = int.parse(parts[2]);
 
-          fldAddress: addressController.text.trim(),
-
-          userId: userId?.toString() ?? '',
-
-          fldCategoryId: '',
-
-          state: _selectedStateId ?? '0',
-
-          fldDemoTypeId: '',
-
-          district: _selectedDistrictId ?? '0',
-
-          taluka: _selectedTalukaId ?? '0',
-
-          statusOfFarmer: _selectedFarmerStatus ?? '',
-
-          campaignRadio: 'Yes',
-
-          fldMobileNo: mobileController.text.trim(),
-
-          fldMobileNo2: alternateMobileController.text.trim(),
-
-          fldTotalAcre: _selectedCropDetails
-              .fold<double>(
-                0.0,
-                (sum, item) => sum + (double.tryParse(item.acre) ?? 0),
-              )
-              .toStringAsFixed(2),
-
-          fldEmailId: emailController.text.trim(),
-
-          fldTractorMode: '',
-
-          fldVillage: villageController.text.trim(),
-
-          selectedProductId: selectedProductId,
-
-          // Example: 145,146
-          selectedCropId: _selectedCropDetails
-              .map((item) => item.cropId.toString())
-              .join(','),
-
-          // Example: 10,14
-          selectedAcers: selectedAcers,
-
-          // Example: 11-09-2026,12-09-2026
-          selectedSowingDates: selectedSowingDates,
-
-          // Example: 1,1
-          selectedIrrigationId: selectedIrrigationId,
-
-          selectedCattleId: '',
-
-          selectedCattleCount: '',
-
-          latitude: latitude,
-
-          longitude: longitude,
-
-          networkLatitude: latitude,
-
-          networkLongitude: longitude,
-
-          gpsLatitude: latitude,
-
-          gpsLongitude: longitude,
-
-          differenceByAndroid: '0.0',
-
-          contactPersonName: contactPersonController.text.trim(),
-
-          meetingLocation: '',
-
-          marketNearby: '',
-
-          aadhaarNo: '',
-
-          remark: remarkController.text.trim(),
-
-          geoAddress: address,
-
-          strNetworkInfo: networkInfo,
-
-          currentProductUsed: currentProductUsedController.text.trim(),
-
-          strBatteryInfo: batteryInfo,
-
-          activityId: '2',
-
-          image: _uploadedImage?.path ?? '',
-        ),
-      );
-      _submissionSent = true;
-
-      debugPrint('================================');
-      debugPrint('FARMER SUBMIT EVENT SENT');
-      debugPrint('================================');
+      return DateTime(year, month, day);
     } catch (e) {
-      if (!mounted) return;
+      debugPrint('Date parse error: $value | $e');
 
-      setState(() {
-        isLoading = false;
-        _submissionSent = false;
-      });
-
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text(e.toString())));
+      return null;
     }
   }
 
-  @override
-  void dispose() {
-    farmerNameController.dispose();
-    contactPersonController.dispose();
-    addressController.dispose();
-    mobileController.dispose();
-    alternateMobileController.dispose();
-    emailController.dispose();
-    villageController.dispose();
-    currentProductUsedController.dispose();
-    remarkController.dispose();
+  void _matchExistingCropDetails(
+    List<CropEntity> cropList,
+    List<IrrigationEntity> irrigationList,
+  ) {
+    if (_cropDetailsMapped) {
+      return;
+    }
 
-    super.dispose();
+    if (_existingCropIds == null || _existingCropIds!.trim().isEmpty) {
+      _cropDetailsMapped = true;
+      return;
+    }
+
+    // ============================================
+    // SPLIT EXISTING VALUES
+    // ============================================
+
+    final cropIds = _existingCropIds!
+        .split(',')
+        .map((id) => id.trim())
+        .where((id) => id.isNotEmpty)
+        .toList();
+
+    final sowingDates = (_existingSowingDates ?? '')
+        .split(',')
+        .map((date) => date.trim())
+        .toList();
+
+    final acres = (_existingAcers ?? '')
+        .split(',')
+        .map((acre) => acre.trim())
+        .toList();
+
+    final irrigationIds = (_existingIrrigationIds ?? '')
+        .split(',')
+        .map((id) => id.trim())
+        .toList();
+
+    debugPrint('================================');
+    debugPrint('MAPPING EXISTING CROP DETAILS');
+    debugPrint('================================');
+    debugPrint('Crop IDs: $cropIds');
+    debugPrint('Dates: $sowingDates');
+    debugPrint('Acres: $acres');
+    debugPrint('Irrigation IDs: $irrigationIds');
+    debugPrint('================================');
+
+    final List<SelectedCropDetail> matchedDetails = [];
+
+    for (int i = 0; i < cropIds.length; i++) {
+      final cropId = cropIds[i];
+
+      // --------------------------------------------
+      // Find Crop
+      // --------------------------------------------
+
+      CropEntity? selectedCrop;
+
+      for (final crop in cropList) {
+        if (crop.fldCropId.toString().trim() == cropId) {
+          selectedCrop = crop;
+          break;
+        }
+      }
+
+      if (selectedCrop == null) {
+        debugPrint('Crop not found for ID: $cropId');
+        continue;
+      }
+
+      // --------------------------------------------
+      // Date
+      // --------------------------------------------
+
+      DateTime? selectedDate;
+
+      if (i < sowingDates.length) {
+        selectedDate = _parseApiDate(sowingDates[i]);
+      }
+
+      // --------------------------------------------
+      // Acre
+      // --------------------------------------------
+
+      String acre = '';
+
+      if (i < acres.length) {
+        acre = acres[i];
+      }
+
+      // --------------------------------------------
+      // Irrigation
+      // --------------------------------------------
+
+      String irrigationId = '';
+
+      if (i < irrigationIds.length) {
+        irrigationId = irrigationIds[i];
+      }
+
+      IrrigationEntity? selectedIrrigation;
+
+      for (final irrigation in irrigationList) {
+        if (irrigation.fldId.toString().trim() == irrigationId) {
+          selectedIrrigation = irrigation;
+          break;
+        }
+      }
+
+      if (selectedIrrigation == null) {
+        debugPrint('Irrigation not found for ID: $irrigationId');
+        continue;
+      }
+
+      // --------------------------------------------
+      // Add Selected Crop
+      // --------------------------------------------
+
+      if (selectedDate == null) {
+        debugPrint('Invalid date for crop ID: $cropId');
+        continue;
+      }
+
+      matchedDetails.add(
+        SelectedCropDetail(
+          cropId: selectedCrop.fldCropId,
+          cropName: selectedCrop.fldCropName,
+          date: selectedDate,
+          acre: acre,
+          irrigationId: selectedIrrigation.fldId,
+          irrigationName: selectedIrrigation.fldIrrigationName,
+        ),
+      );
+    }
+
+    if (!mounted) return;
+
+    setState(() {
+      _selectedCropDetails
+        ..clear()
+        ..addAll(matchedDetails);
+
+      _cropDetailsMapped = true;
+
+      // Prepare final API values also.
+      selectedSowingDates = _selectedCropDetails
+          .map((item) => _formatApiDate(item.date))
+          .join(',');
+
+      selectedAcers = _selectedCropDetails
+          .map((item) => item.acre.trim())
+          .join(',');
+
+      selectedIrrigationId = _selectedCropDetails
+          .map((item) => item.irrigationId)
+          .join(',');
+
+      selectedCropId = _selectedCropDetails
+          .map((item) => item.cropId)
+          .join(',');
+    });
+
+    debugPrint('================================');
+    debugPrint('MATCHED CROP DETAILS');
+    debugPrint('================================');
+
+    for (final item in _selectedCropDetails) {
+      debugPrint(
+        'Crop: ${item.cropName} | '
+        'ID: ${item.cropId} | '
+        'Date: ${_formatApiDate(item.date)} | '
+        'Acre: ${item.acre} | '
+        'Irrigation: ${item.irrigationName} | '
+        'Irrigation ID: ${item.irrigationId}',
+      );
+    }
+
+    debugPrint('Final Crop IDs: $selectedCropId');
+    debugPrint('Final Dates: $selectedSowingDates');
+    debugPrint('Final Acres: $selectedAcers');
+    debugPrint('Final Irrigation IDs: $selectedIrrigationId');
+
+    debugPrint('================================');
+  }
+
+  void _mapSelectedState(StatsState state) {
+    if (_selectedStateId == null || _selectedStateId == '0') {
+      return;
+    }
+
+    final exists = state.statentity.any(
+      (item) => item.stateId == _selectedStateId,
+    );
+
+    if (!exists) {
+      debugPrint(
+        'Existing state ID $_selectedStateId '
+        'not found in state API',
+      );
+
+      return;
+    }
+
+    debugPrint('Existing state mapped: $_selectedStateId');
+  }
+
+  void _mapSelectedDistrictAndTaluka(StatsState state) {
+    if (_selectedDistrictId == null || _selectedDistrictId == '0') {
+      return;
+    }
+
+    final districtExists = state.districtList.any(
+      (district) => district.fldDistId == _selectedDistrictId,
+    );
+
+    if (!districtExists) {
+      debugPrint(
+        'Existing district ID $_selectedDistrictId '
+        'not found',
+      );
+
+      return;
+    }
+
+    final district = state.districtList.firstWhere(
+      (district) => district.fldDistId == _selectedDistrictId,
+    );
+
+    final talukaExists = district.taluka.any(
+      (taluka) => taluka.fldTalukaId == _selectedTalukaId,
+    );
+
+    if (!talukaExists) {
+      debugPrint(
+        'Existing taluka ID $_selectedTalukaId '
+        'not found',
+      );
+
+      return;
+    }
+
+    debugPrint('================================');
+    debugPrint('EXISTING LOCATION MAPPED');
+    debugPrint('State ID: $_selectedStateId');
+    debugPrint('District: ${district.fldDistName}');
+    debugPrint('District ID: $_selectedDistrictId');
+    debugPrint('Taluka ID: $_selectedTalukaId');
+    debugPrint('================================');
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: AppColors.backgroundColor,
+
       appBar: CustomAppBar(
-        title: 'Farmer Registration Form',
+        title: 'Farmer List',
         showBackButton: true,
         onBackTap: () => context.go(AppRouter.home),
       ),
+
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
-      floatingActionButton: BlocBuilder<StateBloc, StatsState>(
-        builder: (context, state) {
-          return CustomButton(
-            text: 'Register Farmer',
-            onPressed: _submit,
-            isLoading: isLoading,
-            width: double.infinity,
-            height: 52,
-            borderRadius: 22,
-            backgroundColor: const Color(0xFF087C3A),
-            textColor: Colors.white,
-          );
-        },
+      floatingActionButton: CustomButton(
+        text: 'Update Farmer',
+        onPressed: () {},
+        isLoading: isLoading,
+        width: double.infinity,
+        height: 52,
+        borderRadius: 22,
+        backgroundColor: const Color(0xFF087C3A),
+        textColor: Colors.white,
       ),
 
       body: BlocConsumer<StateBloc, StatsState>(
         listener: (context, state) {
-          if (!isLoading || !_submissionSent) return;
-          if (state.status == StatesStatus.farmerRegiSuccess) {
-            setState(() {
-              isLoading = false;
-              _submissionSent = false;
-            });
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                backgroundColor: AppColors.backgroundColor,
-                content: Text(
-                  style: TextStyle(color: AppColors.accentGreen),
-                  state.errorMessage ?? 'Farmer Added Successfully',
-                ),
-              ),
-            );
-            context.go(AppRouter.home);
+          if (state.statentity.isNotEmpty) {
+            _mapSelectedState(state);
           }
+
+          // District API completed
+          if (state.districtList.isNotEmpty) {
+            _mapSelectedDistrictAndTaluka(state);
+          }
+
+          if (state.status == StatesStatus.sucess &&
+              state.farmerDetailsEntity != null) {
+            final products = state.farmerDetailsEntity!.productDetailsData;
+            if (products.isNotEmpty) {
+              _matchExistingProducts(products);
+            }
+          }
+
+          if (state.farmerDetailsEntity != null) {
+            final cropList = state.farmerDetailsEntity!.cropDetailsData;
+
+            final irrigationList =
+                state.farmerDetailsEntity!.irrigationDetailsData;
+
+            if (cropList.isNotEmpty && irrigationList.isNotEmpty) {
+              _matchExistingCropDetails(cropList, irrigationList);
+            }
+
+            // Your existing product mapping
+            final products = state.farmerDetailsEntity!.productDetailsData;
+
+            if (products.isNotEmpty) {
+              _matchExistingProducts(products);
+            }
+          }
+          // if (!isLoading || !_submissionSent) return;
+          // if (state.status == StatesStatus.farmerRegiSuccess) {
+          //   setState(() {
+          //     isLoading = false;
+          //     _submissionSent = false;
+          //   });
+          //   ScaffoldMessenger.of(context).showSnackBar(
+          //     SnackBar(
+          //       backgroundColor: AppColors.backgroundColor,
+          //       content: Text(
+          //         style: TextStyle(color: AppColors.accentGreen),
+          //         state.errorMessage ?? 'Farmer Added Successfully',
+          //       ),
+          //     ),
+          //   );
+          //   context.go(AppRouter.home);
+          // }
           // ============================================
           // API ERROR
           // ============================================
-          else if (state.status == StatesStatus.failed) {
-            setState(() {
-              isLoading = false;
-              _submissionSent = false;
-            });
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                backgroundColor: AppColors.darkErrorColor,
-                content: Text(state.errorMessage ?? 'Submission failed'),
-              ),
-            );
-          }
+          // else if (state.status == StatesStatus.failed) {
+          //   setState(() {
+          //     isLoading = false;
+          //     _submissionSent = false;
+          //   });
+          //   ScaffoldMessenger.of(context).showSnackBar(
+          //     SnackBar(
+          //       content: Text(state.errorMessage ?? 'Submission failed'),
+          //     ),
+          //   );
+          // }
         },
         builder: (context, state) {
           final productDetailData =
               state.farmerDetailsEntity?.productDetailsData ?? [];
           DistrictEntity? selectedDistrict;
+
+          for (final district in state.districtList) {
+            if (district.fldDistId == _selectedDistrictId) {
+              selectedDistrict = district;
+              break;
+            }
+          }
+
+          final talukaList = selectedDistrict?.taluka ?? [];
 
           final cropList = state.farmerDetailsEntity?.cropDetailsData ?? [];
 
@@ -727,39 +779,113 @@ class _FarmerregistrationPageState extends State<FarmerregistrationPage> {
             }
           }
 
-          final talukaList = selectedDistrict?.taluka ?? [];
+          // final districtItems = [
+          //   const DropdownMenuItem<String>(
+          //     value: '0',
+          //     child: Text('Select District'),
+          //   ),
 
-          final districtItems = [
+          //   ...state.districtList
+          //       .where((district) => district.fldDistId != '0')
+          //       .map(
+          //         (district) => DropdownMenuItem<String>(
+          //           value: district.fldDistId,
+          //           child: Text(district.fldDistName),
+          //         ),
+          //       ),
+          // ];
+          final uniqueDistricts = <String, DistrictEntity>{};
+
+          for (final district in state.districtList) {
+            final id = district.fldDistId.trim();
+
+            if (id.isEmpty || id == '0') {
+              continue;
+            }
+
+            // Keep only the first occurrence of each district ID
+            if (!uniqueDistricts.containsKey(id)) {
+              uniqueDistricts[id] = district;
+            }
+          }
+
+          final districtItems = <DropdownMenuItem<String>>[
             const DropdownMenuItem<String>(
               value: '0',
               child: Text('Select District'),
             ),
-
-            ...state.districtList
-                .where((district) => district.fldDistId != '0')
-                .map(
-                  (district) => DropdownMenuItem<String>(
-                    value: district.fldDistId,
-                    child: Text(district.fldDistName),
-                  ),
-                ),
+            ...uniqueDistricts.values.map(
+              (district) => DropdownMenuItem<String>(
+                value: district.fldDistId.trim(),
+                child: Text(district.fldDistName),
+              ),
+            ),
           ];
 
-          final talukaItems = [
+          // final talukaItems = [
+          //   const DropdownMenuItem<String>(
+          //     value: '0',
+          //     child: Text('Select Taluka'),
+          //   ),
+
+          //   ...talukaList
+          //       .where((taluka) => taluka.fldTalukaId != '0')
+          //       .map(
+          //         (taluka) => DropdownMenuItem<String>(
+          //           value: taluka.fldTalukaId,
+          //           child: Text(taluka.fldName),
+          //         ),
+          //       ),
+          // ];
+          final uniqueTalukas = <String, TalukaEntity>{};
+
+          for (final taluka in talukaList) {
+            final id = taluka.fldTalukaId.trim();
+
+            if (id.isEmpty || id == '0') {
+              continue;
+            }
+
+            // Keep only the first occurrence of each taluka ID
+            if (!uniqueTalukas.containsKey(id)) {
+              uniqueTalukas[id] = taluka;
+            }
+          }
+
+          final talukaItems = <DropdownMenuItem<String>>[
             const DropdownMenuItem<String>(
               value: '0',
               child: Text('Select Taluka'),
             ),
-
-            ...talukaList
-                .where((taluka) => taluka.fldTalukaId != '0')
-                .map(
-                  (taluka) => DropdownMenuItem<String>(
-                    value: taluka.fldTalukaId,
-                    child: Text(taluka.fldName),
-                  ),
-                ),
+            ...uniqueTalukas.values.map(
+              (taluka) => DropdownMenuItem<String>(
+                value: taluka.fldTalukaId.trim(),
+                child: Text(taluka.fldName),
+              ),
+            ),
           ];
+          final uniqueStates = <String, StateEntity>{};
+
+          for (final item in state.statentity) {
+            final id = item.stateId.trim();
+
+            if (id.isEmpty) {
+              continue;
+            }
+
+            if (!uniqueStates.containsKey(id)) {
+              uniqueStates[id] = item;
+            }
+          }
+
+          final stateItems = uniqueStates.values
+              .map(
+                (item) => DropdownMenuItem<String>(
+                  value: item.stateId.trim(),
+                  child: Text(item.stateName),
+                ),
+              )
+              .toList();
 
           final farmerStatusItems = farmerStatus.map((status) {
             return DropdownMenuItem<String>(value: status, child: Text(status));
@@ -777,6 +903,7 @@ class _FarmerregistrationPageState extends State<FarmerregistrationPage> {
 
                   children: [
                     SizedBox(height: 10.h),
+                    Text(_selectedFarmerStatus.toString()),
                     CustomTextFormField(
                       controller: farmerNameController,
                       hintText: 'Farmer Name *',
@@ -792,6 +919,7 @@ class _FarmerregistrationPageState extends State<FarmerregistrationPage> {
 
                     SizedBox(height: 10.h),
 
+                    // Text(widget.farmerDetails!.contactPersonName.toString()),
                     CustomTextFormField(
                       controller: contactPersonController,
                       hintText: 'Contact Person Name',
@@ -902,14 +1030,11 @@ class _FarmerregistrationPageState extends State<FarmerregistrationPage> {
 
                       prefixIcon: Icons.map_outlined,
 
-                      items: state.statentity.map((item) {
-                        return DropdownMenuItem<String>(
-                          value: item.stateId,
-                          child: Text(item.stateName),
-                        );
-                      }).toList(),
+                      items: stateItems,
 
-                      onChanged: _onStateSelected,
+                      onChanged: (value) {
+                        _onStateSelected(value, state);
+                      },
 
                       validator: (value) {
                         if (value == null || value == '0') {
@@ -919,7 +1044,6 @@ class _FarmerregistrationPageState extends State<FarmerregistrationPage> {
                         return null;
                       },
                     ),
-
                     SizedBox(height: 10.h),
 
                     const Text(
@@ -937,20 +1061,14 @@ class _FarmerregistrationPageState extends State<FarmerregistrationPage> {
                       value: _selectedDistrictId == '0'
                           ? null
                           : _selectedDistrictId,
-
                       hintText: 'Select District',
-
                       prefixIcon: Icons.location_city_outlined,
-
                       enabled:
                           _selectedStateId != null && _selectedStateId != '0',
-
                       items: districtItems,
-
                       onChanged: (value) {
                         _onDistrictSelected(value, state);
                       },
-
                       validator: (value) {
                         if (value == null || value == '0') {
                           return 'Please select district';
@@ -971,22 +1089,18 @@ class _FarmerregistrationPageState extends State<FarmerregistrationPage> {
                     ),
 
                     SizedBox(height: 10.h),
+
                     CustomDropdown<String>(
                       value: _selectedTalukaId == '0'
                           ? null
                           : _selectedTalukaId,
-
                       hintText: 'Select Taluka',
-
                       prefixIcon: Icons.location_on_outlined,
-
                       enabled:
                           _selectedDistrictId != null &&
                           _selectedDistrictId != '0' &&
                           talukaList.isNotEmpty,
-
                       items: talukaItems,
-
                       onChanged: (value) {
                         setState(() {
                           _selectedTalukaId = value ?? '0';
@@ -994,7 +1108,6 @@ class _FarmerregistrationPageState extends State<FarmerregistrationPage> {
 
                         debugPrint('Selected Taluka ID: $_selectedTalukaId');
                       },
-
                       validator: (value) {
                         if (value == null || value == '0') {
                           return 'Please select taluka';
@@ -1003,7 +1116,6 @@ class _FarmerregistrationPageState extends State<FarmerregistrationPage> {
                         return null;
                       },
                     ),
-
                     SizedBox(height: 10.h),
 
                     const Text(
@@ -1019,14 +1131,15 @@ class _FarmerregistrationPageState extends State<FarmerregistrationPage> {
 
                     CustomDropdown<String>(
                       value: _selectedFarmerStatus,
+                      hintText: 'Select Farmer Status',
+                      prefixIcon: Icons.local_fire_department_outlined,
 
-                      hintText: 'Farmer Status',
-
-                      prefixIcon: Icons.person_outline,
-
-                      enabled: true,
-
-                      items: farmerStatusItems,
+                      items: farmerStatus.map((status) {
+                        return DropdownMenuItem<String>(
+                          value: status,
+                          child: Text(status),
+                        );
+                      }).toList(),
 
                       onChanged: (value) {
                         setState(() {
@@ -1068,6 +1181,22 @@ class _FarmerregistrationPageState extends State<FarmerregistrationPage> {
                         return null;
                       },
                       builder: (field) {
+                        debugPrint(
+                          '================ PRODUCT DEBUG ================',
+                        );
+                        debugPrint(
+                          'Product API count: ${productDetailData.length}',
+                        );
+                        debugPrint(
+                          'Existing Product IDs: $_existingProductIds',
+                        );
+                        debugPrint(
+                          'Selected Product IDs: $_selectedProductIds',
+                        );
+                        debugPrint('Products mapped: $_productsMapped');
+                        debugPrint(
+                          '================================================',
+                        );
                         return Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
@@ -1233,38 +1362,6 @@ class _FarmerregistrationPageState extends State<FarmerregistrationPage> {
                     ),
 
                     SizedBox(height: 10.h),
-
-                    // Upload photo
-                    FormField<bool>(
-                      initialValue: _uploadedImage != null,
-                      validator: (_) {
-                        if (_uploadedImage == null) {
-                          return 'Please upload an image';
-                        }
-
-                        return null;
-                      },
-                      builder: (field) {
-                        return Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            _uploadPhotoCard(),
-                            if (field.hasError)
-                              Padding(
-                                padding: EdgeInsets.only(left: 16.w, top: 4.h),
-                                child: Text(
-                                  field.errorText!,
-                                  style: TextStyle(
-                                    color: Colors.red,
-                                    fontSize: 12.sp,
-                                  ),
-                                ),
-                              ),
-                          ],
-                        );
-                      },
-                    ),
-                    SizedBox(height: 10.h),
                     CustomTextFormField(
                       controller: remarkController,
                       hintText: 'Remark',
@@ -1279,170 +1376,6 @@ class _FarmerregistrationPageState extends State<FarmerregistrationPage> {
             ),
           );
         },
-      ),
-
-      //  BlocBuilder<StateBloc, StatsState>(
-      //   builder: (context, state) {
-      //   final productDetailData =
-      //       state.farmerDetailsEntity?.productDetailsData ?? [];
-      //   DistrictEntity? selectedDistrict;
-
-      //   final cropList = state.farmerDetailsEntity?.cropDetailsData ?? [];
-
-      //   final irrigationList =
-      //       state.farmerDetailsEntity?.irrigationDetailsData ?? [];
-
-      //   if (_selectedDistrictId != null && _selectedDistrictId != '0') {
-      //     for (final district in state.districtList) {
-      //       if (district.fldDistId == _selectedDistrictId) {
-      //         selectedDistrict = district;
-      //         break;
-      //       }
-      //     }
-      //   }
-
-      //   final talukaList = selectedDistrict?.taluka ?? [];
-
-      //   final districtItems = [
-      //     const DropdownMenuItem<String>(
-      //       value: '0',
-      //       child: Text('Select District'),
-      //     ),
-
-      //     ...state.districtList
-      //         .where((district) => district.fldDistId != '0')
-      //         .map(
-      //           (district) => DropdownMenuItem<String>(
-      //             value: district.fldDistId,
-      //             child: Text(district.fldDistName),
-      //           ),
-      //         ),
-      //   ];
-
-      //   final talukaItems = [
-      //     const DropdownMenuItem<String>(
-      //       value: '0',
-      //       child: Text('Select Taluka'),
-      //     ),
-
-      //     ...talukaList
-      //         .where((taluka) => taluka.fldTalukaId != '0')
-      //         .map(
-      //           (taluka) => DropdownMenuItem<String>(
-      //             value: taluka.fldTalukaId,
-      //             child: Text(taluka.fldName),
-      //           ),
-      //         ),
-      //   ];
-
-      //   final farmerStatusItems = farmerStatus.map((status) {
-      //     return DropdownMenuItem<String>(value: status, child: Text(status));
-      //   }).toList();
-
-      // },
-      // ),
-    );
-  }
-
-  Widget _uploadPhotoCard() {
-    return Container(
-      padding: EdgeInsets.fromLTRB(16.w, 6.h, 16.w, 16.h),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(20.r),
-        border: Border.all(color: Colors.grey.shade200),
-      ),
-      child: Column(
-        children: [
-          // Upload header
-          InkWell(
-            onTap: _captureImage,
-            borderRadius: BorderRadius.circular(12.r),
-            child: Padding(
-              padding: EdgeInsets.symmetric(vertical: 6.h),
-              child: Row(
-                children: [
-                  Container(
-                    width: 42.w,
-                    height: 42.h,
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFE7F8EB),
-                      borderRadius: BorderRadius.circular(12.r),
-                    ),
-                    child: Icon(
-                      Icons.camera_alt_outlined,
-                      color: Color(0xFF00A83B),
-                      size: 22.sp,
-                    ),
-                  ),
-
-                  SizedBox(width: 14.w),
-
-                  Expanded(
-                    child: Text(
-                      'Upload Photo',
-                      style: TextStyle(
-                        fontSize: 16.sp,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  ),
-
-                  Icon(
-                    Icons.chevron_right_rounded,
-                    color: Colors.grey.shade500,
-                    size: 28.sp,
-                  ),
-                ],
-              ),
-            ),
-          ),
-
-          SizedBox(height: 12.h),
-
-          // Image capture area
-          InkWell(
-            onTap: _captureImage,
-            borderRadius: BorderRadius.circular(16.r),
-            child: Container(
-              height: 260.h,
-              width: double.infinity,
-              decoration: BoxDecoration(
-                color: const Color(0xFFFAFAFA),
-                borderRadius: BorderRadius.circular(16.r),
-                border: Border.all(color: Colors.grey.shade200),
-              ),
-              child: _uploadedImage == null
-                  ? Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(
-                          Icons.image_outlined,
-                          size: 52.sp,
-                          color: Colors.grey.shade400,
-                        ),
-                        SizedBox(height: 14.h),
-                        Text(
-                          'Tap to capture image',
-                          style: TextStyle(
-                            color: Colors.grey.shade500,
-                            fontSize: 15.sp,
-                          ),
-                        ),
-                      ],
-                    )
-                  : ClipRRect(
-                      borderRadius: BorderRadius.circular(16.r),
-                      child: Image.file(
-                        _uploadedImage!,
-                        width: double.infinity,
-                        height: double.infinity,
-                        fit: BoxFit.cover,
-                      ),
-                    ),
-            ),
-          ),
-        ],
       ),
     );
   }

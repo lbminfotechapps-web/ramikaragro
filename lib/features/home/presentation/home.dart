@@ -9,12 +9,12 @@ import 'package:demo/core/theme/app_colors.dart';
 import 'package:demo/core/utility/widgets/custom_appbar.dart';
 import 'package:demo/core/utility/widgets/custom_card.dart';
 import 'package:demo/features/home/doman/home_entity/homevisit_entity.dart';
+import 'package:demo/core/utility/widgets/custom_loader.dart';
 import 'package:demo/features/home/presentation/home_bloc/home_bloc.dart';
 import 'package:demo/features/home/presentation/home_bloc/home_state.dart';
 
 import 'package:demo/features/home/presentation/quick_aceess_bloc/quick_access_state.dart';
 import 'package:demo/features/home/presentation/quick_aceess_bloc/quick_acess_bloc.dart';
-import 'package:demo/features/home/presentation/widgets/notvisited.dart';
 import 'package:demo/features/home/presentation/widgets/quick_action.dart';
 import 'package:demo/features/home/presentation/widgets/todays_overwiew.dart';
 import 'package:demo/features/home/presentation/widgets/visit_overview.dart';
@@ -322,15 +322,17 @@ class _HomeState extends State<Home> {
                           monthlyUniqueDealerCnt: '0',
                           monthlyUniqueFarmerCnt: '0',
                         );
+                SizedBox(height: 12.h),
 
-                    return NotVisitedCard(homeData);
-                  },
-                ),
+                // const OverviewSection(),
 
-                SizedBox(height: 8.h),
+                SizedBox(height: 12.h),
 
                 BlocBuilder<HomeBloc, HomeState>(
                   builder: (context, state) {
+                    // if (state.status == HomeStatus.loading) {
+                    //   return const Center(child: CircularProgressIndicator());
+                    // }
                     return VisitOverviewCard(
                       dealerCount: state.totalDealerCount ?? '0',
                       farmerCount: state.totalFarmerCount ?? '0',
@@ -344,6 +346,9 @@ class _HomeState extends State<Home> {
                   builder: (context, homeState) {
                     if (homeState.status == HomeStatus.loading) {
                       return const Center(child: CircularProgressIndicator());
+                      return const CustomLoader();
+
+                      //    return const Center(child: CircularProgressIndicator());
                     }
 
                     if (homeState.status == HomeStatus.failure) {
