@@ -30,6 +30,11 @@ Future<void> initHomeDi() async {
   sl.registerLazySingleton<GetMenuUsecase>(
     () => GetMenuUsecase(sl<HomeRepo>()),
   );
+
+  sl.registerLazySingleton<GetInpunchPendingUseCase>(
+    () => GetInpunchPendingUseCase(repository: sl<HomeRepo>()),
+  );
+
   sl.registerFactory<HomeBloc>(
     () => HomeBloc(sl<GetMenuUsecase>(), sl<GetInpunchPendingUseCase>()),
   );

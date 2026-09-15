@@ -1,9 +1,7 @@
-import 'dart:io';
-
 import 'package:demo/core/router/app_router.dart';
 import 'package:demo/core/secure_storage/secure_storage.dart';
 import 'package:demo/core/theme/app_colors.dart';
-import 'package:demo/core/utility/app_image_picker.dart';
+
 import 'package:demo/core/utility/data_list.dart';
 import 'package:demo/core/utility/widgets/custom_appbar.dart';
 import 'package:demo/core/utility/widgets/custom_button.dart';
@@ -105,10 +103,6 @@ class _FarmerEditUpdateScrenState extends State<FarmerEditUpdateScren> {
         DistrictEvent(userId: userId.toString(), stateId: _selectedStateId!),
       );
     }
-
-    // context.read<StateBloc>().add(
-    //      FarmerDropEvent(),
-    //   );
   }
 
   void _onStateSelected(String? stateId, StatsState state) async {
@@ -134,9 +128,6 @@ class _FarmerEditUpdateScrenState extends State<FarmerEditUpdateScren> {
     setState(() {
       _selectedStateId = stateId;
 
-      // IMPORTANT:
-      // User manually changed state,
-      // therefore old district/taluka are invalid.
       _selectedDistrictId = '0';
       _selectedTalukaId = '0';
     });

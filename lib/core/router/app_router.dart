@@ -266,7 +266,7 @@ class AppRouter {
 
 
 
-       GoRoute(
+
       GoRoute(
         path: cropSchedule,
         name: 'cropSchedule',
