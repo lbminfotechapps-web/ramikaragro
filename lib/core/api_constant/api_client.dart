@@ -1,11 +1,17 @@
 class ApiClient {
-  static const String baseUrl ="http://192.168.1.253:85/ramikar_agro/mobileapi/Mobile_app_for_businessplus_kotlin_new";
-  static const String imageBaseUrl = "http://192.168.1.253:85/ramikar_agro/uploads/";
-  static const String imageGalleryUrl ="http://192.168.1.253:85/ramikar_agro/uploads/gallery/";
+  static const String baseUrl =
+      "http://192.168.1.253:85/ramikar_agro/mobileapi/Mobile_app_for_businessplus_kotlin_new";
+  static const String imageBaseUrl =
+      "http://192.168.1.253:85/ramikar_agro/uploads/";
+  static const String imageGalleryUrl =
+      "http://192.168.1.253:85/ramikar_agro/uploads/gallery/";
 
-  static const String imageCropscheduleUrl ="http://192.168.1.253:85/ramikar_agro/uploads/crop_schedule/";
-  static const String imageEmployeeActivityReportUrl ="http://192.168.1.253:85/ramikar_agro/uploads/selfie/";
-   static const String imageExpensetUrl ="http://192.168.1.253:85/ramikar_agro/uploads/Expense_Images/";
+  static const String imageCropscheduleUrl =
+      "http://192.168.1.253:85/ramikar_agro/uploads/crop_schedule/";
+  static const String imageEmployeeActivityReportUrl =
+      "http://192.168.1.253:85/ramikar_agro/uploads/selfie/";
+  static const String imageExpensetUrl =
+      "http://192.168.1.253:85/ramikar_agro/uploads/Expense_Images/";
   static const String login = "/user_login";
   static const String getLastThirtyNotVisited = "/getLastThiertyNotVisited";
   static const String getNearByOutlets = "/getNearByOutlets";
@@ -13,6 +19,7 @@ class ApiClient {
   static const String punchStatus = "/getLastTransactionInOutStatus";
   static const String getEmployeeActivityDetails =
       '/getEmployeeActivityDetails_new';
+  static const String getEmployeeStatus = '/getEmployeeStatus';
 
   static const String getVisitReportDetails = "/getVisitReportDetails";
   static const String getEmployeeOutputReport = "/getEmployeeOutputReport";
@@ -44,14 +51,14 @@ class ApiClient {
   static const String getCategoryproductDetails =
       "/get_category_product_details";
   static const String getCollectionList = "/getCollectionList";
-  static const String getCollectionWiseTarget ='/getCollectionWiseTarget';
+  static const String getCollectionWiseTarget = '/getCollectionWiseTarget';
 
-  static const String getTargetDates ='/getTargetDates';
-  static const String getCropsSchedule ='/getCropsSchedule';
+  static const String getTargetDates = '/getTargetDates';
+  static const String getCropsSchedule = '/getCropsSchedule';
 
-  static const String getMyExpensesList ='/getMyExpensesList';
-  static const String getMyEmployeeExpensesList ='/getMyEmployeeExpensesList';
-  static const String update_expenses ='/update_expenses';
+  static const String getMyExpensesList = '/getMyExpensesList';
+  static const String getMyEmployeeExpensesList = '/getMyEmployeeExpensesList';
+  static const String update_expenses = '/update_expenses';
 
   static const String getEmployeeVisitCount = '$baseUrl/getVisitCount';
   static const String getDistrictTaluka = '/get_district_taluka';
@@ -59,4 +66,13 @@ class ApiClient {
       '/getCropAndIrigationDetails';
 
   static const String addFarmerDetails = '/add_farmer_details';
+  static const String getOrderHistory = '/getOrderList';
+  static const String updateOrderStatus = '/updateOrderStatus';
+  static const String getDispatchList = '/getDispatchDetails';
+
+  static const String salesReturnHistory = '/getSalesReturnDetails';
+
+  static const String getDealerName = '/getTalukaWiseOutletForOrderNew';
+
+  static const String getInpunchPending = '/getPendingInpunchStatus';
 }

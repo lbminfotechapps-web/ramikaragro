@@ -8,6 +8,7 @@ import 'package:demo/features/home/data/home_repo_imp/quick_access_repo_imp.dart
 import 'package:demo/features/home/doman/home_repository/home_repo.dart';
 
 import 'package:demo/features/home/doman/home_repository/qick_access_repo.dart';
+import 'package:demo/features/home/doman/home_usecases/get_inpunch_pending_usecase.dart';
 
 import 'package:demo/features/home/doman/home_usecases/get_menu_usecase.dart';
 import 'package:demo/features/home/doman/home_usecases/get_punch_status_usecase.dart';
@@ -29,7 +30,9 @@ Future<void> initHomeDi() async {
   sl.registerLazySingleton<GetMenuUsecase>(
     () => GetMenuUsecase(sl<HomeRepo>()),
   );
-  sl.registerFactory<HomeBloc>(() => HomeBloc(sl<GetMenuUsecase>()));
+  sl.registerFactory<HomeBloc>(
+    () => HomeBloc(sl<GetMenuUsecase>(), sl<GetInpunchPendingUseCase>()),
+  );
 
   // Quick Acces Di
 

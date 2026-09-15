@@ -207,6 +207,12 @@ class _QuickAccessSectionState extends State<QuickAccessSection> {
       context.push('/expenseList');
     } else if (menu.menuId == '67') {
       context.push('/teamExpenseList');
+    } else if (menu.menuId == '74') {
+      context.push('/orderHistoy');
+    } else if (menu.menuId == '75') {
+      context.push('/dispatchHistoy');
+    } else if (menu.menuId == '78') {
+      context.push('/salesHistoy');
     } else if (menu.menuId == '57' ||
         menu.menuId == '63' ||
         menu.menuId == '32') {
@@ -322,9 +328,7 @@ class QuickAccessMenuItem extends StatelessWidget {
                   return child;
                 }
 
-               return const CustomLoader(
-           
-            );
+                return const CustomLoader();
               },
             ),
           ),
