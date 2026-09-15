@@ -152,16 +152,30 @@ class FarmerregistrationDatasource {
     try {
       final formMap = Map<String, dynamic>.from(data);
 
-      if (formMap['image'] is File) {
-        final file = formMap['image'] as File;
+      print('========== FINAL FORM DATA ==========');
 
-        formMap['image'] = await MultipartFile.fromFile(
-          file.path,
-          filename: file.path.split('/').last,
-        );
-      }
+      formMap.forEach((key, value) {
+        if (key == 'image') {
+          print('$key: FILE');
+        } else {
+          print('$key: $value');
+        }
+      });
+
+      print('LATITUDE BEFORE FORM DATA: ${formMap['latitude']}');
+      print('LONGITUDE BEFORE FORM DATA: ${formMap['longitude']}');
 
       final formData = FormData.fromMap(formMap);
+
+      print('========== MULTIPART FIELDS ==========');
+
+      for (final field in formData.fields) {
+        print('${field.key}: ${field.value}');
+      }
+
+      print('======================================');
+
+      // final formData = FormData.fromMap(formMap);
 
       final response = await dioClient.client.post(
         ApiClient.addFarmerDetails,
@@ -188,6 +202,58 @@ class FarmerregistrationDatasource {
       throw Exception('Invalid save farmer API response');
     } catch (e) {
       print('SAVE FARMER ERROR: $e');
+      rethrow;
+    }
+  }
+
+  Future<Map<String, dynamic>> updateFarmerDetails(
+    Map<String, dynamic> data,
+  ) async {
+    try {
+      final formMap = Map<String, dynamic>.from(data);
+
+      print('========== FINAL UPDATE FORM DATA ==========');
+
+      print('LATITUDE BEFORE FORM DATA: ${formMap['latitude']}');
+      print('LONGITUDE BEFORE FORM DATA: ${formMap['longitude']}');
+
+      final formData = FormData.fromMap(formMap);
+
+      print('========== MULTIPART FIELDS ==========');
+
+      for (final field in formData.fields) {
+        print('${field.key}: ${field.value}');
+      }
+
+      print('======================================');
+
+      // final formData = FormData.fromMap(formMap);
+
+      final response = await dioClient.client.post(
+        ApiClient.updateFarmerDtails,
+        data: formData,
+      );
+
+      print('UPDATE FARMER RESPONSE TYPE: ${response.data.runtimeType}');
+      print('UPDATE FARMER RESPONSE: ${response.data}');
+
+      dynamic responseData = response.data;
+
+      if (responseData is String) {
+        responseData = jsonDecode(responseData);
+      }
+
+      if (responseData is Map<String, dynamic>) {
+        return responseData;
+      }
+
+      if (responseData is Map) {
+        return Map<String, dynamic>.from(responseData);
+      }
+
+      throw Exception('Invalid save farmer API response');
+    } catch (e) {
+      print('UPDATE FARMER ERROR: $e');
       rethrow;
     }
   }
