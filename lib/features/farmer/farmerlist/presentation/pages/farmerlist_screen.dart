@@ -1,9 +1,12 @@
 import 'dart:async';
 
 import 'package:demo/core/router/app_router.dart';
+import 'package:demo/core/secure_storage/secure_storage.dart';
 import 'package:demo/core/theme/app_colors.dart';
 import 'package:demo/core/theme/app_theme.dart';
+import 'package:demo/core/utility/location_util.dart';
 import 'package:demo/core/utility/widgets/custom_appbar.dart';
+import 'package:demo/core/utility/widgets/custom_loader.dart';
 import 'package:demo/features/farmer/farmerlist/data/model/farmerlist_model.dart';
 import 'package:demo/features/farmer/farmerlist/presentation/bloc/farmerlist_bloc.dart';
 import 'package:demo/features/farmer/farmerlist/presentation/bloc/farmerlist_event.dart';
@@ -34,53 +37,102 @@ class FarmerlistScreen extends StatefulWidget {
 class _FarmerlistScreenState extends State<FarmerlistScreen> {
   final TextEditingController _searchController = TextEditingController();
   Timer? _searchTimer;
-
+  final ScrollController _scrollController = ScrollController();
+  int _startLimit = 0;
+  bool _isLoadingMore = false;
+  bool _hasMore = true;
   @override
   void initState() {
     super.initState();
     _loadFarmers();
+    _scrollController.addListener(_onScroll);
+    _loadFarmers(startLimit: 0);
   }
 
   @override
   void dispose() {
     _searchTimer?.cancel();
     _searchController.dispose();
+    _scrollController.dispose();
     super.dispose();
   }
 
-  // ============================================================
-  // LOAD FARMERS
-  // ============================================================
-  void _loadFarmers({String searchKey = ''}) {
-    final bool isSearching = searchKey.trim().isNotEmpty;
-
-    final int startLimit = isSearching ? 0 : 20;
-
+  void _loadFarmers({
+    String searchKey = '',
+    int startLimit = 0,
+    bool isLoadMore = false,
+  }) async {
+    if (isLoadMore && (_isLoadingMore || !_hasMore)) {
+      return;
+    }
+    final userData = await SecureStorage.instance.getUserData();
+    final int? userId = int.tryParse(userData?['user_id']?.toString() ?? '');
+    if (userId == null) {
+      debugPrint('ERROR: Invalid user_id: ${userData?['user_id']}');
+      return;
+    }
+    if (isLoadMore) {
+      setState(() {
+        _isLoadingMore = true;
+      });
+    } else {
+      _startLimit = startLimit;
+      _hasMore = true;
+    }
+    debugPrint('================================');
+    debugPrint('LOAD FARMERS');
+    debugPrint('================================');
+    debugPrint('User ID: $userId');
+    debugPrint('Search: $searchKey');
+    debugPrint('Start Limit: $startLimit');
+    debugPrint('Load More: $isLoadMore');
+    debugPrint('================================');
+    if (!mounted) return;
     context.read<FarmerListBloc>().add(
       FarmerListEvent(
-        user_id: 4,
-        currentLat: '19.96778917556256',
-        currentLong: '73.77769130315075',
+        user_id: userId,
         startLimit: startLimit,
         searchText: searchKey,
       ),
     );
   }
 
-  // ============================================================
-  // SEARCH FARMERS
-  // ============================================================
   void _searchFarmers(String value) {
     _searchTimer?.cancel();
-
     _searchTimer = Timer(const Duration(milliseconds: 500), () {
-      _loadFarmers(searchKey: value.trim());
+      _startLimit = 0;
+      _hasMore = true;
+      _loadFarmers(searchKey: value.trim(), startLimit: 0, isLoadMore: false);
     });
   }
 
-  // ============================================================
-  // FILTER BOTTOM SHEET
-  // ============================================================
+  void _onScroll() {
+    if (!_scrollController.hasClients) {
+      return;
+    }
+    final position = _scrollController.position;
+
+    if (position.pixels >= position.maxScrollExtent - 200) {
+      if (_isLoadingMore || !_hasMore) {
+        return;
+      }
+      final searchKey = _searchController.text.trim();
+      final nextLimit = _startLimit + 20;
+      debugPrint('================================');
+      debugPrint('LOAD MORE FARMERS');
+      debugPrint('Current Limit: $_startLimit');
+      debugPrint('Next Limit: $nextLimit');
+      debugPrint('Search: $searchKey');
+      debugPrint('================================');
+      _startLimit = nextLimit;
+      _loadFarmers(
+        searchKey: searchKey,
+        startLimit: nextLimit,
+        isLoadMore: true,
+      );
+    }
+  }
+
   void _showFilterBottomSheet(BuildContext context) {
     final primaryColor = AppColors.gradientStartColor;
 
@@ -186,17 +238,12 @@ class _FarmerlistScreenState extends State<FarmerlistScreen> {
 
                   const SizedBox(height: 24),
 
-                  // APPLY BUTTON
                   SizedBox(
                     width: double.infinity,
                     height: 48,
                     child: ElevatedButton(
                       onPressed: () {
                         Navigator.pop(context);
-
-                        // TODO:
-                        // Pass selectedFilter to your API
-                        // if your FarmerListEvent supports it.
                       },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: primaryColor,
@@ -224,9 +271,6 @@ class _FarmerlistScreenState extends State<FarmerlistScreen> {
     );
   }
 
-  // ============================================================
-  // BUILD
-  // ============================================================
   @override
   Widget build(BuildContext context) {
     final primaryColor = AppColors.gradientStartColor;
@@ -234,30 +278,18 @@ class _FarmerlistScreenState extends State<FarmerlistScreen> {
     return Scaffold(
       backgroundColor: Colors.white,
 
-      // ========================================================
-      // APP BAR
-      // ========================================================
       appBar: CustomAppBar(
         title: 'Farmer List',
         showBackButton: true,
         onBackTap: () => context.go(AppRouter.home),
       ),
 
-      // ========================================================
-      // BODY
-      // ========================================================
       body: BlocBuilder<FarmerListBloc, FarmerListState>(
         builder: (context, state) {
-          // ====================================================
-          // LOADING
-          // ====================================================
           if (state.status == FarmerlistStatus.loading) {
-            return const Center(child: CircularProgressIndicator());
+            return const CustomLoader();
           }
 
-          // ====================================================
-          // FAILURE
-          // ====================================================
           if (state.status == FarmerlistStatus.failure) {
             return Center(
               child: Padding(
@@ -293,14 +325,8 @@ class _FarmerlistScreenState extends State<FarmerlistScreen> {
             );
           }
 
-          // ====================================================
-          // SUCCESS
-          // ====================================================
           return Column(
             children: [
-              // =================================================
-              // SEARCH + FILTER
-              // =================================================
               Padding(
                 padding: const EdgeInsets.only(left: 16, right: 16),
                 child: Row(
@@ -350,8 +376,13 @@ class _FarmerlistScreenState extends State<FarmerlistScreen> {
                           },
                           onSubmitted: (value) {
                             _searchTimer?.cancel();
-
-                            _loadFarmers(searchKey: value.trim());
+                            _startLimit = 0;
+                            _hasMore = true;
+                            _loadFarmers(
+                              searchKey: value.trim(),
+                              startLimit: 0,
+                              isLoadMore: false,
+                            );
                           },
                         ),
                       ),
@@ -359,7 +390,6 @@ class _FarmerlistScreenState extends State<FarmerlistScreen> {
 
                     const SizedBox(width: 10),
 
-                    // FILTER BUTTON
                     Container(
                       width: 48,
                       height: 48,
@@ -378,9 +408,6 @@ class _FarmerlistScreenState extends State<FarmerlistScreen> {
                 ),
               ),
 
-              // =================================================
-              // FARMER HEADER
-              // =================================================
               Padding(
                 padding: const EdgeInsets.fromLTRB(16, 4, 16, 6),
                 child: Row(
@@ -411,9 +438,6 @@ class _FarmerlistScreenState extends State<FarmerlistScreen> {
                 ),
               ),
 
-              // =================================================
-              // FARMER LIST
-              // =================================================
               Expanded(
                 child: state.farmerList.isEmpty
                     ? RefreshIndicator(
@@ -448,8 +472,18 @@ class _FarmerlistScreenState extends State<FarmerlistScreen> {
                         child: ListView.builder(
                           physics: const AlwaysScrollableScrollPhysics(),
                           padding: const EdgeInsets.fromLTRB(16, 8, 16, 90),
-                          itemCount: state.farmerList.length,
+                          itemCount:
+                              state.farmerList.length +
+                              (_isLoadingMore ? 1 : 0),
                           itemBuilder: (context, index) {
+                            if (index == state.farmerList.length) {
+                              return const Padding(
+                                padding: EdgeInsets.symmetric(vertical: 20),
+                                child: Center(
+                                  child: CircularProgressIndicator(),
+                                ),
+                              );
+                            }
                             final farmer = state.farmerList[index];
 
                             return _FarmerListItem(farmer: farmer);
@@ -462,9 +496,6 @@ class _FarmerlistScreenState extends State<FarmerlistScreen> {
         },
       ),
 
-      // ========================================================
-      // ADD FARMER
-      // ========================================================
       floatingActionButton: FloatingActionButton(
         backgroundColor: primaryColor,
         foregroundColor: Colors.white,
@@ -478,10 +509,6 @@ class _FarmerlistScreenState extends State<FarmerlistScreen> {
   }
 }
 
-// =================================================================
-// FARMER CARD (Matched to Design Reference)
-// =================================================================
-
 class _FarmerListItem extends StatelessWidget {
   final FarmerlistModel farmer;
 
@@ -492,9 +519,7 @@ class _FarmerListItem extends StatelessWidget {
     final primaryColor = AppColors.gradientStartColor;
 
     return Card(
-      color: const Color(
-        0xFFF7FBF7,
-      ), // Soft tinted background matching reference card
+      color: const Color(0xFFF7FBF7),
       margin: const EdgeInsets.only(bottom: 14),
       elevation: 2,
       shadowColor: Colors.black12,
@@ -504,13 +529,9 @@ class _FarmerListItem extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // ===================================================
-            // TOP SECTION: AVATAR + NAME/PHONE/ADDRESS + STATUS
-            // ===================================================
             Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // AVATAR IMAGE
                 ClipRRect(
                   borderRadius: BorderRadius.circular(35),
                   child: SizedBox(
@@ -529,7 +550,6 @@ class _FarmerListItem extends StatelessWidget {
 
                 const SizedBox(width: 12),
 
-                // NAME, PHONE & ADDRESS DETAILS
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -631,9 +651,6 @@ class _FarmerListItem extends StatelessWidget {
             Divider(height: 1, color: Colors.grey.shade300),
             const SizedBox(height: 12),
 
-            // ===================================================
-            // MIDDLE SECTION: LAST CALL & LAST VISIT STATS
-            // ===================================================
             Row(
               children: [
                 // LAST CALL
@@ -679,11 +696,9 @@ class _FarmerListItem extends StatelessWidget {
                   ),
                 ),
 
-                // VERTICAL DIVIDER
                 Container(height: 35, width: 1, color: Colors.grey.shade300),
                 const SizedBox(width: 12),
 
-                // LAST VISIT
                 Expanded(
                   child: Row(
                     children: [
@@ -730,9 +745,6 @@ class _FarmerListItem extends StatelessWidget {
 
             const SizedBox(height: 16),
 
-            // ===================================================
-            // BOTTOM ACTION BAR (Pill Container with White Circular Buttons)
-            // ===================================================
             Container(
               height: 52,
               padding: const EdgeInsets.symmetric(horizontal: 8),
@@ -746,6 +758,7 @@ class _FarmerListItem extends StatelessWidget {
                   // PIN BUTTON WITH WHITE CIRCLE BACKGROUND
                   InkWell(
                     onTap: () {
+                      //print('farmer pin clickkkk');
                       context.push('/farmerpin', extra: farmer.farmerId);
                     },
                     borderRadius: BorderRadius.circular(20),
@@ -805,10 +818,9 @@ class _FarmerListItem extends StatelessWidget {
                     ),
                   ),
 
-                  // EDIT BUTTON WITH WHITE CIRCLE BACKGROUND
                   InkWell(
                     onTap: () {
-                      // TODO: Edit action
+                      context.push('/farmerEdit', extra: farmer);
                     },
                     borderRadius: BorderRadius.circular(20),
                     child: Container(
@@ -834,10 +846,6 @@ class _FarmerListItem extends StatelessWidget {
     );
   }
 }
-
-// =================================================================
-// FILTER CHIP
-// =================================================================
 
 class _FilterChip extends StatelessWidget {
   final String label;

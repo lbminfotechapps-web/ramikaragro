@@ -8,6 +8,8 @@ import 'package:demo/features/dealer/presentation/pages/DealerListScreen.dart';
 import 'package:demo/features/expense/presentation/pages/my_expense_page.dart';
 import 'package:demo/features/expense/presentation/pages/team_expense_page.dart';
 import 'package:demo/features/farmer/famerfollowup/presentation/pages/famerfollowuppage.dart';
+import 'package:demo/features/farmer/farmerlist/data/model/farmerlist_model.dart';
+import 'package:demo/features/farmer/farmerregistration/presentation/pages/farmer_edit_update_scren.dart';
 import 'package:demo/features/farmer/farmerlist/presentation/pages/farmerlist_screen.dart';
 import 'package:demo/features/farmer/farmerregistration/presentation/pages/farmerregistration_page.dart';
 import 'package:demo/features/gallery/presentation/pages/galleryscreen.dart';
@@ -84,11 +86,13 @@ class AppRouter {
 
   static const String addCollection = '/addCollection';
   static const String collectionList = '/collectionList';
-  static const String collectionTargetAndAchievement = '/collectionTargetAndAchievement';
+  static const String collectionTargetAndAchievement =
+      '/collectionTargetAndAchievement';
   static const String cropSchedule = '/cropSchedule';
   static const String farmerregistration = '/farmerregistration';
   static const String expenseList = '/expenseList';
   static const String teamExpenseList = '/teamExpenseList';
+  static const String farmerEdit = '/farmerEdit';
 
   static final GoRouter router = GoRouter(
     initialLocation: splash,
@@ -204,9 +208,8 @@ class AppRouter {
           return const DealerWiseTargetPage();
         },
       ),
-      
 
-       GoRoute(
+      GoRoute(
         path: cropSchedule,
         name: 'cropSchedule',
         builder: (context, state) {
@@ -214,8 +217,7 @@ class AppRouter {
         },
       ),
 
-    
-       GoRoute(
+      GoRoute(
         path: expenseList,
         name: 'expenseList',
         builder: (context, state) {
@@ -223,16 +225,13 @@ class AppRouter {
         },
       ),
 
-
-       GoRoute(
+      GoRoute(
         path: teamExpenseList,
         name: 'teamExpenseList',
         builder: (context, state) {
           return const TeamExpensePage();
         },
       ),
-
-
 
       GoRoute(
         path: farmers,
@@ -247,6 +246,19 @@ class AppRouter {
           return FamerFollowupPage(farmerId: farmerId);
         },
       ),
+
+      GoRoute(
+        path: farmerEdit,
+        name: 'farmerEdit',
+        builder: (context, state) {
+          final farmerDetails = state.extra is FarmerlistModel
+              ? state.extra as FarmerlistModel
+              : null;
+          //  final farmerId = state.extra is String ? state.extra as String : '';
+          return FarmerEditUpdateScren(farmerDetails: farmerDetails);
+        },
+      ),
+
       GoRoute(
         path: punch,
         name: 'punchIn',
