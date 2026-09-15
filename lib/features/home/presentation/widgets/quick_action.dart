@@ -1,5 +1,5 @@
-import 'package:demo/core/theme/app_colors.dart';
 import 'package:demo/core/secure_storage/secure_storage.dart';
+import 'package:demo/core/theme/app_colors.dart';
 import 'package:demo/core/utility/widgets/custom_card.dart';
 import 'package:demo/core/utility/widgets/custom_loader.dart';
 import 'package:demo/features/home/doman/home_entity/menu_entity.dart';
@@ -28,16 +28,18 @@ class QuickAccessSection extends StatefulWidget {
   final List<MenuEntity> menus;
   final PunchStatEntity? punchStat;
 
-  const QuickAccessSection({super.key, required this.menus, this.punchStat});
+  const QuickAccessSection({
+    super.key,
+    required this.menus,
+    this.punchStat,
+  });
 
   @override
   State<QuickAccessSection> createState() => _QuickAccessSectionState();
 }
 
 class _QuickAccessSectionState extends State<QuickAccessSection> {
-  // Initially show 7 API items.
   static const int initialItemCount = 5;
-
   static const int loadMoreCount = 6;
 
   int visibleItemCount = initialItemCount;
@@ -46,7 +48,6 @@ class _QuickAccessSectionState extends State<QuickAccessSection> {
   void didUpdateWidget(covariant QuickAccessSection oldWidget) {
     super.didUpdateWidget(oldWidget);
 
-    // Reset pagination when new API data comes.
     if (oldWidget.menus != widget.menus) {
       visibleItemCount = initialItemCount;
     }
@@ -68,11 +69,10 @@ class _QuickAccessSectionState extends State<QuickAccessSection> {
       return const SizedBox.shrink();
     }
 
-    final int actualVisibleCount = visibleItemCount > widget.menus.length
+    final actualVisibleCount = visibleItemCount > widget.menus.length
         ? widget.menus.length
         : visibleItemCount;
-
-    final bool hasMore = actualVisibleCount < widget.menus.length;
+    final hasMore = actualVisibleCount < widget.menus.length;
 
     return CustomCard(
       padding: EdgeInsets.all(16.w),
@@ -84,34 +84,25 @@ class _QuickAccessSectionState extends State<QuickAccessSection> {
             'Quick Access',
             style: TextStyle(fontSize: 20, fontWeight: FontWeight.w700),
           ),
-
           SizedBox(height: 14.h),
-
           LayoutBuilder(
             builder: (context, constraints) {
               final crossAxisCount = constraints.maxWidth < 600 ? 3 : 6;
-
-              // API items currently visible.
-              final List<MenuEntity> visibleMenus = widget.menus
+              final visibleMenus = widget.menus
                   .take(actualVisibleCount)
                   .toList();
 
               return GridView.builder(
                 shrinkWrap: true,
                 physics: const NeverScrollableScrollPhysics(),
-
-                // +1 for More button.
                 itemCount: visibleMenus.length + (hasMore ? 1 : 0),
-
                 gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                   crossAxisCount: crossAxisCount,
                   crossAxisSpacing: 8.w,
                   mainAxisSpacing: 8.h,
                   childAspectRatio: 0.9,
                 ),
-
                 itemBuilder: (context, index) {
-                  // More button
                   if (index == visibleMenus.length) {
                     return _MoreItem(onTap: _showMore);
                   }
@@ -121,9 +112,7 @@ class _QuickAccessSectionState extends State<QuickAccessSection> {
                   return QuickAccessMenuItem(
                     menu: menu,
                     punchStat: widget.punchStat,
-                    onTap: () {
-                      _onMenuTap(context, menu);
-                    },
+                    onTap: () => _onMenuTap(context, menu),
                   );
                 },
               );
@@ -162,11 +151,13 @@ class _QuickAccessSectionState extends State<QuickAccessSection> {
     } else if (menu.menuId == '20') {
       final userData = await SecureStorage.instance.getUserData();
       final userId = userData?['user_id']?.toString();
+
       debugPrint('========================================');
       debugPrint('NOTIFICATION NAVIGATION');
       debugPrint('USER DATA: $userData');
       debugPrint('USER ID: $userId');
       debugPrint('========================================');
+
       if (!context.mounted) return;
       if (userId == null || userId.isEmpty) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -174,6 +165,7 @@ class _QuickAccessSectionState extends State<QuickAccessSection> {
         );
         return;
       }
+
       context.push('/notification', extra: userId);
     } else if (menu.menuId == '14') {
       context.push('/leaveList');
@@ -207,19 +199,10 @@ class _QuickAccessSectionState extends State<QuickAccessSection> {
       context.push('/expenseList');
     } else if (menu.menuId == '67') {
       context.push('/teamExpenseList');
-    }
-
-     else if (menu.menuId == '69') {
+    } else if (menu.menuId == '69') {
       context.push('/placeOrder');
-    }
-
-
-    else if (menu.menuId == '82') {
+    } else if (menu.menuId == '82') {
       context.push('/salesTargetAndAchievement');
-    }
-    
-    
-     else if (menu.menuId == '57' ||
     } else if (menu.menuId == '74') {
       context.push('/orderHistoy');
     } else if (menu.menuId == '75') {
@@ -249,21 +232,16 @@ class _QuickAccessSectionState extends State<QuickAccessSection> {
 
       context.push(route, extra: userId);
     }
-
-    //farmers
-    //
-    //
-    //
-    // if (menu.menuId == '8') {
-    //   context.go('/farmer-visit');
-    // }
   }
 }
 
 class QuickAccessItemWidget extends StatelessWidget {
   final QuickAccessItem item;
 
-  const QuickAccessItemWidget({super.key, required this.item});
+  const QuickAccessItemWidget({
+    super.key,
+    required this.item,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -276,9 +254,7 @@ class QuickAccessItemWidget extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Icon(item.icon, size: 28.sp, color: item.iconColor),
-
           SizedBox(height: 6.h),
-
           Text(
             item.title,
             maxLines: 1,
@@ -345,9 +321,7 @@ class QuickAccessMenuItem extends StatelessWidget {
               },
             ),
           ),
-
           SizedBox(height: 16.h),
-
           Text(
             displayName,
             maxLines: 3,
@@ -364,19 +338,14 @@ class QuickAccessMenuItem extends StatelessWidget {
     switch (menuId) {
       case '17':
         return const Color(0xFFF1FAF4);
-
       case '8':
         return const Color(0xFFFFF8ED);
-
       case '3':
         return const Color(0xFFF1F5FD);
-
       case '1':
         return const Color(0xFFF5F5F5);
-
       case '2':
         return const Color(0xFFF9F0FF);
-
       default:
         return const Color(0xFFF5F5F5);
     }
@@ -399,9 +368,7 @@ class _MoreItem extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Icon(Icons.more_horiz_rounded, size: 28.sp, color: Colors.black87),
-
           SizedBox(height: 6.h),
-
           Text(
             'More',
             maxLines: 1,
@@ -414,3 +381,4 @@ class _MoreItem extends StatelessWidget {
     );
   }
 }
+
