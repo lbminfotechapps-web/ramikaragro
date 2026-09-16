@@ -1,8 +1,11 @@
+import 'dart:convert';
 import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:demo/core/theme/app_colors.dart';
 import 'package:demo/core/secure_storage/secure_storage.dart';
 import 'package:demo/core/utility/app_image_picker.dart';
+import 'package:demo/core/utility/appdialog.dart';
 import 'package:demo/core/utility/device_info_util.dart';
 import 'package:demo/core/utility/location_util.dart';
 import 'package:demo/core/utility/widgets/custom_appbar.dart';
@@ -114,17 +117,26 @@ class _PunchScreenState extends State<PunchScreen> {
   }
 
   Future<void> _submitPunch() async {
-    if (isLoading) return;
+    if (isLoading) {
+      debugPrint('PUNCH IN: Already loading, submit ignored');
+      return;
+    }
 
     if (!_formKey.currentState!.validate()) {
+      debugPrint('PUNCH IN: Form validation failed');
       return;
     }
 
     final userData = await SecureStorage.instance.getUserData();
 
+    debugPrint('========== PUNCH IN SUBMIT ==========');
+    debugPrint('User data: $userData');
+
     final userId = int.tryParse(userData?['user_id']?.toString() ?? '');
 
     if (userId == null) {
+      debugPrint('PUNCH IN ERROR: User ID not found');
+
       if (!mounted) return;
 
       ScaffoldMessenger.of(context).showSnackBar(
@@ -134,30 +146,47 @@ class _PunchScreenState extends State<PunchScreen> {
       return;
     }
 
+    debugPrint('User ID: $userId');
+
     final vehicleTypeId = selectedVehicleId;
 
     if (vehicleTypeId == null || vehicleTypeId.isEmpty) {
+      debugPrint('PUNCH IN ERROR: Vehicle type not selected');
+
+      if (!mounted) return;
+
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Please select a vehicle type')),
       );
+
       return;
     }
 
-    // Start button loader
+    debugPrint('Vehicle Type ID: $vehicleTypeId');
+
     setState(() {
       isLoading = true;
       _submissionSent = false;
     });
 
     try {
+      // ============================================
+      // BATTERY
+      // ============================================
       final batteryInfo = await DeviceInfoUtil.instance.getBatteryInfo();
 
+      debugPrint('Battery Info: $batteryInfo');
+
+      // ============================================
+      // NETWORK
+      // ============================================
       final networkInfo = await DeviceInfoUtil.instance.getNetworkInfo();
 
-      // -----------------------------
-      // Location information
-      // -----------------------------
+      debugPrint('Network Info: $networkInfo');
 
+      // ============================================
+      // LOCATION
+      // ============================================
       final position = await LocationUtil.instance.getCurrentLocation();
 
       String latitude = '';
@@ -168,37 +197,146 @@ class _PunchScreenState extends State<PunchScreen> {
         latitude = position.latitude.toString();
         longitude = position.longitude.toString();
 
+        debugPrint('Latitude: $latitude');
+        debugPrint('Longitude: $longitude');
+
         address = await LocationUtil.instance.getAddress(
           position.latitude,
           position.longitude,
         );
+
+        debugPrint('Geo Address: $address');
+      } else {
+        debugPrint('Location: NOT AVAILABLE');
       }
 
-      if (!mounted) return;
+      // ============================================
+      // STARTING IMAGE -> BASE64
+      // ============================================
+      String? startingImageBase64;
 
-      debugPrint('FINAL vehicleTypeId: $vehicleTypeId');
+      if (_uploadedImage != null) {
+        debugPrint('Starting image path: ${_uploadedImage!.path}');
+
+        if (await _uploadedImage!.exists()) {
+          final imageBytes = await _uploadedImage!.readAsBytes();
+
+          startingImageBase64 = base64Encode(imageBytes);
+
+          debugPrint(
+            'Starting image Base64 length: '
+            '${startingImageBase64.length}',
+          );
+        } else {
+          debugPrint('Starting image file does not exist');
+        }
+      } else {
+        debugPrint('Starting image: NOT SELECTED');
+      }
+
+      // ============================================
+      // OTHER FORM VALUES
+      // ============================================
+      final pinRemark = remarkController.text.trim();
+
+      final startingClosingKmAmount = openingKmController.text.trim();
+
+      final route = routeController.text.trim();
+
+      debugPrint('Pin Remark: $pinRemark');
 
       debugPrint(
-        'Current status: '
+        'Starting KM Amount: '
+        '$startingClosingKmAmount',
+      );
+
+      debugPrint('Route: $route');
+
+      // ============================================
+      // CURRENT PUNCH STATUS
+      // ============================================
+      debugPrint(
+        'Previous Punch Status: '
         '${widget.punchStat?.inOutStatus}',
       );
 
-      // debugPrint('Next status: $nextInOutStatus');
+      debugPrint('Current Action: PUNCH IN');
+      debugPrint('In/Out Status: 1');
+      debugPrint('Activity ID: 3');
 
-      // -----------------------------
-      // Submit event
-      // -----------------------------
+      // ============================================
+      // FINAL REQUEST DEBUG
+      // ============================================
+      debugPrint('========== FINAL PUNCH IN DATA ==========');
 
+      debugPrint('user_id: $userId');
+      debugPrint('in_out_status: 1');
+      debugPrint('differenceByAndroid: 0.0');
+      debugPrint('locationHistoryString:');
+      debugPrint('strBatteryInfo: $batteryInfo');
+      debugPrint('strNetworkInfo: $networkInfo');
+      debugPrint('pinRemark: $pinRemark');
+
+      debugPrint(
+        'strStartingClosingKmAmount: '
+        '$startingClosingKmAmount',
+      );
+
+      debugPrint('strVehicleTypeId: $vehicleTypeId');
+
+      debugPrint('route: $route');
+      debugPrint('latitude: $latitude');
+      debugPrint('longitude: $longitude');
+      debugPrint('networkLatitude: $latitude');
+      debugPrint('networkLongitude: $longitude');
+      debugPrint('gpsLatitude: $latitude');
+      debugPrint('gpsLongitude: $longitude');
+      debugPrint('geoAddress: $address');
+      debugPrint('activityId: 3');
+
+      if (startingImageBase64 != null && startingImageBase64.isNotEmpty) {
+        debugPrint(
+          'startingKmImage: '
+          '${startingImageBase64.length} Base64 characters',
+        );
+      } else {
+        debugPrint('startingKmImage: NOT SENT');
+      }
+
+      // ============================================
+      // NOT SENT FOR PUNCH IN
+      // ============================================
+      debugPrint('date: NOT SENT');
+      debugPrint('time: NOT SENT');
+      debugPrint('closingKmImage: NOT SENT');
+      debugPrint('isForceOutPunch: NOT SENT');
+
+      debugPrint('==========================================');
+
+      if (!mounted) return;
+
+      // ============================================
+      // DISPATCH PUNCH IN EVENT
+      // ============================================
       context.read<QuickAcessBloc>().add(
         PunchInOutDetailsAddEvent(
           userId: userId,
 
-          // 0 -> 1
-          // 1 -> 0
           inOutStatus: '1',
+
+          differenceByAndroid: '0.0',
+          locationHistoryString: '',
 
           batteryInfo: batteryInfo,
           networkInfo: networkInfo,
+
+          pinRemark: pinRemark,
+
+          startingClosingKmAmount: startingClosingKmAmount,
+
+          vehicleTypeId: vehicleTypeId,
+
+          route: route,
 
           latitude: latitude,
           longitude: longitude,
@@ -211,31 +349,26 @@ class _PunchScreenState extends State<PunchScreen> {
 
           geoAddress: address,
 
-          pinRemark: remarkController.text.trim(),
+          // Base64 image
+          startingKmImage: startingImageBase64,
 
-          startingClosingKmAmount:
-              //  isPunchOut
-              //     ? closingKmController.text.trim()
-              // :
-              openingKmController.text.trim(),
-
-          vehicleTypeId: vehicleTypeId,
-
-          route: routeController.text.trim(),
-
-          startingKmImage: _uploadedImage?.path ?? '',
-
-          closingKmImage: _uploadedImage?.path ?? '',
-
-          // IMPORTANT:
-          // Don't use widget.punchStat.toString()
-          activityId: "3" ?? '',
-          date: '',
-          newTime: '',
+          activityId: '3',
         ),
       );
+
       _submissionSent = true;
-    } catch (e) {
+
+      debugPrint('PUNCH IN EVENT DISPATCHED SUCCESSFULLY');
+
+      debugPrint('========================================');
+    } catch (e, stackTrace) {
+      debugPrint('========== PUNCH IN ERROR ==========');
+
+      debugPrint('Error: $e');
+      debugPrint('StackTrace: $stackTrace');
+
+      debugPrint('====================================');
+
       if (!mounted) return;
 
       setState(() {
@@ -279,16 +412,29 @@ class _PunchScreenState extends State<PunchScreen> {
                 isLoading = false;
                 _submissionSent = false;
               });
-              context.go(AppRouter.home);
+
+              AppDialog.show(
+                context: context,
+                type: DialogType.success,
+                title: 'Punch In Successful',
+                message: 'Your punch in has been submitted successfully.',
+                buttonText: 'OK',
+                onButtonPressed: () {
+                  context.go(AppRouter.home);
+                },
+              );
+              // context.go(AppRouter.home);
             } else if (state.quickAccessStatus == QuickAccessStatus.failure) {
               setState(() {
                 isLoading = false;
                 _submissionSent = false;
               });
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text(state.errorMessage ?? 'Submission failed'),
-                ),
+              AppDialog.show(
+                context: context,
+                type: DialogType.error,
+                title: 'Punch In Failed',
+                message: state.errorMessage ?? 'Unable to submit punch in.',
+                buttonText: 'OK',
               );
             }
           },

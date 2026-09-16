@@ -201,6 +201,9 @@ class _HomeShellState extends State<HomeShell> {
     (path: AppRouter.visits, icon: Icons.location_city, label: 'Visits'),
     (path: AppRouter.products, icon: Icons.storage, label: 'Products'),
   ];
+  void refreshHome() {
+    _refreshHome();
+  }
 
   Future<void> _refreshHome() async {
     final userData = await SecureStorage.instance.getUserData();
@@ -219,9 +222,8 @@ class _HomeShellState extends State<HomeShell> {
 
     final searchToDate = DateFormat('yyyy-MM-dd').format(now);
 
-    debugPrint('GRAPH USER ID: $userId');
-    debugPrint('GRAPH FROM DATE: $searchFromDate');
-    debugPrint('GRAPH TO DATE: $searchToDate');
+    debugPrint('HOME REFRESH');
+    debugPrint('USER ID: $userId');
 
     context.read<HomeBloc>().add(GetMenuEvent(userId, '2'));
 
@@ -291,17 +293,27 @@ class _HomeShellState extends State<HomeShell> {
   Widget build(BuildContext context) {
     final activeIndex = widget.navigationShell.currentIndex;
 
-    if (activeIndex != _lastActiveIndex) {
-      _lastActiveIndex = activeIndex;
+    // if (activeIndex != _lastActiveIndex) {
+    //   _lastActiveIndex = activeIndex;
 
-      if (activeIndex == 0) {
-        WidgetsBinding.instance.addPostFrameCallback((_) {
-          if (mounted) {
-            _refreshHome();
-          }
-        });
-      }
+    //   if (activeIndex == 0) {
+    //     WidgetsBinding.instance.addPostFrameCallback((_) {
+    //       if (mounted) {
+    //         _refreshHome();
+    //       }
+    //     });
+    //   }
+    // }
+
+    if (activeIndex == 0) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) {
+          _refreshHome();
+        }
+      });
     }
+
+    _lastActiveIndex = activeIndex;
 
     return PopScope(
       canPop: false,

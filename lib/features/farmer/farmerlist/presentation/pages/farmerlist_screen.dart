@@ -3,8 +3,7 @@ import 'dart:async';
 import 'package:demo/core/router/app_router.dart';
 import 'package:demo/core/secure_storage/secure_storage.dart';
 import 'package:demo/core/theme/app_colors.dart';
-import 'package:demo/core/theme/app_theme.dart';
-import 'package:demo/core/utility/location_util.dart';
+
 import 'package:demo/core/utility/widgets/custom_appbar.dart';
 import 'package:demo/core/utility/widgets/custom_loader.dart';
 import 'package:demo/features/farmer/farmerlist/data/model/farmerlist_model.dart';
@@ -41,12 +40,14 @@ class _FarmerlistScreenState extends State<FarmerlistScreen> {
   int _startLimit = 0;
   bool _isLoadingMore = false;
   bool _hasMore = true;
+  String _currentSearchKey = '';
   @override
   void initState() {
     super.initState();
-    _loadFarmers();
+
     _scrollController.addListener(_onScroll);
-    _loadFarmers(startLimit: 0);
+
+    _loadFarmers(searchKey: '', startLimit: 0, isLoadMore: false);
   }
 
   @override
@@ -99,10 +100,22 @@ class _FarmerlistScreenState extends State<FarmerlistScreen> {
 
   void _searchFarmers(String value) {
     _searchTimer?.cancel();
-    _searchTimer = Timer(const Duration(milliseconds: 500), () {
+
+    final searchKey = value.trim();
+
+    _searchTimer = Timer(const Duration(milliseconds: 1000), () {
+      if (!mounted) return;
+
+      _currentSearchKey = searchKey;
+
       _startLimit = 0;
       _hasMore = true;
-      _loadFarmers(searchKey: value.trim(), startLimit: 0, isLoadMore: false);
+
+      _loadFarmers(
+        searchKey: _currentSearchKey,
+        startLimit: 0,
+        isLoadMore: false,
+      );
     });
   }
 
@@ -110,166 +123,170 @@ class _FarmerlistScreenState extends State<FarmerlistScreen> {
     if (!_scrollController.hasClients) {
       return;
     }
+
     final position = _scrollController.position;
 
     if (position.pixels >= position.maxScrollExtent - 200) {
       if (_isLoadingMore || !_hasMore) {
         return;
       }
-      final searchKey = _searchController.text.trim();
+
       final nextLimit = _startLimit + 20;
+
       debugPrint('================================');
       debugPrint('LOAD MORE FARMERS');
       debugPrint('Current Limit: $_startLimit');
       debugPrint('Next Limit: $nextLimit');
-      debugPrint('Search: $searchKey');
+      debugPrint('Search: $_currentSearchKey');
       debugPrint('================================');
+
       _startLimit = nextLimit;
+
       _loadFarmers(
-        searchKey: searchKey,
+        searchKey: _currentSearchKey,
         startLimit: nextLimit,
         isLoadMore: true,
       );
     }
   }
 
-  void _showFilterBottomSheet(BuildContext context) {
-    final primaryColor = AppColors.gradientStartColor;
+  // void _showFilterBottomSheet(BuildContext context) {
+  //   final primaryColor = AppColors.gradientStartColor;
 
-    String selectedFilter = 'All';
+  //   String selectedFilter = 'All';
 
-    showModalBottomSheet(
-      context: context,
-      backgroundColor: Colors.white,
-      isScrollControlled: true,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-      ),
-      builder: (context) {
-        return StatefulBuilder(
-          builder: (context, setModalState) {
-            return Padding(
-              padding: const EdgeInsets.fromLTRB(20, 20, 20, 24),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // HEADER
-                  Row(
-                    children: [
-                      Container(
-                        width: 42,
-                        height: 42,
-                        decoration: BoxDecoration(
-                          color: primaryColor.withOpacity(0.10),
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: Icon(
-                          Icons.filter_alt_outlined,
-                          color: primaryColor,
-                        ),
-                      ),
-                      const SizedBox(width: 12),
-                      const Expanded(
-                        child: Text(
-                          'Filter Farmers',
-                          style: TextStyle(
-                            fontSize: 20,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ),
-                      IconButton(
-                        onPressed: () {
-                          Navigator.pop(context);
-                        },
-                        icon: const Icon(Icons.close),
-                      ),
-                    ],
-                  ),
+  //   showModalBottomSheet(
+  //     context: context,
+  //     backgroundColor: Colors.white,
+  //     isScrollControlled: true,
+  //     shape: const RoundedRectangleBorder(
+  //       borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+  //     ),
+  //     builder: (context) {
+  //       return StatefulBuilder(
+  //         builder: (context, setModalState) {
+  //           return Padding(
+  //             padding: const EdgeInsets.fromLTRB(20, 20, 20, 24),
+  //             child: Column(
+  //               mainAxisSize: MainAxisSize.min,
+  //               crossAxisAlignment: CrossAxisAlignment.start,
+  //               children: [
+  //                 // HEADER
+  //                 Row(
+  //                   children: [
+  //                     Container(
+  //                       width: 42,
+  //                       height: 42,
+  //                       decoration: BoxDecoration(
+  //                         color: primaryColor.withOpacity(0.10),
+  //                         borderRadius: BorderRadius.circular(12),
+  //                       ),
+  //                       child: Icon(
+  //                         Icons.filter_alt_outlined,
+  //                         color: primaryColor,
+  //                       ),
+  //                     ),
+  //                     const SizedBox(width: 12),
+  //                     const Expanded(
+  //                       child: Text(
+  //                         'Filter Farmers',
+  //                         style: TextStyle(
+  //                           fontSize: 20,
+  //                           fontWeight: FontWeight.bold,
+  //                         ),
+  //                       ),
+  //                     ),
+  //                     IconButton(
+  //                       onPressed: () {
+  //                         Navigator.pop(context);
+  //                       },
+  //                       icon: const Icon(Icons.close),
+  //                     ),
+  //                   ],
+  //                 ),
 
-                  const SizedBox(height: 20),
+  //                 const SizedBox(height: 20),
 
-                  // FILTER TITLE
-                  const Text(
-                    'Farmer Status',
-                    style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
-                  ),
+  //                 // FILTER TITLE
+  //                 const Text(
+  //                   'Farmer Status',
+  //                   style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
+  //                 ),
 
-                  const SizedBox(height: 12),
+  //                 const SizedBox(height: 12),
 
-                  // FILTER OPTIONS
-                  Wrap(
-                    spacing: 8,
-                    runSpacing: 8,
-                    children: [
-                      _FilterChip(
-                        label: 'All',
-                        selected: selectedFilter == 'All',
-                        primaryColor: primaryColor,
-                        onTap: () {
-                          setModalState(() {
-                            selectedFilter = 'All';
-                          });
-                        },
-                      ),
-                      _FilterChip(
-                        label: 'Active',
-                        selected: selectedFilter == 'Active',
-                        primaryColor: primaryColor,
-                        onTap: () {
-                          setModalState(() {
-                            selectedFilter = 'Active';
-                          });
-                        },
-                      ),
-                      _FilterChip(
-                        label: 'Inactive',
-                        selected: selectedFilter == 'Inactive',
-                        primaryColor: primaryColor,
-                        onTap: () {
-                          setModalState(() {
-                            selectedFilter = 'Inactive';
-                          });
-                        },
-                      ),
-                    ],
-                  ),
+  //                 // FILTER OPTIONS
+  //                 Wrap(
+  //                   spacing: 8,
+  //                   runSpacing: 8,
+  //                   children: [
+  //                     _FilterChip(
+  //                       label: 'All',
+  //                       selected: selectedFilter == 'All',
+  //                       primaryColor: primaryColor,
+  //                       onTap: () {
+  //                         setModalState(() {
+  //                           selectedFilter = 'All';
+  //                         });
+  //                       },
+  //                     ),
+  //                     _FilterChip(
+  //                       label: 'Active',
+  //                       selected: selectedFilter == 'Active',
+  //                       primaryColor: primaryColor,
+  //                       onTap: () {
+  //                         setModalState(() {
+  //                           selectedFilter = 'Active';
+  //                         });
+  //                       },
+  //                     ),
+  //                     _FilterChip(
+  //                       label: 'Inactive',
+  //                       selected: selectedFilter == 'Inactive',
+  //                       primaryColor: primaryColor,
+  //                       onTap: () {
+  //                         setModalState(() {
+  //                           selectedFilter = 'Inactive';
+  //                         });
+  //                       },
+  //                     ),
+  //                   ],
+  //                 ),
 
-                  const SizedBox(height: 24),
+  //                 const SizedBox(height: 24),
 
-                  SizedBox(
-                    width: double.infinity,
-                    height: 48,
-                    child: ElevatedButton(
-                      onPressed: () {
-                        Navigator.pop(context);
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: primaryColor,
-                        foregroundColor: Colors.white,
-                        elevation: 0,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(14),
-                        ),
-                      ),
-                      child: const Text(
-                        'Apply Filter',
-                        style: TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            );
-          },
-        );
-      },
-    );
-  }
+  //                 SizedBox(
+  //                   width: double.infinity,
+  //                   height: 48,
+  //                   child: ElevatedButton(
+  //                     onPressed: () {
+  //                       Navigator.pop(context);
+  //                     },
+  //                     style: ElevatedButton.styleFrom(
+  //                       backgroundColor: primaryColor,
+  //                       foregroundColor: Colors.white,
+  //                       elevation: 0,
+  //                       shape: RoundedRectangleBorder(
+  //                         borderRadius: BorderRadius.circular(14),
+  //                       ),
+  //                     ),
+  //                     child: const Text(
+  //                       'Apply Filter',
+  //                       style: TextStyle(
+  //                         fontSize: 14,
+  //                         fontWeight: FontWeight.w600,
+  //                       ),
+  //                     ),
+  //                   ),
+  //                 ),
+  //               ],
+  //             ),
+  //           );
+  //         },
+  //       );
+  //     },
+  //   );
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -356,11 +373,20 @@ class _FarmerlistScreenState extends State<FarmerlistScreen> {
                             suffixIcon: _searchController.text.isNotEmpty
                                 ? IconButton(
                                     onPressed: () {
+                                      _searchTimer?.cancel();
+
                                       _searchController.clear();
 
-                                      setState(() {});
+                                      setState(() {
+                                        _startLimit = 0;
+                                        _hasMore = true;
+                                      });
 
-                                      _loadFarmers();
+                                      _loadFarmers(
+                                        searchKey: '',
+                                        startLimit: 0,
+                                        isLoadMore: false,
+                                      );
                                     },
                                     icon: const Icon(Icons.close),
                                   )
@@ -388,22 +414,22 @@ class _FarmerlistScreenState extends State<FarmerlistScreen> {
                       ),
                     ),
 
-                    const SizedBox(width: 10),
+                    // const SizedBox(width: 10),
 
-                    Container(
-                      width: 48,
-                      height: 48,
-                      decoration: BoxDecoration(
-                        color: primaryColor,
-                        borderRadius: BorderRadius.circular(14),
-                      ),
-                      child: IconButton(
-                        onPressed: () {
-                          _showFilterBottomSheet(context);
-                        },
-                        icon: const Icon(Icons.tune, color: Colors.white),
-                      ),
-                    ),
+                    // Container(
+                    //   width: 48,
+                    //   height: 48,
+                    //   decoration: BoxDecoration(
+                    //     color: primaryColor,
+                    //     borderRadius: BorderRadius.circular(14),
+                    //   ),
+                    //   child: IconButton(
+                    //     onPressed: () {
+                    //       _showFilterBottomSheet(context);
+                    //     },
+                    //     icon: const Icon(Icons.tune, color: Colors.white),
+                    //   ),
+                    // ),
                   ],
                 ),
               ),
@@ -758,7 +784,7 @@ class _FarmerListItem extends StatelessWidget {
                   // PIN BUTTON WITH WHITE CIRCLE BACKGROUND
                   InkWell(
                     onTap: () {
-                      //print('farmer pin clickkkk');
+                      // print('farmer pin clickkkk');
                       context.push('/farmerpin', extra: farmer.farmerId);
                     },
                     borderRadius: BorderRadius.circular(20),
