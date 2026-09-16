@@ -1,6 +1,8 @@
+import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:demo/core/di/place_order_target_di.dart';
+import 'package:demo/core/router/app_router.dart';
 import 'package:demo/core/secure_storage/secure_storage.dart';
 import 'package:demo/core/theme/app_colors.dart';
 
@@ -9,7 +11,7 @@ import 'package:demo/features/place_order/domain/entities/dealer_entity.dart';
 import 'package:demo/features/place_order/domain/entities/godown_entity.dart';
 import 'package:demo/features/place_order/domain/entities/product_entity.dart';
 import 'package:demo/features/place_order/domain/entities/product_rate_entity.dart';
-
+import 'package:demo/features/place_order/domain/repositories/product_rate_repository.dart';
 import 'package:demo/features/place_order/domain/usecases/get_product_detail_rates_usecase.dart';
 
 import 'package:demo/features/place_order/presentation/bloc/place_order_bloc.dart';
@@ -19,14 +21,16 @@ import 'package:demo/features/place_order/presentation/bloc/place_order_state.da
 import 'package:demo/features/place_order/presentation/widgets/dealer_search_field.dart';
 import 'package:demo/features/place_order/presentation/widgets/image_picker_section.dart';
 import 'package:demo/features/place_order/presentation/widgets/modern_dropdown.dart';
+import 'package:demo/features/place_order/presentation/widgets/multi_product_selection_sheet.dart';
 import 'package:demo/features/place_order/presentation/widgets/order_preview_sheet.dart';
 import 'package:demo/features/place_order/presentation/widgets/product_card.dart';
-import 'package:demo/features/place_order/presentation/widgets/product_rate_bottom_sheet.dart';
 import 'package:demo/features/place_order/presentation/widgets/signature_section.dart';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil_plus/flutter_screenutil_plus.dart';
+import 'package:go_router/go_router.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:signature/signature.dart';
 
 class PlaceOrderPage extends StatefulWidget {
@@ -35,8 +39,7 @@ class PlaceOrderPage extends StatefulWidget {
   });
 
   @override
-  State<PlaceOrderPage> createState() =>
-      _PlaceOrderPageState();
+  State<PlaceOrderPage> createState() => _PlaceOrderPageState();
 }
 
 class _PlaceOrderPageState extends State<PlaceOrderPage> {
@@ -112,13 +115,11 @@ class _PlaceOrderPageState extends State<PlaceOrderPage> {
       );
     }
 
-    // =========================================================================
-    // USER NOT FOUND
-    // =========================================================================
-
     if (userId == null || userId! <= 0) {
       return Scaffold(
         backgroundColor: AppColors.background,
+
+
         appBar: AppBar(
           backgroundColor: AppColors.primary,
           elevation: 3,
@@ -133,6 +134,11 @@ class _PlaceOrderPageState extends State<PlaceOrderPage> {
             ),
           ),
         ),
+
+
+         
+
+
         body: Center(
           child: Padding(
             padding: EdgeInsets.all(24.w),
@@ -151,9 +157,7 @@ class _PlaceOrderPageState extends State<PlaceOrderPage> {
                     color: AppColors.primary,
                   ),
                 ),
-                SizedBox(
-                  height: 18.h,
-                ),
+                SizedBox(height: 18.h),
                 Text(
                   'User information not found',
                   style: TextStyle(
@@ -162,9 +166,7 @@ class _PlaceOrderPageState extends State<PlaceOrderPage> {
                     color: AppColors.textPrimary,
                   ),
                 ),
-                SizedBox(
-                  height: 8.h,
-                ),
+                SizedBox(height: 8.h),
                 Text(
                   'Please login again and try again.',
                   textAlign: TextAlign.center,
@@ -180,18 +182,15 @@ class _PlaceOrderPageState extends State<PlaceOrderPage> {
       );
     }
 
-    // =========================================================================
-    // BLOC
-    // =========================================================================
-
     return BlocProvider(
-      create: (_) =>
-          sl<PlaceOrderBloc>()
-            ..add(
-              LoadPlaceOrderEvent(
-                userId: userId!,
-              ),
+      create: (_) {
+        return sl<PlaceOrderBloc>()
+          ..add(
+            LoadPlaceOrderEvent(
+              userId: userId!,
             ),
+          );
+      },
       child: _PlaceOrderView(
         userId: userId!,
       ),
@@ -211,12 +210,10 @@ class _PlaceOrderView extends StatefulWidget {
   });
 
   @override
-  State<_PlaceOrderView> createState() =>
-      _PlaceOrderViewState();
+  State<_PlaceOrderView> createState() => _PlaceOrderViewState();
 }
 
-class _PlaceOrderViewState
-    extends State<_PlaceOrderView> {
+class _PlaceOrderViewState extends State<_PlaceOrderView> {
   // ===========================================================================
   // CONTROLLERS
   // ===========================================================================
@@ -248,24 +245,22 @@ class _PlaceOrderViewState
   Uint8List? signatureBytes;
 
   // ===========================================================================
-  // SELECTED PRODUCT RATES
-  // ===========================================================================
-  //
-  // productId -> selected rate
-  //
-  // Example:
-  //
-  // "1" -> 5 kg / ₹200
-  //
+  // PRODUCT -> SELECTED RATES
   // ===========================================================================
 
-  final Map<String, ProductRateEntity> selectedRates = {};
+  final Map<String, List<ProductRateEntity>> selectedRates = {};
 
   // ===========================================================================
-  // PRODUCT RATE LOADING
+  // RATE SHEET
   // ===========================================================================
 
-  String? loadingProductRateId;
+  bool isOpeningRateSelector = false;
+
+  // ===========================================================================
+  // SUCCESS DIALOG
+  // ===========================================================================
+
+  bool isShowingSuccessDialog = false;
 
   // ===========================================================================
   // DISPOSE
@@ -281,12 +276,49 @@ class _PlaceOrderViewState
   }
 
   // ===========================================================================
-  // DEALER SEARCH
+  // CLEAR ALL SELECTED PRODUCTS
   // ===========================================================================
 
-  void _searchDealer(
-    String value,
-  ) {
+  void _clearAllSelectedProducts() {
+    final bloc = context.read<PlaceOrderBloc>();
+    final currentState = bloc.state;
+
+    for (final product in currentState.products) {
+      final String productId =
+          product.id.toString();
+
+      final Map<String, int> packingQuantities =
+          currentState.packingQuantities[productId] ??
+              <String, int>{};
+
+      final bool hasQuantity =
+          packingQuantities.values.any(
+        (quantity) => quantity > 0,
+      );
+
+      if (hasQuantity) {
+        bloc.add(
+          RemoveProductEvent(
+            productId: product.id,
+          ),
+        );
+      }
+    }
+
+    if (mounted) {
+      setState(() {
+        selectedRates.clear();
+      });
+    } else {
+      selectedRates.clear();
+    }
+  }
+
+  // ===========================================================================
+  // SEARCH DEALER
+  // ===========================================================================
+
+  void _searchDealer(String value) {
     final searchText = value.trim();
 
     if (searchText.isEmpty) {
@@ -308,14 +340,16 @@ class _PlaceOrderViewState
   void _selectDealer(
     DealerEntity dealer,
   ) {
+    _clearAllSelectedProducts();
+
     setState(() {
       selectedDealer = dealer;
       dealerController.text = dealer.name;
-
-      // Rate belongs to dealer.
-      // Therefore changing dealer must remove old rates.
-      selectedRates.clear();
     });
+
+    debugPrint(
+      'Dealer selected: ${dealer.id} - ${dealer.name}',
+    );
   }
 
   // ===========================================================================
@@ -323,11 +357,28 @@ class _PlaceOrderViewState
   // ===========================================================================
 
   void _clearDealer() {
+    _clearAllSelectedProducts();
+
     setState(() {
       selectedDealer = null;
       dealerController.clear();
-      selectedRates.clear();
     });
+  }
+
+  // ===========================================================================
+  // SELECT GODOWN
+  // ===========================================================================
+
+  void _selectGodown(
+    GodownEntity godown,
+  ) {
+    setState(() {
+      selectedGodown = godown;
+    });
+
+    debugPrint(
+      'Godown selected: ${godown.id} - ${godown.name}',
+    );
   }
 
   // ===========================================================================
@@ -341,12 +392,10 @@ class _PlaceOrderViewState
       return;
     }
 
+    _clearAllSelectedProducts();
+
     setState(() {
       selectedCategory = category;
-
-      // Old product rates should not remain
-      // when category changes.
-      selectedRates.clear();
     });
 
     context.read<PlaceOrderBloc>().add(
@@ -354,6 +403,10 @@ class _PlaceOrderViewState
             categoryId: category.id,
           ),
         );
+
+    debugPrint(
+      'Category selected: ${category.id} - ${category.name}',
+    );
   }
 
   // ===========================================================================
@@ -381,354 +434,546 @@ class _PlaceOrderViewState
   }
 
   // ===========================================================================
-  // ADD PRODUCT
+  // SAVE DIGITAL SIGNATURE TO FILE
   // ===========================================================================
   //
-  // FIRST CLICK:
+  // Signature widget gives us Uint8List.
   //
-  // Product
-  //    ↓
-  // Dealer ID + Product ID
-  //    ↓
-  // API
-  //    ↓
-  // ProductRateBottomSheet
-  //    ↓
-  // Select packing/rate
-  //    ↓
-  // quantity = 1
+  // API requires multipart:
   //
+  // digitalSignature = Signature_xxx.png
+  //
+  // Therefore save Uint8List to a temporary PNG file first.
   // ===========================================================================
 
-  Future<void> _addProduct(
-    ProductEntity product,
-  ) async {
-    // -------------------------------------------------------------------------
-    // DEALER VALIDATION
-    // -------------------------------------------------------------------------
+  Future<String?> _saveSignatureToFile() async {
+    if (signatureBytes == null ||
+        signatureBytes!.isEmpty) {
+      debugPrint(
+        'Digital signature bytes are empty',
+      );
 
+      return null;
+    }
+
+    try {
+      final Directory tempDirectory =
+          await getTemporaryDirectory();
+
+      final String fileName =
+          'Signature_${DateTime.now().millisecondsSinceEpoch}.png';
+
+      final String filePath =
+          '${tempDirectory.path}/$fileName';
+
+      final File signatureFile =
+          File(filePath);
+
+      await signatureFile.writeAsBytes(
+        signatureBytes!,
+        flush: true,
+      );
+
+      final bool exists =
+          await signatureFile.exists();
+
+      if (!exists) {
+        debugPrint(
+          'Digital signature file was not created',
+        );
+
+        return null;
+      }
+
+      final int fileSize =
+          await signatureFile.length();
+
+      debugPrint(
+        '========================================',
+      );
+
+      debugPrint(
+        'DIGITAL SIGNATURE FILE',
+      );
+
+      debugPrint(
+        'File name: $fileName',
+      );
+
+      debugPrint(
+        'File path: ${signatureFile.path}',
+      );
+
+      debugPrint(
+        'File size: $fileSize bytes',
+      );
+
+      debugPrint(
+        '========================================',
+      );
+
+      return signatureFile.path;
+    } catch (e, stackTrace) {
+      debugPrint(
+        'Save digital signature error: $e',
+      );
+
+      debugPrint(
+        '$stackTrace',
+      );
+
+      return null;
+    }
+  }
+
+  // ===========================================================================
+  // OPEN MULTI PRODUCT RATE SELECTOR
+  // ===========================================================================
+
+  Future<void> _openMultiProductSelector({
+    String? initialProductId,
+  }) async {
     if (selectedDealer == null) {
       _showMessage(
         'Please select dealer first',
       );
-
       return;
     }
 
-    // -------------------------------------------------------------------------
-    // PRODUCT ID
-    // -------------------------------------------------------------------------
-
-    final String productId =
-        product.id.toString();
-
-    // -------------------------------------------------------------------------
-    // IMPORTANT:
-    //
-    // If this product already has a selected rate,
-    // do not call API again.
-    // -------------------------------------------------------------------------
-
-    if (selectedRates.containsKey(productId)) {
-      final currentQuantity =
-          context
-                  .read<PlaceOrderBloc>()
-                  .state
-                  .quantities[product.id] ??
-              0;
-
-      context.read<PlaceOrderBloc>().add(
-            ChangeProductQuantityEvent(
-              productId: product.id,
-              quantity: currentQuantity + 1,
-            ),
-          );
-
+    if (isOpeningRateSelector) {
       return;
     }
 
-    // -------------------------------------------------------------------------
-    // PREVENT DOUBLE API CALL
-    // -------------------------------------------------------------------------
+    final bloc = context.read<PlaceOrderBloc>();
+    final currentState = bloc.state;
 
-    if (loadingProductRateId == productId) {
+    if (currentState.products.isEmpty) {
+      _showMessage(
+        'No products available',
+      );
       return;
     }
-
-    // -------------------------------------------------------------------------
-    // DEALER ID
-    // -------------------------------------------------------------------------
-
-    final String dealerId =
-        selectedDealer!.id.toString();
-
-    debugPrint(
-      '========================================',
-    );
-
-    debugPrint(
-      'GET PRODUCT DETAIL RATE',
-    );
-
-    debugPrint(
-      'Dealer ID  : $dealerId',
-    );
-
-    debugPrint(
-      'Product ID : $productId',
-    );
-
-    debugPrint(
-      '========================================',
-    );
 
     setState(() {
-      loadingProductRateId = productId;
+      isOpeningRateSelector = true;
     });
 
     try {
-      // =======================================================================
-      // GET USECASE
-      // =======================================================================
-
-      final getProductDetailRatesUseCase =
-          sl<GetProductDetailRatesUseCase>();
-
-      // =======================================================================
-      // API
-      // =======================================================================
-
-      final List<ProductRateEntity> rates =
-          await getProductDetailRatesUseCase(
-        productId: productId,
-        dealerId: dealerId,
+      final getRatesUseCase =
+          GetProductDetailRatesUseCase(
+        repository: sl<ProductRateRepository>(),
       );
 
-      if (!mounted) {
-        return;
-      }
-
-      debugPrint(
-        'Product rates found: ${rates.length}',
-      );
-
-      // =======================================================================
-      // NO RATE
-      // =======================================================================
-
-      if (rates.isEmpty) {
-        _showMessage(
-          'No rate available for this product',
-        );
-
-        return;
-      }
-
-      // =======================================================================
-      // BOTTOM SHEET
-      // =======================================================================
-
-      final ProductRateEntity? selectedRate =
-          await showModalBottomSheet<ProductRateEntity>(
+      final MultiProductRateSelectionResult?
+          result =
+          await showModalBottomSheet<
+              MultiProductRateSelectionResult>(
         context: context,
         isScrollControlled: true,
         backgroundColor: Colors.transparent,
-        barrierColor: Colors.black.withOpacity(
-          0.45,
-        ),
-        builder: (
-          bottomSheetContext,
-        ) {
-          return ProductRateBottomSheet(
-            product: product,
-            rates: rates,
+        barrierColor:
+            Colors.black.withOpacity(0.45),
+        builder: (bottomSheetContext) {
+          return MultiProductRateBottomSheet(
+            products: currentState.products,
+
+            dealerId:
+                selectedDealer!.id.toString(),
+
+            existingRates: {
+              for (final entry
+                  in selectedRates.entries)
+                entry.key:
+                    List<ProductRateEntity>.from(
+                  entry.value,
+                ),
+            },
+
+            existingPackingQuantities: {
+              for (final entry
+                  in currentState
+                      .packingQuantities.entries)
+                entry.key:
+                    Map<String, int>.from(
+                  entry.value,
+                ),
+            },
+
+            initialProductId:
+                initialProductId,
+
+            getRatesUseCase:
+                getRatesUseCase,
           );
         },
       );
 
-      if (!mounted) {
+      if (result == null) {
         return;
       }
 
-      // User closed sheet.
-      if (selectedRate == null) {
-        return;
-      }
-
-      // =======================================================================
-      // SAVE SELECTED RATE
-      // =======================================================================
-
-      setState(() {
-        selectedRates[productId] =
-            selectedRate;
-      });
-
-      // =======================================================================
-      // ADD PRODUCT
-      //
-      // Bloc increases quantity from 0 -> 1.
-      // =======================================================================
-
-      context.read<PlaceOrderBloc>().add(
-            AddProductEvent(
-              product: product,
-            ),
-          );
-
-      // =======================================================================
-      // DEBUG
-      // =======================================================================
-
-      debugPrint(
-        '========================================',
-      );
-
-      debugPrint(
-        'PRODUCT RATE SELECTED',
-      );
-
-      debugPrint(
-        'Product ID       : ${selectedRate.productId}',
-      );
-
-      debugPrint(
-        'Details ID       : ${selectedRate.productDetailsId}',
-      );
-
-      debugPrint(
-        'Product Name     : ${selectedRate.productName}',
-      );
-
-      debugPrint(
-        'Packing          : ${selectedRate.packing}',
-      );
-
-      debugPrint(
-        'Unit             : ${selectedRate.unit}',
-      );
-
-      debugPrint(
-        'Rate With GST    : ${selectedRate.rateWithGst}',
-      );
-
-      debugPrint(
-        'GST              : ${selectedRate.gstPercentage}',
-      );
-
-      debugPrint(
-        'Units Per Case   : ${selectedRate.unitsPerCase}',
-      );
-
-      debugPrint(
-        '========================================',
-      );
-    } catch (e) {
-      if (!mounted) {
-        return;
-      }
-
-      debugPrint(
-        'Product rate error: $e',
-      );
-
-      _showMessage(
-        e.toString().replaceFirst(
-              'Exception: ',
-              '',
-            ),
+      await _processSelectedRates(
+        result: result,
+        products: currentState.products,
       );
     } finally {
       if (mounted) {
         setState(() {
-          loadingProductRateId = null;
+          isOpeningRateSelector = false;
         });
       }
     }
   }
 
   // ===========================================================================
-  // INCREASE QUANTITY
-  // ===========================================================================
-  //
-  // IMPORTANT:
-  //
-  // If rate is already selected:
-  //
-  // + => only quantity
-  //
-  // NO API
-  // NO BOTTOM SHEET
-  //
+  // PROCESS SELECTED RATES
   // ===========================================================================
 
-  void _increaseQuantity(
-    ProductEntity product,
-    int currentQuantity,
-  ) {
-    final productId =
-        product.id.toString();
+  Future<void> _processSelectedRates({
+    required MultiProductRateSelectionResult result,
+    required List<ProductEntity> products,
+  }) async {
+    final bloc = context.read<PlaceOrderBloc>();
 
-    // Safety check.
-    //
-    // If somehow quantity exists without a rate,
-    // reopen rate selection.
-    if (!selectedRates.containsKey(productId)) {
-      _addProduct(product);
-      return;
+    final Map<String, List<ProductRateEntity>>
+        returnedRates =
+        result.selectedRates;
+
+    final Map<String, Map<String, int>>
+        returnedPackingQuantities =
+        result.packingQuantities;
+
+    debugPrint(
+      '========================================',
+    );
+
+    debugPrint(
+      'MULTIPLE PRODUCT RATE RESULT',
+    );
+
+    debugPrint(
+      'Returned product count: '
+      '${returnedRates.length}',
+    );
+
+    debugPrint(
+      'Returned packing quantity count: '
+      '${returnedPackingQuantities.length}',
+    );
+
+    for (final entry
+        in returnedPackingQuantities.entries) {
+      debugPrint(
+        'Product ${entry.key} packing quantities:',
+      );
+
+      for (final quantityEntry
+          in entry.value.entries) {
+        debugPrint(
+          '  ProductDetailsId: '
+          '${quantityEntry.key} -> '
+          'Quantity: ${quantityEntry.value}',
+        );
+      }
     }
 
-    // Only change quantity.
-    context.read<PlaceOrderBloc>().add(
-          ChangeProductQuantityEvent(
-            productId: product.id,
-            quantity: currentQuantity + 1,
+    // =========================================================================
+    // UPDATE PACKING-WISE QUANTITIES
+    // =========================================================================
+
+    for (final entry
+        in returnedPackingQuantities.entries) {
+      final String productId =
+          entry.key;
+
+      final Map<String, int>
+          packingQuantities =
+          entry.value;
+
+      for (final quantityEntry
+          in packingQuantities.entries) {
+        bloc.add(
+          SetPackingQuantityEvent(
+            productId: productId,
+            productDetailsId:
+                quantityEntry.key,
+            quantity:
+                quantityEntry.value,
           ),
         );
+
+        debugPrint(
+          'Packing quantity updated: '
+          'product=$productId, '
+          'details=${quantityEntry.key}, '
+          'quantity=${quantityEntry.value}',
+        );
+      }
+    }
+
+    // =========================================================================
+    // SAVE SELECTED RATES
+    // =========================================================================
+
+    for (final entry
+        in returnedRates.entries) {
+      final String productId =
+          entry.key;
+
+      final List<ProductRateEntity> rates =
+          entry.value;
+
+      ProductEntity? product;
+
+      try {
+        product = products.firstWhere(
+          (element) =>
+              element.id.toString() ==
+              productId,
+        );
+      } catch (_) {
+        product = null;
+      }
+
+      if (product == null) {
+        debugPrint(
+          'Product not found for ID: $productId',
+        );
+        continue;
+      }
+
+      if (rates.isEmpty) {
+        selectedRates.remove(
+          productId,
+        );
+
+        bloc.add(
+          RemoveProductEvent(
+            productId: product.id,
+          ),
+        );
+
+        continue;
+      }
+
+      selectedRates[productId] =
+          List<ProductRateEntity>.from(
+        rates,
+      );
+
+      debugPrint(
+        'Product ID: $productId',
+      );
+
+      debugPrint(
+        'Product Name: ${product.name}',
+      );
+
+      debugPrint(
+        'Selected Rates: ${rates.length}',
+      );
+
+      final Map<String, int>
+          productPackingQuantities =
+          returnedPackingQuantities[
+                  productId] ??
+              <String, int>{};
+
+      for (final rate in rates) {
+        final String detailsId =
+            rate.productDetailsId.toString();
+
+        final int quantity =
+            productPackingQuantities[
+                    detailsId] ??
+                1;
+
+        if (!productPackingQuantities
+            .containsKey(detailsId)) {
+          bloc.add(
+            SetPackingQuantityEvent(
+              productId: productId,
+              productDetailsId: detailsId,
+              quantity: 1,
+            ),
+          );
+        }
+
+        debugPrint(
+          'Packing: ${rate.packing}',
+        );
+
+        debugPrint(
+          'Rate: ${rate.rateWithGst}',
+        );
+
+        debugPrint(
+          'Product Details ID: '
+          '${rate.productDetailsId}',
+        );
+
+        debugPrint(
+          'Quantity: $quantity',
+        );
+
+        debugPrint(
+          '----------------------------------------',
+        );
+      }
+
+      final bool hasQuantity =
+          rates.any(
+        (rate) {
+          final String detailsId =
+              rate.productDetailsId.toString();
+
+          final int quantity =
+              productPackingQuantities[
+                      detailsId] ??
+                  1;
+
+          return quantity > 0;
+        },
+      );
+
+      if (hasQuantity) {
+        bloc.add(
+          AddProductEvent(
+            product: product,
+          ),
+        );
+      }
+    }
+
+    // =========================================================================
+    // REMOVE PRODUCTS THAT WERE DESELECTED
+    // =========================================================================
+
+    final Set<String>
+        returnedProductIds =
+        returnedRates.keys.toSet();
+
+    final List<String>
+        oldSelectedProductIds =
+        selectedRates.keys.toList();
+
+    for (final productId
+        in oldSelectedProductIds) {
+      if (returnedProductIds.contains(
+        productId,
+      )) {
+        continue;
+      }
+
+      ProductEntity? product;
+
+      try {
+        product = products.firstWhere(
+          (element) =>
+              element.id.toString() ==
+              productId,
+        );
+      } catch (_) {
+        product = null;
+      }
+
+      selectedRates.remove(
+        productId,
+      );
+
+      if (product != null) {
+        bloc.add(
+          RemoveProductEvent(
+            productId: product.id,
+          ),
+        );
+
+        debugPrint(
+          'Removed product: '
+          '${product.name}',
+        );
+      }
+    }
+
+    if (mounted) {
+      setState(() {});
+    }
+
+    // =========================================================================
+    // FINAL DEBUG
+    // =========================================================================
+
+    debugPrint(
+      '========================================',
+    );
+
+    debugPrint(
+      'FINAL SELECTED RATES',
+    );
+
+    int totalRates = 0;
+
+    for (final entry
+        in selectedRates.entries) {
+      totalRates += entry.value.length;
+
+      debugPrint(
+        'Product ${entry.key} -> '
+        '${entry.value.length} rate(s)',
+      );
+
+      for (final rate
+          in entry.value) {
+        final String productDetailsId =
+            rate.productDetailsId.toString();
+
+        final int quantity =
+            returnedPackingQuantities[
+                    entry.key]?[productDetailsId] ??
+                1;
+
+        debugPrint(
+          '  ${rate.productName} -> '
+          'Rate ${rate.rateWithGst} -> '
+          'Packing ${rate.packing} -> '
+          'Details $productDetailsId -> '
+          'Quantity $quantity',
+        );
+      }
+    }
+
+    debugPrint(
+      'Total selected rates: $totalRates',
+    );
+
+    debugPrint(
+      '========================================',
+    );
   }
 
   // ===========================================================================
-  // DECREASE QUANTITY
+  // ADD PRODUCT
   // ===========================================================================
 
-  void _decreaseQuantity(
+  Future<void> _addProduct(
     ProductEntity product,
-    int currentQuantity,
-  ) {
-    final productId =
-        product.id.toString();
-
-    final newQuantity =
-        currentQuantity - 1;
-
-    // -------------------------------------------------------------------------
-    // REMOVE PRODUCT COMPLETELY
-    // -------------------------------------------------------------------------
-
-    if (newQuantity <= 0) {
-      context.read<PlaceOrderBloc>().add(
-            RemoveProductEvent(
-              productId: product.id,
-            ),
-          );
-
-      setState(() {
-        selectedRates.remove(productId);
-      });
-
+  ) async {
+    if (selectedDealer == null) {
+      _showMessage(
+        'Please select dealer first',
+      );
       return;
     }
 
-    // -------------------------------------------------------------------------
-    // JUST DECREASE QUANTITY
-    // -------------------------------------------------------------------------
+    await _openMultiProductSelector(
+      initialProductId:
+          product.id.toString(),
+    );
 
-    context.read<PlaceOrderBloc>().add(
-          ChangeProductQuantityEvent(
-            productId: product.id,
-            quantity: newQuantity,
-          ),
-        );
+    debugPrint(
+      'Add clicked for product: '
+      '${product.id}',
+    );
   }
 
   // ===========================================================================
@@ -738,7 +983,7 @@ class _PlaceOrderViewState
   void _deleteProduct(
     ProductEntity product,
   ) {
-    final productId =
+    final String productId =
         product.id.toString();
 
     context.read<PlaceOrderBloc>().add(
@@ -748,18 +993,48 @@ class _PlaceOrderViewState
         );
 
     setState(() {
-      selectedRates.remove(productId);
+      selectedRates.remove(
+        productId,
+      );
     });
   }
 
   // ===========================================================================
-  // SAFE GODOWN VALUE
+  // GET SELECTED PRODUCTS
   // ===========================================================================
-  //
-  // Fixes:
-  //
-  // "There should be exactly one item with DropdownButton's value: 350"
-  //
+
+  List<ProductEntity> _getSelectedProducts(
+    PlaceOrderState state,
+  ) {
+    return state.products.where(
+      (product) {
+        final String productId =
+            product.id.toString();
+
+        final Map<String, int>
+            productPackingQuantities =
+            state.packingQuantities[
+                    productId] ??
+                <String, int>{};
+
+        final bool hasQuantity =
+            productPackingQuantities.values.any(
+          (quantity) => quantity > 0,
+        );
+
+        return hasQuantity &&
+            selectedRates.containsKey(
+              productId,
+            ) &&
+            selectedRates[
+                    productId]!
+                .isNotEmpty;
+      },
+    ).toList();
+  }
+
+  // ===========================================================================
+  // SAFE GODOWN VALUE
   // ===========================================================================
 
   String? _getSafeGodownValue(
@@ -806,10 +1081,12 @@ class _PlaceOrderViewState
     final matchingIds = categories
         .where(
           (category) =>
-              category.id == selectedId,
+              category.id ==
+              selectedId,
         )
         .map(
-          (category) => category.id,
+          (category) =>
+              category.id,
         )
         .toSet();
 
@@ -832,14 +1109,13 @@ class _PlaceOrderViewState
         uniqueGodowns = {};
 
     for (final godown in godowns) {
-      final id = godown.id.trim();
+      final id =
+          godown.id.trim();
 
       if (id.isEmpty) {
         continue;
       }
 
-      // Last duplicate is ignored because
-      // we only insert if ID does not exist.
       uniqueGodowns.putIfAbsent(
         id,
         () => godown,
@@ -880,7 +1156,8 @@ class _PlaceOrderViewState
         uniqueCategories = {};
 
     for (final category in categories) {
-      final id = category.id.trim();
+      final id =
+          category.id.trim();
 
       if (id.isEmpty) {
         continue;
@@ -915,243 +1192,698 @@ class _PlaceOrderViewState
   }
 
   // ===========================================================================
+  // CONFIRM ORDER
+  // ===========================================================================
+
+  Future<void> _confirmAndSubmitOrder({
+    required List<Map<String, dynamic>>
+        selectedProductPayload,
+    required List<String> selectedImages,
+  }) async {
+    final bool? confirmed =
+        await showDialog<bool>(
+      context: context,
+      barrierDismissible: false,
+      builder: (dialogContext) {
+        return AlertDialog(
+          backgroundColor: Colors.white,
+          shape: RoundedRectangleBorder(
+            borderRadius:
+                BorderRadius.circular(18.r),
+          ),
+          titlePadding:
+              EdgeInsets.fromLTRB(
+            20.w,
+            20.h,
+            20.w,
+            8.h,
+          ),
+          contentPadding:
+              EdgeInsets.fromLTRB(
+            20.w,
+            8.h,
+            20.w,
+            10.h,
+          ),
+          actionsPadding:
+              EdgeInsets.fromLTRB(
+            16.w,
+            0,
+            16.w,
+            14.h,
+          ),
+          title: Row(
+            children: [
+              Container(
+                width: 44.w,
+                height: 44.w,
+                decoration:
+                    const BoxDecoration(
+                  color:
+                      AppColors.lightGreen,
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(
+                  Icons
+                      .shopping_cart_checkout_rounded,
+                  color:
+                      AppColors.primary,
+                  size: 23.sp,
+                ),
+              ),
+              SizedBox(width: 12.w),
+              Expanded(
+                child: Text(
+                  'Confirm Order',
+                  style: TextStyle(
+                    fontSize: 18.sp,
+                    fontWeight:
+                        FontWeight.w800,
+                    color:
+                        AppColors.textPrimary,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          content: Column(
+            mainAxisSize:
+                MainAxisSize.min,
+            crossAxisAlignment:
+                CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Are you sure you want to submit this order?',
+                style: TextStyle(
+                  fontSize: 14.sp,
+                  height: 1.4,
+                  fontWeight:
+                      FontWeight.w600,
+                  color:
+                      AppColors.textPrimary,
+                ),
+              ),
+              SizedBox(height: 14.h),
+              Container(
+                width: double.infinity,
+                padding:
+                    EdgeInsets.all(12.w),
+                decoration:
+                    BoxDecoration(
+                  color:
+                      AppColors.background,
+                  borderRadius:
+                      BorderRadius.circular(
+                    12.r,
+                  ),
+                  border: Border.all(
+                    color:
+                        AppColors.border,
+                  ),
+                ),
+                child: Column(
+                  children: [
+                    Row(
+                      children: [
+                        Icon(
+                          Icons
+                              .storefront_rounded,
+                          size: 18.sp,
+                          color:
+                              AppColors.primary,
+                        ),
+                        SizedBox(width: 8.w),
+                        Expanded(
+                          child: Text(
+                            selectedDealer
+                                    ?.name ??
+                                '',
+                            maxLines: 1,
+                            overflow:
+                                TextOverflow
+                                    .ellipsis,
+                            style:
+                                TextStyle(
+                              fontSize: 13.sp,
+                              fontWeight:
+                                  FontWeight.w700,
+                              color: AppColors
+                                  .textPrimary,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    SizedBox(height: 9.h),
+                    Row(
+                      children: [
+                        Icon(
+                          Icons
+                              .warehouse_rounded,
+                          size: 18.sp,
+                          color:
+                              AppColors.primary,
+                        ),
+                        SizedBox(width: 8.w),
+                        Expanded(
+                          child: Text(
+                            selectedGodown
+                                    ?.name ??
+                                '',
+                            maxLines: 1,
+                            overflow:
+                                TextOverflow
+                                    .ellipsis,
+                            style:
+                                TextStyle(
+                              fontSize: 13.sp,
+                              fontWeight:
+                                  FontWeight.w700,
+                              color: AppColors
+                                  .textPrimary,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    SizedBox(height: 9.h),
+                    Row(
+                      children: [
+                        Icon(
+                          Icons
+                              .inventory_2_rounded,
+                          size: 18.sp,
+                          color:
+                              AppColors.primary,
+                        ),
+                        SizedBox(width: 8.w),
+                        Expanded(
+                          child: Text(
+                            '${selectedProductPayload.length} rate line${selectedProductPayload.length == 1 ? '' : 's'}',
+                            style:
+                                TextStyle(
+                              fontSize: 13.sp,
+                              fontWeight:
+                                  FontWeight.w700,
+                              color: AppColors
+                                  .textPrimary,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    SizedBox(height: 9.h),
+                    Row(
+                      children: [
+                        Icon(
+                          Icons
+                              .photo_camera_rounded,
+                          size: 18.sp,
+                          color:
+                              AppColors.primary,
+                        ),
+                        SizedBox(width: 8.w),
+                        Expanded(
+                          child: Text(
+                            selectedImages
+                                    .isNotEmpty
+                                ? 'Order photo added'
+                                : 'No order photo',
+                            style:
+                                TextStyle(
+                              fontSize: 13.sp,
+                              fontWeight:
+                                  FontWeight.w700,
+                              color: AppColors
+                                  .textPrimary,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    SizedBox(height: 9.h),
+                    Row(
+                      children: [
+                        Icon(
+                          Icons.draw_rounded,
+                          size: 18.sp,
+                          color:
+                              AppColors.primary,
+                        ),
+                        SizedBox(width: 8.w),
+                        Expanded(
+                          child: Text(
+                            signatureBytes !=
+                                        null &&
+                                    signatureBytes!
+                                        .isNotEmpty
+                                ? 'Dealer signature added'
+                                : 'Signature not added',
+                            style:
+                                TextStyle(
+                              fontSize: 13.sp,
+                              fontWeight:
+                                  FontWeight.w700,
+                              color: AppColors
+                                  .textPrimary,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          actions: [
+            SizedBox(
+              height: 44.h,
+              child: OutlinedButton(
+                onPressed: () {
+                  Navigator.of(
+                    dialogContext,
+                  ).pop(false);
+                },
+                style:
+                    OutlinedButton.styleFrom(
+                  side:
+                      const BorderSide(
+                    color:
+                        AppColors.border,
+                  ),
+                  shape:
+                      RoundedRectangleBorder(
+                    borderRadius:
+                        BorderRadius.circular(
+                      11.r,
+                    ),
+                  ),
+                ),
+                child: Text(
+                  'Cancel',
+                  style: TextStyle(
+                    color:
+                        AppColors.textSecondary,
+                    fontSize: 13.sp,
+                    fontWeight:
+                        FontWeight.w700,
+                  ),
+                ),
+              ),
+            ),
+            SizedBox(width: 8.w),
+            SizedBox(
+              height: 44.h,
+              child: ElevatedButton(
+                onPressed: () {
+                  Navigator.of(
+                    dialogContext,
+                  ).pop(true);
+                },
+                style:
+                    ElevatedButton.styleFrom(
+                  backgroundColor:
+                      AppColors.primary,
+                  foregroundColor:
+                      Colors.white,
+                  elevation: 0,
+                  shape:
+                      RoundedRectangleBorder(
+                    borderRadius:
+                        BorderRadius.circular(
+                      11.r,
+                    ),
+                  ),
+                ),
+                child: Text(
+                  'Confirm',
+                  style:
+                      TextStyle(
+                    fontSize: 13.sp,
+                    fontWeight:
+                        FontWeight.w800,
+                  ),
+                ),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+
+    if (confirmed != true ||
+        !mounted) {
+      return;
+    }
+
+    // =========================================================================
+    // SAVE SIGNATURE BEFORE BLOC
+    // =========================================================================
+
+    final String? savedSignaturePath =
+        await _saveSignatureToFile();
+
+    if (!mounted) {
+      return;
+    }
+
+    if (savedSignaturePath == null ||
+        savedSignaturePath.isEmpty) {
+      _showMessage(
+        'Unable to save digital signature',
+      );
+      return;
+    }
+
+    // =========================================================================
+    // FINAL DEBUG BEFORE BLOC
+    // =========================================================================
+
+    debugPrint(
+      '========================================',
+    );
+
+    debugPrint(
+      'FINAL SUBMIT TO BLOC',
+    );
+
+    debugPrint(
+      'Products count: '
+      '${selectedProductPayload.length}',
+    );
+
+    for (final product
+        in selectedProductPayload) {
+      debugPrint(
+        'SUBMIT DATA: $product',
+      );
+    }
+
+    debugPrint(
+      'Order Image: '
+      '${selectedImages.isNotEmpty ? selectedImages.first : 'None'}',
+    );
+
+    debugPrint(
+      'Digital Signature Path: '
+      '$savedSignaturePath',
+    );
+
+    debugPrint(
+      'Digital Signature Size: '
+      '${signatureBytes?.length ?? 0} bytes',
+    );
+
+    debugPrint(
+      '========================================',
+    );
+
+    // =========================================================================
+    // SUBMIT
+    // =========================================================================
+
+    context.read<PlaceOrderBloc>().add(
+          SubmitPlaceOrderEvent(
+            userId: widget.userId,
+            dealer: selectedDealer!,
+            godown: selectedGodown!,
+            products:
+                selectedProductPayload,
+            remark:
+                remarkController.text.trim(),
+            imagePaths:
+                selectedImages,
+            signaturePath:
+                savedSignaturePath,
+          ),
+        );
+  }
+
+  // ===========================================================================
   // SUBMIT
   // ===========================================================================
 
   Future<void> _submit(
     PlaceOrderState state,
   ) async {
-    // -------------------------------------------------------------------------
+    // =========================================================================
     // DEALER
-    // -------------------------------------------------------------------------
+    // =========================================================================
 
     if (selectedDealer == null) {
       _showMessage(
         'Please select dealer',
       );
-
       return;
     }
 
-    // -------------------------------------------------------------------------
+    // =========================================================================
     // GODOWN
-    // -------------------------------------------------------------------------
+    // =========================================================================
 
     if (selectedGodown == null) {
       _showMessage(
         'Please select godown',
       );
-
       return;
     }
 
-    // -------------------------------------------------------------------------
+    // =========================================================================
     // CATEGORY
-    // -------------------------------------------------------------------------
+    // =========================================================================
 
     if (selectedCategory == null) {
       _showMessage(
         'Please select category',
       );
-
       return;
     }
 
-    // -------------------------------------------------------------------------
-    // SELECTED PRODUCTS
-    // -------------------------------------------------------------------------
+    // =========================================================================
+    // PRODUCTS
+    // =========================================================================
 
     final selectedProducts =
-        state.products
-            .where(
-              (product) =>
-                  (state.quantities[
-                              product.id] ??
-                          0) >
-                      0,
-            )
-            .toList();
+        _getSelectedProducts(state);
 
     if (selectedProducts.isEmpty) {
       _showMessage(
         'Please add at least one product',
       );
-
       return;
     }
 
-    // -------------------------------------------------------------------------
+    // =========================================================================
     // RATE VALIDATION
-    // -------------------------------------------------------------------------
+    // =========================================================================
 
     for (final product
         in selectedProducts) {
-      final productId =
+      final String productId =
           product.id.toString();
 
       if (!selectedRates.containsKey(
-        productId,
-      )) {
+            productId,
+          ) ||
+          selectedRates[
+                  productId]!
+              .isEmpty) {
         _showMessage(
           'Please select rate for ${product.name}',
         );
-
         return;
       }
     }
 
-    // -------------------------------------------------------------------------
+    // =========================================================================
     // IMAGE
-    // -------------------------------------------------------------------------
+    // =========================================================================
 
     if (imagePath == null ||
         imagePath!.trim().isEmpty) {
       _showMessage(
         'Please add order photo',
       );
-
       return;
     }
 
-    // -------------------------------------------------------------------------
+    // =========================================================================
     // SIGNATURE
-    // -------------------------------------------------------------------------
+    // =========================================================================
 
     if (signatureBytes == null ||
-        signatureBytes!.isEmpty ||
-        signatureController.isEmpty) {
+        signatureBytes!.isEmpty) {
       _showMessage(
         'Please add dealer signature',
       );
-
       return;
     }
 
-    // -------------------------------------------------------------------------
-    // PRODUCT PAYLOAD
-    // -------------------------------------------------------------------------
+    // =========================================================================
+    // BUILD PACKING-WISE PAYLOAD
+    // =========================================================================
 
     final List<Map<String, dynamic>>
-        selectedProductPayload =
-        selectedProducts.map(
-      (product) {
-        final productId =
-            product.id.toString();
+        selectedProductPayload = [];
 
-        final selectedRate =
-            selectedRates[productId]!;
+    for (final product
+        in selectedProducts) {
+      final String productId =
+          product.id.toString();
 
-        final quantity =
-            state.quantities[
-                    product.id] ??
-                0;
+      final List<ProductRateEntity> rates =
+          selectedRates[
+                  productId] ??
+              <ProductRateEntity>[];
 
-        return <String, dynamic>{
-          'productId': product.id,
+      final Map<String, int>
+          productPackingQuantities =
+          state.packingQuantities[
+                  productId] ??
+              <String, int>{};
 
+      for (final selectedRate
+          in rates) {
+        final String productDetailsId =
+            selectedRate.productDetailsId
+                .toString();
+
+        // =====================================================================
+        // IMPORTANT:
+        // Quantity comes from productDetailsId
+        // =====================================================================
+
+        final int quantity =
+            productPackingQuantities[
+                    productDetailsId] ??
+                1;
+
+        final Map<String, dynamic>
+            payload = {
+          'productId':
+              product.id,
           'productDetailsId':
               selectedRate.productDetailsId,
-
-          'quantity': quantity,
-
+          'quantity':
+              quantity,
           'price':
               selectedRate.rateWithGst,
-
           'packing':
               selectedRate.packing,
-
           'unit':
               selectedRate.unit,
-
           'unitsPerCase':
               selectedRate.unitsPerCase,
-
           'gstPercentage':
               selectedRate.gstPercentage,
-
           'basicRate':
               selectedRate.basicRate,
-
           'mrp':
               selectedRate.mrp,
         };
-      },
-    ).toList();
 
-    // -------------------------------------------------------------------------
-    // DEBUG PAYLOAD
-    // -------------------------------------------------------------------------
+        selectedProductPayload.add(
+          payload,
+        );
+
+        debugPrint(
+          'PAYLOAD -> '
+          'product=$productId '
+          'details=$productDetailsId '
+          'packing=${selectedRate.packing} '
+          'quantity=$quantity',
+        );
+      }
+    }
+
+    // =========================================================================
+    // SAFETY
+    // =========================================================================
+
+    if (selectedProductPayload.isEmpty) {
+      _showMessage(
+        'Please select at least one product rate',
+      );
+      return;
+    }
+
+    // =========================================================================
+    // DEBUG
+    // =========================================================================
 
     debugPrint(
       '========================================',
     );
 
     debugPrint(
-      'PLACE ORDER PAYLOAD',
+      'PLACE ORDER PACKING-WISE PAYLOAD',
     );
 
     debugPrint(
-      'Dealer ID: ${selectedDealer!.id}',
+      'Dealer ID   : ${selectedDealer!.id}',
     );
 
     debugPrint(
-      'Godown ID: ${selectedGodown!.id}',
+      'Godown ID   : ${selectedGodown!.id}',
     );
 
     debugPrint(
-      'Category ID: ${selectedCategory!.id}',
+      'Category ID : ${selectedCategory!.id}',
     );
 
     debugPrint(
-      'Products:',
+      'Products    : ${selectedProducts.length}',
+    );
+
+    debugPrint(
+      'Rate Lines  : '
+      '${selectedProductPayload.length}',
     );
 
     for (final product
         in selectedProductPayload) {
       debugPrint(
-        product.toString(),
+        'FINAL PRODUCT PAYLOAD: $product',
       );
     }
-
-    debugPrint(
-      'Image: $imagePath',
-    );
-
-    debugPrint(
-      'Signature bytes: ${signatureBytes!.length}',
-    );
 
     debugPrint(
       '========================================',
     );
 
-    // -------------------------------------------------------------------------
+    // =========================================================================
     // PREVIEW
-    // -------------------------------------------------------------------------
+    // =========================================================================
 
     await showModalBottomSheet(
       context: context,
       isScrollControlled: true,
-      backgroundColor:
-          Colors.transparent,
+      backgroundColor: Colors.transparent,
       barrierColor:
-          Colors.black.withOpacity(
-        0.45,
-      ),
-      builder: (
-        previewContext,
-      ) {
+          Colors.black.withOpacity(0.45),
+      builder: (previewContext) {
         return OrderPreviewSheet(
           dealer: selectedDealer!,
           godown: selectedGodown!,
           category: selectedCategory!,
           products: selectedProducts,
-          quantities: state.quantities,
-          selectedRates: selectedRates,
-          imagePath: imagePath,
-          signatureBytes: signatureBytes,
+
+          selectedRates:
+              selectedRates,
+
+          packingQuantities:
+              state.packingQuantities,
+
+          imagePath:
+              imagePath,
+
+          signatureBytes:
+              signatureBytes,
+
           remark:
               remarkController.text.trim(),
+
           onConfirm: () {
             Navigator.pop(
               previewContext,
@@ -1165,36 +1897,172 @@ class _PlaceOrderViewState
                         imagePath!,
                       ];
 
-            // ---------------------------------------------------------------
-            // SUBMIT EVENT
-            // ---------------------------------------------------------------
-
-            context
-                .read<PlaceOrderBloc>()
-                .add(
-                  SubmitPlaceOrderEvent(
-                    userId:
-                        widget.userId,
-                    dealer:
-                        selectedDealer!,
-                    godown:
-                        selectedGodown!,
-                    products:
-                        selectedProductPayload,
-                    remark:
-                        remarkController
-                            .text
-                            .trim(),
-                    imagePaths:
-                        selectedImages,
-                    signatureBytes:
-                        signatureBytes,
-                  ),
-                );
+            _confirmAndSubmitOrder(
+              selectedProductPayload:
+                  selectedProductPayload,
+              selectedImages:
+                  selectedImages,
+            );
           },
         );
       },
     );
+  }
+
+  // ===========================================================================
+  // SUCCESS DIALOG
+  // ===========================================================================
+
+  Future<void> _showOrderSuccessDialog() async {
+    if (!mounted ||
+        isShowingSuccessDialog) {
+      return;
+    }
+
+    isShowingSuccessDialog = true;
+
+    final bool? goHome =
+        await showDialog<bool>(
+      context: context,
+      barrierDismissible: false,
+      builder: (dialogContext) {
+        return AlertDialog(
+          backgroundColor:
+              Colors.white,
+          shape:
+              RoundedRectangleBorder(
+            borderRadius:
+                BorderRadius.circular(
+              20.r,
+            ),
+          ),
+          contentPadding:
+              EdgeInsets.fromLTRB(
+            24.w,
+            28.h,
+            24.w,
+            20.h,
+          ),
+          content: Column(
+            mainAxisSize:
+                MainAxisSize.min,
+            children: [
+              Container(
+                width: 76.w,
+                height: 76.w,
+                decoration:
+                    const BoxDecoration(
+                  color:
+                      AppColors.lightGreen,
+                  shape:
+                      BoxShape.circle,
+                ),
+                child: Container(
+                  margin:
+                      EdgeInsets.all(9.w),
+                  decoration:
+                      const BoxDecoration(
+                    color:
+                        AppColors.primary,
+                    shape:
+                        BoxShape.circle,
+                  ),
+                  child: Icon(
+                    Icons.check_rounded,
+                    color:
+                        Colors.white,
+                    size: 40.sp,
+                  ),
+                ),
+              ),
+              SizedBox(
+                height: 20.h,
+              ),
+              Text(
+                'Order Placed Successfully',
+                textAlign:
+                    TextAlign.center,
+                style:
+                    TextStyle(
+                  fontSize: 19.sp,
+                  fontWeight:
+                      FontWeight.w800,
+                  color: AppColors
+                      .textPrimary,
+                ),
+              ),
+              SizedBox(
+                height: 10.h,
+              ),
+              Text(
+                'Your order has been submitted successfully.',
+                textAlign:
+                    TextAlign.center,
+                style:
+                    TextStyle(
+                  fontSize: 13.sp,
+                  height: 1.45,
+                  fontWeight:
+                      FontWeight.w500,
+                  color: AppColors
+                      .textSecondary,
+                ),
+              ),
+              SizedBox(
+                height: 24.h,
+              ),
+              SizedBox(
+                width:
+                    double.infinity,
+                height: 48.h,
+                child:
+                    ElevatedButton(
+                  onPressed: () {
+                    Navigator.of(
+                      dialogContext,
+                    ).pop(true);
+                  },
+                  style:
+                      ElevatedButton.styleFrom(
+                    backgroundColor:
+                        AppColors.primary,
+                    foregroundColor:
+                        Colors.white,
+                    elevation: 0,
+                    shape:
+                        RoundedRectangleBorder(
+                      borderRadius:
+                          BorderRadius.circular(
+                        14.r,
+                      ),
+                    ),
+                  ),
+                  child: Text(
+                    'OK',
+                    style:
+                        TextStyle(
+                      fontSize:
+                          14.sp,
+                      fontWeight:
+                          FontWeight.w800,
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+
+    isShowingSuccessDialog = false;
+
+    if (goHome == true &&
+        mounted) {
+      context.go(
+        AppRouter.home,
+      );
+    }
   }
 
   // ===========================================================================
@@ -1214,7 +2082,8 @@ class _PlaceOrderViewState
         SnackBar(
           content: Text(
             message,
-            style: const TextStyle(
+            style:
+                const TextStyle(
               color: Colors.white,
               fontWeight:
                   FontWeight.w600,
@@ -1248,11 +2117,6 @@ class _PlaceOrderViewState
     return Scaffold(
       backgroundColor:
           AppColors.background,
-
-      // =========================================================================
-      // APP BAR
-      // =========================================================================
-
       appBar: AppBar(
         backgroundColor:
             AppColors.primary,
@@ -1272,8 +2136,10 @@ class _PlaceOrderViewState
             Text(
               'Place Order',
               style: TextStyle(
-                color: Colors.white,
-                fontSize: 18.sp,
+                color:
+                    Colors.white,
+                fontSize:
+                    18.sp,
                 fontWeight:
                     FontWeight.w800,
               ),
@@ -1288,7 +2154,8 @@ class _PlaceOrderViewState
                     .withOpacity(
                   0.80,
                 ),
-                fontSize: 11.sp,
+                fontSize:
+                    11.sp,
                 fontWeight:
                     FontWeight.w500,
               ),
@@ -1296,11 +2163,6 @@ class _PlaceOrderViewState
           ],
         ),
       ),
-
-      // =========================================================================
-      // BLOC
-      // =========================================================================
-
       body: BlocConsumer<
           PlaceOrderBloc,
           PlaceOrderState>(
@@ -1308,20 +2170,11 @@ class _PlaceOrderViewState
           context,
           state,
         ) {
-          // =====================================================================
-          // SUCCESS
-          // =====================================================================
-
           if (state.status ==
               PlaceOrderStatus.success) {
-            _showMessage(
-              'Order submitted successfully',
-            );
+            _showOrderSuccessDialog();
+            return;
           }
-
-          // =====================================================================
-          // FAILURE
-          // =====================================================================
 
           if (state.status ==
               PlaceOrderStatus.failure) {
@@ -1332,21 +2185,12 @@ class _PlaceOrderViewState
             );
           }
         },
-
-        // =========================================================================
-        // BUILDER
-        // =========================================================================
-
         builder: (
           context,
           state,
         ) {
-          // =====================================================================
-          // INITIAL LOADING
-          // =====================================================================
-
           if (state.status ==
-                  PlaceOrderStatus.loading &&
+                      PlaceOrderStatus.loading &&
               state.dealers.isEmpty &&
               state.godowns.isEmpty &&
               state.categories.isEmpty) {
@@ -1359,10 +2203,6 @@ class _PlaceOrderViewState
             );
           }
 
-          // =====================================================================
-          // SAFE DROPDOWN VALUES
-          // =====================================================================
-
           final safeGodownValue =
               _getSafeGodownValue(
             state.godowns,
@@ -1372,10 +2212,6 @@ class _PlaceOrderViewState
               _getSafeCategoryValue(
             state.categories,
           );
-
-          // =====================================================================
-          // BODY
-          // =====================================================================
 
           return SafeArea(
             child:
@@ -1393,36 +2229,11 @@ class _PlaceOrderViewState
                 crossAxisAlignment:
                     CrossAxisAlignment.start,
                 children: [
-                  // =============================================================
-                  // HEADER
-                  // =============================================================
-
                   _buildOrderHeader(),
 
                   SizedBox(
                     height: 22.h,
                   ),
-
-                  // =============================================================
-                  // DEALER TITLE
-                  // =============================================================
-
-                  _sectionTitle(
-                    title:
-                        'Dealer Information',
-                    subtitle:
-                        'Search and select dealer',
-                    icon:
-                        Icons.storefront_rounded,
-                  ),
-
-                  SizedBox(
-                    height: 12.h,
-                  ),
-
-                  // =============================================================
-                  // DEALER
-                  // =============================================================
 
                   DealerSearchField(
                     controller:
@@ -1443,29 +2254,19 @@ class _PlaceOrderViewState
                     height: 22.h,
                   ),
 
-                  // =============================================================
-                  // GODOWN
-                  // =============================================================
-
                   ModernDropdown<String>(
-                    label: 'Godown',
+                    label:
+                        'Godown',
                     hint:
                         'Select godown',
-                    icon: Icons
-                        .warehouse_rounded,
-
-                    // IMPORTANT:
-                    // Use safe value.
+                    icon:
+                        Icons.warehouse_rounded,
                     value:
                         safeGodownValue,
-
-                    // IMPORTANT:
-                    // Remove duplicate IDs.
                     items:
                         _buildGodownItems(
                       state.godowns,
                     ),
-
                     onChanged:
                         (value) {
                       if (value ==
@@ -1490,10 +2291,9 @@ class _PlaceOrderViewState
                         return;
                       }
 
-                      setState(() {
-                        selectedGodown =
-                            matches.first;
-                      });
+                      _selectGodown(
+                        matches.first,
+                      );
                     },
                   ),
 
@@ -1501,30 +2301,19 @@ class _PlaceOrderViewState
                     height: 18.h,
                   ),
 
-                  // =============================================================
-                  // CATEGORY
-                  // =============================================================
-
                   ModernDropdown<String>(
                     label:
                         'Category',
                     hint:
                         'Select product category',
-                    icon: Icons
-                        .category_rounded,
-
-                    // IMPORTANT:
-                    // Use safe value.
+                    icon:
+                        Icons.category_rounded,
                     value:
                         safeCategoryValue,
-
-                    // IMPORTANT:
-                    // Remove duplicate IDs.
                     items:
                         _buildCategoryItems(
                       state.categories,
                     ),
-
                     onChanged:
                         (value) {
                       if (value ==
@@ -1555,91 +2344,137 @@ class _PlaceOrderViewState
                     },
                   ),
 
-                  // =============================================================
-                  // PRODUCTS
-                  // =============================================================
-
                   if (selectedCategory !=
                       null) ...[
                     SizedBox(
                       height: 26.h,
                     ),
 
-                    _sectionTitle(
-                      title:
-                          'Products',
-                      subtitle:
-                          'Add products and choose packing & rate',
-                      icon: Icons
-                          .inventory_2_rounded,
+                    Row(
+                      children: [
+                        Expanded(
+                          child:
+                              _sectionTitle(
+                            title:
+                                'Products',
+                            subtitle:
+                                'Select multiple products in one order',
+                            icon:
+                                Icons.inventory_2_rounded,
+                          ),
+                        ),
+                        SizedBox(
+                          width: 8.w,
+                        ),
+                        InkWell(
+                          borderRadius:
+                              BorderRadius
+                                  .circular(
+                            11.r,
+                          ),
+                          onTap: state
+                                      .products
+                                      .isEmpty ||
+                                  isOpeningRateSelector
+                              ? null
+                              : () =>
+                                  _openMultiProductSelector(),
+                          child:
+                              Container(
+                            padding:
+                                EdgeInsets
+                                    .symmetric(
+                              horizontal:
+                                  11.w,
+                              vertical:
+                                  9.h,
+                            ),
+                            decoration:
+                                BoxDecoration(
+                              color: state
+                                          .products
+                                          .isEmpty ||
+                                      isOpeningRateSelector
+                                  ? Colors.grey
+                                  : AppColors
+                                      .primary,
+                              borderRadius:
+                                  BorderRadius
+                                      .circular(
+                                11.r,
+                              ),
+                            ),
+                            child:
+                                isOpeningRateSelector
+                                    ? SizedBox(
+                                        width:
+                                            19.sp,
+                                        height:
+                                            19.sp,
+                                        child:
+                                            const CircularProgressIndicator(
+                                          strokeWidth:
+                                              2,
+                                          color:
+                                              Colors.white,
+                                        ),
+                                      )
+                                    : Icon(
+                                        Icons
+                                            .library_add_check_rounded,
+                                        color:
+                                            Colors.white,
+                                        size:
+                                            19.sp,
+                                      ),
+                          ),
+                        ),
+                      ],
                     ),
 
                     SizedBox(
                       height: 12.h,
                     ),
 
-                    // ===========================================================
-                    // PRODUCT LOADING
-                    // ===========================================================
+                    _buildSelectedProductSummary(
+                      state,
+                    ),
+
+                    if (_getSelectedProducts(
+                      state,
+                    ).isNotEmpty)
+                      SizedBox(
+                        height: 10.h,
+                      ),
 
                     if (state.status ==
-                            PlaceOrderStatus
-                                .loading &&
-                        state.products
-                            .isEmpty)
+                            PlaceOrderStatus.loading &&
+                        state.products.isEmpty)
                       _buildProductLoading()
-
-                    // ===========================================================
-                    // NO PRODUCTS
-                    // ===========================================================
-
-                    else if (state.products
-                        .isEmpty)
+                    else if (state
+                        .products.isEmpty)
                       _emptyBox(
-                        icon: Icons
-                            .inventory_2_outlined,
+                        icon:
+                            Icons.inventory_2_outlined,
                         text:
                             'No products found',
                       )
-
-                    // ===========================================================
-                    // PRODUCTS
-                    // ===========================================================
-
                     else
-                      ...state.products
-                          .map(
+                      ...state.products.map(
                         (
                           product,
                         ) {
-                          // -----------------------------------------------------
-                          // CURRENT QUANTITY
-                          // -----------------------------------------------------
+                          final String
+                              productId =
+                              product.id
+                                  .toString();
 
-                          final quantity =
-                              state.quantities[
-                                      product.id] ??
-                                  0;
-
-                          // -----------------------------------------------------
-                          // SELECTED RATE
-                          //
-                          // THIS IS THE IMPORTANT FIX.
-                          // -----------------------------------------------------
-
-                          final selectedRate =
+                          final List<
+                                  ProductRateEntity>
+                              productRates =
                               selectedRates[
-                                  product.id
-                                      .toString()];
-
-                          // -----------------------------------------------------
-                          // RATE API LOADING
-                          // -----------------------------------------------------
-
-                          final isLoadingRate =
-                              loadingProductRateId ==
-                                  product.id
-                                      .toString();
+                                      productId] ??
+                                  <ProductRateEntity>[];
 
                           return Padding(
                             padding:
@@ -1648,184 +2483,62 @@ class _PlaceOrderViewState
                                   10.h,
                             ),
                             child:
-                                Stack(
-                              children: [
-                                // =================================================
-                                // PRODUCT CARD
-                                // =================================================
-
                                 ProductCard(
-                                  product:
-                                      product,
-
-                                  quantity:
-                                      quantity,
-
-                                  // =================================================
-                                  // CRITICAL FIX
-                                  // =================================================
-                                  //
-                                  // Your ProductCard requires this parameter.
-                                  //
-                                  selectedRate:
-                                      selectedRate,
-
-                                  // =================================================
-                                  // ADD / PLUS
-                                  // =================================================
-
-                                  onAdd:
-                                      () async {
-                                    // ---------------------------------------------
-                                    // FIRST CLICK
-                                    // ---------------------------------------------
-                                    //
-                                    // quantity = 0
-                                    //
-                                    // API -> rate sheet -> quantity 1
-                                    //
-
-                                    if (quantity ==
-                                        0) {
-                                      await _addProduct(
-                                        product,
-                                      );
-                                    }
-
-                                    // ---------------------------------------------
-                                    // PLUS
-                                    // ---------------------------------------------
-                                    //
-                                    // quantity > 0
-                                    //
-                                    // NO API.
-                                    //
-                                    else {
-                                      _increaseQuantity(
-                                        product,
-                                        quantity,
-                                      );
-                                    }
-                                  },
-
-                                  // =================================================
-                                  // MINUS
-                                  // =================================================
-
-                                  onRemove:
-                                      () {
-                                    _decreaseQuantity(
-                                      product,
-                                      quantity,
-                                    );
-                                  },
-
-                                  // =================================================
-                                  // DELETE
-                                  // =================================================
-
-                                  onDelete:
-                                      () {
-                                    _deleteProduct(
-                                      product,
-                                    );
-                                  },
-                                ),
-
-                                // =================================================
-                                // LOADING OVERLAY
-                                // =================================================
-
-                                if (isLoadingRate)
-                                  Positioned.fill(
-                                    child:
-                                        Container(
-                                      decoration:
-                                          BoxDecoration(
-                                        color: Colors
-                                            .white
-                                            .withOpacity(
-                                          0.78,
-                                        ),
-                                        borderRadius:
-                                            BorderRadius
-                                                .circular(
-                                          18.r,
-                                        ),
-                                      ),
-                                      child:
-                                          Center(
-                                        child:
-                                            Container(
-                                          padding:
-                                              EdgeInsets.symmetric(
-                                            horizontal:
-                                                16.w,
-                                            vertical:
-                                                10.h,
-                                          ),
-                                          decoration:
-                                              BoxDecoration(
-                                            color:
-                                                Colors.white,
-                                            borderRadius:
-                                                BorderRadius
-                                                    .circular(
-                                              12.r,
-                                            ),
-                                            boxShadow: [
-                                              BoxShadow(
-                                                color: Colors
-                                                    .black
-                                                    .withOpacity(
-                                                  0.08,
-                                                ),
-                                                blurRadius:
-                                                    12,
-                                              ),
-                                            ],
-                                          ),
-                                          child:
-                                              Row(
-                                            mainAxisSize:
-                                                MainAxisSize.min,
-                                            children: [
-                                              SizedBox(
-                                                height:
-                                                    18.w,
-                                                width:
-                                                    18.w,
-                                                child:
-                                                    const CircularProgressIndicator(
-                                                  strokeWidth:
-                                                      2,
-                                                  color:
-                                                      AppColors.primary,
-                                                ),
-                                              ),
-                                              SizedBox(
-                                                width:
-                                                    9.w,
-                                              ),
-                                              Text(
-                                                'Loading rate...',
-                                                style:
-                                                    TextStyle(
-                                                  fontSize:
-                                                      11.sp,
-                                                  fontWeight:
-                                                      FontWeight.w700,
-                                                  color:
-                                                      AppColors.textPrimary,
-                                                ),
-                                              ),
-                                            ],
-                                          ),
-                                        ),
-                                      ),
-                                    ),
+                              product:
+                                  product,
+                              selectedRates:
+                                  productRates,
+                              packingQuantities:
+                                  state.packingQuantities[
+                                          productId] ??
+                                      <String, int>{},
+                              onAdd:
+                                  () async {
+                                await _addProduct(
+                                  product,
+                                );
+                              },
+                              onAddMore:
+                                  () async {
+                                await _openMultiProductSelector(
+                                  initialProductId:
+                                      productId,
+                                );
+                              },
+                              onIncrease:
+                                  (rate) {
+                                context
+                                    .read<
+                                        PlaceOrderBloc>()
+                                    .add(
+                                  IncreasePackingQuantityEvent(
+                                    productId:
+                                        product.id.toString(),
+                                    productDetailsId:
+                                        rate.productDetailsId.toString(),
                                   ),
-                              ],
+                                );
+                              },
+                              onDecrease:
+                                  (rate) {
+                                context
+                                    .read<
+                                        PlaceOrderBloc>()
+                                    .add(
+                                  DecreasePackingQuantityEvent(
+                                    productId:
+                                        product.id.toString(),
+                                    productDetailsId:
+                                        rate.productDetailsId.toString(),
+                                  ),
+                                );
+                              },
+                              onDelete:
+                                  () {
+                                _deleteProduct(
+                                  product,
+                                );
+                              },
                             ),
                           );
                         },
@@ -1834,23 +2547,6 @@ class _PlaceOrderViewState
 
                   SizedBox(
                     height: 24.h,
-                  ),
-
-                  // =============================================================
-                  // IMAGE
-                  // =============================================================
-
-                  _sectionTitle(
-                    title:
-                        'Order Photo',
-                    subtitle:
-                        'Add one order photo',
-                    icon: Icons
-                        .photo_camera_rounded,
-                  ),
-
-                  SizedBox(
-                    height: 12.h,
                   ),
 
                   ImagePickerSection(
@@ -1869,23 +2565,6 @@ class _PlaceOrderViewState
                     height: 24.h,
                   ),
 
-                  // =============================================================
-                  // SIGNATURE
-                  // =============================================================
-
-                  _sectionTitle(
-                    title:
-                        'Dealer Signature',
-                    subtitle:
-                        'Signature is required',
-                    icon: Icons
-                        .draw_rounded,
-                  ),
-
-                  SizedBox(
-                    height: 12.h,
-                  ),
-
                   SignatureSection(
                     controller:
                         signatureController,
@@ -1899,32 +2578,11 @@ class _PlaceOrderViewState
                     height: 24.h,
                   ),
 
-                  // =============================================================
-                  // REMARK
-                  // =============================================================
-
-                  _sectionTitle(
-                    title:
-                        'Remark',
-                    subtitle:
-                        'Add additional information',
-                    icon: Icons
-                        .notes_rounded,
-                  ),
-
-                  SizedBox(
-                    height: 12.h,
-                  ),
-
                   _buildRemarkField(),
 
                   SizedBox(
                     height: 28.h,
                   ),
-
-                  // =============================================================
-                  // SUBMIT
-                  // =============================================================
 
                   _buildSubmitButton(
                     state,
@@ -1943,26 +2601,192 @@ class _PlaceOrderViewState
   }
 
   // ===========================================================================
+  // SELECTED PRODUCT SUMMARY
+  // ===========================================================================
+
+  Widget _buildSelectedProductSummary(
+    PlaceOrderState state,
+  ) {
+    final selectedProducts =
+        _getSelectedProducts(state);
+
+    if (selectedProducts.isEmpty) {
+      return const SizedBox.shrink();
+    }
+
+    int totalQuantity = 0;
+    double totalAmount = 0.0;
+
+    for (final product
+        in selectedProducts) {
+      final String productId =
+          product.id.toString();
+
+      final List<ProductRateEntity> rates =
+          selectedRates[
+                  productId] ??
+              <ProductRateEntity>[];
+
+      final Map<String, int>
+          productPackingQuantities =
+          state.packingQuantities[
+                  productId] ??
+              <String, int>{};
+
+      for (final rate in rates) {
+        final String productDetailsId =
+            rate.productDetailsId
+                .toString();
+
+        final int quantity =
+            productPackingQuantities[
+                    productDetailsId] ??
+                1;
+
+        totalQuantity +=
+            quantity;
+
+        final double rateValue =
+            double.tryParse(
+                  rate.rateWithGst
+                      .toString(),
+                ) ??
+                0.0;
+
+        totalAmount +=
+            rateValue *
+                quantity;
+      }
+    }
+
+    return Container(
+      width: double.infinity,
+      padding:
+          EdgeInsets.symmetric(
+        horizontal: 14.w,
+        vertical: 12.h,
+      ),
+      decoration:
+          BoxDecoration(
+        color:
+            AppColors.lightGreen,
+        borderRadius:
+            BorderRadius.circular(
+          14.r,
+        ),
+        border: Border.all(
+          color:
+              AppColors.primary
+                  .withOpacity(
+            0.12,
+          ),
+        ),
+      ),
+      child: Row(
+        children: [
+          Container(
+            width: 38.w,
+            height: 38.w,
+            decoration:
+                const BoxDecoration(
+              color:
+                  AppColors.primary,
+              shape:
+                  BoxShape.circle,
+            ),
+            child: Icon(
+              Icons
+                  .shopping_cart_rounded,
+              color:
+                  Colors.white,
+              size: 19.sp,
+            ),
+          ),
+          SizedBox(
+            width: 10.w,
+          ),
+          Expanded(
+            child: Column(
+              crossAxisAlignment:
+                  CrossAxisAlignment.start,
+              children: [
+                Text(
+                  '${selectedProducts.length} '
+                  'product${selectedProducts.length == 1 ? '' : 's'} selected',
+                  style:
+                      TextStyle(
+                    fontSize: 13.sp,
+                    fontWeight:
+                        FontWeight.w800,
+                    color: AppColors
+                        .textPrimary,
+                  ),
+                ),
+                SizedBox(
+                  height: 2.h,
+                ),
+                Text(
+                  'Total quantity: '
+                  '$totalQuantity',
+                  style:
+                      TextStyle(
+                    fontSize: 11.sp,
+                    fontWeight:
+                        FontWeight.w600,
+                    color: AppColors
+                        .textSecondary,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Text(
+            '₹${totalAmount.toStringAsFixed(2)}',
+            style:
+                TextStyle(
+              fontSize: 14.sp,
+              fontWeight:
+                  FontWeight.w900,
+              color:
+                  AppColors.primary,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // ===========================================================================
   // HEADER
   // ===========================================================================
 
   Widget _buildOrderHeader() {
     return Container(
       width: double.infinity,
-      padding: EdgeInsets.all(18.w),
-      decoration: BoxDecoration(
-        color: AppColors.primary,
+      padding:
+          EdgeInsets.all(18.w),
+      decoration:
+          BoxDecoration(
+        color:
+            AppColors.primary,
         borderRadius:
             BorderRadius.circular(
           20.r,
         ),
         boxShadow: [
           BoxShadow(
-            color: AppColors.primary
-                .withOpacity(0.18),
-            blurRadius: 18,
+            color:
+                AppColors.primary
+                    .withOpacity(
+              0.18,
+            ),
+            blurRadius:
+                18,
             offset:
-                const Offset(0, 8),
+                const Offset(
+              0,
+              8,
+            ),
           ),
         ],
       ),
@@ -1974,7 +2798,9 @@ class _PlaceOrderViewState
             decoration:
                 BoxDecoration(
               color: Colors.white
-                  .withOpacity(0.16),
+                  .withOpacity(
+                0.16,
+              ),
               borderRadius:
                   BorderRadius.circular(
                 16.r,
@@ -1983,7 +2809,8 @@ class _PlaceOrderViewState
             child: Icon(
               Icons
                   .shopping_cart_checkout_rounded,
-              color: Colors.white,
+              color:
+                  Colors.white,
               size: 27.sp,
             ),
           ),
@@ -1993,15 +2820,16 @@ class _PlaceOrderViewState
           Expanded(
             child: Column(
               crossAxisAlignment:
-                  CrossAxisAlignment
-                      .start,
+                  CrossAxisAlignment.start,
               children: [
                 Text(
                   'Create New Order',
-                  style: TextStyle(
+                  style:
+                      TextStyle(
                     color:
                         Colors.white,
-                    fontSize: 17.sp,
+                    fontSize:
+                        17.sp,
                     fontWeight:
                         FontWeight.w800,
                   ),
@@ -2011,12 +2839,14 @@ class _PlaceOrderViewState
                 ),
                 Text(
                   'Select dealer, products and order details',
-                  style: TextStyle(
+                  style:
+                      TextStyle(
                     color: Colors.white
                         .withOpacity(
                       0.82,
                     ),
-                    fontSize: 12.sp,
+                    fontSize:
+                        12.sp,
                     fontWeight:
                         FontWeight.w500,
                   ),
@@ -2065,13 +2895,14 @@ class _PlaceOrderViewState
         Expanded(
           child: Column(
             crossAxisAlignment:
-                CrossAxisAlignment
-                    .start,
+                CrossAxisAlignment.start,
             children: [
               Text(
                 title,
-                style: TextStyle(
-                  fontSize: 15.sp,
+                style:
+                    TextStyle(
+                  fontSize:
+                      15.sp,
                   fontWeight:
                       FontWeight.w800,
                   color: AppColors
@@ -2083,8 +2914,10 @@ class _PlaceOrderViewState
               ),
               Text(
                 subtitle,
-                style: TextStyle(
-                  fontSize: 11.5.sp,
+                style:
+                    TextStyle(
+                  fontSize:
+                      11.5.sp,
                   fontWeight:
                       FontWeight.w500,
                   color: AppColors
@@ -2111,12 +2944,14 @@ class _PlaceOrderViewState
       ),
       decoration:
           BoxDecoration(
-        color: Colors.white,
+        color:
+            Colors.white,
         borderRadius:
             BorderRadius.circular(
           18.r,
         ),
-        border: Border.all(
+        border:
+            Border.all(
           color:
               AppColors.border,
         ),
@@ -2132,7 +2967,8 @@ class _PlaceOrderViewState
           ),
           Text(
             'Loading products...',
-            style: TextStyle(
+            style:
+                TextStyle(
               fontSize: 13.sp,
               fontWeight:
                   FontWeight.w600,
@@ -2146,7 +2982,7 @@ class _PlaceOrderViewState
   }
 
   // ===========================================================================
-  // EMPTY BOX
+  // EMPTY
   // ===========================================================================
 
   Widget _emptyBox({
@@ -2162,12 +2998,14 @@ class _PlaceOrderViewState
       ),
       decoration:
           BoxDecoration(
-        color: Colors.white,
+        color:
+            Colors.white,
         borderRadius:
             BorderRadius.circular(
           18.r,
         ),
-        border: Border.all(
+        border:
+            Border.all(
           color:
               AppColors.border,
         ),
@@ -2176,7 +3014,9 @@ class _PlaceOrderViewState
         children: [
           Container(
             padding:
-                EdgeInsets.all(14.w),
+                EdgeInsets.all(
+              14.w,
+            ),
             decoration:
                 const BoxDecoration(
               color:
@@ -2196,7 +3036,8 @@ class _PlaceOrderViewState
           ),
           Text(
             text,
-            style: TextStyle(
+            style:
+                TextStyle(
               fontSize: 13.sp,
               fontWeight:
                   FontWeight.w600,
@@ -2217,22 +3058,12 @@ class _PlaceOrderViewState
     return Container(
       decoration:
           BoxDecoration(
-        color: Colors.white,
+        color:
+            Colors.white,
         borderRadius:
             BorderRadius.circular(
           18.r,
         ),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black
-                .withOpacity(
-              0.035,
-            ),
-            blurRadius: 12,
-            offset:
-                const Offset(0, 4),
-          ),
-        ],
       ),
       child: TextField(
         controller:
@@ -2240,9 +3071,9 @@ class _PlaceOrderViewState
         maxLines: 4,
         minLines: 3,
         textCapitalization:
-            TextCapitalization
-                .sentences,
-        style: TextStyle(
+            TextCapitalization.sentences,
+        style:
+            TextStyle(
           fontSize: 13.sp,
           fontWeight:
               FontWeight.w600,
@@ -2255,8 +3086,8 @@ class _PlaceOrderViewState
               'Enter order remark...',
           hintStyle:
               TextStyle(
-            color: AppColors
-                .textSecondary,
+            color:
+                AppColors.textSecondary,
             fontSize: 13.sp,
             fontWeight:
                 FontWeight.w500,
@@ -2340,18 +3171,20 @@ class _PlaceOrderViewState
   Widget _buildSubmitButton(
     PlaceOrderState state,
   ) {
-    final isSubmitting =
+    final bool isSubmitting =
         state.status ==
-            PlaceOrderStatus
-                .submitting;
+            PlaceOrderStatus.submitting;
 
     return SizedBox(
       width: double.infinity,
       height: 56.h,
       child: ElevatedButton(
-        onPressed: isSubmitting
-            ? null
-            : () => _submit(state),
+        onPressed:
+            isSubmitting
+                ? null
+                : () => _submit(
+                      state,
+                    ),
         style:
             ElevatedButton.styleFrom(
           backgroundColor:
@@ -2364,11 +3197,6 @@ class _PlaceOrderViewState
             0.55,
           ),
           elevation: 3,
-          shadowColor:
-              AppColors.primary
-                  .withOpacity(
-            0.25,
-          ),
           shape:
               RoundedRectangleBorder(
             borderRadius:
@@ -2377,62 +3205,50 @@ class _PlaceOrderViewState
             ),
           ),
         ),
-        child: isSubmitting
-            ? SizedBox(
-                width: 25.w,
-                height: 25.w,
-                child:
-                    const CircularProgressIndicator(
-                  strokeWidth: 2.5,
-                  color:
-                      Colors.white,
-                ),
-              )
-            : Row(
-                mainAxisAlignment:
-                    MainAxisAlignment
-                        .center,
-                children: [
-                  Container(
-                    padding:
-                        EdgeInsets.all(
-                      5.w,
-                    ),
-                    decoration:
-                        BoxDecoration(
-                      color: Colors
-                          .white
-                          .withOpacity(
-                        0.15,
-                      ),
-                      borderRadius:
-                          BorderRadius
-                              .circular(
-                        8.r,
-                      ),
-                    ),
-                    child: Icon(
-                      Icons
-                          .shopping_cart_checkout_rounded,
-                      size: 20.sp,
+        child:
+            isSubmitting
+                ? SizedBox(
+                    width:
+                        25.w,
+                    height:
+                        25.w,
+                    child:
+                        const CircularProgressIndicator(
+                      strokeWidth:
+                          2.5,
                       color:
                           Colors.white,
                     ),
+                  )
+                : Row(
+                    mainAxisAlignment:
+                        MainAxisAlignment
+                            .center,
+                    children: [
+                      Icon(
+                        Icons
+                            .shopping_cart_checkout_rounded,
+                        size:
+                            20.sp,
+                        color:
+                            Colors.white,
+                      ),
+                      SizedBox(
+                        width:
+                            10.w,
+                      ),
+                      Text(
+                        'Preview Order',
+                        style:
+                            TextStyle(
+                          fontSize:
+                              15.sp,
+                          fontWeight:
+                              FontWeight.w800,
+                        ),
+                      ),
+                    ],
                   ),
-                  SizedBox(
-                    width: 10.w,
-                  ),
-                  Text(
-                    'Place Order',
-                    style:
-                        TextStyle(
-                      fontSize: 15.sp,
-                      fontWeight:
-                          FontWeight.w800,
-                    ),
-                  ),
-                ],
-              ),
       ),
     );
   }

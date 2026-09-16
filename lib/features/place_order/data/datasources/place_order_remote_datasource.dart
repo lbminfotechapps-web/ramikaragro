@@ -1,6 +1,5 @@
 import 'dart:convert';
 import 'dart:io';
-import 'dart:typed_data';
 
 import 'package:demo/core/api_constant/api_client.dart';
 import 'package:demo/core/api_constant/dio_client.dart';
@@ -15,562 +14,974 @@ import '../models/product_model.dart';
 class PlaceOrderRemoteDataSource {
   final DioClient dioClient;
 
-  PlaceOrderRemoteDataSource({
-    required this.dioClient,
-  });
+  PlaceOrderRemoteDataSource(this.dioClient);
 
-  // =========================================================
-  // DEALER
-  // =========================================================
+  // ============================================================
+  // DEALERS
+  // ============================================================
 
   Future<List<DealerModel>> getDealers({
     required int userId,
     required String searchText,
   }) async {
-    final response = await dioClient.client.post(
-      ApiClient.getTalukaWiseOutletForOrderNew,
-      data: FormData.fromMap({
-        'userId': userId.toString(),
-        'searchText': searchText,
-      }),
-      options: Options(
-        responseType: ResponseType.plain,
-      ),
-    );
+    try {
+      final response = await dioClient.client.post(
+      
+        
+        ApiClient.getTalukaWiseOutletForOrderNew,
 
-    final decoded = _decode(response.data);
+        data: FormData.fromMap({
+          'userId': userId.toString(),
+          'searchText': searchText,
+        }),
+        options: Options(
+          responseType: ResponseType.plain,
+        ),
+      );
 
-    final list = _extractList(decoded);
+      final dynamic data = _decodeResponse(response.data);
 
-    return list
-        .map(
-          (item) => DealerModel.fromJson(
-            Map<String, dynamic>.from(item),
-          ),
-        )
-        .toList();
+      if (data is List) {
+        return data
+            .map(
+              (e) => DealerModel.fromJson(
+                Map<String, dynamic>.from(e),
+              ),
+            )
+            .toList();
+      }
+
+      if (data is Map<String, dynamic>) {
+        final dynamic list =
+            data['data'] ??
+            data['result'] ??
+            data['dealers'] ??
+            [];
+
+        if (list is List) {
+          return list
+              .map(
+                (e) => DealerModel.fromJson(
+                  Map<String, dynamic>.from(e),
+                ),
+              )
+              .toList();
+        }
+      }
+
+      return [];
+    } catch (e) {
+      print('GET DEALERS ERROR: $e');
+      rethrow;
+    }
   }
 
-  // =========================================================
+
+
+  // ============================================================
   // GODOWN
-  // =========================================================
+  // ============================================================
 
   Future<List<GodownModel>> getGodowns({
     required int userId,
   }) async {
-    final response = await dioClient.client.post(
-      ApiClient.getGodown,
-      data: FormData.fromMap({
-        'user_id': userId.toString(),
-      }),
-      options: Options(
-        responseType: ResponseType.plain,
-      ),
-    );
-
-    final decoded = _decode(response.data);
-
-    final list = _extractList(decoded);
-
-    return list
-        .map(
-          (item) => GodownModel.fromJson(
-            Map<String, dynamic>.from(item),
-          ),
-        )
-        .toList();
-  }
-
-  // =========================================================
-  // CATEGORY
-  // =========================================================
-
-  Future<List<CategoryModel>> getCategories() async {
-    final response = await dioClient.client.post(
-      ApiClient.getCategory,
-      options: Options(
-        responseType: ResponseType.plain,
-      ),
-    );
-
-    final decoded = _decode(response.data);
-
-    final list = _extractList(decoded);
-
-    return list
-        .map(
-          (item) => CategoryModel.fromJson(
-            Map<String, dynamic>.from(item),
-          ),
-        )
-        .toList();
-  }
-
-  // =========================================================
-  // PRODUCTS
-  // =========================================================
-
-  Future<List<ProductModel>> getProducts({
-    required String categoryId,
-    required String searchText,
-  }) async {
-    final response = await dioClient.client.post(
-      ApiClient.getCatgoryProducts,
-      data: FormData.fromMap({
-        'categoryId': categoryId,
-        'searchText': searchText,
-      }),
-      options: Options(
-        responseType: ResponseType.plain,
-      ),
-    );
-
-    final decoded = _decode(response.data);
-
-    final list = _extractList(decoded);
-
-    return list
-        .map(
-          (item) => ProductModel.fromJson(
-            Map<String, dynamic>.from(item),
-          ),
-        )
-        .toList();
-  }
-
-  // =========================================================
-  // SUBMIT PLACE ORDER
-  // =========================================================
-
-  Future<void> submitOrder({
-    required int userId,
-
-    // Repository passes IDs instead of DealerModel/GodownModel.
-    required String dealerId,
-    required String godownId,
-
-    required List<Map<String, dynamic>> products,
-    required String remark,
-    required List<String> imagePaths,
-
-    // Digital signature bytes
-    required Uint8List? signatureBytes,
-  }) async {
-    // =======================================================
-    // TOTAL QUANTITY
-    // =======================================================
-
-    int totalQuantity = 0;
-
-    for (final product in products) {
-      final quantity =
-          int.tryParse(
-            product['quantity']?.toString() ?? '0',
-          ) ??
-          0;
-
-      totalQuantity += quantity;
-    }
-
-    // =======================================================
-    // GRAND TOTAL
-    // =======================================================
-
-    double grandTotal = 0;
-
-    for (final product in products) {
-      final quantity =
-          double.tryParse(
-            product['quantity']?.toString() ?? '0',
-          ) ??
-          0;
-
-      final price =
-          double.tryParse(
-            product['price']?.toString() ?? '0',
-          ) ??
-          0;
-
-      grandTotal += price * quantity;
-    }
-
-    // =======================================================
-    // PRODUCT JSON
-    // =======================================================
-
-    final String productJsonString = jsonEncode(products);
-
-    // =======================================================
-    // FORM DATA
-    // =======================================================
-
-    final FormData formData = FormData();
-
-    // -------------------------------------------------------
-    // productJsonString
-    // -------------------------------------------------------
-
-    formData.fields.add(
-      MapEntry(
-        'productJsonString',
-        productJsonString,
-      ),
-    );
-
-    // -------------------------------------------------------
-    // totalQuantity
-    // -------------------------------------------------------
-
-    formData.fields.add(
-      MapEntry(
-        'totalQuantity',
-        totalQuantity.toString(),
-      ),
-    );
-
-    // -------------------------------------------------------
-    // empId
-    // -------------------------------------------------------
-
-    formData.fields.add(
-      MapEntry(
-        'empId',
-        userId.toString(),
-      ),
-    );
-
-    // -------------------------------------------------------
-    // dealerId
-    // -------------------------------------------------------
-
-    formData.fields.add(
-      MapEntry(
-        'dealerId',
-        dealerId,
-      ),
-    );
-
-    // -------------------------------------------------------
-    // SchemeId
-    // -------------------------------------------------------
-
-    formData.fields.add(
-      const MapEntry(
-        'SchemeId',
-        '',
-      ),
-    );
-
-    // -------------------------------------------------------
-    // godownId
-    // -------------------------------------------------------
-
-    formData.fields.add(
-      MapEntry(
-        'godownId',
-        godownId,
-      ),
-    );
-
-    // -------------------------------------------------------
-    // grandTotal
-    // -------------------------------------------------------
-
-    formData.fields.add(
-      MapEntry(
-        'grandTotal',
-        grandTotal.toStringAsFixed(2),
-      ),
-    );
-
-    // -------------------------------------------------------
-    // orderTypeId
-    // -------------------------------------------------------
-
-    formData.fields.add(
-      const MapEntry(
-        'orderTypeId',
-        '',
-      ),
-    );
-
-    // -------------------------------------------------------
-    // orderType
-    // -------------------------------------------------------
-
-    formData.fields.add(
-      const MapEntry(
-        'orderType',
-        '',
-      ),
-    );
-
-    // -------------------------------------------------------
-    // remark
-    // -------------------------------------------------------
-
-    formData.fields.add(
-      MapEntry(
-        'remark',
-        remark,
-      ),
-    );
-
-    // -------------------------------------------------------
-    // subdealerId
-    // -------------------------------------------------------
-
-    formData.fields.add(
-      const MapEntry(
-        'subdealerId',
-        '',
-      ),
-    );
-
-    // =======================================================
-    // ORDER IMAGE
-    // =======================================================
-
-    if (imagePaths.isNotEmpty &&
-        imagePaths.first.trim().isNotEmpty) {
-      final String imagePath = imagePaths.first.trim();
-
-      final File imageFile = File(imagePath);
-
-      if (await imageFile.exists()) {
-        final DateTime now = DateTime.now();
-
-        final String currentTimestamp =
-            (now.millisecondsSinceEpoch ~/ 1000).toString();
-
-        final String formattedDate =
-            DateFormat('ddMMyyyy').format(now);
-
-        String extension = '.jpg';
-
-        if (imagePath.contains('.')) {
-          extension = imagePath
-              .substring(imagePath.lastIndexOf('.'))
-              .toLowerCase();
-        }
-
-        final String attachImage =
-            'OrderImage'
-            '${formattedDate}_'
-            '${currentTimestamp}'
-            '$extension';
-
-        formData.files.add(
-          MapEntry(
-            'order_image',
-            await MultipartFile.fromFile(
-              imageFile.path,
-              filename: attachImage,
-            ),
-          ),
-        );
-
-        print(
-          'Order Image: $attachImage',
-        );
-      } else {
-        throw Exception(
-          'Order image file does not exist.',
-        );
-      }
-    } else {
-      throw Exception(
-        'Order image is required.',
-      );
-    }
-
-    // =======================================================
-    // DIGITAL SIGNATURE
-    // =======================================================
-
-    if (signatureBytes != null &&
-        signatureBytes!.isNotEmpty) {
-      final String timestamp =
-          DateTime.now()
-              .millisecondsSinceEpoch
-              .toString();
-
-      final String signatureFileName =
-          'DigitalSignature_$timestamp.png';
-
-      formData.files.add(
-        MapEntry(
-          'digitalSignature',
-          MultipartFile.fromBytes(
-            signatureBytes!,
-            filename: signatureFileName,
-          ),
+    try {
+      print('');
+      print('========================================');
+      print('GET GODOWN');
+      print('========================================');
+
+      print('userId: $userId');
+
+      final response = await dioClient.client.post(
+          ApiClient.getGodown,
+        data: FormData.fromMap({
+          'user_id': userId.toString(),
+        }),
+        options: Options(
+          responseType: ResponseType.plain,
         ),
       );
 
-      print(
-        'Digital Signature: $signatureFileName',
+      print('GET GODOWN RESPONSE: ${response.data}');
+
+      final dynamic data = _decodeResponse(response.data);
+
+      if (data is List) {
+        return data
+            .map(
+              (e) => GodownModel.fromJson(
+                Map<String, dynamic>.from(e),
+              ),
+            )
+            .toList();
+      }
+
+      if (data is Map<String, dynamic>) {
+        final dynamic list =
+            data['data'] ??
+            data['result'] ??
+            data['godown'] ??
+            data['godowns'] ??
+            [];
+
+        if (list is List) {
+          return list
+              .map(
+                (e) => GodownModel.fromJson(
+                  Map<String, dynamic>.from(e),
+                ),
+              )
+              .toList();
+        }
+      }
+
+      return [];
+    } catch (e) {
+      print('GET GODOWN ERROR: $e');
+      rethrow;
+    }
+  }
+
+  // ============================================================
+  // CATEGORY
+  // ============================================================
+
+  Future<List<CategoryModel>> getCategories() async {
+    try {
+      final response = await dioClient.client.post(
+        ApiClient.getCategory,
+        data: FormData(),
+        options: Options(
+          responseType: ResponseType.plain,
+        ),
       );
 
-      print(
-        'Digital Signature Size: '
-        '${signatureBytes!.length} bytes',
+      final dynamic data = _decodeResponse(response.data);
+
+      if (data is List) {
+        return data
+            .map(
+              (e) => CategoryModel.fromJson(
+                Map<String, dynamic>.from(e),
+              ),
+            )
+            .toList();
+      }
+
+      if (data is Map<String, dynamic>) {
+        final dynamic list =
+            data['data'] ??
+            data['result'] ??
+            data['category'] ??
+            data['categories'] ??
+            [];
+
+        if (list is List) {
+          return list
+              .map(
+                (e) => CategoryModel.fromJson(
+                  Map<String, dynamic>.from(e),
+                ),
+              )
+              .toList();
+        }
+      }
+
+      return [];
+    } catch (e) {
+      print('GET CATEGORY ERROR: $e');
+      rethrow;
+    }
+  }
+
+  // ============================================================
+  // PRODUCTS
+  // ============================================================
+
+  Future<List<ProductModel>> getProducts({
+    required String categoryId,
+    String searchText = '',
+  }) async {
+    try {
+      final response = await dioClient.client.post(
+      
+         ApiClient.getCatgoryProducts,
+
+        data: FormData.fromMap({
+          'categoryId': categoryId,
+          'searchText': searchText,
+        }),
+        options: Options(
+          responseType: ResponseType.plain,
+        ),
       );
-    } else {
+
+      final dynamic data = _decodeResponse(response.data);
+
+      if (data is List) {
+        return data
+            .map(
+              (e) => ProductModel.fromJson(
+                Map<String, dynamic>.from(e),
+              ),
+            )
+            .toList();
+      }
+
+      if (data is Map<String, dynamic>) {
+        final dynamic list =
+            data['data'] ??
+            data['result'] ??
+            data['products'] ??
+            [];
+
+        if (list is List) {
+          return list
+              .map(
+                (e) => ProductModel.fromJson(
+                  Map<String, dynamic>.from(e),
+                ),
+              )
+              .toList();
+        }
+      }
+
+      return [];
+    } catch (e) {
+      print('GET PRODUCTS ERROR: $e');
+      rethrow;
+    }
+  }
+
+  // ============================================================
+  // UPLOAD SIGNATURE
+  // ============================================================
+  //
+  // Android:
+  //
+  // POST upload_sign
+  // multipart field = file
+  //
+  // This API uploads the signature separately.
+  // It returns the server filename.
+  //
+  // ============================================================
+
+  Future<String> uploadSignature({
+  required String signaturePath,
+}) async {
+  try {
+    print('');
+    print('========================================');
+    print('UPLOAD SIGNATURE');
+    print('========================================');
+
+    // ============================================================
+    // VALIDATE PATH
+    // ============================================================
+
+    final String cleanPath = signaturePath.trim();
+
+    if (cleanPath.isEmpty) {
+      throw Exception('Signature path is empty');
+    }
+
+    // ============================================================
+    // CHECK FILE
+    // ============================================================
+
+    final File signatureFile = File(cleanPath);
+
+    if (!await signatureFile.exists()) {
       throw Exception(
-        'Digital signature is required.',
+        'Signature file does not exist: $cleanPath',
       );
     }
 
-    // =======================================================
-    // DEBUG REQUEST
-    // =======================================================
+    final int signatureSize = await signatureFile.length();
 
-    print('========================================');
-    print('PLACE ORDER REQUEST');
-    print('========================================');
+    if (signatureSize <= 0) {
+      throw Exception('Signature file is empty');
+    }
 
-    print(
-      'URL: '
-      '${ApiClient.baseUrl}'
-      '${ApiClient.placeOrder}',
+    // ============================================================
+    // CREATE SERVER FILENAME
+    // ============================================================
+
+    final String timestamp =
+        DateTime.now().millisecondsSinceEpoch.toString();
+
+    final String fileName = 'Signature_$timestamp.png';
+
+    // ============================================================
+    // CREATE MULTIPART FILE
+    // ============================================================
+
+    final MultipartFile multipartFile =
+        await MultipartFile.fromFile(
+      signatureFile.path,
+      filename: fileName,
     );
 
-    print(
-      'productJsonString: '
-      '$productJsonString',
+    // ============================================================
+    // FORM DATA
+    // ============================================================
+
+    final FormData formData = FormData();
+
+    // Android:
+    // addFormDataPart("file", ...)
+    //
+    // Therefore field name MUST be "file"
+
+    formData.files.add(
+      MapEntry(
+        'file',
+        multipartFile,
+      ),
     );
 
-    print(
-      'totalQuantity: '
-      '$totalQuantity',
-    );
+    // ============================================================
+    // DEBUG
+    // ============================================================
 
-    print(
-      'empId: '
-      '$userId',
-    );
+    print('API: upload_sign');
+    print('Multipart field: file');
+    print('Local path: ${signatureFile.path}');
+    print('Filename: $fileName');
+    print('File size: $signatureSize bytes');
 
-    print(
-      'dealerId: '
-      '$dealerId',
-    );
-
-    print(
-      'SchemeId: ',
-    );
-
-    print(
-      'godownId: '
-      '$godownId',
-    );
-
-    print(
-      'grandTotal: '
-      '${grandTotal.toStringAsFixed(2)}',
-    );
-
-    print(
-      'orderTypeId: ',
-    );
-
-    print(
-      'orderType: ',
-    );
-
-    print(
-      'remark: '
-      '$remark',
-    );
-
-    print(
-      'subdealerId: ',
-    );
-
-    print(
-      'imagePaths: '
-      '$imagePaths',
-    );
-
-    print(
-      'signatureBytes: '
-      '${signatureBytes?.length ?? 0} bytes',
-    );
-
-    print('========================================');
-
-    // =======================================================
+    // ============================================================
     // API CALL
-    // =======================================================
+    // ============================================================
 
     final response = await dioClient.client.post(
-      ApiClient.placeOrder,
+      ApiClient.upload_sign,
       data: formData,
       options: Options(
-        contentType: 'multipart/form-data',
         responseType: ResponseType.plain,
       ),
     );
 
-    // =======================================================
+    // ============================================================
     // RESPONSE
-    // =======================================================
+    // ============================================================
 
+    print('');
     print('========================================');
-    print('PLACE ORDER RESPONSE');
+    print('UPLOAD SIGNATURE RESPONSE');
     print('========================================');
+
     print(response.data);
-    print('========================================');
 
-    if (response.statusCode != 200 &&
-        response.statusCode != 201) {
+    final dynamic decoded =
+        _decodeResponse(response.data);
+
+    if (decoded is! Map<String, dynamic>) {
       throw Exception(
-        'Place order failed: ${response.statusCode}',
+        'Invalid upload_sign response',
       );
     }
+
+    // ============================================================
+    // CHECK STATUS
+    // ============================================================
+
+    final String status =
+        '${decoded['status'] ?? ''}'.toLowerCase();
+
+    print('Upload status: $status');
+
+    if (status != 'success') {
+      throw Exception(
+        decoded['message']?.toString() ??
+            'Signature upload failed',
+      );
+    }
+
+    // ============================================================
+    // TRY TO GET FILENAME FROM SERVER RESPONSE
+    // ============================================================
+
+    String uploadedFileName = '';
+
+    uploadedFileName =
+        decoded['fileName']?.toString() ?? '';
+
+    if (uploadedFileName.isEmpty) {
+      uploadedFileName =
+          decoded['filename']?.toString() ?? '';
+    }
+
+    if (uploadedFileName.isEmpty) {
+      uploadedFileName =
+          decoded['file']?.toString() ?? '';
+    }
+
+    if (uploadedFileName.isEmpty) {
+      uploadedFileName =
+          decoded['signature']?.toString() ?? '';
+    }
+
+    // ============================================================
+    // IMPORTANT
+    //
+    // Your API currently returns:
+    //
+    // {"status":"success"}
+    //
+    // Therefore there is no filename in response.
+    //
+    // We already know the filename that was uploaded:
+    //
+    // Signature_xxxxxxxxx.png
+    //
+    // So use that filename.
+    // ============================================================
+
+    if (uploadedFileName.isEmpty) {
+      uploadedFileName = fileName;
+    }
+
+    // ============================================================
+    // FINAL VALIDATION
+    // ============================================================
+
+    if (uploadedFileName.trim().isEmpty) {
+      throw Exception(
+        'Signature uploaded successfully, '
+        'but filename could not be determined',
+      );
+    }
+
+    print('');
+    print('========================================');
+    print('SIGNATURE UPLOAD SUCCESS');
+    print('========================================');
+
+    print(
+      'Server filename: $uploadedFileName',
+    );
+
+    return uploadedFileName;
+  } on DioException catch (e) {
+    print('');
+    print('========================================');
+    print('UPLOAD SIGNATURE DIO ERROR');
+    print('========================================');
+
+    print('Message: ${e.message}');
+
+    print(
+      'Status: ${e.response?.statusCode}',
+    );
+
+    print(
+      'Response: ${e.response?.data}',
+    );
+
+    throw Exception(
+      e.response?.data?.toString() ??
+          e.message ??
+          'Signature upload failed',
+    );
+  } catch (e) {
+    print('');
+    print('========================================');
+    print('UPLOAD SIGNATURE ERROR');
+    print('========================================');
+
+    print(e);
+
+    rethrow;
+  }
+}
+
+  // ============================================================
+  // PLACE ORDER
+  // ============================================================
+
+  Future<void> submitOrder({
+    required int userId,
+    required String dealerId,
+    required String godownId,
+    required List<Map<String, dynamic>> products,
+    required String remark,
+    required List<String> imagePaths,
+    required String signatureFileName,
+  }) async {
+    try {
+      print('');
+      print('========================================');
+      print('PLACE ORDER REQUEST');
+      print('========================================');
+
+      if (products.isEmpty) {
+        throw Exception(
+          'Please select at least one product',
+        );
+      }
+
+      // --------------------------------------------------------
+      // CALCULATE TOTALS
+      // --------------------------------------------------------
+
+      int totalQuantity = 0;
+      double grandTotal = 0.0;
+
+      final List<Map<String, dynamic>> apiProducts = [];
+
+      for (final product in products) {
+        final int quantity =
+            int.tryParse(
+                  '${product['quantity'] ?? 0}',
+                ) ??
+                0;
+
+        final double price =
+            double.tryParse(
+                  '${product['price'] ?? 0}',
+                ) ??
+                0.0;
+
+        final double totalAmount =
+            quantity * price;
+
+        totalQuantity += quantity;
+        grandTotal += totalAmount;
+
+        final Map<String, dynamic> apiProduct = {
+          'case_wise_qty':
+              product['caseWiseQty'] ?? '',
+
+          'current_date':
+              product['currentDate'] ?? '',
+
+          'dealer_id':
+              dealerId,
+
+          'fld_basic_rate':
+              product['basicRate'] ?? '0.00',
+
+          'fld_from_date':
+              product['fromDate'] ?? '',
+
+          'fld_gst_per':
+              product['gstPercentage'] ?? 0,
+
+          'fld_mrp':
+              product['mrp'] ?? '0.00',
+
+          'fld_order_qty_flag':
+              product['orderQtyFlag'] ?? '',
+
+          'fld_packing':
+              product['packing'] ?? 0,
+
+          'fld_product_details_id':
+              product['productDetailsId'] ?? 0,
+
+          'fld_product_id':
+              product['productId'] ?? 0,
+
+          'fld_product_name':
+              product['productName'] ?? '',
+
+          'fld_qty':
+              quantity,
+
+          'fld_rate_with_gst':
+              product['rateWithGst'] ?? price,
+
+          'fld_statewise_det_id':
+              product['statewiseDetId'] ?? 0,
+
+          'fld_to_date':
+              product['toDate'] ?? '',
+
+          'fld_unit':
+              product['unit'] ?? '',
+
+          'fld_unit_id':
+              product['unitId'] ?? 0,
+
+          'fld_units_per_case':
+              product['unitsPerCase'] ?? 0,
+
+          'id':
+              product['id'] ?? 0,
+
+          'isProductSelected':
+              product['isProductSelected'] ?? true,
+
+          'totalAmount':
+              totalAmount.toStringAsFixed(2),
+        };
+
+        apiProducts.add(apiProduct);
+
+        print(
+          'SUBMIT DATA: $apiProduct',
+        );
+      }
+
+      final String productJsonString =
+          jsonEncode(apiProducts);
+
+      // --------------------------------------------------------
+      // FORM DATA
+      // --------------------------------------------------------
+
+      final FormData formData = FormData();
+
+      formData.fields.add(
+        MapEntry(
+          'productJsonString',
+          productJsonString,
+        ),
+      );
+
+      formData.fields.add(
+        MapEntry(
+          'totalQuantity',
+          totalQuantity.toString(),
+        ),
+      );
+
+      formData.fields.add(
+        MapEntry(
+          'empId',
+          userId.toString(),
+        ),
+      );
+
+      formData.fields.add(
+        MapEntry(
+          'dealerId',
+          dealerId,
+        ),
+      );
+
+      formData.fields.add(
+        const MapEntry(
+          'SchemeId',
+          '',
+        ),
+      );
+
+      formData.fields.add(
+        MapEntry(
+          'godownId',
+          godownId,
+        ),
+      );
+
+      formData.fields.add(
+        MapEntry(
+          'grandTotal',
+          grandTotal.toStringAsFixed(2),
+        ),
+      );
+
+      formData.fields.add(
+        const MapEntry(
+          'orderTypeId',
+          '',
+        ),
+      );
+
+      formData.fields.add(
+        const MapEntry(
+          'orderType',
+          '',
+        ),
+      );
+
+      formData.fields.add(
+        MapEntry(
+          'remark',
+          remark,
+        ),
+      );
+
+      formData.fields.add(
+        const MapEntry(
+          'subdealerId',
+          '',
+        ),
+      );
+
+      // --------------------------------------------------------
+      // SIGNATURE FILENAME
+      // --------------------------------------------------------
+
+      final String cleanSignatureFileName =
+          signatureFileName.trim();
+
+      if (cleanSignatureFileName.isEmpty) {
+        throw Exception(
+          'Uploaded signature filename is empty',
+        );
+      }
+
+      // IMPORTANT:
+      // upload_sign already uploaded the actual file.
+      //
+      // Here we only send the returned filename.
+      formData.fields.add(
+        MapEntry(
+          'digitalSignature',
+          cleanSignatureFileName,
+        ),
+      );
+
+      print('');
+      print('SIGNATURE FOR PLACE ORDER');
+      print(
+        'Signature filename: '
+        '$cleanSignatureFileName',
+      );
+
+      // --------------------------------------------------------
+      // ORDER IMAGE
+      // --------------------------------------------------------
+
+      if (imagePaths.isEmpty ||
+          imagePaths.first.trim().isEmpty) {
+        throw Exception(
+          'Please select order image',
+        );
+      }
+
+      final String imagePath =
+          imagePaths.first.trim();
+
+      final File imageFile =
+          File(imagePath);
+
+      if (!await imageFile.exists()) {
+        throw Exception(
+          'Order image does not exist: $imagePath',
+        );
+      }
+
+      final int imageSize =
+          await imageFile.length();
+
+      if (imageSize <= 0) {
+        throw Exception(
+          'Order image file is empty',
+        );
+      }
+
+      final DateTime now =
+          DateTime.now();
+
+      final String formattedDate =
+          DateFormat(
+            'ddMMyyyy',
+          ).format(now);
+
+      final String timestamp =
+          (now.millisecondsSinceEpoch ~/ 1000)
+              .toString();
+
+      String extension = '.jpg';
+
+      if (imagePath.contains('.')) {
+        extension =
+            imagePath
+                .substring(
+                  imagePath.lastIndexOf('.'),
+                )
+                .toLowerCase();
+      }
+
+      final String orderImageFileName =
+          'OrderImage'
+          '${formattedDate}_'
+          '$timestamp'
+          '$extension';
+
+      final MultipartFile orderImage =
+          await MultipartFile.fromFile(
+        imageFile.path,
+        filename: orderImageFileName,
+      );
+
+      formData.files.add(
+        MapEntry(
+          'order_image',
+          orderImage,
+        ),
+      );
+
+      print('');
+      print('ORDER IMAGE');
+      print(
+        'Path: ${imageFile.path}',
+      );
+      print(
+        'Filename: $orderImageFileName',
+      );
+      print(
+        'Size: $imageSize bytes',
+      );
+
+      // --------------------------------------------------------
+      // DEBUG FORM FIELDS
+      // --------------------------------------------------------
+
+      print('');
+      print('========================================');
+      print('PLACE ORDER FORM FIELDS');
+      print('========================================');
+
+      for (final field in formData.fields) {
+        print(
+          '${field.key}: ${field.value}',
+        );
+      }
+
+      // --------------------------------------------------------
+      // DEBUG FILES
+      // --------------------------------------------------------
+
+      print('');
+      print('========================================');
+      print('PLACE ORDER FILES');
+      print('========================================');
+
+      for (final file in formData.files) {
+        print(
+          'FIELD: ${file.key}',
+        );
+
+        print(
+          'FILE: ${file.value.filename}',
+        );
+
+        print(
+          'TYPE: ${file.value.contentType}',
+        );
+      }
+
+      // --------------------------------------------------------
+      // API
+      // --------------------------------------------------------
+
+      print('');
+      print('========================================');
+      print('CALLING PLACE ORDER API');
+      print('========================================');
+
+      print(
+        'URL: '
+        '${ApiClient.baseUrl}${ApiClient.placeOrder}',
+      );
+
+      final response =
+          await dioClient.client.post(
+        ApiClient.placeOrder,
+        data: formData,
+        options: Options(
+          responseType: ResponseType.plain,
+        ),
+      );
+
+      // --------------------------------------------------------
+      // RESPONSE
+      // --------------------------------------------------------
+
+      print('');
+      print('========================================');
+      print('PLACE ORDER RESPONSE');
+      print('========================================');
+
+      print(
+        'Status Code: ${response.statusCode}',
+      );
+
+      print(
+        'Response: ${response.data}',
+      );
+
+      if (response.statusCode == 200) {
+        print('PLACE ORDER SUCCESS');
+        return;
+      }
+
+      throw Exception(
+        'Place order failed. '
+        'Status code: ${response.statusCode}',
+      );
+    } on DioException catch (e) {
+      print('');
+      print('========================================');
+      print('PLACE ORDER DIO ERROR');
+      print('========================================');
+
+      print(
+        'Message: ${e.message}',
+      );
+
+      print(
+        'Status Code: '
+        '${e.response?.statusCode}',
+      );
+
+      print(
+        'Response: '
+        '${e.response?.data}',
+      );
+
+      throw Exception(
+        e.response?.data?.toString() ??
+            e.message ??
+            'Place order API failed',
+      );
+    } catch (e) {
+      print('');
+      print('========================================');
+      print('PLACE ORDER ERROR');
+      print('========================================');
+
+      print(e);
+
+      rethrow;
+    }
   }
 
-  // =========================================================
-  // DECODE
-  // =========================================================
+  // ============================================================
+  // RESPONSE DECODER
+  // ============================================================
 
-  dynamic _decode(dynamic data) {
-    if (data is String) {
-      final value = data.trim();
+  dynamic _decodeResponse(dynamic responseData) {
+    if (responseData == null) {
+      return null;
+    }
+
+    if (responseData is Map ||
+        responseData is List) {
+      return responseData;
+    }
+
+    if (responseData is String) {
+      final String value =
+          responseData.trim();
 
       if (value.isEmpty) {
-        return [];
+        return null;
       }
 
-      return jsonDecode(value);
-    }
-
-    return data;
-  }
-
-  // =========================================================
-  // EXTRACT LIST
-  // =========================================================
-
-  List<dynamic> _extractList(dynamic json) {
-    if (json is List) {
-      return json;
-    }
-
-    if (json is Map<String, dynamic>) {
-      if (json['data'] is List) {
-        return json['data'];
-      }
-
-      if (json['result'] is List) {
-        return json['result'];
-      }
-
-      if (json['response'] is List) {
-        return json['response'];
+      try {
+        return jsonDecode(value);
+      } catch (_) {
+        return value;
       }
     }
 
-    return [];
+    return responseData;
   }
 }

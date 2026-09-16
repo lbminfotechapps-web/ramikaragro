@@ -15,13 +15,56 @@ class OrderPreviewSheet extends StatelessWidget {
   final GodownEntity godown;
   final CategoryEntity category;
   final List<ProductEntity> products;
-  final Map<String, int> quantities;
+
+  // ============================================================
+  // PACKING / RATE-WISE QUANTITIES
+  //
+  // productId -> productDetailsId -> quantity
+  //
+  // Example:
+  //
+  // {
+  //   "1": {
+  //     "1": 2,
+  //     "2": 3,
+  //   },
+  //   "4": {
+  //     "5": 1,
+  //     "6": 4,
+  //   },
+  // }
+  //
+  // Product 1:
+  //   Details 1 -> Qty 2
+  //   Details 2 -> Qty 3
+  //
+  // Product 4:
+  //   Details 5 -> Qty 1
+  //   Details 6 -> Qty 4
+  // ============================================================
+
+  final Map<String, Map<String, int>> packingQuantities;
 
   // ============================================================
   // SELECTED PRODUCT RATES
-  // productId -> selected ProductRateEntity
+  //
+  // productId -> multiple selected ProductRateEntity
+  //
+  // Example:
+  //
+  // {
+  //   "1": [
+  //     rate(5 KG, 200),
+  //     rate(10 KG, 380),
+  //   ],
+  //   "4": [
+  //     rate(1 KG, 350),
+  //     rate(5 KG, 600),
+  //   ],
+  // }
   // ============================================================
-  final Map<String, ProductRateEntity> selectedRates;
+
+  final Map<String, List<ProductRateEntity>> selectedRates;
 
   final String? imagePath;
   final Uint8List? signatureBytes;
@@ -34,7 +77,7 @@ class OrderPreviewSheet extends StatelessWidget {
     required this.godown,
     required this.category,
     required this.products,
-    required this.quantities,
+    required this.packingQuantities,
     required this.selectedRates,
     required this.imagePath,
     required this.signatureBytes,
@@ -44,41 +87,87 @@ class OrderPreviewSheet extends StatelessWidget {
 
   // ============================================================
   // TOTAL QUANTITY
+  //
+  // Calculates quantity from EVERY selected packing/rate.
+  //
+  // Example:
+  //
+  // 5 KG  -> 2
+  // 10 KG -> 3
+  // 1 KG  -> 4
+  //
+  // Total = 9
   // ============================================================
 
   int get totalQuantity {
-    return products.fold<int>(
-      0,
-      (total, product) {
-        return total + (quantities[product.id] ?? 0);
-      },
-    );
+    int total = 0;
+
+    for (final product in products) {
+      final String productId = product.id.toString();
+
+      final Map<String, int> productQuantities =
+          packingQuantities[productId] ?? <String, int>{};
+
+      for (final int quantity in productQuantities.values) {
+        total += quantity;
+      }
+    }
+
+    return total;
   }
 
   // ============================================================
   // TOTAL AMOUNT
+  //
+  // IMPORTANT:
+  // Each selected rate uses its OWN quantity.
+  //
+  // Example:
+  //
+  // 5 KG  ₹200 × 2 = ₹400
+  // 10 KG ₹380 × 3 = ₹1140
+  //
+  // Product total = ₹1540
   // ============================================================
 
   double get totalAmount {
-    return products.fold<double>(
-      0,
-      (total, product) {
-        final quantity = quantities[product.id] ?? 0;
+    double total = 0.0;
 
-        final rate = selectedRates[product.id.toString()];
+    for (final product in products) {
+      final String productId = product.id.toString();
 
-        final price = rate?.price ?? 0;
+      final List<ProductRateEntity> rates =
+          selectedRates[productId] ?? <ProductRateEntity>[];
 
-        return total + (price * quantity);
-      },
-    );
+      final Map<String, int> productQuantities =
+          packingQuantities[productId] ?? <String, int>{};
+
+      for (final rate in rates) {
+        final String productDetailsId =
+            rate.productDetailsId.toString();
+
+        final int quantity =
+            productQuantities[productDetailsId] ?? 1;
+
+        final double price = rate.price.toDouble();
+
+        total += price * quantity;
+      }
+    }
+
+    return total;
   }
+
+  // ============================================================
+  // BUILD
+  // ============================================================
 
   @override
   Widget build(BuildContext context) {
     return Container(
       constraints: BoxConstraints(
-        maxHeight: MediaQuery.of(context).size.height * 0.93,
+        maxHeight:
+            MediaQuery.of(context).size.height * 0.93,
       ),
       decoration: BoxDecoration(
         color: AppColors.background,
@@ -104,7 +193,8 @@ class OrderPreviewSheet extends StatelessWidget {
                 20.h,
               ),
               child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+                crossAxisAlignment:
+                    CrossAxisAlignment.start,
                 children: [
                   // ==================================================
                   // DEALER
@@ -155,7 +245,8 @@ class OrderPreviewSheet extends StatelessWidget {
                         padding: EdgeInsets.only(
                           bottom: 10.h,
                         ),
-                        child: _buildProductCard(product),
+                        child:
+                            _buildProductCard(product),
                       ),
                     ),
 
@@ -268,7 +359,8 @@ class OrderPreviewSheet extends StatelessWidget {
             width: 44.w,
             decoration: BoxDecoration(
               color: AppColors.lightGreen,
-              borderRadius: BorderRadius.circular(14.r),
+              borderRadius:
+                  BorderRadius.circular(14.r),
             ),
             child: Icon(
               Icons.receipt_long_rounded,
@@ -281,7 +373,8 @@ class OrderPreviewSheet extends StatelessWidget {
 
           Expanded(
             child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+              crossAxisAlignment:
+                  CrossAxisAlignment.start,
               children: [
                 Text(
                   'Order Preview',
@@ -291,9 +384,7 @@ class OrderPreviewSheet extends StatelessWidget {
                     color: AppColors.textPrimary,
                   ),
                 ),
-
                 SizedBox(height: 2.h),
-
                 Text(
                   'Review your order before submitting',
                   style: TextStyle(
@@ -334,9 +425,7 @@ class OrderPreviewSheet extends StatelessWidget {
           size: 18.sp,
           color: AppColors.primary,
         ),
-
         SizedBox(width: 7.w),
-
         Text(
           title,
           style: TextStyle(
@@ -359,13 +448,15 @@ class OrderPreviewSheet extends StatelessWidget {
       padding: EdgeInsets.all(14.w),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(16.r),
+        borderRadius:
+            BorderRadius.circular(16.r),
         border: Border.all(
           color: AppColors.border,
         ),
       ),
       child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
+        crossAxisAlignment:
+            CrossAxisAlignment.start,
         children: [
           Container(
             height: 48.w,
@@ -385,12 +476,14 @@ class OrderPreviewSheet extends StatelessWidget {
 
           Expanded(
             child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+              crossAxisAlignment:
+                  CrossAxisAlignment.start,
               children: [
                 Text(
                   dealer.name,
                   maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
+                  overflow:
+                      TextOverflow.ellipsis,
                   style: TextStyle(
                     fontSize: 15.sp,
                     fontWeight: FontWeight.w800,
@@ -398,7 +491,9 @@ class OrderPreviewSheet extends StatelessWidget {
                   ),
                 ),
 
-                if (dealer.mobile.trim().isNotEmpty) ...[
+                if (dealer.mobile
+                    .trim()
+                    .isNotEmpty) ...[
                   SizedBox(height: 5.h),
 
                   Row(
@@ -406,18 +501,19 @@ class OrderPreviewSheet extends StatelessWidget {
                       Icon(
                         Icons.phone_outlined,
                         size: 14.sp,
-                        color: AppColors.textSecondary,
+                        color:
+                            AppColors.textSecondary,
                       ),
-
                       SizedBox(width: 5.w),
-
                       Expanded(
                         child: Text(
                           dealer.mobile,
-                          overflow: TextOverflow.ellipsis,
+                          overflow:
+                              TextOverflow.ellipsis,
                           style: TextStyle(
                             fontSize: 12.sp,
-                            color: AppColors.textSecondary,
+                            color:
+                                AppColors.textSecondary,
                           ),
                         ),
                       ),
@@ -425,7 +521,9 @@ class OrderPreviewSheet extends StatelessWidget {
                   ),
                 ],
 
-                if (dealer.address.trim().isNotEmpty) ...[
+                if (dealer.address
+                    .trim()
+                    .isNotEmpty) ...[
                   SizedBox(height: 4.h),
 
                   Row(
@@ -435,19 +533,20 @@ class OrderPreviewSheet extends StatelessWidget {
                       Icon(
                         Icons.location_on_outlined,
                         size: 14.sp,
-                        color: AppColors.textSecondary,
+                        color:
+                            AppColors.textSecondary,
                       ),
-
                       SizedBox(width: 5.w),
-
                       Expanded(
                         child: Text(
                           dealer.address,
                           maxLines: 2,
-                          overflow: TextOverflow.ellipsis,
+                          overflow:
+                              TextOverflow.ellipsis,
                           style: TextStyle(
                             fontSize: 12.sp,
-                            color: AppColors.textSecondary,
+                            color:
+                                AppColors.textSecondary,
                           ),
                         ),
                       ),
@@ -472,13 +571,15 @@ class OrderPreviewSheet extends StatelessWidget {
       padding: EdgeInsets.all(14.w),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(16.r),
+        borderRadius:
+            BorderRadius.circular(16.r),
         border: Border.all(
           color: AppColors.border,
         ),
       ),
       child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
+        crossAxisAlignment:
+            CrossAxisAlignment.start,
         children: [
           Expanded(
             child: _infoItem(
@@ -496,7 +597,8 @@ class OrderPreviewSheet extends StatelessWidget {
 
           Expanded(
             child: Padding(
-              padding: EdgeInsets.only(left: 14.w),
+              padding:
+                  EdgeInsets.only(left: 14.w),
               child: _infoItem(
                 icon: Icons.category_outlined,
                 label: 'Category',
@@ -519,7 +621,8 @@ class OrderPreviewSheet extends StatelessWidget {
     required String value,
   }) {
     return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
+      crossAxisAlignment:
+          CrossAxisAlignment.start,
       children: [
         Icon(
           icon,
@@ -557,35 +660,69 @@ class OrderPreviewSheet extends StatelessWidget {
   // PRODUCT CARD
   // ============================================================
 
-  Widget _buildProductCard(ProductEntity product) {
-    final quantity = quantities[product.id] ?? 0;
+  Widget _buildProductCard(
+    ProductEntity product,
+  ) {
+    final String productId =
+        product.id.toString();
 
-    // ------------------------------------------------------------
-    // GET SELECTED RATE FOR THIS PRODUCT
-    // ------------------------------------------------------------
+    // ==========================================================
+    // SELECTED RATES
+    // ==========================================================
 
-    final rate = selectedRates[product.id.toString()];
+    final List<ProductRateEntity> rates =
+        selectedRates[productId] ??
+            <ProductRateEntity>[];
 
-    // ------------------------------------------------------------
-    // USE SELECTED API RATE
-    // ------------------------------------------------------------
+    // ==========================================================
+    // RATE-WISE QUANTITIES
+    // ==========================================================
 
-    final price = rate?.price ?? 0;
+    final Map<String, int> productQuantities =
+        packingQuantities[productId] ??
+            <String, int>{};
 
-    final productTotal = price * quantity;
+    // ==========================================================
+    // PRODUCT TOTAL QUANTITY
+    // ==========================================================
+
+    int productTotalQuantity = 0;
+
+    // ==========================================================
+    // PRODUCT TOTAL AMOUNT
+    // ==========================================================
+
+    double productTotal = 0.0;
+
+    for (final rate in rates) {
+      final String productDetailsId =
+          rate.productDetailsId.toString();
+
+      final int quantity =
+          productQuantities[productDetailsId] ?? 1;
+
+      final double price =
+          rate.price.toDouble();
+
+      productTotalQuantity += quantity;
+
+      productTotal += price * quantity;
+    }
 
     return Container(
       width: double.infinity,
       padding: EdgeInsets.all(12.w),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(16.r),
+        borderRadius:
+            BorderRadius.circular(16.r),
         border: Border.all(
           color: AppColors.border,
         ),
       ),
       child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
+        crossAxisAlignment:
+            CrossAxisAlignment.start,
         children: [
           // ----------------------------------------------------
           // PRODUCT IMAGE
@@ -596,19 +733,25 @@ class OrderPreviewSheet extends StatelessWidget {
             width: 62.w,
             decoration: BoxDecoration(
               color: AppColors.lightGreen,
-              borderRadius: BorderRadius.circular(12.r),
+              borderRadius:
+                  BorderRadius.circular(12.r),
             ),
-            child: product.image.trim().isNotEmpty
+            child: product.image
+                    .trim()
+                    .isNotEmpty
                 ? ClipRRect(
                     borderRadius:
                         BorderRadius.circular(12.r),
                     child: Image.network(
                       product.image,
                       fit: BoxFit.cover,
-                      errorBuilder: (_, __, ___) {
+                      errorBuilder:
+                          (_, __, ___) {
                         return Icon(
-                          Icons.inventory_2_outlined,
-                          color: AppColors.primary,
+                          Icons
+                              .inventory_2_outlined,
+                          color:
+                              AppColors.primary,
                           size: 25.sp,
                         );
                       },
@@ -629,12 +772,18 @@ class OrderPreviewSheet extends StatelessWidget {
 
           Expanded(
             child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+              crossAxisAlignment:
+                  CrossAxisAlignment.start,
               children: [
+                // ==================================================
+                // PRODUCT NAME
+                // ==================================================
+
                 Text(
                   product.name,
                   maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
+                  overflow:
+                      TextOverflow.ellipsis,
                   style: TextStyle(
                     fontSize: 14.sp,
                     fontWeight: FontWeight.w700,
@@ -649,22 +798,28 @@ class OrderPreviewSheet extends StatelessWidget {
                 // ==================================================
 
                 Container(
-                  padding: EdgeInsets.symmetric(
+                  padding:
+                      EdgeInsets.symmetric(
                     horizontal: 7.w,
                     vertical: 3.h,
                   ),
                   decoration: BoxDecoration(
-                    color: AppColors.lightGreen,
+                    color:
+                        AppColors.lightGreen,
                     borderRadius:
-                        BorderRadius.circular(6.r),
+                        BorderRadius.circular(
+                      6.r,
+                    ),
                   ),
                   child: Row(
-                    mainAxisSize: MainAxisSize.min,
+                    mainAxisSize:
+                        MainAxisSize.min,
                     children: [
                       Icon(
                         Icons.category_outlined,
                         size: 12.sp,
-                        color: AppColors.primary,
+                        color:
+                            AppColors.primary,
                       ),
 
                       SizedBox(width: 4.w),
@@ -677,8 +832,10 @@ class OrderPreviewSheet extends StatelessWidget {
                               TextOverflow.ellipsis,
                           style: TextStyle(
                             fontSize: 10.sp,
-                            fontWeight: FontWeight.w700,
-                            color: AppColors.primary,
+                            fontWeight:
+                                FontWeight.w700,
+                            color:
+                                AppColors.primary,
                           ),
                         ),
                       ),
@@ -686,86 +843,103 @@ class OrderPreviewSheet extends StatelessWidget {
                   ),
                 ),
 
+                SizedBox(height: 8.h),
+
+                // ==================================================
+                // ALL SELECTED RATES
+                // ==================================================
+
+                if (rates.isNotEmpty)
+                  Column(
+                    crossAxisAlignment:
+                        CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Selected Rates',
+                        style: TextStyle(
+                          fontSize: 10.sp,
+                          fontWeight:
+                              FontWeight.w700,
+                          color:
+                              AppColors.textSecondary,
+                        ),
+                      ),
+
+                      SizedBox(height: 5.h),
+
+                      ...rates.map(
+                        (rate) {
+                          final String
+                              productDetailsId =
+                              rate.productDetailsId
+                                  .toString();
+
+                          final int quantity =
+                              productQuantities[
+                                      productDetailsId] ??
+                                  1;
+
+                          return _buildRateRow(
+                            rate: rate,
+                            quantity: quantity,
+                          );
+                        },
+                      ),
+                    ],
+                  ),
+
                 SizedBox(height: 7.h),
 
                 // ==================================================
-                // SELECTED PACKING
-                // ==================================================
-
-                if (rate != null)
-                  Container(
-                    margin: EdgeInsets.only(bottom: 6.h),
-                    padding: EdgeInsets.symmetric(
-                      horizontal: 8.w,
-                      vertical: 4.h,
-                    ),
-                    decoration: BoxDecoration(
-                      color: Colors.green.shade50,
-                      borderRadius:
-                          BorderRadius.circular(7.r),
-                      border: Border.all(
-                        color: Colors.green.shade100,
-                      ),
-                    ),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Icon(
-                          Icons.inventory_2_outlined,
-                          size: 12.sp,
-                          color: AppColors.primary,
-                        ),
-
-                        SizedBox(width: 4.w),
-
-                        Text(
-                          rate.displayPacking,
-                          style: TextStyle(
-                            fontSize: 10.sp,
-                            fontWeight: FontWeight.w700,
-                            color: AppColors.primary,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-
-                // ==================================================
-                // QUANTITY
+                // TOTAL QUANTITY
                 // ==================================================
 
                 Row(
                   children: [
                     Text(
-                      'Qty: $quantity',
+                      'Qty: $productTotalQuantity',
                       style: TextStyle(
                         fontSize: 12.sp,
-                        fontWeight: FontWeight.w700,
-                        color: AppColors.primary,
+                        fontWeight:
+                            FontWeight.w700,
+                        color:
+                            AppColors.primary,
                       ),
                     ),
 
-                    if (rate != null &&
-                        rate.unitsPerCase.trim().isNotEmpty) ...[
+                    // ------------------------------------------------
+                    // DISPLAY CASE INFO
+                    // ------------------------------------------------
+
+                    if (rates.isNotEmpty &&
+                        rates.first.unitsPerCase
+                            .trim()
+                            .isNotEmpty) ...[
                       SizedBox(width: 8.w),
 
                       Container(
-                        padding: EdgeInsets.symmetric(
+                        padding:
+                            EdgeInsets.symmetric(
                           horizontal: 6.w,
                           vertical: 2.h,
                         ),
-                        decoration: BoxDecoration(
-                          color: Colors.grey.shade100,
+                        decoration:
+                            BoxDecoration(
+                          color:
+                              Colors.grey.shade100,
                           borderRadius:
-                              BorderRadius.circular(5.r),
+                              BorderRadius.circular(
+                            5.r,
+                          ),
                         ),
                         child: Text(
-                          rate.displayCase,
+                          rates.first.displayCase,
                           style: TextStyle(
                             fontSize: 10.sp,
-                            fontWeight: FontWeight.w600,
-                            color:
-                                AppColors.textSecondary,
+                            fontWeight:
+                                FontWeight.w600,
+                            color: AppColors
+                                .textSecondary,
                           ),
                         ),
                       ),
@@ -779,33 +953,13 @@ class OrderPreviewSheet extends StatelessWidget {
           SizedBox(width: 8.w),
 
           // ----------------------------------------------------
-          // PRICE
+          // PRODUCT TOTAL
           // ----------------------------------------------------
 
           Column(
-            crossAxisAlignment: CrossAxisAlignment.end,
+            crossAxisAlignment:
+                CrossAxisAlignment.end,
             children: [
-              Text(
-                '₹${price.toStringAsFixed(2)}',
-                style: TextStyle(
-                  fontSize: 11.sp,
-                  fontWeight: FontWeight.w600,
-                  color: AppColors.textSecondary,
-                ),
-              ),
-
-              SizedBox(height: 2.h),
-
-              Text(
-                '× $quantity',
-                style: TextStyle(
-                  fontSize: 10.sp,
-                  color: AppColors.textSecondary,
-                ),
-              ),
-
-              SizedBox(height: 4.h),
-
               Text(
                 '₹${productTotal.toStringAsFixed(2)}',
                 style: TextStyle(
@@ -821,10 +975,128 @@ class OrderPreviewSheet extends StatelessWidget {
                 'Total',
                 style: TextStyle(
                   fontSize: 9.sp,
-                  color: AppColors.textSecondary,
+                  color:
+                      AppColors.textSecondary,
                 ),
               ),
             ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  // ============================================================
+  // RATE ROW
+  // ============================================================
+
+  Widget _buildRateRow({
+    required ProductRateEntity rate,
+    required int quantity,
+  }) {
+    final double price =
+        rate.price.toDouble();
+
+    final double total =
+        price * quantity;
+
+    return Container(
+      width: double.infinity,
+      margin:
+          EdgeInsets.only(bottom: 5.h),
+      padding: EdgeInsets.symmetric(
+        horizontal: 8.w,
+        vertical: 7.h,
+      ),
+      decoration: BoxDecoration(
+        color: AppColors.lightGreen
+            .withOpacity(0.45),
+        borderRadius:
+            BorderRadius.circular(8.r),
+        border: Border.all(
+          color: AppColors.primary
+              .withOpacity(0.08),
+        ),
+      ),
+      child: Row(
+        children: [
+          // ----------------------------------------------------
+          // PACKING
+          // ----------------------------------------------------
+
+          Expanded(
+            child: Row(
+              children: [
+                Icon(
+                  Icons.inventory_2_outlined,
+                  size: 12.sp,
+                  color: AppColors.primary,
+                ),
+
+                SizedBox(width: 5.w),
+
+                Expanded(
+                  child: Text(
+                    rate.displayPacking,
+                    maxLines: 1,
+                    overflow:
+                        TextOverflow.ellipsis,
+                    style: TextStyle(
+                      fontSize: 10.sp,
+                      fontWeight:
+                          FontWeight.w700,
+                      color:
+                          AppColors.primary,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+
+          SizedBox(width: 5.w),
+
+          // ----------------------------------------------------
+          // RATE
+          // ----------------------------------------------------
+
+          Text(
+            '₹${price.toStringAsFixed(2)}',
+            style: TextStyle(
+              fontSize: 10.sp,
+              fontWeight: FontWeight.w800,
+              color: AppColors.primary,
+            ),
+          ),
+
+          SizedBox(width: 6.w),
+
+          // ----------------------------------------------------
+          // QUANTITY
+          // ----------------------------------------------------
+
+          Text(
+            '× $quantity',
+            style: TextStyle(
+              fontSize: 9.sp,
+              color:
+                  AppColors.textSecondary,
+            ),
+          ),
+
+          SizedBox(width: 6.w),
+
+          // ----------------------------------------------------
+          // RATE TOTAL
+          // ----------------------------------------------------
+
+          Text(
+            '₹${total.toStringAsFixed(2)}',
+            style: TextStyle(
+              fontSize: 10.sp,
+              fontWeight: FontWeight.w800,
+              color: AppColors.textPrimary,
+            ),
           ),
         ],
       ),
@@ -841,7 +1113,8 @@ class OrderPreviewSheet extends StatelessWidget {
       padding: EdgeInsets.all(20.w),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(16.r),
+        borderRadius:
+            BorderRadius.circular(16.r),
         border: Border.all(
           color: AppColors.border,
         ),
@@ -851,7 +1124,8 @@ class OrderPreviewSheet extends StatelessWidget {
           Icon(
             Icons.inventory_2_outlined,
             size: 40.sp,
-            color: AppColors.textSecondary,
+            color:
+                AppColors.textSecondary,
           ),
 
           SizedBox(height: 8.h),
@@ -861,7 +1135,8 @@ class OrderPreviewSheet extends StatelessWidget {
             style: TextStyle(
               fontSize: 14.sp,
               fontWeight: FontWeight.w700,
-              color: AppColors.textPrimary,
+              color:
+                  AppColors.textPrimary,
             ),
           ),
         ],
@@ -881,15 +1156,18 @@ class OrderPreviewSheet extends StatelessWidget {
         gradient: LinearGradient(
           colors: [
             AppColors.primary,
-            AppColors.primary.withOpacity(0.88),
+            AppColors.primary
+                .withOpacity(0.88),
           ],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
-        borderRadius: BorderRadius.circular(18.r),
+        borderRadius:
+            BorderRadius.circular(18.r),
         boxShadow: [
           BoxShadow(
-            color: AppColors.primary.withOpacity(0.18),
+            color: AppColors.primary
+                .withOpacity(0.18),
             blurRadius: 12,
             offset: const Offset(0, 5),
           ),
@@ -901,23 +1179,28 @@ class OrderPreviewSheet extends StatelessWidget {
             children: [
               Expanded(
                 child: _summaryItem(
-                  icon: Icons.inventory_2_outlined,
+                  icon:
+                      Icons.inventory_2_outlined,
                   label: 'Total Products',
-                  value: '${products.length}',
+                  value:
+                      '${products.length}',
                 ),
               ),
 
               Container(
                 width: 1,
                 height: 42.h,
-                color: Colors.white.withOpacity(0.25),
+                color: Colors.white
+                    .withOpacity(0.25),
               ),
 
               Expanded(
                 child: _summaryItem(
-                  icon: Icons.format_list_numbered,
+                  icon: Icons
+                      .format_list_numbered,
                   label: 'Total Quantity',
-                  value: '$totalQuantity',
+                  value:
+                      '$totalQuantity',
                 ),
               ),
             ],
@@ -928,7 +1211,8 @@ class OrderPreviewSheet extends StatelessWidget {
           Container(
             height: 1,
             width: double.infinity,
-            color: Colors.white.withOpacity(0.20),
+            color: Colors.white
+                .withOpacity(0.20),
           ),
 
           SizedBox(height: 14.h),
@@ -939,12 +1223,16 @@ class OrderPreviewSheet extends StatelessWidget {
                 height: 42.w,
                 width: 42.w,
                 decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.15),
+                  color: Colors.white
+                      .withOpacity(0.15),
                   borderRadius:
-                      BorderRadius.circular(12.r),
+                      BorderRadius.circular(
+                    12.r,
+                  ),
                 ),
                 child: Icon(
-                  Icons.currency_rupee_rounded,
+                  Icons
+                      .currency_rupee_rounded,
                   color: Colors.white,
                   size: 22.sp,
                 ),
@@ -961,8 +1249,10 @@ class OrderPreviewSheet extends StatelessWidget {
                       'Grand Total Amount',
                       style: TextStyle(
                         fontSize: 11.sp,
-                        color:
-                            Colors.white.withOpacity(0.85),
+                        color: Colors.white
+                            .withOpacity(
+                          0.85,
+                        ),
                       ),
                     ),
 
@@ -972,7 +1262,8 @@ class OrderPreviewSheet extends StatelessWidget {
                       '₹${totalAmount.toStringAsFixed(2)}',
                       style: TextStyle(
                         fontSize: 22.sp,
-                        fontWeight: FontWeight.w900,
+                        fontWeight:
+                            FontWeight.w900,
                         color: Colors.white,
                       ),
                     ),
@@ -996,7 +1287,8 @@ class OrderPreviewSheet extends StatelessWidget {
     required String value,
   }) {
     return Padding(
-      padding: EdgeInsets.symmetric(horizontal: 6.w),
+      padding:
+          EdgeInsets.symmetric(horizontal: 6.w),
       child: Row(
         children: [
           Icon(
@@ -1015,11 +1307,12 @@ class OrderPreviewSheet extends StatelessWidget {
                 Text(
                   label,
                   maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
+                  overflow:
+                      TextOverflow.ellipsis,
                   style: TextStyle(
                     fontSize: 10.sp,
-                    color:
-                        Colors.white.withOpacity(0.80),
+                    color: Colors.white
+                        .withOpacity(0.80),
                   ),
                 ),
 
@@ -1029,7 +1322,8 @@ class OrderPreviewSheet extends StatelessWidget {
                   value,
                   style: TextStyle(
                     fontSize: 16.sp,
-                    fontWeight: FontWeight.w800,
+                    fontWeight:
+                        FontWeight.w800,
                     color: Colors.white,
                   ),
                 ),
@@ -1051,22 +1345,26 @@ class OrderPreviewSheet extends StatelessWidget {
       height: 170.h,
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(16.r),
+        borderRadius:
+            BorderRadius.circular(16.r),
         border: Border.all(
           color: AppColors.border,
         ),
       ),
       child: ClipRRect(
-        borderRadius: BorderRadius.circular(16.r),
+        borderRadius:
+            BorderRadius.circular(16.r),
         child: Image.file(
           File(imagePath!),
           fit: BoxFit.cover,
-          errorBuilder: (_, __, ___) {
+          errorBuilder:
+              (_, __, ___) {
             return Center(
               child: Icon(
                 Icons.broken_image_outlined,
                 size: 35.sp,
-                color: AppColors.textSecondary,
+                color:
+                    AppColors.textSecondary,
               ),
             );
           },
@@ -1086,13 +1384,15 @@ class OrderPreviewSheet extends StatelessWidget {
       padding: EdgeInsets.all(10.w),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(16.r),
+        borderRadius:
+            BorderRadius.circular(16.r),
         border: Border.all(
           color: AppColors.border,
         ),
       ),
       child: ClipRRect(
-        borderRadius: BorderRadius.circular(10.r),
+        borderRadius:
+            BorderRadius.circular(10.r),
         child: Image.memory(
           signatureBytes!,
           fit: BoxFit.contain,
@@ -1111,7 +1411,8 @@ class OrderPreviewSheet extends StatelessWidget {
       padding: EdgeInsets.all(14.w),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(16.r),
+        borderRadius:
+            BorderRadius.circular(16.r),
         border: Border.all(
           color: AppColors.border,
         ),
@@ -1131,7 +1432,9 @@ class OrderPreviewSheet extends StatelessWidget {
   // BOTTOM BUTTONS
   // ============================================================
 
-  Widget _buildBottomButtons(BuildContext context) {
+  Widget _buildBottomButtons(
+    BuildContext context,
+  ) {
     return Container(
       padding: EdgeInsets.fromLTRB(
         16.w,
@@ -1143,7 +1446,8 @@ class OrderPreviewSheet extends StatelessWidget {
         color: Colors.white,
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.08),
+            color:
+                Colors.black.withOpacity(0.08),
             blurRadius: 15,
             offset: const Offset(0, -4),
           ),
@@ -1162,7 +1466,8 @@ class OrderPreviewSheet extends StatelessWidget {
                 onPressed: () {
                   Navigator.pop(context);
                 },
-                style: OutlinedButton.styleFrom(
+                style:
+                    OutlinedButton.styleFrom(
                   minimumSize: Size(
                     double.infinity,
                     50.h,
@@ -1171,17 +1476,22 @@ class OrderPreviewSheet extends StatelessWidget {
                     color: AppColors.primary,
                     width: 1.2,
                   ),
-                  shape: RoundedRectangleBorder(
+                  shape:
+                      RoundedRectangleBorder(
                     borderRadius:
-                        BorderRadius.circular(14.r),
+                        BorderRadius.circular(
+                      14.r,
+                    ),
                   ),
                 ),
                 child: Text(
                   'Edit Order',
                   style: TextStyle(
                     fontSize: 14.sp,
-                    fontWeight: FontWeight.w700,
-                    color: AppColors.primary,
+                    fontWeight:
+                        FontWeight.w700,
+                    color:
+                        AppColors.primary,
                   ),
                 ),
               ),
@@ -1196,17 +1506,23 @@ class OrderPreviewSheet extends StatelessWidget {
             Expanded(
               child: ElevatedButton(
                 onPressed: onConfirm,
-                style: ElevatedButton.styleFrom(
+                style:
+                    ElevatedButton.styleFrom(
                   minimumSize: Size(
                     double.infinity,
                     50.h,
                   ),
-                  backgroundColor: AppColors.primary,
-                  foregroundColor: Colors.white,
+                  backgroundColor:
+                      AppColors.primary,
+                  foregroundColor:
+                      Colors.white,
                   elevation: 0,
-                  shape: RoundedRectangleBorder(
+                  shape:
+                      RoundedRectangleBorder(
                     borderRadius:
-                        BorderRadius.circular(14.r),
+                        BorderRadius.circular(
+                      14.r,
+                    ),
                   ),
                 ),
                 child: Row(
@@ -1214,7 +1530,8 @@ class OrderPreviewSheet extends StatelessWidget {
                       MainAxisAlignment.center,
                   children: [
                     Icon(
-                      Icons.check_circle_outline,
+                      Icons
+                          .check_circle_outline,
                       size: 19.sp,
                     ),
 
@@ -1224,7 +1541,8 @@ class OrderPreviewSheet extends StatelessWidget {
                       'Confirm Order',
                       style: TextStyle(
                         fontSize: 14.sp,
-                        fontWeight: FontWeight.w800,
+                        fontWeight:
+                            FontWeight.w800,
                       ),
                     ),
                   ],
