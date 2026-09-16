@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:demo/core/api_constant/api_client.dart';
 import 'package:demo/core/api_constant/dio_client.dart';
+import 'package:demo/features/dealer_visit/data/models/dealer_followup_list_model.dart';
 import 'package:demo/features/dealer_visit/data/models/visit_purpose_model.dart';
 import 'package:dio/dio.dart';
 
@@ -193,13 +194,13 @@ Future<List<PurposeModel>> getPurpose(String userId) async {
         .toList();
   }
 
-Future<List<PurposeModel>> getFollowupList(String userId) async {
+Future<List<DealerFollowupListModel>> getFollowupList(String outlet_id) async {
     final formData = FormData.fromMap({
-      'userId': userId,
+      'outlet_id': outlet_id,
   
     });
 
-    print('userid $userId');
+    print('outlet_id $outlet_id');
 
     final response = await dioClient.client.post(
       ApiClient.remark_list,
@@ -229,7 +230,7 @@ Future<List<PurposeModel>> getFollowupList(String userId) async {
 
     return result
         .whereType<Map>()
-        .map((item) => PurposeModel.fromJson(Map<String, dynamic>.from(item)))
+        .map((item) => DealerFollowupListModel.fromJson(Map<String, dynamic>.from(item)))
         .toList();
   }
 

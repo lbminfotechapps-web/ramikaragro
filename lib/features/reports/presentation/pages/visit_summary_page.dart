@@ -1,5 +1,6 @@
 import 'package:demo/core/router/app_router.dart';
 import 'package:demo/core/theme/app_colors.dart';
+import 'package:demo/core/utility/widgets/custom_appbar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -18,18 +19,14 @@ import '../widgets/visit_summary_empty.dart';
 class VisitSummaryPage extends StatefulWidget {
   final String userId;
 
-  const VisitSummaryPage({
-    super.key,
-    required this.userId,
-  });
+  const VisitSummaryPage({super.key, required this.userId});
 
   @override
   State<VisitSummaryPage> createState() => _VisitSummaryPageState();
 }
 
 class _VisitSummaryPageState extends State<VisitSummaryPage> {
-  final TextEditingController employeeController =
-      TextEditingController();
+  final TextEditingController employeeController = TextEditingController();
 
   DateTime? fromDate;
   DateTime? toDate;
@@ -76,13 +73,13 @@ class _VisitSummaryPageState extends State<VisitSummaryPage> {
     }
 
     context.read<VisitReportBloc>().add(
-          GetVisitReportEvent(
-            logUserId: widget.userId,
-            userId: widget.userId,
-            fromDate: _formatDateForApi(fromDate),
-            toDate: _formatDateForApi(toDate),
-          ),
-        );
+      GetVisitReportEvent(
+        logUserId: widget.userId,
+        userId: widget.userId,
+        fromDate: _formatDateForApi(fromDate),
+        toDate: _formatDateForApi(toDate),
+      ),
+    );
   }
 
   Future<void> _selectFromDate() async {
@@ -140,8 +137,7 @@ class _VisitSummaryPageState extends State<VisitSummaryPage> {
     }
 
     return reports.where((report) {
-      return report.status.toLowerCase() ==
-          selectedStatus.toLowerCase();
+      return report.status.toLowerCase() == selectedStatus.toLowerCase();
     }).toList();
   }
 
@@ -162,17 +158,11 @@ class _VisitSummaryPageState extends State<VisitSummaryPage> {
   }
 
   int _dealerVisits(List<VisitReport> reports) {
-    return reports.fold(
-      0,
-      (sum, item) => sum + _toInt(item.dealerVisit),
-    );
+    return reports.fold(0, (sum, item) => sum + _toInt(item.dealerVisit));
   }
 
   int _farmerVisits(List<VisitReport> reports) {
-    return reports.fold(
-      0,
-      (sum, item) => sum + _toInt(item.farmerVisit),
-    );
+    return reports.fold(0, (sum, item) => sum + _toInt(item.farmerVisit));
   }
 
   @override
@@ -180,51 +170,56 @@ class _VisitSummaryPageState extends State<VisitSummaryPage> {
     return Scaffold(
       backgroundColor: AppColors.backgroundColor,
 
-      appBar: AppBar(
-        elevation: 0,
-        centerTitle: true,
-        backgroundColor:  const Color(0xFF287A4B),
-        surfaceTintColor: Colors.white,
-
-        title: const Text(
-          'Visit Summary',
-          style: TextStyle(
-            color: AppColors.backgroundColor,
-            fontSize: 18,
-            fontWeight: FontWeight.w700,
-          ),
-        ),
-
-        leading: IconButton(
-          icon: const Icon(
-            Icons.arrow_back_ios_new,
-            size: 19,
-            color: AppColors.backgroundColor,
-          ),
-          onPressed: () {
-           context.go(AppRouter.home);
-          },
-        ),
-
-        actions: [
-          IconButton(
-            tooltip: 'Refresh',
-            icon: const Icon(
-              Icons.refresh_rounded,
-              color: AppColors.backgroundColor,
-            ),
-            onPressed: _loadReport,
-          ),
-        ],
+      appBar: CustomAppBar(
+        title: 'Visit Summary',
+        showBackButton: true,
+        actionIcon: Icons.refresh_rounded,
+        onBackTap: () => context.go(AppRouter.home),
+        onActionIconTap: _loadReport,
       ),
 
+      // AppBar(
+      //   elevation: 0,
+      //   centerTitle: true,
+      //   backgroundColor:  const Color(0xFF287A4B),
+      //   surfaceTintColor: Colors.white,
+
+      //   title: const Text(
+      //     'Visit Summary',
+      //     style: TextStyle(
+      //       color: AppColors.backgroundColor,
+      //       fontSize: 18,
+      //       fontWeight: FontWeight.w700,
+      //     ),
+      //   ),
+
+      //   leading: IconButton(
+      //     icon: const Icon(
+      //       Icons.arrow_back_ios_new,
+      //       size: 19,
+      //       color: AppColors.backgroundColor,
+      //     ),
+      //     onPressed: () {
+      //      context.go(AppRouter.home);
+      //     },
+      //   ),
+
+      //   actions: [
+      //     IconButton(
+      //       tooltip: 'Refresh',
+      //       icon: const Icon(
+      //         Icons.refresh_rounded,
+      //         color: AppColors.backgroundColor,
+      //       ),
+      //       onPressed: _loadReport,
+      //     ),
+      //   ],
+      // ),
       body: BlocBuilder<VisitReportBloc, VisitReportState>(
         builder: (context, state) {
           if (state.status == VisitReportStatus.loading) {
             return const Center(
-              child: CircularProgressIndicator(
-                color: Color(0xFF287A4B),
-              ),
+              child: CircularProgressIndicator(color: Color(0xFF287A4B)),
             );
           }
 
@@ -255,10 +250,7 @@ class _VisitSummaryPageState extends State<VisitSummaryPage> {
                     Text(
                       state.errorMessage ?? 'Unable to load report',
                       textAlign: TextAlign.center,
-                      style: const TextStyle(
-                        color: Colors.grey,
-                        fontSize: 13,
-                      ),
+                      style: const TextStyle(color: Colors.grey, fontSize: 13),
                     ),
 
                     const SizedBox(height: 18),
@@ -282,12 +274,8 @@ class _VisitSummaryPageState extends State<VisitSummaryPage> {
             },
             child: ListView(
               physics: const AlwaysScrollableScrollPhysics(),
-              padding: const EdgeInsets.fromLTRB(
-                14,
-                12,
-                14,
-                24,
-              ),
+              padding: const EdgeInsets.only(left: 16, right: 16),
+              //  padding: const EdgeInsets.fromLTRB(14, 12, 14, 24),
               children: [
                 /// FILTER
                 VisitSummaryFilter(
@@ -363,9 +351,7 @@ class _VisitSummaryPageState extends State<VisitSummaryPage> {
                   ...reports.map(
                     (report) => Padding(
                       padding: const EdgeInsets.only(bottom: 12),
-                      child: VisitSummaryCard(
-                        report: report,
-                      ),
+                      child: VisitSummaryCard(report: report),
                     ),
                   ),
               ],

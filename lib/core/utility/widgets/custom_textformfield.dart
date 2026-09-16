@@ -11,6 +11,8 @@ class CustomTextFormField extends StatelessWidget {
   final String? Function(String?)? validator;
   final bool enabled;
   final int maxLines;
+  final bool readOnly;
+  final VoidCallback? onTap;
 
   const CustomTextFormField({
     super.key,
@@ -24,6 +26,8 @@ class CustomTextFormField extends StatelessWidget {
     this.validator,
     this.enabled = true,
     this.maxLines = 1,
+    this.readOnly = false,
+    this.onTap,
   });
 
   @override
@@ -47,19 +51,15 @@ class CustomTextFormField extends StatelessWidget {
         validator: validator,
         enabled: enabled,
         maxLines: maxLines,
+        readOnly: readOnly,
+        onTap: onTap,
 
-        style: const TextStyle(
-          fontSize: 16,
-          color: Colors.black87,
-        ),
+        style: const TextStyle(fontSize: 16, color: Colors.black87),
 
         decoration: InputDecoration(
           hintText: hintText,
 
-          hintStyle: TextStyle(
-            color: Colors.grey.shade500,
-            fontSize: 17,
-          ),
+          hintStyle: TextStyle(color: Colors.grey.shade500, fontSize: 17),
 
           prefixIcon: Padding(
             padding: const EdgeInsets.all(10),
@@ -68,56 +68,40 @@ class CustomTextFormField extends StatelessWidget {
                 shape: BoxShape.circle,
                 color: Color(0xFFE4F4E9),
               ),
-              child: Icon(
-                prefixIcon,
-                color: Color(0xFF087C3A),
-                size: 22,
-              ),
+              child: Icon(prefixIcon, color: Color(0xFF087C3A), size: 22),
             ),
           ),
 
           suffixIcon: suffixIcon != null
               ? IconButton(
                   onPressed: onSuffixIconTap,
-                  icon: Icon(
-                    suffixIcon,
-                    color: Colors.grey.shade500,
-                  ),
+                  icon: Icon(suffixIcon, color: Colors.grey.shade500),
                 )
               : null,
 
           border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(22),
-            borderSide: BorderSide(
-              color: Colors.grey.shade200,
-            ),
+            borderRadius: BorderRadius.circular(10),
+            borderSide: BorderSide(color: Colors.grey.shade200),
           ),
 
           enabledBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(22),
-            borderSide: BorderSide(
-              color: Colors.grey.shade200,
-            ),
+            borderRadius: BorderRadius.circular(10),
+            borderSide: BorderSide(color: Colors.grey.shade200),
           ),
 
           focusedBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(22),
-            borderSide: const BorderSide(
-              color: Color(0xFF087C3A),
-              width: 1.5,
-            ),
+            borderRadius: BorderRadius.circular(10),
+            borderSide: const BorderSide(color: Color(0xFF087C3A), width: 1.5),
           ),
 
           errorBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(22),
-            borderSide: const BorderSide(
-              color: Colors.red,
-            ),
+            borderRadius: BorderRadius.circular(10),
+            borderSide: const BorderSide(color: Colors.red),
           ),
 
           contentPadding: const EdgeInsets.symmetric(
-            horizontal: 18,
-            vertical: 20,
+            horizontal: 16,
+            vertical: 16,
           ),
         ),
       ),

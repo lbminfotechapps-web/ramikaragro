@@ -1,5 +1,6 @@
 import 'package:demo/core/di/global_di.dart';
 import 'package:demo/core/router/app_router.dart';
+import 'package:demo/core/utility/widgets/custom_appbar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -171,51 +172,79 @@ class _NotVisitedDealerViewState extends State<NotVisitedDealerView> {
       child: Scaffold(
         backgroundColor: const Color(0xFFF6F8FB),
 
-        // ====================================================================
-        // APP BAR
-        // ====================================================================
-        appBar: AppBar(
-          backgroundColor: const Color(0xFF287A4B),
+  
+        appBar: CustomAppBar(
+          title: 'Not Visited Dealers',
+          showBackButton: true,
+          onBackTap: () => context.go(AppRouter.home),
 
-          foregroundColor: Colors.white,
+          // Normal refresh icon
+          actionIcon: Icons.refresh_rounded,
 
-          elevation: 0,
+          // Disable click while refreshing
+          onActionIconTap: _isRefreshing ? null : _refreshDealers,
 
-          automaticallyImplyLeading: false,
-
-          leading: IconButton(
-            onPressed: () {
-              context.go(AppRouter.home);
-            },
-            icon: const Icon(Icons.arrow_back_rounded, size: 25),
-          ),
-
-          title: const Text(
-            'Not Visited Dealers',
-            style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
-          ),
-
-          actions: [
-            IconButton(
-              tooltip: 'Refresh',
-
-              onPressed: _isRefreshing ? null : _refreshDealers,
-
-              icon: _isRefreshing
-                  ? const SizedBox(
+          // Show loader when refreshing
+          action: _isRefreshing
+              ? const SizedBox(
+                  width: 50,
+                  height: 50,
+                  child: Center(
+                    child: SizedBox(
                       width: 20,
                       height: 20,
                       child: CircularProgressIndicator(
                         strokeWidth: 2,
-                        valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                        valueColor: AlwaysStoppedAnimation<Color>(Colors.green),
                       ),
-                    )
-                  : const Icon(Icons.refresh_rounded, size: 25),
-            ),
-
-            const SizedBox(width: 6),
-          ],
+                    ),
+                  ),
+                )
+              : null,
         ),
+
+        // appBar: AppBar(
+        //   backgroundColor: const Color(0xFF287A4B),
+
+        //   foregroundColor: Colors.white,
+
+        //   elevation: 0,
+
+        //   automaticallyImplyLeading: false,
+
+        //   leading: IconButton(
+        //     onPressed: () {
+        //       context.go(AppRouter.home);
+        //     },
+        //     icon: const Icon(Icons.arrow_back_rounded, size: 25),
+        //   ),
+
+        //   title: const Text(
+        //     'Not Visited Dealers',
+        //     style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
+        //   ),
+
+        //   actions: [
+        //     IconButton(
+        //       tooltip: 'Refresh',
+
+        //       onPressed: _isRefreshing ? null : _refreshDealers,
+
+        //       icon: _isRefreshing
+        //           ? const SizedBox(
+        //               width: 20,
+        //               height: 20,
+        //               child: CircularProgressIndicator(
+        //                 strokeWidth: 2,
+        //                 valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+        //               ),
+        //             )
+        //           : const Icon(Icons.refresh_rounded, size: 25),
+        //     ),
+
+        //     const SizedBox(width: 6),
+        //   ],
+        // ),
 
         // ====================================================================
         // BODY

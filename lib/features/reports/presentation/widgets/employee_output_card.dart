@@ -88,15 +88,7 @@ class EmployeeOutputCard
 
                       const SizedBox(height: 2),
 
-                      Text(
-                        'Employee ID: ${report.empId}',
-                        style:
-                            const TextStyle(
-                          fontSize: 10,
-                          color:
-                              Color(0xFF7A837E),
-                        ),
-                      ),
+                     
                     ],
                   ),
                 ),

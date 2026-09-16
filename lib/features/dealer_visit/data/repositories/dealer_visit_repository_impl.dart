@@ -1,4 +1,5 @@
 import 'package:demo/features/dealer_visit/data/datasources/dealer_visit_data_source.dart';
+import 'package:demo/features/dealer_visit/domain/entities/dealer_followup_list_entity.dart';
 import 'package:demo/features/dealer_visit/domain/entities/visit_purpose_entity.dart';
 
 import '../../domain/repositories/dealer_visit_repository.dart';
@@ -25,7 +26,7 @@ class DealerVisitRepositoryImpl implements AddDealerVisitRepository {
 
 
    @override
-  Future<List<PurposeEntity>> getFollowupList(String outletId) async {
+  Future<List<DealerFollowupListEntity>> getFollowupList(String outletId) async {
     final menus = await remoteDataSource.getFollowupList(outletId);
     return menus;
   }

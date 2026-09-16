@@ -1,230 +1,139 @@
-import 'package:demo/core/utility/widgets/custom_card.dart';
+import 'package:demo/features/home/doman/home_entity/homevisit_entity.dart';
+import 'package:demo/features/home/presentation/home_bloc/home_visit_state.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil_plus/flutter_screenutil_plus.dart';
 
-class TodaysOverviewCard extends StatelessWidget {
-  final Widget child;
-  final Color color;
-  final EdgeInsetsGeometry padding;
-  final double borderRadius;
-  final Border? border;
+class VisitStatisticsTable extends StatelessWidget {
+  final HomeVisitEntity homeData;
 
-  const TodaysOverviewCard({
-    super.key,
-    required this.child,
-    this.color = Colors.white,
-    this.padding = const EdgeInsets.all(16),
-    this.borderRadius = 20,
-    this.border,
-  });
+  const VisitStatisticsTable(this.homeData, {super.key});
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: padding,
+      margin: EdgeInsets.symmetric(horizontal: 8.w, vertical: 8.h),
       decoration: BoxDecoration(
-        color: color,
-        borderRadius: BorderRadius.circular(borderRadius),
-        border: border,
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16.r),
+        border: Border.all(color: const Color(0xFFE5E7EB)),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withOpacity(0.05),
-            blurRadius: 10,
-            offset: const Offset(0, 3),
+            blurRadius: 12,
+            offset: const Offset(0, 4),
           ),
         ],
       ),
-      child: child,
-    );
-  }
-}
-
-class OverviewSection extends StatelessWidget {
-  final List<OverviewItemData> overviewItems;
-
-  const OverviewSection({
-    super.key,
-    this.overviewItems = const [
-      OverviewItemData(
-        icon: Icons.people,
-        value: '25',
-        title: 'Employees',
-        status: 'Active',
-        color: Colors.green,
-        backgroundColor: Color(0xFFF1FAF4),
-      ),
-      OverviewItemData(
-        icon: Icons.store,
-        value: '156',
-        title: 'Dealers',
-        status: 'Active',
-        color: Colors.blue,
-        backgroundColor: Color(0xFFF1F5FD),
-      ),
-      OverviewItemData(
-        icon: Icons.agriculture,
-        value: '1,248',
-        title: 'Farmers',
-        status: 'Visited',
-        color: Colors.orange,
-        backgroundColor: Color(0xFFFFF8ED),
-      ),
-      OverviewItemData(
-        icon: Icons.track_changes,
-        value: '75%',
-        title: 'Target',
-        status: 'Achieved',
-        color: Colors.purple,
-        backgroundColor: Color(0xFFF9F0FF),
-      ),
-    ],
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return CustomCard(
-      padding: EdgeInsets.all(16.w),
-      borderRadius: 28.r,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Header
-          Row(
-            children: [
-              Expanded(
-                child: Text(
-                  "Today's Overview",
-                  style: TextStyle(
-                    fontSize: 20.sp,
-                    fontWeight: FontWeight.w700,
-                  ),
-                ),
-              ),
-
-              Container(
-                padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 8.h),
-                decoration: BoxDecoration(
-                  border: Border.all(color: Colors.grey.shade300),
-                  borderRadius: BorderRadius.circular(30.r),
-                ),
-                child: const Row(
-                  children: [
-                    Text(
-                      'This Week',
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(16.r),
+        child: Column(
+          children: [
+            // Header
+            Container(
+              padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 8.h),
+              color: const Color(0xFF1B4332),
+              child: Row(
+                children: [
+                  Expanded(
+                    flex: 2,
+                    child: Text(
+                      'Visited',
                       style: TextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w600,
+                        color: Colors.white,
+                        fontSize: 13.sp,
+                        fontWeight: FontWeight.w700,
                       ),
                     ),
-                    SizedBox(width: 6),
-                    Icon(Icons.keyboard_arrow_down_rounded, size: 18),
-                  ],
-                ),
-              ),
-            ],
-          ),
-
-          SizedBox(height: 16.h),
-
-          LayoutBuilder(
-            builder: (context, constraints) {
-              final itemCount = overviewItems.length;
-              final spacing = 6.w;
-              final itemWidth = itemCount == 0
-                  ? 0.0
-                  : (constraints.maxWidth - (spacing * (itemCount - 1))) /
-                        itemCount;
-
-              return SizedBox(
-                height: 100.h,
-                child: GridView.builder(
-                  scrollDirection: Axis.horizontal,
-                  shrinkWrap: true,
-                  physics: const NeverScrollableScrollPhysics(),
-                  itemCount: itemCount,
-                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 1,
-                    mainAxisExtent: itemWidth,
-                    mainAxisSpacing: spacing,
                   ),
-                  itemBuilder: (context, index) {
-                    return _OverviewItem(data: overviewItems[index]);
-                  },
-                ),
-              );
-            },
+                  Expanded(child: _headerText('Today')),
+                  Expanded(child: _headerText('Month All')),
+                  Expanded(child: _headerText('Month Unique')),
+                ],
+              ),
+            ),
+
+            // Dealer
+            _visitRow(
+              title: 'Dealer Visits',
+              today: homeData.todayDealerCnt,
+              monthAll: homeData.monthlyDealerCnt,
+              monthUnique: homeData.monthlyUniqueDealerCnt,
+              showDivider: true,
+            ),
+
+            // Farmer
+            _visitRow(
+              title: 'Farmer Visits',
+              today: homeData.todayFarmerCnt,
+              monthAll: homeData.monthlyFarmerCnt,
+              monthUnique: homeData.monthlyUniqueFarmerCnt,
+              showDivider: false,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _headerText(String text) {
+    return Center(
+      child: Text(
+        text,
+        textAlign: TextAlign.center,
+        style: TextStyle(
+          color: Colors.white,
+          fontSize: 11.sp,
+          fontWeight: FontWeight.w600,
+        ),
+      ),
+    );
+  }
+
+  Widget _visitRow({
+    required String title,
+    required String today,
+    required String monthAll,
+    required String monthUnique,
+    required bool showDivider,
+  }) {
+    return Container(
+      padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 16.h),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        border: showDivider
+            ? const Border(bottom: BorderSide(color: Color(0xFFE5E7EB)))
+            : null,
+      ),
+      child: Row(
+        children: [
+          Expanded(
+            flex: 2,
+            child: Text(
+              title,
+              style: TextStyle(
+                color: const Color(0xFF1F2937),
+                fontSize: 12.sp,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
           ),
+          Expanded(child: _numberText(today)),
+          Expanded(child: _numberText(monthAll)),
+          Expanded(child: _numberText(monthUnique)),
         ],
       ),
     );
   }
-}
 
-class OverviewItemData {
-  final IconData icon;
-  final String value;
-  final String title;
-  final String status;
-  final Color color;
-  final Color backgroundColor;
-
-  const OverviewItemData({
-    required this.icon,
-    required this.value,
-    required this.title,
-    required this.status,
-    required this.color,
-    required this.backgroundColor,
-  });
-}
-
-class _OverviewItem extends StatelessWidget {
-  final OverviewItemData data;
-
-  const _OverviewItem({required this.data});
-
-  @override
-  Widget build(BuildContext context) {
-    return CustomCard(
-      color: data.backgroundColor,
-      borderRadius: 12.r,
-      padding: EdgeInsets.all(6.w),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          Container(
-            width: 26.w,
-            height: 26.h,
-            decoration: BoxDecoration(
-              color: data.color.withOpacity(0.12),
-              borderRadius: BorderRadius.circular(7.r),
-            ),
-            child: Icon(data.icon, color: data.color, size: 15.sp),
-          ),
-          SizedBox(height: 3.h),
-          Text(
-            data.value,
-            style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.w700),
-          ),
-          Text(
-            data.title,
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-            textAlign: TextAlign.center,
-            style: TextStyle(fontSize: 9.sp, fontWeight: FontWeight.w500),
-          ),
-          Text(
-            data.status,
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-            style: TextStyle(
-              color: data.color,
-              fontSize: 8.sp,
-              fontWeight: FontWeight.w600,
-            ),
-          ),
-        ],
+  Widget _numberText(String value) {
+    return Center(
+      child: Text(
+        value.isEmpty ? '0' : value,
+        style: TextStyle(
+          color: const Color(0xFF1B4332),
+          fontSize: 15.sp,
+          fontWeight: FontWeight.w800,
+        ),
       ),
     );
   }

@@ -10,16 +10,14 @@ class FarmerListRepositoryImpl implements FarmerListRepository {
   @override
   Future<List<FarmerlistModel>> getFarmers(
     int userId,
-    String lattitude,
-    String logitude,
+
     int limit,
     String searchKey,
   ) async {
     try {
       final response = await farmerListDatasource.fetchFarmerList(
         userId,
-        lattitude,
-        logitude,
+
         limit,
         searchKey,
       );

@@ -46,6 +46,10 @@ class PunchInOutDetailsAddEvent extends QuickAccessEvent {
   final String closingKmImage;
   final String activityId;
 
+  final String date;
+  final String newTime;
+  final bool? isForceOutPunch;
+
   PunchInOutDetailsAddEvent({
     required this.userId,
     required this.inOutStatus,
@@ -67,6 +71,9 @@ class PunchInOutDetailsAddEvent extends QuickAccessEvent {
     required this.startingKmImage,
     required this.closingKmImage,
     required this.activityId,
+    required this.date,
+    required this.newTime,
+    this.isForceOutPunch,
   });
 
   @override

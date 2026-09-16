@@ -16,7 +16,7 @@ class QuickAcessBloc extends Bloc<QuickAccessEvent, QuickAccessState> {
     on<VehicleTypeEvent>(_onGetVehicleType);
     on<PunchInOutDetailsAddEvent>(_onPunchInOutAddDetails);
   }
-
+  String? punchStatus;
   Future<void> _onGetPunchStatus(
     PunchStatEvent event,
     Emitter<QuickAccessState> emit,
@@ -32,10 +32,12 @@ class QuickAcessBloc extends Bloc<QuickAccessEvent, QuickAccessState> {
       final punchStat = await getPunchStatusUsecase.getPunchStatus(
         event.userId,
       );
+      punchStatus = punchStat.inOutStatus;
       emit(
         state.copyWith(
           quickAccessStatus: QuickAccessStatus.success,
           punchStat: punchStat,
+          punchStatus: punchStat.inOutStatus,
           errorMessage: null,
         ),
       );
@@ -161,26 +163,58 @@ class QuickAcessBloc extends Bloc<QuickAccessEvent, QuickAccessState> {
       // ============================================
       // REQUEST DATA
       // ============================================
-      final jsonData = <String, dynamic>{
-        'user_id': event.userId,
-        'in_out_status': event.inOutStatus,
-        'differenceByAndroid': event.differenceByAndroid,
-        'locationHistoryString': event.locationHistoryString,
-        'strBatteryInfo': event.batteryInfo,
-        'strNetworkInfo': event.networkInfo,
-        'pinRemark': event.pinRemark,
-        'strStartingClosingKmAmount': event.startingClosingKmAmount,
-        'strVehicleTypeId': event.vehicleTypeId,
-        'route': event.route,
-        'latitude': event.latitude,
-        'longitude': event.longitude,
-        'networkLatitude': event.networkLatitude,
-        'networkLongitude': event.networkLongitude,
-        'gpsLatitude': event.gpsLatitude,
-        'gpsLongitude': event.gpsLongitude,
-        'geoAddress': event.geoAddress,
-        'activityId': event.activityId,
-      };
+      final Map<String, dynamic> jsonData;
+
+      if (punchStatus == '2') {
+        print('for last punch outtt');
+        jsonData = <String, dynamic>{
+          'user_id': event.userId,
+          'in_out_status': event.inOutStatus,
+          'differenceByAndroid': event.differenceByAndroid,
+          'locationHistoryString': event.locationHistoryString,
+          'strBatteryInfo': event.batteryInfo,
+          'strNetworkInfo': event.networkInfo,
+          'pinRemark': event.pinRemark,
+          'strStartingClosingKmAmount': event.startingClosingKmAmount,
+          'strVehicleTypeId': event.vehicleTypeId,
+          'route': event.route,
+          'latitude': event.latitude,
+          'longitude': event.longitude,
+          'networkLatitude': event.networkLatitude,
+          'networkLongitude': event.networkLongitude,
+          'gpsLatitude': event.gpsLatitude,
+          'gpsLongitude': event.gpsLongitude,
+          'geoAddress': event.geoAddress,
+          'activityId': event.activityId,
+          'date': event.date,
+          "time": event.newTime,
+          "isForceOutPunch": event.isForceOutPunch,
+        };
+      } else {
+        print('for punch in outtt');
+        jsonData = <String, dynamic>{
+          'user_id': event.userId,
+          'in_out_status': event.inOutStatus,
+          'differenceByAndroid': event.differenceByAndroid,
+          'locationHistoryString': event.locationHistoryString,
+          'strBatteryInfo': event.batteryInfo,
+          'strNetworkInfo': event.networkInfo,
+          'pinRemark': event.pinRemark,
+          'strStartingClosingKmAmount': event.startingClosingKmAmount,
+          'strVehicleTypeId': event.vehicleTypeId,
+          'route': event.route,
+          'latitude': event.latitude,
+          'longitude': event.longitude,
+          'networkLatitude': event.networkLatitude,
+          'networkLongitude': event.networkLongitude,
+          'gpsLatitude': event.gpsLatitude,
+          'gpsLongitude': event.gpsLongitude,
+          'geoAddress': event.geoAddress,
+          'activityId': event.activityId,
+          'date': event.date,
+          "time": event.newTime,
+        };
+      }
 
       // ============================================
       // ADD STARTING IMAGE FILE
@@ -201,6 +235,9 @@ class QuickAcessBloc extends Bloc<QuickAccessEvent, QuickAccessState> {
       // ============================================
       print('========== PUNCH REQUEST ==========');
       print('user_id: ${event.userId}');
+      print('date: ${event.date}');
+      print('newTime: ${event.newTime}');
+      print('isForceOut: ${event.isForceOutPunch}');
       print('in_out_status: ${event.inOutStatus}');
       print('vehicle_type_id: ${event.vehicleTypeId}');
       print(

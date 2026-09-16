@@ -10,7 +10,11 @@ class AuthDatasource {
 
   AuthDatasource(this.dioClient);
 
-  Future<LoginModel> loginUser(String username, String password, String fcmToken) async {
+  Future<LoginModel> loginUser(
+    String username,
+    String password,
+    String fcmToken,
+  ) async {
     try {
       print('Login request data:');
       print('username/email: $username');
@@ -22,7 +26,7 @@ class AuthDatasource {
         data: FormData.fromMap({
           'username': username,
           'password': password,
-          'fcmId': fcmToken
+          'fcmId': fcmToken,
         }),
       );
 

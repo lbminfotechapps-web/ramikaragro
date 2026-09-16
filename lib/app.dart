@@ -2,15 +2,22 @@ import 'package:demo/core/di/auth_di.dart';
 import 'package:demo/core/router/app_router.dart';
 import 'package:demo/core/theme/app_theme.dart';
 import 'package:demo/features/auth/presentation/bloc/auth_bloc.dart';
+import 'package:demo/features/collection/presentation/bloc/dealer_target_bloc.dart';
 import 'package:demo/features/dealer/presentation/bloc/dealerlist_bloc.dart';
-import 'package:demo/features/farmer/farmerlist/presentation/bloc/farmerlist_bloc.dart';
+import 'package:demo/features/distpatchistory/presentation/bloc/dispatch_bloc.dart';
 import 'package:demo/features/farmer/famerfollowup/presentation/bloc/famerfollowup_bloc.dart';
 import 'package:demo/features/farmer/farmerlist/presentation/bloc/farmerlist_bloc.dart';
+import 'package:demo/features/farmer/farmerregistration/presentation/bloc/state_bloc.dart';
 import 'package:demo/features/gallery/presentation/boc/gallery_bloc.dart';
 import 'package:demo/features/home/presentation/home_bloc/home_bloc.dart';
+
 import 'package:demo/features/home/presentation/quick_aceess_bloc/quick_acess_bloc.dart';
+import 'package:demo/features/leave/presentation/bloc/top_ten_dealer_bloc.dart';
+import 'package:demo/features/orderhistory/presentation/bloc/order_history_bloc.dart';
+import 'package:demo/features/products/presentation/bloc/product_bloc.dart';
 import 'package:demo/features/reports/presentation/bloc/employee_activity_bloc.dart';
 import 'package:demo/features/reports/presentation/bloc/not_visited_dealer_bloc.dart';
+import 'package:demo/features/salesreturnhistory/presentation/bloc/sales_return_history_bloc.dart';
 import 'package:demo/features/scheme/presentation/bloc/scheme_bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -23,17 +30,23 @@ class MyApp extends StatelessWidget {
     return MultiBlocProvider(
       providers: [
         BlocProvider<AuthBloc>(create: (_) => sl<AuthBloc>()),
-      BlocProvider<NotVisitedDealerBloc>(create: (_) => sl<NotVisitedDealerBloc>()),
+        BlocProvider<NotVisitedDealerBloc>(
+          create: (_) => sl<NotVisitedDealerBloc>(),
+        ),
 
         BlocProvider<AuthBloc>(create: (_) => sl<AuthBloc>()),
         BlocProvider<FarmerListBloc>(create: (_) => sl<FarmerListBloc>()),
         BlocProvider<DealerListBloc>(create: (_) => sl<DealerListBloc>()),
-  
+
         BlocProvider<NotVisitedDealerBloc>(
           create: (_) => sl<NotVisitedDealerBloc>(),
         ),
+        BlocProvider<DealerTargetBloc>(create: (_) => sl<DealerTargetBloc>()),
+        BlocProvider<TopTenDealerBloc>(create: (_) => sl<TopTenDealerBloc>()),
+
         BlocProvider<FarmerListBloc>(create: (_) => sl<FarmerListBloc>()),
         BlocProvider<FamerfollowupBloc>(create: (_) => sl<FamerfollowupBloc>()),
+        BlocProvider<StateBloc>(create: (_) => sl<StateBloc>()),
         BlocProvider<HomeBloc>(create: (_) => sl<HomeBloc>()),
         BlocProvider<QuickAcessBloc>(create: (_) => sl<QuickAcessBloc>()),
         BlocProvider<EmployeeActivityBloc>(
@@ -41,6 +54,12 @@ class MyApp extends StatelessWidget {
         ),
         BlocProvider<GalleryBloc>(create: (_) => sl<GalleryBloc>()),
         BlocProvider<SchemeBloc>(create: (_) => sl<SchemeBloc>()),
+        BlocProvider<ProductBloc>(create: (_) => sl<ProductBloc>()),
+        BlocProvider<OrderHistoryBloc>(create: (_) => sl<OrderHistoryBloc>()),
+        BlocProvider<DispatchBloc>(create: (_) => sl<DispatchBloc>()),
+        BlocProvider<SalesReturnHistoryBloc>(
+          create: (_) => sl<SalesReturnHistoryBloc>(),
+        ),
       ],
 
       child: MaterialApp.router(

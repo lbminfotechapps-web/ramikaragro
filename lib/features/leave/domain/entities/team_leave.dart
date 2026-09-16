@@ -1,3 +1,4 @@
+
 import 'package:equatable/equatable.dart';
 
 class TeamLeave extends Equatable {
@@ -31,6 +32,39 @@ class TeamLeave extends Equatable {
     required this.adminStatus,
   });
 
+  TeamLeave copyWith({
+    String? leaveId,
+    String? employeeName,
+    String? reportingStatus,
+    String? managerStatus,
+    String? fromDate,
+    String? toDate,
+    String? leaveDays,
+    String? remark,
+    String? status,
+    String? statusUpdateBy,
+    String? leaveApplicationDate,
+    String? teamRemark,
+    String? adminStatus,
+  }) {
+    return TeamLeave(
+      leaveId: leaveId ?? this.leaveId,
+      employeeName: employeeName ?? this.employeeName,
+      reportingStatus: reportingStatus ?? this.reportingStatus,
+      managerStatus: managerStatus ?? this.managerStatus,
+      fromDate: fromDate ?? this.fromDate,
+      toDate: toDate ?? this.toDate,
+      leaveDays: leaveDays ?? this.leaveDays,
+      remark: remark ?? this.remark,
+      status: status ?? this.status,
+      statusUpdateBy: statusUpdateBy ?? this.statusUpdateBy,
+      leaveApplicationDate:
+          leaveApplicationDate ?? this.leaveApplicationDate,
+      teamRemark: teamRemark ?? this.teamRemark,
+      adminStatus: adminStatus ?? this.adminStatus,
+    );
+  }
+
   @override
   List<Object?> get props => [
         leaveId,
@@ -48,3 +82,4 @@ class TeamLeave extends Equatable {
         adminStatus,
       ];
 }
+

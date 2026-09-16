@@ -1,10 +1,13 @@
 import 'package:demo/core/api_constant/api_client.dart';
 import 'package:demo/core/utility/fullimage.dart';
+import 'package:demo/core/utility/widgets/custom_appbar.dart';
+import 'package:demo/core/utility/widgets/custom_loader.dart';
 import 'package:demo/features/gallery/presentation/boc/gallery_bloc.dart';
 import 'package:demo/features/gallery/presentation/boc/gallery_event.dart';
 import 'package:demo/features/gallery/presentation/boc/gallery_state.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_screenutil_plus/flutter_screenutil_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../domain/entities/gallery_entity.dart';
@@ -75,40 +78,33 @@ class _GalleryScreenState extends State<GalleryScreen>
     return Scaffold(
       backgroundColor: Colors.white,
 
-      appBar: AppBar(
-        elevation: 0,
-        backgroundColor: Colors.white,
-        centerTitle: true,
-
-        title: const Text(
-          'Gallery',
-          style: TextStyle(
-            color: Colors.black,
-            fontSize: 20,
-            fontWeight: FontWeight.w600,
-          ),
-        ),
-
-        iconTheme: const IconThemeData(color: Colors.black),
+      appBar: CustomAppBar(
+        title: 'Gallary',
+        showBackButton: true,
+        onBackTap: () => Navigator.pop(context),
       ),
 
-      body: Column(
-        children: [
-          _buildTabBar(),
-
-          const SizedBox(height: 8),
-
-          Expanded(
-            child: TabBarView(
-              controller: _tabController,
-              children: [
-                _buildGalleryTab('gallery'),
-                _buildGalleryTab('video'),
-                _buildGalleryTab('CERTIFICATES'),
-              ],
+      body: Padding(
+    padding: const EdgeInsets.only(left: 16, right: 16),
+        child: Column(
+          children: [
+               SizedBox(height: 14.h),
+            _buildTabBar(),
+        
+            const SizedBox(height: 8),
+        
+            Expanded(
+              child: TabBarView(
+                controller: _tabController,
+                children: [
+                  _buildGalleryTab('gallery'),
+                  _buildGalleryTab('video'),
+                  _buildGalleryTab('CERTIFICATES'),
+                ],
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -571,9 +567,8 @@ class _GalleryScreenState extends State<GalleryScreen>
           width: 25,
           height: 25,
 
-          child: CircularProgressIndicator(
-            strokeWidth: 2,
-            color: Color(0xFF218838),
+          child: CustomLoader(
+ 
           ),
         ),
       ),

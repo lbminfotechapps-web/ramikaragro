@@ -11,8 +11,6 @@ class FarmerListDataSource {
 
   Future<List<FarmerlistModel>> fetchFarmerList(
     int userId,
-    String lattitude,
-    String logitude,
     int limit,
     String searchKey,
   ) async {
@@ -22,25 +20,24 @@ class FarmerListDataSource {
       // ------------------------------------------
       final formData = FormData.fromMap({
         'user_id': userId.toString(),
-        'currentLat': lattitude,
-        'currentLong': logitude,
+
         'searchText': searchKey,
         'startLimit': limit.toString(),
       });
 
-      // ------------------------------------------
-      // API CALL
-      // ------------------------------------------
+      print('userId%%%$userId');
+
+      print('logitude%%%$searchKey');
+      print('limit%%%$limit');
       final response = await dioClient.client.post(
         '/getFarmerDetails',
         data: formData,
       );
 
+      print('farmer list response####$response');
+
       dynamic data = response.data;
 
-      // ------------------------------------------
-      // If response is String, decode JSON
-      // ------------------------------------------
       if (data is String) {
         try {
           data = jsonDecode(data);
@@ -49,16 +46,10 @@ class FarmerListDataSource {
         }
       }
 
-      // ------------------------------------------
-      // Validate response object
-      // ------------------------------------------
       if (data is! Map<String, dynamic>) {
         throw const FormatException('Farmer API response is not a JSON object');
       }
 
-      // ------------------------------------------
-      // Read API fields
-      // ------------------------------------------
       final bool apiStatus = data['status'] == true;
       final bool apiResponse = data['response'] == true;
 
@@ -75,18 +66,12 @@ class FarmerListDataSource {
         return [];
       }
 
-      // ------------------------------------------
-      // Actual API error
-      // ------------------------------------------
       if (!apiStatus || !apiResponse) {
         throw Exception(
           message.isNotEmpty ? message : 'Failed to fetch farmer list',
         );
       }
 
-      // ------------------------------------------
-      // Validate result
-      // ------------------------------------------
       if (records is! List) {
         throw FormatException(
           'Farmer result is not a List. '
@@ -96,17 +81,11 @@ class FarmerListDataSource {
 
       print('TOTAL FARMER RECORDS: ${records.length}');
 
-      // ------------------------------------------
-      // Empty result
-      // ------------------------------------------
       if (records.isEmpty) {
         print('NO FARMER RECORDS FOUND');
         return [];
       }
 
-      // ------------------------------------------
-      // Convert JSON → Model
-      // ------------------------------------------
       final List<FarmerlistModel> farmers = [];
 
       for (final item in records) {

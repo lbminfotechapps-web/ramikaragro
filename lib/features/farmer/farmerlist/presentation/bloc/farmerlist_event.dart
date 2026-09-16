@@ -9,15 +9,14 @@ class FarmerlistEvent extends Equatable {
 
 class FarmerListEvent extends FarmerlistEvent {
   final int user_id;
-  final String currentLat;
-  final String currentLong;
+  // final String currentLat;
+  // final String currentLong;
   final int startLimit;
   final String searchText;
 
   const FarmerListEvent({
     required this.user_id,
-    required this.currentLat,
-    required this.currentLong,
+
     required this.startLimit,
     required this.searchText,
   });
@@ -25,8 +24,7 @@ class FarmerListEvent extends FarmerlistEvent {
   @override
   List<Object> get props => [
     user_id,
-    currentLat,
-    currentLong,
+
     startLimit,
     searchText,
   ];

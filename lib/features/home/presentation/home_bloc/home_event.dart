@@ -19,3 +19,18 @@ class VisitGraphCountEvent extends HomeEvent {
 
   VisitGraphCountEvent(this.userId, this.searchFromDate, this.searchToDate);
 }
+
+class GetHomeVisitEvent extends HomeEvent {
+  final String userId;
+
+  GetHomeVisitEvent(this.userId);
+}
+
+class GetInpunchPendingEvent extends HomeEvent {
+  final String userId;
+
+  GetInpunchPendingEvent({required this.userId});
+
+  @override
+  List<Object?> get props => [userId];
+}

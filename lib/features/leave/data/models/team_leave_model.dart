@@ -1,5 +1,3 @@
-
-
 import 'package:demo/features/leave/domain/entities/team_leave.dart';
 
 class TeamLeaveModel extends TeamLeave {
@@ -19,14 +17,10 @@ class TeamLeaveModel extends TeamLeave {
     required super.adminStatus,
   });
 
-  factory TeamLeaveModel.fromJson(
-    Map<String, dynamic> json,
-  ) {
+  factory TeamLeaveModel.fromJson(Map<String, dynamic> json) {
     return TeamLeaveModel(
-      leaveId:
-          json['fld_leave_id']?.toString() ?? '',
-      employeeName:
-          json['fld_adm_name']?.toString() ?? '',
+      leaveId: json['fld_leave_id']?.toString() ?? '',
+      employeeName: json['fld_adm_name']?.toString() ?? '',
       reportingStatus:
           json['fld_reporting_status']?.toString() ?? '',
       managerStatus:

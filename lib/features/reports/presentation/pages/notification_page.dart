@@ -1,4 +1,3 @@
-
 import 'package:demo/core/router/app_router.dart';
 import 'package:demo/core/theme/app_colors.dart';
 import 'package:demo/core/utility/widgets/custom_appbar.dart';
@@ -78,9 +77,7 @@ class _NotificationPageState extends State<NotificationPage> {
     final position = _scrollController.position;
 
     if (position.pixels >= position.maxScrollExtent - 250) {
-      _notificationBloc?.add(
-        const LoadMoreNotificationsEvent(),
-      );
+      _notificationBloc?.add(const LoadMoreNotificationsEvent());
     }
   }
 
@@ -123,40 +120,40 @@ class _NotificationPageState extends State<NotificationPage> {
           _notificationBloc = context.read<NotificationBloc>();
 
           return Scaffold(
-            backgroundColor: backgroundColor,
+            backgroundColor: AppColors.backgroundColor,
 
             // =================================================
             // APP BAR
             // =================================================
-
             appBar: CustomAppBar(
               backgroundColor: primaryGreen,
               leading: IconButton(
                 icon: const Icon(
                   Icons.arrow_back_ios_new_rounded,
                   size: 19,
-                  color: AppColors.backgroundColor,
+                  // color: AppColors.darkBackgroundColor,
                 ),
                 onPressed: () {
                   context.go(AppRouter.home);
                 },
               ),
               title: 'Notifications',
+              titleStyle: const TextStyle(
+                fontSize: 22,
+                fontWeight: FontWeight.w600,
+                color: AppColors.backgroundColor,
+              ),
             ),
 
             // =================================================
             // BODY
             // =================================================
-
             body: SafeArea(
               child: Column(
                 children: [
                   _buildTopHeader(),
-
                   Expanded(
-                    child: BlocBuilder<
-                        NotificationBloc,
-                        NotificationState>(
+                    child: BlocBuilder<NotificationBloc, NotificationState>(
                       builder: (context, state) {
                         // =======================================
                         // LOADING
@@ -171,10 +168,7 @@ class _NotificationPageState extends State<NotificationPage> {
                         // =======================================
 
                         if (state is NotificationError) {
-                          return _buildError(
-                            context,
-                            state.message,
-                          );
+                          return _buildError(context, state.message);
                         }
 
                         // =======================================
@@ -186,10 +180,7 @@ class _NotificationPageState extends State<NotificationPage> {
                             return _buildEmpty(context);
                           }
 
-                          return _buildNotificationList(
-                            context,
-                            state,
-                          );
+                          return _buildNotificationList(context, state);
                         }
 
                         return const SizedBox.shrink();
@@ -212,21 +203,9 @@ class _NotificationPageState extends State<NotificationPage> {
   Widget _buildTopHeader() {
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.fromLTRB(
-        18,
-        16,
-        18,
-        22,
-      ),
+      padding: const EdgeInsets.fromLTRB(18, 16, 18, 22),
       decoration: const BoxDecoration(
-        gradient: LinearGradient(
-          colors: [
-            primaryGreen,
-            darkGreen,
-          ],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
+        color: primaryGreen,
         borderRadius: BorderRadius.only(
           bottomLeft: Radius.circular(32),
           bottomRight: Radius.circular(32),
@@ -245,16 +224,13 @@ class _NotificationPageState extends State<NotificationPage> {
               // =================================================
               // NOTIFICATION ICON
               // =================================================
-
               Container(
                 width: 58,
                 height: 58,
                 decoration: BoxDecoration(
                   color: Colors.white.withOpacity(0.14),
                   shape: BoxShape.circle,
-                  border: Border.all(
-                    color: Colors.white.withOpacity(0.18),
-                  ),
+                  border: Border.all(color: Colors.white.withOpacity(0.18)),
                 ),
                 child: const Icon(
                   Icons.notifications_active_rounded,
@@ -268,7 +244,6 @@ class _NotificationPageState extends State<NotificationPage> {
               // =================================================
               // HEADER TEXT
               // =================================================
-
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -300,7 +275,6 @@ class _NotificationPageState extends State<NotificationPage> {
               // =================================================
               // COUNT
               // =================================================
-
               if (count > 0)
                 Container(
                   padding: const EdgeInsets.symmetric(
@@ -348,31 +322,23 @@ class _NotificationPageState extends State<NotificationPage> {
 
       onRefresh: () async {
         context.read<NotificationBloc>().add(
-              RefreshNotificationListEvent(
-                userId: widget.userId,
-                isLogin: widget.isLogin,
-                userType: widget.userType,
-              ),
-            );
-
-        await Future.delayed(
-          const Duration(milliseconds: 700),
+          RefreshNotificationListEvent(
+            userId: widget.userId,
+            isLogin: widget.isLogin,
+            userType: widget.userType,
+          ),
         );
+
+        await Future.delayed(const Duration(milliseconds: 700));
       },
 
       child: ListView.builder(
         controller: _scrollController,
         physics: const AlwaysScrollableScrollPhysics(),
 
-        padding: const EdgeInsets.fromLTRB(
-          14,
-          18,
-          14,
-          30,
-        ),
+        padding: const EdgeInsets.fromLTRB(14, 18, 14, 30),
 
-        itemCount: state.notifications.length +
-            (state.isLoadingMore ? 1 : 0),
+        itemCount: state.notifications.length + (state.isLoadingMore ? 1 : 0),
 
         itemBuilder: (context, index) {
           // ===============================================
@@ -383,12 +349,9 @@ class _NotificationPageState extends State<NotificationPage> {
             return _buildPaginationLoader();
           }
 
-          final notification =
-              state.notifications[index];
+          final notification = state.notifications[index];
 
-          return _buildNotificationCard(
-            notification,
-          );
+          return _buildNotificationCard(notification);
         },
       ),
     );
@@ -398,20 +361,13 @@ class _NotificationPageState extends State<NotificationPage> {
   // NOTIFICATION CARD
   // =========================================================
 
-  Widget _buildNotificationCard(
-    dynamic notification,
-  ) {
+  Widget _buildNotificationCard(dynamic notification) {
     return Container(
-      margin: const EdgeInsets.only(
-        bottom: 13,
-      ),
+      margin: const EdgeInsets.only(bottom: 13),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(
-          color: const Color(0xFFE7ECE9),
-          width: 1,
-        ),
+        border: Border.all(color: const Color(0xFFE7ECE9), width: 1),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withOpacity(0.045),
@@ -420,9 +376,7 @@ class _NotificationPageState extends State<NotificationPage> {
           ),
         ],
       ),
-      child: NotificationCard(
-        notification: notification,
-      ),
+      child: NotificationCard(notification: notification),
     );
   }
 
@@ -432,9 +386,7 @@ class _NotificationPageState extends State<NotificationPage> {
 
   Widget _buildPaginationLoader() {
     return Padding(
-      padding: const EdgeInsets.symmetric(
-        vertical: 20,
-      ),
+      padding: const EdgeInsets.symmetric(vertical: 20),
       child: Center(
         child: Container(
           width: 46,
@@ -470,16 +422,14 @@ class _NotificationPageState extends State<NotificationPage> {
 
       onRefresh: () async {
         context.read<NotificationBloc>().add(
-              RefreshNotificationListEvent(
-                userId: widget.userId,
-                isLogin: widget.isLogin,
-                userType: widget.userType,
-              ),
-            );
-
-        await Future.delayed(
-          const Duration(milliseconds: 700),
+          RefreshNotificationListEvent(
+            userId: widget.userId,
+            isLogin: widget.isLogin,
+            userType: widget.userType,
+          ),
         );
+
+        await Future.delayed(const Duration(milliseconds: 700));
       },
 
       child: ListView(
@@ -489,16 +439,13 @@ class _NotificationPageState extends State<NotificationPage> {
             height: MediaQuery.of(context).size.height * 0.55,
             child: Center(
               child: Padding(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 35,
-                ),
+                padding: const EdgeInsets.symmetric(horizontal: 35),
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     // =========================================
                     // ICON
                     // =========================================
-
                     Container(
                       width: 105,
                       height: 105,
@@ -517,8 +464,7 @@ class _NotificationPageState extends State<NotificationPage> {
                               shape: BoxShape.circle,
                               boxShadow: [
                                 BoxShadow(
-                                  color: primaryGreen
-                                      .withOpacity(0.10),
+                                  color: primaryGreen.withOpacity(0.10),
                                   blurRadius: 15,
                                 ),
                               ],
@@ -562,24 +508,18 @@ class _NotificationPageState extends State<NotificationPage> {
                     // =========================================
                     // REFRESH BUTTON
                     // =========================================
-
                     ElevatedButton.icon(
                       onPressed: () {
                         context.read<NotificationBloc>().add(
-                              RefreshNotificationListEvent(
-                                userId: widget.userId,
-                                isLogin: widget.isLogin,
-                                userType: widget.userType,
-                              ),
-                            );
+                          RefreshNotificationListEvent(
+                            userId: widget.userId,
+                            isLogin: widget.isLogin,
+                            userType: widget.userType,
+                          ),
+                        );
                       },
-                      icon: const Icon(
-                        Icons.refresh_rounded,
-                        size: 19,
-                      ),
-                      label: const Text(
-                        'Refresh Notifications',
-                      ),
+                      icon: const Icon(Icons.refresh_rounded, size: 19),
+                      label: const Text('Refresh Notifications'),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: primaryGreen,
                         foregroundColor: Colors.white,
@@ -589,8 +529,7 @@ class _NotificationPageState extends State<NotificationPage> {
                           vertical: 13,
                         ),
                         shape: RoundedRectangleBorder(
-                          borderRadius:
-                              BorderRadius.circular(14),
+                          borderRadius: BorderRadius.circular(14),
                         ),
                       ),
                     ),
@@ -608,10 +547,7 @@ class _NotificationPageState extends State<NotificationPage> {
   // ERROR STATE
   // =========================================================
 
-  Widget _buildError(
-    BuildContext context,
-    String message,
-  ) {
+  Widget _buildError(BuildContext context, String message) {
     return Center(
       child: SingleChildScrollView(
         padding: const EdgeInsets.all(28),
@@ -621,7 +557,6 @@ class _NotificationPageState extends State<NotificationPage> {
             // ===============================================
             // ERROR ICON
             // ===============================================
-
             Container(
               width: 100,
               height: 100,
@@ -666,11 +601,7 @@ class _NotificationPageState extends State<NotificationPage> {
               'We couldn’t load your notifications.\n'
               'Please check your connection and try again.',
               textAlign: TextAlign.center,
-              style: TextStyle(
-                color: textGrey,
-                fontSize: 13,
-                height: 1.55,
-              ),
+              style: TextStyle(color: textGrey, fontSize: 13, height: 1.55),
             ),
 
             const SizedBox(height: 18),
@@ -678,16 +609,13 @@ class _NotificationPageState extends State<NotificationPage> {
             // ===============================================
             // ERROR MESSAGE
             // ===============================================
-
             Container(
               width: double.infinity,
               padding: const EdgeInsets.all(13),
               decoration: BoxDecoration(
                 color: Colors.red.withOpacity(0.045),
                 borderRadius: BorderRadius.circular(13),
-                border: Border.all(
-                  color: Colors.red.withOpacity(0.10),
-                ),
+                border: Border.all(color: Colors.red.withOpacity(0.10)),
               ),
               child: Text(
                 message,
@@ -707,24 +635,18 @@ class _NotificationPageState extends State<NotificationPage> {
             // ===============================================
             // TRY AGAIN
             // ===============================================
-
             ElevatedButton.icon(
               onPressed: () {
                 context.read<NotificationBloc>().add(
-                      GetNotificationListEvent(
-                        userId: widget.userId,
-                        isLogin: widget.isLogin,
-                        userType: widget.userType,
-                      ),
-                    );
+                  GetNotificationListEvent(
+                    userId: widget.userId,
+                    isLogin: widget.isLogin,
+                    userType: widget.userType,
+                  ),
+                );
               },
-              icon: const Icon(
-                Icons.refresh_rounded,
-                size: 19,
-              ),
-              label: const Text(
-                'Try Again',
-              ),
+              icon: const Icon(Icons.refresh_rounded, size: 19),
+              label: const Text('Try Again'),
               style: ElevatedButton.styleFrom(
                 backgroundColor: primaryGreen,
                 foregroundColor: Colors.white,
@@ -744,4 +666,3 @@ class _NotificationPageState extends State<NotificationPage> {
     );
   }
 }
-

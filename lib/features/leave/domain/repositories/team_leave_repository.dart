@@ -1,8 +1,7 @@
-
-import 'package:demo/features/leave/domain/entities/team_leave.dart';
+import '../../data/models/team_leave_model.dart';
 
 abstract class TeamLeaveRepository {
-  Future<List<TeamLeave>> getTeamLeaveList({
+  Future<List<TeamLeaveModel>> getTeamLeaveList({
     required String userId,
     required String fromDate,
     required String toDate,

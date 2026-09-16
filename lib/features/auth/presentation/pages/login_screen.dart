@@ -1,5 +1,6 @@
 import 'package:demo/core/theme/app_colors.dart';
 import 'package:demo/core/utility/widgets/custom_button.dart';
+import 'package:demo/core/utility/widgets/custom_loader.dart';
 import 'package:demo/core/utility/widgets/custom_textformfield.dart';
 import 'package:demo/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:demo/features/auth/presentation/bloc/auth_event.dart';
@@ -42,9 +43,9 @@ class _LoginScreenState extends State<LoginScreen> {
       body: BlocConsumer<AuthBloc, AuthState>(
         listener: (context, state) {
           if (state.loginStatus == LoginStatus.success) {
-            ScaffoldMessenger.of(
-              context,
-            ).showSnackBar(const SnackBar(content: Text('Login successful')));
+            // ScaffoldMessenger.of(
+            //   context,
+            // ).showSnackBar(const SnackBar(content: Text('Login successful')));
 
             context.go('/home');
           }
@@ -58,8 +59,9 @@ class _LoginScreenState extends State<LoginScreen> {
 
         builder: (context, state) {
           if (state.loginStatus == LoginStatus.loading) {
-            return const Center(
-              child: CircularProgressIndicator(color: Color(0xFF087C3A)),
+            return const CustomLoader(
+              showMessage: true,
+              message: 'Authentication....',
             );
           }
 

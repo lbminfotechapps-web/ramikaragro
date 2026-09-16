@@ -1,13 +1,10 @@
 import 'dart:async';
-
-import 'package:demo/core/secure_storage/secure_storage.dart';
 import 'package:demo/features/dealer_visit/presentation/bloc/add_dealer_visit_state.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-
 import '../../../../core/error/exceptions.dart';
 import '../../domain/usecases/add_ramark.dart';
 import 'add_dealer_visit_event.dart';
-import 'add_dealer_visit_state.dart';
+
 
 class AddDealerVisitBlock
     extends Bloc<AddDealerRemarkEvent, AddDealerVisitState> {
@@ -109,21 +106,37 @@ final postData=addLeave.call(formData);
 
 
 
-    Future<void> _onGetFollowup(GetFollowupEvent event, Emitter<AddDealerVisitState> emit) async {
-    emit(state.copyWith(addLeaveStatus: AddDealerVisitStatus.loading));
+   Future<void> _onGetFollowup(
+  GetFollowupEvent event,
+  Emitter<AddDealerVisitState> emit,
+) async {
+  emit(
+    state.copyWith(
+      addLeaveStatus: AddDealerVisitStatus.loading,
+    ),
+  );
 
-    try {
-      final purpose = await addLeave.getPurpose(event.outletId);
-      print('bloc response$purpose');
-      emit(state.copyWith(addLeaveStatus: AddDealerVisitStatus.success, purpose: purpose));
-    } catch (error) {
-      emit(
-        state.copyWith(
-          addLeaveStatus: AddDealerVisitStatus.failure,
-          errorMessage: error.toString(),
-        ),
-      );
-    }
-  } 
+  try {
+    final followupList = await addLeave.getFollowupList(
+      event.outlet_id,
+    );
 
+    print('Followup List: $followupList');
+    print('Followup List Size: ${followupList.length}');
+
+    emit(
+      state.copyWith(
+        addLeaveStatus: AddDealerVisitStatus.success,
+        followupList: followupList,
+      ),
+    );
+  } catch (error) {
+    emit(
+      state.copyWith(
+        addLeaveStatus: AddDealerVisitStatus.failure,
+        errorMessage: error.toString(),
+      ),
+    );
+  }
+}
 }
