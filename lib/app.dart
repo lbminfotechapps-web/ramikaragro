@@ -4,6 +4,7 @@ import 'package:demo/core/theme/app_theme.dart';
 import 'package:demo/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:demo/features/collection/presentation/bloc/dealer_target_bloc.dart';
 import 'package:demo/features/dealer/presentation/bloc/dealerlist_bloc.dart';
+import 'package:demo/features/dealer_visit/presentation/bloc/add_dealer_visit_bloc.dart';
 import 'package:demo/features/distpatchistory/presentation/bloc/dispatch_bloc.dart';
 import 'package:demo/features/farmer/famerfollowup/presentation/bloc/famerfollowup_bloc.dart';
 import 'package:demo/features/farmer/farmerlist/presentation/bloc/farmerlist_bloc.dart';
@@ -56,6 +57,9 @@ class MyApp extends StatelessWidget {
         BlocProvider<SchemeBloc>(create: (_) => sl<SchemeBloc>()),
         BlocProvider<ProductBloc>(create: (_) => sl<ProductBloc>()),
         BlocProvider<OrderHistoryBloc>(create: (_) => sl<OrderHistoryBloc>()),
+        BlocProvider<AddDealerVisitBlock>(
+          create: (_) => sl<AddDealerVisitBlock>(),
+        ),
         BlocProvider<DispatchBloc>(create: (_) => sl<DispatchBloc>()),
         BlocProvider<SalesReturnHistoryBloc>(
           create: (_) => sl<SalesReturnHistoryBloc>(),

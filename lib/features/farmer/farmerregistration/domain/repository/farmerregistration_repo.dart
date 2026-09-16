@@ -14,5 +14,9 @@ abstract class FarmerregistrationRepository {
 
   Future<FarmerDetailsEntity> getFarmerDropData();
 
-  Future<Map<String, dynamic>> saveFarmerDetails(Map<String, dynamic>jsonData);
+  Future<Map<String, dynamic>> saveFarmerDetails(Map<String, dynamic> jsonData);
+
+  Future<Map<String, dynamic>> updateFarmerDetails(
+    Map<String, dynamic> jsonData,
+  );
 }

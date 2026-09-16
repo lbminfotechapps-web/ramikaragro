@@ -27,4 +27,10 @@ class StateListUsecase {
   ) async {
     return farmerregistrationRepository.saveFarmerDetails(jsonData);
   }
+
+  Future<Map<String, dynamic>> updateFarmerDetails(
+    Map<String, dynamic> jsonData,
+  ) async {
+    return farmerregistrationRepository.updateFarmerDetails(jsonData);
+  }
 }
