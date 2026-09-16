@@ -3,6 +3,8 @@ import 'package:demo/core/secure_storage/secure_storage.dart';
 import 'package:demo/core/theme/app_colors.dart';
 
 import 'package:demo/core/utility/data_list.dart';
+import 'package:demo/core/utility/device_info_util.dart';
+import 'package:demo/core/utility/location_util.dart';
 import 'package:demo/core/utility/widgets/custom_appbar.dart';
 import 'package:demo/core/utility/widgets/custom_button.dart';
 import 'package:demo/core/utility/widgets/custom_dropdown.dart';
@@ -73,7 +75,7 @@ class _FarmerEditUpdateScrenState extends State<FarmerEditUpdateScren> {
   String selectedAcers = '';
   String selectedIrrigationId = '';
   String selectedCropId = '';
-
+  bool _submissionSent = false;
   String? _existingSowingDates;
   String? _existingAcers;
   String? _existingIrrigationIds;
@@ -651,21 +653,321 @@ class _FarmerEditUpdateScrenState extends State<FarmerEditUpdateScren> {
     debugPrint('================================');
   }
 
+  void _submit() async {
+    FocusScope.of(context).unfocus();
+
+    if (isLoading) return;
+    if (!_formKey.currentState!.validate()) {
+      return;
+    }
+
+    if (_selectedStateId == null || _selectedStateId!.isEmpty) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Please select state')));
+      return;
+    }
+
+    if (_selectedDistrictId == null || _selectedDistrictId!.isEmpty) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Please select district')));
+      return;
+    }
+
+    final batteryInfo = await DeviceInfoUtil.instance.getBatteryInfo();
+
+    final networkInfo = await DeviceInfoUtil.instance.getNetworkInfo();
+
+    final position = await LocationUtil.instance.getCurrentLocation();
+
+    String latitude = '';
+    String longitude = '';
+    String address = '';
+
+    if (position != null) {
+      latitude = position.latitude.toString();
+      longitude = position.longitude.toString();
+
+      address = await LocationUtil.instance.getAddress(
+        position.latitude,
+        position.longitude,
+      );
+    }
+
+    if (_selectedTalukaId == null || _selectedTalukaId!.isEmpty) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Please select taluka')));
+      return;
+    }
+    debugPrint('================================');
+    debugPrint('FARMER REGISTRATION - ALL PARAMS');
+    debugPrint('================================');
+    debugPrint('FARMER ID - ${widget.farmerDetails!.farmerId.toString()}');
+    debugPrint('FARMER LATTTT - $latitude');
+    debugPrint('FARMER LONG - $longitude');
+    debugPrint('================================');
+
+    // Basic farmer details
+    debugPrint('fld_farmer_name: ${farmerNameController.text.trim()}');
+    debugPrint('fld_address: ${addressController.text.trim()}');
+
+    debugPrint('fld_category_id: ');
+    debugPrint('state: ${_selectedStateId ?? '0'}');
+    debugPrint('fld_demo_type_id: ');
+    debugPrint('district: ${_selectedDistrictId ?? '0'}');
+    debugPrint('taluka: ${_selectedTalukaId ?? '0'}');
+
+    // Farmer status
+    debugPrint('status_of_farmer: ${_selectedFarmerStatus ?? ''}');
+    debugPrint('campaign_radio: Yes');
+
+    // Mobile / contact
+    debugPrint('fld_mobile_no: ${mobileController.text.trim()}');
+    debugPrint('fld_mobile_no2: ${alternateMobileController.text.trim()}');
+    debugPrint('fld_email_id: ${emailController.text.trim()}');
+    debugPrint('contactPersonName: ${contactPersonController.text.trim()}');
+
+    // Address
+    debugPrint('fld_village: ${villageController.text.trim()}');
+    debugPrint('geoAddress: $address');
+    debugPrint('meetingLocation: ');
+    debugPrint('marketNearby: ');
+
+    // Other farmer details
+    debugPrint('fld_tractor_mode: ');
+    debugPrint(
+      'fld_total_acre: ${_selectedCropDetails.fold<double>(0.0, (sum, item) => sum + (double.tryParse(item.acre) ?? 0)).toStringAsFixed(2)}',
+    );
+
+    debugPrint('aadhaarNo: ');
+    debugPrint('remark: ${remarkController.text.trim()}');
+    debugPrint(
+      'currentProductUsed: '
+      '${currentProductUsedController.text.trim()}',
+    );
+
+    // Products / crops
+    debugPrint('selectedProductId: ${_selectedProductIds.join(',')}');
+    debugPrint('selectedProductId LIST: $_selectedProductIds');
+
+    debugPrint(
+      'selectedCropId: ${_selectedCropDetails.map((crop) => crop.cropId.toString()).join(',')}',
+    );
+
+    debugPrint(
+      'selectedCropId LIST: ${_selectedCropDetails.map((crop) => crop.cropId.toString()).toList()}',
+    );
+
+    debugPrint('selectedAcers: $selectedAcers');
+
+    debugPrint('selectedSowingDates: $selectedSowingDates');
+
+    debugPrint('selectedIrrigationId: $selectedIrrigationId');
+
+    debugPrint('selectedCattleId: ');
+    debugPrint('selectedCattleCount: ');
+
+    // Crop details
+    debugPrint('--------------------------------');
+    debugPrint('SELECTED CROP DETAILS');
+    debugPrint('--------------------------------');
+
+    debugPrint('Selected Crop Details Count: ${_selectedCropDetails.length}');
+
+    for (final crop in _selectedCropDetails) {
+      debugPrint(
+        'Crop -> '
+        'ID: ${crop.cropId}, '
+        'Name: ${crop.cropName}, '
+        'Date: ${_formatApiDate(crop.date)}, '
+        'Acre: ${crop.acre}, '
+        'Irrigation ID: ${crop.irrigationId}, '
+        'Irrigation: ${crop.irrigationName}',
+      );
+    }
+
+    // Location
+    debugPrint('--------------------------------');
+    debugPrint('LOCATION');
+    debugPrint('--------------------------------');
+
+    debugPrint('latitude: $latitude');
+    debugPrint('longitude: $longitude');
+
+    debugPrint('networkLatitude: $latitude');
+    debugPrint('networkLongitude: $longitude');
+
+    debugPrint('gpsLatitude: $latitude');
+    debugPrint('gpsLongitude: $longitude');
+
+    debugPrint('differenceByAndroid: 0.0');
+
+    // Device information
+    debugPrint('--------------------------------');
+    debugPrint('DEVICE INFORMATION');
+    debugPrint('--------------------------------');
+
+    debugPrint('strNetworkInfo: $networkInfo');
+    debugPrint('strBatteryInfo: $batteryInfo');
+
+    // Activity
+    debugPrint('activityId: 2');
+
+    debugPrint('================================');
+    debugPrint('END FARMER REGISTRATION PARAMS');
+    debugPrint('================================');
+
+    debugPrint('================================');
+
+    final userData = await SecureStorage.instance.getUserData();
+
+    final userId = int.tryParse(userData?['user_id']?.toString() ?? '');
+
+    debugPrint('User ID: $userId');
+
+    final selectedProductId = _selectedProductIds.join(',');
+
+    debugPrint('Final selectedProductId: $selectedProductId');
+
+    setState(() {
+      isLoading = true;
+      _submissionSent = false;
+    });
+
+    try {
+      context.read<StateBloc>().add(
+        UpdateFarmerSubmitDetailsEvent(
+          farmerId: widget.farmerDetails!.farmerId.toString(),
+          fldFarmerName: farmerNameController.text.trim(),
+
+          fldAddress: addressController.text.trim(),
+
+          userId: userId?.toString() ?? '',
+
+          fldCategoryId: '',
+
+          state: _selectedStateId ?? '0',
+
+          fldDemoTypeId: '',
+
+          district: _selectedDistrictId ?? '0',
+
+          taluka: _selectedTalukaId ?? '0',
+
+          statusOfFarmer: _selectedFarmerStatus ?? '',
+
+          campaignRadio: 'Yes',
+
+          fldMobileNo: mobileController.text.trim(),
+
+          fldMobileNo2: alternateMobileController.text.trim(),
+
+          fldTotalAcre: _selectedCropDetails
+              .fold<double>(
+                0.0,
+                (sum, item) => sum + (double.tryParse(item.acre) ?? 0),
+              )
+              .toStringAsFixed(2),
+
+          fldEmailId: emailController.text.trim(),
+
+          fldTractorMode: '',
+
+          fldVillage: villageController.text.trim(),
+
+          selectedProductId: selectedProductId,
+
+          // Example: 145,146
+          selectedCropId: _selectedCropDetails
+              .map((item) => item.cropId.toString())
+              .join(','),
+
+          // Example: 10,14
+          selectedAcers: selectedAcers,
+
+          // Example: 11-09-2026,12-09-2026
+          selectedSowingDates: selectedSowingDates,
+
+          // Example: 1,1
+          selectedIrrigationId: selectedIrrigationId,
+
+          selectedCattleId: '',
+
+          selectedCattleCount: '',
+
+          latitude: latitude,
+
+          longitude: longitude,
+
+          networkLatitude: latitude,
+
+          networkLongitude: longitude,
+
+          gpsLatitude: latitude,
+
+          gpsLongitude: longitude,
+
+          differenceByAndroid: '0.0',
+
+          contactPersonName: contactPersonController.text.trim(),
+
+          meetingLocation: '',
+
+          marketNearby: '',
+
+          aadhaarNo: '',
+
+          remark: remarkController.text.trim(),
+
+          geoAddress: address,
+
+          strNetworkInfo: networkInfo,
+
+          currentProductUsed: currentProductUsedController.text.trim(),
+
+          strBatteryInfo: batteryInfo,
+
+          activityId: '2',
+
+          image: '',
+        ),
+      );
+      _submissionSent = true;
+
+      debugPrint('================================');
+      debugPrint('FARMER SUBMIT EVENT SENT');
+      debugPrint('================================');
+    } catch (e) {
+      if (!mounted) return;
+
+      setState(() {
+        isLoading = false;
+        _submissionSent = false;
+      });
+
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(e.toString())));
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.backgroundColor,
 
       appBar: CustomAppBar(
-        title: 'Farmer List',
+        title: 'Farmer Details',
         showBackButton: true,
-        onBackTap: () => context.go(AppRouter.home),
+      onBackTap: () => Navigator.pop(context),
       ),
 
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
       floatingActionButton: CustomButton(
         text: 'Update Farmer',
-        onPressed: () {},
+        onPressed: _submit,
         isLoading: isLoading,
         width: double.infinity,
         height: 52,
@@ -710,37 +1012,33 @@ class _FarmerEditUpdateScrenState extends State<FarmerEditUpdateScren> {
               _matchExistingProducts(products);
             }
           }
-          // if (!isLoading || !_submissionSent) return;
-          // if (state.status == StatesStatus.farmerRegiSuccess) {
-          //   setState(() {
-          //     isLoading = false;
-          //     _submissionSent = false;
-          //   });
-          //   ScaffoldMessenger.of(context).showSnackBar(
-          //     SnackBar(
-          //       backgroundColor: AppColors.backgroundColor,
-          //       content: Text(
-          //         style: TextStyle(color: AppColors.accentGreen),
-          //         state.errorMessage ?? 'Farmer Added Successfully',
-          //       ),
-          //     ),
-          //   );
-          //   context.go(AppRouter.home);
-          // }
-          // ============================================
-          // API ERROR
-          // ============================================
-          // else if (state.status == StatesStatus.failed) {
-          //   setState(() {
-          //     isLoading = false;
-          //     _submissionSent = false;
-          //   });
-          //   ScaffoldMessenger.of(context).showSnackBar(
-          //     SnackBar(
-          //       content: Text(state.errorMessage ?? 'Submission failed'),
-          //     ),
-          //   );
-          // }
+          if (!isLoading || !_submissionSent) return;
+          if (state.status == StatesStatus.farmerUpdateSuccess) {
+            setState(() {
+              isLoading = false;
+              _submissionSent = false;
+            });
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                backgroundColor: AppColors.backgroundColor,
+                content: Text(
+                  style: TextStyle(color: AppColors.accentGreen),
+                  state.errorMessage ?? 'Farmer Updated Successfully',
+                ),
+              ),
+            );
+            context.go(AppRouter.home);
+          } else if (state.status == StatesStatus.failed) {
+            setState(() {
+              isLoading = false;
+              _submissionSent = false;
+            });
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(state.errorMessage ?? 'Submission failed'),
+              ),
+            );
+          }
         },
         builder: (context, state) {
           final productDetailData =
@@ -894,7 +1192,7 @@ class _FarmerEditUpdateScrenState extends State<FarmerEditUpdateScren> {
 
                   children: [
                     SizedBox(height: 10.h),
-                    Text(_selectedFarmerStatus.toString()),
+                    // Text(_selectedFarmerStatus.toString()),
                     CustomTextFormField(
                       controller: farmerNameController,
                       hintText: 'Farmer Name *',

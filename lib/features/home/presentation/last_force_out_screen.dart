@@ -4,6 +4,7 @@ import 'package:demo/core/router/app_router.dart';
 import 'package:demo/core/secure_storage/secure_storage.dart';
 import 'package:demo/core/theme/app_colors.dart';
 import 'package:demo/core/utility/app_image_picker.dart';
+import 'package:demo/core/utility/appdialog.dart';
 import 'package:demo/core/utility/device_info_util.dart';
 import 'package:demo/core/utility/location_util.dart';
 import 'package:demo/core/utility/widgets/custom_appbar.dart';
@@ -183,12 +184,8 @@ class _LastForceOutScreenState extends State<LastForceOutScreen> {
 
           route: '',
 
-          startingKmImage: '',
-          closingKmImage: '',
+          activityId: "4",
 
-          activityId: "4" ?? '',
-          date: dateController.text.trim(),
-          newTime: newTimeController.text.trim(),
           isForceOutPunch: true,
         ),
       );
@@ -250,7 +247,16 @@ class _LastForceOutScreenState extends State<LastForceOutScreen> {
                 _submissionSent = false;
               });
 
-              context.go(AppRouter.home);
+              AppDialog.show(
+                context: context,
+                type: DialogType.success,
+                title: 'Lat Punch Successful',
+                message: 'Your Last punch has been submitted successfully.',
+                buttonText: 'OK',
+                onButtonPressed: () {
+                  context.go(AppRouter.home);
+                },
+              );
             }
 
             // --------------------------------------------------
@@ -264,10 +270,12 @@ class _LastForceOutScreenState extends State<LastForceOutScreen> {
                 _submissionSent = false;
               });
 
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text(state.errorMessage ?? 'Punch Out failed'),
-                ),
+              AppDialog.show(
+                context: context,
+                type: DialogType.error,
+                title: 'Last Punch Failed',
+                message: state.errorMessage ?? 'Unable to submit Last Punch.',
+                buttonText: 'OK',
               );
             }
           },

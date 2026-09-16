@@ -655,7 +655,7 @@ class _FarmerregistrationPageState extends State<FarmerregistrationPage> {
       appBar: CustomAppBar(
         title: 'Farmer Registration Form',
         showBackButton: true,
-        onBackTap: () => context.go(AppRouter.home),
+        onBackTap: () => Navigator.pop(context),
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
       floatingActionButton: BlocBuilder<StateBloc, StatsState>(

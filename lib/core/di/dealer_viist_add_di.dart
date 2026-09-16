@@ -5,6 +5,10 @@ import 'package:demo/features/dealer_visit/data/repositories/dealer_visit_reposi
 import 'package:demo/features/dealer_visit/domain/repositories/dealer_visit_repository.dart';
 import 'package:demo/features/dealer_visit/domain/usecases/add_ramark.dart';
 import 'package:demo/features/dealer_visit/presentation/bloc/add_dealer_visit_bloc.dart';
+import 'package:demo/features/farmer/farmerregistration/data/datasource/farmerregistration_datasource.dart';
+import 'package:demo/features/farmer/farmerregistration/data/repoimp/farmerregistration_repo_imp.dart';
+import 'package:demo/features/farmer/farmerregistration/domain/repository/farmerregistration_repo.dart';
+import 'package:demo/features/home/doman/home_repository/home_repo.dart';
 import 'package:get_it/get_it.dart';
 
 final sl = GetIt.instance;
@@ -19,9 +23,19 @@ Future<void> initAddDealerVisitDi() async {
   );
 
   sl.registerLazySingleton<AddRemark>(
-    () => AddRemark(sl<AddDealerVisitRepository>())
+    () => AddRemark(sl<AddDealerVisitRepository>()),
   );
+
+  // sl.registerLazySingleton<FarmerregistrationRepository>(
+  //   () => FarmerregistrationRepositoryImpl(
+  //     datasource: sl<FarmerregistrationDatasource>(),
+  //   ),
+  // );
+
   sl.registerFactory<AddDealerVisitBlock>(
-    () => AddDealerVisitBlock(sl<AddRemark>()),
+    () => AddDealerVisitBlock(
+      sl<AddRemark>(),
+      sl<FarmerregistrationRepository>(),
+    ),
   );
 }

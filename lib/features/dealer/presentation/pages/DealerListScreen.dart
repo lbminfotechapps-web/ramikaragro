@@ -1,6 +1,8 @@
 import 'dart:async';
 
+import 'package:demo/core/secure_storage/secure_storage.dart';
 import 'package:demo/core/theme/app_colors.dart';
+import 'package:demo/core/utility/location_util.dart';
 import 'package:demo/core/utility/widgets/custom_appbar.dart';
 import 'package:demo/core/utility/widgets/custom_loader.dart';
 import 'package:demo/features/dealer/data/models/DealerListModel.dart';
@@ -74,14 +76,48 @@ class _DealerListScreenState extends State<DealerListScreen> {
   // LOAD DEALERS
   // =========================================================
 
-  void _loadDealers({String? searchText}) {
+  // void _loadDealers({String? searchText}) {
+  //   final search = searchText ?? _searchController.text.trim();
+
+  //   context.read<DealerListBloc>().add(
+  //     DealerListEvent(
+  //       user_id: '4',
+  //       latitude: '19.9675697',
+  //       longitude: '73.7774614',
+  //       searchText: search,
+  //       type: 'Dealer',
+  //     ),
+  //   );
+  // }
+
+  void _loadDealers({String? searchText}) async {
     final search = searchText ?? _searchController.text.trim();
+    final userData = await SecureStorage.instance.getUserData();
+    final int? userId = int.tryParse(userData?['user_id']?.toString() ?? '');
+    if (userId == null) {
+      debugPrint('ERROR: Invalid user_id: ${userData?['user_id']}');
+      return;
+    }
+
+    String latitude = '';
+    String longitude = '';
+    // String address = '';
+    final position = await LocationUtil.instance.getCurrentLocation();
+    if (position != null) {
+      latitude = position.latitude.toString();
+      longitude = position.longitude.toString();
+
+      // address = await LocationUtil.instance.getAddress(
+      //   position.latitude,
+      //   position.longitude,
+      // );
+    }
 
     context.read<DealerListBloc>().add(
       DealerListEvent(
-        user_id: '4',
-        latitude: '19.9675697',
-        longitude: '73.7774614',
+        user_id: userId.toString(),
+        latitude: latitude,
+        longitude: longitude,
         searchText: search,
         type: 'Dealer',
       ),
@@ -154,9 +190,7 @@ class _DealerListScreenState extends State<DealerListScreen> {
             return Column(
               children: [
                 _buildSearchBar(),
-                const Expanded(
-                  child: Center(child: CustomLoader()),
-                ),
+                const Expanded(child: Center(child: CustomLoader())),
               ],
             );
           }
@@ -279,12 +313,21 @@ class _DealerListScreenState extends State<DealerListScreen> {
       // FLOATING BUTTON
       // =====================================================
       floatingActionButton: FloatingActionButton(
-        backgroundColor: const Color(0xFF087A2F),
+        backgroundColor: AppColors.accentGreen,
+        foregroundColor: Colors.white,
+        elevation: 3,
         onPressed: () {
-          _loadDealers();
+          context.push('/dealrFollowUpAdd');
         },
-        child: const Icon(Icons.refresh, color: Colors.white),
+        child: const Icon(Icons.person_add_alt_1),
       ),
+      // floatingActionButton: FloatingActionButton(
+      //   backgroundColor: const Color(0xFF087A2F),
+      //   onPressed: () {
+      //     _loadDealers();
+      //   },
+      //   child: const Icon(Icons.refresh, color: Colors.white),
+      // ),
     );
   }
 
@@ -618,7 +661,7 @@ class _DealerListItem extends StatelessWidget {
                 _CircleActionButton(
                   icon: Icons.push_pin,
                   onTap: () {
-                    context.go('/farmerpin', extra: dealer.outletId);
+                    context.push('/farmerpin', extra: dealer.outletId);
                   },
                 ),
 
@@ -654,11 +697,31 @@ class _DealerListItem extends StatelessWidget {
 
                 const SizedBox(width: 6),
 
+                // InkWell(
+                //   onTap: () {
+                //     context.push('/dealrFollowUpAdd', extra: dealer);
+                //   },
+                //   borderRadius: BorderRadius.circular(20),
+                //   child: Container(
+                //     width: 36,
+                //     height: 36,
+                //     decoration: const BoxDecoration(
+                //       color: Colors.white,
+                //       shape: BoxShape.circle,
+                //     ),
+                //     child: Icon(
+                //       Icons.edit_outlined,
+                //       color: AppColors.accentGreen,
+                //       size: 18,
+                //     ),
+                //   ),
+                // ),
                 // INFO
                 _CircleActionButton(
-                  icon: Icons.info_outline,
+                  icon: Icons.edit_outlined,
                   onTap: () {
-                    _showDealerDetails(context, dealer);
+                    context.push('/dealerUpdate', extra: dealer);
+                    //  _showDealerDetails(context, dealer);
                   },
                 ),
               ],
