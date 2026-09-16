@@ -87,4 +87,6 @@ class ApiClient {
     
   static const String getDealerName = '/getTalukaWiseOutletForOrderNew';
     static const String getSalesWiseTarget = '/getSalesWiseTarget';
+
+     static const String upload_sign ="/upload_sign";
 }

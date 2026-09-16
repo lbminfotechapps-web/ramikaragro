@@ -56,13 +56,14 @@ Future<void> initPlaceOrderTargetDi() async {
   // PLACE ORDER DATA SOURCE
   // ==========================================================
 
+
   if (!sl.isRegistered<PlaceOrderRemoteDataSource>()) {
-    sl.registerLazySingleton<PlaceOrderRemoteDataSource>(
-      () => PlaceOrderRemoteDataSource(
-        dioClient: sl<DioClient>(),
-      ),
-    );
-  }
+  sl.registerLazySingleton<PlaceOrderRemoteDataSource>(
+    () => PlaceOrderRemoteDataSource(
+      sl<DioClient>(),
+    ),
+  );
+}
 
   // ==========================================================
   // PLACE ORDER REPOSITORY
@@ -101,7 +102,7 @@ Future<void> initPlaceOrderTargetDi() async {
   }
 
   // ==========================================================
-  // GET DEALERS USE CASE
+  // GET DEALERS
   // ==========================================================
 
   if (!sl.isRegistered<GetDealersUseCase>()) {
@@ -113,7 +114,7 @@ Future<void> initPlaceOrderTargetDi() async {
   }
 
   // ==========================================================
-  // GET GODOWNS USE CASE
+  // GET GODOWNS
   // ==========================================================
 
   if (!sl.isRegistered<GetGodownsUseCase>()) {
@@ -125,7 +126,7 @@ Future<void> initPlaceOrderTargetDi() async {
   }
 
   // ==========================================================
-  // GET CATEGORIES USE CASE
+  // GET CATEGORIES
   // ==========================================================
 
   if (!sl.isRegistered<GetCategoriesUseCase>()) {
@@ -137,7 +138,7 @@ Future<void> initPlaceOrderTargetDi() async {
   }
 
   // ==========================================================
-  // GET PRODUCTS USE CASE
+  // GET PRODUCTS
   // ==========================================================
 
   if (!sl.isRegistered<GetProductsUseCase>()) {
@@ -149,7 +150,7 @@ Future<void> initPlaceOrderTargetDi() async {
   }
 
   // ==========================================================
-  // GET PRODUCT DETAIL RATES USE CASE
+  // GET PRODUCT DETAIL RATES
   // ==========================================================
 
   if (!sl.isRegistered<GetProductDetailRatesUseCase>()) {
@@ -161,7 +162,7 @@ Future<void> initPlaceOrderTargetDi() async {
   }
 
   // ==========================================================
-  // SUBMIT ORDER USE CASE
+  // SUBMIT ORDER
   // ==========================================================
 
   if (!sl.isRegistered<SubmitOrderUseCase>()) {

@@ -15,17 +15,69 @@ enum PlaceOrderStatus {
 }
 
 class PlaceOrderState extends Equatable {
+  // ==========================================================
+  // STATUS
+  // ==========================================================
+
   final PlaceOrderStatus status;
 
+  // ==========================================================
+  // MASTER DATA
+  // ==========================================================
+
   final List<DealerEntity> dealers;
-
   final List<GodownEntity> godowns;
-
   final List<CategoryEntity> categories;
-
   final List<ProductEntity> products;
 
+  // ==========================================================
+  // OLD PRODUCT-LEVEL QUANTITY
+  // ==========================================================
+  //
+  // Keep this temporarily because your existing page/code
+  // may still use it.
+  //
+  // Example:
+  //
+  // {
+  //   "1": 2,
+  //   "2": 3,
+  // }
+  //
   final Map<String, int> quantities;
+
+  // ==========================================================
+  // NEW PACKING-LEVEL QUANTITY
+  // ==========================================================
+  //
+  // Structure:
+  //
+  // productId
+  //      ↓
+  // productDetailsId
+  //      ↓
+  // quantity
+  //
+  // Example:
+  //
+  // {
+  //   "1": {
+  //     "1": 2,
+  //     "2": 5,
+  //   }
+  // }
+  //
+  // Meaning:
+  //
+  // Product 1
+  //   Details 1 = quantity 2
+  //   Details 2 = quantity 5
+  //
+  final Map<String, Map<String, int>> packingQuantities;
+
+  // ==========================================================
+  // ERROR
+  // ==========================================================
 
   final String errorMessage;
 
@@ -36,8 +88,13 @@ class PlaceOrderState extends Equatable {
     this.categories = const [],
     this.products = const [],
     this.quantities = const {},
+    this.packingQuantities = const {},
     this.errorMessage = '',
   });
+
+  // ==========================================================
+  // COPY WITH
+  // ==========================================================
 
   PlaceOrderState copyWith({
     PlaceOrderStatus? status,
@@ -46,6 +103,7 @@ class PlaceOrderState extends Equatable {
     List<CategoryEntity>? categories,
     List<ProductEntity>? products,
     Map<String, int>? quantities,
+    Map<String, Map<String, int>>? packingQuantities,
     String? errorMessage,
   }) {
     return PlaceOrderState(
@@ -55,9 +113,16 @@ class PlaceOrderState extends Equatable {
       categories: categories ?? this.categories,
       products: products ?? this.products,
       quantities: quantities ?? this.quantities,
-      errorMessage: errorMessage ?? this.errorMessage,
+      packingQuantities:
+          packingQuantities ?? this.packingQuantities,
+      errorMessage:
+          errorMessage ?? this.errorMessage,
     );
   }
+
+  // ==========================================================
+  // EQUATABLE
+  // ==========================================================
 
   @override
   List<Object?> get props => [
@@ -67,6 +132,7 @@ class PlaceOrderState extends Equatable {
         categories,
         products,
         quantities,
+        packingQuantities,
         errorMessage,
       ];
 }
