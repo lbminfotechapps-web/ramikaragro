@@ -8,6 +8,7 @@ import 'package:demo/core/di/dispatch_di.dart';
 import 'package:demo/core/di/dealer_viist_add_di.dart';
 import 'package:demo/core/di/employee_activity_report_di.dart';
 import 'package:demo/core/di/employee_output_di.dart';
+import 'package:demo/core/di/expense_di.dart';
 import 'package:demo/core/di/farmer_di.dart';
 import 'package:demo/core/di/gallery_di.dart';
 import 'package:demo/core/di/home_di.dart';
@@ -62,4 +63,5 @@ Future<void> initGlobalDi() async {
   await initOrderHistoryDi();
   await initDispatchDi();
   await initSalesReturnHistoryDi();
+  await initExpenseDi();
 }

@@ -1,11 +1,13 @@
 import 'dart:async';
 import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:demo/core/utility/image_compression.dart';
 import 'package:demo/features/home/doman/home_usecases/get_punch_status_usecase.dart';
 import 'package:demo/features/home/doman/home_entity/vehicle_type_entity.dart';
 import 'package:demo/features/home/presentation/quick_aceess_bloc/quick_access_event.dart';
 import 'package:demo/features/home/presentation/quick_aceess_bloc/quick_access_state.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class QuickAcessBloc extends Bloc<QuickAccessEvent, QuickAccessState> {
@@ -94,6 +96,7 @@ class QuickAcessBloc extends Bloc<QuickAccessEvent, QuickAccessState> {
       );
     }
   }
+  
 
   Future<void> _onPunchInOutAddDetails(
     PunchInOutDetailsAddEvent event,
@@ -107,166 +110,87 @@ class QuickAcessBloc extends Bloc<QuickAccessEvent, QuickAccessState> {
     );
 
     try {
-      File? startingKmFile;
-      File? closingKmFile;
-
-      // ============================================
-      // COMPRESS STARTING KM IMAGE
-      // ============================================
-      if (event.startingKmImage.isNotEmpty) {
-        final originalFile = File(event.startingKmImage);
-
-        if (await originalFile.exists()) {
-          startingKmFile = await ImageCompression.compressImage(
-            originalFile,
-            maxWidth: 450,
-            maxHeight: 450,
-            quality: 45,
-          );
-
-          if (startingKmFile == null) {
-            throw Exception('Unable to compress starting KM image');
-          }
-        } else {
-          print(
-            'Starting KM image file not found: '
-            '${event.startingKmImage}',
-          );
-        }
-      }
-
-      // ============================================
-      // COMPRESS CLOSING KM IMAGE
-      // ============================================
-      if (event.closingKmImage.isNotEmpty) {
-        final originalFile = File(event.closingKmImage);
-
-        if (await originalFile.exists()) {
-          closingKmFile = await ImageCompression.compressImage(
-            originalFile,
-            maxWidth: 450,
-            maxHeight: 450,
-            quality: 45,
-          );
-
-          if (closingKmFile == null) {
-            throw Exception('Unable to compress closing KM image');
-          }
-        } else {
-          print(
-            'Closing KM image file not found: '
-            '${event.closingKmImage}',
-          );
-        }
-      }
-
       // ============================================
       // REQUEST DATA
       // ============================================
-      final Map<String, dynamic> jsonData;
+      final Map<String, dynamic> jsonData = <String, dynamic>{
+        'user_id': event.userId,
+        'in_out_status': event.inOutStatus,
+        'differenceByAndroid': event.differenceByAndroid,
+        'locationHistoryString': event.locationHistoryString,
+        'strBatteryInfo': event.batteryInfo,
+        'strNetworkInfo': event.networkInfo,
+        'pinRemark': event.pinRemark,
+        'strStartingClosingKmAmount': event.startingClosingKmAmount,
+        'strVehicleTypeId': event.vehicleTypeId,
+        'route': event.route,
+        'latitude': event.latitude,
+        'longitude': event.longitude,
+        'networkLatitude': event.networkLatitude,
+        'networkLongitude': event.networkLongitude,
+        'gpsLatitude': event.gpsLatitude,
+        'gpsLongitude': event.gpsLongitude,
+        'geoAddress': event.geoAddress,
+        'activityId': event.activityId,
+      };
 
-      if (punchStatus == '2') {
-        print('for last punch outtt');
-        jsonData = <String, dynamic>{
-          'user_id': event.userId,
-          'in_out_status': event.inOutStatus,
-          'differenceByAndroid': event.differenceByAndroid,
-          'locationHistoryString': event.locationHistoryString,
-          'strBatteryInfo': event.batteryInfo,
-          'strNetworkInfo': event.networkInfo,
-          'pinRemark': event.pinRemark,
-          'strStartingClosingKmAmount': event.startingClosingKmAmount,
-          'strVehicleTypeId': event.vehicleTypeId,
-          'route': event.route,
-          'latitude': event.latitude,
-          'longitude': event.longitude,
-          'networkLatitude': event.networkLatitude,
-          'networkLongitude': event.networkLongitude,
-          'gpsLatitude': event.gpsLatitude,
-          'gpsLongitude': event.gpsLongitude,
-          'geoAddress': event.geoAddress,
-          'activityId': event.activityId,
-          'date': event.date,
-          "time": event.newTime,
-          "isForceOutPunch": event.isForceOutPunch,
-        };
+      // ============================================
+      // ADD STARTING IMAGE AS BASE64
+      // ============================================
+      if (event.startingKmImage != null && event.startingKmImage!.isNotEmpty) {
+        jsonData['startingKmImage'] = event.startingKmImage;
+
+        debugPrint(
+          'Starting image Base64 length: '
+          '${event.startingKmImage!.length}',
+        );
+
+        debugPrint(
+          'Starting image Base64 preview: '
+          '${event.startingKmImage!.substring(0, event.startingKmImage!.length > 50 ? 50 : event.startingKmImage!.length)}...',
+        );
       } else {
-        print('for punch in outtt');
-        jsonData = <String, dynamic>{
-          'user_id': event.userId,
-          'in_out_status': event.inOutStatus,
-          'differenceByAndroid': event.differenceByAndroid,
-          'locationHistoryString': event.locationHistoryString,
-          'strBatteryInfo': event.batteryInfo,
-          'strNetworkInfo': event.networkInfo,
-          'pinRemark': event.pinRemark,
-          'strStartingClosingKmAmount': event.startingClosingKmAmount,
-          'strVehicleTypeId': event.vehicleTypeId,
-          'route': event.route,
-          'latitude': event.latitude,
-          'longitude': event.longitude,
-          'networkLatitude': event.networkLatitude,
-          'networkLongitude': event.networkLongitude,
-          'gpsLatitude': event.gpsLatitude,
-          'gpsLongitude': event.gpsLongitude,
-          'geoAddress': event.geoAddress,
-          'activityId': event.activityId,
-          'date': event.date,
-          "time": event.newTime,
-        };
+        debugPrint('Starting image: NOT PROVIDED');
       }
 
       // ============================================
-      // ADD STARTING IMAGE FILE
+      // DO NOT ADD
       // ============================================
-      if (startingKmFile != null) {
-        jsonData['startingKmImage'] = startingKmFile;
-      }
-
+      // date
+      // time
+      // closingKmImage
+      // isForceOutPunch
+      //
+      // These parameters are completely absent
+      // from the Punch In request.
       // ============================================
-      // ADD CLOSING IMAGE FILE
-      // ============================================
-      if (closingKmFile != null) {
-        jsonData['closingKmImage'] = closingKmFile;
-      }
 
       // ============================================
       // DEBUG
       // ============================================
-      print('========== PUNCH REQUEST ==========');
-      print('user_id: ${event.userId}');
-      print('date: ${event.date}');
-      print('newTime: ${event.newTime}');
-      print('isForceOut: ${event.isForceOutPunch}');
-      print('in_out_status: ${event.inOutStatus}');
-      print('vehicle_type_id: ${event.vehicleTypeId}');
-      print(
-        'starting_km_amount: '
-        '${event.startingClosingKmAmount}',
-      );
-      print('route: ${event.route}');
-      print('latitude: ${event.latitude}');
-      print('longitude: ${event.longitude}');
-      print('activity_id: ${event.activityId}');
+      debugPrint('========== PUNCH IN REQUEST ==========');
 
-      print(
-        'starting_image: '
-        '${startingKmFile?.path ?? 'NO FILE'}',
-      );
+      jsonData.forEach((key, value) {
+        if (key == 'startingKmImage') {
+          final image = value?.toString() ?? '';
 
-      print(
-        'closing_image: '
-        '${closingKmFile?.path ?? 'NO FILE'}',
-      );
+          debugPrint(
+            '$key: BASE64 IMAGE '
+            '(${image.length} characters)',
+          );
+        } else {
+          debugPrint('$key: $value');
+        }
+      });
 
-      print('===================================');
+      debugPrint('======================================');
 
       // ============================================
       // CALL API
       // ============================================
       final response = await getPunchStatusUsecase.savePunchDetails(jsonData);
 
-      print('Punch details response: $response');
+      debugPrint('Punch details response: $response');
 
       emit(
         state.copyWith(
@@ -274,8 +198,10 @@ class QuickAcessBloc extends Bloc<QuickAccessEvent, QuickAccessState> {
           errorMessage: null,
         ),
       );
-    } catch (error) {
-      print('Punch details error: $error');
+    } catch (error, stackTrace) {
+      debugPrint('Punch details error: $error');
+
+      debugPrint('StackTrace: $stackTrace');
 
       emit(
         state.copyWith(

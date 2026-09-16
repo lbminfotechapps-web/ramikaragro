@@ -1,11 +1,8 @@
 import 'dart:io';
-
-import 'package:battery_plus/battery_plus.dart';
-import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:demo/core/utility/device_info_util.dart';
 import 'package:demo/core/utility/location_util.dart';
 
-import 'package:geolocator/geolocator.dart';
+
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';

@@ -13,5 +13,9 @@ abstract class AddDealerVisitRepository {
   
  
 Future<List<DealerFollowupListEntity>> getFollowupList(String outlet_id);
+
+  Future<Map<String, dynamic>> addDealerFollowUp(Map<String, dynamic> jsonData);
+ 
+  Future<Map<String, dynamic>> updateDealerFollowUp(Map<String, dynamic> jsonData);
   
 }

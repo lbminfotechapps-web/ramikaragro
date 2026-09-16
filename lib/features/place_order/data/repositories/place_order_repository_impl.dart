@@ -1,5 +1,3 @@
-import 'dart:typed_data';
-
 import '../../domain/entities/category_entity.dart';
 import '../../domain/entities/dealer_entity.dart';
 import '../../domain/entities/godown_entity.dart';
@@ -68,6 +66,19 @@ class PlaceOrderRepositoryImpl implements PlaceOrderRepository {
   }
 
   // =========================================================
+  // UPLOAD SIGNATURE
+  // =========================================================
+
+  @override
+  Future<String> uploadSignature({
+    required String signaturePath,
+  }) {
+    return remoteDataSource.uploadSignature(
+      signaturePath: signaturePath,
+    );
+  }
+
+  // =========================================================
   // SUBMIT PLACE ORDER
   // =========================================================
 
@@ -79,16 +90,16 @@ class PlaceOrderRepositoryImpl implements PlaceOrderRepository {
     required List<Map<String, dynamic>> products,
     required String remark,
     required List<String> imagePaths,
-    required Uint8List? signatureBytes,
-  }) async {
-    await remoteDataSource.submitOrder(
+    required String signatureFileName,
+  }) {
+    return remoteDataSource.submitOrder(
       userId: userId,
       dealerId: dealer.id.toString(),
       godownId: godown.id.toString(),
       products: products,
       remark: remark,
       imagePaths: imagePaths,
-      signatureBytes: signatureBytes,
+      signatureFileName: signatureFileName,
     );
   }
 }

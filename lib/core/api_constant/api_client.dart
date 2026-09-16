@@ -62,29 +62,39 @@ class ApiClient {
       '/getCropAndIrigationDetails';
 
   static const String addFarmerDetails = '/add_farmer_details';
-  static const String updateFarmerDtails = '/update_farmer_details  ';
-    static const String getDispatchList = '/getDispatchDetails';
-     static const String remark_list = "/remark_list";
+  static const String updateFarmerDtails = '/update_farmer_details';
+  static const String getDispatchList = '/getDispatchDetails';
+  static const String remark_list = "/remark_list";
   static const String add_remark = "/add_remark";
-   static const String getdealervisitpurpose = "/getdealervisitpurpose";
-   static const String getInpunchPending = '/getPendingInpunchStatus';
-   static const String getOrderHistory = '/getOrderList';
+  static const String getdealervisitpurpose = "/getdealervisitpurpose";
+  static const String getInpunchPending = '/getPendingInpunchStatus';
+  static const String getOrderHistory = '/getOrderList';
 
-     static const String getGodown ="/get_godown";
+  static const String getGodown = "/get_godown";
 
   static const String getCategory = "/getCategory";
 
-  static const String getCatgoryProducts ="/getCatgoryProducts";
-  static const String placeOrder ="/placeOrder";
-  static const String getProductDetailRatesKvat ="/getProductDetailRatesKvat";
-    static const String getEmployeeStatus = '/getEmployeeStatus';
+  static const String getCatgoryProducts = "/getCatgoryProducts";
+  static const String placeOrder = "/placeOrder";
+  static const String getProductDetailRatesKvat = "/getProductDetailRatesKvat";
+  static const String getEmployeeStatus = '/getEmployeeStatus';
 
-    static const String updateOrderStatus = '/updateOrderStatus';
-
+  static const String updateOrderStatus = '/updateOrderStatus';
 
   static const String salesReturnHistory = '/getSalesReturnDetails';
-    static const String getSalesTargetDates = '/getSalesTargetDates';
-    
+  static const String getSalesTargetDates = '/getSalesTargetDates';
+
   static const String getDealerName = '/getTalukaWiseOutletForOrderNew';
-    static const String getSalesWiseTarget = '/getSalesWiseTarget';
+  static const String getSalesWiseTarget = '/getSalesWiseTarget';
+  static const String getExpenseParameters = '/getExpenseParameters';
+
+  static const String getDAAmount = '/getDAAmount';
+  static const String getExpensesStatus = '/getExpensesStatus';
+  static const String addExpenseDetails = '/add_expense_details';
+
+     static const String upload_sign ="/upload_sign";
+
+
+  static const String addDealerFollowUp = '/pin_location';
+  static const String updateDealerFollowUp = '/update_pin_location';
 }

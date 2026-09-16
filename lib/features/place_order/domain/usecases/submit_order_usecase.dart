@@ -1,5 +1,3 @@
-import 'dart:typed_data';
-
 import '../../domain/entities/dealer_entity.dart';
 import '../../domain/entities/godown_entity.dart';
 import '../../domain/repositories/place_order_repository.dart';
@@ -18,8 +16,20 @@ class SubmitOrderUseCase {
     required List<Map<String, dynamic>> products,
     required String remark,
     required List<String> imagePaths,
-    required Uint8List? signatureBytes,
+    required String signaturePath,
   }) async {
+    // ============================================================
+    // 1. UPLOAD SIGNATURE
+    // ============================================================
+
+    final signatureFileName = await repository.uploadSignature(
+      signaturePath: signaturePath,
+    );
+
+    // ============================================================
+    // 2. SUBMIT ORDER
+    // ============================================================
+
     await repository.submitOrder(
       userId: userId,
       dealer: dealer,
@@ -27,7 +37,7 @@ class SubmitOrderUseCase {
       products: products,
       remark: remark,
       imagePaths: imagePaths,
-      signatureBytes: signatureBytes,
+      signatureFileName: signatureFileName,
     );
   }
 }

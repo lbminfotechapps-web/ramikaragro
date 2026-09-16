@@ -24,13 +24,73 @@ class PlaceOrderBloc
     required this.getProductsUseCase,
     required this.submitOrderUseCase,
   }) : super(const PlaceOrderState()) {
-    on<LoadPlaceOrderEvent>(_loadPlaceOrder);
-    on<SearchDealerEvent>(_searchDealer);
-    on<GetProductsEvent>(_getProducts);
-    on<AddProductEvent>(_addProduct);
-    on<ChangeProductQuantityEvent>(_changeQuantity);
-    on<RemoveProductEvent>(_removeProduct);
-    on<SubmitPlaceOrderEvent>(_submitOrder);
+    // ==========================================================
+    // INITIAL LOAD
+    // ==========================================================
+
+    on<LoadPlaceOrderEvent>(
+      _loadPlaceOrder,
+    );
+
+    // ==========================================================
+    // DEALER SEARCH
+    // ==========================================================
+
+    on<SearchDealerEvent>(
+      _searchDealer,
+    );
+
+    // ==========================================================
+    // CATEGORY PRODUCTS
+    // ==========================================================
+
+    on<GetProductsEvent>(
+      _getProducts,
+    );
+
+    // ==========================================================
+    // PRODUCT LEVEL QUANTITY
+    // ==========================================================
+
+    on<AddProductEvent>(
+      _addProduct,
+    );
+
+    on<ChangeProductQuantityEvent>(
+      _changeQuantity,
+    );
+
+    // ==========================================================
+    // PACKING / RATE LEVEL QUANTITY
+    // ==========================================================
+
+    on<IncreasePackingQuantityEvent>(
+      _increasePackingQuantity,
+    );
+
+    on<DecreasePackingQuantityEvent>(
+      _decreasePackingQuantity,
+    );
+
+    on<SetPackingQuantityEvent>(
+      _setPackingQuantity,
+    );
+
+    // ==========================================================
+    // REMOVE PRODUCT
+    // ==========================================================
+
+    on<RemoveProductEvent>(
+      _removeProduct,
+    );
+
+    // ==========================================================
+    // SUBMIT ORDER
+    // ==========================================================
+
+    on<SubmitPlaceOrderEvent>(
+      _submitOrder,
+    );
   }
 
   // ==========================================================
@@ -44,6 +104,7 @@ class PlaceOrderBloc
     emit(
       state.copyWith(
         status: PlaceOrderStatus.loading,
+        errorMessage: null,
       ),
     );
 
@@ -65,6 +126,7 @@ class PlaceOrderBloc
           dealers: results[0] as dynamic,
           godowns: results[1] as dynamic,
           categories: results[2] as dynamic,
+          errorMessage: null,
         ),
       );
     } catch (e) {
@@ -95,6 +157,7 @@ class PlaceOrderBloc
         state.copyWith(
           status: PlaceOrderStatus.loaded,
           dealers: dealers,
+          errorMessage: null,
         ),
       );
     } catch (e) {
@@ -108,7 +171,7 @@ class PlaceOrderBloc
   }
 
   // ==========================================================
-  // CATEGORY PRODUCTS
+  // GET CATEGORY PRODUCTS
   // ==========================================================
 
   Future<void> _getProducts(
@@ -119,6 +182,7 @@ class PlaceOrderBloc
       state.copyWith(
         status: PlaceOrderStatus.loading,
         products: const [],
+        errorMessage: null,
       ),
     );
 
@@ -132,6 +196,7 @@ class PlaceOrderBloc
         state.copyWith(
           status: PlaceOrderStatus.loaded,
           products: products,
+          errorMessage: null,
         ),
       );
     } catch (e) {
@@ -152,14 +217,18 @@ class PlaceOrderBloc
     AddProductEvent event,
     Emitter<PlaceOrderState> emit,
   ) {
-    final quantities = Map<String, int>.from(
+    final Map<String, int> quantities =
+        Map<String, int>.from(
       state.quantities,
     );
 
-    final currentQuantity =
-        quantities[event.product.id] ?? 0;
+    final String productId =
+        event.product.id.toString();
 
-    quantities[event.product.id] =
+    final int currentQuantity =
+        quantities[productId] ?? 0;
+
+    quantities[productId] =
         currentQuantity + 1;
 
     emit(
@@ -170,26 +239,201 @@ class PlaceOrderBloc
   }
 
   // ==========================================================
-  // CHANGE QUANTITY
+  // CHANGE PRODUCT QUANTITY
   // ==========================================================
 
   void _changeQuantity(
     ChangeProductQuantityEvent event,
     Emitter<PlaceOrderState> emit,
   ) {
-    final quantities = Map<String, int>.from(
+    final Map<String, int> quantities =
+        Map<String, int>.from(
       state.quantities,
     );
 
     if (event.quantity <= 0) {
-      quantities.remove(event.productId);
+      quantities.remove(
+        event.productId,
+      );
     } else {
-      quantities[event.productId] = event.quantity;
+      quantities[event.productId] =
+          event.quantity;
     }
 
     emit(
       state.copyWith(
         quantities: quantities,
+      ),
+    );
+  }
+
+  // ==========================================================
+  // INCREASE PACKING QUANTITY
+  // ==========================================================
+
+  void _increasePackingQuantity(
+    IncreasePackingQuantityEvent event,
+    Emitter<PlaceOrderState> emit,
+  ) {
+    final Map<String, Map<String, int>>
+        updatedPackingQuantities = {};
+
+    for (final entry
+        in state.packingQuantities.entries) {
+      updatedPackingQuantities[entry.key] =
+          Map<String, int>.from(
+        entry.value,
+      );
+    }
+
+    final String productId =
+        event.productId.toString();
+
+    final String productDetailsId =
+        event.productDetailsId.toString();
+
+    final Map<String, int> productQuantities =
+        updatedPackingQuantities.putIfAbsent(
+      productId,
+      () => <String, int>{},
+    );
+
+    final int currentQuantity =
+        productQuantities[productDetailsId] ?? 1;
+
+    final int newQuantity =
+        currentQuantity + 1;
+
+    productQuantities[productDetailsId] =
+        newQuantity;
+
+    print('========================================');
+    print('PACKING QUANTITY INCREASED');
+    print('Product ID : $productId');
+    print('Details ID : $productDetailsId');
+    print(
+      'Quantity   : $currentQuantity -> $newQuantity',
+    );
+    print('========================================');
+
+    emit(
+      state.copyWith(
+        packingQuantities:
+            updatedPackingQuantities,
+      ),
+    );
+  }
+
+  // ==========================================================
+  // DECREASE PACKING QUANTITY
+  // ==========================================================
+
+  void _decreasePackingQuantity(
+    DecreasePackingQuantityEvent event,
+    Emitter<PlaceOrderState> emit,
+  ) {
+    final Map<String, Map<String, int>>
+        updatedPackingQuantities = {};
+
+    for (final entry
+        in state.packingQuantities.entries) {
+      updatedPackingQuantities[entry.key] =
+          Map<String, int>.from(
+        entry.value,
+      );
+    }
+
+    final String productId =
+        event.productId.toString();
+
+    final String productDetailsId =
+        event.productDetailsId.toString();
+
+    final Map<String, int>? productQuantities =
+        updatedPackingQuantities[productId];
+
+    if (productQuantities == null) {
+      return;
+    }
+
+    final int currentQuantity =
+        productQuantities[productDetailsId] ?? 1;
+
+    final int newQuantity =
+        currentQuantity > 1
+            ? currentQuantity - 1
+            : 1;
+
+    productQuantities[productDetailsId] =
+        newQuantity;
+
+    print('========================================');
+    print('PACKING QUANTITY DECREASED');
+    print('Product ID : $productId');
+    print('Details ID : $productDetailsId');
+    print(
+      'Quantity   : $currentQuantity -> $newQuantity',
+    );
+    print('========================================');
+
+    emit(
+      state.copyWith(
+        packingQuantities:
+            updatedPackingQuantities,
+      ),
+    );
+  }
+
+  // ==========================================================
+  // SET PACKING QUANTITY
+  // ==========================================================
+
+  void _setPackingQuantity(
+    SetPackingQuantityEvent event,
+    Emitter<PlaceOrderState> emit,
+  ) {
+    final Map<String, Map<String, int>>
+        updatedPackingQuantities = {};
+
+    for (final entry
+        in state.packingQuantities.entries) {
+      updatedPackingQuantities[entry.key] =
+          Map<String, int>.from(
+        entry.value,
+      );
+    }
+
+    final String productId =
+        event.productId.toString();
+
+    final String productDetailsId =
+        event.productDetailsId.toString();
+
+    final Map<String, int> productQuantities =
+        updatedPackingQuantities.putIfAbsent(
+      productId,
+      () => <String, int>{},
+    );
+
+    final int quantity =
+        event.quantity < 1
+            ? 1
+            : event.quantity;
+
+    productQuantities[productDetailsId] =
+        quantity;
+
+    print('========================================');
+    print('PACKING QUANTITY SET');
+    print('Product ID : $productId');
+    print('Details ID : $productDetailsId');
+    print('Quantity   : $quantity');
+    print('========================================');
+
+    emit(
+      state.copyWith(
+        packingQuantities:
+            updatedPackingQuantities,
       ),
     );
   }
@@ -202,59 +446,126 @@ class PlaceOrderBloc
     RemoveProductEvent event,
     Emitter<PlaceOrderState> emit,
   ) {
-    final quantities = Map<String, int>.from(
+    final Map<String, int> quantities =
+        Map<String, int>.from(
       state.quantities,
     );
 
-    quantities.remove(event.productId);
+    final Map<String, Map<String, int>>
+        packingQuantities = {};
+
+    for (final entry
+        in state.packingQuantities.entries) {
+      packingQuantities[entry.key] =
+          Map<String, int>.from(
+        entry.value,
+      );
+    }
+
+    final String productId =
+        event.productId.toString();
+
+    quantities.remove(productId);
+
+    packingQuantities.remove(productId);
+
+    print('========================================');
+    print('PRODUCT REMOVED');
+    print('Product ID : $productId');
+    print('========================================');
 
     emit(
       state.copyWith(
         quantities: quantities,
+        packingQuantities:
+            packingQuantities,
       ),
     );
   }
 
-  // ==========================================================
-  // SUBMIT ORDER
-  // ==========================================================
+  // // ==========================================================
+  // // SUBMIT ORDER
+  // // ==========================================================
 
-  Future<void> _submitOrder(
-    SubmitPlaceOrderEvent event,
-    Emitter<PlaceOrderState> emit,
-  ) async {
+  // Future<void> _submitOrder(
+  //   SubmitPlaceOrderEvent event,
+  //   Emitter<PlaceOrderState> emit,
+  // ) async {
+  //   emit(
+  //     state.copyWith(
+  //       status: PlaceOrderStatus.submitting,
+  //       errorMessage: null,
+  //     ),
+  //   );
+
+  //   try {
+  //     await submitOrderUseCase(
+  //       userId: event.userId,
+  //       dealer: event.dealer,
+  //       godown: event.godown,
+  //       products: event.products,
+  //       remark: event.remark,
+  //       imagePaths: event.imagePaths,
+  //       signatureBytes: event.signatureBytes,
+  //     );
+
+  //     emit(
+  //       state.copyWith(
+  //         status: PlaceOrderStatus.success,
+  //         errorMessage: null,
+  //       ),
+  //     );
+  //   } catch (e) {
+  //     emit(
+  //       state.copyWith(
+  //         status: PlaceOrderStatus.failure,
+  //         errorMessage: e.toString(),
+  //       ),
+  //     );
+  //   }
+  // }
+
+
+// ==========================================================
+// SUBMIT ORDER
+// ==========================================================
+
+Future<void> _submitOrder(
+  SubmitPlaceOrderEvent event,
+  Emitter<PlaceOrderState> emit,
+) async {
+  emit(
+    state.copyWith(
+      status: PlaceOrderStatus.submitting,
+      errorMessage: null,
+    ),
+  );
+
+  try {
+    await submitOrderUseCase(
+      userId: event.userId,
+      dealer: event.dealer,
+      godown: event.godown,
+      products: event.products,
+      remark: event.remark,
+      imagePaths: event.imagePaths,
+      signaturePath: event.signaturePath,
+    );
+
     emit(
       state.copyWith(
-        status: PlaceOrderStatus.submitting,
+        status: PlaceOrderStatus.success,
+        errorMessage: null,
       ),
     );
-
-    try {
-      await submitOrderUseCase(
-        userId: event.userId,
-        dealer: event.dealer,
-        godown: event.godown,
-        products: event.products,
-        remark: event.remark,
-        imagePaths: event.imagePaths,
-
-        // IMPORTANT:
-        // signaturePath has been replaced with signatureBytes.
-        signatureBytes: event.signatureBytes,
-      );
-
-      emit(
-        state.copyWith(
-          status: PlaceOrderStatus.success,
-        ),
-      );
-    } catch (e) {
-      emit(
-        state.copyWith(
-          status: PlaceOrderStatus.failure,
-          errorMessage: e.toString(),
-        ),
-      );
-    }
+  } catch (e) {
+    emit(
+      state.copyWith(
+        status: PlaceOrderStatus.failure,
+        errorMessage: e.toString(),
+      ),
+    );
   }
+}
+
 }

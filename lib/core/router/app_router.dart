@@ -1,11 +1,15 @@
 import 'package:demo/core/utility/widgets/bottom_navigation.dart';
 import 'package:demo/core/di/auth_di.dart';
+import 'package:demo/features/addexpense/presentation/pages/add_expense_page.dart';
 import 'package:demo/features/auth/presentation/pages/login_screen.dart';
 import 'package:demo/features/collection/presentation/pages/collection_list_page.dart';
 import 'package:demo/features/collection/presentation/pages/collection_wise_form_page.dart';
 import 'package:demo/features/collection/presentation/pages/dealer_wise_target_page.dart';
+import 'package:demo/features/dealer/data/models/DealerListModel.dart';
 import 'package:demo/features/dealer/presentation/pages/DealerListScreen.dart';
 import 'package:demo/features/dealer_visit/presentation/pages/dealer_followup_list_page.dart';
+import 'package:demo/features/dealer_visit/presentation/pages/dealer_followup_add.dart';
+import 'package:demo/features/dealer_visit/presentation/pages/edit_update_dealer.dart';
 import 'package:demo/features/distpatchistory/presentation/pages/dispatch_page.dart';
 import 'package:demo/features/dealer_visit/presentation/pages/add_remark_page.dart';
 import 'package:demo/features/expense/presentation/pages/my_expense_page.dart';
@@ -101,12 +105,15 @@ class AppRouter {
   static const String expenseList = '/expenseList';
   static const String teamExpenseList = '/teamExpenseList';
   static const String salesTargetAndAchievement = '/salesTargetAndAchievement';
-   static const String placeOrder = '/placeOrder';
+  static const String placeOrder = '/placeOrder';
 
   static const String orderHistoy = '/orderHistoy';
   static const String dispatchHistoy = '/dispatchHistoy';
   static const String salesHistoy = '/salesHistoy';
   static const String farmerEdit = '/farmerEdit';
+  static const String addExpense = '/addExpense';
+  static const String dealrFollowUpAdd = '/dealrFollowUpAdd';
+  static const String dealerUpdate = '/dealerUpdate';
 
   static final GoRouter router = GoRouter(
     initialLocation: splash,
@@ -133,6 +140,14 @@ class AppRouter {
         name: 'notVisitDealer',
         builder: (context, state) {
           return const NotVisitedDealerPage();
+        },
+      ),
+
+      GoRoute(
+        path: addExpense,
+        name: 'addExpense',
+        builder: (context, state) {
+          return const AddExpensePage();
         },
       ),
 
@@ -247,7 +262,7 @@ class AppRouter {
         },
       ),
 
-       GoRoute(
+      GoRoute(
         path: salesTargetAndAchievement,
         name: 'salesTargetAndAchievement',
         builder: (context, state) {
@@ -255,18 +270,13 @@ class AppRouter {
         },
       ),
 
-
-
-        GoRoute(
+      GoRoute(
         path: placeOrder,
         name: 'placeOrder',
         builder: (context, state) {
           return const PlaceOrderPage();
         },
       ),
-
-
-
 
       GoRoute(
         path: cropSchedule,
@@ -301,8 +311,8 @@ class AppRouter {
         path: farmerpin,
         name: 'farmerpin',
         builder: (context, state) {
-          final dealerId = state.extra is String ? state.extra as String : '';
-          return AddDealerVisitPage(dealerId: dealerId);
+          final farmerId = state.extra is String ? state.extra as String : '';
+          return FamerFollowupPage(farmerId: farmerId);
         },
       ),
       GoRoute(
@@ -389,6 +399,25 @@ class AppRouter {
           final userId = state.extra is String ? state.extra as String : '';
 
           return EmployeeActivityReportPage(userId: userId);
+        },
+      ),
+
+      GoRoute(
+        path: dealrFollowUpAdd,
+        name: 'dealrFollowUpAdd',
+        builder: (context, state) {
+          return DealerFollowupAdd();
+        },
+      ),
+
+      GoRoute(
+        path: dealerUpdate,
+        name: 'dealerUpdate',
+        builder: (context, state) {
+          final dealerDetails = state.extra is DealerListModel
+              ? state.extra as DealerListModel
+              : null;
+          return EditUpdateDealer(dealerDetails);
         },
       ),
 
