@@ -96,7 +96,7 @@ class QuickAcessBloc extends Bloc<QuickAccessEvent, QuickAccessState> {
       );
     }
   }
-  
+
 
   Future<void> _onPunchInOutAddDetails(
     PunchInOutDetailsAddEvent event,
@@ -194,7 +194,7 @@ class QuickAcessBloc extends Bloc<QuickAccessEvent, QuickAccessState> {
 
       emit(
         state.copyWith(
-          quickAccessStatus: QuickAccessStatus.success,
+          quickAccessStatus: QuickAccessStatus.punchStatusSuccess,
           errorMessage: null,
         ),
       );

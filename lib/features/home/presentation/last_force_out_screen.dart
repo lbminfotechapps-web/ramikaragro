@@ -241,7 +241,7 @@ class _LastForceOutScreenState extends State<LastForceOutScreen> {
             // SUCCESS
             // --------------------------------------------------
 
-            if (state.quickAccessStatus == QuickAccessStatus.success) {
+            if (state.quickAccessStatus == QuickAccessStatus.punchStatusSuccess) {
               setState(() {
                 isLoading = false;
                 _submissionSent = false;

@@ -56,11 +56,7 @@ class AddDealerVisitState extends Equatable {
           ? null
           : errorMessage ?? this.errorMessage,
 
-      leaves: leaves ?? this.leaves,
 
-      purpose: purpose ?? this.purpose,
-
-      errorMessage: clearError ? null : errorMessage ?? this.errorMessage,
 
       successMessage: clearSuccess
           ? null
@@ -80,11 +76,4 @@ class AddDealerVisitState extends Equatable {
         successMessage,
       ];
 }
-    addLeaveStatus,
-    leaves,
-    errorMessage,
-    successMessage,
-    statentity,
-    districtList,
-  ];
-}
+   

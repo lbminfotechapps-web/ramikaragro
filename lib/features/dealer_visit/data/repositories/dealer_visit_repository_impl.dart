@@ -33,4 +33,10 @@ class DealerVisitRepositoryImpl implements AddDealerVisitRepository {
   ) {
     return remoteDataSource.updateDealer(jsonData);
   }
+
+ @override
+  Future<List<DealerFollowupListEntity>> getFollowupList(String outletId) async {
+    final menus = await remoteDataSource.getFollowupList(outletId);
+    return menus;
+  }
 }

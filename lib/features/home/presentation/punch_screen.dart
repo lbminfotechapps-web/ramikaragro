@@ -407,7 +407,7 @@ class _PunchScreenState extends State<PunchScreen> {
           listener: (context, state) {
             if (!isLoading || !_submissionSent) return;
 
-            if (state.quickAccessStatus == QuickAccessStatus.success) {
+            if (state.quickAccessStatus == QuickAccessStatus.punchStatusSuccess) {
               setState(() {
                 isLoading = false;
                 _submissionSent = false;
