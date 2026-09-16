@@ -5,10 +5,10 @@ import 'package:demo/core/utility/image_compression.dart';
 import 'package:demo/features/dealer_visit/presentation/bloc/add_dealer_visit_state.dart';
 import 'package:demo/features/farmer/farmerregistration/domain/repository/farmerregistration_repo.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-
 import '../../../../core/error/exceptions.dart';
 import '../../domain/usecases/add_ramark.dart';
 import 'add_dealer_visit_event.dart';
+
 
 class AddDealerVisitBlock
     extends Bloc<AddDealerRemarkEvent, AddDealerVisitState> {
@@ -20,6 +20,7 @@ class AddDealerVisitBlock
     // on<GetLeaveListEvent>(_onGetLeaveList);
     on<AddDealerRemarkSubmitEvent>(_onAddRemark);
     on<GetPurposeEvent>(_onGetPurpose);
+    on<GetFollowupEvent>(_onGetFollowup);
     on<AddDealerFollowUpEvent>(_onAddDealerFollowUp);
 
     on<StateListEvent>(_onStateListGet);
@@ -81,7 +82,7 @@ class AddDealerVisitBlock
         message = e.toString();
       }
 
-      emit(
+     emit(
         state.copyWith(
           addLeaveStatus: AddDealerVisitStatus.failure,
           errorMessage: message,
@@ -116,6 +117,42 @@ class AddDealerVisitBlock
     }
   }
 
+
+
+
+   Future<void> _onGetFollowup(
+  GetFollowupEvent event,
+  Emitter<AddDealerVisitState> emit,
+) async {
+  emit(
+    state.copyWith(
+      addLeaveStatus: AddDealerVisitStatus.loading,
+    ),
+  );
+
+  try {
+    final followupList = await addLeave.getFollowupList(
+      event.outlet_id,
+    );
+
+    print('Followup List: $followupList');
+    print('Followup List Size: ${followupList.length}');
+
+    emit(
+      state.copyWith(
+        addLeaveStatus: AddDealerVisitStatus.success,
+        followupList: followupList,
+      ),
+    );
+  } catch (error) {
+    emit(
+      state.copyWith(
+        addLeaveStatus: AddDealerVisitStatus.failure,
+        errorMessage: error.toString(),
+      ),
+    );
+  }
+}
   Future<void> _onStateListGet(
     StateListEvent event,
     Emitter<AddDealerVisitState> emit,

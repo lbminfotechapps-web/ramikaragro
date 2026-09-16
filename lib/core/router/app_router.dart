@@ -7,6 +7,7 @@ import 'package:demo/features/collection/presentation/pages/collection_wise_form
 import 'package:demo/features/collection/presentation/pages/dealer_wise_target_page.dart';
 import 'package:demo/features/dealer/data/models/DealerListModel.dart';
 import 'package:demo/features/dealer/presentation/pages/DealerListScreen.dart';
+import 'package:demo/features/dealer_visit/presentation/pages/dealer_followup_list_page.dart';
 import 'package:demo/features/dealer_visit/presentation/pages/dealer_followup_add.dart';
 import 'package:demo/features/dealer_visit/presentation/pages/edit_update_dealer.dart';
 import 'package:demo/features/distpatchistory/presentation/pages/dispatch_page.dart';
@@ -318,8 +319,9 @@ class AppRouter {
         path: dealerpin,
         name: 'dealerpin',
         builder: (context, state) {
-          final farmerId = state.extra is String ? state.extra as String : '';
-          return FamerFollowupPage(farmerId: farmerId);
+          final dealerId = state.extra is String ? state.extra as String : '';
+          final dealerName = state.extra is String ? state.extra as String : '';
+          return DealerFollowupListPage(dealerId: dealerId,dealerName: dealerName);
         },
       ),
 

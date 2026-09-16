@@ -661,7 +661,7 @@ class _DealerListItem extends StatelessWidget {
                 _CircleActionButton(
                   icon: Icons.push_pin,
                   onTap: () {
-                    context.push('/farmerpin', extra: dealer.outletId);
+                    context.go('/dealerpin', extra: dealer.outletId);
                   },
                 ),
 

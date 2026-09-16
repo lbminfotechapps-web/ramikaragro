@@ -1,4 +1,5 @@
 import 'package:demo/features/dealer_visit/domain/entities/add_dealer_visit_entity.dart';
+import 'package:demo/features/dealer_visit/domain/entities/dealer_followup_list_entity.dart';
 import 'package:demo/features/dealer_visit/domain/entities/visit_purpose_entity.dart';
 import 'package:demo/features/farmer/farmerregistration/domain/entity/district_entity.dart';
 import 'package:demo/features/farmer/farmerregistration/domain/entity/state_entity.dart';
@@ -15,9 +16,9 @@ enum AddDealerVisitStatus {
 
 class AddDealerVisitState extends Equatable {
   final AddDealerVisitStatus addLeaveStatus;
-
   final List<AddDealerVisitEntity> leaves;
   final List<PurposeEntity> purpose;
+  final List<DealerFollowupListEntity> followupList;
   final List<StateEntity> statentity;
   final List<DistrictEntity> districtList;
   final String? errorMessage;
@@ -27,6 +28,7 @@ class AddDealerVisitState extends Equatable {
     this.addLeaveStatus = AddDealerVisitStatus.initial,
     this.leaves = const [],
     this.purpose = const [],
+    this.followupList = const [],
     this.statentity = const [],
     this.districtList = const [],
     this.errorMessage,
@@ -37,6 +39,7 @@ class AddDealerVisitState extends Equatable {
     AddDealerVisitStatus? addLeaveStatus,
     List<AddDealerVisitEntity>? leaves,
     List<PurposeEntity>? purpose,
+    List<DealerFollowupListEntity>? followupList,
     List<StateEntity>? statentity,
     List<DistrictEntity>? districtList,
     String? errorMessage,
@@ -46,6 +49,12 @@ class AddDealerVisitState extends Equatable {
   }) {
     return AddDealerVisitState(
       addLeaveStatus: addLeaveStatus ?? this.addLeaveStatus,
+      leaves: leaves ?? this.leaves,
+      purpose: purpose ?? this.purpose,
+      followupList: followupList ?? this.followupList,
+      errorMessage: clearError
+          ? null
+          : errorMessage ?? this.errorMessage,
 
       leaves: leaves ?? this.leaves,
 
@@ -63,6 +72,14 @@ class AddDealerVisitState extends Equatable {
 
   @override
   List<Object?> get props => [
+        addLeaveStatus,
+        leaves,
+        purpose,
+        followupList,
+        errorMessage,
+        successMessage,
+      ];
+}
     addLeaveStatus,
     leaves,
     errorMessage,

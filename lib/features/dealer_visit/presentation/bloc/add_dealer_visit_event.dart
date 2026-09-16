@@ -253,3 +253,8 @@ class UpdateDealerEvent extends AddDealerRemarkEvent {
     registrationType,
   ];
 }
+class GetFollowupEvent extends AddDealerRemarkEvent{
+   final String outlet_id;
+
+ const GetFollowupEvent(this.outlet_id);
+ }
