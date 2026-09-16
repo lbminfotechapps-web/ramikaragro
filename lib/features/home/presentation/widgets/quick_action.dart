@@ -28,11 +28,7 @@ class QuickAccessSection extends StatefulWidget {
   final List<MenuEntity> menus;
   final PunchStatEntity? punchStat;
 
-  const QuickAccessSection({
-    super.key,
-    required this.menus,
-    this.punchStat,
-  });
+  const QuickAccessSection({super.key, required this.menus, this.punchStat});
 
   @override
   State<QuickAccessSection> createState() => _QuickAccessSectionState();
@@ -209,6 +205,8 @@ class _QuickAccessSectionState extends State<QuickAccessSection> {
       context.push('/dispatchHistoy');
     } else if (menu.menuId == '78') {
       context.push('/salesHistoy');
+    } else if (menu.menuId == '9') {
+      context.push('/addExpense');
     } else if (menu.menuId == '57' ||
         menu.menuId == '63' ||
         menu.menuId == '32') {
@@ -238,10 +236,7 @@ class _QuickAccessSectionState extends State<QuickAccessSection> {
 class QuickAccessItemWidget extends StatelessWidget {
   final QuickAccessItem item;
 
-  const QuickAccessItemWidget({
-    super.key,
-    required this.item,
-  });
+  const QuickAccessItemWidget({super.key, required this.item});
 
   @override
   Widget build(BuildContext context) {
@@ -381,4 +376,3 @@ class _MoreItem extends StatelessWidget {
     );
   }
 }
-

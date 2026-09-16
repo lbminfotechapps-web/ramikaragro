@@ -9,7 +9,9 @@ import 'package:demo/core/theme/app_colors.dart';
 import 'package:demo/core/utility/widgets/custom_appbar.dart';
 import 'package:demo/core/utility/widgets/custom_card.dart';
 import 'package:demo/features/home/doman/home_entity/homevisit_entity.dart';
+import 'package:demo/features/home/doman/home_entity/inpunch_pending_entity.dart';
 import 'package:demo/features/home/presentation/home_bloc/home_bloc.dart';
+import 'package:demo/features/home/presentation/home_bloc/home_event.dart';
 import 'package:demo/features/home/presentation/home_bloc/home_state.dart';
 
 import 'package:demo/features/home/presentation/quick_aceess_bloc/quick_access_state.dart';
@@ -25,6 +27,7 @@ import 'package:flutter_screenutil_plus/flutter_screenutil_plus.dart';
 import 'package:dio/dio.dart';
 import 'package:get_it/get_it.dart';
 import 'package:go_router/go_router.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class Home extends StatefulWidget {
   const Home({super.key});
@@ -70,6 +73,8 @@ class _HomeState extends State<Home> {
     setState(() {
       _username = userName;
     });
+
+    context.read<HomeBloc>().add(GetInpunchPendingEvent(userId: userId));
   }
 
   Future<void> getUserName() async {
@@ -243,13 +248,14 @@ class _HomeState extends State<Home> {
                           builder: (context, state) {
                             int pendingCount = 0;
 
-                            if (state.status == HomeStatus.loading) {
+                            if (state.status == HomeStatus.success) {
                               pendingCount = state.data.length;
                             }
-
+                            print("List Size is. :${state.data.length}");
                             return buildInfoCard(
                               'In Punch Pending',
                               pendingCount.toString(),
+                              onTap: () => _showPendingListDialog(state.data),
                             );
                           },
                         ),
@@ -456,9 +462,123 @@ class _HomeState extends State<Home> {
     );
   }
 
-  Widget buildInfoCard(String label, String value) {
+  Future<void> _callPhoneNumber(String phoneNumber) async {
+    final uri = Uri(scheme: 'tel', path: phoneNumber);
+
+    if (await canLaunchUrl(uri)) {
+      await launchUrl(uri);
+      return;
+    }
+
+    if (!mounted) return;
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Unable to open the phone dialer')),
+    );
+  }
+
+  Future<void> _showPendingListDialog(
+    List<InpunchPendingEntity> pendingList,
+  ) async {
+    await showDialog<void>(
+      context: context,
+      builder: (dialogContext) {
+        final colorScheme = Theme.of(dialogContext).colorScheme;
+
+        return AlertDialog(
+          title: Row(
+            children: [
+              Icon(Icons.pending_actions, color: colorScheme.primary),
+              const SizedBox(width: 10),
+              const Expanded(child: Text('In Punch Pending')),
+              Text(
+                pendingList.length.toString(),
+                style: TextStyle(
+                  color: colorScheme.primary,
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ],
+          ),
+          content: pendingList.isEmpty
+              ? const SizedBox(width: 280, child: Text('No pending requests'))
+              : ConstrainedBox(
+                  constraints: BoxConstraints(
+                    maxWidth: 620,
+                    maxHeight: MediaQuery.sizeOf(dialogContext).height * 0.55,
+                  ),
+                  child: SingleChildScrollView(
+                    child: SingleChildScrollView(
+                      scrollDirection: Axis.horizontal,
+                      child: DataTable(
+                        columnSpacing: 28,
+                        headingRowHeight: 44,
+                        dataRowMinHeight: 52,
+                        dataRowMaxHeight: 68,
+                        dividerThickness: 0.6,
+                        headingRowColor: WidgetStatePropertyAll(
+                          colorScheme.primary.withOpacity(0.1),
+                        ),
+                        headingTextStyle: TextStyle(
+                          color: colorScheme.primary,
+                          fontWeight: FontWeight.bold,
+                        ),
+                        columns: const [
+                          DataColumn(label: Text('Employee')),
+                          DataColumn(label: Text('Mobile')),
+                        ],
+                        rows: List<DataRow>.generate(pendingList.length, (
+                          index,
+                        ) {
+                          final pending = pendingList[index];
+                          final mobileNumber =
+                              pending.fldMobileNo?.trim() ?? '';
+
+                          return DataRow(
+                            color: WidgetStateProperty.resolveWith(
+                              (states) => index.isEven
+                                  ? colorScheme.surface
+                                  : colorScheme.primary.withOpacity(0.035),
+                            ),
+                            cells: [
+                              DataCell(Text(pending.fldAdmName ?? 'Unknown')),
+                              DataCell(
+                                Text(
+                                  mobileNumber.isEmpty ? '-' : mobileNumber,
+                                  style: mobileNumber.isEmpty
+                                      ? null
+                                      : TextStyle(
+                                          color: colorScheme.primary,
+                                          decoration: TextDecoration.underline,
+                                        ),
+                                ),
+                                onTap: mobileNumber.isEmpty
+                                    ? null
+                                    : () => _callPhoneNumber(mobileNumber),
+                              ),
+                            ],
+                          );
+                        }),
+                      ),
+                    ),
+                  ),
+                ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(dialogContext).pop(),
+              child: const Text('CLOSE'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Widget buildInfoCard(String label, String value, {VoidCallback? onTap}) {
     return CustomCard(
       color: const Color(0xFFFFF8EF),
+      onTap: onTap,
       padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 10.h),
       child: Row(
         children: [

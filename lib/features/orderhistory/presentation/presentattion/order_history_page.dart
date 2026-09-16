@@ -896,6 +896,12 @@ class _OrderHistoryPageState extends State<OrderHistoryPage> {
   Widget _buildOrderCard(dynamic order) {
     final isPending = order.status == '0';
 
+    final isReportingEmployee =
+        userId.toString() == order.reportingToId.toString();
+
+    final canShowApproveCancel =
+        isPending && isReportingEmployee && order.statusReportingEmp == '0';
+
     return Card(
       margin: EdgeInsets.only(bottom: 10.h),
       elevation: 3,
@@ -1021,7 +1027,7 @@ class _OrderHistoryPageState extends State<OrderHistoryPage> {
             // =================================================
             // APPROVE / CANCEL
             // =================================================
-            if (isPending) ...[
+            if (canShowApproveCancel) ...[
               SizedBox(height: 8.h),
 
               Row(

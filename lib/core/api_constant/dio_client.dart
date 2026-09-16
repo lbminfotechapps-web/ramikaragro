@@ -24,6 +24,13 @@ class DioClient {
               print('API ${options.method}: ${options.uri}');
               handler.next(options);
             },
+            onError: (error, handler) {
+              print(
+                'API ERROR ${error.response?.statusCode}: ${error.requestOptions.uri}',
+              );
+              print('API ERROR RESPONSE: ${error.response?.data}');
+              handler.next(error);
+            },
           ),
         );
 
