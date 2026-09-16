@@ -1,6 +1,7 @@
 import 'package:demo/core/di/auth_di.dart';
 import 'package:demo/core/router/app_router.dart';
 import 'package:demo/core/theme/app_theme.dart';
+import 'package:demo/features/addexpense/presentation/bloc/expense_bloc.dart';
 import 'package:demo/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:demo/features/collection/presentation/bloc/dealer_target_bloc.dart';
 import 'package:demo/features/dealer/presentation/bloc/dealerlist_bloc.dart';
@@ -64,6 +65,7 @@ class MyApp extends StatelessWidget {
         BlocProvider<SalesReturnHistoryBloc>(
           create: (_) => sl<SalesReturnHistoryBloc>(),
         ),
+        BlocProvider<ExpenseBloc>(create: (_) => sl<ExpenseBloc>()),
       ],
 
       child: MaterialApp.router(

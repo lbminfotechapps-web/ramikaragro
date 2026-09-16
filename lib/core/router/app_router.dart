@@ -1,5 +1,6 @@
 import 'package:demo/core/utility/widgets/bottom_navigation.dart';
 import 'package:demo/core/di/auth_di.dart';
+import 'package:demo/features/addexpense/presentation/pages/add_expense_page.dart';
 import 'package:demo/features/auth/presentation/pages/login_screen.dart';
 import 'package:demo/features/collection/presentation/pages/collection_list_page.dart';
 import 'package:demo/features/collection/presentation/pages/collection_wise_form_page.dart';
@@ -109,6 +110,7 @@ class AppRouter {
   static const String dispatchHistoy = '/dispatchHistoy';
   static const String salesHistoy = '/salesHistoy';
   static const String farmerEdit = '/farmerEdit';
+  static const String addExpense = '/addExpense';
   static const String dealrFollowUpAdd = '/dealrFollowUpAdd';
   static const String dealerUpdate = '/dealerUpdate';
 
@@ -137,6 +139,14 @@ class AppRouter {
         name: 'notVisitDealer',
         builder: (context, state) {
           return const NotVisitedDealerPage();
+        },
+      ),
+
+      GoRoute(
+        path: addExpense,
+        name: 'addExpense',
+        builder: (context, state) {
+          return const AddExpensePage();
         },
       ),
 

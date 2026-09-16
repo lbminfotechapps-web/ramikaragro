@@ -85,7 +85,12 @@ class ApiClient {
   static const String getSalesTargetDates = '/getSalesTargetDates';
 
   static const String getDealerName = '/getTalukaWiseOutletForOrderNew';
-    static const String getSalesWiseTarget = '/getSalesWiseTarget';
+  static const String getSalesWiseTarget = '/getSalesWiseTarget';
+  static const String getExpenseParameters = '/getExpenseParameters';
+
+  static const String getDAAmount = '/getDAAmount';
+  static const String getExpensesStatus = '/getExpensesStatus';
+  static const String addExpenseDetails = '/add_expense_details';
 
      static const String upload_sign ="/upload_sign";
 

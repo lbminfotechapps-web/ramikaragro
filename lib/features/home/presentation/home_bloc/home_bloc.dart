@@ -101,7 +101,7 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
       final result = await getInpunchPendingUseCase.getInpunchPending(
         event.userId,
       );
-      print('in punch pending status resonse $result');
+      print("List Size is.... :${result.length}");
 
       emit(state.copyWith(status: HomeStatus.success, data: result));
     } catch (e) {

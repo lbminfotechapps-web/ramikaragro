@@ -53,5 +53,6 @@ class HomeState extends Equatable {
     totalDealerCount,
     totalFarmerCount,
     homedata,
+    data,
   ];
 }
