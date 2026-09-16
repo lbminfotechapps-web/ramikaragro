@@ -83,8 +83,12 @@ class AddProductEvent extends PlaceOrderEvent {
 }
 
 // ============================================================
-// CHANGE QUANTITY
+// OLD PRODUCT QUANTITY
 // ============================================================
+//
+// Keep this because existing page code may still use it.
+// New packing quantity UI should use the events below.
+//
 
 class ChangeProductQuantityEvent extends PlaceOrderEvent {
   final String productId;
@@ -98,6 +102,88 @@ class ChangeProductQuantityEvent extends PlaceOrderEvent {
   @override
   List<Object?> get props => [
         productId,
+        quantity,
+      ];
+}
+
+// ============================================================
+// INCREASE PACKING QUANTITY
+// ============================================================
+//
+// Example:
+//
+// Product ID = 1
+// Product Details ID = 10
+//
+// 5 KG -> 1
+//       -> press +
+// 5 KG -> 2
+//
+
+class IncreasePackingQuantityEvent extends PlaceOrderEvent {
+  final String productId;
+  final String productDetailsId;
+
+  const IncreasePackingQuantityEvent({
+    required this.productId,
+    required this.productDetailsId,
+  });
+
+  @override
+  List<Object?> get props => [
+        productId,
+        productDetailsId,
+      ];
+}
+
+// ============================================================
+// DECREASE PACKING QUANTITY
+// ============================================================
+
+class DecreasePackingQuantityEvent extends PlaceOrderEvent {
+  final String productId;
+  final String productDetailsId;
+
+  const DecreasePackingQuantityEvent({
+    required this.productId,
+    required this.productDetailsId,
+  });
+
+  @override
+  List<Object?> get props => [
+        productId,
+        productDetailsId,
+      ];
+}
+
+// ============================================================
+// SET PACKING QUANTITY
+// ============================================================
+//
+// Used when the multi-rate bottom sheet returns quantities.
+//
+// Example:
+//
+// Product 1
+// Details 1 -> 2
+// Details 2 -> 5
+//
+
+class SetPackingQuantityEvent extends PlaceOrderEvent {
+  final String productId;
+  final String productDetailsId;
+  final int quantity;
+
+  const SetPackingQuantityEvent({
+    required this.productId,
+    required this.productDetailsId,
+    required this.quantity,
+  });
+
+  @override
+  List<Object?> get props => [
+        productId,
+        productDetailsId,
         quantity,
       ];
 }
@@ -120,8 +206,29 @@ class RemoveProductEvent extends PlaceOrderEvent {
 }
 
 // ============================================================
-// SUBMIT
+// SUBMIT ORDER
 // ============================================================
+
+// class SubmitPlaceOrderEvent extends PlaceOrderEvent {
+//   final int userId;
+//   final dynamic dealer;
+//   final dynamic godown;
+//   final List<Map<String, dynamic>> products;
+//   final String remark;
+//   final List<String> imagePaths;
+//   final Uint8List? signatureBytes;
+//    final Uint8List? signatureBytes;
+
+//   const SubmitPlaceOrderEvent({
+//     required this.userId,
+//     required this.dealer,
+//     required this.godown,
+//     required this.products,
+//     required this.remark,
+//     required this.imagePaths,
+//    // required this.signatureBytes,
+//     required String signaturePath,
+//   });
 
 
 
@@ -132,7 +239,7 @@ class SubmitPlaceOrderEvent extends PlaceOrderEvent {
   final List<Map<String, dynamic>> products;
   final String remark;
   final List<String> imagePaths;
-  final Uint8List? signatureBytes;
+  final String signaturePath;
 
   const SubmitPlaceOrderEvent({
     required this.userId,
@@ -141,8 +248,9 @@ class SubmitPlaceOrderEvent extends PlaceOrderEvent {
     required this.products,
     required this.remark,
     required this.imagePaths,
-    required this.signatureBytes,
+    required this.signaturePath,
   });
+
 
   @override
   List<Object?> get props => [
@@ -152,8 +260,7 @@ class SubmitPlaceOrderEvent extends PlaceOrderEvent {
         products,
         remark,
         imagePaths,
-        signatureBytes,
+      //  signatureBytes,
+        signaturePath,
       ];
-
- 
 }

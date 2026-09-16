@@ -212,37 +212,60 @@ class FarmerregistrationDatasource {
     try {
       final formMap = Map<String, dynamic>.from(data);
 
+      print('==========================================');
+      print('UPDATE FARMER API');
+      print('URL: ${ApiClient.updateFarmerDtails}');
+      print('METHOD: POST');
+      print('==========================================');
+
       print('========== FINAL UPDATE FORM DATA ==========');
 
-      print('LATITUDE BEFORE FORM DATA: ${formMap['latitude']}');
-      print('LONGITUDE BEFORE FORM DATA: ${formMap['longitude']}');
+      print('LATITUDE: ${formMap['latitude']}');
+      print('LONGITUDE: ${formMap['longitude']}');
 
       final formData = FormData.fromMap(formMap);
-
-      print('========== MULTIPART FIELDS ==========');
 
       for (final field in formData.fields) {
         print('${field.key}: ${field.value}');
       }
 
-      print('======================================');
-
-      // final formData = FormData.fromMap(formMap);
+      print('============================================');
 
       final response = await dioClient.client.post(
         ApiClient.updateFarmerDtails,
         data: formData,
       );
 
+      print('UPDATE FARMER STATUS: ${response.statusCode}');
       print('UPDATE FARMER RESPONSE TYPE: ${response.data.runtimeType}');
       print('UPDATE FARMER RESPONSE: ${response.data}');
 
       dynamic responseData = response.data;
 
       if (responseData is String) {
-        responseData = jsonDecode(responseData);
-      }
+        final responseString = responseData.trim();
 
+        try {
+          responseData = jsonDecode(responseString);
+        } catch (e) {
+          print('Normal JSON decode failed: $e');
+
+          // Server is returning extra cURL text before JSON.
+          final jsonStart = responseString.indexOf('{');
+
+          if (jsonStart != -1) {
+            final jsonPart = responseString.substring(jsonStart).trim();
+
+            print('Extracted JSON: $jsonPart');
+
+            responseData = jsonDecode(jsonPart);
+          } else {
+            throw Exception(
+              'Invalid update farmer API response: $responseString',
+            );
+          }
+        }
+      }
       if (responseData is Map<String, dynamic>) {
         return responseData;
       }
@@ -251,10 +274,65 @@ class FarmerregistrationDatasource {
         return Map<String, dynamic>.from(responseData);
       }
 
-      throw Exception('Invalid save farmer API response');
+      throw Exception('Invalid update farmer API response');
     } catch (e) {
-      print('UPDATE FARMER ERROR: $e');
+      print('============================================');
+      print('UPDATE FARMER ERROR');
+      print(e);
+      print('============================================');
+
       rethrow;
     }
   }
+
+  // Future<Map<String, dynamic>> updateFarmerDetails(
+  //   Map<String, dynamic> data,
+  // ) async {
+  //   try {
+  //     final formMap = Map<String, dynamic>.from(data);
+
+  //     print('========== FINAL UPDATE FORM DATA ==========');
+
+  //     print('LATITUDE BEFORE FORM DATA: ${formMap['latitude']}');
+  //     print('LONGITUDE BEFORE FORM DATA: ${formMap['longitude']}');
+
+  //     final formData = FormData.fromMap(formMap);
+  //     print("Update Farmer formData $formData");
+
+  //     for (final field in formData.fields) {
+  //       print('${field.key}: ${field.value}');
+  //     }
+
+  //     print('======================================');
+
+  //     // final formData = FormData.fromMap(formMap);
+
+  //     final response = await dioClient.client.post(
+  //       ApiClient.updateFarmerDtails,
+  //       data: formData,
+  //     );
+
+  //     print('UPDATE FARMER RESPONSE TYPE: ${response.data.runtimeType}');
+  //     print('UPDATE FARMER RESPONSE: ${response.data}');
+
+  //     dynamic responseData = response.data;
+
+  //     if (responseData is String) {
+  //       responseData = jsonDecode(responseData);
+  //     }
+
+  //     if (responseData is Map<String, dynamic>) {
+  //       return responseData;
+  //     }
+
+  //     if (responseData is Map) {
+  //       return Map<String, dynamic>.from(responseData);
+  //     }
+
+  //     throw Exception('Invalid save farmer API response');
+  //   } catch (e) {
+  //     print('UPDATE FARMER ERROR: $e');
+  //     rethrow;
+  //   }
+  // }
 }

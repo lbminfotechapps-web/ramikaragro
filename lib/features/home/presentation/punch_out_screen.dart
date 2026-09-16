@@ -1,9 +1,11 @@
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:demo/core/router/app_router.dart';
 import 'package:demo/core/secure_storage/secure_storage.dart';
 import 'package:demo/core/theme/app_colors.dart';
 import 'package:demo/core/utility/app_image_picker.dart';
+import 'package:demo/core/utility/appdialog.dart';
 import 'package:demo/core/utility/device_info_util.dart';
 import 'package:demo/core/utility/location_util.dart';
 import 'package:demo/core/utility/widgets/custom_appbar.dart';
@@ -116,6 +118,7 @@ class _PunchOutScreenState extends State<PunchOutScreen> {
 
   Future<void> _submitPunch() async {
     if (isLoading) return;
+
     if (!_formKey.currentState!.validate()) {
       return;
     }
@@ -147,71 +150,108 @@ class _PunchOutScreenState extends State<PunchOutScreen> {
 
       return;
     }
-    // Start button loader
+
     setState(() {
       isLoading = true;
       _submissionSent = true;
     });
-    final batteryInfo = await DeviceInfoUtil.instance.getBatteryInfo();
 
-    final networkInfo = await DeviceInfoUtil.instance.getNetworkInfo();
+    try {
+      final batteryInfo = await DeviceInfoUtil.instance.getBatteryInfo();
 
-    final position = await LocationUtil.instance.getCurrentLocation();
+      final networkInfo = await DeviceInfoUtil.instance.getNetworkInfo();
 
-    String latitude = '';
-    String longitude = '';
-    String address = '';
+      final position = await LocationUtil.instance.getCurrentLocation();
 
-    if (position != null) {
-      latitude = position.latitude.toString();
-      longitude = position.longitude.toString();
+      String latitude = '';
+      String longitude = '';
+      String address = '';
 
-      address = await LocationUtil.instance.getAddress(
-        position.latitude,
-        position.longitude,
+      if (position != null) {
+        latitude = position.latitude.toString();
+        longitude = position.longitude.toString();
+
+        address = await LocationUtil.instance.getAddress(
+          position.latitude,
+          position.longitude,
+        );
+      }
+
+      if (!mounted) return;
+
+      String? closingImageBase64;
+
+      if (_uploadedImage != null) {
+        debugPrint('Closing image path: ${_uploadedImage!.path}');
+
+        if (await _uploadedImage!.exists()) {
+          final imageBytes = await _uploadedImage!.readAsBytes();
+
+          closingImageBase64 = base64Encode(imageBytes);
+
+          debugPrint(
+            'Closing image Base64 length: '
+            '${closingImageBase64.length}',
+          );
+        } else {
+          debugPrint('Closing image file does not exist');
+        }
+      } else {
+        debugPrint('Closing image: NOT SELECTED');
+      }
+
+      context.read<QuickAcessBloc>().add(
+        PunchInOutDetailsAddEvent(
+          userId: userId,
+
+          // OUT PUNCH
+          inOutStatus: '2',
+
+          differenceByAndroid: '0.0',
+          locationHistoryString: '',
+
+          batteryInfo: batteryInfo,
+          networkInfo: networkInfo,
+
+          pinRemark: remarkController.text.trim(),
+
+          startingClosingKmAmount: closingKmController.text.trim(),
+
+          vehicleTypeId: matchedVehicle.vehicleTypeId,
+
+          route: routeController.text.trim(),
+
+          latitude: latitude,
+          longitude: longitude,
+
+          networkLatitude: latitude,
+          networkLongitude: longitude,
+
+          gpsLatitude: latitude,
+          gpsLongitude: longitude,
+
+          geoAddress: address,
+          closingKmImage: closingImageBase64,
+          // No startingKmImage
+          // No closingKmImage
+          // No date
+          // No newTime
+          // No isForceOutPunch
+          activityId: '4',
+        ),
       );
+    } catch (e) {
+      if (!mounted) return;
+
+      setState(() {
+        isLoading = false;
+        _submissionSent = false;
+      });
+
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(e.toString())));
     }
-
-    if (!mounted) return;
-
-    context.read<QuickAcessBloc>().add(
-      PunchInOutDetailsAddEvent(
-        userId: userId,
-        inOutStatus: '2',
-
-        batteryInfo: batteryInfo,
-        networkInfo: networkInfo,
-
-        latitude: latitude,
-        longitude: longitude,
-
-        networkLatitude: latitude,
-        networkLongitude: longitude,
-
-        gpsLatitude: latitude,
-        gpsLongitude: longitude,
-
-        geoAddress: address,
-
-        pinRemark: remarkController.text.trim(),
-
-        startingClosingKmAmount: closingKmController.text.trim(),
-
-        // fld_vehicle_type_id
-        vehicleTypeId: matchedVehicle.vehicleTypeId,
-
-        route: routeController.text.trim(),
-
-        startingKmImage: _uploadedImage?.path ?? '',
-
-        closingKmImage: _uploadedImage?.path ?? '',
-
-        activityId: "4" ?? '',
-        date: '',
-        newTime: '',
-        isForceOutPunch: false,
-      ),
-    );
   }
 
   @override
@@ -265,7 +305,17 @@ class _PunchOutScreenState extends State<PunchOutScreen> {
                 _submissionSent = false;
               });
 
-              context.go(AppRouter.home);
+              AppDialog.show(
+                context: context,
+                type: DialogType.success,
+                title: 'Punch Out Successful',
+                message: 'Your punch out has been submitted successfully.',
+                buttonText: 'OK',
+                onButtonPressed: () {
+                  context.go('${AppRouter.home}?refresh=true');
+                  // context.go(AppRouter.home);
+                },
+              );
             }
 
             if (state.quickAccessStatus == QuickAccessStatus.failure) {
@@ -273,11 +323,12 @@ class _PunchOutScreenState extends State<PunchOutScreen> {
                 isLoading = false;
                 _submissionSent = false;
               });
-
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text(state.errorMessage ?? 'Punch Out failed'),
-                ),
+              AppDialog.show(
+                context: context,
+                type: DialogType.error,
+                title: 'Punch Out Failed',
+                message: state.errorMessage ?? 'Unable to submit punch out.',
+                buttonText: 'OK',
               );
             }
           },

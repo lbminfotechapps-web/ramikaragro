@@ -44,4 +44,11 @@ class FarmerregistrationRepositoryImpl implements FarmerregistrationRepository {
   ) {
     return datasource.saveFarmerDetails(jsonData);
   }
+
+  @override
+  Future<Map<String, dynamic>> updateFarmerDetails(
+    Map<String, dynamic> jsonData,
+  ) {
+    return datasource.updateFarmerDetails(jsonData);
+  }
 }

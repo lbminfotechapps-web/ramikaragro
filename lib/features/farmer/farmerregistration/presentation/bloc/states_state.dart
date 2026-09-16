@@ -3,7 +3,7 @@ import 'package:demo/features/farmer/farmerregistration/domain/entity/farmer_det
 import 'package:demo/features/farmer/farmerregistration/domain/entity/state_entity.dart';
 import 'package:equatable/equatable.dart';
 
-enum StatesStatus { initial, loading, failed, sucess,farmerRegiSuccess }
+enum StatesStatus { initial, loading, failed, sucess,farmerRegiSuccess ,farmerUpdateSuccess}
 
 class StatsState extends Equatable {
   final StatesStatus status;

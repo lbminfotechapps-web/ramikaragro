@@ -9,12 +9,14 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 class StateBloc extends Bloc<StatesEvent, StatsState> {
   final FarmerregistrationRepository repositoryProvider;
+  
 
   StateBloc({required this.repositoryProvider}) : super(StatsState()) {
     on<StateListEvent>(_onStateListGet);
     on<DistrictEvent>(_onDistrictGet);
     on<FarmerDropEvent>(_onGetFarmerDropData);
     on<FarmerSubmitDetailsEvent>(_onAddFarmerDetails);
+    on<UpdateFarmerSubmitDetailsEvent>(_onUpdateFarmerDetails);
   }
 
   Future<void> _onStateListGet(
@@ -325,6 +327,99 @@ class StateBloc extends Bloc<StatesEvent, StatsState> {
       // ============================================
       // FAILURE
       // ============================================
+      emit(
+        state.copyWith(
+          status: StatesStatus.failed,
+          errorMessage: error.toString(),
+        ),
+      );
+    }
+  }
+
+  FutureOr<void> _onUpdateFarmerDetails(
+    UpdateFarmerSubmitDetailsEvent event,
+    Emitter<StatsState> emit,
+  ) async {
+    emit(state.copyWith(status: StatesStatus.loading, errorMessage: null));
+
+    try {
+      // ============================================
+      // UPDATE FARMER REQUEST DATA
+      // ============================================
+      final Map<String, dynamic> formdata = {
+        'farmerID': event.farmerId,
+        'farmer_name': event.fldFarmerName,
+        'address': event.fldAddress,
+        'user_id': event.userId,
+        'category_id': event.fldCategoryId,
+        'state': event.state,
+        'fld_demo_type_id': event.fldDemoTypeId,
+        'district': event.district,
+        'taluka': event.taluka,
+        'status_of_farmer': event.statusOfFarmer,
+        'campaign_radio': event.campaignRadio,
+        'fld_tractor_mode': event.fldTractorMode,
+        'mobile_no': event.fldMobileNo,
+        'mobile_no2': event.fldMobileNo2,
+        'fld_total_acre': event.fldTotalAcre,
+        'email_id': event.fldEmailId,
+        'village': event.fldVillage,
+        'selectedProductId': event.selectedProductId,
+        'currentProductUsed': event.currentProductUsed,
+        'selectedCropId': event.selectedCropId,
+        'selectedAcers': event.selectedAcers,
+        'selectedSowingDates': event.selectedSowingDates,
+        'selectedIrrigationId': event.selectedIrrigationId,
+        'latitude': event.latitude,
+        'longitude': event.longitude,
+        'networkLatitude': event.networkLatitude,
+        'networkLongitude': event.networkLongitude,
+        'gpsLatitude': event.gpsLatitude,
+        'gpsLongitude': event.gpsLongitude,
+        'differenceByAndroid': event.differenceByAndroid,
+
+        'contactPersonName': event.contactPersonName,
+        'meetingLocation': event.meetingLocation,
+        'marketNearby': event.marketNearby,
+        'aadhaarNo': event.aadhaarNo,
+        'remark': event.remark,
+
+        'activityId': event.activityId,
+      };
+
+      // ============================================
+      // DEBUG
+      // ============================================
+      print('========== UPDATE FARMER REQUEST ==========');
+
+      formdata.forEach((key, value) {
+        print('$key : $value');
+      });
+
+      print('===========================================');
+
+      final response = await repositoryProvider.updateFarmerDetails(formdata);
+
+      print('Update farmer response: $response');
+
+      if (response['status'] == "success") {
+        emit(
+          state.copyWith(
+            status: StatesStatus.farmerUpdateSuccess,
+            errorMessage: response['message'],
+          ),
+        );
+      } else {
+        emit(
+          state.copyWith(
+            status: StatesStatus.failed,
+            errorMessage: response['message'],
+          ),
+        );
+      }
+    } catch (error) {
+      print('Update farmer error: $error');
+
       emit(
         state.copyWith(
           status: StatesStatus.failed,

@@ -62,7 +62,7 @@ class ApiClient {
       '/getCropAndIrigationDetails';
 
   static const String addFarmerDetails = '/add_farmer_details';
-  static const String updateFarmerDtails = '/update_farmer_details  ';
+  static const String updateFarmerDtails = '/update_farmer_details';
   static const String getDispatchList = '/getDispatchDetails';
   static const String remark_list = "/remark_list";
   static const String add_remark = "/add_remark";
@@ -91,4 +91,10 @@ class ApiClient {
   static const String getDAAmount = '/getDAAmount';
   static const String getExpensesStatus = '/getExpensesStatus';
   static const String addExpenseDetails = '/add_expense_details';
+
+     static const String upload_sign ="/upload_sign";
+
+
+  static const String addDealerFollowUp = '/pin_location';
+  static const String updateDealerFollowUp = '/update_pin_location';
 }

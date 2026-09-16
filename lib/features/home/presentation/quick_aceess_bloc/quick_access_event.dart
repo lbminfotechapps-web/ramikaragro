@@ -1,3 +1,5 @@
+import 'dart:typed_data';
+
 import 'package:equatable/equatable.dart';
 
 class QuickAccessEvent extends Equatable {
@@ -42,12 +44,17 @@ class PunchInOutDetailsAddEvent extends QuickAccessEvent {
   final String gpsLatitude;
   final String gpsLongitude;
   final String geoAddress;
-  final String startingKmImage;
-  final String closingKmImage;
+
+  // Optional
+  final String? startingKmImage;
+  final String? closingKmImage;
+
   final String activityId;
 
-  final String date;
-  final String newTime;
+  // Optional
+  final String? date;
+  final String? newTime;
+
   final bool? isForceOutPunch;
 
   PunchInOutDetailsAddEvent({
@@ -68,11 +75,17 @@ class PunchInOutDetailsAddEvent extends QuickAccessEvent {
     required this.gpsLatitude,
     required this.gpsLongitude,
     required this.geoAddress,
-    required this.startingKmImage,
-    required this.closingKmImage,
+
+    // No required
+    this.startingKmImage,
+    this.closingKmImage,
+
     required this.activityId,
-    required this.date,
-    required this.newTime,
+
+    // No default value
+    this.date,
+    this.newTime,
+
     this.isForceOutPunch,
   });
 
@@ -98,5 +111,8 @@ class PunchInOutDetailsAddEvent extends QuickAccessEvent {
     startingKmImage,
     closingKmImage,
     activityId,
+    date,
+    newTime,
+    isForceOutPunch,
   ];
 }
