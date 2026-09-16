@@ -392,7 +392,7 @@ class _PlaceOrderViewState extends State<_PlaceOrderView> {
       return;
     }
 
-    _clearAllSelectedProducts();
+    // _clearAllSelectedProducts();
 
     setState(() {
       selectedCategory = category;

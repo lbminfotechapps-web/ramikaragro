@@ -299,7 +299,7 @@ class _PunchOutScreenState extends State<PunchOutScreen> {
               return;
             }
 
-            if (state.quickAccessStatus == QuickAccessStatus.success) {
+            if (state.quickAccessStatus == QuickAccessStatus.punchStatusSuccess) {
               setState(() {
                 isLoading = false;
                 _submissionSent = false;

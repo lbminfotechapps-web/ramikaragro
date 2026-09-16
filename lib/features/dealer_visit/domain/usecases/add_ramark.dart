@@ -33,7 +33,7 @@ class AddRemark {
     }
   }
 
-}
+
   Future<Map<String, dynamic>> addDealerFollowUp(
     Map<String, dynamic> jsonData,
   ) async {
@@ -45,4 +45,5 @@ class AddRemark {
   ) async {
     return repository.updateDealerFollowUp(jsonData);
   }
-}
+
+  }
