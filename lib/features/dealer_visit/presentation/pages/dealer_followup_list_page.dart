@@ -195,40 +195,57 @@ class _DealerFollowupListPageState extends State<DealerFollowupListPage> {
   // ===============================================================
 
   Widget _buildDealerHeader() {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 14),
-      padding: const EdgeInsets.all(16),
+  return Container(
+    margin: const EdgeInsets.only(bottom: 14),
+    padding: const EdgeInsets.all(16),
+    decoration: BoxDecoration(
+      color: Colors.white,
+      borderRadius: BorderRadius.circular(16),
+      boxShadow: [
+        BoxShadow(
+          color: Colors.black.withOpacity(0.05),
+          blurRadius: 8,
+          offset: const Offset(0, 3),
+        ),
+      ],
+    ),
+    child: Column(
+      children: [
+        
 
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 8,
-            offset: const Offset(0, 3),
-          ),
-        ],
-      ),
-
-      child: Row(
-        children: [
-          // Dealer icon
-          Container(
-            height: 52,
-            width: 52,
-
-            decoration: BoxDecoration(
-              color: const Color(0xFFE8F5E9),
-              borderRadius: BorderRadius.circular(14),
+  
+        // Add Follow-up button
+        SizedBox(
+          width: double.infinity,
+          height: 44,
+          child: ElevatedButton.icon(
+            onPressed: () {
+              context.push(
+                AppRouter.dealrFollowUpAddNew,
+                extra: {
+                  'dealerId': widget.dealerId,
+                  'dealerName': widget.dealerName,
+                },
+              );
+            },
+            icon: const Icon(
+              Icons.add_task_rounded,
+              size: 19,
             ),
-
-            child: const Icon(
-              Icons.store_rounded,
-              color: Color(0xFF087C3A),
-              size: 28,
+            label: const Text(
+              'Add Follow-up',
+              style: TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.w600,
+              ),
             ),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: const Color(0xFF087C3A),
+              foregroundColor: Colors.white,
+              elevation: 0,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
           ),
 
           const SizedBox(width: 14),
@@ -265,10 +282,12 @@ class _DealerFollowupListPageState extends State<DealerFollowupListPage> {
               ],
             ),
           ),
-        ],
-      ),
-    );
-  }
+        ),
+      ],
+    ),
+  );
+}
+
 
   // ===============================================================
   // SUMMARY CARD
@@ -277,6 +296,13 @@ class _DealerFollowupListPageState extends State<DealerFollowupListPage> {
   Widget _buildSummaryCard(int count) {
     return Container(
       margin: const EdgeInsets.only(bottom: 14),
+      padding: const EdgeInsets.symmetric(
+        horizontal: 16,
+      
+      ),
+
+    
+  
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
 
       decoration: BoxDecoration(
@@ -326,6 +352,11 @@ class _DealerFollowupListPageState extends State<DealerFollowupListPage> {
   // FOLLOW-UP CARD
   // ===============================================================
 
+  Widget _buildFollowupCard(
+  DealerFollowupListEntity item,
+  int index,
+) {
+   
   Widget _buildFollowupCard(DealerFollowupListEntity item, int index) {
     debugPrint('========== FOLLOW UP $index ==========');
 
@@ -364,6 +395,9 @@ class _DealerFollowupListPageState extends State<DealerFollowupListPage> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          const SizedBox(height: 16),
+
+         
           // ========================================================
           // CARD HEADER
           // ========================================================

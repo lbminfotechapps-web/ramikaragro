@@ -11,7 +11,8 @@ enum AddDealerVisitStatus {
   success,
   failure,
   dealerAddedSuccess,
-  dealerUpdateSucess
+  dealerUpdateSucess,
+  dealerFollowupAddSuccess
 }
 
 class AddDealerVisitState extends Equatable {
