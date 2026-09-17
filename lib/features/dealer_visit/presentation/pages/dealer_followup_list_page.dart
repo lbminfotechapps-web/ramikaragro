@@ -1,3 +1,5 @@
+import 'package:demo/core/router/app_router.dart';
+import 'package:demo/core/utility/widgets/custom_appbar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -19,12 +21,10 @@ class DealerFollowupListPage extends StatefulWidget {
   });
 
   @override
-  State<DealerFollowupListPage> createState() =>
-      _DealerFollowupListPageState();
+  State<DealerFollowupListPage> createState() => _DealerFollowupListPageState();
 }
 
-class _DealerFollowupListPageState
-    extends State<DealerFollowupListPage> {
+class _DealerFollowupListPageState extends State<DealerFollowupListPage> {
   late AddDealerVisitBlock dealerVisitBloc;
 
   @override
@@ -33,9 +33,7 @@ class _DealerFollowupListPageState
 
     dealerVisitBloc = sl<AddDealerVisitBlock>();
 
-    dealerVisitBloc.add(
-      GetFollowupEvent(widget.dealerId),
-    );
+    dealerVisitBloc.add(GetFollowupEvent(widget.dealerId));
   }
 
   @override
@@ -54,56 +52,66 @@ class _DealerFollowupListPageState
         // =========================================================
         // APP BAR
         // =========================================================
-        appBar: AppBar(
-          backgroundColor: const Color(0xFF087C3A),
-          elevation: 3,
-
-          leading: IconButton(
-            onPressed: () => context.pop(),
-            icon: const Icon(
-              Icons.arrow_back,
-              color: Colors.white,
-            ),
-          ),
-
-          title: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const Text(
-                'Follow-ups',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 19,
-                  fontWeight: FontWeight.w700,
-                ),
-              ),
-
-              Text(
-                widget.dealerName,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: const TextStyle(
-                  color: Colors.white70,
-                  fontSize: 12,
-                ),
-              ),
-            ],
-          ),
-
-          actions: [
-            IconButton(
-              onPressed: () {
-                dealerVisitBloc.add(
-                  GetFollowupEvent(widget.dealerId),
-                );
-              },
-              icon: const Icon(
-                Icons.refresh,
-                color: Colors.white,
-              ),
-            ),
-          ],
+        appBar: CustomAppBar(
+          title: 'Visit Summary',
+          subtitle: widget.dealerName,
+          showBackButton: true,
+          actionIcon: Icons.refresh_rounded,
+          onBackTap: () => context.go(AppRouter.home),
+          onActionIconTap: () {
+            dealerVisitBloc.add(GetFollowupEvent(widget.dealerId));
+          },
         ),
+        // appBar: AppBar(
+        //   backgroundColor: const Color(0xFF087C3A),
+        //   elevation: 3,
+
+        //   leading: IconButton(
+        //     onPressed: () => context.pop(),
+        //     icon: const Icon(
+        //       Icons.arrow_back,
+        //       color: Colors.white,
+        //     ),
+        //   ),
+
+        //   title: Column(
+        //     crossAxisAlignment: CrossAxisAlignment.start,
+        //     children: [
+        //       const Text(
+        //         'Follow-ups',
+        //         style: TextStyle(
+        //           color: Colors.white,
+        //           fontSize: 19,
+        //           fontWeight: FontWeight.w700,
+        //         ),
+        //       ),
+
+        //       Text(
+        //         widget.dealerName,
+        //         maxLines: 1,
+        //         overflow: TextOverflow.ellipsis,
+        //         style: const TextStyle(
+        //           color: Colors.white70,
+        //           fontSize: 12,
+        //         ),
+        //       ),
+        //     ],
+        //   ),
+
+        //   actions: [
+        //     IconButton(
+        //       onPressed: () {
+        // dealerVisitBloc.add(
+        //   GetFollowupEvent(widget.dealerId),
+        // );
+        //       },
+        //       icon: const Icon(
+        //         Icons.refresh,
+        //         color: Colors.white,
+        //       ),
+        //     ),
+        //   ],
+        // ),
 
         // =========================================================
         // BODY
@@ -113,24 +121,17 @@ class _DealerFollowupListPageState
             // -----------------------------------------------------
             // LOADING
             // -----------------------------------------------------
-            if (state.addLeaveStatus ==
-                AddDealerVisitStatus.loading) {
+            if (state.addLeaveStatus == AddDealerVisitStatus.loading) {
               return const Center(
-                child: CircularProgressIndicator(
-                  color: Color(0xFF087C3A),
-                ),
+                child: CircularProgressIndicator(color: Color(0xFF087C3A)),
               );
             }
 
             final followups = state.followupList;
 
-            debugPrint(
-              'Followup List Size: ${followups.length}',
-            );
+            debugPrint('Followup List Size: ${followups.length}');
 
-            debugPrint(
-              'Followup List: $followups',
-            );
+            debugPrint('Followup List: $followups');
 
             // -----------------------------------------------------
             // EMPTY
@@ -146,13 +147,9 @@ class _DealerFollowupListPageState
               color: const Color(0xFF087C3A),
 
               onRefresh: () async {
-                dealerVisitBloc.add(
-                  GetFollowupEvent(widget.dealerId),
-                );
+                dealerVisitBloc.add(GetFollowupEvent(widget.dealerId));
 
-                await Future.delayed(
-                  const Duration(milliseconds: 500),
-                );
+                await Future.delayed(const Duration(milliseconds: 500));
               },
 
               child: ListView.builder(
@@ -173,9 +170,7 @@ class _DealerFollowupListPageState
                   // SUMMARY
                   // ------------------------------------------------
                   if (index == 1) {
-                    return _buildSummaryCard(
-                      followups.length,
-                    );
+                    return _buildSummaryCard(followups.length);
                   }
 
                   // ------------------------------------------------
@@ -183,13 +178,9 @@ class _DealerFollowupListPageState
                   // ------------------------------------------------
                   final followupIndex = index - 2;
 
-                  final followup =
-                      followups[followupIndex];
+                  final followup = followups[followupIndex];
 
-                  return _buildFollowupCard(
-                    followup,
-                    followupIndex + 1,
-                  );
+                  return _buildFollowupCard(followup, followupIndex + 1);
                 },
               ),
             );
@@ -248,10 +239,7 @@ class _DealerFollowupListPageState
               children: [
                 const Text(
                   'Dealer',
-                  style: TextStyle(
-                    color: Colors.grey,
-                    fontSize: 12,
-                  ),
+                  style: TextStyle(color: Colors.grey, fontSize: 12),
                 ),
 
                 const SizedBox(height: 3),
@@ -272,10 +260,7 @@ class _DealerFollowupListPageState
 
                 Text(
                   'ID: ${widget.dealerId}',
-                  style: const TextStyle(
-                    color: Colors.grey,
-                    fontSize: 12,
-                  ),
+                  style: const TextStyle(color: Colors.grey, fontSize: 12),
                 ),
               ],
             ),
@@ -292,10 +277,7 @@ class _DealerFollowupListPageState
   Widget _buildSummaryCard(int count) {
     return Container(
       margin: const EdgeInsets.only(bottom: 14),
-      padding: const EdgeInsets.symmetric(
-        horizontal: 16,
-        vertical: 14,
-      ),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
 
       decoration: BoxDecoration(
         color: const Color(0xFF087C3A),
@@ -304,11 +286,7 @@ class _DealerFollowupListPageState
 
       child: Row(
         children: [
-          const Icon(
-            Icons.event_note_rounded,
-            color: Colors.white,
-            size: 25,
-          ),
+          const Icon(Icons.event_note_rounded, color: Colors.white, size: 25),
 
           const SizedBox(width: 12),
 
@@ -324,10 +302,7 @@ class _DealerFollowupListPageState
           ),
 
           Container(
-            padding: const EdgeInsets.symmetric(
-              horizontal: 12,
-              vertical: 6,
-            ),
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
 
             decoration: BoxDecoration(
               color: Colors.white,
@@ -351,37 +326,20 @@ class _DealerFollowupListPageState
   // FOLLOW-UP CARD
   // ===============================================================
 
-  Widget _buildFollowupCard(
-  DealerFollowupListEntity item,
-  int index,
-) {
-    debugPrint(
-      '========== FOLLOW UP $index ==========',
-    );
+  Widget _buildFollowupCard(DealerFollowupListEntity item, int index) {
+    debugPrint('========== FOLLOW UP $index ==========');
 
-    debugPrint(
-      'Employee: ${item.admName}',
-    );
+    debugPrint('Employee: ${item.admName}');
 
-    debugPrint(
-      'Dealer: ${item.outletName}',
-    );
+    debugPrint('Dealer: ${item.outletName}');
 
-    debugPrint(
-      'Date: ${item.followupDate}',
-    );
+    debugPrint('Date: ${item.followupDate}');
 
-    debugPrint(
-      'Time: ${item.followupTime}',
-    );
+    debugPrint('Time: ${item.followupTime}');
 
-    debugPrint(
-      'Remark: ${item.followupRemark}',
-    );
+    debugPrint('Remark: ${item.followupRemark}');
 
-    debugPrint(
-      '=====================================',
-    );
+    debugPrint('=====================================');
 
     return Container(
       width: double.infinity,
@@ -392,9 +350,7 @@ class _DealerFollowupListPageState
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
 
-        border: Border.all(
-          color: const Color(0xFFE0E8E3),
-        ),
+        border: Border.all(color: const Color(0xFFE0E8E3)),
 
         boxShadow: [
           BoxShadow(
@@ -408,11 +364,9 @@ class _DealerFollowupListPageState
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-
           // ========================================================
           // CARD HEADER
           // ========================================================
-
           Row(
             children: [
               Container(
@@ -435,8 +389,7 @@ class _DealerFollowupListPageState
 
               Expanded(
                 child: Column(
-                  crossAxisAlignment:
-                      CrossAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
                       'Follow-up $index',
@@ -454,10 +407,8 @@ class _DealerFollowupListPageState
                         item.followupTime.isNotEmpty)
                       Text(
                         [
-                          if (item.followupDate.isNotEmpty)
-                            item.followupDate,
-                          if (item.followupTime.isNotEmpty)
-                            item.followupTime,
+                          if (item.followupDate.isNotEmpty) item.followupDate,
+                          if (item.followupTime.isNotEmpty) item.followupTime,
                         ].join(' • '),
 
                         style: const TextStyle(
@@ -476,13 +427,10 @@ class _DealerFollowupListPageState
           // ========================================================
           // EMPLOYEE
           // ========================================================
-
           _buildFollowupInfoRow(
             icon: Icons.person_outline_rounded,
             title: 'Employee',
-            value: item.admName.isEmpty
-                ? '-'
-                : item.admName,
+            value: item.admName.isEmpty ? '-' : item.admName,
           ),
 
           const SizedBox(height: 11),
@@ -490,13 +438,10 @@ class _DealerFollowupListPageState
           // ========================================================
           // DEALER
           // ========================================================
-
           _buildFollowupInfoRow(
             icon: Icons.store_outlined,
             title: 'Dealer',
-            value: item.outletName.isEmpty
-                ? '-'
-                : item.outletName,
+            value: item.outletName.isEmpty ? '-' : item.outletName,
           ),
 
           const SizedBox(height: 11),
@@ -504,13 +449,10 @@ class _DealerFollowupListPageState
           // ========================================================
           // DATE
           // ========================================================
-
           _buildFollowupInfoRow(
             icon: Icons.calendar_today_outlined,
             title: 'Date',
-            value: item.followupDate.isEmpty
-                ? '-'
-                : item.followupDate,
+            value: item.followupDate.isEmpty ? '-' : item.followupDate,
           ),
 
           const SizedBox(height: 11),
@@ -518,13 +460,10 @@ class _DealerFollowupListPageState
           // ========================================================
           // TIME
           // ========================================================
-
           _buildFollowupInfoRow(
             icon: Icons.access_time_rounded,
             title: 'Time',
-            value: item.followupTime.isEmpty
-                ? '-'
-                : item.followupTime,
+            value: item.followupTime.isEmpty ? '-' : item.followupTime,
           ),
 
           const SizedBox(height: 14),
@@ -532,7 +471,6 @@ class _DealerFollowupListPageState
           // ========================================================
           // REMARK
           // ========================================================
-
           Container(
             width: double.infinity,
             padding: const EdgeInsets.all(12),
@@ -543,8 +481,7 @@ class _DealerFollowupListPageState
             ),
 
             child: Column(
-              crossAxisAlignment:
-                  CrossAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.start,
 
               children: [
                 const Row(
@@ -571,9 +508,7 @@ class _DealerFollowupListPageState
                 const SizedBox(height: 7),
 
                 Text(
-                  item.followupRemark.isEmpty
-                      ? '-'
-                      : item.followupRemark,
+                  item.followupRemark.isEmpty ? '-' : item.followupRemark,
 
                   style: const TextStyle(
                     color: Color(0xFF263238),
@@ -599,8 +534,7 @@ class _DealerFollowupListPageState
     required String value,
   }) {
     return Row(
-      crossAxisAlignment:
-          CrossAxisAlignment.start,
+      crossAxisAlignment: CrossAxisAlignment.start,
 
       children: [
         Container(
@@ -612,19 +546,14 @@ class _DealerFollowupListPageState
             borderRadius: BorderRadius.circular(8),
           ),
 
-          child: Icon(
-            icon,
-            size: 17,
-            color: const Color(0xFF087C3A),
-          ),
+          child: Icon(icon, size: 17, color: const Color(0xFF087C3A)),
         ),
 
         const SizedBox(width: 10),
 
         Expanded(
           child: Column(
-            crossAxisAlignment:
-                CrossAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.start,
 
             children: [
               Text(
@@ -665,8 +594,7 @@ class _DealerFollowupListPageState
         padding: const EdgeInsets.all(30),
 
         child: Column(
-          mainAxisAlignment:
-              MainAxisAlignment.center,
+          mainAxisAlignment: MainAxisAlignment.center,
 
           children: [
             Container(
@@ -704,10 +632,7 @@ class _DealerFollowupListPageState
 
               textAlign: TextAlign.center,
 
-              style: TextStyle(
-                color: Colors.grey,
-                fontSize: 13,
-              ),
+              style: TextStyle(color: Colors.grey, fontSize: 13),
             ),
           ],
         ),

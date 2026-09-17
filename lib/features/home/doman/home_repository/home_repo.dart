@@ -12,5 +12,5 @@ abstract class HomeRepo {
 
   Future<HomeVisitEntity> getHomeVisitCount({required String userId});
 
-  Future<List<InpunchPendingEntity>> getInpunchPending(String userId);
+  Future<InpunchPendingResponseEntity> getInpunchPending(String userId);
 }

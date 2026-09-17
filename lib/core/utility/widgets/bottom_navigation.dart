@@ -234,6 +234,8 @@ class _HomeShellState extends State<HomeShell> {
     context.read<HomeBloc>().add(
       VisitGraphCountEvent(userId, searchFromDate, searchToDate),
     );
+
+    context.read<HomeBloc>().add(GetInpunchPendingEvent(userId: userId.toString()));
   }
 
   Future<void> _handleBack() async {

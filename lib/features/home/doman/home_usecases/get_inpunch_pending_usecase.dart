@@ -6,7 +6,7 @@ class GetInpunchPendingUseCase {
 
   GetInpunchPendingUseCase({required this.repository});
 
-  Future<List<InpunchPendingEntity>> getInpunchPending(String userId) async {
+  Future<InpunchPendingResponseEntity> getInpunchPending(String userId) async {
     return await repository.getInpunchPending(userId);
   }
 }
