@@ -62,8 +62,6 @@ class _PunchOutScreenState extends State<PunchOutScreen> {
 
     final userId = int.tryParse(userData?['user_id']?.toString() ?? '');
 
-    // punchVehicleId = userData?['vehicle_type_id']?.toString();
-
     if (!mounted || userId == null) return;
 
     context.read<QuickAcessBloc>().add(
@@ -83,16 +81,25 @@ class _PunchOutScreenState extends State<PunchOutScreen> {
       return null;
     }
   }
-  // Future<void> _loadVehicleTypes() async {
-  //   final userData = await SecureStorage.instance.getUserData();
-  //   final userId = int.tryParse(userData?['user_id']?.toString() ?? '');
 
-  //   if (!mounted || userId == null) return;
+  void _setMatchedVehicleAndRoute(QuickAccessState state) {
+    final vehicle = _getMatchedVehicle(state);
 
-  //   context.read<QuickAcessBloc>().add(
-  //     VehicleTypeEvent(userId, DateFormat('yyyy-MM-dd').format(DateTime.now())),
-  //   );
-  // }
+    if (vehicle == null) {
+      return;
+    }
+
+    if (!mounted) return;
+
+    setState(() {
+      vehicleController.text = vehicle.vehicleType;
+      routeController.text = vehicle.todaysRoute;
+    });
+
+    debugPrint('Matched Vehicle: ${vehicle.vehicleType}');
+    debugPrint('Matched Vehicle ID: ${vehicle.vehicleTypeId}');
+    debugPrint('Matched Route: ${vehicle.todaysRoute}');
+  }
 
   Future<void> _captureImage() async {
     try {
@@ -279,27 +286,26 @@ class _PunchOutScreenState extends State<PunchOutScreen> {
       body: SafeArea(
         child: BlocConsumer<QuickAcessBloc, QuickAccessState>(
           listener: (context, state) {
-            // -------------------------------
-            // -------------------------------
-            // VEHICLE TYPE API SUCCESS
-            // -------------------------------
             if (state.quickAccessStatus == QuickAccessStatus.success &&
                 !_submissionSent) {
-              final vehicle = _getMatchedVehicle(state);
-
-              if (vehicle != null) {
-                vehicleController.text = vehicle.vehicleType;
-              }
+              _setMatchedVehicleAndRoute(state);
             }
 
-            // -------------------------------
-            // PUNCH OUT API RESPONSE
-            // -------------------------------
+            // if (state.quickAccessStatus == QuickAccessStatus.success &&
+            //     !_submissionSent) {
+            //   final vehicle = _getMatchedVehicle(state);
+
+            //   if (vehicle != null) {
+            //     vehicleController.text = vehicle.vehicleType;
+            //   }
+            // }
+
             if (!_submissionSent) {
               return;
             }
 
-            if (state.quickAccessStatus == QuickAccessStatus.punchStatusSuccess) {
+            if (state.quickAccessStatus ==
+                QuickAccessStatus.punchStatusSuccess) {
               setState(() {
                 isLoading = false;
                 _submissionSent = false;
@@ -371,6 +377,10 @@ class _PunchOutScreenState extends State<PunchOutScreen> {
                         hintText: 'Closing KM*',
                         enabled: true,
                         validator: (value) => _validateKm(value, 'Closing KM'),
+                        onChanged: (value) {
+                          // Validate immediately while typing
+                          _formKey.currentState?.validate();
+                        },
                       ),
 
                       SizedBox(height: 14.h),
@@ -446,129 +456,6 @@ class _PunchOutScreenState extends State<PunchOutScreen> {
             );
           },
         ),
-
-        /*
-        BlocBuilder<QuickAcessBloc, QuickAccessState>(
-          builder: (context, vehicleState) {
-            final selectedVehicle = _getMatchedVehicle(vehicleState);
-
-            return Form(
-              key: _formKey,
-              child: SingleChildScrollView(
-                child: Padding(
-                  padding: const EdgeInsets.only(left: 16, right: 16),
-                  child: Column(
-                    children: [
-                      SizedBox(height: 14.h),
-
-                      // _vehicleDropdown(vehicleState),
-                      SizedBox(height: 14.h),
-
-                      // Vehicle Type - READ ONLY
-                      _textField(
-                        controller: TextEditingController(
-                          text: selectedVehicle?.vehicleType ?? '',
-                        ),
-                        hintText: 'Vehicle Type',
-                        icon: Icons.directions_car_outlined,
-                        // enabled: false,
-                      ),
-
-                      SizedBox(height: 14.h),
-
-                      // Opening KM - READ ONLY
-                      _kmField(
-                        controller: openingKmController,
-                        hintText: 'Opening KM',
-                        enabled: false,
-                        validator: (_) => null,
-                      ),
-
-                      SizedBox(height: 14.h),
-
-                      // Closing KM - EDITABLE
-                      _kmField(
-                        controller: closingKmController,
-                        hintText: 'Closing KM*',
-                        enabled: true,
-                        validator: (value) => _validateKm(value, 'Closing KM'),
-                      ),
-
-                      SizedBox(height: 14.h),
-
-                      // Route
-                      _textField(
-                        controller: routeController,
-                        hintText: 'Enter Route*',
-                        icon: Icons.route_outlined,
-                        validator: (value) {
-                          if (value == null || value.trim().isEmpty) {
-                            return 'Please enter route';
-                          }
-
-                          return null;
-                        },
-                      ),
-
-                      SizedBox(height: 14.h),
-
-                      // Remark
-                      _textField(
-                        controller: remarkController,
-                        hintText: 'Enter Remark',
-                        icon: Icons.note_add_outlined,
-                        maxLines: 1,
-                      ),
-
-                      SizedBox(height: 14.h),
-
-                      // Upload photo
-                      FormField<bool>(
-                        initialValue: _uploadedImage != null,
-                        validator: (_) {
-                          if (_uploadedImage == null) {
-                            return 'Please upload an image';
-                          }
-
-                          return null;
-                        },
-                        builder: (field) {
-                          return Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              _uploadPhotoCard(),
-                              if (field.hasError)
-                                Padding(
-                                  padding: EdgeInsets.only(
-                                    left: 16.w,
-                                    top: 4.h,
-                                  ),
-                                  child: Text(
-                                    field.errorText!,
-                                    style: TextStyle(
-                                      color: Colors.red,
-                                      fontSize: 12.sp,
-                                    ),
-                                  ),
-                                ),
-                            ],
-                          );
-                        },
-                      ),
-                      SizedBox(height: 14.h),
-
-                      // Submit
-                      _submitButton(),
-                      SizedBox(height: 14.h),
-                    ],
-                  ),
-                ),
-              ),
-            );
-          },
-        ),
-
-        */
       ),
     );
   }
@@ -578,14 +465,17 @@ class _PunchOutScreenState extends State<PunchOutScreen> {
     required String hintText,
     required bool enabled,
     required String? Function(String?) validator,
+    ValueChanged<String>? onChanged,
   }) {
     return CustomTextFormField(
       controller: controller,
       hintText: hintText,
+      labelText: hintText,
       prefixIcon: Icons.speed_outlined,
       keyboardType: TextInputType.number,
       enabled: enabled,
       validator: enabled ? validator : null,
+      onChanged: onChanged,
     );
   }
 
@@ -626,9 +516,9 @@ class _PunchOutScreenState extends State<PunchOutScreen> {
     return CustomTextFormField(
       controller: controller,
       hintText: hintText,
+      labelText: hintText,
       prefixIcon: icon,
       maxLines: maxLines,
-      enabled: enabled,
       validator: validator,
     );
   }

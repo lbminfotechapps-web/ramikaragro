@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil_plus/flutter_screenutil_plus.dart';
 
 class NotVisitedCard extends StatelessWidget {
-  final HomeVisitEntity homeData;
+  final HomeVisitEntity? homeData;
   const NotVisitedCard(this.homeData, {super.key});
 
   @override
@@ -78,7 +78,7 @@ class NotVisitedCard extends StatelessWidget {
                 child: _statItem(
                   icon: Icons.storefront_outlined,
                   title: 'Dealers',
-                  value: homeData.todayDealerCnt,
+                  value: homeData!.lastThirNotVisitDealer,
                 ),
               ),
 
@@ -88,7 +88,7 @@ class NotVisitedCard extends StatelessWidget {
                 child: _statItem(
                   icon: Icons.agriculture_outlined,
                   title: 'Farmers',
-                  value: homeData.todayFarmerCnt,
+                  value: homeData!.lastThirNotVisitFarmer,
                 ),
               ),
             ],

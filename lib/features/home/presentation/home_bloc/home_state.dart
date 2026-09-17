@@ -13,7 +13,7 @@ class HomeState extends Equatable {
   final String? totalFarmerCount;
   final HomeVisitEntity? homedata;
 
-  final List<InpunchPendingEntity> data;
+  final InpunchPendingResponseEntity? data;
 
   const HomeState({
     this.status = HomeStatus.initial,
@@ -22,7 +22,7 @@ class HomeState extends Equatable {
     this.totalDealerCount,
     this.totalFarmerCount,
     this.homedata,
-    this.data = const [],
+    this.data,
   });
 
   HomeState copyWith({
@@ -32,7 +32,7 @@ class HomeState extends Equatable {
     String? totalDealerCount,
     String? totalFarmerCount,
     HomeVisitEntity? homedata,
-    List<InpunchPendingEntity>? data,
+    InpunchPendingResponseEntity? data,
   }) {
     return HomeState(
       status: status ?? this.status,
