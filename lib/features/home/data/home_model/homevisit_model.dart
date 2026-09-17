@@ -12,6 +12,7 @@ class HomeVisitModel extends HomeVisitEntity {
     required super.monthlyFarmerCnt,
     required super.monthlyUniqueDealerCnt,
     required super.monthlyUniqueFarmerCnt,
+    
     required super.lastThirNotVisitDealer,
     required super.lastThirNotVisitFarmer
   });

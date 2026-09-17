@@ -90,7 +90,7 @@ class AppRouter {
   static const String gallery = '/gallery';
   static const String scheme = '/scheme';
   static const String leaveList = '/leaveList';
-  static const String addLeave = '/addLeave';
+  static const String addLeave = '/add-Leave';
 
   static const String topTenDealer = '/topTenDealer';
   static const String social = '/social';
@@ -208,8 +208,8 @@ class AppRouter {
       ),
 
       GoRoute(
-        path: 'add-leave',
-        name: 'addLeave',
+        path: 'add-Leave',
+        name: 'add-Leave',
         builder: (context, state) {
           return const AddLeavePage();
         },

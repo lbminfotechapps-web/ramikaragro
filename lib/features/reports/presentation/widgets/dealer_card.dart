@@ -92,14 +92,14 @@ class DealerCard extends StatelessWidget {
                         color: Color(0xFF17202A),
                       ),
                     ),
-                    const SizedBox(height: 3),
-                    Text(
-                      'Dealer ID: ${dealer.outletId}',
-                      style: const TextStyle(
-                        fontSize: 11,
-                        color: Color(0xFF89939D),
-                      ),
-                    ),
+                    // const SizedBox(height: 3),
+                    // Text(
+                    //   'Dealer ID: ${dealer.outletId}',
+                    //   style: const TextStyle(
+                    //     fontSize: 11,
+                    //     color: Color(0xFF89939D),
+                    //   ),
+                    // ),
                   ],
                 ),
               ),

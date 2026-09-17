@@ -82,18 +82,18 @@ class VisitSummaryCard extends StatelessWidget {
                         ),
                       ),
 
-                      const SizedBox(height: 1),
+                      // const SizedBox(height: 1),
 
-                      Text(
-                        report.empCode,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: const TextStyle(
-                          fontSize: 10.5,
-                          color: Color(0xFF737C76),
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
+                      // Text(
+                      //   report.empCode,
+                      //   maxLines: 1,
+                      //   overflow: TextOverflow.ellipsis,
+                      //   style: const TextStyle(
+                      //     fontSize: 10.5,
+                      //     color: Color(0xFF737C76),
+                      //     fontWeight: FontWeight.w600,
+                      //   ),
+                      // ),
                     ],
                   ),
                 ),

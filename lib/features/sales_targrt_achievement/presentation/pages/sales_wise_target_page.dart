@@ -533,7 +533,7 @@ class _SalesWiseTargetPageState
           children: [
             Expanded(
               child: _buildStatCard(
-                title: 'Target',
+                title: 'Target in Rs.',
                 value:
                     target.totalTarget
                         .toString(),
@@ -552,7 +552,7 @@ class _SalesWiseTargetPageState
 
             Expanded(
               child: _buildStatCard(
-                title: 'Achieved',
+                title: 'Achieved in Rs.',
                 value:
                     target.totalAchieved
                         .toString(),
@@ -574,7 +574,7 @@ class _SalesWiseTargetPageState
           children: [
             Expanded(
               child: _buildStatCard(
-                title: 'Pending',
+                title: 'Pending in Rs.',
                 value:
                     target.totalPending
                         .toString(),
@@ -965,7 +965,7 @@ class _SalesWiseTargetPageState
                   color:
                       achievedColor,
                   title:
-                      'Collection',
+                      'Sales',
                   value:
                       '${achievedPercent.toStringAsFixed(0)}%',
                 ),
