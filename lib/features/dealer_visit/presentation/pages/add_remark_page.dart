@@ -575,7 +575,7 @@ void _getFollowupData() {
           // SUCCESS
           // ======================================================
 
-          if (state.addLeaveStatus == AddDealerVisitStatus.success) {
+          if (state.addLeaveStatus == AddDealerVisitStatus.dealerFollowupAddSuccess) {
             final puposeData=state.purpose;
           
 

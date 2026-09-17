@@ -628,7 +628,7 @@ class _DealerListItem extends StatelessWidget {
                     iconColor: const Color(0xFF087A2F),
                     title: 'Last Call',
                     value: _displayDate(dealer.lastDateTime),
-                    subtitle: 'Today',
+                    subtitle: '',
                   ),
                 ),
 
@@ -641,7 +641,7 @@ class _DealerListItem extends StatelessWidget {
                     iconColor: const Color(0xFF087A2F),
                     title: 'Last Visit',
                     value: _displayDate(dealer.lastVisitDateTime),
-                    subtitle: 'Today',
+                    subtitle: '',
                   ),
                 ),
               ],
