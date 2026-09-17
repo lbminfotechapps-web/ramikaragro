@@ -12,6 +12,8 @@ class HomeVisitModel extends HomeVisitEntity {
     required super.monthlyFarmerCnt,
     required super.monthlyUniqueDealerCnt,
     required super.monthlyUniqueFarmerCnt,
+    required super.lastThirNotVisitDealer,
+    required super.lastThirNotVisitFarmer
   });
 
   factory HomeVisitModel.fromJson(Map<String, dynamic> json) {
@@ -36,6 +38,8 @@ class HomeVisitModel extends HomeVisitEntity {
 
       monthlyUniqueFarmerCnt:
           json['monthly_unique_farmer_cnt']?.toString() ?? '0',
+          lastThirNotVisitDealer: json['last_30_days_not_visited_dealer_cnt']?.toString() ?? '0',
+          lastThirNotVisitFarmer: json['last_30_days_not_visited_farmer_cnt']?.toString() ?? '0',
     );
   }
 }
