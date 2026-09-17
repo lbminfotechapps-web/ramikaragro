@@ -780,6 +780,7 @@ class _FarmerregistrationPageState extends State<FarmerregistrationPage> {
                     CustomTextFormField(
                       controller: farmerNameController,
                       hintText: 'Farmer Name *',
+                      labelText: 'Farmer Name *',
                       prefixIcon: Icons.person_outline,
                       validator: (value) {
                         if (value == null || value.trim().isEmpty) {
@@ -795,6 +796,7 @@ class _FarmerregistrationPageState extends State<FarmerregistrationPage> {
                     CustomTextFormField(
                       controller: contactPersonController,
                       hintText: 'Contact Person Name',
+                      labelText: 'Contact Person Name',
                       prefixIcon: Icons.person_outline,
                     ),
 
@@ -803,6 +805,7 @@ class _FarmerregistrationPageState extends State<FarmerregistrationPage> {
                     CustomTextFormField(
                       controller: addressController,
                       hintText: 'Address',
+                      labelText: 'Address',
                       prefixIcon: Icons.location_on_outlined,
                       maxLines: 3,
                     ),
@@ -812,6 +815,7 @@ class _FarmerregistrationPageState extends State<FarmerregistrationPage> {
                     CustomTextFormField(
                       controller: mobileController,
                       hintText: 'Mobile No *',
+                      labelText: 'Mobile No *',
                       prefixIcon: Icons.phone_outlined,
                       keyboardType: TextInputType.phone,
                       validator: (value) {
@@ -834,6 +838,7 @@ class _FarmerregistrationPageState extends State<FarmerregistrationPage> {
                     CustomTextFormField(
                       controller: alternateMobileController,
                       hintText: 'Alternate Mobile No',
+                      labelText: 'Alternate Mobile No ',
                       prefixIcon: Icons.phone_outlined,
                       keyboardType: TextInputType.phone,
                       validator: (value) {
@@ -856,6 +861,7 @@ class _FarmerregistrationPageState extends State<FarmerregistrationPage> {
                     CustomTextFormField(
                       controller: emailController,
                       hintText: 'Email ID',
+                      labelText: 'Email ID',
                       prefixIcon: Icons.email_outlined,
                       keyboardType: TextInputType.emailAddress,
                       validator: (value) {
@@ -880,6 +886,7 @@ class _FarmerregistrationPageState extends State<FarmerregistrationPage> {
                     CustomTextFormField(
                       controller: villageController,
                       hintText: 'Village',
+                      labelText: 'Village',
                       prefixIcon: Icons.location_city_outlined,
                     ),
 
@@ -1228,6 +1235,7 @@ class _FarmerregistrationPageState extends State<FarmerregistrationPage> {
                     CustomTextFormField(
                       controller: currentProductUsedController,
                       hintText: 'Current Product Used',
+                      labelText: 'Current Product Used',
                       prefixIcon: Icons.note,
                       maxLines: 2,
                     ),

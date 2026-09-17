@@ -961,7 +961,7 @@ class _FarmerEditUpdateScrenState extends State<FarmerEditUpdateScren> {
       appBar: CustomAppBar(
         title: 'Farmer Details',
         showBackButton: true,
-      onBackTap: () => Navigator.pop(context),
+        onBackTap: () => Navigator.pop(context),
       ),
 
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
@@ -1196,6 +1196,7 @@ class _FarmerEditUpdateScrenState extends State<FarmerEditUpdateScren> {
                     CustomTextFormField(
                       controller: farmerNameController,
                       hintText: 'Farmer Name *',
+                      labelText: 'Farmer Name *',
                       prefixIcon: Icons.person_outline,
                       validator: (value) {
                         if (value == null || value.trim().isEmpty) {
@@ -1212,6 +1213,7 @@ class _FarmerEditUpdateScrenState extends State<FarmerEditUpdateScren> {
                     CustomTextFormField(
                       controller: contactPersonController,
                       hintText: 'Contact Person Name',
+                      labelText: 'Contact Person Name',
                       prefixIcon: Icons.person_outline,
                     ),
 
@@ -1220,6 +1222,7 @@ class _FarmerEditUpdateScrenState extends State<FarmerEditUpdateScren> {
                     CustomTextFormField(
                       controller: addressController,
                       hintText: 'Address',
+                      labelText: 'Address',
                       prefixIcon: Icons.location_on_outlined,
                       maxLines: 3,
                     ),
@@ -1229,6 +1232,7 @@ class _FarmerEditUpdateScrenState extends State<FarmerEditUpdateScren> {
                     CustomTextFormField(
                       controller: mobileController,
                       hintText: 'Mobile No *',
+                      labelText: 'Mobile No *',
                       prefixIcon: Icons.phone_outlined,
                       keyboardType: TextInputType.phone,
                       validator: (value) {
@@ -1251,6 +1255,7 @@ class _FarmerEditUpdateScrenState extends State<FarmerEditUpdateScren> {
                     CustomTextFormField(
                       controller: alternateMobileController,
                       hintText: 'Alternate Mobile No',
+                      labelText: 'Alternate Mobile No',
                       prefixIcon: Icons.phone_outlined,
                       keyboardType: TextInputType.phone,
                       validator: (value) {
@@ -1273,6 +1278,7 @@ class _FarmerEditUpdateScrenState extends State<FarmerEditUpdateScren> {
                     CustomTextFormField(
                       controller: emailController,
                       hintText: 'Email ID',
+                      labelText: 'Email ID',
                       prefixIcon: Icons.email_outlined,
                       keyboardType: TextInputType.emailAddress,
                       validator: (value) {
@@ -1297,6 +1303,7 @@ class _FarmerEditUpdateScrenState extends State<FarmerEditUpdateScren> {
                     CustomTextFormField(
                       controller: villageController,
                       hintText: 'Village',
+                      labelText: 'Village',
                       prefixIcon: Icons.location_city_outlined,
                     ),
 
@@ -1646,6 +1653,7 @@ class _FarmerEditUpdateScrenState extends State<FarmerEditUpdateScren> {
                     CustomTextFormField(
                       controller: currentProductUsedController,
                       hintText: 'Current Product Used',
+                      labelText: 'Current Product Used',
                       prefixIcon: Icons.note,
                       maxLines: 2,
                     ),
@@ -1654,6 +1662,7 @@ class _FarmerEditUpdateScrenState extends State<FarmerEditUpdateScren> {
                     CustomTextFormField(
                       controller: remarkController,
                       hintText: 'Remark',
+                      labelText: 'Remark',
                       prefixIcon: Icons.note,
                       maxLines: 2,
                     ),
