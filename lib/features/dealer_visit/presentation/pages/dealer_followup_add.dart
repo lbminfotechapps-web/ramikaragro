@@ -440,7 +440,7 @@ class _DealerFollowupAddState extends State<DealerFollowupAdd> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: AppColors.backgroundColor,
       appBar: CustomAppBar(
         title: 'Dealer Registration Form',
         showBackButton: true,

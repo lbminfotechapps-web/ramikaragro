@@ -15,82 +15,93 @@ class AddDealerVisitBlock
   final AddRemark addLeave;
   final FarmerregistrationRepository repositoryProvider;
 
-  AddDealerVisitBlock(this.addLeave, this.repositoryProvider)
+AddDealerVisitBlock(this.addLeave, this.repositoryProvider)
     : super(const AddDealerVisitState()) {
-    // on<GetLeaveListEvent>(_onGetLeaveList);
-    on<AddDealerRemarkSubmitEvent>(_onAddRemark);
-    on<GetPurposeEvent>(_onGetPurpose);
-    on<GetFollowupEvent>(_onGetFollowup);
-    on<AddDealerFollowUpEvent>(_onAddDealerFollowUp);
+  on<AddDealerRemarkSubmitEvent>(_onAddRemark);
+  on<GetPurposeEvent>(_onGetPurpose);
+  on<GetFollowupEvent>(_onGetFollowup);
+  on<AddDealerFollowUpEvent>(_onAddDealerFollowUp);
+  on<StateListEvent>(_onStateListGet);
+  on<DistrictEvent>(_onDistrictGet);
+  on<UpdateDealerEvent>(_onUpdateDealer);
+}
 
-    on<StateListEvent>(_onStateListGet);
-    on<DistrictEvent>(_onDistrictGet);
+ Future<void> _onAddRemark(
+  AddDealerRemarkSubmitEvent event,
+  Emitter<AddDealerVisitState> emit,
+) async {
+  emit(
+    state.copyWith(
+      addLeaveStatus: AddDealerVisitStatus.loading,
+      clearError: true,
+      clearSuccess: true,
+    ),
+  );
 
-    on<UpdateDealerEvent>(_onUpdateDealer);
-    // on<ClearLeaveMessageEvent>(_onClearMessage);
-  }
+  try {
+    print('========== ADD DEALER REMARK ==========');
 
-  FutureOr<void> _onAddRemark(
-    AddDealerRemarkSubmitEvent event,
-    Emitter<AddDealerVisitState> emit,
-  ) async {
+    final Map<String, dynamic> formData = {
+      'user_id': event.userId,
+      'outlet_id': event.outletId,
+      'purposeId': event.purposeId,
+      'amount': event.amount,
+      'followUpDate': event.followUpDate,
+      'followUpType': event.followUpType,
+      'remark': event.remark,
+      'latitude': event.latitude,
+      'longitude': event.longitude,
+      'networkLatitude': event.networkLatitude,
+      'networkLongitude': event.networkLongitude,
+      'gpsLatitude': event.gpsLatitude,
+      'gpsLongitude': event.gpsLongitude,
+      'geoAddress': event.geoAddress,
+      'strNetworkInfo': event.strNetworkInfo,
+      'strBatteryInfo': event.strBatteryInfo,
+      'activityId': event.activityId,
+    };
+
+    print('========== REQUEST DATA ==========');
+    formData.forEach((key, value) {
+      print('$key : $value');
+    });
+    print('==================================');
+
+    // IMPORTANT: WAIT FOR API RESPONSE
+    final response = await addLeave.call(formData);
+
+    print('========== ADD REMARK RESPONSE ==========');
+    print(response);
+    print('=========================================');
+
     emit(
       state.copyWith(
-        addLeaveStatus: AddDealerVisitStatus.loading,
+        addLeaveStatus: AddDealerVisitStatus.dealerFollowupAddSuccess,
+        successMessage: 'Dealer follow-up added successfully',
         clearError: true,
+      ),
+    );
+  } catch (e, stackTrace) {
+    print('========== ADD REMARK ERROR ==========');
+    print(e);
+    print(stackTrace);
+    print('======================================');
+
+    String message = 'Unable to add dealer follow-up';
+
+    if (e is ServerException || e is NetworkException) {
+      message = e.toString();
+    }
+
+    emit(
+      state.copyWith(
+        addLeaveStatus: AddDealerVisitStatus.failure,
+        errorMessage: message,
         clearSuccess: true,
       ),
     );
-
-    try {
-      print("========== ADD LEAVE ==========");
-
-      print("================================");
-
-      Map<String, dynamic> formData = {
-        "user_id": event.userId,
-        "outlet_id": event.outletId,
-        "purposeId": event.purposeId,
-        "amount": event.amount,
-        "followUpDate": event.followUpDate,
-        "followUpType": event.followUpType,
-        "remark": event.remark,
-        "latitude": event.latitude,
-        "longitude": event.longitude,
-        "networkLatitude": event.networkLatitude,
-        "networkLongitude": event.networkLongitude,
-        "gpsLatitude": event.gpsLatitude,
-        "gpsLongitude": event.gpsLongitude,
-        "geoAddress": event.geoAddress,
-        "strNetworkInfo": event.strNetworkInfo,
-        "strBatteryInfo": event.strBatteryInfo,
-        "activityId": event.activityId,
-      };
-
-      final postData = addLeave.call(formData);
-      emit(
-        state.copyWith(
-          addLeaveStatus: AddDealerVisitStatus.success,
-          successMessage: "",
-          clearError: true,
-        ),
-      );
-    } catch (e) {
-      String message = "Unable to apply leave";
-
-      if (e is ServerException || e is NetworkException) {
-        message = e.toString();
-      }
-
-     emit(
-        state.copyWith(
-          addLeaveStatus: AddDealerVisitStatus.failure,
-          errorMessage: message,
-          clearSuccess: true,
-        ),
-      );
-    }
   }
+}
 
   Future<void> _onGetPurpose(
     GetPurposeEvent event,

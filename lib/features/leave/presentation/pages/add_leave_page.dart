@@ -1,6 +1,7 @@
 import 'package:demo/core/di/leave_list_di.dart';
 import 'package:demo/core/router/app_router.dart';
 import 'package:demo/core/theme/app_colors.dart';
+import 'package:demo/core/utility/widgets/custom_appbar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -565,51 +566,20 @@ class _AddLeavePageState extends State<AddLeavePage> {
           return Scaffold(
             backgroundColor: backgroundColor,
 
-            // ==================================================
-            // APP BAR
-            // ==================================================
+    
 
-            appBar: AppBar(
-              elevation: 0,
-              backgroundColor: primaryGreen,
-              foregroundColor: Colors.white,
-              centerTitle: false,
-              titleSpacing: 0,
-
-
-              leading: IconButton(
-              icon: const Icon(
-                Icons.arrow_back_ios_new,
-                size: 19,
-                color: AppColors.backgroundColor,
-              ),
-              onPressed: () {
-                context.go(AppRouter.home);
-              },
-              ),
-
-              title: const Column(
-                crossAxisAlignment:
-                    CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    "Apply Leave",
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.w700,
-                    ),
-                  ),
-                  Text(
-                    "Submit your leave request",
-                    style: TextStyle(
-                      fontSize: 11,
-                      color: Colors.white70,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-
+             appBar: CustomAppBar(
+              title: 'Apply Leave',
+            
+              showBackButton: true,
+              onBackTap: () => Navigator.pop(context),
+              
+              actionIcon: 
+              Icons.arrow_back_ios_new,
+              // onActionIconTap: () {
+              //   Navigator.pop(context);
+              // },
+             ),
             // ==================================================
             // BODY
             // ==================================================

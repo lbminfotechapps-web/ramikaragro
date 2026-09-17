@@ -90,7 +90,7 @@ class AppRouter {
   static const String gallery = '/gallery';
   static const String scheme = '/scheme';
   static const String leaveList = '/leaveList';
-  static const String addLeave = '/addLeave';
+  static const String addLeave = '/add-Leave';
 
   static const String topTenDealer = '/topTenDealer';
   static const String social = '/social';
@@ -113,6 +113,7 @@ class AppRouter {
   static const String farmerEdit = '/farmerEdit';
   static const String addExpense = '/addExpense';
   static const String dealrFollowUpAdd = '/dealrFollowUpAdd';
+  static const String dealrFollowUpAddNew = '/dealrFollowUpAddNew';
   static const String dealerUpdate = '/dealerUpdate';
 
   static final GoRouter router = GoRouter(
@@ -207,8 +208,8 @@ class AppRouter {
       ),
 
       GoRoute(
-        path: 'add-leave',
-        name: 'addLeave',
+        path: 'add-Leave',
+        name: 'add-Leave',
         builder: (context, state) {
           return const AddLeavePage();
         },
@@ -407,6 +408,15 @@ class AppRouter {
         name: 'dealrFollowUpAdd',
         builder: (context, state) {
           return DealerFollowupAdd();
+        },
+      ),
+      GoRoute(
+        path: dealrFollowUpAddNew,
+        name: 'dealrFollowUpAddNew',
+        builder: (context, state) {
+           final dealerId = state.extra is String ? state.extra as String : '';
+ final dealerName = state.extra is String ? state.extra as String : '';
+          return AddDealerVisitPage(dealerId: dealerId,dealerName: dealerName);
         },
       ),
 

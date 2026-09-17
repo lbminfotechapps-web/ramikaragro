@@ -12,6 +12,9 @@ class HomeVisitEntity {
 
   final String monthlyUniqueDealerCnt;
   final String monthlyUniqueFarmerCnt;
+  
+  final String lastThirNotVisitDealer;
+  final String lastThirNotVisitFarmer;
 
   const HomeVisitEntity({
     required this.status,
@@ -24,5 +27,7 @@ class HomeVisitEntity {
     required this.monthlyFarmerCnt,
     required this.monthlyUniqueDealerCnt,
     required this.monthlyUniqueFarmerCnt,
+    required this.lastThirNotVisitDealer,
+    required this.lastThirNotVisitFarmer
   });
 }

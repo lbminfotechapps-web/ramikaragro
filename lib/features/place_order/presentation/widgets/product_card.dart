@@ -6,38 +6,19 @@ import 'package:flutter_screenutil_plus/flutter_screenutil_plus.dart';
 
 class ProductCard extends StatelessWidget {
   final ProductEntity product;
-
-  /// Quantity for each selected packing.
-  ///
-  /// Key   = productDetailsId
-  /// Value = quantity
-  ///
-  /// Example:
-  /// {
-  ///   "101": 2,
-  ///   "102": 5,
-  ///   "103": 1,
-  /// }
   final Map<String, int> packingQuantities;
-
   /// All selected rates / packings for this product.
   final List<ProductRateEntity> selectedRates;
-
   /// Opens packing/rate selector.
   final VoidCallback onAdd;
-
   /// Opens selector again.
   final VoidCallback onAddMore;
-
   /// Delete complete product.
   final VoidCallback onDelete;
-
   /// Increase quantity of one packing.
   final void Function(ProductRateEntity rate) onIncrease;
-
   /// Decrease quantity of one packing.
   final void Function(ProductRateEntity rate) onDecrease;
-
   const ProductCard({
     super.key,
     required this.product,

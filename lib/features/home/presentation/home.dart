@@ -81,22 +81,26 @@ class _HomeState extends State<Home> {
     }
 
     final userId = userData['user_id']?.toString() ?? '';
-
+    // context.read<HomeBloc>().add(GetInpunchPendingEvent(userId: userId));
     if (userId.isEmpty) {
       debugPrint('Stored user data has no user_id');
     } else {
       await getEmployeeStatus(userId);
+
+      if (!mounted) return;
+
+      // Load pending punch data
     }
 
     final userName = userData['user_name']?.toString();
 
-    if (!mounted || userName == null || userName.isEmpty) return;
+    if (!mounted || userName == null || userName.isEmpty) {
+      return;
+    }
 
     setState(() {
       _username = userName;
     });
-
-    context.read<HomeBloc>().add(GetInpunchPendingEvent(userId: userId));
   }
 
   Future<void> getUserName() async {
@@ -256,38 +260,69 @@ class _HomeState extends State<Home> {
               children: [
                 SizedBox(height: 12.h),
 
-                Row(
-                  children: [
-                    Expanded(
-                      child: SizedBox(
-                        height: 100.h,
-                        child: buildPunchCard("Today's Punch", '09:15 AM'),
-                      ),
-                    ),
+                BlocBuilder<HomeBloc, HomeState>(
+                  builder: (context, state) {
+                    int pendingCount = 0;
+                    int pendingTotalCount = 0;
+                    String? punchTiming;
+                    String? city;
+                    String? countryState;
+                    // String? city;
 
-                    SizedBox(width: 8.w),
-
-                    Expanded(
-                      child: SizedBox(
-                        height: 100.h,
-                        child: BlocBuilder<HomeBloc, HomeState>(
-                          builder: (context, state) {
-                            int pendingCount = 0;
-
-                            if (state.status == HomeStatus.success) {
-                              pendingCount = state.data.length;
-                            }
-                            print("List Size is. :${state.data.length}");
-                            return buildInfoCard(
-                              'In Punch Pending',
-                              pendingCount.toString(),
-                              onTap: () => _showPendingListDialog(state.data),
-                            );
-                          },
+                    if (state.status == HomeStatus.success) {
+                      pendingCount = state.data!.pendingInpunchCount;
+                      pendingTotalCount = state.data!.totalRecursiveEmployee;
+                      punchTiming = state.data!.inpunchTime.toString();
+                      city = state.data!.city.toString();
+                      countryState = state.data!.state.toString();
+                      // pendingCountOutOf = state.data.;
+                    }
+                    return Row(
+                      children: [
+                        Expanded(
+                          child: SizedBox(
+                            height: 100.h,
+                            child: buildPunchCard(
+                              "Today's Punch",
+                              punchTiming.toString(),
+                              '$city $countryState',
+                            ),
+                          ),
                         ),
-                      ),
-                    ),
-                  ],
+
+                        SizedBox(width: 8.w),
+
+                        Expanded(
+                          child: SizedBox(
+                            height: 100.h,
+                            child:
+                                //  BlocBuilder<HomeBloc, HomeState>(
+                                //   builder: (context, state) {
+                                //     int pendingCount = 0;
+                                //     int pendingTotalCount = 0;
+                                //     if (state.status == HomeStatus.success) {
+                                //       pendingCount = state.data!.pendingInpunchCount;
+                                //       pendingTotalCount =
+                                //           state.data!.totalRecursiveEmployee;
+                                //       // pendingCountOutOf = state.data.;
+                                //     }
+                                //     // print("List Size is. :${state.data.length}");
+                                //     return
+                                buildInfoCard(
+                                  'In Punch Pending',
+                                  '${pendingCount.toString()}/${pendingTotalCount.toString()}',
+                                  onTap: () => _showPendingListDialog(
+                                    state.data!.result,
+                                  ),
+                                ),
+
+                            //   },
+                            // ),
+                          ),
+                        ),
+                      ],
+                    );
+                  },
                 ),
 
                 SizedBox(height: 8.h),
@@ -304,8 +339,6 @@ class _HomeState extends State<Home> {
                       );
                     }
 
-                    // If API has data, use it.
-                    // If API returns empty/null, use zero values.
                     final homeData =
                         state.homedata ??
                         HomeVisitEntity(
@@ -319,6 +352,8 @@ class _HomeState extends State<Home> {
                           monthlyFarmerCnt: '0',
                           monthlyUniqueDealerCnt: '0',
                           monthlyUniqueFarmerCnt: '0',
+                          lastThirNotVisitDealer: '0',
+                          lastThirNotVisitFarmer: '0',
                         );
 
                     return VisitStatisticsTable(homeData);
@@ -338,10 +373,9 @@ class _HomeState extends State<Home> {
                       );
                     }
 
-                    // If API has data, use it.
-                    // If API returns empty/null, use zero values.
                     final homeData =
                         state.homedata ??
+                        //  ??
                         HomeVisitEntity(
                           status: false,
                           message: '',
@@ -353,8 +387,10 @@ class _HomeState extends State<Home> {
                           monthlyFarmerCnt: '0',
                           monthlyUniqueDealerCnt: '0',
                           monthlyUniqueFarmerCnt: '0',
+                          lastThirNotVisitDealer: '0',
+                          lastThirNotVisitFarmer: '0',
                         );
-
+                    // final homeData = state.homedata;
                     return NotVisitedCard(homeData);
                   },
                 ),
@@ -413,7 +449,7 @@ class _HomeState extends State<Home> {
     */
   }
 
-  Widget buildPunchCard(String label, String value) {
+  Widget buildPunchCard(String label, String value, String location) {
     return CustomCard(
       color: const Color(0xFF009B3A),
       padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 10.h),
@@ -453,7 +489,7 @@ class _HomeState extends State<Home> {
                       size: 12.h,
                     ),
                     Text(
-                      'Nashik, Maharashtra',
+                      location,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: TextStyle(

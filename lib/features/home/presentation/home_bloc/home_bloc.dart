@@ -101,11 +101,27 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
       final result = await getInpunchPendingUseCase.getInpunchPending(
         event.userId,
       );
-      print("List Size is.... :${result.length}");
+
+      print('========================================');
+      print('INPUNCH PENDING RESPONSE');
+      print('Status: ${result.status}');
+      print('Message: ${result.message}');
+      print(
+        'Total Recursive Employee: '
+        '${result.totalRecursiveEmployee}',
+      );
+      print(
+        'Pending Inpunch Count: '
+        '${result.pendingInpunchCount}',
+      );
+      print('Inpunch Time: ${result.inpunchTime}');
+      print('Address: ${result.address}');
+      print('Result List Size: ${result.result.length}');
+      print('========================================');
 
       emit(state.copyWith(status: HomeStatus.success, data: result));
     } catch (e) {
-      debugPrint('GRAPH API ERROR: $e');
+      debugPrint('INPUNCH PENDING API ERROR: $e');
 
       emit(
         state.copyWith(status: HomeStatus.failure, errorMessage: e.toString()),
