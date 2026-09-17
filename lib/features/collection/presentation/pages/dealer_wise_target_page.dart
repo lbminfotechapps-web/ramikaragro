@@ -422,7 +422,7 @@ class _DealerWiseTargetPageState
           children: [
             Expanded(
               child: _buildStatCard(
-                title: 'Target',
+                title: 'Target in Rs.',
                 value: target.totalTarget,
                 icon: Icons.flag_outlined,
                 color: const Color(0xff4776E6),
@@ -433,7 +433,7 @@ class _DealerWiseTargetPageState
 
             Expanded(
               child: _buildStatCard(
-                title: 'Achieved',
+                title: 'Achieved in Rs.',
                 value: target.totalAchieved,
                 icon: Icons.check_circle_outline,
                 color: achievedColor,
@@ -448,7 +448,7 @@ class _DealerWiseTargetPageState
           children: [
             Expanded(
               child: _buildStatCard(
-                title: 'Pending',
+                title: 'Pending in Rs.',
                 value: target.totalPending,
                 icon: Icons.pending_actions_outlined,
                 color: pendingColor,

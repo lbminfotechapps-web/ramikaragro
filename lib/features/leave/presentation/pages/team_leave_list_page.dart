@@ -750,15 +750,15 @@ class _TeamLeaveListPageState extends State<TeamLeaveListPage> {
                         ),
                       ),
 
-                      const SizedBox(height: 3),
+                      // const SizedBox(height: 3),
 
-                      Text(
-                        'Leave ID: ${leave.leaveId}',
-                        style: const TextStyle(
-                          fontSize: 11,
-                          color: Colors.grey,
-                        ),
-                      ),
+                      // Text(
+                      //   'Leave ID: ${leave.leaveId}',
+                      //   style: const TextStyle(
+                      //     fontSize: 11,
+                      //     color: Colors.grey,
+                      //   ),
+                      // ),
                     ],
                   ),
                 ),
@@ -803,13 +803,13 @@ class _TeamLeaveListPageState extends State<TeamLeaveListPage> {
 
             const SizedBox(height: 10),
 
-            _detailRow(
-              'Manager Status',
-              leave.managerStatus,
-              Icons.manage_accounts_rounded,
-            ),
+            // _detailRow(
+            //   'Manager Status',
+            //   leave.managerStatus,
+            //   Icons.manage_accounts_rounded,
+            // ),
 
-            const SizedBox(height: 10),
+            // const SizedBox(height: 10),
 
             _detailRow(
               'Admin',

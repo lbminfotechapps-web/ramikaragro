@@ -113,31 +113,58 @@ class TeamExpenseCard extends StatelessWidget {
 
                           const SizedBox(width: 8),
 
-                          Container(
-                            width: 3,
-                            height: 3,
-                            decoration: const BoxDecoration(
-                              color: Color(0xFF9AA49E),
-                              shape: BoxShape.circle,
-                            ),
-                          ),
-
-                          const SizedBox(width: 8),
-
-                          Text(
-                            '#${expense.expenseId}',
-                            style: const TextStyle(
-                              fontSize: 10,
-                              color: Color(0xFF7A857E),
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                        ],
+                        
+                        ]
                       ),
                     ],
                   ),
                 ),
 
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        expense.expenseBy.isNotEmpty
+                            ? expense.expenseBy
+                            : 'Employee #${expense.createdBy}',
+                        maxLines: 2,
+                        softWrap: true,
+                        overflow: TextOverflow.visible,
+                        style: const TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w800,
+                          color: Color(0xFF18231C),
+                        ),
+                      ),
+
+                      const SizedBox(height: 3),
+
+                      Row(
+                        children: [
+                          const Icon(
+                            Icons.calendar_today_outlined,
+                            size: 11,
+                            color: Color(0xFF7A857E),
+                          ),
+
+                          const SizedBox(width: 4),
+
+                          Text(
+                            expense.expenseDate,
+                            style: const TextStyle(
+                              fontSize: 10,
+                              color: Color(0xFF7A857E),
+                            ),
+                          ),
+
+                          const SizedBox(width: 8),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+                
                 const SizedBox(width: 8),
 
                 _statusBadge(
@@ -260,25 +287,41 @@ class TeamExpenseCard extends StatelessWidget {
             // ------------------------------------------------------------
             // APPROVED + REPORTING
             // ------------------------------------------------------------
-            Row(
+            // Row(
+            //   children: [
+            //     Expanded(
+            //       child: _amountItem(
+            //         'Approved',
+            //         expense.approveAmount,
+            //       ),
+            //     ),
+
+            //     const SizedBox(width: 8),
+
+            //     Expanded(
+            //       child: _statusItem(
+            //         'Reporting',
+            //         expense.reportingStatus,
+            //       ),
+            //     ),
+            //   ],
+            // ),
+
+
+             Column(
               children: [
-                Expanded(
-                  child: _amountItem(
-                    'Approved',
-                    expense.approveAmount,
-                  ),
+                _amountItem(
+                  'Approved',
+                  expense.approveAmount,
                 ),
-
-                const SizedBox(width: 8),
-
-                Expanded(
-                  child: _statusItem(
-                    'Reporting',
-                    expense.reportingStatus,
-                  ),
+                const SizedBox(height: 8),
+                _statusItem(
+                  'Reporting',
+                  expense.reportingStatus,
                 ),
               ],
             ),
+
 
             // ------------------------------------------------------------
             // ADMIN STATUS
@@ -1037,13 +1080,7 @@ void _updateExpense(
                             ),
                           ),
                           const SizedBox(height: 2),
-                          Text(
-                            'Expense #${expense.expenseId}',
-                            style: const TextStyle(
-                              fontSize: 10,
-                              color: Color(0xFF7A857E),
-                            ),
-                          ),
+                        
                         ],
                       ),
                     ),

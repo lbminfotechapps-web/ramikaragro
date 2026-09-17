@@ -66,18 +66,18 @@ _buildNotificationIcon(),
                     ),
                   ),
 
-                  const SizedBox(height: 5),
+                  // const SizedBox(height: 5),
 
-                  Text(
-                    '#${notification.notificationId}',
-                    style: TextStyle(
-                      fontSize: 10.5,
-                      fontWeight:
-                          FontWeight.w500,
-                      color: primaryGreen
-                          .withOpacity(0.8),
-                    ),
-                  ),
+                  // Text(
+                  //   '#${notification.notificationId}',
+                  //   style: TextStyle(
+                  //     fontSize: 10.5,
+                  //     fontWeight:
+                  //         FontWeight.w500,
+                  //     color: primaryGreen
+                  //         .withOpacity(0.8),
+                  //   ),
+                  // ),
                 ],
               ),
             ),
