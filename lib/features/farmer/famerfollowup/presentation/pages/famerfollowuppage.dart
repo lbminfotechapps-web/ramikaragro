@@ -587,7 +587,7 @@ class _FamerFollowupPageState extends State<FamerFollowupPage> {
         // SUCCESS
         // ----------------------------------------------------
 
-        if (state.status == FamerfollowupStatus.success) {
+        if (state.status == FamerfollowupStatus.farmerFollowUpSuccess) {
           ScaffoldMessenger.of(context)
             ..hideCurrentSnackBar()
             ..showSnackBar(
@@ -1010,7 +1010,10 @@ class _FamerFollowupPageState extends State<FamerFollowupPage> {
       decoration: _inputDecoration(
         label: 'Remark',
         icon: Icons.notes_rounded,
+        hintText: 'Enter remark',
         alignLabelWithHint: true,
+        prefixIconConstraints: const BoxConstraints(minWidth: 40, minHeight: 0),
+        contentPadding: const EdgeInsets.fromLTRB(8, 16, 16, 16),
       ),
 
       validator: (value) {
@@ -1298,21 +1301,28 @@ class _FamerFollowupPageState extends State<FamerFollowupPage> {
   InputDecoration _inputDecoration({
     required String label,
     required IconData icon,
+    String? hintText,
     Widget? suffix,
     bool alignLabelWithHint = false,
+    BoxConstraints? prefixIconConstraints,
+    EdgeInsetsGeometry? contentPadding,
   }) {
     return InputDecoration(
       labelText: label,
+      hintText: hintText,
       alignLabelWithHint: alignLabelWithHint,
 
       prefixIcon: Icon(icon, color: const Color(0xFF087F5B), size: 20),
+      prefixIconConstraints: prefixIconConstraints,
 
       suffixIcon: suffix,
 
       filled: true,
       fillColor: Colors.white,
 
-      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+      contentPadding:
+          contentPadding ??
+          const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
 
       labelStyle: const TextStyle(color: Color(0xFF75847E), fontSize: 13.5),
 
@@ -1371,9 +1381,7 @@ class _FollowupHistoryDialog extends StatelessWidget {
               child: BlocBuilder<FamerfollowupBloc, FamerfollowupState>(
                 builder: (context, state) {
                   if (state.historyStatus == FollowupHistoryStatus.loading) {
-                  return const CustomLoader(
-           
-            );
+                    return const CustomLoader();
                   }
 
                   if (state.historyStatus == FollowupHistoryStatus.failure) {

@@ -92,9 +92,9 @@ class ApiClient {
   static const String getExpensesStatus = '/getExpensesStatus';
   static const String addExpenseDetails = '/add_expense_details';
 
-     static const String upload_sign ="/upload_sign";
-
+  static const String upload_sign = "/upload_sign";
 
   static const String addDealerFollowUp = '/pin_location';
   static const String updateDealerFollowUp = '/update_pin_location';
+  static const String famerCallApi = '/submitCallingDetails';
 }

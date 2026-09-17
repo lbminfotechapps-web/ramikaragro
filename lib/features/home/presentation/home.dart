@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:android_intent_plus/android_intent.dart';
@@ -39,6 +40,13 @@ class Home extends StatefulWidget {
 class _HomeState extends State<Home> {
   String _username = 'user';
 
+  Timer? _appBarTimer;
+
+  bool _showUserInfo = true;
+
+  static const String _appName = 'Ramikar Agro';
+  static const String _appSubtitle = 'Agro Business';
+
   @override
   void initState() {
     super.initState();
@@ -47,11 +55,22 @@ class _HomeState extends State<Home> {
 
       showDeveloperOptionWarning();
     });
+    _appBarTimer = Timer.periodic(const Duration(seconds: 4), (timer) {
+      if (!mounted) return;
+
+      setState(() {
+        _showUserInfo = !_showUserInfo;
+      });
+    });
+
     _loadUserData();
   }
 
-
-
+  @override
+  void dispose() {
+    _appBarTimer?.cancel();
+    super.dispose();
+  }
 
   Future<void> _loadUserData() async {
     final userData = await SecureStorage.instance.getUserData();
@@ -219,9 +238,13 @@ class _HomeState extends State<Home> {
               );
             },
           ),
-          title: _username,
-          subtitle: 'Good Morning',
+
+          title: _showUserInfo ? _username : _appName,
+
+          subtitle: _showUserInfo ? 'Good Morning' : _appSubtitle,
+
           showBackButton: false,
+
           onLogOutTap: () {
             _logout();
           },

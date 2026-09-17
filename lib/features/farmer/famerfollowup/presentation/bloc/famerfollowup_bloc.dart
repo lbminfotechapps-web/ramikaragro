@@ -82,7 +82,7 @@ class FamerfollowupBloc extends Bloc<FamerfollowupEvent, FamerfollowupState> {
 
         emit(
           state.copyWith(
-            status: FamerfollowupStatus.success,
+            status: FamerfollowupStatus.farmerFollowUpSuccess,
             errorMessage: null,
           ),
         );
