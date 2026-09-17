@@ -7,7 +7,12 @@ class InpunchPendingResponseEntity {
   final int pendingInpunchCount;
   final String? inpunchTime;
   final String? address;
+    final String? city;
+  final String? state;
   final List<InpunchPendingEntity> result;
+
+
+  
 
   const InpunchPendingResponseEntity({
     required this.status,
@@ -16,6 +21,8 @@ class InpunchPendingResponseEntity {
     required this.pendingInpunchCount,
     this.inpunchTime,
     this.address,
+    this.city,
+    this.state,
     required this.result,
   });
 }
