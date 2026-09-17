@@ -34,7 +34,7 @@ class HomeRepoImp implements HomeRepo {
   }
 
   @override
-  Future<List<InpunchPendingEntity>> getInpunchPending(String userId) async {
+  Future<InpunchPendingResponseEntity> getInpunchPending(String userId) async {
     return await homeDatasource.getInpunchPending(userId);
   }
 }

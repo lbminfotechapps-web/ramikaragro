@@ -454,37 +454,7 @@ class _PunchScreenState extends State<PunchScreen> {
                           _vehicleDropdown(vehicleState),
                           SizedBox(height: 12.h),
 
-                          // if (selectedVehicle?.openingClosingKm == '1') ...[
-                          //   SizedBox(height: 14.h),
-
-                          //   if (isPunchOut) ...[
-
-                          //     Row(
-                          //       children: [
-                          //         Expanded(
-                          //           child: _kmField(
-                          //             controller: openingKmController,
-                          //             hintText: 'Opening KM',
-                          //             enabled: false,
-                          //             validator: (value) =>
-                          //                 _validateKm(value, 'opening KM'),
-                          //           ),
-                          //         ),
-
-                          //         SizedBox(width: 12.w),
-
-                          //         Expanded(
-                          //           child: _kmField(
-                          //             controller: closingKmController,
-                          //             hintText: 'Closing KM',
-                          //             enabled: true,
-                          //             validator: (value) =>
-                          //                 _validateKm(value, 'Closing KM'),
-                          //           ),
-                          //         ),
-                          //       ],
-                          //     ),
-                          //   ] else ...[
+                      
                           if (selectedVehicle?.openingClosingKm != '0') ...[
                             _kmField(
                               controller: openingKmController,
@@ -495,36 +465,7 @@ class _PunchScreenState extends State<PunchScreen> {
                             ),
                             SizedBox(height: 14.h),
                           ],
-                          //   ],
-                          // ],
-
-                          // if (selectedVehicle?.openingClosingKm == '1') ...[
-                          //   SizedBox(height: 14.h),
-
-                          //   Row(
-                          //     children: [
-                          //       Expanded(
-                          //         child: isPunchIn
-                          //             ? _kmField(
-                          //                 controller: closingKmController,
-                          //                 hintText: 'Closing KM',
-                          //                 enabled: true,
-                          //                 validator: (value) =>
-                          //                     _validateKm(value, 'Closing KM'),
-                          //               )
-                          //             : _kmField(
-                          //                 controller: openingKmController,
-                          //                 hintText: 'Opening KM',
-                          //                 enabled: true,
-                          //                 validator: (value) =>
-                          //                     _validateKm(value, 'Opening KM'),
-                          //               ),
-                          //       ),
-                          //     ],
-                          //   ),
-                          // ],
-
-                          // Route
+ 
                           _textField(
                             controller: routeController,
                             hintText: 'Enter Route*',
@@ -544,6 +485,7 @@ class _PunchScreenState extends State<PunchScreen> {
                           _textField(
                             controller: remarkController,
                             hintText: 'Enter Remark',
+                          
                             icon: Icons.note_add_outlined,
                             maxLines: 1,
                           ),
@@ -738,21 +680,22 @@ class _PunchScreenState extends State<PunchScreen> {
     );
   }
 
-  Widget _kmField({
-    required TextEditingController controller,
-    required String hintText,
-    required bool enabled,
-    required String? Function(String?) validator,
-  }) {
-    return CustomTextFormField(
-      controller: controller,
-      hintText: hintText,
-      prefixIcon: Icons.speed_outlined,
-      keyboardType: TextInputType.number,
-      enabled: enabled,
-      validator: enabled ? validator : null,
-    );
-  }
+Widget _kmField({
+  required TextEditingController controller,
+  required String hintText,
+  required bool enabled,
+  required String? Function(String?) validator,
+}) {
+  return CustomTextFormField(
+    controller: controller,
+    hintText: hintText,
+    labelText: hintText,
+    prefixIcon: Icons.speed_outlined,
+    keyboardType: TextInputType.number,
+    enabled: enabled,
+    validator: enabled ? validator : null,
+  );
+}
 
   String? _validateKm(String? value, String fieldName) {
     final text = value?.trim() ?? '';
@@ -793,22 +736,22 @@ class _PunchScreenState extends State<PunchScreen> {
   //   return null;
   // }
 
-  Widget _textField({
-    required TextEditingController controller,
-    required String hintText,
-    required IconData icon,
-    String? Function(String?)? validator,
-    int maxLines = 1,
-  }) {
-    return CustomTextFormField(
-      controller: controller,
-      hintText: hintText,
-      prefixIcon: icon,
-      maxLines: maxLines,
-      validator: validator,
-    );
-  }
-
+Widget _textField({
+  required TextEditingController controller,
+  required String hintText,
+  required IconData icon,
+  String? Function(String?)? validator,
+  int maxLines = 1,
+}) {
+  return CustomTextFormField(
+    controller: controller,
+    hintText: hintText,
+    labelText: hintText,
+    prefixIcon: icon,
+    maxLines: maxLines,
+    validator: validator,
+  );
+}
   Widget _uploadPhotoCard() {
     return Container(
       padding: EdgeInsets.fromLTRB(16.w, 6.h, 16.w, 16.h),
