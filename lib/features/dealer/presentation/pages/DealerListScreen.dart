@@ -138,40 +138,6 @@ class _DealerListScreenState extends State<DealerListScreen> {
     );
   }
 
-  // void _loadDealers({String? searchText}) async {
-  //   final search = searchText ?? _searchController.text.trim();
-  //   final userData = await SecureStorage.instance.getUserData();
-  //   final int? userId = int.tryParse(userData?['user_id']?.toString() ?? '');
-  //   if (userId == null) {
-  //     debugPrint('ERROR: Invalid user_id: ${userData?['user_id']}');
-  //     return;
-  //   }
-
-  //   String latitude = '';
-  //   String longitude = '';
-  //   // String address = '';
-  //   final position = await LocationUtil.instance.getCurrentLocation();
-  //   if (position != null) {
-  //     latitude = position.latitude.toString();
-  //     longitude = position.longitude.toString();
-
-  //     // address = await LocationUtil.instance.getAddress(
-  //     //   position.latitude,
-  //     //   position.longitude,
-  //     // );
-  //   }
-
-  //   context.read<DealerListBloc>().add(
-  //     DealerListEvent(
-  //       user_id: userId.toString(),
-  //       latitude: latitude,
-  //       longitude: longitude,
-  //       searchText: search,
-  //       type: 'Dealer',
-  //     ),
-  //   );
-  // }
-
   // =========================================================
   // BUILD
   // =========================================================
@@ -595,7 +561,7 @@ class _DealerListItem extends StatelessWidget {
             child: Row(
               children: [
                 // PIN
-              //  Text( dealer.outletId),
+                //  Text( dealer.outletId),
                 _CircleActionButton(
                   icon: Icons.push_pin,
                   onTap: () {
@@ -680,69 +646,6 @@ class _DealerListItem extends StatelessWidget {
 
     // Add url_launcher here if required.
   }
-
-  // void _showDealerDetails(BuildContext context, DealerListModel dealer) {
-  //   showModalBottomSheet(
-  //     context: context,
-  //     isScrollControlled: true,
-  //     shape: const RoundedRectangleBorder(
-  //       borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-  //     ),
-  //     builder: (context) {
-  //       return SafeArea(
-  //         child: Padding(
-  //           padding: const EdgeInsets.all(20),
-  //           child: Column(
-  //             mainAxisSize: MainAxisSize.min,
-  //             crossAxisAlignment: CrossAxisAlignment.start,
-  //             children: [
-  //               Center(
-  //                 child: Container(
-  //                   height: 4,
-  //                   width: 40,
-  //                   decoration: BoxDecoration(
-  //                     color: Colors.grey.shade300,
-  //                     borderRadius: BorderRadius.circular(10),
-  //                   ),
-  //                 ),
-  //               ),
-
-  //               const SizedBox(height: 20),
-
-  //               Text(
-  //                 dealer.outletName,
-  //                 style: const TextStyle(
-  //                   fontSize: 20,
-  //                   fontWeight: FontWeight.bold,
-  //                 ),
-  //               ),
-
-  //               const SizedBox(height: 15),
-
-  //               _DetailRow(label: 'Person', value: dealer.outletPerson),
-
-  //               _DetailRow(
-  //                 label: 'Mobile',
-  //                 value: dealer.outletPersonMobile ?? '--',
-  //               ),
-
-  //               _DetailRow(label: 'Address', value: dealer.outletAddress),
-
-  //               _DetailRow(label: 'Type', value: dealer.outletType ?? '--'),
-
-  //               _DetailRow(
-  //                 label: 'Distance',
-  //                 value: dealer.outletDistance ?? '--',
-  //               ),
-
-  //               const SizedBox(height: 15),
-  //             ],
-  //           ),
-  //         ),
-  //       );
-  //     },
-  //   );
-  // }
 }
 
 // =================================================================

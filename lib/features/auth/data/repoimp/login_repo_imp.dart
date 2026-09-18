@@ -45,6 +45,9 @@ class LoginRepoImp implements LoginRepository {
         'inPunch': response.inPunch,
         'lastLatitude': response.lastLatitude,
         'lastLongitude': response.lastLongitude,
+        'States': response.states,
+        'Districts': response.districts,
+        'Taluka': response.taluka,
       });
 
       print('Login successful repo: $response');
