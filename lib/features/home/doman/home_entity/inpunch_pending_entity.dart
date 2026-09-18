@@ -8,6 +8,8 @@ class InpunchPendingResponseEntity {
   final String? city;
   final String? state;
   final List<InpunchPendingEntity> result;
+  final String? city;
+  final String? state;
 
   const InpunchPendingResponseEntity({
     required this.status,
@@ -19,6 +21,8 @@ class InpunchPendingResponseEntity {
     this.city,
     this.state,
     required this.result,
+    this.city,
+    this.state,
   });
 }
 

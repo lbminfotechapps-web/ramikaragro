@@ -76,12 +76,12 @@ class DealerVisitDataSource {
       );
 
       print(
-        'Save punch HTTP code: '
+        'Add Followup HTTP code: '
         '${response.statusCode}',
       );
 
       print(
-        'Save punch response: '
+        'Add Followup response: '
         '${response.data}',
       );
 

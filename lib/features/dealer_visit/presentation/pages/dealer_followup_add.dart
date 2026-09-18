@@ -477,6 +477,7 @@ class _DealerFollowupAddState extends State<DealerFollowupAdd> {
               message: 'Dealer Added Successfully',
               onButtonPressed: () => {context.go(AppRouter.home)},
             );
+            context.push(AppRouter.home);
           }
           // ============================================
           // API ERROR

@@ -8,11 +8,18 @@ class AddRemark {
 
   AddRemark(this.repository);
 
-  Future<Map<String, dynamic>> call(Map<String, dynamic> jsonData) async {
+  Future<Map<String, dynamic>> call(
+    Map<String, dynamic> jsonData,
+  ) async {
     try {
-      return await repository.addRemark(jsonData);
+      final response = await repository.addRemark(jsonData);
+
+      print('AddRemark response: $response');
+
+      return response;
     } catch (e) {
-      throw Exception('Failed to save punch details: $e');
+      print('AddRemark error: $e');
+      rethrow;
     }
   }
 
@@ -24,15 +31,15 @@ class AddRemark {
     }
   }
 
-
-     Future<List<DealerFollowupListEntity>> getFollowupList(String outlet_id) async {
+  Future<List<DealerFollowupListEntity>> getFollowupList(
+    String outlet_id,
+  ) async {
     try {
       return await repository.getFollowupList(outlet_id);
     } catch (e) {
       throw Exception('Failed to fetch home menu: $e');
     }
   }
-
 
   Future<Map<String, dynamic>> addDealerFollowUp(
     Map<String, dynamic> jsonData,
@@ -45,5 +52,4 @@ class AddRemark {
   ) async {
     return repository.updateDealerFollowUp(jsonData);
   }
-
-  }
+}
