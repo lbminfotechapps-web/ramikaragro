@@ -1,8 +1,7 @@
 import 'dart:io';
+import 'package:demo/core/utility/appdialog.dart';
 import 'package:demo/core/utility/device_info_util.dart';
 import 'package:demo/core/utility/location_util.dart';
-
-
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -21,7 +20,6 @@ import '../bloc/add_dealer_visit_state.dart';
 import 'package:battery_plus/battery_plus.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:geolocator/geolocator.dart';
-
 
 class AddDealerVisitPage extends StatefulWidget {
   final String dealerId;
@@ -103,8 +101,11 @@ class _AddDealerVisitPageState extends State<AddDealerVisitPage> {
   // ============================================================
   // STATIC DATA
   // ============================================================
-final List<String> followUpTypes = ['Select Follow Up Type','Phone','Visit'];
- 
+  final List<String> followUpTypes = [
+    'Select Follow Up Type',
+    'Phone',
+    'Visit',
+  ];
 
   final List<String> purposeTypes = ['Item 1', 'Item 2', 'Item 3', 'Item 4'];
 
@@ -132,14 +133,13 @@ final List<String> followUpTypes = ['Select Follow Up Type','Phone','Visit'];
 
     dealerVisitBloc = sl<AddDealerVisitBlock>();
     debugPrint('======================================');
-  debugPrint('ADD DEALER VISIT INIT');
-  debugPrint('dealerId77   : "${widget.dealerId}"');
-  debugPrint('dealerName : "${widget.dealerName}"');
-  debugPrint('======================================');
+    debugPrint('ADD DEALER VISIT INIT');
+    debugPrint('dealerId77   : "${widget.dealerId}"');
+    debugPrint('dealerName : "${widget.dealerName}"');
+    debugPrint('======================================');
     _loadUserId();
-   _loadDeviceData();
+    _loadDeviceData();
     _getPurposeData();
-   
   }
 
   Future<void> _loadUserId() async {
@@ -147,7 +147,6 @@ final List<String> followUpTypes = ['Select Follow Up Type','Phone','Visit'];
 
     userId = (userData?['user_id']?.toString() ?? '');
     print('User99: $userId');
-    
 
     // punchVehicleId = userData?['vehicle_type_id']?.toString();
 
@@ -157,136 +156,130 @@ final List<String> followUpTypes = ['Select Follow Up Type','Phone','Visit'];
   // INITIAL DATA
   // ============================================================
 
-Future<void> _loadDeviceData() async {
-  try {
-    debugPrint('==========================================');
-    debugPrint('        LOADING DEVICE DATA');
-    debugPrint('==========================================');
+  Future<void> _loadDeviceData() async {
+    try {
+      debugPrint('==========================================');
+      debugPrint('        LOADING DEVICE DATA');
+      debugPrint('==========================================');
 
-    // ==========================================================
-    // 1. BATTERY INFO
-    // ==========================================================
+      // ==========================================================
+      // 1. BATTERY INFO
+      // ==========================================================
 
-    final String batteryInfo =
-        await DeviceInfoUtil.instance.getBatteryInfo();
+      final String batteryInfo = await DeviceInfoUtil.instance.getBatteryInfo();
 
-    strBatteryInfo = batteryInfo;
+      strBatteryInfo = batteryInfo;
 
-    // ==========================================================
-    // 2. NETWORK INFO
-    // ==========================================================
+      // ==========================================================
+      // 2. NETWORK INFO
+      // ==========================================================
 
-    final String networkInfo =
-        await DeviceInfoUtil.instance.getNetworkInfo();
+      final String networkInfo = await DeviceInfoUtil.instance.getNetworkInfo();
 
-    strNetworkInfo = networkInfo;
+      strNetworkInfo = networkInfo;
 
-    // ==========================================================
-    // 3. LOCATION
-    // ==========================================================
+      // ==========================================================
+      // 3. LOCATION
+      // ==========================================================
 
-    final position =
-        await LocationUtil.instance.getCurrentLocation();
+      final position = await LocationUtil.instance.getCurrentLocation();
 
-    if (position == null) {
-      debugPrint('Location not available');
+      if (position == null) {
+        debugPrint('Location not available');
 
-      latitude = '';
-      longitude = '';
-      gpsLatitude = '';
-      gpsLongitude = '';
-      networkLatitude = '';
-      networkLongitude = '';
-      geoAddress = '';
+        latitude = '';
+        longitude = '';
+        gpsLatitude = '';
+        gpsLongitude = '';
+        networkLatitude = '';
+        networkLongitude = '';
+        geoAddress = '';
+
+        if (mounted) {
+          setState(() {});
+        }
+
+        return;
+      }
+
+      // ==========================================================
+      // 4. LATITUDE / LONGITUDE
+      // ==========================================================
+
+      latitude = position.latitude.toString();
+      longitude = position.longitude.toString();
+
+      // ==========================================================
+      // 5. GPS LOCATION
+      // ==========================================================
+
+      gpsLatitude = latitude;
+      gpsLongitude = longitude;
+
+      // ==========================================================
+      // 6. NETWORK LOCATION
+      // ==========================================================
+      //
+      // Same behavior as your existing working code.
+      //
+
+      networkLatitude = latitude;
+      networkLongitude = longitude;
+
+      // ==========================================================
+      // 7. GEO ADDRESS
+      // ==========================================================
+
+      geoAddress = await LocationUtil.instance.getAddress(
+        position.latitude,
+        position.longitude,
+      );
+
+      // ==========================================================
+      // 8. DEBUG
+      // ==========================================================
+
+      debugPrint('==========================================');
+      debugPrint('             DEVICE DATA');
+      debugPrint('==========================================');
+
+      debugPrint('latitude          : $latitude');
+      debugPrint('longitude         : $longitude');
+
+      debugPrint('networkLatitude   : $networkLatitude');
+      debugPrint('networkLongitude  : $networkLongitude');
+
+      debugPrint('gpsLatitude       : $gpsLatitude');
+      debugPrint('gpsLongitude      : $gpsLongitude');
+
+      debugPrint('geoAddress        : $geoAddress');
+
+      debugPrint('networkInfo       : $strNetworkInfo');
+
+      debugPrint('batteryInfo       : $strBatteryInfo');
+
+      debugPrint('==========================================');
 
       if (mounted) {
         setState(() {});
       }
-
-      return;
+    } catch (e, stackTrace) {
+      debugPrint('==========================================');
+      debugPrint('DEVICE DATA ERROR');
+      debugPrint('==========================================');
+      debugPrint('ERROR: $e');
+      debugPrint('STACK: $stackTrace');
+      debugPrint('==========================================');
     }
-
-    // ==========================================================
-    // 4. LATITUDE / LONGITUDE
-    // ==========================================================
-
-    latitude = position.latitude.toString();
-    longitude = position.longitude.toString();
-
-    // ==========================================================
-    // 5. GPS LOCATION
-    // ==========================================================
-
-    gpsLatitude = latitude;
-    gpsLongitude = longitude;
-
-    // ==========================================================
-    // 6. NETWORK LOCATION
-    // ==========================================================
-    //
-    // Same behavior as your existing working code.
-    //
-
-    networkLatitude = latitude;
-    networkLongitude = longitude;
-
-    // ==========================================================
-    // 7. GEO ADDRESS
-    // ==========================================================
-
-    geoAddress = await LocationUtil.instance.getAddress(
-      position.latitude,
-      position.longitude,
-    );
-
-    // ==========================================================
-    // 8. DEBUG
-    // ==========================================================
-
-    debugPrint('==========================================');
-    debugPrint('             DEVICE DATA');
-    debugPrint('==========================================');
-
-    debugPrint('latitude          : $latitude');
-    debugPrint('longitude         : $longitude');
-
-    debugPrint('networkLatitude   : $networkLatitude');
-    debugPrint('networkLongitude  : $networkLongitude');
-
-    debugPrint('gpsLatitude       : $gpsLatitude');
-    debugPrint('gpsLongitude      : $gpsLongitude');
-
-    debugPrint('geoAddress        : $geoAddress');
-
-    debugPrint('networkInfo       : $strNetworkInfo');
-
-    debugPrint('batteryInfo       : $strBatteryInfo');
-
-    debugPrint('==========================================');
-
-    if (mounted) {
-      setState(() {});
-    }
-  } catch (e, stackTrace) {
-    debugPrint('==========================================');
-    debugPrint('DEVICE DATA ERROR');
-    debugPrint('==========================================');
-    debugPrint('ERROR: $e');
-    debugPrint('STACK: $stackTrace');
-    debugPrint('==========================================');
   }
-}
-void _getPurposeData() {
-  dealerVisitBloc.add(
-    GetPurposeEvent(""),
-  );
-}
 
-void _getFollowupData() {
-  dealerVisitBloc.add(
-    GetFollowupEvent(""),
-  );
-}
+  void _getPurposeData() {
+    dealerVisitBloc.add(GetPurposeEvent(""));
+  }
+
+  void _getFollowupData() {
+    dealerVisitBloc.add(GetFollowupEvent(""));
+  }
   // ============================================================
   // DISPOSE
   // ============================================================
@@ -365,177 +358,178 @@ void _getFollowupData() {
   // SUBMIT
   // ============================================================
 
- Future<void> _submit() async {
-  // ==========================================================
-  // 1. DATE VALIDATION
-  // ==========================================================
+  Future<void> _submit() async {
+    // ==========================================================
+    // 1. DATE VALIDATION
+    // ==========================================================
 
-   debugPrint('==========================================');
-  debugPrint('SUBMIT DEALER VISIT');
-  debugPrint('widget.dealerId : "${widget.dealerId}"');
-  debugPrint('widget.dealerName : "${widget.dealerName}"');
-  debugPrint('userId : "$userId"');
-  debugPrint('==========================================');
+    debugPrint('==========================================');
+    debugPrint('SUBMIT DEALER VISIT');
+    debugPrint('widget.dealerId : "${widget.dealerId}"');
+    debugPrint('widget.dealerName : "${widget.dealerName}"');
+    debugPrint('userId : "$userId"');
+    debugPrint('==========================================');
 
-  if (widget.dealerId.trim().isEmpty) {
-    _showError('Dealer ID is empty');
-    return;
+    if (widget.dealerId.trim().isEmpty) {
+      _showError('Dealer ID is empty');
+      return;
+    }
+    if (nextFollowUpDate == null) {
+      _showError('Please select next follow-up date');
+      return;
+    }
+
+    // ==========================================================
+    // 2. FOLLOW UP TYPE VALIDATION
+    // ==========================================================
+    if (selectedFollowUpType.trim().isEmpty ||
+        selectedFollowUpType == 'Select Follow Up Type') {
+      _showError('Please select follow up type');
+      return;
+    }
+
+    // ==========================================================
+    // 3. PURPOSE VALIDATION
+    // ==========================================================
+    if (selectedPurposeId == null ||
+        selectedPurposeId!.trim().isEmpty ||
+        selectedPurposeId == '0') {
+      _showError('Please select purpose type');
+      return;
+    }
+
+    // ==========================================================
+    // 4. REMARK VALIDATION
+    // ==========================================================
+    final String remark = remarkController.text.trim();
+
+    if (remark.isEmpty) {
+      _showError('Please enter remark');
+      return;
+    }
+
+    // ==========================================================
+    // 5. IMAGE VALIDATION
+    // ==========================================================
+    if (dealerImage == null) {
+      _showError('Please upload image');
+      return;
+    }
+
+    // ==========================================================
+    // 6. GET LATEST DEVICE / LOCATION DATA
+    // ==========================================================
+    //
+    // This refreshes:
+    // latitude
+    // longitude
+    // networkLatitude
+    // networkLongitude
+    // gpsLatitude
+    // gpsLongitude
+    // geoAddress
+    // strNetworkInfo
+    // strBatteryInfo
+    //
+    // immediately before sending the API request.
+    //
+    await _loadDeviceData();
+
+    // ==========================================================
+    // 7. FORMAT DATE
+    // ==========================================================
+    final String formattedDate = DateFormat(
+      'yyyy-MM-dd',
+    ).format(nextFollowUpDate!);
+
+    // ==========================================================
+    // 8. DEBUG LOG
+    // ==========================================================
+    debugPrint('==========================================');
+    debugPrint('          ADD DEALER VISIT');
+    debugPrint('==========================================');
+
+    debugPrint('user_id          : $userId');
+    debugPrint('outlet_id        : ${widget.dealerId}');
+    debugPrint('purposeId        : $selectedPurposeId');
+    debugPrint('amount           : $amount');
+    debugPrint('followUpDate     : $formattedDate');
+    debugPrint('followUpType     : $selectedFollowUpType');
+    debugPrint('remark           : $remark');
+
+    debugPrint('------------------------------------------');
+    debugPrint('LOCATION DATA');
+    debugPrint('------------------------------------------');
+
+    debugPrint('latitude         : $latitude');
+    debugPrint('longitude        : $longitude');
+
+    debugPrint('networkLatitude  : $networkLatitude');
+    debugPrint('networkLongitude : $networkLongitude');
+
+    debugPrint('gpsLatitude      : $gpsLatitude');
+    debugPrint('gpsLongitude     : $gpsLongitude');
+
+    debugPrint('geoAddress       : $geoAddress');
+
+    debugPrint('------------------------------------------');
+    debugPrint('DEVICE DATA');
+    debugPrint('------------------------------------------');
+
+    debugPrint('networkInfo      : $strNetworkInfo');
+    debugPrint('batteryInfo      : $strBatteryInfo');
+
+    debugPrint('------------------------------------------');
+    debugPrint('OTHER DATA');
+    debugPrint('------------------------------------------');
+
+    debugPrint('activityId       : $activityId');
+    debugPrint('dealerImage      : ${dealerImage!.path}');
+
+    debugPrint('==========================================');
+
+    // ==========================================================
+    // 9. SEND BLOC EVENT
+    // ==========================================================
+    dealerVisitBloc.add(
+      AddDealerRemarkSubmitEvent(
+        userId: userId,
+        outletId: widget.dealerId,
+        purposeId: selectedPurposeId!,
+        amount: amount,
+        followUpDate: formattedDate,
+        followUpType: selectedFollowUpType,
+        remark: remark,
+
+        // Location
+        latitude: latitude,
+        longitude: longitude,
+
+        // Network location
+        networkLatitude: networkLatitude,
+        networkLongitude: networkLongitude,
+
+        // GPS location
+        gpsLatitude: gpsLatitude,
+        gpsLongitude: gpsLongitude,
+
+        // Address
+        geoAddress: geoAddress,
+
+        // Device information
+        strNetworkInfo: strNetworkInfo,
+        strBatteryInfo: strBatteryInfo,
+
+        // Activity
+        activityId: activityId,
+
+        // IMPORTANT:
+        // If your event has dealerImage, pass it here:
+        //
+        // dealerImage: dealerImage!,
+      ),
+    );
   }
-  if (nextFollowUpDate == null) {
-    _showError('Please select next follow-up date');
-    return;
-  }
-
-  // ==========================================================
-  // 2. FOLLOW UP TYPE VALIDATION
-  // ==========================================================
-  if (selectedFollowUpType.trim().isEmpty ||
-      selectedFollowUpType == 'Select Follow Up Type') {
-    _showError('Please select follow up type');
-    return;
-  }
-
-  // ==========================================================
-  // 3. PURPOSE VALIDATION
-  // ==========================================================
-  if (selectedPurposeId == null ||
-      selectedPurposeId!.trim().isEmpty ||
-      selectedPurposeId == '0') {
-    _showError('Please select purpose type');
-    return;
-  }
-
-  // ==========================================================
-  // 4. REMARK VALIDATION
-  // ==========================================================
-  final String remark = remarkController.text.trim();
-
-  if (remark.isEmpty) {
-    _showError('Please enter remark');
-    return;
-  }
-
-  // ==========================================================
-  // 5. IMAGE VALIDATION
-  // ==========================================================
-  if (dealerImage == null) {
-    _showError('Please upload image');
-    return;
-  }
-
-  // ==========================================================
-  // 6. GET LATEST DEVICE / LOCATION DATA
-  // ==========================================================
-  //
-  // This refreshes:
-  // latitude
-  // longitude
-  // networkLatitude
-  // networkLongitude
-  // gpsLatitude
-  // gpsLongitude
-  // geoAddress
-  // strNetworkInfo
-  // strBatteryInfo
-  //
-  // immediately before sending the API request.
-  //
-  await _loadDeviceData();
-
-  // ==========================================================
-  // 7. FORMAT DATE
-  // ==========================================================
-  final String formattedDate =
-      DateFormat('yyyy-MM-dd').format(nextFollowUpDate!);
-
-  // ==========================================================
-  // 8. DEBUG LOG
-  // ==========================================================
-  debugPrint('==========================================');
-  debugPrint('          ADD DEALER VISIT');
-  debugPrint('==========================================');
-
-  debugPrint('user_id          : $userId');
-  debugPrint('outlet_id        : ${widget.dealerId}');
-  debugPrint('purposeId        : $selectedPurposeId');
-  debugPrint('amount           : $amount');
-  debugPrint('followUpDate     : $formattedDate');
-  debugPrint('followUpType     : $selectedFollowUpType');
-  debugPrint('remark           : $remark');
-
-  debugPrint('------------------------------------------');
-  debugPrint('LOCATION DATA');
-  debugPrint('------------------------------------------');
-
-  debugPrint('latitude         : $latitude');
-  debugPrint('longitude        : $longitude');
-
-  debugPrint('networkLatitude  : $networkLatitude');
-  debugPrint('networkLongitude : $networkLongitude');
-
-  debugPrint('gpsLatitude      : $gpsLatitude');
-  debugPrint('gpsLongitude     : $gpsLongitude');
-
-  debugPrint('geoAddress       : $geoAddress');
-
-  debugPrint('------------------------------------------');
-  debugPrint('DEVICE DATA');
-  debugPrint('------------------------------------------');
-
-  debugPrint('networkInfo      : $strNetworkInfo');
-  debugPrint('batteryInfo      : $strBatteryInfo');
-
-  debugPrint('------------------------------------------');
-  debugPrint('OTHER DATA');
-  debugPrint('------------------------------------------');
-
-  debugPrint('activityId       : $activityId');
-  debugPrint('dealerImage      : ${dealerImage!.path}');
-
-  debugPrint('==========================================');
-
-  // ==========================================================
-  // 9. SEND BLOC EVENT
-  // ==========================================================
-  dealerVisitBloc.add(
-    AddDealerRemarkSubmitEvent(
-      userId: userId,
-      outletId: widget.dealerId,
-      purposeId: selectedPurposeId!,
-      amount: amount,
-      followUpDate: formattedDate,
-      followUpType: selectedFollowUpType,
-      remark: remark,
-
-      // Location
-      latitude: latitude,
-      longitude: longitude,
-
-      // Network location
-      networkLatitude: networkLatitude,
-      networkLongitude: networkLongitude,
-
-      // GPS location
-      gpsLatitude: gpsLatitude,
-      gpsLongitude: gpsLongitude,
-
-      // Address
-      geoAddress: geoAddress,
-
-      // Device information
-      strNetworkInfo: strNetworkInfo,
-      strBatteryInfo: strBatteryInfo,
-
-      // Activity
-      activityId: activityId,
-
-      // IMPORTANT:
-      // If your event has dealerImage, pass it here:
-      //
-      // dealerImage: dealerImage!,
-    ),
-  );
-}
 
   // ============================================================
   // ERROR
@@ -594,50 +588,19 @@ void _getFollowupData() {
           // SUCCESS
           // ======================================================
 
-          if (state.addLeaveStatus == AddDealerVisitStatus.dealerFollowupAddSuccess) {
-            final puposeData=state.purpose;
-          
+          if (state.addLeaveStatus == AddDealerVisitStatus.dealerAddedSuccess) {
+            // final puposeData=state.purpose;
 
-            ScaffoldMessenger.of(context).hideCurrentSnackBar();
-
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Row(
-                  children: [
-                    const Icon(
-                      Icons.check_circle_rounded,
-                      color: Colors.white,
-                      size: 20,
-                    ),
-
-                    const SizedBox(width: 8),
-
-                    Expanded(
-                      child: Text(
-                        state.successMessage ??
-                            'Dealer visit added successfully',
-                      ),
-                    ),
-                  ],
-                ),
-
-                backgroundColor: primaryGreen,
-
-                behavior: SnackBarBehavior.floating,
-
-                margin: const EdgeInsets.all(12),
-
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-              ),
+            AppDialog.show(
+              context: context,
+              type: DialogType.success,
+              title: 'Punch In Successful',
+              message: 'Dealer Visit successfully.',
+              buttonText: 'OK',
+              onButtonPressed: () {
+                context.go(AppRouter.home);
+              },
             );
-
-            Future.delayed(const Duration(milliseconds: 500), () {
-              if (context.mounted) {
-                context.pop(true);
-              }
-            });
           }
 
           // ======================================================
@@ -682,16 +645,10 @@ void _getFollowupData() {
         },
 
         builder: (context, state) {
+          debugPrint('PURPOSE LENGTH = ${state.purpose.length}');
 
-            debugPrint(
-    'PURPOSE LENGTH = ${state.purpose.length}',
-  );
+          debugPrint('PURPOSE DATA = ${state.purpose}');
 
-  debugPrint(
-    'PURPOSE DATA = ${state.purpose}',
-  );
-
-  
           final bool isLoading =
               state.addLeaveStatus == AddDealerVisitStatus.loading;
 
@@ -762,9 +719,8 @@ void _getFollowupData() {
                           // ======================================
                           // DEALER HEADER
                           // ======================================
-//Text(widget.dealerId),
-                         // _buildDealerHeader(),
-
+                          //Text(widget.dealerId),
+                          // _buildDealerHeader(),
                           const SizedBox(height: 14),
 
                           // ======================================
@@ -803,7 +759,7 @@ void _getFollowupData() {
 
                           const SizedBox(height: 9),
 
-                       _buildPurposeDropdown(state),
+                          _buildPurposeDropdown(state),
                           const SizedBox(height: 14),
 
                           // ======================================
@@ -823,13 +779,13 @@ void _getFollowupData() {
                           // ======================================
                           // LAST REMARKS
                           // ======================================
-                         // _sectionTitle(Icons.history_rounded, 'Last Remarks'),
+                          // _sectionTitle(Icons.history_rounded, 'Last Remarks'),
 
-                        //  const SizedBox(height: 6),
+                          //  const SizedBox(height: 6),
 
-                        //  _buildLastRemarks(),
+                          //  _buildLastRemarks(),
 
-                         // const SizedBox(height: 14),
+                          // const SizedBox(height: 14),
 
                           // ======================================
                           // DEALER IMAGE
@@ -1090,120 +1046,107 @@ void _getFollowupData() {
     );
   }
 
+  Widget _buildPurposeDropdown(AddDealerVisitState state) {
+    final purposes = state.purpose;
 
-
-Widget _buildPurposeDropdown(
-  AddDealerVisitState state,
-) {
-  final purposes = state.purpose;
-  
-
-  return Container(
-    height: 58,
-    padding: const EdgeInsets.fromLTRB(
-      11,
-      5,
-      7,
-      2,
-    ),
-    decoration: BoxDecoration(
-      color: Colors.white,
-      borderRadius: BorderRadius.circular(11),
-      border: Border.all(
-        color: Colors.grey.shade200,
+    return Container(
+      height: 58,
+      padding: const EdgeInsets.fromLTRB(11, 5, 7, 2),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(11),
+        border: Border.all(color: Colors.grey.shade200),
       ),
-    ),
-    child: Row(
-      children: [
-        Container(
-          height: 34,
-          width: 34,
-          decoration: BoxDecoration(
-            color: lightGreen,
-            borderRadius: BorderRadius.circular(8),
+      child: Row(
+        children: [
+          Container(
+            height: 34,
+            width: 34,
+            decoration: BoxDecoration(
+              color: lightGreen,
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: const Icon(
+              Icons.flag_rounded,
+              size: 17,
+              color: primaryGreen,
+            ),
           ),
-          child: const Icon(
-            Icons.flag_rounded,
-            size: 17,
-            color: primaryGreen,
-          ),
-        ),
 
-        const SizedBox(width: 9),
+          const SizedBox(width: 9),
 
-        Expanded(
-          child: Column(
-            crossAxisAlignment:
-                CrossAxisAlignment.start,
-            children: [
-              const Text(
-                'PURPOSE TYPE *',
-                style: TextStyle(
-                  fontSize: 8,
-                  fontWeight: FontWeight.w700,
-                  letterSpacing: .6,
-                  color: Colors.black45,
-                ),
-              ),
-
-              Expanded(
-                child: DropdownButtonHideUnderline(
-                  child: DropdownButton<String>(
-                    value: selectedPurposeId,
-
-                    isExpanded: true,
-
-                    isDense: true,
-
-                    hint: Text(
-                      'Select Purpose',
-                      style: TextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w600,
-                        color: Colors.grey.shade400,
-                      ),
-                    ),
-
-                    icon: const Icon(
-                      Icons.keyboard_arrow_down_rounded,
-                      size: 19,
-                      color: primaryGreen,
-                    ),
-
-                    style: const TextStyle(
-                      fontSize: 12,
-                      fontWeight: FontWeight.w600,
-                      color: textColor,
-                    ),
-
-                    onChanged: purposes.isEmpty
-                        ? null
-                        : (value) {
-                            setState(() {
-                              selectedPurposeId = value;
-                            });
-                          },
-
-                    items: purposes.map((purpose) {
-                      return DropdownMenuItem<String>(
-                        value: purpose.purposeId,
-                        child: Text(
-                          purpose.purpose,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      );
-                    }).toList(),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text(
+                  'PURPOSE TYPE *',
+                  style: TextStyle(
+                    fontSize: 8,
+                    fontWeight: FontWeight.w700,
+                    letterSpacing: .6,
+                    color: Colors.black45,
                   ),
                 ),
-              ),
-            ],
+
+                Expanded(
+                  child: DropdownButtonHideUnderline(
+                    child: DropdownButton<String>(
+                      value: selectedPurposeId,
+
+                      isExpanded: true,
+
+                      isDense: true,
+
+                      hint: Text(
+                        'Select Purpose',
+                        style: TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w600,
+                          color: Colors.grey.shade400,
+                        ),
+                      ),
+
+                      icon: const Icon(
+                        Icons.keyboard_arrow_down_rounded,
+                        size: 19,
+                        color: primaryGreen,
+                      ),
+
+                      style: const TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w600,
+                        color: textColor,
+                      ),
+
+                      onChanged: purposes.isEmpty
+                          ? null
+                          : (value) {
+                              setState(() {
+                                selectedPurposeId = value;
+                              });
+                            },
+
+                      items: purposes.map((purpose) {
+                        return DropdownMenuItem<String>(
+                          value: purpose.purposeId,
+                          child: Text(
+                            purpose.purpose,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        );
+                      }).toList(),
+                    ),
+                  ),
+                ),
+              ],
+            ),
           ),
-        ),
-      ],
-    ),
-  );
-}
- 
+        ],
+      ),
+    );
+  }
+
   Widget _buildDropdown({
     required String label,
     required String value,
