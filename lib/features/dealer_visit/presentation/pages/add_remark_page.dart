@@ -131,6 +131,11 @@ final List<String> followUpTypes = ['Select Follow Up Type','Phone','Visit'];
     super.initState();
 
     dealerVisitBloc = sl<AddDealerVisitBlock>();
+    debugPrint('======================================');
+  debugPrint('ADD DEALER VISIT INIT');
+  debugPrint('dealerId77   : "${widget.dealerId}"');
+  debugPrint('dealerName : "${widget.dealerName}"');
+  debugPrint('======================================');
     _loadUserId();
    _loadDeviceData();
     _getPurposeData();
@@ -141,6 +146,8 @@ final List<String> followUpTypes = ['Select Follow Up Type','Phone','Visit'];
     final userData = await SecureStorage.instance.getUserData();
 
     userId = (userData?['user_id']?.toString() ?? '');
+    print('User99: $userId');
+    
 
     // punchVehicleId = userData?['vehicle_type_id']?.toString();
 
@@ -362,6 +369,18 @@ void _getFollowupData() {
   // ==========================================================
   // 1. DATE VALIDATION
   // ==========================================================
+
+   debugPrint('==========================================');
+  debugPrint('SUBMIT DEALER VISIT');
+  debugPrint('widget.dealerId : "${widget.dealerId}"');
+  debugPrint('widget.dealerName : "${widget.dealerName}"');
+  debugPrint('userId : "$userId"');
+  debugPrint('==========================================');
+
+  if (widget.dealerId.trim().isEmpty) {
+    _showError('Dealer ID is empty');
+    return;
+  }
   if (nextFollowUpDate == null) {
     _showError('Please select next follow-up date');
     return;
@@ -743,8 +762,8 @@ void _getFollowupData() {
                           // ======================================
                           // DEALER HEADER
                           // ======================================
-
-                          _buildDealerHeader(),
+//Text(widget.dealerId),
+                         // _buildDealerHeader(),
 
                           const SizedBox(height: 14),
 
@@ -804,13 +823,13 @@ void _getFollowupData() {
                           // ======================================
                           // LAST REMARKS
                           // ======================================
-                          _sectionTitle(Icons.history_rounded, 'Last Remarks'),
+                         // _sectionTitle(Icons.history_rounded, 'Last Remarks'),
 
-                          const SizedBox(height: 6),
+                        //  const SizedBox(height: 6),
 
-                          _buildLastRemarks(),
+                        //  _buildLastRemarks(),
 
-                          const SizedBox(height: 14),
+                         // const SizedBox(height: 14),
 
                           // ======================================
                           // DEALER IMAGE

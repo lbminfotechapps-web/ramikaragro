@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:demo/core/utility/image_compression.dart';
 import 'package:demo/features/dealer_visit/presentation/bloc/add_dealer_visit_state.dart';
 import 'package:demo/features/farmer/farmerregistration/domain/repository/farmerregistration_repo.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../core/error/exceptions.dart';
 import '../../domain/usecases/add_ramark.dart';
@@ -62,25 +63,48 @@ AddDealerVisitBlock(this.addLeave, this.repositoryProvider)
     };
 
     print('========== REQUEST DATA ==========');
+
     formData.forEach((key, value) {
       print('$key : $value');
     });
+
     print('==================================');
 
-    // IMPORTANT: WAIT FOR API RESPONSE
     final response = await addLeave.call(formData);
 
     print('========== ADD REMARK RESPONSE ==========');
     print(response);
     print('=========================================');
 
-    emit(
-      state.copyWith(
-        addLeaveStatus: AddDealerVisitStatus.dealerFollowupAddSuccess,
-        successMessage: 'Dealer follow-up added successfully',
-        clearError: true,
-      ),
-    );
+    // IMPORTANT:
+    // API returns:
+    // {"status":"success-25"}
+
+    final responseStatus =
+    response['status']?.toString().toLowerCase().trim() ?? '';
+
+debugPrint('API STATUS: "$responseStatus"');
+
+if (responseStatus == 'success' ||
+    responseStatus == 'true' ||
+    responseStatus == '1' ||
+    responseStatus.startsWith('success-')) {
+  emit(
+    state.copyWith(
+      addLeaveStatus: AddDealerVisitStatus.dealerAddedSuccess,
+      errorMessage: null,
+    ),
+  );
+} else {
+  emit(
+    state.copyWith(
+      addLeaveStatus: AddDealerVisitStatus.failure,
+      errorMessage:
+          response['message']?.toString() ??
+          'Unable to add dealer follow up',
+    ),
+  );
+}
   } catch (e, stackTrace) {
     print('========== ADD REMARK ERROR ==========');
     print(e);
@@ -534,27 +558,31 @@ AddDealerVisitBlock(this.addLeave, this.repositoryProvider)
       // ============================================
       // SUCCESS
       // ============================================
-      final responseStatus = response['status']?.toString().toLowerCase();
+     final responseStatus =
+    response['status']?.toString().toLowerCase().trim();
 
-      if (responseStatus == 'success' ||
-          responseStatus == 'true' ||
-          responseStatus == '1') {
-        emit(
-          state.copyWith(
-            addLeaveStatus: AddDealerVisitStatus.dealerAddedSuccess,
-            errorMessage: response['message']?.toString(),
-          ),
-        );
-      } else {
-        emit(
-          state.copyWith(
-            addLeaveStatus: AddDealerVisitStatus.failure,
-            errorMessage:
-                response['message']?.toString() ??
-                'Unable to add dealer follow up',
-          ),
-        );
-      }
+debugPrint('API STATUS: "$responseStatus"');
+
+if (responseStatus == 'success' ||
+    responseStatus == 'true' ||
+    responseStatus == '1' ||
+    responseStatus!.startsWith('success-')) {
+  emit(
+    state.copyWith(
+      addLeaveStatus: AddDealerVisitStatus.dealerAddedSuccess,
+      errorMessage: null,
+    ),
+  );
+} else {
+  emit(
+    state.copyWith(
+      addLeaveStatus: AddDealerVisitStatus.failure,
+      errorMessage:
+          response['message']?.toString() ??
+          'Unable to add dealer follow up',
+    ),
+  );
+}
     } catch (error) {
       print('Dealer follow up error: $error');
 

@@ -33,7 +33,11 @@ class _DealerFollowupListPageState extends State<DealerFollowupListPage> {
 
     dealerVisitBloc = sl<AddDealerVisitBlock>();
 
-    dealerVisitBloc.add(GetFollowupEvent(widget.dealerId));
+
+print("dealerId44${widget.dealerId}");
+    dealerVisitBloc.add(
+      GetFollowupEvent(widget.dealerId),
+    );
   }
 
   @override
@@ -190,96 +194,211 @@ class _DealerFollowupListPageState extends State<DealerFollowupListPage> {
     );
   }
 
+
+    Widget _buildEmptyState() {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(30),
+
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+
+          children: [
+            Container(
+              height: 90,
+              width: 90,
+
+              decoration: const BoxDecoration(
+                color: Color(0xFFE8F5E9),
+                shape: BoxShape.circle,
+              ),
+
+              child: const Icon(
+                Icons.event_busy_rounded,
+                size: 45,
+                color: Color(0xFF087C3A),
+              ),
+            ),
+
+            const SizedBox(height: 20),
+
+            const Text(
+              'No Follow-ups Found',
+
+              style: TextStyle(
+                color: Color(0xFF1B4332),
+                fontSize: 18,
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+
+            const SizedBox(height: 8),
+
+            const Text(
+              'No follow-up records are available for this dealer.',
+
+              textAlign: TextAlign.center,
+
+              style: TextStyle(color: Colors.grey, fontSize: 13),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   // ===============================================================
   // DEALER HEADER
   // ===============================================================
 
   Widget _buildDealerHeader() {
-  return Container(
-    margin: const EdgeInsets.only(bottom: 14),
-    padding: const EdgeInsets.all(16),
-    decoration: BoxDecoration(
-      color: Colors.white,
-      borderRadius: BorderRadius.circular(16),
-      boxShadow: [
-        BoxShadow(
-          color: Colors.black.withOpacity(0.05),
-          blurRadius: 8,
-          offset: const Offset(0, 3),
-        ),
-      ],
-    ),
-    child: Column(
-      children: [
-        
-
   
-        // Add Follow-up button
-        SizedBox(
-          width: double.infinity,
-          height: 44,
-          child: ElevatedButton.icon(
-            onPressed: () {
-              context.push(
-                AppRouter.dealrFollowUpAddNew,
-                extra: {
-                  'dealerId': widget.dealerId,
-                  'dealerName': widget.dealerName,
-                },
-              );
-            },
-            icon: const Icon(
-              Icons.add_task_rounded,
-              size: 19,
-            ),
-            label: const Text(
-              'Add Follow-up',
-              style: TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFF087C3A),
-              foregroundColor: Colors.white,
-              elevation: 0,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
-              ),
-          ),
-
-          const SizedBox(width: 14),
-
+ return Container(
+  margin: const EdgeInsets.only(bottom: 14),
+  padding: const EdgeInsets.all(16),
+  decoration: BoxDecoration(
+    color: Colors.white,
+    borderRadius: BorderRadius.circular(16),
+    boxShadow: [
+      BoxShadow(
+        color: Colors.black.withOpacity(0.05),
+        blurRadius: 8,
+        offset: const Offset(0, 3),
+      ),
+    ],
+  ),
+  child: Column(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [
+      // Dealer information
+      Row(
+        children: [
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 const Text(
                   'Dealer',
-                  style: TextStyle(color: Colors.grey, fontSize: 12),
+                  style: TextStyle(
+                    color: Colors.grey,
+                    fontSize: 12,
+                  ),
                 ),
-
                 const SizedBox(height: 3),
-
                 Text(
                   widget.dealerName,
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
-
                   style: const TextStyle(
                     color: Color(0xFF1B4332),
                     fontSize: 17,
                     fontWeight: FontWeight.w700,
                   ),
                 ),
-
                 const SizedBox(height: 3),
-
                 Text(
                   'ID: ${widget.dealerId}',
-                  style: const TextStyle(color: Colors.grey, fontSize: 12),
+                  style: const TextStyle(
+                    color: Colors.grey,
+                    fontSize: 12,
+                  ),
                 ),
               ],
+            ),
+          ),
+        ],
+      ),
+
+      const SizedBox(height: 14),
+
+      // Add Follow-up button
+      SizedBox(
+        width: double.infinity,
+        height: 44,
+        child: ElevatedButton.icon(
+          onPressed: () {
+            context.push(
+              '/dealrFollowUpAddNew',
+              extra: widget.dealerId,
+            );
+          },
+          icon: const Icon(
+            Icons.add_task_rounded,
+            size: 19,
+          ),
+          label: const Text(
+            'Add Follow-up',
+            style: TextStyle(
+              fontSize: 14,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+          style: ElevatedButton.styleFrom(
+            backgroundColor: const Color(0xFF087C3A),
+            foregroundColor: Colors.white,
+            elevation: 0,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
+          ),
+        ),
+      ),
+    ],
+  ),
+);
+}
+
+
+  // ===============================================================
+  // SUMMARY CARD
+  // ===============================================================
+
+Widget _buildSummaryCard(int count) {
+  return Container(
+    margin: const EdgeInsets.only(bottom: 14),
+    padding: const EdgeInsets.symmetric(
+      horizontal: 16,
+      vertical: 14,
+    ),
+    decoration: BoxDecoration(
+      color: const Color(0xFF087C3A),
+      borderRadius: BorderRadius.circular(14),
+    ),
+    child: Row(
+      children: [
+        const Icon(
+          Icons.event_note_rounded,
+          color: Colors.white,
+          size: 25,
+        ),
+
+        const SizedBox(width: 12),
+
+        const Expanded(
+          child: Text(
+            'Follow-up History',
+            style: TextStyle(
+              color: Colors.white,
+              fontSize: 14,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+        ),
+
+        Container(
+          padding: const EdgeInsets.symmetric(
+            horizontal: 12,
+            vertical: 6,
+          ),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(20),
+          ),
+          child: Text(
+            '$count',
+            style: const TextStyle(
+              color: Color(0xFF087C3A),
+              fontWeight: FontWeight.w800,
             ),
           ),
         ),
@@ -288,74 +407,11 @@ class _DealerFollowupListPageState extends State<DealerFollowupListPage> {
   );
 }
 
-
-  // ===============================================================
-  // SUMMARY CARD
-  // ===============================================================
-
-  Widget _buildSummaryCard(int count) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 14),
-      padding: const EdgeInsets.symmetric(
-        horizontal: 16,
-      
-      ),
-
-    
-  
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-
-      decoration: BoxDecoration(
-        color: const Color(0xFF087C3A),
-        borderRadius: BorderRadius.circular(14),
-      ),
-
-      child: Row(
-        children: [
-          const Icon(Icons.event_note_rounded, color: Colors.white, size: 25),
-
-          const SizedBox(width: 12),
-
-          const Expanded(
-            child: Text(
-              'Follow-up History',
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 14,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-          ),
-
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(20),
-            ),
-
-            child: Text(
-              '$count',
-              style: const TextStyle(
-                color: Color(0xFF087C3A),
-                fontWeight: FontWeight.w800,
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
   // ===============================================================
   // FOLLOW-UP CARD
   // ===============================================================
 
-  Widget _buildFollowupCard(
-  DealerFollowupListEntity item,
-  int index,
-) {
+
    
   Widget _buildFollowupCard(DealerFollowupListEntity item, int index) {
     debugPrint('========== FOLLOW UP $index ==========');
@@ -622,55 +678,55 @@ class _DealerFollowupListPageState extends State<DealerFollowupListPage> {
   // EMPTY STATE
   // ===============================================================
 
-  Widget _buildEmptyState() {
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(30),
+  // Widget _buildEmptyState() {
+  //   return Center(
+  //     child: Padding(
+  //       padding: const EdgeInsets.all(30),
 
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
+  //       child: Column(
+  //         mainAxisAlignment: MainAxisAlignment.center,
 
-          children: [
-            Container(
-              height: 90,
-              width: 90,
+  //         children: [
+  //           Container(
+  //             height: 90,
+  //             width: 90,
 
-              decoration: const BoxDecoration(
-                color: Color(0xFFE8F5E9),
-                shape: BoxShape.circle,
-              ),
+  //             decoration: const BoxDecoration(
+  //               color: Color(0xFFE8F5E9),
+  //               shape: BoxShape.circle,
+  //             ),
 
-              child: const Icon(
-                Icons.event_busy_rounded,
-                size: 45,
-                color: Color(0xFF087C3A),
-              ),
-            ),
+  //             child: const Icon(
+  //               Icons.event_busy_rounded,
+  //               size: 45,
+  //               color: Color(0xFF087C3A),
+  //             ),
+  //           ),
 
-            const SizedBox(height: 20),
+  //           const SizedBox(height: 20),
 
-            const Text(
-              'No Follow-ups Found',
+  //           const Text(s
+  //             'No Follow-ups Found',
 
-              style: TextStyle(
-                color: Color(0xFF1B4332),
-                fontSize: 18,
-                fontWeight: FontWeight.w700,
-              ),
-            ),
+  //             style: TextStyle(
+  //               color: Color(0xFF1B4332),
+  //               fontSize: 18,
+  //               fontWeight: FontWeight.w700,
+  //             ),
+  //           ),
 
-            const SizedBox(height: 8),
+  //           const SizedBox(height: 8),
 
-            const Text(
-              'No follow-up records are available for this dealer.',
+  //           const Text(
+  //             'No follow-up records are available for this dealer.',
 
-              textAlign: TextAlign.center,
+  //             textAlign: TextAlign.center,
 
-              style: TextStyle(color: Colors.grey, fontSize: 13),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
+  //             style: TextStyle(color: Colors.grey, fontSize: 13),
+  //           ),
+  //         ],
+  //       ),
+  //     ),
+  //   );
+  // }
 }

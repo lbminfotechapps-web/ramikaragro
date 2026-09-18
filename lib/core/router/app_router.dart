@@ -415,7 +415,7 @@ class AppRouter {
         name: 'dealrFollowUpAddNew',
         builder: (context, state) {
            final dealerId = state.extra is String ? state.extra as String : '';
- final dealerName = state.extra is String ? state.extra as String : '';
+           final dealerName = state.extra is String ? state.extra as String : '';
           return AddDealerVisitPage(dealerId: dealerId,dealerName: dealerName);
         },
       ),

@@ -479,7 +479,7 @@ class _DealerFollowupAddState extends State<DealerFollowupAdd> {
                 ),
               ),
             );
-            context.go(AppRouter.home);
+            context.push(AppRouter.home);
           }
           // ============================================
           // API ERROR

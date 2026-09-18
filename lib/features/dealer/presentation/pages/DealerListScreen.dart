@@ -658,10 +658,12 @@ class _DealerListItem extends StatelessWidget {
             child: Row(
               children: [
                 // PIN
+              //  Text( dealer.outletId),
                 _CircleActionButton(
                   icon: Icons.push_pin,
                   onTap: () {
-                    context.go('/dealerpin', extra: dealer.outletId);
+                    context.push('/dealerpin', extra: dealer.outletId);
+                    print("dealerId33${dealer.outletId}");
                   },
                 ),
 
