@@ -4,7 +4,6 @@ import 'package:demo/core/router/app_router.dart';
 import 'package:demo/core/secure_storage/secure_storage.dart';
 import 'package:demo/core/theme/app_colors.dart';
 import 'package:demo/core/utility/app_image_picker.dart';
-import 'package:demo/core/utility/appdialog.dart';
 import 'package:demo/core/utility/data_list.dart';
 import 'package:demo/core/utility/widgets/custom_appbar.dart' show CustomAppBar;
 import 'package:demo/core/utility/widgets/custom_button.dart';
@@ -322,6 +321,48 @@ class _EditUpdateDealerState extends State<EditUpdateDealer> {
     );
   }
 
+  // void _onStateSelected(String? stateId, AddDealerVisitState state) async {
+  //   if (stateId == null || stateId.isEmpty) {
+  //     return;
+  //   }
+
+  //   debugPrint('================================');
+  //   debugPrint('STATE SELECTED');
+  //   debugPrint('New State ID: $stateId');
+  //   debugPrint('================================');
+
+  //   if (stateId == '0') {
+  //     setState(() {
+  //       _selectedStateId = '0';
+  //       _selectedDistrictId = '0';
+  //       _selectedTalukaId = '0';
+  //     });
+
+  //     return;
+  //   }
+
+  //   setState(() {
+  //     _selectedStateId = stateId;
+
+  //     _selectedDistrictId = '0';
+  //     _selectedTalukaId = '0';
+  //   });
+
+  //   final userData = await SecureStorage.instance.getUserData();
+
+  //   final int? userId = int.tryParse(userData?['user_id']?.toString() ?? '');
+
+  //   if (userId == null) {
+  //     debugPrint('Invalid user ID');
+  //     return;
+  //   }
+
+  //   // Load districts for NEW state
+  //   context.read<AddDealerVisitBlock>().add(
+  //     DistrictEvent(userId: userId.toString(), stateId: stateId),
+  //   );
+  // }
+
   // Future<void> getUserId() async {
   //   final userData = await SecureStorage.instance.getUserData();
 
@@ -416,6 +457,26 @@ class _EditUpdateDealerState extends State<EditUpdateDealer> {
 
     debugPrint('Existing state mapped: $_selectedStateId');
   }
+  // void _mapSelectedState(AddDealerVisitState state) {
+  //   if (_selectedStateId == null || _selectedStateId == '0') {
+  //     return;
+  //   }
+
+  //   final exists = state.statentity.any(
+  //     (item) => item.stateId == _selectedStateId,
+  //   );
+
+  //   if (!exists) {
+  //     debugPrint(
+  //       'Existing state ID $_selectedStateId '
+  //       'not found in state API',
+  //     );
+
+  //     return;
+  //   }
+
+  //   debugPrint('Existing state mapped: $_selectedStateId');
+  // }
 
   void _mapSelectedDistrictAndTaluka(AddDealerVisitState state) {
     if (_selectedDistrictId == null || _selectedDistrictId == '0') {
@@ -505,8 +566,50 @@ class _EditUpdateDealerState extends State<EditUpdateDealer> {
       _selectedTalukaId = '0';
     });
   }
+  // void _onDistrictSelected(String? districtId, AddDealerVisitState state) {
+  //   if (districtId == null || districtId.isEmpty) {
+  //     return;
+  //   }
 
+  //   // Reset district
+  //   if (districtId == '0') {
+  //     setState(() {
+  //       _selectedDistrictId = '0';
+  //       _selectedTalukaId = '0';
+  //     });
 
+  //     return;
+  //   }
+
+  //   DistrictEntity? selectedDistrict;
+
+  //   for (final district in state.districtList) {
+  //     if (district.fldDistId == districtId) {
+  //       selectedDistrict = district;
+  //       break;
+  //     }
+  //   }
+
+  //   if (selectedDistrict == null) {
+  //     debugPrint('District not found: $districtId');
+
+  //     return;
+  //   }
+
+  //   debugPrint('Selected District ID: ${selectedDistrict.fldDistId}');
+
+  //   debugPrint('Selected District Name: ${selectedDistrict.fldDistName}');
+
+  //   debugPrint('Taluka Count: ${selectedDistrict.taluka.length}');
+
+  //   setState(() {
+  //     _selectedDistrictId = districtId;
+
+  //     // Whenever district changes,
+  //     // old taluka must be cleared.
+  //     _selectedTalukaId = '0';
+  //   });
+  // }
 
   String? _selectedFollowUpType;
   bool _submissionSent = false;
@@ -554,12 +657,16 @@ class _EditUpdateDealerState extends State<EditUpdateDealer> {
               isLoading = false;
               _submissionSent = false;
             });
-
-            AppDialog.show(
-              context: context,
-              message: 'Dealer Updated Successfully',
-              onButtonPressed: () => {context.go(AppRouter.home)},
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                backgroundColor: AppColors.backgroundColor,
+                content: Text(
+                  style: TextStyle(color: AppColors.accentGreen),
+                  state.errorMessage ?? 'Farmer Updated Successfully',
+                ),
+              ),
             );
+            context.go(AppRouter.home);
           }
           // ============================================
           // API ERROR
@@ -598,7 +705,7 @@ class _EditUpdateDealerState extends State<EditUpdateDealer> {
             }
           }
 
-          final uniqueDistricts = <String, DistrictEntity>{};
+          final Map<String, DistrictEntity> uniqueDistricts = {};
 
           for (final district in state.districtList) {
             final id = district.fldDistId.trim();
@@ -607,10 +714,7 @@ class _EditUpdateDealerState extends State<EditUpdateDealer> {
               continue;
             }
 
-            // Keep only the first occurrence of each district ID
-            if (!uniqueDistricts.containsKey(id)) {
-              uniqueDistricts[id] = district;
-            }
+            uniqueDistricts.putIfAbsent(id, () => district);
           }
 
           final districtItems = <DropdownMenuItem<String>>[
@@ -618,15 +722,17 @@ class _EditUpdateDealerState extends State<EditUpdateDealer> {
               value: '0',
               child: Text('Select District'),
             ),
-            ...uniqueDistricts.values.map(
-              (district) => DropdownMenuItem<String>(
-                value: district.fldDistId.trim(),
+            ...uniqueDistricts.entries.map((entry) {
+              final district = entry.value;
+
+              return DropdownMenuItem<String>(
+                value: entry.key,
                 child: Text(district.fldDistName),
-              ),
-            ),
+              );
+            }),
           ];
 
-          final uniqueTalukas = <String, TalukaEntity>{};
+          final Map<String, TalukaEntity> uniqueTalukas = {};
 
           for (final taluka in talukaList) {
             final id = taluka.fldTalukaId.trim();
@@ -635,10 +741,7 @@ class _EditUpdateDealerState extends State<EditUpdateDealer> {
               continue;
             }
 
-            // Keep only the first occurrence of each taluka ID
-            if (!uniqueTalukas.containsKey(id)) {
-              uniqueTalukas[id] = taluka;
-            }
+            uniqueTalukas.putIfAbsent(id, () => taluka);
           }
 
           final talukaItems = <DropdownMenuItem<String>>[
@@ -646,12 +749,14 @@ class _EditUpdateDealerState extends State<EditUpdateDealer> {
               value: '0',
               child: Text('Select Taluka'),
             ),
-            ...uniqueTalukas.values.map(
-              (taluka) => DropdownMenuItem<String>(
-                value: taluka.fldTalukaId.trim(),
+            ...uniqueTalukas.entries.map((entry) {
+              final taluka = entry.value;
+
+              return DropdownMenuItem<String>(
+                value: entry.key,
                 child: Text(taluka.fldName),
-              ),
-            ),
+              );
+            }),
           ];
           final uniqueStates = <String, StateEntity>{};
 
@@ -683,6 +788,16 @@ class _EditUpdateDealerState extends State<EditUpdateDealer> {
           final followUpTypeItem = followUpType.map((status) {
             return DropdownMenuItem<String>(value: status, child: Text(status));
           }).toList();
+
+          final selectedDistrictValue =
+              uniqueDistricts.containsKey(_selectedDistrictId)
+              ? _selectedDistrictId
+              : null;
+
+          final selectedTalukaValue =
+              uniqueTalukas.containsKey(_selectedTalukaId)
+              ? _selectedTalukaId
+              : null;
 
           return SafeArea(
             child: Form(
@@ -740,7 +855,7 @@ class _EditUpdateDealerState extends State<EditUpdateDealer> {
 
                     SizedBox(height: 10.h),
                     CustomTextFormField(
-                       labelText: 'Shop Name',
+                      labelText: 'Shop Name',
                       controller: shopNameController,
                       hintText: 'Shop Name *',
                       prefixIcon: Icons.shop,
@@ -756,7 +871,7 @@ class _EditUpdateDealerState extends State<EditUpdateDealer> {
                     SizedBox(height: 10.h),
 
                     CustomTextFormField(
-                         labelText: 'Dealer Code',
+                      labelText: 'Dealer Code',
                       controller: dealerCodeController,
                       hintText: 'Dealer Code',
                       prefixIcon: Icons.person_outline,
@@ -765,7 +880,7 @@ class _EditUpdateDealerState extends State<EditUpdateDealer> {
                     SizedBox(height: 10.h),
 
                     CustomTextFormField(
-                           labelText: 'Owner Name',
+                      labelText: 'Owner Name',
                       controller: ownerNameController,
                       hintText: 'Owner Name',
                       prefixIcon: Icons.person_2_outlined,
@@ -775,8 +890,8 @@ class _EditUpdateDealerState extends State<EditUpdateDealer> {
                     SizedBox(height: 10.h),
 
                     CustomTextFormField(
-                           maxLength: 10,
-                            labelText: 'Mobile No',
+                      maxLength: 10,
+                      labelText: 'Mobile No',
                       controller: mobileController,
                       hintText: 'Mobile No *',
                       prefixIcon: Icons.phone_outlined,
@@ -799,7 +914,7 @@ class _EditUpdateDealerState extends State<EditUpdateDealer> {
                     SizedBox(height: 10.h),
 
                     CustomTextFormField(
-                           maxLength: 10,
+                      maxLength: 10,
                       labelText: 'Alternate Mobile No',
                       controller: alternateMobileController,
                       hintText: 'Alternate Mobile No',
@@ -823,7 +938,7 @@ class _EditUpdateDealerState extends State<EditUpdateDealer> {
                     SizedBox(height: 10.h),
 
                     CustomTextFormField(
-                       labelText: 'GST No',
+                      labelText: 'GST No',
                       controller: gstController,
                       hintText: 'GST No',
                       prefixIcon: Icons.receipt_long_outlined,
@@ -833,8 +948,7 @@ class _EditUpdateDealerState extends State<EditUpdateDealer> {
                     SizedBox(height: 10.h),
 
                     CustomTextFormField(
-                 
-                        labelText: 'Email Id',
+                      labelText: 'Email Id',
                       controller: emailController,
                       hintText: 'Email Id',
                       prefixIcon: Icons.email_outlined,
@@ -859,7 +973,7 @@ class _EditUpdateDealerState extends State<EditUpdateDealer> {
                     SizedBox(height: 10.h),
 
                     CustomTextFormField(
-                        labelText: 'Address',
+                      labelText: 'Address',
                       controller: addressController,
                       hintText: 'Address',
                       prefixIcon: Icons.home_outlined,
@@ -899,6 +1013,27 @@ class _EditUpdateDealerState extends State<EditUpdateDealer> {
                       },
                     ),
 
+                    // CustomDropdown<String>(
+                    //   value: _selectedStateId == '0' ? null : _selectedStateId,
+
+                    //   hintText: 'Select State',
+
+                    //   prefixIcon: Icons.map_outlined,
+
+                    //   items: stateItems,
+
+                    //   onChanged: (value) {
+                    //     _onStateSelected(value, state);
+                    //   },
+
+                    //   validator: (value) {
+                    //     if (value == null || value == '0') {
+                    //       return 'Please select state';
+                    //     }
+
+                    //     return null;
+                    //   },
+                    // ),
                     SizedBox(height: 10.h),
 
                     const Text(
@@ -913,9 +1048,7 @@ class _EditUpdateDealerState extends State<EditUpdateDealer> {
                     SizedBox(height: 10.h),
 
                     CustomDropdown<String>(
-                      value: _selectedDistrictId == '0'
-                          ? null
-                          : _selectedDistrictId,
+                      value: selectedDistrictValue,
                       hintText: 'Select District',
                       prefixIcon: Icons.location_city_outlined,
                       enabled:
@@ -932,6 +1065,7 @@ class _EditUpdateDealerState extends State<EditUpdateDealer> {
                         return null;
                       },
                     ),
+
                     SizedBox(height: 10.h),
 
                     const Text(
@@ -945,9 +1079,7 @@ class _EditUpdateDealerState extends State<EditUpdateDealer> {
 
                     SizedBox(height: 10.h),
                     CustomDropdown<String>(
-                      value: _selectedTalukaId == '0'
-                          ? null
-                          : _selectedTalukaId,
+                      value: selectedTalukaValue,
                       hintText: 'Select Taluka',
                       prefixIcon: Icons.location_on_outlined,
                       enabled:
@@ -971,6 +1103,32 @@ class _EditUpdateDealerState extends State<EditUpdateDealer> {
                       },
                     ),
 
+                    // CustomDropdown<String>(
+                    //   value: _selectedTalukaId == '0'
+                    //       ? null
+                    //       : _selectedTalukaId,
+                    //   hintText: 'Select Taluka',
+                    //   prefixIcon: Icons.location_on_outlined,
+                    //   enabled:
+                    //       _selectedDistrictId != null &&
+                    //       _selectedDistrictId != '0' &&
+                    //       talukaList.isNotEmpty,
+                    //   items: talukaItems,
+                    //   onChanged: (value) {
+                    //     setState(() {
+                    //       _selectedTalukaId = value ?? '0';
+                    //     });
+
+                    //     debugPrint('Selected Taluka ID: $_selectedTalukaId');
+                    //   },
+                    //   validator: (value) {
+                    //     if (value == null || value == '0') {
+                    //       return 'Please select taluka';
+                    //     }
+
+                    //     return null;
+                    //   },
+                    // ),
                     SizedBox(height: 10.h),
 
                     _textField(
@@ -1027,7 +1185,7 @@ class _EditUpdateDealerState extends State<EditUpdateDealer> {
                     SizedBox(height: 10.h),
 
                     CustomTextFormField(
-                       labelText: 'Remark',
+                      labelText: 'Remark',
                       controller: remarkController,
                       hintText: 'Remark',
                       prefixIcon: Icons.note,

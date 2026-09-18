@@ -16,6 +16,9 @@ import 'package:demo/features/dealer_visit/presentation/bloc/add_dealer_visit_bl
 import 'package:demo/features/dealer_visit/presentation/bloc/add_dealer_visit_event.dart';
 import 'package:demo/features/dealer_visit/presentation/bloc/add_dealer_visit_state.dart';
 import 'package:demo/features/farmer/farmerregistration/domain/entity/district_entity.dart';
+import 'package:demo/features/farmer/farmerregistration/domain/entity/state_entity.dart';
+import 'package:demo/features/farmer/farmerregistration/presentation/bloc/state_bloc.dart';
+import 'package:demo/features/farmer/farmerregistration/presentation/bloc/states_state.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil_plus/flutter_screenutil_plus.dart';
@@ -384,30 +387,22 @@ class _DealerFollowupAddState extends State<DealerFollowupAdd> {
     });
   }
 
-  Future<void> _onStateSelected(String? stateId) async {
+  void _onStateSelected(String? stateId, AddDealerVisitState state) async {
     if (stateId == null || stateId.isEmpty) {
       return;
     }
 
     debugPrint('================================');
     debugPrint('STATE SELECTED');
-    debugPrint('STATE ID: $stateId');
+    debugPrint('New State ID: $stateId');
     debugPrint('================================');
 
     if (stateId == '0') {
       setState(() {
         _selectedStateId = '0';
-
-        // Reset district
         _selectedDistrictId = '0';
-
-        // Reset taluka
         _selectedTalukaId = '0';
       });
-
-      debugPrint('Select State selected');
-      debugPrint('District reset to Select District');
-      debugPrint('Taluka reset to Select Taluka');
 
       return;
     }
@@ -421,22 +416,71 @@ class _DealerFollowupAddState extends State<DealerFollowupAdd> {
 
     final userData = await SecureStorage.instance.getUserData();
 
-    final userId = userData?['user_id']?.toString();
+    final int? userId = int.tryParse(userData?['user_id']?.toString() ?? '');
 
-    if (!mounted || userId == null || userId.isEmpty) {
+    if (userId == null) {
+      debugPrint('Invalid user ID');
       return;
     }
 
-    debugPrint('================================');
-    debugPrint('CALLING DISTRICT API');
-    debugPrint('USER ID: $userId');
-    debugPrint('STATE ID: $stateId');
-    debugPrint('================================');
-
+    // Load districts for NEW state
     context.read<AddDealerVisitBlock>().add(
-      DistrictEvent(userId: userId, stateId: stateId),
+      DistrictEvent(userId: userId.toString(), stateId: stateId),
     );
   }
+  // Future<void> _onStateSelected(String? stateId) async {
+  //   if (stateId == null || stateId.isEmpty) {
+  //     return;
+  //   }
+
+  //   debugPrint('================================');
+  //   debugPrint('STATE SELECTED');
+  //   debugPrint('STATE ID: $stateId');
+  //   debugPrint('================================');
+
+  //   if (stateId == '0') {
+  //     setState(() {
+  //       _selectedStateId = '0';
+
+  //       // Reset district
+  //       _selectedDistrictId = '0';
+
+  //       // Reset taluka
+  //       _selectedTalukaId = '0';
+  //     });
+
+  //     debugPrint('Select State selected');
+  //     debugPrint('District reset to Select District');
+  //     debugPrint('Taluka reset to Select Taluka');
+
+  //     return;
+  //   }
+
+  //   setState(() {
+  //     _selectedStateId = stateId;
+
+  //     _selectedDistrictId = '0';
+  //     _selectedTalukaId = '0';
+  //   });
+
+  //   final userData = await SecureStorage.instance.getUserData();
+
+  //   final userId = userData?['user_id']?.toString();
+
+  //   if (!mounted || userId == null || userId.isEmpty) {
+  //     return;
+  //   }
+
+  //   debugPrint('================================');
+  //   debugPrint('CALLING DISTRICT API');
+  //   debugPrint('USER ID: $userId');
+  //   debugPrint('STATE ID: $stateId');
+  //   debugPrint('================================');
+
+  //   context.read<AddDealerVisitBlock>().add(
+  //     DistrictEvent(userId: userId, stateId: stateId),
+  //   );
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -506,7 +550,28 @@ class _DealerFollowupAddState extends State<DealerFollowupAdd> {
               }
             }
           }
+          final uniqueStates = <String, StateEntity>{};
 
+          for (final item in state.statentity) {
+            final id = item.stateId.trim();
+
+            if (id.isEmpty) {
+              continue;
+            }
+
+            if (!uniqueStates.containsKey(id)) {
+              uniqueStates[id] = item;
+            }
+          }
+
+          final stateItems = uniqueStates.values
+              .map(
+                (item) => DropdownMenuItem<String>(
+                  value: item.stateId.trim(),
+                  child: Text(item.stateName),
+                ),
+              )
+              .toList();
           final talukaList = selectedDistrict?.taluka ?? [];
 
           final districtItems = [
@@ -744,14 +809,11 @@ class _DealerFollowupAddState extends State<DealerFollowupAdd> {
 
                       prefixIcon: Icons.map_outlined,
 
-                      items: state.statentity.map((item) {
-                        return DropdownMenuItem<String>(
-                          value: item.stateId,
-                          child: Text(item.stateName),
-                        );
-                      }).toList(),
+                      items: stateItems,
 
-                      onChanged: _onStateSelected,
+                      onChanged: (value) {
+                        _onStateSelected(value, state);
+                      },
 
                       validator: (value) {
                         if (value == null || value == '0') {
@@ -762,6 +824,30 @@ class _DealerFollowupAddState extends State<DealerFollowupAdd> {
                       },
                     ),
 
+                    // CustomDropdown<String>(
+                    //   value: _selectedStateId == '0' ? null : _selectedStateId,
+
+                    //   hintText: 'Select State',
+
+                    //   prefixIcon: Icons.map_outlined,
+
+                    //   items: state.statentity.map((item) {
+                    //     return DropdownMenuItem<String>(
+                    //       value: item.stateId,
+                    //       child: Text(item.stateName),
+                    //     );
+                    //   }).toList(),
+
+                    //   onChanged: _onStateSelected,
+
+                    //   validator: (value) {
+                    //     if (value == null || value == '0') {
+                    //       return 'Please select state';
+                    //     }
+
+                    //     return null;
+                    //   },
+                    // ),
                     SizedBox(height: 10.h),
 
                     const Text(
@@ -779,20 +865,14 @@ class _DealerFollowupAddState extends State<DealerFollowupAdd> {
                       value: _selectedDistrictId == '0'
                           ? null
                           : _selectedDistrictId,
-
                       hintText: 'Select District',
-
                       prefixIcon: Icons.location_city_outlined,
-
                       enabled:
                           _selectedStateId != null && _selectedStateId != '0',
-
                       items: districtItems,
-
                       onChanged: (value) {
                         _onDistrictSelected(value, state);
                       },
-
                       validator: (value) {
                         if (value == null || value == '0') {
                           return 'Please select district';
@@ -801,6 +881,33 @@ class _DealerFollowupAddState extends State<DealerFollowupAdd> {
                         return null;
                       },
                     ),
+
+                    // CustomDropdown<String>(
+                    //   value: _selectedDistrictId == '0'
+                    //       ? null
+                    //       : _selectedDistrictId,
+
+                    //   hintText: 'Select District',
+
+                    //   prefixIcon: Icons.location_city_outlined,
+
+                    //   enabled:
+                    //       _selectedStateId != null && _selectedStateId != '0',
+
+                    //   items: districtItems,
+
+                    //   onChanged: (value) {
+                    //     _onDistrictSelected(value, state);
+                    //   },
+
+                    //   validator: (value) {
+                    //     if (value == null || value == '0') {
+                    //       return 'Please select district';
+                    //     }
+
+                    //     return null;
+                    //   },
+                    // ),
                     SizedBox(height: 10.h),
 
                     const Text(
@@ -817,18 +924,13 @@ class _DealerFollowupAddState extends State<DealerFollowupAdd> {
                       value: _selectedTalukaId == '0'
                           ? null
                           : _selectedTalukaId,
-
                       hintText: 'Select Taluka',
-
                       prefixIcon: Icons.location_on_outlined,
-
                       enabled:
                           _selectedDistrictId != null &&
                           _selectedDistrictId != '0' &&
                           talukaList.isNotEmpty,
-
                       items: talukaItems,
-
                       onChanged: (value) {
                         setState(() {
                           _selectedTalukaId = value ?? '0';
@@ -836,7 +938,6 @@ class _DealerFollowupAddState extends State<DealerFollowupAdd> {
 
                         debugPrint('Selected Taluka ID: $_selectedTalukaId');
                       },
-
                       validator: (value) {
                         if (value == null || value == '0') {
                           return 'Please select taluka';

@@ -358,10 +358,10 @@ class QuickAcessBloc extends Bloc<QuickAccessEvent, QuickAccessState> {
 
       debugPrint('========================================');
 
-      if (result['Status'] == true) {
+      if (result['status'] == true) {
         emit(
           state.copyWith(
-            quickAccessStatus: QuickAccessStatus.success,
+            quickAccessStatus: QuickAccessStatus.locationAddedSucces,
             // errorMessage: result.message,
           ),
         );

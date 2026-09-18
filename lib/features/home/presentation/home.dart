@@ -318,7 +318,7 @@ class _HomeState extends State<Home> {
                     color: AppColors.textColor,
                   ),
                   onPressed: () {
-                    context.push('/profile');
+                    Scaffold.of(scaffoldContext).openDrawer();
                   },
                 ),
               );
