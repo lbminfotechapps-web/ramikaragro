@@ -7,6 +7,7 @@ import 'package:demo/core/api_constant/dio_client.dart';
 import 'package:demo/core/router/app_router.dart';
 import 'package:demo/core/secure_storage/secure_storage.dart';
 import 'package:demo/core/theme/app_colors.dart';
+import 'package:demo/core/utility/appname.dart';
 import 'package:demo/core/utility/locationpermissiondialog.dart';
 import 'package:demo/core/utility/widgets/custom_appbar.dart';
 import 'package:demo/core/utility/widgets/custom_card.dart';
@@ -108,8 +109,8 @@ class _HomeState extends State<Home> {
     );
   }
 
-  static const String _appName = 'Ramikar Agro';
-  static const String _appSubtitle = 'Agro Business';
+  static  String _appName = appName;
+  static const String _appSubtitle = 'Agro Company';
 
   @override
   void initState() {

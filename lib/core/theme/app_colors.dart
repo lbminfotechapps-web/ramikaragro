@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 
 extension AppColors on ColorScheme {
   static const Color primaryColor = Color(0xFF088DC4);
-  static const Color gradientStartColor = Color(0xFF2E7D32);
-  static const Color gradientEndColor = Color(0xFF81C784);
+  static const Color gradientStartColor = Color(0xFF3F9D39);
+  static const Color gradientEndColor = Color.fromARGB(255, 169, 230, 165);
 
   static const LinearGradient appGradient = LinearGradient(
     colors: [gradientStartColor, gradientEndColor],

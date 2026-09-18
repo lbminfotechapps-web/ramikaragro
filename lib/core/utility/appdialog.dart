@@ -98,6 +98,7 @@
 //   });
 // }
 
+import 'package:demo/core/utility/appname.dart';
 import 'package:flutter/material.dart';
 
 enum DialogType { success, error, warning, info }
@@ -184,8 +185,8 @@ class AppDialog {
         );
 
       case DialogType.info:
-        return const _DialogConfig(
-          title: 'Ramikar Agro',
+        return  _DialogConfig(
+          title: appName,
           icon: Icons.info,
           color: Colors.blue,
         );

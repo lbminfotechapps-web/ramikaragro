@@ -125,7 +125,7 @@ class _LoginScreenState extends State<LoginScreen> {
   // ============================================================
 
   Widget _raiLogo(double heroHeight) {
-    final logoSize = heroHeight * 0.9;
+    final logoSize = heroHeight * 0.45;
 
     return SizedBox(
       width: logoSize,
@@ -136,7 +136,7 @@ class _LoginScreenState extends State<LoginScreen> {
           widthFactor: 0.55,
           heightFactor: 0.60,
           child: Image.asset(
-            'assets/images/rai_logo.jpg.png',
+            'assets/icons/logo.png',
             width: logoSize * 2,
             fit: BoxFit.contain,
           ),

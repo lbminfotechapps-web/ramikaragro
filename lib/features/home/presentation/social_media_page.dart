@@ -1,5 +1,6 @@
 import 'package:demo/core/router/app_router.dart';
 import 'package:demo/core/theme/app_colors.dart';
+import 'package:demo/core/utility/appname.dart';
 import 'package:demo/core/utility/widgets/custom_appbar.dart';
 import 'package:demo/core/utility/widgets/custom_loader.dart';
 import 'package:demo/features/home/presentation/home_bloc/social_media_bloc.dart';
@@ -123,9 +124,7 @@ class _SocialMediaPageState extends State<SocialMediaPage> {
 
   Widget _buildBody(SocialMediaState state) {
     if (state.status == SocialMediaStatus.loading) {
-      return const Center(
-        child: CustomLoader(color: Colors.green),
-      );
+      return const Center(child: CustomLoader(color: Colors.green));
     }
 
     if (state.status == SocialMediaStatus.failure) {
@@ -192,7 +191,7 @@ class _SocialMediaPageState extends State<SocialMediaPage> {
           ),
         ],
       ),
-      child: const Column(
+      child:  Column(
         children: [
           Icon(Icons.share, color: Colors.white, size: 45),
 
@@ -210,7 +209,7 @@ class _SocialMediaPageState extends State<SocialMediaPage> {
           SizedBox(height: 5),
 
           Text(
-            'Follow Ramikar Agro Industries',
+            'Follow $appName Industries',
             textAlign: TextAlign.center,
             style: TextStyle(color: Colors.white70, fontSize: 14),
           ),
