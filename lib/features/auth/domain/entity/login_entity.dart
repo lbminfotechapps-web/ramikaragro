@@ -21,6 +21,9 @@ class UserLoginEntity {
   final bool? inPunch;
   final String? lastLatitude;
   final String? lastLongitude;
+  final String? states;
+  final String? districts;
+  final String? taluka;
 
   const UserLoginEntity({
     this.status,
@@ -45,5 +48,8 @@ class UserLoginEntity {
     this.inPunch,
     this.lastLatitude,
     this.lastLongitude,
+    this.states,
+    this.districts,
+    this.taluka,
   });
 }

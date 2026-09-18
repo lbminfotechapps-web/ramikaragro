@@ -32,6 +32,10 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiBlocProvider(
       providers: [
+                BlocProvider<QuickAcessBloc>(create: (_) => sl<QuickAcessBloc>()),
+          BlocProvider<EmployeeActivityBloc>(
+          create: (_) => sl<EmployeeActivityBloc>(),
+        ),
         BlocProvider<AuthBloc>(create: (_) => sl<AuthBloc>()),
         BlocProvider<NotVisitedDealerBloc>(
           create: (_) => sl<NotVisitedDealerBloc>(),
@@ -53,10 +57,8 @@ class MyApp extends StatelessWidget {
         BlocProvider<FamerfollowupBloc>(create: (_) => sl<FamerfollowupBloc>()),
         BlocProvider<StateBloc>(create: (_) => sl<StateBloc>()),
         BlocProvider<HomeBloc>(create: (_) => sl<HomeBloc>()),
-        BlocProvider<QuickAcessBloc>(create: (_) => sl<QuickAcessBloc>()),
-        BlocProvider<EmployeeActivityBloc>(
-          create: (_) => sl<EmployeeActivityBloc>(),
-        ),
+
+      
         BlocProvider<GalleryBloc>(create: (_) => sl<GalleryBloc>()),
         BlocProvider<SchemeBloc>(create: (_) => sl<SchemeBloc>()),
         BlocProvider<ProductBloc>(create: (_) => sl<ProductBloc>()),

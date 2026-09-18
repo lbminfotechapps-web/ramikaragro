@@ -160,7 +160,6 @@ class _LastForceOutScreenState extends State<LastForceOutScreen> {
         PunchInOutDetailsAddEvent(
           userId: userId,
 
-       
           inOutStatus: '2',
 
           differenceByAndroid: '0.0',
@@ -196,8 +195,6 @@ class _LastForceOutScreenState extends State<LastForceOutScreen> {
           // IMPORTANT
           date: dateController.text.trim(),
           newTime: newTimeController.text.trim(),
-
-    
         ),
       );
     } catch (e) {

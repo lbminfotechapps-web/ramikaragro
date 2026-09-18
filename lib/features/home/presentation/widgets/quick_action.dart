@@ -1,14 +1,22 @@
 import 'package:demo/core/secure_storage/secure_storage.dart';
 import 'package:demo/core/theme/app_colors.dart';
-import 'package:demo/core/utility/app_toast.dart';
+
 import 'package:demo/core/utility/appdialog.dart';
+import 'package:demo/core/utility/device_info_util.dart';
+import 'package:demo/core/utility/location_util.dart';
 import 'package:demo/core/utility/widgets/custom_card.dart';
 import 'package:demo/core/utility/widgets/custom_loader.dart';
 import 'package:demo/features/home/doman/home_entity/menu_entity.dart';
 import 'package:demo/features/home/doman/home_entity/punch_stat_entity.dart';
+import 'package:demo/features/home/presentation/quick_aceess_bloc/quick_access_event.dart';
+import 'package:demo/features/home/presentation/quick_aceess_bloc/quick_access_state.dart';
+import 'package:demo/features/home/presentation/quick_aceess_bloc/quick_acess_bloc.dart';
+
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart' show ReadContext, BlocListener;
 import 'package:flutter_screenutil_plus/flutter_screenutil_plus.dart';
 import 'package:go_router/go_router.dart';
+import 'package:http/http.dart';
 
 class QuickAccessItem {
   final String title;
@@ -42,6 +50,180 @@ class _QuickAccessSectionState extends State<QuickAccessSection> {
 
   int visibleItemCount = initialItemCount;
 
+  Future<void> _submitShareLocation({required String remark}) async {
+    // final bloc = context.read<QuickAcessBloc>();
+    debugPrint('========================================');
+    debugPrint('SHARE LOCATION SUBMIT');
+    debugPrint('========================================');
+
+    // ============================================
+    // USER DATA
+    // ============================================
+
+    final userData = await SecureStorage.instance.getUserData();
+
+    debugPrint('User data: $userData');
+
+    final userId = int.tryParse(userData?['user_id']?.toString() ?? '');
+
+    if (userId == null) {
+      debugPrint('SHARE LOCATION ERROR: User ID not found');
+      throw Exception('User information not found');
+    }
+
+    debugPrint('User ID: $userId');
+
+    // ============================================
+    // BATTERY
+    // ============================================
+
+    final batteryInfo = await DeviceInfoUtil.instance.getBatteryInfo();
+
+    debugPrint('Battery Info: $batteryInfo');
+
+    // ============================================
+    // NETWORK
+    // ============================================
+
+    final networkInfo = await DeviceInfoUtil.instance.getNetworkInfo();
+
+    debugPrint('Network Info: $networkInfo');
+
+    // ============================================
+    // LOCATION
+    // ============================================
+
+    final position = await LocationUtil.instance.getCurrentLocation();
+
+    String latitude = '';
+    String longitude = '';
+    String address = '';
+
+    if (position != null) {
+      latitude = position.latitude.toString();
+      longitude = position.longitude.toString();
+
+      debugPrint('Latitude: $latitude');
+      debugPrint('Longitude: $longitude');
+
+      address = await LocationUtil.instance.getAddress(
+        position.latitude,
+        position.longitude,
+      );
+
+      debugPrint('Geo Address: $address');
+    } else {
+      debugPrint('Location: NOT AVAILABLE');
+    }
+
+    // ============================================
+    // SHARE LOCATION EVENT DATA
+    // ============================================
+
+    const inOutStatus = '3';
+    const differenceByAndroid = '0.0';
+    const locationHistoryString = '';
+
+    const startingClosingKmAmount = '';
+    const vehicleTypeId = '';
+    const route = '';
+
+    const activityId = '27';
+
+    debugPrint('========== FINAL SHARE LOCATION DATA ==========');
+
+    debugPrint('user_id: $userId');
+    debugPrint('in_out_status: $inOutStatus');
+
+    debugPrint('differenceByAndroid: $differenceByAndroid');
+
+    debugPrint('locationHistoryString: $locationHistoryString');
+
+    debugPrint('strBatteryInfo: $batteryInfo');
+    debugPrint('strNetworkInfo: $networkInfo');
+
+    debugPrint('pinRemark: $remark');
+
+    debugPrint(
+      'strStartingClosingKmAmount: '
+      '$startingClosingKmAmount',
+    );
+
+    debugPrint('strVehicleTypeId: $vehicleTypeId');
+    debugPrint('route: $route');
+
+    debugPrint('latitude: $latitude');
+    debugPrint('longitude: $longitude');
+
+    debugPrint('networkLatitude: $latitude');
+    debugPrint('networkLongitude: $longitude');
+
+    debugPrint('gpsLatitude: $latitude');
+    debugPrint('gpsLongitude: $longitude');
+
+    debugPrint('geoAddress: $address');
+
+    debugPrint('activityId: $activityId');
+
+    debugPrint('==============================================');
+
+    if (!mounted) {
+      return;
+    }
+
+    // ============================================
+    // DISPATCH SHARE LOCATION EVENT
+    // ============================================
+
+    context.read<QuickAcessBloc>().add(
+      ShareLocationEvent(
+        userId: userId,
+
+        inOutStatus: inOutStatus,
+
+        differenceByAndroid: differenceByAndroid,
+
+        locationHistoryString: locationHistoryString,
+
+        batteryInfo: batteryInfo,
+
+        networkInfo: networkInfo,
+
+        pinRemark: remark,
+
+        startingClosingKmAmount: startingClosingKmAmount,
+
+        vehicleTypeId: vehicleTypeId,
+
+        route: route,
+
+        latitude: latitude,
+
+        longitude: longitude,
+
+        networkLatitude: latitude,
+
+        networkLongitude: longitude,
+
+        gpsLatitude: latitude,
+
+        gpsLongitude: longitude,
+
+        geoAddress: address,
+
+        startingKmImage: '',
+
+        closingKmImage: '',
+
+        activityId: activityId,
+      ),
+    );
+
+    debugPrint('SHARE LOCATION EVENT DISPATCHED SUCCESSFULLY');
+
+    debugPrint('========================================');
+  }
+
   @override
   void didUpdateWidget(covariant QuickAccessSection oldWidget) {
     super.didUpdateWidget(oldWidget);
@@ -66,53 +248,95 @@ class _QuickAccessSectionState extends State<QuickAccessSection> {
     final actualVisibleCount = visibleItemCount > widget.menus.length
         ? widget.menus.length
         : visibleItemCount;
+
     final hasMore = actualVisibleCount < widget.menus.length;
 
-    return CustomCard(
-      padding: EdgeInsets.all(16.w),
-      borderRadius: 24.r,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Text(
-            'Quick Access',
-            style: TextStyle(fontSize: 20, fontWeight: FontWeight.w700),
-          ),
-          SizedBox(height: 14.h),
-          LayoutBuilder(
-            builder: (context, constraints) {
-              final crossAxisCount = constraints.maxWidth < 600 ? 3 : 6;
-              final visibleMenus = widget.menus
-                  .take(actualVisibleCount)
-                  .toList();
+    return BlocListener<QuickAcessBloc, QuickAccessState>(
+      listenWhen: (previous, current) =>
+          previous.quickAccessStatus != current.quickAccessStatus,
+      listener: (context, state) {
+        // ==========================================
+        // SHARE LOCATION SUCCESS
+        // ==========================================
+        if (state.quickAccessStatus == QuickAccessStatus.locationAddedSucces) {
+          ScaffoldMessenger.of(context).hideCurrentSnackBar();
 
-              return GridView.builder(
-                shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
-                itemCount: visibleMenus.length + (hasMore ? 1 : 0),
-                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: crossAxisCount,
-                  crossAxisSpacing: 8.w,
-                  mainAxisSpacing: 8.h,
-                  childAspectRatio: 0.9,
-                ),
-                itemBuilder: (context, index) {
-                  if (index == visibleMenus.length) {
-                    return _MoreItem(onTap: _showMore);
-                  }
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Location shared successfully'),
+              backgroundColor: Colors.green,
+              behavior: SnackBarBehavior.floating,
+              duration: Duration(seconds: 2),
+            ),
+          );
+        }
 
-                  final menu = visibleMenus[index];
+        // ==========================================
+        // SHARE LOCATION FAILURE
+        // ==========================================
+        if (state.quickAccessStatus == QuickAccessStatus.failure) {
+          ScaffoldMessenger.of(context).hideCurrentSnackBar();
 
-                  return QuickAccessMenuItem(
-                    menu: menu,
-                    punchStat: widget.punchStat,
-                    onTap: () => _onMenuTap(context, menu),
-                  );
-                },
-              );
-            },
-          ),
-        ],
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(state.errorMessage ?? 'Failed to share location'),
+              backgroundColor: Colors.red,
+              behavior: SnackBarBehavior.floating,
+              duration: const Duration(seconds: 3),
+            ),
+          );
+        }
+      },
+
+      child: CustomCard(
+        padding: EdgeInsets.all(16.w),
+        borderRadius: 24.r,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text(
+              'Quick Access',
+              style: TextStyle(fontSize: 20, fontWeight: FontWeight.w700),
+            ),
+
+            SizedBox(height: 14.h),
+
+            LayoutBuilder(
+              builder: (context, constraints) {
+                final crossAxisCount = constraints.maxWidth < 600 ? 3 : 6;
+
+                final visibleMenus = widget.menus
+                    .take(actualVisibleCount)
+                    .toList();
+
+                return GridView.builder(
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  itemCount: visibleMenus.length + (hasMore ? 1 : 0),
+                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: crossAxisCount,
+                    crossAxisSpacing: 8.w,
+                    mainAxisSpacing: 8.h,
+                    childAspectRatio: 0.9,
+                  ),
+                  itemBuilder: (context, index) {
+                    if (index == visibleMenus.length) {
+                      return _MoreItem(onTap: _showMore);
+                    }
+
+                    final menu = visibleMenus[index];
+
+                    return QuickAccessMenuItem(
+                      menu: menu,
+                      punchStat: widget.punchStat,
+                      onTap: () => _onMenuTap(context, menu),
+                    );
+                  },
+                );
+              },
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -136,7 +360,23 @@ class _QuickAccessSectionState extends State<QuickAccessSection> {
         context.push('/lastPunchOut', extra: widget.punchStat);
       }
     } else if (menu.menuId == '26') {
-      await _showShareLocationDialog(context);
+      if (status == '1') {
+        await _showShareLocationDialog(context);
+      } else if (status == '2') {
+        AppDialog.show(
+          context: context,
+          message: "Your Are Not Last Punch Out, Do You Want Continue",
+          onButtonPressed: () => {
+            context.push('/lastPunchOut', extra: widget.punchStat),
+          },
+        );
+      } else {
+        AppDialog.show(
+          context: context,
+          message: "Your Are Not Punch In, Do You Want Continue",
+          onButtonPressed: () => {context.push('/punchIn')},
+        );
+      }
     } else if (menu.menuId == '65') {
       context.push('/notVisitDealer');
     } else if (menu.menuId == '18') {
@@ -144,6 +384,14 @@ class _QuickAccessSectionState extends State<QuickAccessSection> {
     } else if (menu.menuId == '8') {
       if (status == '1') {
         context.push('/farmers');
+      } else if (status == '2') {
+        AppDialog.show(
+          context: context,
+          message: "Your Are Not Last Punch Out, Do You Want Continue",
+          onButtonPressed: () => {
+            context.push('/lastPunchOut', extra: widget.punchStat),
+          },
+        );
       } else {
         AppDialog.show(
           context: context,
@@ -169,6 +417,14 @@ class _QuickAccessSectionState extends State<QuickAccessSection> {
     } else if (menu.menuId == '3') {
       if (status == '1') {
         context.push('/visits');
+      } else if (status == '2') {
+        AppDialog.show(
+          context: context,
+          message: "Your Are Not Last Punch Out, Do You Want Continue",
+          onButtonPressed: () => {
+            context.push('/lastPunchOut', extra: widget.punchStat),
+          },
+        );
       } else {
         AppDialog.show(
           context: context,
@@ -245,88 +501,158 @@ class _QuickAccessSectionState extends State<QuickAccessSection> {
     final formKey = GlobalKey<FormState>();
     final remarkController = TextEditingController();
 
-    void submit(){
-      
-    }
-
     await showDialog(
       context: context,
       barrierDismissible: false,
       builder: (dialogContext) {
-        return AlertDialog(
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(20.r),
-          ),
-          title: const Text(
-            'Share Location',
-            style: TextStyle(fontSize: 20, fontWeight: FontWeight.w700),
-          ),
-          content: Form(
-            key: formKey,
-            child: TextFormField(
-              controller: remarkController,
-              maxLines: 4,
-              textInputAction: TextInputAction.newline,
-              decoration: InputDecoration(
-                hintText: 'Enter remark',
-                labelText: 'Remark',
-                alignLabelWithHint: true,
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12.r),
-                ),
-                enabledBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12.r),
-                  borderSide: BorderSide(color: Colors.grey.shade300),
-                ),
-                focusedBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12.r),
-                  borderSide: BorderSide(color: AppColors.primary, width: 1.5),
+        bool isSubmitting = false;
+
+        return StatefulBuilder(
+          builder: (context, setDialogState) {
+            return AlertDialog(
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(20.r),
+              ),
+              titlePadding: EdgeInsets.fromLTRB(20.w, 20.h, 20.w, 10.h),
+              contentPadding: EdgeInsets.fromLTRB(20.w, 8.h, 20.w, 10.h),
+              title: Row(
+                children: [
+                  Container(
+                    padding: EdgeInsets.all(10.r),
+                    decoration: BoxDecoration(
+                      color: AppColors.primary.withOpacity(0.10),
+                      borderRadius: BorderRadius.circular(12.r),
+                    ),
+                    child: Icon(
+                      Icons.location_on_rounded,
+                      color: AppColors.primary,
+                      size: 24.sp,
+                    ),
+                  ),
+                  SizedBox(width: 12.w),
+                  const Expanded(
+                    child: Text(
+                      'Share Location',
+                      style: TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              content: Form(
+                key: formKey,
+                child: TextFormField(
+                  controller: remarkController,
+                  maxLines: 4,
+                  textInputAction: TextInputAction.newline,
+                  enabled: !isSubmitting,
+                  decoration: InputDecoration(
+                    hintText: 'Enter remark',
+                    labelText: 'Remark',
+                    alignLabelWithHint: true,
+                    prefixIcon: Padding(
+                      padding: EdgeInsets.only(
+                        left: 12.w,
+                        right: 8.w,
+                        top: 12.h,
+                      ),
+                      child: Icon(
+                        Icons.edit_note_rounded,
+                        color: AppColors.primary,
+                      ),
+                    ),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12.r),
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12.r),
+                      borderSide: BorderSide(color: Colors.grey.shade300),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12.r),
+                      borderSide: BorderSide(
+                        color: AppColors.primary,
+                        width: 1.5,
+                      ),
+                    ),
+                  ),
+                  validator: (value) {
+                    if (value == null || value.trim().isEmpty) {
+                      return 'Please enter remark';
+                    }
+
+                    return null;
+                  },
                 ),
               ),
-              validator: (value) {
-                if (value == null || value.trim().isEmpty) {
-                  return 'Please enter remark';
-                }
-
-                return null;
-              },
-            ),
-          ),
-          actionsPadding: EdgeInsets.fromLTRB(16.w, 0, 16.w, 16.h),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.of(dialogContext).pop();
-              },
-              child: const Text('Cancel'),
-            ),
-
-            ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                backgroundColor: AppColors.primary,
-                foregroundColor: Colors.white,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10.r),
+              actionsPadding: EdgeInsets.fromLTRB(16.w, 0, 16.w, 16.h),
+              actions: [
+                TextButton(
+                  onPressed: isSubmitting
+                      ? null
+                      : () {
+                          Navigator.of(dialogContext).pop();
+                        },
+                  child: const Text('Cancel'),
                 ),
-              ),
-              onPressed: () {
-                if (formKey.currentState!.validate()) {
-                  final remark = remarkController.text.trim();
+                ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppColors.primary,
+                    foregroundColor: Colors.white,
+                    disabledBackgroundColor: AppColors.primary.withOpacity(0.5),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10.r),
+                    ),
+                  ),
+                  onPressed: isSubmitting
+                      ? null
+                      : () async {
+                          if (!formKey.currentState!.validate()) {
+                            return;
+                          }
 
-                  debugPrint('================================');
-                  debugPrint('SHARE LOCATION');
-                  debugPrint('Remark: $remark');
-                  debugPrint('================================');
+                          final remark = remarkController.text.trim();
 
-                  Navigator.of(dialogContext).pop();
+                          setDialogState(() {
+                            isSubmitting = true;
+                          });
 
-                  // TODO:
-                  // Call your Share Location API here.
-                }
-              },
-              child: const Text('Submit'),
-            ),
-          ],
+                          try {
+                            await _submitShareLocation(remark: remark);
+
+                            if (dialogContext.mounted) {
+                              Navigator.of(dialogContext).pop();
+                            }
+                          } catch (e) {
+                            setDialogState(() {
+                              isSubmitting = false;
+                            });
+
+                            if (!context.mounted) return;
+
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(content: Text(e.toString())),
+                            );
+                          }
+                        },
+                  child: isSubmitting
+                      ? SizedBox(
+                          width: 18.w,
+                          height: 18.w,
+                          child: const CircularProgressIndicator(
+                            strokeWidth: 2,
+                            valueColor: AlwaysStoppedAnimation<Color>(
+                              Colors.white,
+                            ),
+                          ),
+                        )
+                      : const Text('Submit'),
+                ),
+              ],
+            );
+          },
         );
       },
     );

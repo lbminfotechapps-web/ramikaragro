@@ -7,6 +7,7 @@ import 'package:demo/core/api_constant/dio_client.dart';
 import 'package:demo/core/router/app_router.dart';
 import 'package:demo/core/secure_storage/secure_storage.dart';
 import 'package:demo/core/theme/app_colors.dart';
+import 'package:demo/core/utility/locationpermissiondialog.dart';
 import 'package:demo/core/utility/widgets/custom_appbar.dart';
 import 'package:demo/core/utility/widgets/custom_card.dart';
 import 'package:demo/features/home/doman/home_entity/homevisit_entity.dart';
@@ -28,6 +29,7 @@ import 'package:flutter_screenutil_plus/flutter_screenutil_plus.dart';
 import 'package:dio/dio.dart';
 import 'package:get_it/get_it.dart';
 import 'package:go_router/go_router.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class Home extends StatefulWidget {
@@ -39,7 +41,7 @@ class Home extends StatefulWidget {
 
 class _HomeState extends State<Home> {
   String _username = 'user';
-
+  String _userId = '0';
   Timer? _appBarTimer;
 
   bool _showUserInfo = true;
@@ -101,13 +103,6 @@ class _HomeState extends State<Home> {
     final searchFromDate = _formatDate(_fromDate);
     final searchToDate = _formatDate(_toDate);
 
-    debugPrint('==============================');
-    debugPrint('VISIT GRAPH DATE CHANGE');
-    debugPrint('USER ID: $userId');
-    debugPrint('FROM DATE: $searchFromDate');
-    debugPrint('TO DATE: $searchToDate');
-    debugPrint('==============================');
-
     context.read<HomeBloc>().add(
       VisitGraphCountEvent(userId, searchFromDate, searchToDate),
     );
@@ -131,7 +126,9 @@ class _HomeState extends State<Home> {
         _showUserInfo = !_showUserInfo;
       });
     });
-
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      checkLocationPermission(context);
+    });
     _loadUserData();
   }
 
@@ -150,26 +147,24 @@ class _HomeState extends State<Home> {
     }
 
     final userId = userData['user_id']?.toString() ?? '';
-    // context.read<HomeBloc>().add(GetInpunchPendingEvent(userId: userId));
+    final userName = userData['user_name']?.toString();
     if (userId.isEmpty) {
       debugPrint('Stored user data has no user_id');
     } else {
+      setState(() {
+        _userId = userId;
+
+        _username = userName!;
+      });
       await getEmployeeStatus(userId);
 
       if (!mounted) return;
-
       // Load pending punch data
     }
-
-    final userName = userData['user_name']?.toString();
 
     if (!mounted || userName == null || userName.isEmpty) {
       return;
     }
-
-    setState(() {
-      _username = userName;
-    });
   }
 
   Future<void> getUserName() async {
@@ -222,6 +217,24 @@ class _HomeState extends State<Home> {
       },
     );
     return result ?? false;
+  }
+
+  Future<void> checkLocationPermission(BuildContext context) async {
+    final status = await Permission.location.status;
+
+    if (status.isGranted) {
+      return;
+    }
+
+    if (!context.mounted) return;
+
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (_) {
+        return LocationPermissionDialog(onPermissionResult: () {});
+      },
+    );
   }
 
   Future<void> _logout() async {
@@ -305,14 +318,14 @@ class _HomeState extends State<Home> {
                     color: AppColors.textColor,
                   ),
                   onPressed: () {
-                    context.push('/profile');
+                    Scaffold.of(scaffoldContext).openDrawer();
                   },
                 ),
               );
             },
           ),
 
-          title: _showUserInfo ? _username : _appName,
+          title: _showUserInfo ? '$_username ($_userId)' : _appName,
 
           subtitle: _showUserInfo ? 'Good Morning' : _appSubtitle,
 
@@ -329,61 +342,61 @@ class _HomeState extends State<Home> {
               children: [
                 SizedBox(height: 8.h),
 
-            BlocBuilder<HomeBloc, HomeState>(
-  builder: (context, state) {
-    int pendingCount = 0;
-    int pendingTotalCount = 0;
+                BlocBuilder<HomeBloc, HomeState>(
+                  builder: (context, state) {
+                    int pendingCount = 0;
+                    int pendingTotalCount = 0;
 
-    String punchTiming = '';
-    String city = '';
-    String countryState = '';
+                    String punchTiming = '';
+                    String city = '';
+                    String countryState = '';
 
-    final data = state.data;
+                    final data = state.data;
 
-    if (state.status == HomeStatus.success && data != null) {
-      pendingCount = data.pendingInpunchCount;
-      pendingTotalCount = data.totalRecursiveEmployee;
-      punchTiming = data.inpunchTime ?? '';
-      city = data.city ?? '';
-      countryState = data.state ?? '';
-    }
+                    if (state.status == HomeStatus.success && data != null) {
+                      pendingCount = data.pendingInpunchCount;
+                      pendingTotalCount = data.totalRecursiveEmployee;
+                      punchTiming = data.inpunchTime ?? '';
+                      city = data.city ?? '';
+                      countryState = data.state ?? '';
+                    }
 
-    return Row(
-      children: [
-        Expanded(
-          child: SizedBox(
-            height: 100.h,
-            child: buildPunchCard(
-              "Today's Punch",
-              punchTiming.isEmpty ? '--' : punchTiming,
-              [
-                city,
-                countryState,
-              ].where((e) => e.isNotEmpty).join(', '),
-            ),
-          ),
-        ),
+                    return Row(
+                      children: [
+                        Expanded(
+                          child: SizedBox(
+                            height: 100.h,
+                            child: buildPunchCard(
+                              "Today's Punch",
+                              punchTiming.isEmpty ? '--' : punchTiming,
+                              [
+                                city,
+                                countryState,
+                              ].where((e) => e.isNotEmpty).join(', '),
+                            ),
+                          ),
+                        ),
 
-        SizedBox(width: 8.w),
+                        SizedBox(width: 8.w),
 
-        Expanded(
-          child: SizedBox(
-            height: 100.h,
-            child: buildInfoCard(
-              'In Punch Pending',
-              '$pendingCount/$pendingTotalCount',
-              onTap: () {
-                final pendingList = data?.result ?? [];
+                        Expanded(
+                          child: SizedBox(
+                            height: 100.h,
+                            child: buildInfoCard(
+                              'In Punch Pending',
+                              '$pendingCount/$pendingTotalCount',
+                              onTap: () {
+                                final pendingList = data?.result ?? [];
 
-                _showPendingListDialog(pendingList);
-              },
-            ),
-          ),
-        ),
-      ],
-    );
-  },
-),
+                                _showPendingListDialog(pendingList);
+                              },
+                            ),
+                          ),
+                        ),
+                      ],
+                    );
+                  },
+                ),
 
                 BlocBuilder<HomeBloc, HomeState>(
                   builder: (context, state) {

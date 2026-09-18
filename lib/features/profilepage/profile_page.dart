@@ -1,9 +1,11 @@
 import 'dart:convert';
 
 import 'package:demo/core/theme/app_colors.dart';
+import 'package:demo/core/utility/widgets/custom_appbar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_screenutil_plus/flutter_screenutil_plus.dart';
+import 'package:go_router/go_router.dart';
 
 class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key});
@@ -73,12 +75,12 @@ class _ProfilePageState extends State<ProfilePage> {
         _email = _getValue(userData, [
           'email',
           'email_id',
-          'emailId',
+          'user_email',
           'fld_email',
         ]);
 
         _state = _getValue(userData, [
-          'state',
+          'States',
           'state_name',
           'stateName',
           'fld_state',
@@ -86,7 +88,7 @@ class _ProfilePageState extends State<ProfilePage> {
         ]);
 
         _district = _getValue(userData, [
-          'district',
+          'Districts',
           'district_name',
           'districtName',
           'fld_district',
@@ -94,7 +96,7 @@ class _ProfilePageState extends State<ProfilePage> {
         ]);
 
         _taluka = _getValue(userData, [
-          'taluka',
+          'Taluka',
           'taluka_name',
           'talukaName',
           'fld_taluka',
@@ -155,25 +157,14 @@ class _ProfilePageState extends State<ProfilePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF6F9F7),
-
-      appBar: AppBar(
-        backgroundColor: AppColors.gradientStartColor,
-        elevation: 0,
-        centerTitle: true,
-
-        title: Text(
-          'My Profile',
-          style: TextStyle(
-            color: Colors.white,
-            fontSize: 18.sp,
-            fontWeight: FontWeight.w800,
-          ),
-        ),
-
-        iconTheme: const IconThemeData(color: Colors.white),
+      backgroundColor: AppColors.backgroundColor,
+      appBar: CustomAppBar(
+        title: 'My Profile',
+        showBackButton: true,
+        onBackTap: () {
+          context.pop();
+        },
       ),
-
       body: _isLoading
           ? Center(
               child: CircularProgressIndicator(

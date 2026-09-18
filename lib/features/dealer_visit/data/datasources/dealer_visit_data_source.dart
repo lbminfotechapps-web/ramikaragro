@@ -20,117 +20,158 @@ class DealerVisitDataSource {
     return data;
   }
 
-  Future<Map<String, dynamic>> addRemark(Map<String, dynamic> jsonData) async {
-    try {
-      final formData = FormData();
+Future<Map<String, dynamic>> addRemark(
+  Map<String, dynamic> jsonData,
+) async {
+  try {
+    final formData = FormData();
 
-      // ============================================
-      // NORMAL FORM FIELDS
-      // ============================================
-      for (final entry in jsonData.entries) {
-        final value = entry.value;
+    // ============================================
+    // NORMAL FORM FIELDS
+    // ============================================
+    for (final entry in jsonData.entries) {
+      final value = entry.value;
 
-        if (value is File) {
-          continue;
-        }
-
-        formData.fields.add(MapEntry(entry.key, value?.toString() ?? ''));
+      if (value is File) {
+        continue;
       }
 
-      final closingFile = jsonData['selfie_capture_image'];
-
-      if (closingFile is File) {
-        final multipartFile = await MultipartFile.fromFile(
-          closingFile.path,
-          filename: 'closingKmImage.jpg',
-        );
-
-        formData.files.add(MapEntry('closingKmImage', multipartFile));
-      }
-
-      // ============================================
-      // DEBUG REQUEST
-      // ============================================
-      print('========== MULTIPART REQUEST ==========');
-
-      for (final field in formData.fields) {
-        print('${field.key}: ${field.value}');
-      }
-
-      for (final file in formData.files) {
-        print(
-          '${file.key}: '
-          '${file.value.filename}',
-        );
-      }
-
-      print('========================================');
-
-      // ============================================
-      // API CALL
-      // ============================================
-      final response = await dioClient.client.post(
-        ApiClient.add_remark,
-        data: formData,
-        options: Options(contentType: 'multipart/form-data'),
+      formData.fields.add(
+        MapEntry(
+          entry.key,
+          value?.toString() ?? '',
+        ),
       );
-
-      print(
-        'Add Followup HTTP code: '
-        '${response.statusCode}',
-      );
-
-      print(
-        'Add Followup response: '
-        '${response.data}',
-      );
-
-      dynamic data = response.data;
-
-      if (data is String) {
-        try {
-          data = jsonDecode(data);
-        } catch (e) {
-          throw const FormatException(
-            'Invalid JSON response from save punch API',
-          );
-        }
-      }
-
-      if (data is! Map) {
-        throw const FormatException(
-          'Save punch API response is not a JSON object',
-        );
-      }
-
-      final result = Map<String, dynamic>.from(data);
-
-      if (result['status'] != true) {
-        throw FormatException(
-          result['message']?.toString() ?? 'Failed to save punch details',
-        );
-      }
-
-      return result;
-    } on DioException catch (e) {
-      print('========== DIO ERROR ==========');
-      print('URL: ${e.requestOptions.uri}');
-      print('Method: ${e.requestOptions.method}');
-      print('Status: ${e.response?.statusCode}');
-      print('Response: ${e.response?.data}');
-      print('Error Type: ${e.type}');
-      print('Message: ${e.message}');
-      print('================================');
-
-      throw Exception(
-        'API Error ${e.response?.statusCode}: '
-        '${e.response?.data ?? e.message}',
-      );
-    } catch (e) {
-      print('Save punch unexpected error: $e');
-      rethrow;
     }
+
+    // ============================================
+    // IMAGE
+    // ============================================
+    final closingFile = jsonData['selfie_capture_image'];
+
+    if (closingFile is File) {
+      final multipartFile = await MultipartFile.fromFile(
+        closingFile.path,
+        filename: 'closingKmImage.jpg',
+      );
+
+      formData.files.add(
+        MapEntry(
+          'closingKmImage',
+          multipartFile,
+        ),
+      );
+    }
+
+    // ============================================
+    // DEBUG REQUEST
+    // ============================================
+    print('========== MULTIPART REQUEST ==========');
+
+    for (final field in formData.fields) {
+      print('${field.key}: ${field.value}');
+    }
+
+    for (final file in formData.files) {
+      print(
+        '${file.key}: ${file.value.filename}',
+      );
+    }
+
+    print('========================================');
+
+    // ============================================
+    // API CALL
+    // ============================================
+    final response = await dioClient.client.post(
+      ApiClient.add_remark,
+      data: formData,
+      options: Options(
+        contentType: 'multipart/form-data',
+      ),
+    );
+
+    print(
+      'Add Followup HTTP code: ${response.statusCode}',
+    );
+
+    print(
+      'Add Followup response: ${response.data}',
+    );
+
+    // ============================================
+    // PARSE RESPONSE
+    // ============================================
+    dynamic data = response.data;
+
+    if (data is String) {
+      try {
+        data = jsonDecode(data);
+      } catch (e) {
+        throw const FormatException(
+          'Invalid JSON response from add remark API',
+        );
+      }
+    }
+
+    if (data is! Map) {
+      throw const FormatException(
+        'Add remark API response is not a JSON object',
+      );
+    }
+
+    final result = Map<String, dynamic>.from(data);
+
+    // ============================================
+    // CHECK API STATUS
+    // ============================================
+    final responseStatus =
+        result['status']?.toString().trim().toLowerCase() ?? '';
+
+    print('FULL API STATUS: "$responseStatus"');
+
+    // Example:
+    // success-48 -> success
+    // success-47 -> success
+    // success-25 -> success
+    // success   -> success
+    final mainStatus = responseStatus.split('-').first.trim();
+
+    print('MAIN API STATUS: "$mainStatus"');
+
+    // ============================================
+    // SUCCESS
+    // ============================================
+    if (mainStatus == 'success') {
+      return result;
+    }
+
+    // ============================================
+    // FAILURE
+    // ============================================
+    throw FormatException(
+      result['message']?.toString() ??
+          'Failed to save dealer remark',
+    );
+  } on DioException catch (e) {
+    print('========== DIO ERROR ==========');
+    print('URL: ${e.requestOptions.uri}');
+    print('Method: ${e.requestOptions.method}');
+    print('Status: ${e.response?.statusCode}');
+    print('Response: ${e.response?.data}');
+    print('Error Type: ${e.type}');
+    print('Message: ${e.message}');
+    print('================================');
+
+    throw Exception(
+      'API Error ${e.response?.statusCode}: '
+      '${e.response?.data ?? e.message}',
+    );
+  } catch (e) {
+    print('Save punch unexpected error: $e');
+    rethrow;
   }
+}
 
   Future<List<PurposeModel>> getPurpose(String userId) async {
     final formData = FormData.fromMap({'userId': userId});

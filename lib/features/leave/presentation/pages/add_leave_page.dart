@@ -33,8 +33,7 @@ class _AddLeavePageState extends State<AddLeavePage> {
   // CONTROLLER
   // ============================================================
 
-  final TextEditingController reasonController =
-      TextEditingController();
+  final TextEditingController reasonController = TextEditingController();
 
   // ============================================================
   // VARIABLES
@@ -109,8 +108,7 @@ class _AddLeavePageState extends State<AddLeavePage> {
 
       // If current To Date is before new From Date,
       // clear To Date.
-      if (toDate != null &&
-          toDate!.isBefore(selected)) {
+      if (toDate != null && toDate!.isBefore(selected)) {
         toDate = null;
       }
 
@@ -120,8 +118,7 @@ class _AddLeavePageState extends State<AddLeavePage> {
 
       // If From and To are same date,
       // synchronize End Day.
-      if (toDate != null &&
-          _isSameDate(fromDate!, toDate!)) {
+      if (toDate != null && _isSameDate(fromDate!, toDate!)) {
         endLeaveType = startLeaveType;
       }
     });
@@ -175,11 +172,9 @@ class _AddLeavePageState extends State<AddLeavePage> {
         //
         endLeaveType = startLeaveType;
       }
-
       // ========================================================
       // MULTIPLE DATE
       // ========================================================
-
       else {
         // For multiple dates, End Day can be selected separately.
         endLeaveType = "Full Day";
@@ -191,10 +186,7 @@ class _AddLeavePageState extends State<AddLeavePage> {
   // SAME DATE CHECK
   // ============================================================
 
-  bool _isSameDate(
-    DateTime first,
-    DateTime second,
-  ) {
+  bool _isSameDate(DateTime first, DateTime second) {
     return first.year == second.year &&
         first.month == second.month &&
         first.day == second.day;
@@ -215,11 +207,7 @@ class _AddLeavePageState extends State<AddLeavePage> {
       fromDate!.day,
     );
 
-    final DateTime to = DateTime(
-      toDate!.year,
-      toDate!.month,
-      toDate!.day,
-    );
+    final DateTime to = DateTime(toDate!.year, toDate!.month, toDate!.day);
 
     return to.difference(from).inDays + 1;
   }
@@ -260,12 +248,10 @@ class _AddLeavePageState extends State<AddLeavePage> {
     double total = days.toDouble();
 
     final bool startIsHalf =
-        startLeaveType == "First Half" ||
-        startLeaveType == "Second Half";
+        startLeaveType == "First Half" || startLeaveType == "Second Half";
 
     final bool endIsHalf =
-        endLeaveType == "First Half" ||
-        endLeaveType == "Second Half";
+        endLeaveType == "First Half" || endLeaveType == "Second Half";
 
     if (startIsHalf) {
       total -= 0.5;
@@ -290,26 +276,11 @@ class _AddLeavePageState extends State<AddLeavePage> {
     return value.toStringAsFixed(1);
   }
 
-  // ============================================================
-  // START LEAVE TYPE
-  // ============================================================
-
   void _onStartLeaveTypeChanged(String? value) {
     if (value == null) return;
 
     setState(() {
       startLeaveType = value;
-
-      // ========================================================
-      // SAME DATE
-      // ========================================================
-      //
-      // Automatically synchronize End Day.
-      //
-      // First Half  -> First Half
-      // Second Half -> Second Half
-      // Full Day    -> Full Day
-      //
 
       if (fromDate != null &&
           toDate != null &&
@@ -318,10 +289,6 @@ class _AddLeavePageState extends State<AddLeavePage> {
       }
     });
   }
-
-  // ============================================================
-  // END LEAVE TYPE
-  // ============================================================
 
   void _onEndLeaveTypeChanged(String? value) {
     if (value == null) return;
@@ -359,9 +326,7 @@ class _AddLeavePageState extends State<AddLeavePage> {
     // ----------------------------------------------------------
 
     if (toDate!.isBefore(fromDate!)) {
-      _showError(
-        "To Date cannot be before From Date",
-      );
+      _showError("To Date cannot be before From Date");
       return;
     }
 
@@ -395,22 +360,9 @@ class _AddLeavePageState extends State<AddLeavePage> {
     // FORMAT DATE
     // ----------------------------------------------------------
 
-    final String formattedFromDate =DateFormat("yyyy-MM-dd").format(fromDate!);
+    final String formattedFromDate = DateFormat("yyyy-MM-dd").format(fromDate!);
 
-    final String formattedToDate =DateFormat("yyyy-MM-dd").format(toDate!);
-
-    // ----------------------------------------------------------
-    // DEBUG
-    // ----------------------------------------------------------
-
-    print("========== APPLY LEAVE ==========");
-    print("From Date       = $formattedFromDate");
-    print("To Date         = $formattedToDate");
-    print("Start Leave     = $startLeaveType");
-    print("End Leave       = $endLeaveType");
-    print("Total Leave     = $totalLeaveDays");
-    print("Reason          = ${reasonController.text.trim()}");
-    print("================================");
+    final String formattedToDate = DateFormat("yyyy-MM-dd").format(toDate!);
 
     // ----------------------------------------------------------
     // BLOC EVENT
@@ -439,23 +391,15 @@ class _AddLeavePageState extends State<AddLeavePage> {
       SnackBar(
         content: Row(
           children: [
-            const Icon(
-              Icons.error_outline,
-              color: Colors.white,
-              size: 20,
-            ),
+            const Icon(Icons.error_outline, color: Colors.white, size: 20),
             const SizedBox(width: 8),
-            Expanded(
-              child: Text(message),
-            ),
+            Expanded(child: Text(message)),
           ],
         ),
         backgroundColor: Colors.red.shade600,
         behavior: SnackBarBehavior.floating,
         margin: const EdgeInsets.all(12),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(10),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
       ),
     );
   }
@@ -474,8 +418,7 @@ class _AddLeavePageState extends State<AddLeavePage> {
           // SUCCESS
           // ======================================================
 
-          if (state.addLeaveStatus ==
-              AddLeaveStatus.success) {
+          if (state.addLeaveStatus == AddLeaveStatus.success) {
             ScaffoldMessenger.of(context).hideCurrentSnackBar();
 
             ScaffoldMessenger.of(context).showSnackBar(
@@ -490,8 +433,7 @@ class _AddLeavePageState extends State<AddLeavePage> {
                     const SizedBox(width: 8),
                     Expanded(
                       child: Text(
-                        state.successMessage ??
-                            "Leave applied successfully",
+                        state.successMessage ?? "Leave applied successfully",
                       ),
                     ),
                   ],
@@ -505,22 +447,18 @@ class _AddLeavePageState extends State<AddLeavePage> {
               ),
             );
 
-            Future.delayed(
-              const Duration(milliseconds: 500),
-              () {
-                if (context.mounted) {
-                  context.pop(true);
-                }
-              },
-            );
+            Future.delayed(const Duration(milliseconds: 500), () {
+              if (context.mounted) {
+                context.pop(true);
+              }
+            });
           }
 
           // ======================================================
           // FAILURE
           // ======================================================
 
-          if (state.addLeaveStatus ==
-              AddLeaveStatus.failure) {
+          if (state.addLeaveStatus == AddLeaveStatus.failure) {
             ScaffoldMessenger.of(context).hideCurrentSnackBar();
 
             ScaffoldMessenger.of(context).showSnackBar(
@@ -535,8 +473,7 @@ class _AddLeavePageState extends State<AddLeavePage> {
                     const SizedBox(width: 8),
                     Expanded(
                       child: Text(
-                        state.errorMessage ??
-                            "Unable to apply leave",
+                        state.errorMessage ?? "Unable to apply leave",
                       ),
                     ),
                   ],
@@ -552,60 +489,44 @@ class _AddLeavePageState extends State<AddLeavePage> {
           }
         },
         builder: (context, state) {
-          final bool isLoading =
-              state.addLeaveStatus ==
-                  AddLeaveStatus.loading;
+          final bool isLoading = state.addLeaveStatus == AddLeaveStatus.loading;
 
           final bool sameDate =
               fromDate != null &&
               toDate != null &&
-              _isSameDate(
-                fromDate!,
-                toDate!,
-              );
+              _isSameDate(fromDate!, toDate!);
 
           return Scaffold(
             backgroundColor: backgroundColor,
 
-    
-
-             appBar: CustomAppBar(
+            appBar: CustomAppBar(
               title: 'Apply Leave',
-            
+
               showBackButton: true,
               onBackTap: () => Navigator.pop(context),
-              
-              actionIcon: 
-              Icons.arrow_back_ios_new,
+
+              actionIcon: Icons.arrow_back_ios_new,
               // onActionIconTap: () {
               //   Navigator.pop(context);
               // },
-             ),
+            ),
+
             // ==================================================
             // BODY
             // ==================================================
-
             body: SafeArea(
               child: Column(
                 children: [
                   Expanded(
                     child: SingleChildScrollView(
-                      physics:
-                          const BouncingScrollPhysics(),
-                      padding: const EdgeInsets.fromLTRB(
-                        14,
-                        12,
-                        14,
-                        12,
-                      ),
+                      physics: const BouncingScrollPhysics(),
+                      padding: const EdgeInsets.fromLTRB(14, 12, 14, 12),
                       child: Column(
-                        crossAxisAlignment:
-                            CrossAxisAlignment.start,
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           // ====================================
                           // DATES
                           // ====================================
-
                           _sectionTitle(
                             Icons.date_range_rounded,
                             "Leave Dates",
@@ -620,11 +541,7 @@ class _AddLeavePageState extends State<AddLeavePage> {
                           // ====================================
                           // LEAVE TYPE
                           // ====================================
-
-                          _sectionTitle(
-                            Icons.timelapse_rounded,
-                            "Leave Type",
-                          ),
+                          _sectionTitle(Icons.timelapse_rounded, "Leave Type"),
 
                           const SizedBox(height: 7),
 
@@ -635,7 +552,6 @@ class _AddLeavePageState extends State<AddLeavePage> {
                           // ====================================
                           // TOTAL DAYS
                           // ====================================
-
                           _buildTotalDaysCard(),
 
                           const SizedBox(height: 13),
@@ -643,8 +559,6 @@ class _AddLeavePageState extends State<AddLeavePage> {
                           // ====================================
                           // REASON
                           // ====================================
-
-
                           _buildReasonField(),
 
                           // Small bottom space
@@ -657,10 +571,7 @@ class _AddLeavePageState extends State<AddLeavePage> {
                   // ==================================================
                   // BOTTOM BUTTONS
                   // ==================================================
-
-                  _buildBottomButtons(
-                    isLoading,
-                  ),
+                  _buildBottomButtons(isLoading),
                 ],
               ),
             ),
@@ -674,17 +585,10 @@ class _AddLeavePageState extends State<AddLeavePage> {
   // SECTION TITLE
   // ============================================================
 
-  Widget _sectionTitle(
-    IconData icon,
-    String title,
-  ) {
+  Widget _sectionTitle(IconData icon, String title) {
     return Row(
       children: [
-        Icon(
-          icon,
-          size: 17,
-          color: primaryGreen,
-        ),
+        Icon(icon, size: 17, color: primaryGreen),
         const SizedBox(width: 6),
         Text(
           title,
@@ -744,10 +648,7 @@ class _AddLeavePageState extends State<AddLeavePage> {
       onTap: onTap,
       borderRadius: BorderRadius.circular(12),
       child: Container(
-        padding: const EdgeInsets.symmetric(
-          horizontal: 10,
-          vertical: 9,
-        ),
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 9),
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(12),
@@ -763,18 +664,13 @@ class _AddLeavePageState extends State<AddLeavePage> {
               height: 32,
               width: 32,
               decoration: BoxDecoration(
-                color: selected
-                    ? lightGreen
-                    : Colors.grey.shade100,
-                borderRadius:
-                    BorderRadius.circular(8),
+                color: selected ? lightGreen : Colors.grey.shade100,
+                borderRadius: BorderRadius.circular(8),
               ),
               child: Icon(
                 icon,
                 size: 16,
-                color: selected
-                    ? primaryGreen
-                    : Colors.grey.shade500,
+                color: selected ? primaryGreen : Colors.grey.shade500,
               ),
             ),
 
@@ -782,8 +678,7 @@ class _AddLeavePageState extends State<AddLeavePage> {
 
             Expanded(
               child: Column(
-                crossAxisAlignment:
-                    CrossAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
                     title,
@@ -800,21 +695,15 @@ class _AddLeavePageState extends State<AddLeavePage> {
                   Text(
                     date == null
                         ? "Select date"
-                        : DateFormat(
-                            "dd MMM yyyy",
-                          ).format(date),
+                        : DateFormat("dd MMM yyyy").format(date),
                     maxLines: 1,
-                    overflow:
-                        TextOverflow.ellipsis,
+                    overflow: TextOverflow.ellipsis,
                     style: TextStyle(
                       fontSize: 12,
-                      fontWeight:
-                          FontWeight.w700,
+                      fontWeight: FontWeight.w700,
                       color: date == null
                           ? Colors.grey.shade400
-                          : const Color(
-                              0xFF202522,
-                            ),
+                          : const Color(0xFF202522),
                     ),
                   ),
                 ],
@@ -832,12 +721,7 @@ class _AddLeavePageState extends State<AddLeavePage> {
 
   Widget _buildLeaveTypeSection() {
     final bool sameDate =
-        fromDate != null &&
-        toDate != null &&
-        _isSameDate(
-          fromDate!,
-          toDate!,
-        );
+        fromDate != null && toDate != null && _isSameDate(fromDate!, toDate!);
 
     return Row(
       children: [
@@ -846,8 +730,7 @@ class _AddLeavePageState extends State<AddLeavePage> {
             label: "START DAY",
             value: startLeaveType,
             enabled: true,
-            onChanged:
-                _onStartLeaveTypeChanged,
+            onChanged: _onStartLeaveTypeChanged,
           ),
         ),
 
@@ -859,8 +742,7 @@ class _AddLeavePageState extends State<AddLeavePage> {
             value: endLeaveType,
             // Disable End Day for same date.
             enabled: !sameDate,
-            onChanged:
-                _onEndLeaveTypeChanged,
+            onChanged: _onEndLeaveTypeChanged,
           ),
         ),
       ],
@@ -879,24 +761,14 @@ class _AddLeavePageState extends State<AddLeavePage> {
   }) {
     return Container(
       height: 62,
-      padding: const EdgeInsets.fromLTRB(
-        11,
-        6,
-        6,
-        2,
-      ),
+      padding: const EdgeInsets.fromLTRB(11, 6, 6, 2),
       decoration: BoxDecoration(
-        color: enabled
-            ? Colors.white
-            : Colors.grey.shade100,
+        color: enabled ? Colors.white : Colors.grey.shade100,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(
-          color: Colors.grey.shade200,
-        ),
+        border: Border.all(color: Colors.grey.shade200),
       ),
       child: Column(
-        crossAxisAlignment:
-            CrossAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
             label,
@@ -917,9 +789,7 @@ class _AddLeavePageState extends State<AddLeavePage> {
                 icon: Icon(
                   Icons.keyboard_arrow_down_rounded,
                   size: 18,
-                  color: enabled
-                      ? primaryGreen
-                      : Colors.grey.shade400,
+                  color: enabled ? primaryGreen : Colors.grey.shade400,
                 ),
                 style: TextStyle(
                   fontSize: 12,
@@ -928,13 +798,9 @@ class _AddLeavePageState extends State<AddLeavePage> {
                       ? const Color(0xFF202522)
                       : Colors.grey.shade400,
                 ),
-                onChanged:
-                    enabled ? onChanged : null,
+                onChanged: enabled ? onChanged : null,
                 items: const [
-                  DropdownMenuItem(
-                    value: "Full Day",
-                    child: Text("Full Day"),
-                  ),
+                  DropdownMenuItem(value: "Full Day", child: Text("Full Day")),
                   DropdownMenuItem(
                     value: "First Half",
                     child: Text("First Half"),
@@ -957,22 +823,15 @@ class _AddLeavePageState extends State<AddLeavePage> {
   // ============================================================
 
   Widget _buildTotalDaysCard() {
-    final bool hasDates =
-        fromDate != null &&
-        toDate != null;
+    final bool hasDates = fromDate != null && toDate != null;
 
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.symmetric(
-        horizontal: 13,
-        vertical: 10,
-      ),
+      padding: const EdgeInsets.symmetric(horizontal: 13, vertical: 10),
       decoration: BoxDecoration(
         color: lightGreen,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(
-          color: primaryGreen.withOpacity(0.12),
-        ),
+        border: Border.all(color: primaryGreen.withOpacity(0.12)),
       ),
       child: Row(
         children: [
@@ -981,8 +840,7 @@ class _AddLeavePageState extends State<AddLeavePage> {
             width: 36,
             decoration: BoxDecoration(
               color: primaryGreen,
-              borderRadius:
-                  BorderRadius.circular(9),
+              borderRadius: BorderRadius.circular(9),
             ),
             child: const Icon(
               Icons.calendar_month_rounded,
@@ -995,8 +853,7 @@ class _AddLeavePageState extends State<AddLeavePage> {
 
           const Expanded(
             child: Column(
-              crossAxisAlignment:
-                  CrossAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
                   "TOTAL LEAVE DAYS",
@@ -1010,21 +867,14 @@ class _AddLeavePageState extends State<AddLeavePage> {
                 SizedBox(height: 2),
                 Text(
                   "Calculated automatically",
-                  style: TextStyle(
-                    fontSize: 10,
-                    color: Colors.black54,
-                  ),
+                  style: TextStyle(fontSize: 10, color: Colors.black54),
                 ),
               ],
             ),
           ),
 
           Text(
-            hasDates
-                ? _formatLeaveDays(
-                    totalLeaveDays,
-                  )
-                : "0",
+            hasDates ? _formatLeaveDays(totalLeaveDays) : "0",
             style: const TextStyle(
               fontSize: 21,
               fontWeight: FontWeight.w800,
@@ -1093,34 +943,24 @@ class _AddLeavePageState extends State<AddLeavePage> {
   //   );
   // }
 
-
-
-Widget _buildReasonField() {
-  return CustomTextFormField(
-    controller: reasonController,
-    hintText: 'Enter reason for leave...',
-    labelText: 'Reason for Leave',
-    prefixIcon: Icons.edit_note_rounded,
-    maxLines: 3,
-    keyboardType: TextInputType.multiline,
-  );
-}
-
+  Widget _buildReasonField() {
+    return CustomTextFormField(
+      controller: reasonController,
+      hintText: 'Enter reason for leave...',
+      labelText: 'Reason for Leave',
+      prefixIcon: Icons.edit_note_rounded,
+      maxLines: 3,
+      keyboardType: TextInputType.multiline,
+    );
+  }
 
   // ============================================================
   // BOTTOM BUTTONS
   // ============================================================
 
-  Widget _buildBottomButtons(
-    bool isLoading,
-  ) {
+  Widget _buildBottomButtons(bool isLoading) {
     return Container(
-      padding: const EdgeInsets.fromLTRB(
-        14,
-        8,
-        14,
-        9,
-      ),
+      padding: const EdgeInsets.fromLTRB(14, 8, 14, 9),
       decoration: BoxDecoration(
         color: Colors.white,
         boxShadow: [
@@ -1138,34 +978,21 @@ Widget _buildReasonField() {
             // ==================================================
             // CANCEL
             // ==================================================
-
             Expanded(
               child: SizedBox(
                 height: 42,
                 child: OutlinedButton(
-                  onPressed: isLoading
-                      ? null
-                      : () => context.pop(),
-                  style:
-                      OutlinedButton.styleFrom(
-                    foregroundColor:
-                        Colors.grey.shade700,
-                    side: BorderSide(
-                      color: Colors.grey.shade300,
-                    ),
-                    shape:
-                        RoundedRectangleBorder(
-                      borderRadius:
-                          BorderRadius.circular(10),
+                  onPressed: isLoading ? null : () => context.pop(),
+                  style: OutlinedButton.styleFrom(
+                    foregroundColor: Colors.grey.shade700,
+                    side: BorderSide(color: Colors.grey.shade300),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
                     ),
                   ),
                   child: const Text(
                     "Cancel",
-                    style: TextStyle(
-                      fontSize: 13,
-                      fontWeight:
-                          FontWeight.w600,
-                    ),
+                    style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
                   ),
                 ),
               ),
@@ -1176,52 +1003,39 @@ Widget _buildReasonField() {
             // ==================================================
             // SUBMIT
             // ==================================================
-
             Expanded(
               flex: 2,
               child: SizedBox(
                 height: 42,
                 child: ElevatedButton(
-                  onPressed:
-                      isLoading ? null : _submit,
-                  style:
-                      ElevatedButton.styleFrom(
-                    backgroundColor:
-                        primaryGreen,
-                    foregroundColor:
-                        Colors.white,
+                  onPressed: isLoading ? null : _submit,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: primaryGreen,
+                    foregroundColor: Colors.white,
                     elevation: 0,
-                    shape:
-                        RoundedRectangleBorder(
-                      borderRadius:
-                          BorderRadius.circular(10),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
                     ),
                   ),
                   child: isLoading
                       ? const SizedBox(
                           height: 18,
                           width: 18,
-                          child:
-                              CircularProgressIndicator(
+                          child: CircularProgressIndicator(
                             strokeWidth: 2,
                             color: Colors.white,
                           ),
                         )
                       : const Row(
-                          mainAxisAlignment:
-                              MainAxisAlignment.center,
+                          mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            Icon(
-                              Icons.send_rounded,
-                              size: 16,
-                            ),
+                            Icon(Icons.send_rounded, size: 16),
                             SizedBox(width: 6),
                             Text(
                               "Submit Leave",
                               style: TextStyle(
                                 fontSize: 13,
-                                fontWeight:
-                                    FontWeight.w700,
+                                fontWeight: FontWeight.w700,
                               ),
                             ),
                           ],
