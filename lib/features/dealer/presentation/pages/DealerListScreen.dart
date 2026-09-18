@@ -14,14 +14,9 @@ import 'package:demo/features/dealer/presentation/bloc/dealerlist_state.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:http/http.dart' as http;
 import 'package:url_launcher/url_launcher.dart';
-
-import '../../data/models/DealerListModel.dart';
-import '../bloc/dealerlist_bloc.dart';
 
 class DealerListScreen extends StatefulWidget {
   const DealerListScreen({super.key});
@@ -32,17 +27,17 @@ class DealerListScreen extends StatefulWidget {
 
 class _DealerListScreenState extends State<DealerListScreen> {
   final TextEditingController _searchController = TextEditingController();
-
+  bool _isInitialLoading = true;
   Timer? _searchDebounce;
 
   String _searchText = '';
-
+  bool _isLoadingMore = false;
+  bool _hasMore = true;
   @override
   void initState() {
     super.initState();
 
-    // Initial API call
-    _loadDealers();
+    _loadDealers(searchKey: '', startLimit: 0, isLoadMore: false);
 
     // Listen for search changes
     _searchController.addListener(_onSearchChanged);
@@ -72,61 +67,110 @@ class _DealerListScreenState extends State<DealerListScreen> {
 
     // Wait 500 ms before calling API
     _searchDebounce = Timer(const Duration(milliseconds: 500), () {
-      _loadDealers(searchText: searchText);
+      _loadDealers(searchKey: searchText);
     });
   }
 
-  // =========================================================
-  // LOAD DEALERS
-  // =========================================================
+  void _loadDealers({
+    String searchKey = '',
+    int startLimit = 0,
+    bool isLoadMore = false,
+  }) async {
+    // Prevent duplicate load-more calls
+    if (isLoadMore && (_isLoadingMore || !_hasMore)) {
+      return;
+    }
 
-  // void _loadDealers({String? searchText}) {
-  //   final search = searchText ?? _searchController.text.trim();
-
-  //   context.read<DealerListBloc>().add(
-  //     DealerListEvent(
-  //       user_id: '4',
-  //       latitude: '19.9675697',
-  //       longitude: '73.7774614',
-  //       searchText: search,
-  //       type: 'Dealer',
-  //     ),
-  //   );
-  // }
-
-  void _loadDealers({String? searchText}) async {
-    final search = searchText ?? _searchController.text.trim();
+    // Get user ID
     final userData = await SecureStorage.instance.getUserData();
+
     final int? userId = int.tryParse(userData?['user_id']?.toString() ?? '');
+
     if (userId == null) {
       debugPrint('ERROR: Invalid user_id: ${userData?['user_id']}');
       return;
     }
 
+    // Handle pagination
+    if (isLoadMore) {
+      setState(() {
+        _isLoadingMore = true;
+      });
+    } else {
+      // _startLimit = startLimit;
+      _hasMore = true;
+    }
+
+    debugPrint('================================');
+    debugPrint('LOAD DEALERS');
+    debugPrint('================================');
+    debugPrint('User ID: $userId');
+    debugPrint('Search: $searchKey');
+    debugPrint('Start Limit: $startLimit');
+    debugPrint('Load More: $isLoadMore');
+    debugPrint('================================');
+
+    // Get current location
     String latitude = '';
     String longitude = '';
-    // String address = '';
+
     final position = await LocationUtil.instance.getCurrentLocation();
+
     if (position != null) {
       latitude = position.latitude.toString();
       longitude = position.longitude.toString();
-
-      // address = await LocationUtil.instance.getAddress(
-      //   position.latitude,
-      //   position.longitude,
-      // );
     }
 
+    debugPrint('Latitude: $latitude');
+    debugPrint('Longitude: $longitude');
+
+    if (!mounted) return;
+
+    // Call dealer API
     context.read<DealerListBloc>().add(
       DealerListEvent(
         user_id: userId.toString(),
         latitude: latitude,
         longitude: longitude,
-        searchText: search,
+        searchText: searchKey,
         type: 'Dealer',
       ),
     );
   }
+
+  // void _loadDealers({String? searchText}) async {
+  //   final search = searchText ?? _searchController.text.trim();
+  //   final userData = await SecureStorage.instance.getUserData();
+  //   final int? userId = int.tryParse(userData?['user_id']?.toString() ?? '');
+  //   if (userId == null) {
+  //     debugPrint('ERROR: Invalid user_id: ${userData?['user_id']}');
+  //     return;
+  //   }
+
+  //   String latitude = '';
+  //   String longitude = '';
+  //   // String address = '';
+  //   final position = await LocationUtil.instance.getCurrentLocation();
+  //   if (position != null) {
+  //     latitude = position.latitude.toString();
+  //     longitude = position.longitude.toString();
+
+  //     // address = await LocationUtil.instance.getAddress(
+  //     //   position.latitude,
+  //     //   position.longitude,
+  //     // );
+  //   }
+
+  //   context.read<DealerListBloc>().add(
+  //     DealerListEvent(
+  //       user_id: userId.toString(),
+  //       latitude: latitude,
+  //       longitude: longitude,
+  //       searchText: search,
+  //       type: 'Dealer',
+  //     ),
+  //   );
+  // }
 
   // =========================================================
   // BUILD
@@ -137,9 +181,6 @@ class _DealerListScreenState extends State<DealerListScreen> {
     return Scaffold(
       backgroundColor: const Color(0xFFF8FAF8),
 
-      // =====================================================
-      // APP BAR
-      // =====================================================
       appBar: CustomAppBar(
         leading: Container(
           width: 45,
@@ -167,108 +208,65 @@ class _DealerListScreenState extends State<DealerListScreen> {
         },
       ),
 
-      // AppBar(
-      //   backgroundColor: Colors.white,
-      //   elevation: 0,
-      //   centerTitle: false,
-      //   title: const Text(
-      //     'Dealer List',
-      //     style: TextStyle(
-      //       fontSize: 20,
-      //       fontWeight: FontWeight.w600,
-      //       color: Colors.black87,
-      //     ),
-      //   ),
-      // ),
-
-      // =====================================================
-      // BODY
-      // =====================================================
-      body: BlocBuilder<DealerListBloc, DealerListState>(
-        builder: (context, state) {
-          // -------------------------------------------------
-          // LOADING
-          // -------------------------------------------------
-
-          if (state.status == DealerListStatus.loading) {
-            return Column(
-              children: [
-                _buildSearchBar(),
-                const Expanded(child: Center(child: CustomLoader())),
-              ],
-            );
+      body: BlocConsumer<DealerListBloc, DealerListState>(
+        listener: (context, state) {
+          if (state.status == DealerListStatus.success ||
+              state.status == DealerListStatus.failure) {
+            if (mounted) {
+              setState(() {
+                _isInitialLoading = false;
+                _isLoadingMore = false;
+              });
+            }
           }
-
-          // -------------------------------------------------
-          // FAILURE
-          // -------------------------------------------------
+        },
+        builder: (context, state) {
+          if (_isInitialLoading || state.status == DealerListStatus.loading) {
+            return const CustomLoader();
+          }
 
           if (state.status == DealerListStatus.failure) {
-            return Column(
-              children: [
-                _buildSearchBar(),
-
-                Expanded(
-                  child: Center(
-                    child: Padding(
-                      padding: const EdgeInsets.all(24),
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          const Icon(
-                            Icons.error_outline,
-                            size: 50,
-                            color: Colors.redAccent,
-                          ),
-
-                          const SizedBox(height: 12),
-
-                          Text(
-                            state.errorMessage ?? 'Something went wrong',
-                            textAlign: TextAlign.center,
-                            style: const TextStyle(
-                              fontSize: 15,
-                              color: Colors.black87,
-                            ),
-                          ),
-
-                          const SizedBox(height: 16),
-
-                          ElevatedButton(
-                            onPressed: () {
-                              _loadDealers();
-                            },
-                            child: const Text('Retry'),
-                          ),
-                        ],
-                      ),
+            return Center(
+              child: Padding(
+                padding: const EdgeInsets.all(24),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(
+                      Icons.error_outline,
+                      size: 50,
+                      color: Colors.red.shade400,
                     ),
-                  ),
+                    const SizedBox(height: 12),
+                    Text(
+                      state.errorMessage ?? 'Something went wrong',
+                      textAlign: TextAlign.center,
+                      style: const TextStyle(fontSize: 14),
+                    ),
+                    const SizedBox(height: 16),
+                    ElevatedButton(
+                      onPressed: () {
+                        _loadDealers(searchKey: _searchController.text.trim());
+                        // _loadFarmers(searchKey: _searchController.text.trim());
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppColors.primary,
+                        foregroundColor: Colors.white,
+                      ),
+                      child: const Text('Retry'),
+                    ),
+                  ],
                 ),
-              ],
+              ),
             );
           }
-
-          // -------------------------------------------------
-          // API RESPONSE
-          // -------------------------------------------------
 
           final dealers = state.dealerList;
 
-          // -------------------------------------------------
-          // MAIN CONTENT
-          // -------------------------------------------------
-
           return Column(
             children: [
-              // =================================================
-              // SEARCH BAR
-              // =================================================
               _buildSearchBar(),
 
-              // =================================================
-              // DEALER COUNT
-              // =================================================
               if (dealers.isNotEmpty)
                 Padding(
                   padding: const EdgeInsets.fromLTRB(16, 3, 16, 4),
@@ -286,9 +284,6 @@ class _DealerListScreenState extends State<DealerListScreen> {
                   ),
                 ),
 
-              // =================================================
-              // LIST
-              // =================================================
               Expanded(
                 child: dealers.isEmpty
                     ? _buildEmptyView()
@@ -313,9 +308,6 @@ class _DealerListScreenState extends State<DealerListScreen> {
         },
       ),
 
-      // =====================================================
-      // FLOATING BUTTON
-      // =====================================================
       floatingActionButton: FloatingActionButton(
         backgroundColor: AppColors.accentGreen,
         foregroundColor: Colors.white,
@@ -325,19 +317,8 @@ class _DealerListScreenState extends State<DealerListScreen> {
         },
         child: const Icon(Icons.person_add_alt_1),
       ),
-      // floatingActionButton: FloatingActionButton(
-      //   backgroundColor: const Color(0xFF087A2F),
-      //   onPressed: () {
-      //     _loadDealers();
-      //   },
-      //   child: const Icon(Icons.refresh, color: Colors.white),
-      // ),
     );
   }
-
-  // =========================================================
-  // SEARCH BAR
-  // =========================================================
 
   Widget _buildSearchBar() {
     return Padding(
@@ -386,18 +367,10 @@ class _DealerListScreenState extends State<DealerListScreen> {
           ),
 
           const SizedBox(width: 8),
-
-          // =================================================
-          // FILTER BUTTON
-          // =================================================
         ],
       ),
     );
   }
-
-  // =========================================================
-  // EMPTY VIEW
-  // =========================================================
 
   Widget _buildEmptyView() {
     return Center(
@@ -434,10 +407,6 @@ class _DealerListScreenState extends State<DealerListScreen> {
   }
 }
 
-// =================================================================
-// DEALER CARD
-// =================================================================
-
 class _DealerListItem extends StatelessWidget {
   final DealerListModel dealer;
 
@@ -460,17 +429,11 @@ class _DealerListItem extends StatelessWidget {
       ),
       child: Column(
         children: [
-          // ===================================================
-          // TOP DEALER INFORMATION
-          // ===================================================
           Padding(
             padding: const EdgeInsets.fromLTRB(12, 12, 8, 8),
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // =================================================
-                // DEALER INITIAL
-                // =================================================
                 Container(
                   height: 50,
                   width: 50,
@@ -495,9 +458,6 @@ class _DealerListItem extends StatelessWidget {
 
                 const SizedBox(width: 10),
 
-                // =================================================
-                // NAME + MOBILE + ADDRESS
-                // =================================================
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -588,34 +548,10 @@ class _DealerListItem extends StatelessWidget {
                     ],
                   ),
                 ),
-
-                // =================================================
-                // MORE BUTTON
-                // =================================================
-
-                // IconButton(
-                //   padding: EdgeInsets.zero,
-                //   constraints:
-                //       const BoxConstraints(),
-                //   onPressed: () {
-                //     // _showDealerMenu(
-                //     //   context,
-                //     //   dealer,
-                //     // );
-                //   },
-                //   icon: const Icon(
-                //     Icons.more_vert,
-                //     size: 20,
-                //     color: Colors.grey,
-                //   ),
-                // ),
               ],
             ),
           ),
 
-          // ===================================================
-          // LAST CALL / LAST VISIT
-          // ===================================================
           Container(
             margin: const EdgeInsets.symmetric(horizontal: 8),
             padding: const EdgeInsets.symmetric(vertical: 9, horizontal: 8),
@@ -654,9 +590,6 @@ class _DealerListItem extends StatelessWidget {
 
           const SizedBox(height: 8),
 
-          // ===================================================
-          // BOTTOM ACTION BAR
-          // ===================================================
           Padding(
             padding: const EdgeInsets.fromLTRB(8, 0, 8, 9),
             child: Row(
@@ -708,26 +641,6 @@ class _DealerListItem extends StatelessWidget {
 
                 const SizedBox(width: 6),
 
-                // InkWell(
-                //   onTap: () {
-                //     context.push('/dealrFollowUpAdd', extra: dealer);
-                //   },
-                //   borderRadius: BorderRadius.circular(20),
-                //   child: Container(
-                //     width: 36,
-                //     height: 36,
-                //     decoration: const BoxDecoration(
-                //       color: Colors.white,
-                //       shape: BoxShape.circle,
-                //     ),
-                //     child: Icon(
-                //       Icons.edit_outlined,
-                //       color: AppColors.accentGreen,
-                //       size: 18,
-                //     ),
-                //   ),
-                // ),
-                // INFO
                 _CircleActionButton(
                   icon: Icons.edit_outlined,
                   onTap: () {
@@ -743,10 +656,6 @@ class _DealerListItem extends StatelessWidget {
     );
   }
 
-  // ===========================================================
-  // DISPLAY DATE
-  // ===========================================================
-
   String _displayDate(String? dateTime) {
     if (dateTime == null ||
         dateTime.trim().isEmpty ||
@@ -756,10 +665,6 @@ class _DealerListItem extends StatelessWidget {
 
     return dateTime;
   }
-
-  // ===========================================================
-  // CALL DEALER
-  // ===========================================================
 
   void _callDealer(DealerListModel dealer) {
     final mobile = dealer.outletPersonMobile ?? dealer.outletMobile ?? '';
@@ -774,141 +679,68 @@ class _DealerListItem extends StatelessWidget {
     // Add url_launcher here if required.
   }
 
-  // ===========================================================
-  // MENU
-  // ===========================================================
-
-  // void _showDealerMenu(
-  //   BuildContext context,
-  //   DealerListModel dealer,
-  // ) {
+  // void _showDealerDetails(BuildContext context, DealerListModel dealer) {
   //   showModalBottomSheet(
   //     context: context,
+  //     isScrollControlled: true,
   //     shape: const RoundedRectangleBorder(
-  //       borderRadius: BorderRadius.vertical(
-  //         top: Radius.circular(20),
-  //       ),
+  //       borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
   //     ),
   //     builder: (context) {
   //       return SafeArea(
-  //         child: Column(
-  //           mainAxisSize: MainAxisSize.min,
-  //           children: [
-  //             ListTile(
-  //               leading: const Icon(
-  //                 Icons.info_outline,
+  //         child: Padding(
+  //           padding: const EdgeInsets.all(20),
+  //           child: Column(
+  //             mainAxisSize: MainAxisSize.min,
+  //             crossAxisAlignment: CrossAxisAlignment.start,
+  //             children: [
+  //               Center(
+  //                 child: Container(
+  //                   height: 4,
+  //                   width: 40,
+  //                   decoration: BoxDecoration(
+  //                     color: Colors.grey.shade300,
+  //                     borderRadius: BorderRadius.circular(10),
+  //                   ),
+  //                 ),
   //               ),
-  //               title: const Text(
-  //                 'Dealer Details',
-  //               ),
-  //               onTap: () {
-  //                 Navigator.pop(context);
 
-  //                 _showDealerDetails(
-  //                   context,
-  //                   dealer,
-  //                 );
-  //               },
-  //             ),
+  //               const SizedBox(height: 20),
 
-  //             ListTile(
-  //               leading: const Icon(
-  //                 Icons.location_on_outlined,
+  //               Text(
+  //                 dealer.outletName,
+  //                 style: const TextStyle(
+  //                   fontSize: 20,
+  //                   fontWeight: FontWeight.bold,
+  //                 ),
   //               ),
-  //               title: const Text(
-  //                 'View Location',
-  //               ),
-  //               onTap: () {
-  //                 Navigator.pop(context);
-  //               },
-  //             ),
 
-  //             ListTile(
-  //               leading: const Icon(
-  //                 Icons.phone_outlined,
-  //               ),
-  //               title: const Text(
-  //                 'Call Dealer',
-  //               ),
-  //               onTap: () {
-  //                 Navigator.pop(context);
+  //               const SizedBox(height: 15),
 
-  //                 _callDealer(dealer);
-  //               },
-  //             ),
-  //           ],
+  //               _DetailRow(label: 'Person', value: dealer.outletPerson),
+
+  //               _DetailRow(
+  //                 label: 'Mobile',
+  //                 value: dealer.outletPersonMobile ?? '--',
+  //               ),
+
+  //               _DetailRow(label: 'Address', value: dealer.outletAddress),
+
+  //               _DetailRow(label: 'Type', value: dealer.outletType ?? '--'),
+
+  //               _DetailRow(
+  //                 label: 'Distance',
+  //                 value: dealer.outletDistance ?? '--',
+  //               ),
+
+  //               const SizedBox(height: 15),
+  //             ],
+  //           ),
   //         ),
   //       );
   //     },
   //   );
   // }
-
-  // ===========================================================
-  // DEALER DETAILS
-  // ===========================================================
-
-  void _showDealerDetails(BuildContext context, DealerListModel dealer) {
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-      ),
-      builder: (context) {
-        return SafeArea(
-          child: Padding(
-            padding: const EdgeInsets.all(20),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Center(
-                  child: Container(
-                    height: 4,
-                    width: 40,
-                    decoration: BoxDecoration(
-                      color: Colors.grey.shade300,
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                  ),
-                ),
-
-                const SizedBox(height: 20),
-
-                Text(
-                  dealer.outletName,
-                  style: const TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-
-                const SizedBox(height: 15),
-
-                _DetailRow(label: 'Person', value: dealer.outletPerson),
-
-                _DetailRow(
-                  label: 'Mobile',
-                  value: dealer.outletPersonMobile ?? '--',
-                ),
-
-                _DetailRow(label: 'Address', value: dealer.outletAddress),
-
-                _DetailRow(label: 'Type', value: dealer.outletType ?? '--'),
-
-                _DetailRow(
-                  label: 'Distance',
-                  value: dealer.outletDistance ?? '--',
-                ),
-
-                const SizedBox(height: 15),
-              ],
-            ),
-          ),
-        );
-      },
-    );
-  }
 }
 
 // =================================================================
@@ -979,10 +811,6 @@ class _ActivityInfo extends StatelessWidget {
     );
   }
 }
-
-// =================================================================
-// CIRCLE ACTION BUTTON
-// =================================================================
 
 class _CircleActionButton extends StatelessWidget {
   final IconData icon;

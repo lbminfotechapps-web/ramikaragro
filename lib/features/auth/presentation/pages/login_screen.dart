@@ -1,4 +1,5 @@
 import 'package:demo/core/theme/app_colors.dart';
+import 'package:demo/core/utility/app_toast.dart';
 import 'package:demo/core/utility/widgets/custom_button.dart';
 import 'package:demo/core/utility/widgets/custom_loader.dart';
 import 'package:demo/core/utility/widgets/custom_textformfield.dart';
@@ -43,17 +44,13 @@ class _LoginScreenState extends State<LoginScreen> {
       body: BlocConsumer<AuthBloc, AuthState>(
         listener: (context, state) {
           if (state.loginStatus == LoginStatus.success) {
-            // ScaffoldMessenger.of(
-            //   context,
-            // ).showSnackBar(const SnackBar(content: Text('Login successful')));
+            AppToast.success('Login SuccessFul');
 
             context.go('/home');
           }
 
           if (state.loginStatus == LoginStatus.failure) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text(state.errorMessage ?? 'Login failed')),
-            );
+            AppToast.success(state.errorMessage ?? 'Login failed');
           }
         },
 
@@ -228,6 +225,10 @@ class _LoginScreenState extends State<LoginScreen> {
 
         return null;
       },
+      onChanged: (value) {
+        // Validate immediately while typing
+        _formKey.currentState?.validate();
+      },
     );
   }
 
@@ -283,6 +284,11 @@ class _LoginScreenState extends State<LoginScreen> {
         }
 
         return null;
+      },
+
+      onChanged: (value) {
+        // Validate immediately while typing
+        _formKey.currentState?.validate();
       },
     );
   }

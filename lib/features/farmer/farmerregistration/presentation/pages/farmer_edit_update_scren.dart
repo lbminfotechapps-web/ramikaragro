@@ -702,80 +702,6 @@ class _FarmerEditUpdateScrenState extends State<FarmerEditUpdateScren> {
       ).showSnackBar(const SnackBar(content: Text('Please select taluka')));
       return;
     }
-    debugPrint('================================');
-    debugPrint('FARMER REGISTRATION - ALL PARAMS');
-    debugPrint('================================');
-    debugPrint('FARMER ID - ${widget.farmerDetails!.farmerId.toString()}');
-    debugPrint('FARMER LATTTT - $latitude');
-    debugPrint('FARMER LONG - $longitude');
-    debugPrint('================================');
-
-    // Basic farmer details
-    debugPrint('fld_farmer_name: ${farmerNameController.text.trim()}');
-    debugPrint('fld_address: ${addressController.text.trim()}');
-
-    debugPrint('fld_category_id: ');
-    debugPrint('state: ${_selectedStateId ?? '0'}');
-    debugPrint('fld_demo_type_id: ');
-    debugPrint('district: ${_selectedDistrictId ?? '0'}');
-    debugPrint('taluka: ${_selectedTalukaId ?? '0'}');
-
-    // Farmer status
-    debugPrint('status_of_farmer: ${_selectedFarmerStatus ?? ''}');
-    debugPrint('campaign_radio: Yes');
-
-    // Mobile / contact
-    debugPrint('fld_mobile_no: ${mobileController.text.trim()}');
-    debugPrint('fld_mobile_no2: ${alternateMobileController.text.trim()}');
-    debugPrint('fld_email_id: ${emailController.text.trim()}');
-    debugPrint('contactPersonName: ${contactPersonController.text.trim()}');
-
-    // Address
-    debugPrint('fld_village: ${villageController.text.trim()}');
-    debugPrint('geoAddress: $address');
-    debugPrint('meetingLocation: ');
-    debugPrint('marketNearby: ');
-
-    // Other farmer details
-    debugPrint('fld_tractor_mode: ');
-    debugPrint(
-      'fld_total_acre: ${_selectedCropDetails.fold<double>(0.0, (sum, item) => sum + (double.tryParse(item.acre) ?? 0)).toStringAsFixed(2)}',
-    );
-
-    debugPrint('aadhaarNo: ');
-    debugPrint('remark: ${remarkController.text.trim()}');
-    debugPrint(
-      'currentProductUsed: '
-      '${currentProductUsedController.text.trim()}',
-    );
-
-    // Products / crops
-    debugPrint('selectedProductId: ${_selectedProductIds.join(',')}');
-    debugPrint('selectedProductId LIST: $_selectedProductIds');
-
-    debugPrint(
-      'selectedCropId: ${_selectedCropDetails.map((crop) => crop.cropId.toString()).join(',')}',
-    );
-
-    debugPrint(
-      'selectedCropId LIST: ${_selectedCropDetails.map((crop) => crop.cropId.toString()).toList()}',
-    );
-
-    debugPrint('selectedAcers: $selectedAcers');
-
-    debugPrint('selectedSowingDates: $selectedSowingDates');
-
-    debugPrint('selectedIrrigationId: $selectedIrrigationId');
-
-    debugPrint('selectedCattleId: ');
-    debugPrint('selectedCattleCount: ');
-
-    // Crop details
-    debugPrint('--------------------------------');
-    debugPrint('SELECTED CROP DETAILS');
-    debugPrint('--------------------------------');
-
-    debugPrint('Selected Crop Details Count: ${_selectedCropDetails.length}');
 
     for (final crop in _selectedCropDetails) {
       debugPrint(
@@ -788,39 +714,6 @@ class _FarmerEditUpdateScrenState extends State<FarmerEditUpdateScren> {
         'Irrigation: ${crop.irrigationName}',
       );
     }
-
-    // Location
-    debugPrint('--------------------------------');
-    debugPrint('LOCATION');
-    debugPrint('--------------------------------');
-
-    debugPrint('latitude: $latitude');
-    debugPrint('longitude: $longitude');
-
-    debugPrint('networkLatitude: $latitude');
-    debugPrint('networkLongitude: $longitude');
-
-    debugPrint('gpsLatitude: $latitude');
-    debugPrint('gpsLongitude: $longitude');
-
-    debugPrint('differenceByAndroid: 0.0');
-
-    // Device information
-    debugPrint('--------------------------------');
-    debugPrint('DEVICE INFORMATION');
-    debugPrint('--------------------------------');
-
-    debugPrint('strNetworkInfo: $networkInfo');
-    debugPrint('strBatteryInfo: $batteryInfo');
-
-    // Activity
-    debugPrint('activityId: 2');
-
-    debugPrint('================================');
-    debugPrint('END FARMER REGISTRATION PARAMS');
-    debugPrint('================================');
-
-    debugPrint('================================');
 
     final userData = await SecureStorage.instance.getUserData();
 
@@ -935,11 +828,6 @@ class _FarmerEditUpdateScrenState extends State<FarmerEditUpdateScren> {
           image: '',
         ),
       );
-      _submissionSent = true;
-
-      debugPrint('================================');
-      debugPrint('FARMER SUBMIT EVENT SENT');
-      debugPrint('================================');
     } catch (e) {
       if (!mounted) return;
 
@@ -1463,151 +1351,217 @@ class _FarmerEditUpdateScrenState extends State<FarmerEditUpdateScren> {
                       ),
                     ),
 
-                    FormField<bool>(
-                      initialValue: _selectedProductIds.isNotEmpty,
-                      validator: (_) {
+                    CustomTextFormField(
+                      controller: TextEditingController(
+                        text: _selectedProductIds.isEmpty
+                            ? ''
+                            : _selectedProductNames,
+                      ),
+                      hintText: 'Select Suggested Product',
+                      prefixIcon: Icons.inventory_2_outlined,
+                      readOnly: true,
+                      onTap: productDetailData.isEmpty
+                          ? null
+                          : () async {
+                              debugPrint(
+                                '================ PRODUCT DEBUG ================',
+                              );
+                              debugPrint(
+                                'Product API count: ${productDetailData.length}',
+                              );
+                              debugPrint(
+                                'Existing Product IDs: $_existingProductIds',
+                              );
+                              debugPrint(
+                                'Selected Product IDs: $_selectedProductIds',
+                              );
+                              debugPrint('Products mapped: $_productsMapped');
+                              debugPrint(
+                                '================================================',
+                              );
+
+                              final result = await showDialog<List<String>>(
+                                context: context,
+                                barrierDismissible: false,
+                                builder: (dialogContext) {
+                                  return ProductSelectionDialog(
+                                    productList: productDetailData,
+                                    selectedProductIds: _selectedProductIds,
+                                  );
+                                },
+                              );
+
+                              if (result != null && mounted) {
+                                setState(() {
+                                  _selectedProductIds
+                                    ..clear()
+                                    ..addAll(result);
+                                });
+
+                                debugPrint(
+                                  'Selected Product IDs: '
+                                  '${_selectedProductIds.join(',')}',
+                                );
+
+                                debugPrint(
+                                  'Selected Product IDs List: '
+                                  '$_selectedProductIds',
+                                );
+                              }
+                            },
+                      validator: (value) {
                         if (_selectedProductIds.isEmpty) {
                           return 'Please select a suggested product';
                         }
 
                         return null;
                       },
-                      builder: (field) {
-                        debugPrint(
-                          '================ PRODUCT DEBUG ================',
-                        );
-                        debugPrint(
-                          'Product API count: ${productDetailData.length}',
-                        );
-                        debugPrint(
-                          'Existing Product IDs: $_existingProductIds',
-                        );
-                        debugPrint(
-                          'Selected Product IDs: $_selectedProductIds',
-                        );
-                        debugPrint('Products mapped: $_productsMapped');
-                        debugPrint(
-                          '================================================',
-                        );
-                        return Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            InkWell(
-                              onTap: productDetailData.isEmpty
-                                  ? null
-                                  : () async {
-                                      final result =
-                                          await showDialog<List<String>>(
-                                            context: context,
-                                            barrierDismissible: false,
-                                            builder: (dialogContext) {
-                                              return ProductSelectionDialog(
-                                                productList: productDetailData,
-                                                selectedProductIds:
-                                                    _selectedProductIds,
-                                              );
-                                            },
-                                          );
-
-                                      if (result != null && mounted) {
-                                        setState(() {
-                                          _selectedProductIds
-                                            ..clear()
-                                            ..addAll(result);
-                                        });
-
-                                        debugPrint(
-                                          'Selected Product IDs: '
-                                          '${_selectedProductIds.join(',')}',
-                                        );
-
-                                        debugPrint(
-                                          'Selected Product IDs List: '
-                                          '$_selectedProductIds',
-                                        );
-                                      }
-                                    },
-                              child: Container(
-                                width: double.infinity,
-                                padding: EdgeInsets.symmetric(
-                                  horizontal: 14.w,
-                                  vertical: 15.h,
-                                ),
-                                decoration: BoxDecoration(
-                                  color: productDetailData.isEmpty
-                                      ? Colors.grey.shade100
-                                      : Colors.white,
-                                  borderRadius: BorderRadius.circular(22.r),
-                                  boxShadow: productDetailData.isNotEmpty
-                                      ? [
-                                          BoxShadow(
-                                            color: Colors.black.withValues(
-                                              alpha: 0.08,
-                                            ),
-                                            blurRadius: 8,
-                                            offset: const Offset(0, 2),
-                                          ),
-                                        ]
-                                      : [],
-                                ),
-                                child: Row(
-                                  children: [
-                                    Icon(
-                                      Icons.inventory_2_outlined,
-                                      color: productDetailData.isEmpty
-                                          ? Colors.grey
-                                          : const Color(0xFF087C3A),
-                                    ),
-
-                                    SizedBox(width: 12.w),
-
-                                    Expanded(
-                                      child: _selectedProductIds.isEmpty
-                                          ? Text(
-                                              'Select Suggested Product',
-                                              style: TextStyle(
-                                                fontSize: 14.sp,
-                                                color: Colors.grey.shade500,
-                                              ),
-                                            )
-                                          : Text(
-                                              _selectedProductNames,
-                                              maxLines: 2,
-                                              overflow: TextOverflow.ellipsis,
-                                              style: TextStyle(
-                                                fontSize: 14.sp,
-                                                color: Colors.black87,
-                                                fontWeight: FontWeight.w500,
-                                              ),
-                                            ),
-                                    ),
-
-                                    Icon(
-                                      Icons.keyboard_arrow_down,
-                                      color: productDetailData.isEmpty
-                                          ? Colors.grey
-                                          : Colors.grey.shade600,
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
-                            if (field.hasError)
-                              Padding(
-                                padding: EdgeInsets.only(left: 16.w, top: 4.h),
-                                child: Text(
-                                  field.errorText!,
-                                  style: TextStyle(
-                                    color: Colors.red,
-                                    fontSize: 12.sp,
-                                  ),
-                                ),
-                              ),
-                          ],
-                        );
-                      },
                     ),
 
+                    // FormField<bool>(
+                    //   initialValue: _selectedProductIds.isNotEmpty,
+                    //   validator: (_) {
+                    //     if (_selectedProductIds.isEmpty) {
+                    //       return 'Please select a suggested product';
+                    //     }
+
+                    //     return null;
+                    //   },
+                    //   builder: (field) {
+                    //     debugPrint(
+                    //       '================ PRODUCT DEBUG ================',
+                    //     );
+                    //     debugPrint(
+                    //       'Product API count: ${productDetailData.length}',
+                    //     );
+                    //     debugPrint(
+                    //       'Existing Product IDs: $_existingProductIds',
+                    //     );
+                    //     debugPrint(
+                    //       'Selected Product IDs: $_selectedProductIds',
+                    //     );
+                    //     debugPrint('Products mapped: $_productsMapped');
+                    //     debugPrint(
+                    //       '================================================',
+                    //     );
+                    //     return Column(
+                    //       crossAxisAlignment: CrossAxisAlignment.start,
+                    //       children: [
+                    //         InkWell(
+                    //           onTap: productDetailData.isEmpty
+                    //               ? null
+                    //               : () async {
+                    //                   final result =
+                    //                       await showDialog<List<String>>(
+                    //                         context: context,
+                    //                         barrierDismissible: false,
+                    //                         builder: (dialogContext) {
+                    //                           return ProductSelectionDialog(
+                    //                             productList: productDetailData,
+                    //                             selectedProductIds:
+                    //                                 _selectedProductIds,
+                    //                           );
+                    //                         },
+                    //                       );
+
+                    //                   if (result != null && mounted) {
+                    //                     setState(() {
+                    //                       _selectedProductIds
+                    //                         ..clear()
+                    //                         ..addAll(result);
+                    //                     });
+
+                    //                     debugPrint(
+                    //                       'Selected Product IDs: '
+                    //                       '${_selectedProductIds.join(',')}',
+                    //                     );
+
+                    //                     debugPrint(
+                    //                       'Selected Product IDs List: '
+                    //                       '$_selectedProductIds',
+                    //                     );
+                    //                   }
+                    //                 },
+                    //           child: Container(
+                    //             width: double.infinity,
+                    //             padding: EdgeInsets.symmetric(
+                    //               horizontal: 14.w,
+                    //               vertical: 15.h,
+                    //             ),
+                    //             decoration: BoxDecoration(
+                    //               color: productDetailData.isEmpty
+                    //                   ? Colors.grey.shade100
+                    //                   : Colors.white,
+                    //               borderRadius: BorderRadius.circular(22.r),
+                    //               boxShadow: productDetailData.isNotEmpty
+                    //                   ? [
+                    //                       BoxShadow(
+                    //                         color: Colors.black.withValues(
+                    //                           alpha: 0.08,
+                    //                         ),
+                    //                         blurRadius: 8,
+                    //                         offset: const Offset(0, 2),
+                    //                       ),
+                    //                     ]
+                    //                   : [],
+                    //             ),
+                    //             child: Row(
+                    //               children: [
+                    //                 Icon(
+                    //                   Icons.inventory_2_outlined,
+                    //                   color: productDetailData.isEmpty
+                    //                       ? Colors.grey
+                    //                       : const Color(0xFF087C3A),
+                    //                 ),
+
+                    //                 SizedBox(width: 12.w),
+
+                    //                 Expanded(
+                    //                   child: _selectedProductIds.isEmpty
+                    //                       ? Text(
+                    //                           'Select Suggested Product',
+                    //                           style: TextStyle(
+                    //                             fontSize: 14.sp,
+                    //                             color: Colors.grey.shade500,
+                    //                           ),
+                    //                         )
+                    //                       : Text(
+                    //                           _selectedProductNames,
+                    //                           maxLines: 2,
+                    //                           overflow: TextOverflow.ellipsis,
+                    //                           style: TextStyle(
+                    //                             fontSize: 14.sp,
+                    //                             color: Colors.black87,
+                    //                             fontWeight: FontWeight.w500,
+                    //                           ),
+                    //                         ),
+                    //                 ),
+
+                    //                 Icon(
+                    //                   Icons.keyboard_arrow_down,
+                    //                   color: productDetailData.isEmpty
+                    //                       ? Colors.grey
+                    //                       : Colors.grey.shade600,
+                    //                 ),
+                    //               ],
+                    //             ),
+                    //           ),
+                    //         ),
+                    //         if (field.hasError)
+                    //           Padding(
+                    //             padding: EdgeInsets.only(left: 16.w, top: 4.h),
+                    //             child: Text(
+                    //               field.errorText!,
+                    //               style: TextStyle(
+                    //                 color: Colors.red,
+                    //                 fontSize: 12.sp,
+                    //               ),
+                    //             ),
+                    //           ),
+                    //       ],
+                    //     );
+                    //   },
+                    // ),
                     SizedBox(height: 10.h),
 
                     const Text(
@@ -1663,7 +1617,7 @@ class _FarmerEditUpdateScrenState extends State<FarmerEditUpdateScren> {
                       maxLines: 2,
                     ),
 
-                    const SizedBox(height: 100),
+                    const SizedBox(height: 70),
                   ],
                 ),
               ),
