@@ -4,6 +4,7 @@ import 'package:demo/core/router/app_router.dart';
 import 'package:demo/core/secure_storage/secure_storage.dart';
 import 'package:demo/core/theme/app_colors.dart';
 import 'package:demo/core/utility/app_image_picker.dart';
+import 'package:demo/core/utility/appdialog.dart';
 import 'package:demo/core/utility/data_list.dart';
 import 'package:demo/core/utility/widgets/custom_appbar.dart' show CustomAppBar;
 import 'package:demo/core/utility/widgets/custom_button.dart';
@@ -553,16 +554,12 @@ class _EditUpdateDealerState extends State<EditUpdateDealer> {
               isLoading = false;
               _submissionSent = false;
             });
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                backgroundColor: AppColors.backgroundColor,
-                content: Text(
-                  style: TextStyle(color: AppColors.accentGreen),
-                  state.errorMessage ?? 'Farmer Updated Successfully',
-                ),
-              ),
+
+            AppDialog.show(
+              context: context,
+              message: 'Dealer Updated Successfully',
+              onButtonPressed: () => {context.go(AppRouter.home)},
             );
-            context.go(AppRouter.home);
           }
           // ============================================
           // API ERROR

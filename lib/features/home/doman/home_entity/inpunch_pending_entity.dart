@@ -1,5 +1,3 @@
-
-
 class InpunchPendingResponseEntity {
   final bool status;
   final String? message;
@@ -7,12 +5,9 @@ class InpunchPendingResponseEntity {
   final int pendingInpunchCount;
   final String? inpunchTime;
   final String? address;
-    final String? city;
+  final String? city;
   final String? state;
   final List<InpunchPendingEntity> result;
-
-
-  
 
   const InpunchPendingResponseEntity({
     required this.status,
@@ -26,8 +21,6 @@ class InpunchPendingResponseEntity {
     required this.result,
   });
 }
-
-
 
 class InpunchPendingEntity {
   final String? fldAdmName;

@@ -98,8 +98,6 @@
 //   });
 // }
 
-
-
 import 'package:flutter/material.dart';
 
 enum DialogType { success, error, warning, info }
@@ -125,11 +123,7 @@ class AppDialog {
           ),
           title: Row(
             children: [
-              Icon(
-                config.icon,
-                color: config.color,
-                size: 28,
-              ),
+              Icon(config.icon, color: config.color, size: 28),
               const SizedBox(width: 10),
               Expanded(
                 child: Text(
@@ -142,10 +136,7 @@ class AppDialog {
               ),
             ],
           ),
-          content: Text(
-            message,
-            style: const TextStyle(fontSize: 15),
-          ),
+          content: Text(message, style: const TextStyle(fontSize: 15)),
           actions: [
             TextButton(
               onPressed: () {
@@ -194,7 +185,7 @@ class AppDialog {
 
       case DialogType.info:
         return const _DialogConfig(
-          title: 'Information',
+          title: 'Ramikar Agro',
           icon: Icons.info,
           color: Colors.blue,
         );
