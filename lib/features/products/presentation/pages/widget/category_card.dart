@@ -1,6 +1,7 @@
 import 'package:demo/core/api_constant/api_client.dart';
 import 'package:demo/features/products/domain/entity/fertilizer_category_entity.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil_plus/flutter_screenutil_plus.dart';
 
 class CategoryCard extends StatelessWidget {
   final FertilizerCategoryEntity category;
@@ -46,7 +47,7 @@ class CategoryCard extends StatelessWidget {
               // IMAGE
               SizedBox(width: 150, height: 120, child: _buildImage()),
 
-              const SizedBox(height: 12),
+               SizedBox(height: 5.h),
 
               // CATEGORY NAME
               Text(

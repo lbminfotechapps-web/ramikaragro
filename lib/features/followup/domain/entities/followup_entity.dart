@@ -10,6 +10,7 @@ class FollowupEntity extends Equatable {
   final String followupDate;
   final String outletId;
   final String farmerId;
+  final String mobileNo;
 
   const FollowupEntity({
     required this.name,
@@ -21,6 +22,7 @@ class FollowupEntity extends Equatable {
     required this.followupDate,
     required this.outletId,
     required this.farmerId,
+    required this.mobileNo,
   });
 
   @override
@@ -34,5 +36,6 @@ class FollowupEntity extends Equatable {
         followupDate,
         outletId,
         farmerId,
+        mobileNo,
       ];
 }
