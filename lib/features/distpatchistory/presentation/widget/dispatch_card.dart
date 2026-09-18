@@ -134,19 +134,6 @@ class DispatchCard extends StatelessWidget {
                   color: _statusColor(),
                 ),
               ),
-
-              SizedBox(height: 2.h),
-
-              Text(
-                'Dispatch #${_srNo()}',
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: TextStyle(
-                  fontSize: 10.sp,
-                  color: Colors.grey.shade500,
-                  fontWeight: FontWeight.w500,
-                ),
-              ),
             ],
           ),
         ),
@@ -443,6 +430,9 @@ class DispatchCard extends StatelessWidget {
 
   String _transportDetails() {
     return _getValue([
+      'transportationName',
+      'transportation_name',
+      'fld_transportation_name',
       'transNameVehicleNo',
       'transportationNameVehicleNo',
       'transport_name_vehicle_no',
@@ -464,11 +454,25 @@ class DispatchCard extends StatelessWidget {
       'status',
     ]);
 
-    if (value.isEmpty) {
-      return 'Dispatch';
-    }
+    switch (value.trim()) {
+      case '0':
+        return 'Pending';
 
-    return value;
+      case '1':
+        return 'Approved';
+
+      case '2':
+        return 'Partial Dispatched';
+
+      case '3':
+        return 'Cancelled';
+
+      case '5':
+        return 'Dispatch';
+
+      default:
+        return value.isEmpty ? 'Dispatch' : value;
+    }
   }
 
   String _statusBadgeText() {
@@ -724,6 +728,15 @@ class DispatchCard extends StatelessWidget {
         return dispatch.vehicleNo;
       case 'vehicle_no':
         return dispatch.vehicle_no;
+
+      case 'transportationName':
+        return dispatch.transportationName;
+
+      case 'transportation_name':
+        return dispatch.transportation_name;
+
+      case 'fld_transportation_name':
+        return dispatch.fld_transportation_name;
 
       case 'srNo':
         return dispatch.srNo;

@@ -1,5 +1,7 @@
 import 'package:demo/core/secure_storage/secure_storage.dart';
 import 'package:demo/core/theme/app_colors.dart';
+import 'package:demo/core/utility/app_toast.dart';
+import 'package:demo/core/utility/appdialog.dart';
 import 'package:demo/core/utility/widgets/custom_card.dart';
 import 'package:demo/core/utility/widgets/custom_loader.dart';
 import 'package:demo/features/home/doman/home_entity/menu_entity.dart';
@@ -125,12 +127,11 @@ class _QuickAccessSectionState extends State<QuickAccessSection> {
       'ID=${menu.menuId}, '
       'Name=${menu.menuName}',
     );
+    final status = widget.punchStat?.inOutStatus ?? 0;
+    debugPrint('Punch status inout: ${widget.punchStat?.inOutStatus}');
+    debugPrint('Punch status data: ${widget.punchStat}');
 
     if (menu.menuId == '17') {
-      final status = widget.punchStat?.inOutStatus ?? 0;
-      debugPrint('Punch status inout: ${widget.punchStat?.inOutStatus}');
-      debugPrint('Punch status data: ${widget.punchStat}');
-
       if (status == '0') {
         context.push('/punchIn', extra: widget.punchStat);
       } else if (status == '1') {
@@ -143,16 +144,18 @@ class _QuickAccessSectionState extends State<QuickAccessSection> {
     } else if (menu.menuId == '18') {
       context.push('/scheme');
     } else if (menu.menuId == '8') {
-      context.push('/farmers');
+      if (status == '1') {
+        context.push('/farmers');
+      } else {
+        AppDialog.show(
+          context: context,
+          message: "Your Are Not Punch In, Do You Want Continue",
+          onButtonPressed: () => {context.push('/punchIn')},
+        );
+      }
     } else if (menu.menuId == '20') {
       final userData = await SecureStorage.instance.getUserData();
       final userId = userData?['user_id']?.toString();
-
-      debugPrint('========================================');
-      debugPrint('NOTIFICATION NAVIGATION');
-      debugPrint('USER DATA: $userData');
-      debugPrint('USER ID: $userId');
-      debugPrint('========================================');
 
       if (!context.mounted) return;
       if (userId == null || userId.isEmpty) {
@@ -166,7 +169,15 @@ class _QuickAccessSectionState extends State<QuickAccessSection> {
     } else if (menu.menuId == '14') {
       context.push('/leaveList');
     } else if (menu.menuId == '3') {
-      context.push('/visits');
+      if (status == '1') {
+        context.push('/visits');
+      } else {
+        AppDialog.show(
+          context: context,
+          message: "Your Are Not Punch In, Do You Want Continue",
+          onButtonPressed: () => {context.push('/punchIn')},
+        );
+      }
     } else if (menu.menuId == '2') {
       context.push('/products');
     } else if (menu.menuId == '64') {

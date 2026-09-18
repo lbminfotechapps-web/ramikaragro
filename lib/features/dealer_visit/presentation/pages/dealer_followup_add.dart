@@ -4,6 +4,7 @@ import 'package:demo/core/router/app_router.dart';
 import 'package:demo/core/secure_storage/secure_storage.dart';
 import 'package:demo/core/theme/app_colors.dart';
 import 'package:demo/core/utility/app_image_picker.dart';
+import 'package:demo/core/utility/appdialog.dart';
 import 'package:demo/core/utility/data_list.dart';
 import 'package:demo/core/utility/device_info_util.dart';
 import 'package:demo/core/utility/location_util.dart';
@@ -470,16 +471,12 @@ class _DealerFollowupAddState extends State<DealerFollowupAdd> {
               isLoading = false;
               _submissionSent = false;
             });
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                backgroundColor: AppColors.backgroundColor,
-                content: Text(
-                  style: TextStyle(color: AppColors.accentGreen),
-                  state.errorMessage ?? 'Farmer Added Successfully',
-                ),
-              ),
+
+            AppDialog.show(
+              context: context,
+              message: 'Dealer Added Successfully',
+              onButtonPressed: () => {context.go(AppRouter.home)},
             );
-            context.go(AppRouter.home);
           }
           // ============================================
           // API ERROR
@@ -607,6 +604,7 @@ class _DealerFollowupAddState extends State<DealerFollowupAdd> {
                     CustomTextFormField(
                       controller: shopNameController,
                       hintText: 'Shop Name *',
+                      labelText: 'Shop Name *',
                       prefixIcon: Icons.shop,
                       validator: (value) {
                         if (value == null || value.trim().isEmpty) {
@@ -622,6 +620,7 @@ class _DealerFollowupAddState extends State<DealerFollowupAdd> {
                     CustomTextFormField(
                       controller: dealerCodeController,
                       hintText: 'Dealer Code',
+                      labelText: 'Dealer Code',
                       prefixIcon: Icons.person_outline,
                     ),
 
@@ -630,8 +629,9 @@ class _DealerFollowupAddState extends State<DealerFollowupAdd> {
                     CustomTextFormField(
                       controller: ownerNameController,
                       hintText: 'Owner Name',
+                      labelText: 'Owner Name',
                       prefixIcon: Icons.person_2_outlined,
-                      maxLines: 3,
+                      maxLines: 1,
                     ),
 
                     SizedBox(height: 10.h),
@@ -639,6 +639,7 @@ class _DealerFollowupAddState extends State<DealerFollowupAdd> {
                     CustomTextFormField(
                       controller: mobileController,
                       hintText: 'Mobile No *',
+                      labelText: 'Mobile No *',
                       prefixIcon: Icons.phone_outlined,
                       keyboardType: TextInputType.phone,
                       validator: (value) {
@@ -661,6 +662,7 @@ class _DealerFollowupAddState extends State<DealerFollowupAdd> {
                     CustomTextFormField(
                       controller: alternateMobileController,
                       hintText: 'Alternate Mobile No',
+                      labelText: 'Alternate Mobile No',
                       prefixIcon: Icons.phone_outlined,
                       keyboardType: TextInputType.phone,
                       validator: (value) {
@@ -683,6 +685,7 @@ class _DealerFollowupAddState extends State<DealerFollowupAdd> {
                     CustomTextFormField(
                       controller: gstController,
                       hintText: 'GST No',
+                      labelText: 'GST No',
                       prefixIcon: Icons.receipt_long_outlined,
                       keyboardType: TextInputType.text,
                     ),
@@ -692,6 +695,7 @@ class _DealerFollowupAddState extends State<DealerFollowupAdd> {
                     CustomTextFormField(
                       controller: emailController,
                       hintText: 'Email Id',
+                      labelText: 'Email Id',
                       prefixIcon: Icons.email_outlined,
                       keyboardType: TextInputType.emailAddress,
                       validator: (value) {
@@ -716,6 +720,7 @@ class _DealerFollowupAddState extends State<DealerFollowupAdd> {
                     CustomTextFormField(
                       controller: addressController,
                       hintText: 'Address',
+                      labelText: 'Address',
                       prefixIcon: Icons.home_outlined,
                     ),
 
@@ -844,7 +849,7 @@ class _DealerFollowupAddState extends State<DealerFollowupAdd> {
 
                     _textField(
                       controller: dateController,
-                      hintText: 'Date *',
+                      hintText: 'Next Followup Date *',
                       icon: Icons.calendar_today_outlined,
                       readOnly: true,
                       // suffixIcon: Icons.calendar_month_outlined,
@@ -929,6 +934,7 @@ class _DealerFollowupAddState extends State<DealerFollowupAdd> {
                     CustomTextFormField(
                       controller: remarkController,
                       hintText: 'Remark',
+                      labelText: "Remark",
                       prefixIcon: Icons.note,
                       maxLines: 2,
                     ),

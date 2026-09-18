@@ -1,5 +1,7 @@
 import 'dart:async';
+import 'dart:convert';
 
+import 'package:demo/core/api_constant/api_client.dart';
 import 'package:demo/core/secure_storage/secure_storage.dart';
 import 'package:demo/core/theme/app_colors.dart';
 import 'package:demo/core/utility/location_util.dart';
@@ -15,6 +17,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:http/http.dart' as http;
+import 'package:url_launcher/url_launcher.dart';
 
 import '../../data/models/DealerListModel.dart';
 import '../bloc/dealerlist_bloc.dart';
@@ -673,7 +677,14 @@ class _DealerListItem extends StatelessWidget {
                     height: 38,
                     child: ElevatedButton.icon(
                       onPressed: () {
-                        _callDealer(dealer);
+                        final mobile = dealer.outletPersonMobile;
+                        print("Mobile No :--- > ${mobile}");
+                        if (mobile != null && mobile.isNotEmpty) {
+                          callFarmer(mobile);
+                          DealerCallEvent(dealer.outletId, mobile);
+                        } else {
+                          debugPrint('Phone number is missing');
+                        }
                       },
                       icon: const Icon(Icons.phone, size: 17),
                       label: const Text(
@@ -1032,5 +1043,88 @@ class _DetailRow extends StatelessWidget {
         ],
       ),
     );
+  }
+}
+
+Future<void> DealerCallEvent(String fldFarmerId, String fldMobileNo) async {
+  final url = ApiClient.baseUrl + ApiClient.famerCallApi;
+  final userData = await SecureStorage.instance.getUserData();
+
+  final id = userData?['user_id']?.toString();
+
+  try {
+    final response = await http.post(
+      Uri.parse(url),
+
+      body: {
+        "strUserId": id.toString(),
+
+        "strCallToId": fldFarmerId,
+
+        "strMobNo": fldMobileNo,
+
+        "strType": "Dealer",
+
+        "strTime": getCurrentTime(),
+      },
+    );
+
+    if (response.statusCode == 200) {
+      final data = json.decode(response.body);
+
+      if (data['status'] == true) {
+        debugPrint("Call Event Success");
+      }
+    }
+  } catch (e) {
+    debugPrint("Call Event Error: $e");
+  }
+}
+
+String getCurrentTime() {
+  final now = DateTime.now();
+
+  int hour = now.hour;
+
+  final minute = now.minute;
+
+  String period = "AM";
+
+  if (hour >= 12) {
+    period = "PM";
+
+    if (hour > 12) {
+      hour -= 12;
+    }
+  }
+
+  if (hour == 0) {
+    hour = 12;
+  }
+
+  final formattedHour = hour.toString().padLeft(2, '0');
+
+  final formattedMinute = minute.toString().padLeft(2, '0');
+
+  return "$formattedHour:"
+      "$formattedMinute "
+      "$period";
+}
+
+Future<void> callFarmer(String phone) async {
+  final phoneUri = Uri(scheme: 'tel', path: phone);
+
+  if (!await canLaunchUrl(phoneUri)) {
+    debugPrint('Unable to open dialer for phone number: $phone');
+    return;
+  }
+
+  final launched = await launchUrl(
+    phoneUri,
+    mode: LaunchMode.externalApplication,
+  );
+
+  if (!launched) {
+    debugPrint('Failed to open dialer for phone number: $phone');
   }
 }

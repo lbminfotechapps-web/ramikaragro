@@ -45,39 +45,11 @@ class AppDialog {
 
                 const SizedBox(height: 15),
 
-                /// ICON
-                Icon(
-                  type == DialogType.success
-                      ? Icons.check_circle
-                      : type == DialogType.error
-                      ? Icons.cancel
-                      : Icons.info,
-                  color: type == DialogType.success
-                      ? Colors.green
-                      : type == DialogType.error
-                      ? Colors.red
-                      : Colors.blue,
-                  size: 45,
-                ),
-
-                const SizedBox(height: 15),
-
-                /// TITLE
-                Text(
-                  type == DialogType.success ? "Success" : "Failed",
-                  style: const TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-
-                const SizedBox(height: 8),
-
                 /// MESSAGE
                 Text(
                   message,
                   textAlign: TextAlign.center,
-                  style: const TextStyle(color: Colors.grey),
+                  style: const TextStyle(color: Colors.black),
                 ),
 
                 const SizedBox(height: 20),

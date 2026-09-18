@@ -1,6 +1,7 @@
 import 'package:demo/core/router/app_router.dart';
 import 'package:demo/core/secure_storage/secure_storage.dart';
 import 'package:demo/core/theme/app_colors.dart';
+import 'package:demo/core/utility/appdialog.dart';
 
 import 'package:demo/core/utility/data_list.dart';
 import 'package:demo/core/utility/device_info_util.dart';
@@ -1018,16 +1019,11 @@ class _FarmerEditUpdateScrenState extends State<FarmerEditUpdateScren> {
               isLoading = false;
               _submissionSent = false;
             });
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                backgroundColor: AppColors.backgroundColor,
-                content: Text(
-                  style: TextStyle(color: AppColors.accentGreen),
-                  state.errorMessage ?? 'Farmer Updated Successfully',
-                ),
-              ),
+            AppDialog.show(
+              context: context,
+              message: 'Farmer Updated Successfully',
+              onButtonPressed: () => {context.go(AppRouter.home)},
             );
-            context.go(AppRouter.home);
           } else if (state.status == StatesStatus.failed) {
             setState(() {
               isLoading = false;

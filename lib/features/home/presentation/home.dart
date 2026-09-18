@@ -236,7 +236,7 @@ class _HomeState extends State<Home> {
                     color: AppColors.textColor,
                   ),
                   onPressed: () {
-                    Scaffold.of(scaffoldContext).openDrawer();
+                    context.push('/profile');
                   },
                 ),
               );
@@ -259,24 +259,27 @@ class _HomeState extends State<Home> {
             child: Column(
               children: [
                 SizedBox(height: 12.h),
-
                 BlocBuilder<HomeBloc, HomeState>(
                   builder: (context, state) {
                     int pendingCount = 0;
                     int pendingTotalCount = 0;
-                    String? punchTiming;
-                    String? city;
-                    String? countryState;
-                    // String? city;
 
-                    if (state.status == HomeStatus.success) {
-                      pendingCount = state.data!.pendingInpunchCount;
-                      pendingTotalCount = state.data!.totalRecursiveEmployee;
-                      punchTiming = state.data!.inpunchTime.toString();
-                      city = state.data!.city.toString();
-                      countryState = state.data!.state.toString();
-                      // pendingCountOutOf = state.data.;
+                    String punchTiming = '--';
+                    String city = '--';
+                    String countryState = '--';
+
+                    final data = state.data;
+
+                    // Only read data when it is actually available.
+                    if (state.status == HomeStatus.success && data != null) {
+                      pendingCount = data.pendingInpunchCount;
+                      pendingTotalCount = data.totalRecursiveEmployee;
+
+                      punchTiming = data.inpunchTime?.toString() ?? '--';
+                      city = data.city?.toString() ?? '--';
+                      countryState = data.state?.toString() ?? '--';
                     }
+
                     return Row(
                       children: [
                         Expanded(
@@ -284,7 +287,7 @@ class _HomeState extends State<Home> {
                             height: 100.h,
                             child: buildPunchCard(
                               "Today's Punch",
-                              punchTiming.toString(),
+                              punchTiming,
                               '$city $countryState',
                             ),
                           ),
@@ -295,29 +298,25 @@ class _HomeState extends State<Home> {
                         Expanded(
                           child: SizedBox(
                             height: 100.h,
-                            child:
-                                //  BlocBuilder<HomeBloc, HomeState>(
-                                //   builder: (context, state) {
-                                //     int pendingCount = 0;
-                                //     int pendingTotalCount = 0;
-                                //     if (state.status == HomeStatus.success) {
-                                //       pendingCount = state.data!.pendingInpunchCount;
-                                //       pendingTotalCount =
-                                //           state.data!.totalRecursiveEmployee;
-                                //       // pendingCountOutOf = state.data.;
-                                //     }
-                                //     // print("List Size is. :${state.data.length}");
-                                //     return
-                                buildInfoCard(
-                                  'In Punch Pending',
-                                  '${pendingCount.toString()}/${pendingTotalCount.toString()}',
-                                  onTap: () => _showPendingListDialog(
-                                    state.data!.result,
-                                  ),
-                                ),
-
-                            //   },
-                            // ),
+                            child: buildInfoCard(
+                              'In Punch Pending',
+                              '$pendingCount/$pendingTotalCount',
+                              onTap: data == null
+                                  ? () {
+                                      ScaffoldMessenger.of(
+                                        context,
+                                      ).showSnackBar(
+                                        const SnackBar(
+                                          content: Text(
+                                            'Pending punch data is not available.',
+                                          ),
+                                        ),
+                                      );
+                                    }
+                                  : () {
+                                      _showPendingListDialog(data.result);
+                                    },
+                            ),
                           ),
                         ),
                       ],
