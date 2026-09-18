@@ -1,8 +1,5 @@
 import 'dart:async';
-import 'dart:io';
-import 'dart:typed_data';
 
-import 'package:demo/core/utility/image_compression.dart';
 import 'package:demo/features/home/doman/home_usecases/get_punch_status_usecase.dart';
 import 'package:demo/features/home/doman/home_entity/vehicle_type_entity.dart';
 import 'package:demo/features/home/presentation/quick_aceess_bloc/quick_access_event.dart';
@@ -17,6 +14,7 @@ class QuickAcessBloc extends Bloc<QuickAccessEvent, QuickAccessState> {
     on<PunchStatEvent>(_onGetPunchStatus);
     on<VehicleTypeEvent>(_onGetVehicleType);
     on<PunchInOutDetailsAddEvent>(_onPunchInOutAddDetails);
+    on<ShareLocationEvent>(_onShareLocationAdd);
   }
   String? punchStatus;
   Future<void> _onGetPunchStatus(
@@ -97,7 +95,6 @@ class QuickAcessBloc extends Bloc<QuickAccessEvent, QuickAccessState> {
     }
   }
 
-
   Future<void> _onPunchInOutAddDetails(
     PunchInOutDetailsAddEvent event,
     Emitter<QuickAccessState> emit,
@@ -110,9 +107,10 @@ class QuickAcessBloc extends Bloc<QuickAccessEvent, QuickAccessState> {
     );
 
     try {
-      // ============================================
-      // REQUEST DATA
-      // ============================================
+      // ============================================================
+      // BASIC REQUEST DATA
+      // ============================================================
+
       final Map<String, dynamic> jsonData = <String, dynamic>{
         'user_id': event.userId,
         'in_out_status': event.inOutStatus,
@@ -134,60 +132,154 @@ class QuickAcessBloc extends Bloc<QuickAccessEvent, QuickAccessState> {
         'activityId': event.activityId,
       };
 
-      // ============================================
-      // ADD STARTING IMAGE AS BASE64
-      // ============================================
-      if (event.startingKmImage != null && event.startingKmImage!.isNotEmpty) {
-        jsonData['startingKmImage'] = event.startingKmImage;
+      // ============================================================
+      // DETERMINE PUNCH TYPE
+      // ============================================================
+      final bool isPunchIn = event.inOutStatus == '1';
 
-        debugPrint(
-          'Starting image Base64 length: '
-          '${event.startingKmImage!.length}',
-        );
+      final bool isOutPunch =
+          event.inOutStatus == '2' && event.isForceOutPunch != true;
 
-        debugPrint(
-          'Starting image Base64 preview: '
-          '${event.startingKmImage!.substring(0, event.startingKmImage!.length > 50 ? 50 : event.startingKmImage!.length)}...',
-        );
-      } else {
-        debugPrint('Starting image: NOT PROVIDED');
+      final bool isLastForceOut =
+          event.inOutStatus == '2' && event.isForceOutPunch == true;
+
+      debugPrint('========================================');
+      debugPrint('PUNCH REQUEST TYPE');
+      debugPrint('isPunchIn: $isPunchIn');
+      debugPrint('isOutPunch: $isOutPunch');
+      debugPrint('isLastForceOut: $isLastForceOut');
+      debugPrint('========================================');
+
+      // ============================================================
+      // PUNCH IN
+      // ============================================================
+      // Send ONLY startingKmImage if available.
+      //
+      // Do NOT send closingKmImage.
+      // Do NOT send date.
+      // Do NOT send time.
+      // Do NOT send isForceOutPunch.
+      // ============================================================
+
+      if (isPunchIn) {
+        if (event.startingKmImage != null &&
+            event.startingKmImage!.isNotEmpty) {
+          jsonData['startingKmImage'] = event.startingKmImage;
+
+          debugPrint(
+            'startingKmImage: '
+            'BASE64 (${event.startingKmImage!.length} chars)',
+          );
+        } else {
+          debugPrint('startingKmImage: NOT PROVIDED');
+        }
+      }
+      // ============================================================
+      // NORMAL OUT PUNCH
+      // ============================================================
+      // Send ONLY closingKmImage if available.
+      //
+      // Do NOT send startingKmImage.
+      // Do NOT send date.
+      // Do NOT send time.
+      // isForceOutPunch is not sent.
+      // ============================================================
+
+      if (isOutPunch) {
+        if (event.closingKmImage != null && event.closingKmImage!.isNotEmpty) {
+          jsonData['closingKmImage'] = event.closingKmImage;
+
+          debugPrint(
+            'closingKmImage: '
+            'BASE64 (${event.closingKmImage!.length} chars)',
+          );
+        } else {
+          debugPrint('closingKmImage: NOT PROVIDED');
+        }
       }
 
-      // ============================================
-      // DO NOT ADD
-      // ============================================
-      // date
-      // time
-      // closingKmImage
-      // isForceOutPunch
+      // ============================================================
+      // LAST FORCE OUT
+      // ============================================================
+      // Do NOT send any image.
       //
-      // These parameters are completely absent
-      // from the Punch In request.
-      // ============================================
+      // Do NOT send startingKmImage.
+      // Do NOT send closingKmImage.
+      //
+      // Send isForceOutPunch only if your API requires it.
+      // ============================================================
 
-      // ============================================
-      // DEBUG
-      // ============================================
-      debugPrint('========== PUNCH IN REQUEST ==========');
+      if (isLastForceOut) {
+        debugPrint('LAST FORCE OUT');
+
+        debugPrint('Date: ${event.date}');
+
+        debugPrint('Time: ${event.newTime}');
+
+        // Date
+        if (event.date != null && event.date!.isNotEmpty) {
+          jsonData['date'] = event.date;
+        }
+
+        // Time
+        if (event.newTime != null && event.newTime!.isNotEmpty) {
+          jsonData['time'] = event.newTime;
+        }
+
+        // Force out flag
+        jsonData['isForceOutPunch'] = true;
+
+        // IMPORTANT:
+        // Do NOT add startingKmImage
+        // Do NOT add closingKmImage
+      }
+
+      // ============================================================
+      // OPTIONAL DATE
+      // ============================================================
+
+      if (event.date != null && event.date!.isNotEmpty) {
+        jsonData['date'] = event.date;
+
+        debugPrint('date: ${event.date}');
+      }
+
+      // ============================================================
+      // OPTIONAL TIME
+      // ============================================================
+
+      if (event.newTime != null && event.newTime!.isNotEmpty) {
+        jsonData['time'] = event.newTime;
+
+        debugPrint('time: ${event.newTime}');
+      }
+
+      // ============================================================
+      // FINAL REQUEST DEBUG
+      // ============================================================
+
+      debugPrint('');
+      debugPrint('========== FINAL PUNCH REQUEST ==========');
 
       jsonData.forEach((key, value) {
-        if (key == 'startingKmImage') {
-          final image = value?.toString() ?? '';
+        if (key == 'startingKmImage' || key == 'closingKmImage') {
+          final String image = value?.toString() ?? '';
 
           debugPrint(
             '$key: BASE64 IMAGE '
-            '(${image.length} characters)',
+            '($image characters)',
           );
         } else {
           debugPrint('$key: $value');
         }
       });
 
-      debugPrint('======================================');
+      debugPrint('==========================================');
 
-      // ============================================
-      // CALL API
-      // ============================================
+      // ============================================================
+      // API CALL
+      // ============================================================
+
       final response = await getPunchStatusUsecase.savePunchDetails(jsonData);
 
       debugPrint('Punch details response: $response');
@@ -207,6 +299,91 @@ class QuickAcessBloc extends Bloc<QuickAccessEvent, QuickAccessState> {
         state.copyWith(
           quickAccessStatus: QuickAccessStatus.failure,
           errorMessage: error.toString(),
+        ),
+      );
+    }
+  }
+
+  FutureOr<void> _onShareLocationAdd(
+    ShareLocationEvent event,
+    Emitter<QuickAccessState> emit,
+  ) async {
+    emit(
+      state.copyWith(
+        quickAccessStatus: QuickAccessStatus.loading,
+        errorMessage: null,
+      ),
+    );
+
+    try {
+      final Map<String, dynamic> jsonData = <String, dynamic>{
+        'user_id': event.userId,
+        'in_out_status': event.inOutStatus,
+        'differenceByAndroid': event.differenceByAndroid,
+        'locationHistoryString': event.locationHistoryString,
+        'strBatteryInfo': event.batteryInfo,
+        'strNetworkInfo': event.networkInfo,
+        'pinRemark': event.pinRemark,
+        'strStartingClosingKmAmount': event.startingClosingKmAmount,
+        'strVehicleTypeId': event.vehicleTypeId,
+        'route': event.route,
+        'latitude': event.latitude,
+        'longitude': event.longitude,
+        'networkLatitude': event.networkLatitude,
+        'networkLongitude': event.networkLongitude,
+        'gpsLatitude': event.gpsLatitude,
+        'gpsLongitude': event.gpsLongitude,
+        'geoAddress': event.geoAddress,
+        'startingKmImage': event.startingKmImage ?? '',
+        'closingKmImage': event.closingKmImage ?? '',
+        'activityId': event.activityId,
+      };
+
+      debugPrint('========================================');
+      debugPrint('SHARE LOCATION REQUEST');
+      debugPrint('========================================');
+
+      jsonData.forEach((key, value) {
+        debugPrint('$key : $value');
+      });
+
+      debugPrint('========================================');
+
+      final result = await getPunchStatusUsecase.savePunchDetails(jsonData);
+
+      debugPrint('========================================');
+      debugPrint('SHARE LOCATION RESPONSE');
+      debugPrint('========================================');
+      debugPrint('Status: ${result}');
+
+      debugPrint('========================================');
+
+      if (result['Status'] == true) {
+        emit(
+          state.copyWith(
+            quickAccessStatus: QuickAccessStatus.success,
+            // errorMessage: result.message,
+          ),
+        );
+      } else {
+        emit(
+          state.copyWith(
+            quickAccessStatus: QuickAccessStatus.failure,
+            // errorMessage: result.message,
+          ),
+        );
+      }
+    } catch (e, stackTrace) {
+      debugPrint('========================================');
+      debugPrint('SHARE LOCATION ERROR');
+      debugPrint('$e');
+      debugPrint('STACK TRACE: $stackTrace');
+      debugPrint('========================================');
+
+      emit(
+        state.copyWith(
+          quickAccessStatus: QuickAccessStatus.failure,
+          errorMessage: e.toString(),
         ),
       );
     }

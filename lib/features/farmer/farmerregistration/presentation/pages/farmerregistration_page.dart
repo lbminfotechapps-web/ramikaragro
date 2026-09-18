@@ -324,193 +324,14 @@ class _FarmerregistrationPageState extends State<FarmerregistrationPage> {
         .join(', ');
   }
 
-  void _submit() async {
+  Future<void> _submit() async {
     FocusScope.of(context).unfocus();
 
     if (isLoading) return;
+
     if (!_formKey.currentState!.validate()) {
       return;
     }
-
-    if (_selectedStateId == null || _selectedStateId!.isEmpty) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(const SnackBar(content: Text('Please select state')));
-      return;
-    }
-
-    if (_selectedDistrictId == null || _selectedDistrictId!.isEmpty) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(const SnackBar(content: Text('Please select district')));
-      return;
-    }
-
-    final batteryInfo = await DeviceInfoUtil.instance.getBatteryInfo();
-
-    final networkInfo = await DeviceInfoUtil.instance.getNetworkInfo();
-
-    final position = await LocationUtil.instance.getCurrentLocation();
-
-    String latitude = '';
-    String longitude = '';
-    String address = '';
-
-    if (position != null) {
-      latitude = position.latitude.toString();
-      longitude = position.longitude.toString();
-
-      address = await LocationUtil.instance.getAddress(
-        position.latitude,
-        position.longitude,
-      );
-    }
-
-    if (_selectedTalukaId == null || _selectedTalukaId!.isEmpty) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(const SnackBar(content: Text('Please select taluka')));
-      return;
-    }
-    debugPrint('================================');
-    debugPrint('FARMER REGISTRATION - ALL PARAMS');
-    debugPrint('================================');
-
-    debugPrint('FARMER LATTTT - $latitude');
-    debugPrint('FARMER LONG - $longitude');
-    debugPrint('================================');
-
-    // Basic farmer details
-    debugPrint('fld_farmer_name: ${farmerNameController.text.trim()}');
-    debugPrint('fld_address: ${addressController.text.trim()}');
-
-    debugPrint('fld_category_id: ');
-    debugPrint('state: ${_selectedStateId ?? '0'}');
-    debugPrint('fld_demo_type_id: ');
-    debugPrint('district: ${_selectedDistrictId ?? '0'}');
-    debugPrint('taluka: ${_selectedTalukaId ?? '0'}');
-
-    // Farmer status
-    debugPrint('status_of_farmer: ${_selectedFarmerStatus ?? ''}');
-    debugPrint('campaign_radio: Yes');
-
-    // Mobile / contact
-    debugPrint('fld_mobile_no: ${mobileController.text.trim()}');
-    debugPrint('fld_mobile_no2: ${alternateMobileController.text.trim()}');
-    debugPrint('fld_email_id: ${emailController.text.trim()}');
-    debugPrint('contactPersonName: ${contactPersonController.text.trim()}');
-
-    // Address
-    debugPrint('fld_village: ${villageController.text.trim()}');
-    debugPrint('geoAddress: $address');
-    debugPrint('meetingLocation: ');
-    debugPrint('marketNearby: ');
-
-    // Other farmer details
-    debugPrint('fld_tractor_mode: ');
-    debugPrint(
-      'fld_total_acre: ${_selectedCropDetails.fold<double>(0.0, (sum, item) => sum + (double.tryParse(item.acre) ?? 0)).toStringAsFixed(2)}',
-    );
-
-    debugPrint('aadhaarNo: ');
-    debugPrint('remark: ${remarkController.text.trim()}');
-    debugPrint(
-      'currentProductUsed: '
-      '${currentProductUsedController.text.trim()}',
-    );
-
-    // Products / crops
-    debugPrint('selectedProductId: ${_selectedProductIds.join(',')}');
-    debugPrint('selectedProductId LIST: $_selectedProductIds');
-
-    debugPrint(
-      'selectedCropId: ${_selectedCropDetails.map((crop) => crop.cropId.toString()).join(',')}',
-    );
-
-    debugPrint(
-      'selectedCropId LIST: ${_selectedCropDetails.map((crop) => crop.cropId.toString()).toList()}',
-    );
-
-    debugPrint('selectedAcers: $selectedAcers');
-
-    debugPrint('selectedSowingDates: $selectedSowingDates');
-
-    debugPrint('selectedIrrigationId: $selectedIrrigationId');
-
-    debugPrint('selectedCattleId: ');
-    debugPrint('selectedCattleCount: ');
-
-    // Crop details
-    debugPrint('--------------------------------');
-    debugPrint('SELECTED CROP DETAILS');
-    debugPrint('--------------------------------');
-
-    debugPrint('Selected Crop Details Count: ${_selectedCropDetails.length}');
-
-    for (final crop in _selectedCropDetails) {
-      debugPrint(
-        'Crop -> '
-        'ID: ${crop.cropId}, '
-        'Name: ${crop.cropName}, '
-        'Date: ${_formatApiDate(crop.date)}, '
-        'Acre: ${crop.acre}, '
-        'Irrigation ID: ${crop.irrigationId}, '
-        'Irrigation: ${crop.irrigationName}',
-      );
-    }
-
-    // Location
-    debugPrint('--------------------------------');
-    debugPrint('LOCATION');
-    debugPrint('--------------------------------');
-
-    debugPrint('latitude: $latitude');
-    debugPrint('longitude: $longitude');
-
-    debugPrint('networkLatitude: $latitude');
-    debugPrint('networkLongitude: $longitude');
-
-    debugPrint('gpsLatitude: $latitude');
-    debugPrint('gpsLongitude: $longitude');
-
-    debugPrint('differenceByAndroid: 0.0');
-
-    // Device information
-    debugPrint('--------------------------------');
-    debugPrint('DEVICE INFORMATION');
-    debugPrint('--------------------------------');
-
-    debugPrint('strNetworkInfo: $networkInfo');
-    debugPrint('strBatteryInfo: $batteryInfo');
-
-    // Activity
-    debugPrint('activityId: 2');
-
-    // Image
-    debugPrint('--------------------------------');
-    debugPrint('IMAGE');
-    debugPrint('--------------------------------');
-
-    debugPrint(
-      'selfie_capture_image: '
-      '${_uploadedImage?.path ?? 'No image selected'}',
-    );
-
-    debugPrint('================================');
-    debugPrint('END FARMER REGISTRATION PARAMS');
-    debugPrint('================================');
-
-    debugPrint('================================');
-
-    final userData = await SecureStorage.instance.getUserData();
-
-    final userId = int.tryParse(userData?['user_id']?.toString() ?? '');
-
-    debugPrint('User ID: $userId');
-
-    final selectedProductId = _selectedProductIds.join(',');
-
-    debugPrint('Final selectedProductId: $selectedProductId');
 
     setState(() {
       isLoading = true;
@@ -518,13 +339,55 @@ class _FarmerregistrationPageState extends State<FarmerregistrationPage> {
     });
 
     try {
+      if (_selectedStateId == null || _selectedStateId!.isEmpty) {
+        throw Exception('Please select state');
+      }
+
+      if (_selectedDistrictId == null || _selectedDistrictId!.isEmpty) {
+        throw Exception('Please select district');
+      }
+
+      if (_selectedTalukaId == null || _selectedTalukaId!.isEmpty) {
+        throw Exception('Please select taluka');
+      }
+
+      final batteryInfo = await DeviceInfoUtil.instance.getBatteryInfo();
+
+      final networkInfo = await DeviceInfoUtil.instance.getNetworkInfo();
+
+      final position = await LocationUtil.instance.getCurrentLocation();
+
+      String latitude = '';
+      String longitude = '';
+      String address = '';
+
+      if (position != null) {
+        latitude = position.latitude.toString();
+        longitude = position.longitude.toString();
+
+        address = await LocationUtil.instance.getAddress(
+          position.latitude,
+          position.longitude,
+        );
+      }
+
+      final userData = await SecureStorage.instance.getUserData();
+
+      final userId = int.tryParse(userData?['user_id']?.toString() ?? '');
+
+      if (userId == null) {
+        throw Exception('User ID not found');
+      }
+
+      final selectedProductId = _selectedProductIds.join(',');
+
       context.read<StateBloc>().add(
         FarmerSubmitDetailsEvent(
           fldFarmerName: farmerNameController.text.trim(),
 
           fldAddress: addressController.text.trim(),
 
-          userId: userId?.toString() ?? '',
+          userId: userId.toString(),
 
           fldCategoryId: '',
 
@@ -559,18 +422,14 @@ class _FarmerregistrationPageState extends State<FarmerregistrationPage> {
 
           selectedProductId: selectedProductId,
 
-          // Example: 145,146
           selectedCropId: _selectedCropDetails
               .map((item) => item.cropId.toString())
               .join(','),
 
-          // Example: 10,14
           selectedAcers: selectedAcers,
 
-          // Example: 11-09-2026,12-09-2026
           selectedSowingDates: selectedSowingDates,
 
-          // Example: 1,1
           selectedIrrigationId: selectedIrrigationId,
 
           selectedCattleId: '',
@@ -614,12 +473,13 @@ class _FarmerregistrationPageState extends State<FarmerregistrationPage> {
           image: _uploadedImage?.path ?? '',
         ),
       );
+
       _submissionSent = true;
 
-      debugPrint('================================');
       debugPrint('FARMER SUBMIT EVENT SENT');
-      debugPrint('================================');
     } catch (e) {
+      debugPrint('FARMER SUBMIT ERROR: $e');
+
       if (!mounted) return;
 
       setState(() {
@@ -627,11 +487,319 @@ class _FarmerregistrationPageState extends State<FarmerregistrationPage> {
         _submissionSent = false;
       });
 
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text(e.toString())));
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(e.toString().replaceFirst('Exception: ', ''))),
+      );
     }
   }
+  // void _submit() async {
+  //   FocusScope.of(context).unfocus();
+
+  //   if (isLoading) return;
+  //   if (!_formKey.currentState!.validate()) {
+  //     return;
+  //   }
+
+  //   if (_selectedStateId == null || _selectedStateId!.isEmpty) {
+  //     ScaffoldMessenger.of(
+  //       context,
+  //     ).showSnackBar(const SnackBar(content: Text('Please select state')));
+  //     return;
+  //   }
+
+  //   if (_selectedDistrictId == null || _selectedDistrictId!.isEmpty) {
+  //     ScaffoldMessenger.of(
+  //       context,
+  //     ).showSnackBar(const SnackBar(content: Text('Please select district')));
+  //     return;
+  //   }
+
+  //   final batteryInfo = await DeviceInfoUtil.instance.getBatteryInfo();
+
+  //   final networkInfo = await DeviceInfoUtil.instance.getNetworkInfo();
+
+  //   final position = await LocationUtil.instance.getCurrentLocation();
+
+  //   String latitude = '';
+  //   String longitude = '';
+  //   String address = '';
+
+  //   if (position != null) {
+  //     latitude = position.latitude.toString();
+  //     longitude = position.longitude.toString();
+
+  //     address = await LocationUtil.instance.getAddress(
+  //       position.latitude,
+  //       position.longitude,
+  //     );
+  //   }
+
+  //   if (_selectedTalukaId == null || _selectedTalukaId!.isEmpty) {
+  //     ScaffoldMessenger.of(
+  //       context,
+  //     ).showSnackBar(const SnackBar(content: Text('Please select taluka')));
+  //     return;
+  //   }
+  //   debugPrint('================================');
+  //   debugPrint('FARMER REGISTRATION - ALL PARAMS');
+  //   debugPrint('================================');
+
+  //   debugPrint('FARMER LATTTT - $latitude');
+  //   debugPrint('FARMER LONG - $longitude');
+  //   debugPrint('================================');
+
+  //   // Basic farmer details
+  //   debugPrint('fld_farmer_name: ${farmerNameController.text.trim()}');
+  //   debugPrint('fld_address: ${addressController.text.trim()}');
+
+  //   debugPrint('fld_category_id: ');
+  //   debugPrint('state: ${_selectedStateId ?? '0'}');
+  //   debugPrint('fld_demo_type_id: ');
+  //   debugPrint('district: ${_selectedDistrictId ?? '0'}');
+  //   debugPrint('taluka: ${_selectedTalukaId ?? '0'}');
+
+  //   // Farmer status
+  //   debugPrint('status_of_farmer: ${_selectedFarmerStatus ?? ''}');
+  //   debugPrint('campaign_radio: Yes');
+
+  //   // Mobile / contact
+  //   debugPrint('fld_mobile_no: ${mobileController.text.trim()}');
+  //   debugPrint('fld_mobile_no2: ${alternateMobileController.text.trim()}');
+  //   debugPrint('fld_email_id: ${emailController.text.trim()}');
+  //   debugPrint('contactPersonName: ${contactPersonController.text.trim()}');
+
+  //   // Address
+  //   debugPrint('fld_village: ${villageController.text.trim()}');
+  //   debugPrint('geoAddress: $address');
+  //   debugPrint('meetingLocation: ');
+  //   debugPrint('marketNearby: ');
+
+  //   // Other farmer details
+  //   debugPrint('fld_tractor_mode: ');
+  //   debugPrint(
+  //     'fld_total_acre: ${_selectedCropDetails.fold<double>(0.0, (sum, item) => sum + (double.tryParse(item.acre) ?? 0)).toStringAsFixed(2)}',
+  //   );
+
+  //   debugPrint('aadhaarNo: ');
+  //   debugPrint('remark: ${remarkController.text.trim()}');
+  //   debugPrint(
+  //     'currentProductUsed: '
+  //     '${currentProductUsedController.text.trim()}',
+  //   );
+
+  //   // Products / crops
+  //   debugPrint('selectedProductId: ${_selectedProductIds.join(',')}');
+  //   debugPrint('selectedProductId LIST: $_selectedProductIds');
+
+  //   debugPrint(
+  //     'selectedCropId: ${_selectedCropDetails.map((crop) => crop.cropId.toString()).join(',')}',
+  //   );
+
+  //   debugPrint(
+  //     'selectedCropId LIST: ${_selectedCropDetails.map((crop) => crop.cropId.toString()).toList()}',
+  //   );
+
+  //   debugPrint('selectedAcers: $selectedAcers');
+
+  //   debugPrint('selectedSowingDates: $selectedSowingDates');
+
+  //   debugPrint('selectedIrrigationId: $selectedIrrigationId');
+
+  //   debugPrint('selectedCattleId: ');
+  //   debugPrint('selectedCattleCount: ');
+
+  //   // Crop details
+  //   debugPrint('--------------------------------');
+  //   debugPrint('SELECTED CROP DETAILS');
+  //   debugPrint('--------------------------------');
+
+  //   debugPrint('Selected Crop Details Count: ${_selectedCropDetails.length}');
+
+  //   for (final crop in _selectedCropDetails) {
+  //     debugPrint(
+  //       'Crop -> '
+  //       'ID: ${crop.cropId}, '
+  //       'Name: ${crop.cropName}, '
+  //       'Date: ${_formatApiDate(crop.date)}, '
+  //       'Acre: ${crop.acre}, '
+  //       'Irrigation ID: ${crop.irrigationId}, '
+  //       'Irrigation: ${crop.irrigationName}',
+  //     );
+  //   }
+
+  //   // Location
+  //   debugPrint('--------------------------------');
+  //   debugPrint('LOCATION');
+  //   debugPrint('--------------------------------');
+
+  //   debugPrint('latitude: $latitude');
+  //   debugPrint('longitude: $longitude');
+
+  //   debugPrint('networkLatitude: $latitude');
+  //   debugPrint('networkLongitude: $longitude');
+
+  //   debugPrint('gpsLatitude: $latitude');
+  //   debugPrint('gpsLongitude: $longitude');
+
+  //   debugPrint('differenceByAndroid: 0.0');
+
+  //   // Device information
+  //   debugPrint('--------------------------------');
+  //   debugPrint('DEVICE INFORMATION');
+  //   debugPrint('--------------------------------');
+
+  //   debugPrint('strNetworkInfo: $networkInfo');
+  //   debugPrint('strBatteryInfo: $batteryInfo');
+
+  //   // Activity
+  //   debugPrint('activityId: 2');
+
+  //   // Image
+  //   debugPrint('--------------------------------');
+  //   debugPrint('IMAGE');
+  //   debugPrint('--------------------------------');
+
+  //   debugPrint(
+  //     'selfie_capture_image: '
+  //     '${_uploadedImage?.path ?? 'No image selected'}',
+  //   );
+
+  //   debugPrint('================================');
+  //   debugPrint('END FARMER REGISTRATION PARAMS');
+  //   debugPrint('================================');
+
+  //   debugPrint('================================');
+
+  //   final userData = await SecureStorage.instance.getUserData();
+
+  //   final userId = int.tryParse(userData?['user_id']?.toString() ?? '');
+
+  //   debugPrint('User ID: $userId');
+
+  //   final selectedProductId = _selectedProductIds.join(',');
+
+  //   debugPrint('Final selectedProductId: $selectedProductId');
+
+  //   setState(() {
+  //     isLoading = true;
+  //     _submissionSent = false;
+  //   });
+
+  //   try {
+  //     context.read<StateBloc>().add(
+  //       FarmerSubmitDetailsEvent(
+  //         fldFarmerName: farmerNameController.text.trim(),
+
+  //         fldAddress: addressController.text.trim(),
+
+  //         userId: userId?.toString() ?? '',
+
+  //         fldCategoryId: '',
+
+  //         state: _selectedStateId ?? '0',
+
+  //         fldDemoTypeId: '',
+
+  //         district: _selectedDistrictId ?? '0',
+
+  //         taluka: _selectedTalukaId ?? '0',
+
+  //         statusOfFarmer: _selectedFarmerStatus ?? '',
+
+  //         campaignRadio: 'Yes',
+
+  //         fldMobileNo: mobileController.text.trim(),
+
+  //         fldMobileNo2: alternateMobileController.text.trim(),
+
+  //         fldTotalAcre: _selectedCropDetails
+  //             .fold<double>(
+  //               0.0,
+  //               (sum, item) => sum + (double.tryParse(item.acre) ?? 0),
+  //             )
+  //             .toStringAsFixed(2),
+
+  //         fldEmailId: emailController.text.trim(),
+
+  //         fldTractorMode: '',
+
+  //         fldVillage: villageController.text.trim(),
+
+  //         selectedProductId: selectedProductId,
+
+  //         // Example: 145,146
+  //         selectedCropId: _selectedCropDetails
+  //             .map((item) => item.cropId.toString())
+  //             .join(','),
+
+  //         // Example: 10,14
+  //         selectedAcers: selectedAcers,
+
+  //         // Example: 11-09-2026,12-09-2026
+  //         selectedSowingDates: selectedSowingDates,
+
+  //         // Example: 1,1
+  //         selectedIrrigationId: selectedIrrigationId,
+
+  //         selectedCattleId: '',
+
+  //         selectedCattleCount: '',
+
+  //         latitude: latitude,
+
+  //         longitude: longitude,
+
+  //         networkLatitude: latitude,
+
+  //         networkLongitude: longitude,
+
+  //         gpsLatitude: latitude,
+
+  //         gpsLongitude: longitude,
+
+  //         differenceByAndroid: '0.0',
+
+  //         contactPersonName: contactPersonController.text.trim(),
+
+  //         meetingLocation: '',
+
+  //         marketNearby: '',
+
+  //         aadhaarNo: '',
+
+  //         remark: remarkController.text.trim(),
+
+  //         geoAddress: address,
+
+  //         strNetworkInfo: networkInfo,
+
+  //         currentProductUsed: currentProductUsedController.text.trim(),
+
+  //         strBatteryInfo: batteryInfo,
+
+  //         activityId: '2',
+
+  //         image: _uploadedImage?.path ?? '',
+  //       ),
+  //     );
+  //     _submissionSent = true;
+
+  //     debugPrint('================================');
+  //     debugPrint('FARMER SUBMIT EVENT SENT');
+  //     debugPrint('================================');
+  //   } catch (e) {
+  //     if (!mounted) return;
+
+  //     setState(() {
+  //       isLoading = false;
+  //       _submissionSent = false;
+  //     });
+
+  //     ScaffoldMessenger.of(
+  //       context,
+  //     ).showSnackBar(SnackBar(content: Text(e.toString())));
+  //   }
+  // }
 
   @override
   void dispose() {
@@ -813,6 +981,7 @@ class _FarmerregistrationPageState extends State<FarmerregistrationPage> {
                     SizedBox(height: 10.h),
 
                     CustomTextFormField(
+                      maxLength: 10,
                       controller: mobileController,
                       hintText: 'Mobile No *',
                       labelText: 'Mobile No *',
@@ -833,9 +1002,9 @@ class _FarmerregistrationPageState extends State<FarmerregistrationPage> {
                       },
                     ),
 
-                    SizedBox(height: 10.h),
-
+                    // SizedBox(height: 10.h),
                     CustomTextFormField(
+                      maxLength: 10,
                       controller: alternateMobileController,
                       hintText: 'Alternate Mobile No',
                       labelText: 'Alternate Mobile No ',
@@ -856,8 +1025,7 @@ class _FarmerregistrationPageState extends State<FarmerregistrationPage> {
                       },
                     ),
 
-                    SizedBox(height: 10.h),
-
+                    // SizedBox(height: 10.h),
                     CustomTextFormField(
                       controller: emailController,
                       hintText: 'Email ID',
@@ -1065,135 +1233,184 @@ class _FarmerregistrationPageState extends State<FarmerregistrationPage> {
                       ),
                     ),
 
-                    FormField<bool>(
-                      initialValue: _selectedProductIds.isNotEmpty,
-                      validator: (_) {
+                    CustomTextFormField(
+                      controller: TextEditingController(
+                        text: _selectedProductIds.isEmpty
+                            ? ''
+                            : _selectedProductNames,
+                      ),
+                      hintText: 'Select Suggested Product',
+                      prefixIcon: Icons.inventory_2_outlined,
+                      readOnly: true,
+                      onTap: productDetailData.isEmpty
+                          ? null
+                          : () async {
+                              final result = await showDialog<List<String>>(
+                                context: context,
+                                barrierDismissible: false,
+                                builder: (dialogContext) {
+                                  return ProductSelectionDialog(
+                                    productList: productDetailData,
+                                    selectedProductIds: _selectedProductIds,
+                                  );
+                                },
+                              );
+
+                              if (result != null && mounted) {
+                                setState(() {
+                                  _selectedProductIds
+                                    ..clear()
+                                    ..addAll(result);
+                                });
+
+                                debugPrint(
+                                  'Selected Product IDs: '
+                                  '${_selectedProductIds.join(',')}',
+                                );
+
+                                debugPrint(
+                                  'Selected Product IDs List: '
+                                  '$_selectedProductIds',
+                                );
+                              }
+                            },
+                      validator: (value) {
                         if (_selectedProductIds.isEmpty) {
                           return 'Please select a suggested product';
                         }
 
                         return null;
                       },
-                      builder: (field) {
-                        return Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            InkWell(
-                              onTap: productDetailData.isEmpty
-                                  ? null
-                                  : () async {
-                                      final result =
-                                          await showDialog<List<String>>(
-                                            context: context,
-                                            barrierDismissible: false,
-                                            builder: (dialogContext) {
-                                              return ProductSelectionDialog(
-                                                productList: productDetailData,
-                                                selectedProductIds:
-                                                    _selectedProductIds,
-                                              );
-                                            },
-                                          );
-
-                                      if (result != null && mounted) {
-                                        setState(() {
-                                          _selectedProductIds
-                                            ..clear()
-                                            ..addAll(result);
-                                        });
-
-                                        debugPrint(
-                                          'Selected Product IDs: '
-                                          '${_selectedProductIds.join(',')}',
-                                        );
-
-                                        debugPrint(
-                                          'Selected Product IDs List: '
-                                          '$_selectedProductIds',
-                                        );
-                                      }
-                                    },
-                              child: Container(
-                                width: double.infinity,
-                                padding: EdgeInsets.symmetric(
-                                  horizontal: 14.w,
-                                  vertical: 15.h,
-                                ),
-                                decoration: BoxDecoration(
-                                  color: productDetailData.isEmpty
-                                      ? Colors.grey.shade100
-                                      : Colors.white,
-                                  borderRadius: BorderRadius.circular(22.r),
-                                  boxShadow: productDetailData.isNotEmpty
-                                      ? [
-                                          BoxShadow(
-                                            color: Colors.black.withValues(
-                                              alpha: 0.08,
-                                            ),
-                                            blurRadius: 8,
-                                            offset: const Offset(0, 2),
-                                          ),
-                                        ]
-                                      : [],
-                                ),
-                                child: Row(
-                                  children: [
-                                    Icon(
-                                      Icons.inventory_2_outlined,
-                                      color: productDetailData.isEmpty
-                                          ? Colors.grey
-                                          : const Color(0xFF087C3A),
-                                    ),
-
-                                    SizedBox(width: 12.w),
-
-                                    Expanded(
-                                      child: _selectedProductIds.isEmpty
-                                          ? Text(
-                                              'Select Suggested Product',
-                                              style: TextStyle(
-                                                fontSize: 14.sp,
-                                                color: Colors.grey.shade500,
-                                              ),
-                                            )
-                                          : Text(
-                                              _selectedProductNames,
-                                              maxLines: 2,
-                                              overflow: TextOverflow.ellipsis,
-                                              style: TextStyle(
-                                                fontSize: 14.sp,
-                                                color: Colors.black87,
-                                                fontWeight: FontWeight.w500,
-                                              ),
-                                            ),
-                                    ),
-
-                                    Icon(
-                                      Icons.keyboard_arrow_down,
-                                      color: productDetailData.isEmpty
-                                          ? Colors.grey
-                                          : Colors.grey.shade600,
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
-                            if (field.hasError)
-                              Padding(
-                                padding: EdgeInsets.only(left: 16.w, top: 4.h),
-                                child: Text(
-                                  field.errorText!,
-                                  style: TextStyle(
-                                    color: Colors.red,
-                                    fontSize: 12.sp,
-                                  ),
-                                ),
-                              ),
-                          ],
-                        );
-                      },
                     ),
 
+                    // FormField<bool>(
+                    //   initialValue: _selectedProductIds.isNotEmpty,
+                    //   validator: (_) {
+                    //     if (_selectedProductIds.isEmpty) {
+                    //       return 'Please select a suggested product';
+                    //     }
+
+                    //     return null;
+                    //   },
+                    //   builder: (field) {
+                    //     return Column(
+                    //       crossAxisAlignment: CrossAxisAlignment.start,
+                    //       children: [
+                    //         InkWell(
+                    //           onTap: productDetailData.isEmpty
+                    //               ? null
+                    //               : () async {
+                    //                   final result =
+                    //                       await showDialog<List<String>>(
+                    //                         context: context,
+                    //                         barrierDismissible: false,
+                    //                         builder: (dialogContext) {
+                    //                           return ProductSelectionDialog(
+                    //                             productList: productDetailData,
+                    //                             selectedProductIds:
+                    //                                 _selectedProductIds,
+                    //                           );
+                    //                         },
+                    //                       );
+
+                    //                   if (result != null && mounted) {
+                    //                     setState(() {
+                    //                       _selectedProductIds
+                    //                         ..clear()
+                    //                         ..addAll(result);
+                    //                     });
+
+                    //                     debugPrint(
+                    //                       'Selected Product IDs: '
+                    //                       '${_selectedProductIds.join(',')}',
+                    //                     );
+
+                    //                     debugPrint(
+                    //                       'Selected Product IDs List: '
+                    //                       '$_selectedProductIds',
+                    //                     );
+                    //                   }
+                    //                 },
+                    //           child: Container(
+                    //             width: double.infinity,
+                    //             padding: EdgeInsets.symmetric(
+                    //               horizontal: 14.w,
+                    //               vertical: 15.h,
+                    //             ),
+                    //             decoration: BoxDecoration(
+                    //               color: productDetailData.isEmpty
+                    //                   ? Colors.grey.shade100
+                    //                   : Colors.white,
+                    //               borderRadius: BorderRadius.circular(22.r),
+                    //               boxShadow: productDetailData.isNotEmpty
+                    //                   ? [
+                    //                       BoxShadow(
+                    //                         color: Colors.black.withValues(
+                    //                           alpha: 0.08,
+                    //                         ),
+                    //                         blurRadius: 8,
+                    //                         offset: const Offset(0, 2),
+                    //                       ),
+                    //                     ]
+                    //                   : [],
+                    //             ),
+                    //             child: Row(
+                    //               children: [
+                    //                 Icon(
+                    //                   Icons.inventory_2_outlined,
+                    //                   color: productDetailData.isEmpty
+                    //                       ? Colors.grey
+                    //                       : const Color(0xFF087C3A),
+                    //                 ),
+
+                    //                 SizedBox(width: 12.w),
+
+                    //                 Expanded(
+                    //                   child: _selectedProductIds.isEmpty
+                    //                       ? Text(
+                    //                           'Select Suggested Product',
+                    //                           style: TextStyle(
+                    //                             fontSize: 14.sp,
+                    //                             color: Colors.grey.shade500,
+                    //                           ),
+                    //                         )
+                    //                       : Text(
+                    //                           _selectedProductNames,
+                    //                           maxLines: 2,
+                    //                           overflow: TextOverflow.ellipsis,
+                    //                           style: TextStyle(
+                    //                             fontSize: 14.sp,
+                    //                             color: Colors.black87,
+                    //                             fontWeight: FontWeight.w500,
+                    //                           ),
+                    //                         ),
+                    //                 ),
+
+                    //                 Icon(
+                    //                   Icons.keyboard_arrow_down,
+                    //                   color: productDetailData.isEmpty
+                    //                       ? Colors.grey
+                    //                       : Colors.grey.shade600,
+                    //                 ),
+                    //               ],
+                    //             ),
+                    //           ),
+                    //         ),
+                    //         if (field.hasError)
+                    //           Padding(
+                    //             padding: EdgeInsets.only(left: 16.w, top: 4.h),
+                    //             child: Text(
+                    //               field.errorText!,
+                    //               style: TextStyle(
+                    //                 color: Colors.red,
+                    //                 fontSize: 12.sp,
+                    //               ),
+                    //             ),
+                    //           ),
+                    //       ],
+                    //     );
+                    //   },
+                    // ),
                     SizedBox(height: 10.h),
 
                     const Text(
