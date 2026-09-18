@@ -305,7 +305,7 @@ class _HomeState extends State<Home> {
                     color: AppColors.textColor,
                   ),
                   onPressed: () {
-                    context.push('/profile');
+                    Scaffold.of(scaffoldContext).openDrawer();
                   },
                 ),
               );
@@ -329,61 +329,61 @@ class _HomeState extends State<Home> {
               children: [
                 SizedBox(height: 8.h),
 
-            BlocBuilder<HomeBloc, HomeState>(
-  builder: (context, state) {
-    int pendingCount = 0;
-    int pendingTotalCount = 0;
+                BlocBuilder<HomeBloc, HomeState>(
+                  builder: (context, state) {
+                    int pendingCount = 0;
+                    int pendingTotalCount = 0;
 
-    String punchTiming = '';
-    String city = '';
-    String countryState = '';
+                    String punchTiming = '';
+                    String city = '';
+                    String countryState = '';
 
-    final data = state.data;
+                    final data = state.data;
 
-    if (state.status == HomeStatus.success && data != null) {
-      pendingCount = data.pendingInpunchCount;
-      pendingTotalCount = data.totalRecursiveEmployee;
-      punchTiming = data.inpunchTime ?? '';
-      city = data.city ?? '';
-      countryState = data.state ?? '';
-    }
+                    if (state.status == HomeStatus.success && data != null) {
+                      pendingCount = data.pendingInpunchCount;
+                      pendingTotalCount = data.totalRecursiveEmployee;
+                      punchTiming = data.inpunchTime ?? '';
+                      city = data.city ?? '';
+                      countryState = data.state ?? '';
+                    }
 
-    return Row(
-      children: [
-        Expanded(
-          child: SizedBox(
-            height: 100.h,
-            child: buildPunchCard(
-              "Today's Punch",
-              punchTiming.isEmpty ? '--' : punchTiming,
-              [
-                city,
-                countryState,
-              ].where((e) => e.isNotEmpty).join(', '),
-            ),
-          ),
-        ),
+                    return Row(
+                      children: [
+                        Expanded(
+                          child: SizedBox(
+                            height: 100.h,
+                            child: buildPunchCard(
+                              "Today's Punch",
+                              punchTiming.isEmpty ? '--' : punchTiming,
+                              [
+                                city,
+                                countryState,
+                              ].where((e) => e.isNotEmpty).join(', '),
+                            ),
+                          ),
+                        ),
 
-        SizedBox(width: 8.w),
+                        SizedBox(width: 8.w),
 
-        Expanded(
-          child: SizedBox(
-            height: 100.h,
-            child: buildInfoCard(
-              'In Punch Pending',
-              '$pendingCount/$pendingTotalCount',
-              onTap: () {
-                final pendingList = data?.result ?? [];
+                        Expanded(
+                          child: SizedBox(
+                            height: 100.h,
+                            child: buildInfoCard(
+                              'In Punch Pending',
+                              '$pendingCount/$pendingTotalCount',
+                              onTap: () {
+                                final pendingList = data?.result ?? [];
 
-                _showPendingListDialog(pendingList);
-              },
-            ),
-          ),
-        ),
-      ],
-    );
-  },
-),
+                                _showPendingListDialog(pendingList);
+                              },
+                            ),
+                          ),
+                        ),
+                      ],
+                    );
+                  },
+                ),
 
                 BlocBuilder<HomeBloc, HomeState>(
                   builder: (context, state) {

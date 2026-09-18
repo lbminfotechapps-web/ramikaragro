@@ -10,24 +10,23 @@ import '../../../../core/error/exceptions.dart';
 import '../../domain/usecases/add_ramark.dart';
 import 'add_dealer_visit_event.dart';
 
-
 class AddDealerVisitBlock
     extends Bloc<AddDealerRemarkEvent, AddDealerVisitState> {
   final AddRemark addLeave;
   final FarmerregistrationRepository repositoryProvider;
 
-AddDealerVisitBlock(this.addLeave, this.repositoryProvider)
+  AddDealerVisitBlock(this.addLeave, this.repositoryProvider)
     : super(const AddDealerVisitState()) {
-  on<AddDealerRemarkSubmitEvent>(_onAddRemark);
-  on<GetPurposeEvent>(_onGetPurpose);
-  on<GetFollowupEvent>(_onGetFollowup);
-  on<AddDealerFollowUpEvent>(_onAddDealerFollowUp);
-  on<StateListEvent>(_onStateListGet);
-  on<DistrictEvent>(_onDistrictGet);
-  on<UpdateDealerEvent>(_onUpdateDealer);
-}
+    on<AddDealerRemarkSubmitEvent>(_onAddRemark);
+    on<GetPurposeEvent>(_onGetPurpose);
+    on<GetFollowupEvent>(_onGetFollowup);
+    on<AddDealerFollowUpEvent>(_onAddDealerFollowUp);
+    on<StateListEvent>(_onStateListGet);
+    on<DistrictEvent>(_onDistrictGet);
+    on<UpdateDealerEvent>(_onUpdateDealer);
+  }
 
- Future<void> _onAddRemark(
+Future<void> _onAddRemark(
   AddDealerRemarkSubmitEvent event,
   Emitter<AddDealerVisitState> emit,
 ) async {
@@ -76,35 +75,36 @@ AddDealerVisitBlock(this.addLeave, this.repositoryProvider)
     print(response);
     print('=========================================');
 
-    // IMPORTANT:
-    // API returns:
-    // {"status":"success-25"}
-
     final responseStatus =
-    response['status']?.toString().toLowerCase().trim() ?? '';
+        response['status']?.toString().trim().toLowerCase() ?? '';
 
-debugPrint('API STATUS: "$responseStatus"');
+    debugPrint('FULL API STATUS: "$responseStatus"');
 
-if (responseStatus == 'success' ||
-    responseStatus == 'true' ||
-    responseStatus == '1' ||
-    responseStatus.startsWith('success-')) {
-  emit(
-    state.copyWith(
-      addLeaveStatus: AddDealerVisitStatus.dealerAddedSuccess,
-      errorMessage: null,
-    ),
-  );
-} else {
-  emit(
-    state.copyWith(
-      addLeaveStatus: AddDealerVisitStatus.failure,
-      errorMessage:
-          response['message']?.toString() ??
-          'Unable to add dealer follow up',
-    ),
-  );
-}
+    // success-48 -> success
+    // success-47 -> success
+    // success-25 -> success
+    // success -> success
+    final mainStatus = responseStatus.split('-').first.trim();
+
+    debugPrint('MAIN API STATUS: "$mainStatus"');
+
+    if (mainStatus == 'success') {
+      emit(
+        state.copyWith(
+          addLeaveStatus: AddDealerVisitStatus.dealerAddedSuccess,
+          errorMessage: null,
+        ),
+      );
+    } else {
+      emit(
+        state.copyWith(
+          addLeaveStatus: AddDealerVisitStatus.failure,
+          errorMessage:
+              response['message']?.toString() ??
+              'Unable to add dealer follow up',
+        ),
+      );
+    }
   } catch (e, stackTrace) {
     print('========== ADD REMARK ERROR ==========');
     print(e);
@@ -126,7 +126,6 @@ if (responseStatus == 'success' ||
     );
   }
 }
-
   Future<void> _onGetPurpose(
     GetPurposeEvent event,
     Emitter<AddDealerVisitState> emit,
@@ -152,42 +151,34 @@ if (responseStatus == 'success' ||
     }
   }
 
+  Future<void> _onGetFollowup(
+    GetFollowupEvent event,
+    Emitter<AddDealerVisitState> emit,
+  ) async {
+    emit(state.copyWith(addLeaveStatus: AddDealerVisitStatus.loading));
 
+    try {
+      final followupList = await addLeave.getFollowupList(event.outlet_id);
 
+      print('Followup List: $followupList');
+      print('Followup List Size: ${followupList.length}');
 
-   Future<void> _onGetFollowup(
-  GetFollowupEvent event,
-  Emitter<AddDealerVisitState> emit,
-) async {
-  emit(
-    state.copyWith(
-      addLeaveStatus: AddDealerVisitStatus.loading,
-    ),
-  );
-
-  try {
-    final followupList = await addLeave.getFollowupList(
-      event.outlet_id,
-    );
-
-    print('Followup List: $followupList');
-    print('Followup List Size: ${followupList.length}');
-
-    emit(
-      state.copyWith(
-        addLeaveStatus: AddDealerVisitStatus.success,
-        followupList: followupList,
-      ),
-    );
-  } catch (error) {
-    emit(
-      state.copyWith(
-        addLeaveStatus: AddDealerVisitStatus.failure,
-        errorMessage: error.toString(),
-      ),
-    );
+      emit(
+        state.copyWith(
+          addLeaveStatus: AddDealerVisitStatus.success,
+          followupList: followupList,
+        ),
+      );
+    } catch (error) {
+      emit(
+        state.copyWith(
+          addLeaveStatus: AddDealerVisitStatus.failure,
+          errorMessage: error.toString(),
+        ),
+      );
+    }
   }
-}
+
   Future<void> _onStateListGet(
     StateListEvent event,
     Emitter<AddDealerVisitState> emit,
@@ -558,31 +549,33 @@ if (responseStatus == 'success' ||
       // ============================================
       // SUCCESS
       // ============================================
-     final responseStatus =
-    response['status']?.toString().toLowerCase().trim();
+      final responseStatus = response['status']
+          ?.toString()
+          .toLowerCase()
+          .trim();
 
-debugPrint('API STATUS: "$responseStatus"');
+      debugPrint('API STATUS: "$responseStatus"');
 
-if (responseStatus == 'success' ||
-    responseStatus == 'true' ||
-    responseStatus == '1' ||
-    responseStatus!.startsWith('success-')) {
-  emit(
-    state.copyWith(
-      addLeaveStatus: AddDealerVisitStatus.dealerAddedSuccess,
-      errorMessage: null,
-    ),
-  );
-} else {
-  emit(
-    state.copyWith(
-      addLeaveStatus: AddDealerVisitStatus.failure,
-      errorMessage:
-          response['message']?.toString() ??
-          'Unable to add dealer follow up',
-    ),
-  );
-}
+      if (responseStatus == 'success' ||
+          responseStatus == 'true' ||
+          responseStatus == '1' ||
+          responseStatus!.startsWith('success-')) {
+        emit(
+          state.copyWith(
+            addLeaveStatus: AddDealerVisitStatus.dealerAddedSuccess,
+            errorMessage: null,
+          ),
+        );
+      } else {
+        emit(
+          state.copyWith(
+            addLeaveStatus: AddDealerVisitStatus.failure,
+            errorMessage:
+                response['message']?.toString() ??
+                'Unable to add dealer follow up',
+          ),
+        );
+      }
     } catch (error) {
       print('Dealer follow up error: $error');
 

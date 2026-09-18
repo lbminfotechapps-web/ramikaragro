@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:demo/core/router/app_router.dart';
 import 'package:demo/core/secure_storage/secure_storage.dart';
+import 'package:demo/core/utility/appdialog.dart';
 import 'package:demo/core/utility/widgets/custom_appbar.dart';
 import 'package:demo/core/utility/widgets/custom_loader.dart';
 import 'package:demo/features/farmer/famerfollowup/data/model/followuplist_model.dart';
@@ -588,18 +589,16 @@ class _FamerFollowupPageState extends State<FamerFollowupPage> {
         // ----------------------------------------------------
 
         if (state.status == FamerfollowupStatus.farmerFollowUpSuccess) {
-          ScaffoldMessenger.of(context)
-            ..hideCurrentSnackBar()
-            ..showSnackBar(
-              const SnackBar(
-                content: Text('Record Submitted Successfully'),
-                behavior: SnackBarBehavior.floating,
-                backgroundColor: Color(0xFF087F5B),
-                margin: EdgeInsets.all(16),
-              ),
+          AppDialog.show(
+              context: context,
+              type: DialogType.success,
+              title: 'Punch In Successful',
+              message: 'Farmer Visit successfully.',
+              buttonText: 'OK',
+              onButtonPressed: () {
+                context.go(AppRouter.home);
+              },
             );
-
-          context.go(AppRouter.home);
         }
 
         // ----------------------------------------------------
