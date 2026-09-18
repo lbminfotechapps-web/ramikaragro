@@ -4,6 +4,7 @@ import 'package:demo/core/router/app_router.dart';
 import 'package:demo/core/secure_storage/secure_storage.dart';
 import 'package:demo/core/theme/app_colors.dart';
 import 'package:demo/core/utility/app_image_picker.dart';
+import 'package:demo/core/utility/appdialog.dart';
 import 'package:demo/core/utility/data_list.dart';
 import 'package:demo/core/utility/widgets/custom_appbar.dart' show CustomAppBar;
 import 'package:demo/core/utility/widgets/custom_button.dart';
@@ -505,20 +506,7 @@ class _EditUpdateDealerState extends State<EditUpdateDealer> {
     });
   }
 
-  Future<void> _pickDate() async {
-    final selectedDate = await showDatePicker(
-      context: context,
-      initialDate: DateTime.now(),
-      firstDate: DateTime(2000),
-      lastDate: DateTime(2100),
-    );
 
-    if (selectedDate == null) return;
-
-    setState(() {
-      dateController.text = DateFormat('dd-MM-yyyy').format(selectedDate);
-    });
-  }
 
   String? _selectedFollowUpType;
   bool _submissionSent = false;
@@ -566,16 +554,12 @@ class _EditUpdateDealerState extends State<EditUpdateDealer> {
               isLoading = false;
               _submissionSent = false;
             });
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                backgroundColor: AppColors.backgroundColor,
-                content: Text(
-                  style: TextStyle(color: AppColors.accentGreen),
-                  state.errorMessage ?? 'Farmer Updated Successfully',
-                ),
-              ),
+
+            AppDialog.show(
+              context: context,
+              message: 'Dealer Updated Successfully',
+              onButtonPressed: () => {context.go(AppRouter.home)},
             );
-            context.go(AppRouter.home);
           }
           // ============================================
           // API ERROR
@@ -756,6 +740,7 @@ class _EditUpdateDealerState extends State<EditUpdateDealer> {
 
                     SizedBox(height: 10.h),
                     CustomTextFormField(
+                       labelText: 'Shop Name',
                       controller: shopNameController,
                       hintText: 'Shop Name *',
                       prefixIcon: Icons.shop,
@@ -771,6 +756,7 @@ class _EditUpdateDealerState extends State<EditUpdateDealer> {
                     SizedBox(height: 10.h),
 
                     CustomTextFormField(
+                         labelText: 'Dealer Code',
                       controller: dealerCodeController,
                       hintText: 'Dealer Code',
                       prefixIcon: Icons.person_outline,
@@ -779,6 +765,7 @@ class _EditUpdateDealerState extends State<EditUpdateDealer> {
                     SizedBox(height: 10.h),
 
                     CustomTextFormField(
+                           labelText: 'Owner Name',
                       controller: ownerNameController,
                       hintText: 'Owner Name',
                       prefixIcon: Icons.person_2_outlined,
@@ -788,6 +775,8 @@ class _EditUpdateDealerState extends State<EditUpdateDealer> {
                     SizedBox(height: 10.h),
 
                     CustomTextFormField(
+                           maxLength: 10,
+                            labelText: 'Mobile No',
                       controller: mobileController,
                       hintText: 'Mobile No *',
                       prefixIcon: Icons.phone_outlined,
@@ -810,6 +799,8 @@ class _EditUpdateDealerState extends State<EditUpdateDealer> {
                     SizedBox(height: 10.h),
 
                     CustomTextFormField(
+                           maxLength: 10,
+                      labelText: 'Alternate Mobile No',
                       controller: alternateMobileController,
                       hintText: 'Alternate Mobile No',
                       prefixIcon: Icons.phone_outlined,
@@ -832,6 +823,7 @@ class _EditUpdateDealerState extends State<EditUpdateDealer> {
                     SizedBox(height: 10.h),
 
                     CustomTextFormField(
+                       labelText: 'GST No',
                       controller: gstController,
                       hintText: 'GST No',
                       prefixIcon: Icons.receipt_long_outlined,
@@ -841,6 +833,8 @@ class _EditUpdateDealerState extends State<EditUpdateDealer> {
                     SizedBox(height: 10.h),
 
                     CustomTextFormField(
+                 
+                        labelText: 'Email Id',
                       controller: emailController,
                       hintText: 'Email Id',
                       prefixIcon: Icons.email_outlined,
@@ -865,6 +859,7 @@ class _EditUpdateDealerState extends State<EditUpdateDealer> {
                     SizedBox(height: 10.h),
 
                     CustomTextFormField(
+                        labelText: 'Address',
                       controller: addressController,
                       hintText: 'Address',
                       prefixIcon: Icons.home_outlined,
@@ -1032,6 +1027,7 @@ class _EditUpdateDealerState extends State<EditUpdateDealer> {
                     SizedBox(height: 10.h),
 
                     CustomTextFormField(
+                       labelText: 'Remark',
                       controller: remarkController,
                       hintText: 'Remark',
                       prefixIcon: Icons.note,

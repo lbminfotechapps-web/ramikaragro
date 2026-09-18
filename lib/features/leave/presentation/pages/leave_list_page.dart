@@ -2,6 +2,7 @@ import 'package:demo/core/router/app_router.dart';
 import 'package:demo/core/theme/app_colors.dart';
 import 'package:demo/core/utility/widgets/custom_appbar.dart';
 import 'package:demo/core/utility/widgets/custom_loader.dart';
+import 'package:demo/features/leave/presentation/pages/add_leave_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil_plus/flutter_screenutil_plus.dart';
@@ -203,17 +204,18 @@ class _LeaveListPageState extends State<LeaveListPage>
   // OPEN ADD LEAVE
   // ============================================================
 
-  Future<void> _openAddLeave() async {
-    final result = await context.push("/add-leave");
+  // Future<void> _openAddLeave() async {
+  //   print("jgfjhfgk");
+  //   // final result = await context.push("/addLeave");
 
-    if (!mounted) {
-      return;
-    }
+  //   if (!mounted) {
+  //     return;
+  //   }
 
-    if (result == true) {
-      _getLeaveList();
-    }
-  }
+  //   if (result == true) {
+  //     _getLeaveList();
+  //   }
+  // }
 
   // ============================================================
   // FILTER TEXT
@@ -343,7 +345,10 @@ class _LeaveListPageState extends State<LeaveListPage>
         // FAB
         // ======================================================
         floatingActionButton: FloatingActionButton.extended(
-          onPressed: _openAddLeave,
+          onPressed: (){
+            //  context.push('/add-Leave');
+          Navigator.push(context, MaterialPageRoute(builder: (context)=>AddLeavePage()));
+          },
           backgroundColor: Colors.green,
           foregroundColor: Colors.white,
           elevation: 5,
@@ -817,7 +822,7 @@ class _LeaveListPageState extends State<LeaveListPage>
           else
             Center(
               child: ElevatedButton.icon(
-                onPressed: _openAddLeave,
+                onPressed: (){},
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.green,
                   foregroundColor: Colors.white,

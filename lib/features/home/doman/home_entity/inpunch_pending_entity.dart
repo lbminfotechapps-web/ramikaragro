@@ -5,6 +5,8 @@ class InpunchPendingResponseEntity {
   final int pendingInpunchCount;
   final String? inpunchTime;
   final String? address;
+  final String? city;
+  final String? state;
   final List<InpunchPendingEntity> result;
   final String? city;
   final String? state;
@@ -16,6 +18,8 @@ class InpunchPendingResponseEntity {
     required this.pendingInpunchCount,
     this.inpunchTime,
     this.address,
+    this.city,
+    this.state,
     required this.result,
     this.city,
     this.state,

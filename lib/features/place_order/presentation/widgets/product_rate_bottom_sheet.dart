@@ -1,3 +1,4 @@
+
 import 'package:demo/core/api_constant/api_client.dart';
 import 'package:demo/core/theme/app_colors.dart';
 import 'package:demo/features/place_order/domain/entities/product_entity.dart';
@@ -28,8 +29,6 @@ class _ProductRateBottomSheetState
   void initState() {
     super.initState();
 
-    // Automatically select the rate
-    // when only one rate is available.
     if (widget.rates.length == 1) {
       selectedRate = widget.rates.first;
     }
@@ -71,7 +70,7 @@ class _ProductRateBottomSheetState
       decoration: BoxDecoration(
         color: AppColors.background,
         borderRadius: BorderRadius.vertical(
-          top: Radius.circular(28.r),
+          top: Radius.circular(22.r),
         ),
       ),
       child: Column(
@@ -83,10 +82,10 @@ class _ProductRateBottomSheetState
               physics:
                   const BouncingScrollPhysics(),
               padding: EdgeInsets.fromLTRB(
-                16.w,
-                10.h,
-                16.w,
-                20.h,
+                14.w,
+                8.h,
+                14.w,
+                12.h,
               ),
               child: Column(
                 crossAxisAlignment:
@@ -94,11 +93,11 @@ class _ProductRateBottomSheetState
                 children: [
                   _buildProductHeader(),
 
-                  SizedBox(height: 20.h),
+                  SizedBox(height: 14.h),
 
                   _buildSelectionHeader(),
 
-                  SizedBox(height: 12.h),
+                  SizedBox(height: 9.h),
 
                   if (widget.rates.isEmpty)
                     _buildEmptyRates()
@@ -124,50 +123,42 @@ class _ProductRateBottomSheetState
   Widget _buildHeader() {
     return Container(
       padding: EdgeInsets.fromLTRB(
-        20.w,
-        15.h,
-        12.w,
-        15.h,
+        16.w,
+        11.h,
+        8.w,
+        11.h,
       ),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.vertical(
-          top: Radius.circular(28.r),
+          top: Radius.circular(22.r),
         ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.06),
-            blurRadius: 12,
-            offset: const Offset(0, 3),
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
           ),
         ],
       ),
       child: Row(
         children: [
-          // -------------------------------------------------------------------
-          // HEADER ICON
-          // -------------------------------------------------------------------
-
           Container(
-            height: 44.w,
-            width: 44.w,
+            height: 38.w,
+            width: 38.w,
             decoration: BoxDecoration(
               color: AppColors.lightGreen,
               borderRadius:
-                  BorderRadius.circular(13.r),
+                  BorderRadius.circular(11.r),
             ),
             child: Icon(
               Icons.inventory_2_outlined,
               color: AppColors.primary,
-              size: 23.sp,
+              size: 20.sp,
             ),
           ),
 
-          SizedBox(width: 12.w),
-
-          // -------------------------------------------------------------------
-          // HEADER TITLE
-          // -------------------------------------------------------------------
+          SizedBox(width: 10.w),
 
           Expanded(
             child: Column(
@@ -177,19 +168,17 @@ class _ProductRateBottomSheetState
                 Text(
                   'Select Product Rate',
                   style: TextStyle(
-                    fontSize: 18.sp,
+                    fontSize: 16.sp,
                     fontWeight: FontWeight.w800,
                     color:
                         AppColors.textPrimary,
                   ),
                 ),
-
-                SizedBox(height: 2.h),
-
+                SizedBox(height: 1.h),
                 Text(
                   'Choose packing and price',
                   style: TextStyle(
-                    fontSize: 11.sp,
+                    fontSize: 10.sp,
                     color:
                         AppColors.textSecondary,
                   ),
@@ -198,16 +187,18 @@ class _ProductRateBottomSheetState
             ),
           ),
 
-          // -------------------------------------------------------------------
-          // CLOSE BUTTON
-          // -------------------------------------------------------------------
-
           IconButton(
             onPressed: () {
               Navigator.pop(context);
             },
+            padding: EdgeInsets.zero,
+            constraints: BoxConstraints(
+              minWidth: 36.w,
+              minHeight: 36.w,
+            ),
             icon: Icon(
               Icons.close_rounded,
+              size: 21.sp,
               color:
                   AppColors.textSecondary,
             ),
@@ -226,42 +217,37 @@ class _ProductRateBottomSheetState
 
     return Container(
       width: double.infinity,
-      padding: EdgeInsets.all(14.w),
+      padding: EdgeInsets.all(10.w),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius:
-            BorderRadius.circular(17.r),
+            BorderRadius.circular(14.r),
         border: Border.all(
           color: AppColors.border,
         ),
         boxShadow: [
           BoxShadow(
             color:
-                Colors.black.withOpacity(0.025),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
+                Colors.black.withOpacity(0.02),
+            blurRadius: 7,
+            offset: const Offset(0, 2),
           ),
         ],
       ),
       child: Row(
-        crossAxisAlignment:
-            CrossAxisAlignment.center,
         children: [
-          // =================================================================
           // PRODUCT IMAGE
-          // =================================================================
-
           Container(
-            height: 62.w,
-            width: 62.w,
+            height: 52.w,
+            width: 52.w,
             decoration: BoxDecoration(
               color: AppColors.lightGreen,
               borderRadius:
-                  BorderRadius.circular(14.r),
+                  BorderRadius.circular(11.r),
             ),
             child: ClipRRect(
               borderRadius:
-                  BorderRadius.circular(14.r),
+                  BorderRadius.circular(11.r),
               child: imageUrl.isEmpty
                   ? _buildImagePlaceholder()
                   : Image.network(
@@ -280,8 +266,8 @@ class _ProductRateBottomSheetState
 
                         return Center(
                           child: SizedBox(
-                            height: 20.w,
-                            width: 20.w,
+                            height: 18.w,
+                            width: 18.w,
                             child:
                                 CircularProgressIndicator(
                               strokeWidth: 2,
@@ -308,12 +294,9 @@ class _ProductRateBottomSheetState
             ),
           ),
 
-          SizedBox(width: 13.w),
+          SizedBox(width: 10.w),
 
-          // =================================================================
           // PRODUCT INFORMATION
-          // =================================================================
-
           Expanded(
             child: Column(
               crossAxisAlignment:
@@ -325,7 +308,7 @@ class _ProductRateBottomSheetState
                   overflow:
                       TextOverflow.ellipsis,
                   style: TextStyle(
-                    fontSize: 15.sp,
+                    fontSize: 14.sp,
                     fontWeight:
                         FontWeight.w800,
                     color:
@@ -333,20 +316,20 @@ class _ProductRateBottomSheetState
                   ),
                 ),
 
-                SizedBox(height: 7.h),
+                SizedBox(height: 5.h),
 
                 Container(
                   padding:
                       EdgeInsets.symmetric(
-                    horizontal: 8.w,
-                    vertical: 4.h,
+                    horizontal: 7.w,
+                    vertical: 3.h,
                   ),
                   decoration: BoxDecoration(
                     color:
                         AppColors.lightGreen,
                     borderRadius:
                         BorderRadius.circular(
-                      7.r,
+                      6.r,
                     ),
                   ),
                   child: Row(
@@ -355,17 +338,16 @@ class _ProductRateBottomSheetState
                     children: [
                       Icon(
                         Icons.category_outlined,
-                        size: 12.sp,
+                        size: 11.sp,
                         color:
                             AppColors.primary,
                       ),
-                      SizedBox(width: 4.w),
+                      SizedBox(width: 3.w),
                       Text(
-                        '${widget.rates.length} '
-                        'Available Rate'
-                        '${widget.rates.length == 1 ? '' : 's'}',
+                        '${widget.rates.length} Rate'
+                        '${widget.rates.length == 1 ? '' : 's'} Available',
                         style: TextStyle(
-                          fontSize: 10.sp,
+                          fontSize: 9.sp,
                           fontWeight:
                               FontWeight.w700,
                           color:
@@ -394,7 +376,7 @@ class _ProductRateBottomSheetState
       child: Icon(
         Icons.inventory_2_outlined,
         color: AppColors.primary,
-        size: 30.sp,
+        size: 26.sp,
       ),
     );
   }
@@ -405,25 +387,23 @@ class _ProductRateBottomSheetState
 
   Widget _buildSelectionHeader() {
     return Row(
-      crossAxisAlignment:
-          CrossAxisAlignment.start,
       children: [
         Container(
-          height: 34.w,
-          width: 34.w,
+          height: 30.w,
+          width: 30.w,
           decoration: BoxDecoration(
             color: AppColors.lightGreen,
             borderRadius:
-                BorderRadius.circular(10.r),
+                BorderRadius.circular(8.r),
           ),
           child: Icon(
             Icons.tune_rounded,
             color: AppColors.primary,
-            size: 18.sp,
+            size: 16.sp,
           ),
         ),
 
-        SizedBox(width: 10.w),
+        SizedBox(width: 8.w),
 
         Expanded(
           child: Column(
@@ -433,21 +413,16 @@ class _ProductRateBottomSheetState
               Text(
                 'Select Packing & Rate',
                 style: TextStyle(
-                  fontSize: 15.sp,
+                  fontSize: 14.sp,
                   fontWeight: FontWeight.w800,
                   color:
                       AppColors.textPrimary,
                 ),
               ),
-
-              SizedBox(height: 3.h),
-
               Text(
-                'Choose the required packing '
-                'before adding the product.',
+                'Choose packing before adding product',
                 style: TextStyle(
-                  fontSize: 11.sp,
-                  height: 1.3,
+                  fontSize: 9.5.sp,
                   color:
                       AppColors.textSecondary,
                 ),
@@ -470,6 +445,14 @@ class _ProductRateBottomSheetState
         selectedRate?.productDetailsId ==
             rate.productDetailsId;
 
+    // Debug: should print 10 and 5 with your API response.
+    debugPrint(
+      'RATE => '
+      'ID: ${rate.productDetailsId}, '
+      'UnitsPerCase: "${rate.unitsPerCase}", '
+      'DisplayCase: "${rate.displayCase}"',
+    );
+
     return GestureDetector(
       onTap: () {
         setState(() {
@@ -478,41 +461,42 @@ class _ProductRateBottomSheetState
       },
       child: AnimatedContainer(
         duration:
-            const Duration(milliseconds: 180),
+            const Duration(milliseconds: 160),
         margin: EdgeInsets.only(
-          bottom: 12.h,
+          bottom: 8.h,
         ),
-        padding: EdgeInsets.all(14.w),
+        padding: EdgeInsets.symmetric(
+          horizontal: 10.w,
+          vertical: 9.h,
+        ),
         decoration: BoxDecoration(
           color: isSelected
               ? AppColors.lightGreen
               : Colors.white,
           borderRadius:
-              BorderRadius.circular(17.r),
+              BorderRadius.circular(13.r),
           border: Border.all(
             color: isSelected
                 ? AppColors.primary
                 : AppColors.border,
             width:
-                isSelected ? 1.5 : 1,
+                isSelected ? 1.3 : 1,
           ),
           boxShadow: [
             BoxShadow(
               color: isSelected
                   ? AppColors.primary
-                      .withOpacity(0.10)
+                      .withOpacity(0.08)
                   : Colors.black
-                      .withOpacity(0.025),
+                      .withOpacity(0.018),
               blurRadius:
-                  isSelected ? 12 : 8,
+                  isSelected ? 8 : 5,
               offset:
-                  const Offset(0, 4),
+                  const Offset(0, 2),
             ),
           ],
         ),
         child: Row(
-          crossAxisAlignment:
-              CrossAxisAlignment.center,
           children: [
             // ===============================================================
             // SELECTION ICON
@@ -521,10 +505,10 @@ class _ProductRateBottomSheetState
             AnimatedContainer(
               duration:
                   const Duration(
-                milliseconds: 180,
+                milliseconds: 160,
               ),
-              height: 42.w,
-              width: 42.w,
+              height: 36.w,
+              width: 36.w,
               decoration: BoxDecoration(
                 color: isSelected
                     ? AppColors.primary
@@ -538,14 +522,14 @@ class _ProductRateBottomSheetState
                 color: isSelected
                     ? Colors.white
                     : AppColors.textSecondary,
-                size: 21.sp,
+                size: 18.sp,
               ),
             ),
 
-            SizedBox(width: 12.w),
+            SizedBox(width: 9.w),
 
             // ===============================================================
-            // PACKING DETAILS
+            // DETAILS
             // ===============================================================
 
             Expanded(
@@ -553,13 +537,14 @@ class _ProductRateBottomSheetState
                 crossAxisAlignment:
                     CrossAxisAlignment.start,
                 children: [
+                  // PACKING
                   Text(
                     _packingText(rate),
                     maxLines: 1,
                     overflow:
                         TextOverflow.ellipsis,
                     style: TextStyle(
-                      fontSize: 15.sp,
+                      fontSize: 13.sp,
                       fontWeight:
                           FontWeight.w800,
                       color:
@@ -567,26 +552,28 @@ class _ProductRateBottomSheetState
                     ),
                   ),
 
-                  SizedBox(height: 6.h),
+                  SizedBox(height: 5.h),
 
-                  Wrap(
-                    spacing: 8.w,
-                    runSpacing: 5.h,
+                  // UNIT PER CASE + GST
+                  Row(
                     children: [
-                      _smallInfo(
+                      // UNIT PER CASE
+                      _infoBadge(
                         icon:
-                            Icons.inventory_2_outlined,
-                        text:
-                            _unitsPerCaseText(
-                          rate,
-                        ),
+                            Icons.inventory_2_rounded,
+                        text: rate.displayCase,
+                        primary: true,
                       ),
 
-                      _smallInfo(
+                      SizedBox(width: 5.w),
+
+                      // GST
+                      _infoBadge(
                         icon:
                             Icons.percent_rounded,
                         text:
                             'GST ${rate.gstPercentage}%',
+                        primary: false,
                       ),
                     ],
                   ),
@@ -594,7 +581,7 @@ class _ProductRateBottomSheetState
               ),
             ),
 
-            SizedBox(width: 8.w),
+            SizedBox(width: 7.w),
 
             // ===============================================================
             // RATE
@@ -603,29 +590,91 @@ class _ProductRateBottomSheetState
             Column(
               crossAxisAlignment:
                   CrossAxisAlignment.end,
+              mainAxisSize: MainAxisSize.min,
               children: [
                 Text(
                   rate.displayRate,
                   style: TextStyle(
-                    fontSize: 17.sp,
+                    fontSize: 15.sp,
                     fontWeight:
                         FontWeight.w900,
                     color:
                         AppColors.primary,
                   ),
                 ),
-
-                SizedBox(height: 3.h),
-
+                SizedBox(height: 1.h),
                 Text(
                   'Rate',
                   style: TextStyle(
-                    fontSize: 9.sp,
+                    fontSize: 8.sp,
                     color:
                         AppColors.textSecondary,
                   ),
                 ),
               ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  // ===========================================================================
+  // INFO BADGE
+  // ===========================================================================
+
+  Widget _infoBadge({
+    required IconData icon,
+    required String text,
+    required bool primary,
+  }) {
+    return Flexible(
+      child: Container(
+        padding: EdgeInsets.symmetric(
+          horizontal: 6.w,
+          vertical: 3.5.h,
+        ),
+        decoration: BoxDecoration(
+          color: primary
+              ? AppColors.lightGreen.withOpacity(0.75)
+              : Colors.grey.shade100,
+          borderRadius:
+              BorderRadius.circular(6.r),
+          border: primary
+              ? Border.all(
+                  color:
+                      AppColors.primary.withOpacity(0.12),
+                )
+              : null,
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(
+              icon,
+              size: 10.sp,
+              color: primary
+                  ? AppColors.primary
+                  : AppColors.textSecondary,
+            ),
+            SizedBox(width: 3.w),
+            Flexible(
+              child: Text(
+                text,
+                maxLines: 1,
+                overflow:
+                    TextOverflow.ellipsis,
+                style: TextStyle(
+                  fontSize: 8.5.sp,
+                  fontWeight:
+                      primary
+                          ? FontWeight.w800
+                          : FontWeight.w600,
+                  color: primary
+                      ? AppColors.primary
+                      : AppColors.textSecondary,
+                ),
+              ),
             ),
           ],
         ),
@@ -663,59 +712,6 @@ class _ProductRateBottomSheetState
   }
 
   // ===========================================================================
-  // UNITS PER CASE
-  // ===========================================================================
-
-  String _unitsPerCaseText(
-    ProductRateEntity rate,
-  ) {
-    final units = int.tryParse(
-      rate.unitsPerCase.trim(),
-    );
-
-    if (units == null || units <= 0) {
-      return 'Case not specified';
-    }
-
-    return '$units units/case';
-  }
-
-  // ===========================================================================
-  // SMALL INFORMATION
-  // ===========================================================================
-
-  Widget _smallInfo({
-    required IconData icon,
-    required String text,
-  }) {
-    return Row(
-      mainAxisSize:
-          MainAxisSize.min,
-      children: [
-        Icon(
-          icon,
-          size: 12.sp,
-          color:
-              AppColors.textSecondary,
-        ),
-
-        SizedBox(width: 4.w),
-
-        Text(
-          text,
-          style: TextStyle(
-            fontSize: 10.sp,
-            fontWeight:
-                FontWeight.w500,
-            color:
-                AppColors.textSecondary,
-          ),
-        ),
-      ],
-    );
-  }
-
-  // ===========================================================================
   // EMPTY RATE
   // ===========================================================================
 
@@ -723,13 +719,13 @@ class _ProductRateBottomSheetState
     return Container(
       width: double.infinity,
       padding: EdgeInsets.symmetric(
-        horizontal: 20.w,
-        vertical: 30.h,
+        horizontal: 18.w,
+        vertical: 22.h,
       ),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius:
-            BorderRadius.circular(18.r),
+            BorderRadius.circular(14.r),
         border: Border.all(
           color: AppColors.border,
         ),
@@ -737,8 +733,8 @@ class _ProductRateBottomSheetState
       child: Column(
         children: [
           Container(
-            height: 60.w,
-            width: 60.w,
+            height: 50.w,
+            width: 50.w,
             decoration: BoxDecoration(
               color: AppColors.lightGreen,
               shape: BoxShape.circle,
@@ -746,16 +742,16 @@ class _ProductRateBottomSheetState
             child: Icon(
               Icons.price_check_outlined,
               color: AppColors.primary,
-              size: 30.sp,
+              size: 25.sp,
             ),
           ),
 
-          SizedBox(height: 12.h),
+          SizedBox(height: 9.h),
 
           Text(
             'No Rate Available',
             style: TextStyle(
-              fontSize: 15.sp,
+              fontSize: 14.sp,
               fontWeight:
                   FontWeight.w800,
               color:
@@ -763,14 +759,14 @@ class _ProductRateBottomSheetState
             ),
           ),
 
-          SizedBox(height: 5.h),
+          SizedBox(height: 3.h),
 
           Text(
             'No packing or rate is available '
             'for this product.',
             textAlign: TextAlign.center,
             style: TextStyle(
-              fontSize: 11.sp,
+              fontSize: 10.sp,
               color:
                   AppColors.textSecondary,
             ),
@@ -790,20 +786,20 @@ class _ProductRateBottomSheetState
 
     return Container(
       padding: EdgeInsets.fromLTRB(
-        16.w,
-        12.h,
-        16.w,
-        16.h,
+        14.w,
+        8.h,
+        14.w,
+        10.h,
       ),
       decoration: BoxDecoration(
         color: Colors.white,
         boxShadow: [
           BoxShadow(
             color:
-                Colors.black.withOpacity(0.08),
-            blurRadius: 15,
+                Colors.black.withOpacity(0.07),
+            blurRadius: 10,
             offset:
-                const Offset(0, -4),
+                const Offset(0, -3),
           ),
         ],
       ),
@@ -814,41 +810,38 @@ class _ProductRateBottomSheetState
               MainAxisSize.min,
           children: [
             // ===============================================================
-            // SELECTED RATE SUMMARY
+            // SELECTED RATE
             // ===============================================================
 
             if (selectedRate != null)
               Container(
                 width: double.infinity,
                 margin: EdgeInsets.only(
-                  bottom: 10.h,
+                  bottom: 7.h,
                 ),
                 padding:
                     EdgeInsets.symmetric(
-                  horizontal: 12.w,
-                  vertical: 10.h,
+                  horizontal: 9.w,
+                  vertical: 7.h,
                 ),
                 decoration: BoxDecoration(
                   color:
                       AppColors.lightGreen,
                   borderRadius:
                       BorderRadius.circular(
-                    12.r,
+                    10.r,
                   ),
                   border: Border.all(
                     color: AppColors.primary
-                        .withOpacity(0.12),
+                        .withOpacity(0.10),
                   ),
                 ),
                 child: Row(
                   children: [
-                    // -------------------------------------------------------
-                    // CHECK ICON
-                    // -------------------------------------------------------
-
+                    // CHECK
                     Container(
-                      height: 30.w,
-                      width: 30.w,
+                      height: 27.w,
+                      width: 27.w,
                       decoration:
                           BoxDecoration(
                         color:
@@ -860,16 +853,13 @@ class _ProductRateBottomSheetState
                         Icons.check_rounded,
                         color:
                             Colors.white,
-                        size: 17.sp,
+                        size: 15.sp,
                       ),
                     ),
 
-                    SizedBox(width: 9.w),
+                    SizedBox(width: 7.w),
 
-                    // -------------------------------------------------------
                     // PACKING
-                    // -------------------------------------------------------
-
                     Expanded(
                       child: Column(
                         crossAxisAlignment:
@@ -879,16 +869,11 @@ class _ProductRateBottomSheetState
                           Text(
                             'Selected Packing',
                             style: TextStyle(
-                              fontSize: 9.sp,
+                              fontSize: 8.sp,
                               color: AppColors
                                   .textSecondary,
-                              fontWeight:
-                                  FontWeight.w500,
                             ),
                           ),
-
-                          SizedBox(height: 2.h),
-
                           Text(
                             _packingText(
                               selectedRate!,
@@ -898,7 +883,7 @@ class _ProductRateBottomSheetState
                                 TextOverflow
                                     .ellipsis,
                             style: TextStyle(
-                              fontSize: 12.sp,
+                              fontSize: 11.sp,
                               fontWeight:
                                   FontWeight.w800,
                               color:
@@ -909,33 +894,56 @@ class _ProductRateBottomSheetState
                       ),
                     ),
 
-                    SizedBox(width: 8.w),
+                    // UNIT PER CASE
+                    Container(
+                      padding:
+                          EdgeInsets.symmetric(
+                        horizontal: 6.w,
+                        vertical: 4.h,
+                      ),
+                      decoration: BoxDecoration(
+                        color: Colors.white
+                            .withOpacity(0.7),
+                        borderRadius:
+                            BorderRadius.circular(
+                          6.r,
+                        ),
+                      ),
+                      child: Text(
+                        selectedRate!
+                            .displayCase,
+                        style: TextStyle(
+                          fontSize: 8.5.sp,
+                          fontWeight:
+                              FontWeight.w800,
+                          color:
+                              AppColors.primary,
+                        ),
+                      ),
+                    ),
 
-                    // -------------------------------------------------------
+                    SizedBox(width: 7.w),
+
                     // PRICE
-                    // -------------------------------------------------------
-
                     Column(
                       crossAxisAlignment:
-                          CrossAxisAlignment
-                              .end,
+                          CrossAxisAlignment.end,
                       children: [
                         Text(
                           selectedRate!
                               .displayRate,
                           style: TextStyle(
-                            fontSize: 16.sp,
+                            fontSize: 14.sp,
                             fontWeight:
                                 FontWeight.w900,
                             color:
                                 AppColors.primary,
                           ),
                         ),
-
                         Text(
                           'per unit',
                           style: TextStyle(
-                            fontSize: 9.sp,
+                            fontSize: 7.5.sp,
                             color: AppColors
                                 .textSecondary,
                           ),
@@ -947,12 +955,12 @@ class _ProductRateBottomSheetState
               ),
 
             // ===============================================================
-            // ADD PRODUCT TO CART BUTTON
+            // ADD BUTTON
             // ===============================================================
 
             SizedBox(
               width: double.infinity,
-              height: 52.h,
+              height: 46.h,
               child: ElevatedButton.icon(
                 onPressed: enabled
                     ? _addProductToCart
@@ -960,14 +968,14 @@ class _ProductRateBottomSheetState
                 icon: Icon(
                   Icons
                       .add_shopping_cart_rounded,
-                  size: 20.sp,
+                  size: 18.sp,
                 ),
                 label: Text(
                   enabled
                       ? 'Add Product to Cart'
                       : 'Select Packing & Rate',
                   style: TextStyle(
-                    fontSize: 14.sp,
+                    fontSize: 13.sp,
                     fontWeight:
                         FontWeight.w800,
                   ),
@@ -987,7 +995,7 @@ class _ProductRateBottomSheetState
                       RoundedRectangleBorder(
                     borderRadius:
                         BorderRadius.circular(
-                      15.r,
+                      12.r,
                     ),
                   ),
                 ),
@@ -1008,7 +1016,6 @@ class _ProductRateBottomSheetState
       return;
     }
 
-    // IMPORTANT:
     // Do NOT add product to Bloc here.
     //
     // Return selected ProductRateEntity

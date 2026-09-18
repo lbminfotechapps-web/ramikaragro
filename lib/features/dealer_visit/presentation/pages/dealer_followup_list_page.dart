@@ -348,9 +348,44 @@ print("dealerId44${widget.dealerId}");
 );
 }
 
+              ),
+
+              child: const Icon(
+                Icons.event_busy_rounded,
+                size: 45,
+                color: Color(0xFF087C3A),
+              ),
+            ),
+
+            const SizedBox(height: 20),
+
+            const Text(
+              'No Follow-ups Found',
+
+              style: TextStyle(
+                color: Color(0xFF1B4332),
+                fontSize: 18,
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+
+            const SizedBox(height: 8),
+
+            const Text(
+              'No follow-up records are available for this dealer.',
+
+              textAlign: TextAlign.center,
+
+              style: TextStyle(color: Colors.grey, fontSize: 13),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
 
   // ===============================================================
-  // SUMMARY CARD
+  // DEALER HEADER
   // ===============================================================
 
 Widget _buildSummaryCard(int count) {
@@ -399,6 +434,50 @@ Widget _buildSummaryCard(int count) {
             style: const TextStyle(
               color: Color(0xFF087C3A),
               fontWeight: FontWeight.w800,
+  Widget _buildDealerHeader() {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 14),
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 8,
+            offset: const Offset(0, 3),
+          ),
+        ],
+      ),
+      child: Column(
+        children: [
+          // Add Follow-up button
+          SizedBox(
+            width: double.infinity,
+            height: 44,
+            child: ElevatedButton.icon(
+              onPressed: () {
+                context.push(
+                  AppRouter.dealrFollowUpAddNew,
+                  extra: {
+                    'dealerId': widget.dealerId,
+                    'dealerName': widget.dealerName,
+                  },
+                );
+              },
+              icon: const Icon(Icons.add_task_rounded, size: 19),
+              label: const Text(
+                'Add Follow-up',
+                style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
+              ),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFF087C3A),
+                foregroundColor: Colors.white,
+                elevation: 0,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+              ),
             ),
           ),
         ),
@@ -406,6 +485,17 @@ Widget _buildSummaryCard(int count) {
     ),
   );
 }
+
+  // ===============================================================
+  // SUMMARY CARD
+  // ===============================================================
+
+  Widget _buildSummaryCard(int count) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 14),
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+    );
+  }
 
   // ===============================================================
   // FOLLOW-UP CARD
@@ -453,7 +543,6 @@ Widget _buildSummaryCard(int count) {
         children: [
           const SizedBox(height: 16),
 
-         
           // ========================================================
           // CARD HEADER
           // ========================================================

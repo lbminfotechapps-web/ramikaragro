@@ -22,7 +22,12 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       );
       print('Response: ${response}');
       if (response.status == 'success' || response.userId != null) {
-        emit(state.copyWith(loginStatus: LoginStatus.success));
+        emit(
+          state.copyWith(
+            loginStatus: LoginStatus.success,
+            errorMessage: response.status,
+          ),
+        );
       } else {
         emit(
           state.copyWith(

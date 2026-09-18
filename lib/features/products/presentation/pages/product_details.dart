@@ -36,7 +36,8 @@ class ProductDetails extends StatelessWidget {
             // ------------------------------------------
             // PRODUCT IMAGE
             // ------------------------------------------
-            _buildProductImage(),
+            //_buildProductImage(),
+            _buildProductImage(context),
 
             const SizedBox(height: 20),
 
@@ -133,12 +134,110 @@ class ProductDetails extends StatelessWidget {
   // PRODUCT IMAGE
   // ============================================================
 
-  Widget _buildProductImage() {
-    if (product!.productPath.isEmpty) {
-      return _imagePlaceholder();
-    }
+  // Widget _buildProductImage() {
+  //   if (product!.productPath.isEmpty) {
+  //     return _imagePlaceholder();
+  //   }
 
-    return Container(
+  //   return Container(
+  //     height: 260,
+  //     width: double.infinity,
+  //     decoration: BoxDecoration(
+  //       color: Colors.white,
+  //       borderRadius: BorderRadius.circular(20),
+  //     ),
+  //     padding: const EdgeInsets.all(16),
+  //     child: Image.network(
+  //       '${ApiClient.imageBaseUrl}/products/${product!.productPath}',
+  //       fit: BoxFit.contain,
+  //       errorBuilder: (_, __, ___) {
+  //         return _imagePlaceholder();
+  //       },
+  //     ),
+  //   );
+  // }
+
+void _showZoomImage(
+  BuildContext context,
+  String imageUrl,
+) {
+  showDialog(
+    context: context,
+    barrierColor: Colors.black,
+    builder: (dialogContext) {
+      return Dialog(
+        backgroundColor: Colors.transparent,
+        insetPadding: EdgeInsets.zero,
+        child: Stack(
+          children: [
+            // Zoomable image
+            Center(
+              child: InteractiveViewer(
+                minScale: 0.5,
+                maxScale: 5.0,
+                panEnabled: true,
+                scaleEnabled: true,
+                child: Image.network(
+                  imageUrl,
+                  fit: BoxFit.contain,
+                  errorBuilder: (_, __, ___) {
+                    return const Icon(
+                      Icons.image_not_supported_outlined,
+                      color: Colors.white,
+                      size: 70,
+                    );
+                  },
+                ),
+              ),
+            ),
+
+            // Close button
+            Positioned(
+              top: 40,
+              right: 20,
+              child: GestureDetector(
+                onTap: () {
+                  Navigator.of(dialogContext).pop();
+                },
+                child: Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: const BoxDecoration(
+                    color: Colors.black54,
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Icon(
+                    Icons.close,
+                    color: Colors.white,
+                    size: 28,
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      );
+    },
+  );
+}
+
+
+
+Widget _buildProductImage(BuildContext context) {
+  if (product!.productPath.isEmpty) {
+    return _imagePlaceholder();
+  }
+
+  final imageUrl =
+      '${ApiClient.imageBaseUrl}/products/${product!.productPath}';
+
+  return GestureDetector(
+    onTap: () {
+      _showZoomImage(
+        context,
+        imageUrl,
+      );
+    },
+    child: Container(
       height: 260,
       width: double.infinity,
       decoration: BoxDecoration(
@@ -146,15 +245,43 @@ class ProductDetails extends StatelessWidget {
         borderRadius: BorderRadius.circular(20),
       ),
       padding: const EdgeInsets.all(16),
-      child: Image.network(
-        '${ApiClient.imageBaseUrl}/products/${product!.productPath}',
-        fit: BoxFit.contain,
-        errorBuilder: (_, __, ___) {
-          return _imagePlaceholder();
-        },
+      child: Stack(
+        children: [
+          Center(
+            child: Image.network(
+              imageUrl,
+              fit: BoxFit.contain,
+              errorBuilder: (_, __, ___) {
+                return _imagePlaceholder();
+              },
+            ),
+          ),
+
+          // Zoom icon
+          Positioned(
+            right: 8,
+            bottom: 8,
+            child: Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: Colors.black.withOpacity(0.55),
+                shape: BoxShape.circle,
+              ),
+              child: const Icon(
+                Icons.zoom_in,
+                color: Colors.white,
+                size: 22,
+              ),
+            ),
+          ),
+        ],
       ),
-    );
-  }
+    ),
+  );
+}
+
+
+
 
   // ============================================================
   // SECTION

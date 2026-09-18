@@ -1,7 +1,13 @@
 import 'package:demo/features/farmer/famerfollowup/data/model/followuplist_model.dart';
 import 'package:equatable/equatable.dart';
 
-enum FamerfollowupStatus { initial, loading, success, failure }
+enum FamerfollowupStatus {
+  initial,
+  loading,
+  success,
+  failure,
+  farmerFollowUpSuccess,
+}
 
 enum FollowupHistoryStatus { initial, loading, success, failure }
 

@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:android_intent_plus/android_intent.dart';
@@ -39,6 +40,82 @@ class Home extends StatefulWidget {
 class _HomeState extends State<Home> {
   String _username = 'user';
 
+  Timer? _appBarTimer;
+
+  bool _showUserInfo = true;
+
+  DateTime _fromDate = DateTime.now().subtract(const Duration(days: 30));
+  DateTime _toDate = DateTime.now();
+
+  String _formatDate(DateTime date) {
+    return '${date.year.toString().padLeft(4, '0')}-'
+        '${date.month.toString().padLeft(2, '0')}-'
+        '${date.day.toString().padLeft(2, '0')}';
+  }
+
+  Future<void> _selectFromDate() async {
+    final pickedDate = await showDatePicker(
+      context: context,
+      initialDate: _fromDate,
+      firstDate: DateTime(2020),
+      lastDate: _toDate,
+    );
+
+    if (pickedDate == null) return;
+
+    setState(() {
+      _fromDate = pickedDate;
+    });
+
+    // Trigger API/Bloc after date selection
+    await _loadVisitGraph();
+  }
+
+  Future<void> _selectToDate() async {
+    final pickedDate = await showDatePicker(
+      context: context,
+      initialDate: _toDate,
+      firstDate: _fromDate,
+      lastDate: DateTime.now(),
+    );
+
+    if (pickedDate == null) return;
+
+    setState(() {
+      _toDate = pickedDate;
+    });
+
+    // Trigger API/Bloc after date selection
+    await _loadVisitGraph();
+  }
+
+  Future<void> _loadVisitGraph() async {
+    final userData = await SecureStorage.instance.getUserData();
+
+    final userId = int.tryParse(userData?['user_id']?.toString() ?? '');
+
+    if (!mounted || userId == null) {
+      return;
+    }
+
+    final searchFromDate = _formatDate(_fromDate);
+    final searchToDate = _formatDate(_toDate);
+
+    debugPrint('==============================');
+    debugPrint('VISIT GRAPH DATE CHANGE');
+    debugPrint('USER ID: $userId');
+    debugPrint('FROM DATE: $searchFromDate');
+    debugPrint('TO DATE: $searchToDate');
+    debugPrint('==============================');
+
+    context.read<HomeBloc>().add(
+      VisitGraphCountEvent(userId, searchFromDate, searchToDate),
+    );
+  }
+
+  static const String _appName = 'Ramikar Agro';
+  static const String _appSubtitle = 'Agro Business';
+
   @override
   void initState() {
     super.initState();
@@ -47,7 +124,21 @@ class _HomeState extends State<Home> {
 
       showDeveloperOptionWarning();
     });
+    _appBarTimer = Timer.periodic(const Duration(seconds: 4), (timer) {
+      if (!mounted) return;
+
+      setState(() {
+        _showUserInfo = !_showUserInfo;
+      });
+    });
+
     _loadUserData();
+  }
+
+  @override
+  void dispose() {
+    _appBarTimer?.cancel();
+    super.dispose();
   }
 
   Future<void> _loadUserData() async {
@@ -214,15 +305,19 @@ class _HomeState extends State<Home> {
                     color: AppColors.textColor,
                   ),
                   onPressed: () {
-                    Scaffold.of(scaffoldContext).openDrawer();
+                    context.push('/profile');
                   },
                 ),
               );
             },
           ),
-          title: _username,
-          subtitle: 'Good Morning',
+
+          title: _showUserInfo ? _username : _appName,
+
+          subtitle: _showUserInfo ? 'Good Morning' : _appSubtitle,
+
           showBackButton: false,
+
           onLogOutTap: () {
             _logout();
           },
@@ -232,74 +327,64 @@ class _HomeState extends State<Home> {
           child: SingleChildScrollView(
             child: Column(
               children: [
-                SizedBox(height: 12.h),
-
-                BlocBuilder<HomeBloc, HomeState>(
-                  builder: (context, state) {
-                    int pendingCount = 0;
-                    int pendingTotalCount = 0;
-                    String? punchTiming;
-                    String? city;
-                    String? countryState;
-                    // String? city;
-
-                    if (state.status == HomeStatus.success) {
-                      pendingCount = state.data!.pendingInpunchCount;
-                      pendingTotalCount = state.data!.totalRecursiveEmployee;
-                      punchTiming = state.data!.inpunchTime.toString();
-                      city = state.data!.city.toString();
-                      countryState = state.data!.state.toString();
-                      // pendingCountOutOf = state.data.;
-                    }
-                    return Row(
-                      children: [
-                        Expanded(
-                          child: SizedBox(
-                            height: 100.h,
-                            child: buildPunchCard(
-                              "Today's Punch",
-                              punchTiming.toString(),
-                              '$city $countryState',
-                            ),
-                          ),
-                        ),
-
-                        SizedBox(width: 8.w),
-
-                        Expanded(
-                          child: SizedBox(
-                            height: 100.h,
-                            child:
-                                //  BlocBuilder<HomeBloc, HomeState>(
-                                //   builder: (context, state) {
-                                //     int pendingCount = 0;
-                                //     int pendingTotalCount = 0;
-                                //     if (state.status == HomeStatus.success) {
-                                //       pendingCount = state.data!.pendingInpunchCount;
-                                //       pendingTotalCount =
-                                //           state.data!.totalRecursiveEmployee;
-                                //       // pendingCountOutOf = state.data.;
-                                //     }
-                                //     // print("List Size is. :${state.data.length}");
-                                //     return
-                                buildInfoCard(
-                                  'In Punch Pending',
-                                  '${pendingCount.toString()}/${pendingTotalCount.toString()}',
-                                  onTap: () => _showPendingListDialog(
-                                    state.data!.result,
-                                  ),
-                                ),
-
-                            //   },
-                            // ),
-                          ),
-                        ),
-                      ],
-                    );
-                  },
-                ),
-
                 SizedBox(height: 8.h),
+
+            BlocBuilder<HomeBloc, HomeState>(
+  builder: (context, state) {
+    int pendingCount = 0;
+    int pendingTotalCount = 0;
+
+    String punchTiming = '';
+    String city = '';
+    String countryState = '';
+
+    final data = state.data;
+
+    if (state.status == HomeStatus.success && data != null) {
+      pendingCount = data.pendingInpunchCount;
+      pendingTotalCount = data.totalRecursiveEmployee;
+      punchTiming = data.inpunchTime ?? '';
+      city = data.city ?? '';
+      countryState = data.state ?? '';
+    }
+
+    return Row(
+      children: [
+        Expanded(
+          child: SizedBox(
+            height: 100.h,
+            child: buildPunchCard(
+              "Today's Punch",
+              punchTiming.isEmpty ? '--' : punchTiming,
+              [
+                city,
+                countryState,
+              ].where((e) => e.isNotEmpty).join(', '),
+            ),
+          ),
+        ),
+
+        SizedBox(width: 8.w),
+
+        Expanded(
+          child: SizedBox(
+            height: 100.h,
+            child: buildInfoCard(
+              'In Punch Pending',
+              '$pendingCount/$pendingTotalCount',
+              onTap: () {
+                final pendingList = data?.result ?? [];
+
+                _showPendingListDialog(pendingList);
+              },
+            ),
+          ),
+        ),
+      ],
+    );
+  },
+),
+
                 BlocBuilder<HomeBloc, HomeState>(
                   builder: (context, state) {
                     if (state.status == HomeStatus.loading) {
@@ -338,10 +423,7 @@ class _HomeState extends State<Home> {
                   builder: (context, state) {
                     if (state.status == HomeStatus.loading) {
                       return Container(
-                        margin: EdgeInsets.symmetric(
-                          horizontal: 8.w,
-                          vertical: 8.h,
-                        ),
+                        margin: EdgeInsets.symmetric(horizontal: 8.w),
                         height: 140.h,
                         child: const Center(child: CircularProgressIndicator()),
                       );
@@ -368,6 +450,28 @@ class _HomeState extends State<Home> {
                     return NotVisitedCard(homeData);
                   },
                 ),
+                SizedBox(height: 8.h),
+                Row(
+                  children: [
+                    Expanded(
+                      child: _buildDateField(
+                        label: 'From Date',
+                        date: _fromDate,
+                        onTap: _selectFromDate,
+                      ),
+                    ),
+
+                    SizedBox(width: 10.w),
+
+                    Expanded(
+                      child: _buildDateField(
+                        label: 'To Date',
+                        date: _toDate,
+                        onTap: _selectToDate,
+                      ),
+                    ),
+                  ],
+                ),
 
                 SizedBox(height: 8.h),
 
@@ -379,7 +483,6 @@ class _HomeState extends State<Home> {
                     );
                   },
                 ),
-
                 SizedBox(height: 12.h),
 
                 BlocBuilder<HomeBloc, HomeState>(
@@ -647,6 +750,60 @@ class _HomeState extends State<Home> {
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildDateField({
+    required String label,
+    required DateTime date,
+    required VoidCallback onTap,
+  }) {
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(10.r),
+      child: Container(
+        padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 4.h),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(10.r),
+          border: Border.all(color: Colors.grey.shade300),
+        ),
+        child: Row(
+          children: [
+            Icon(
+              Icons.calendar_month_outlined,
+              size: 20.sp,
+              color: AppColors.primaryColor,
+            ),
+            SizedBox(width: 8.w),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    label,
+                    style: TextStyle(
+                      fontSize: 11.sp,
+                      color: Colors.grey.shade600,
+                    ),
+                  ),
+                  SizedBox(height: 2.h),
+                  Text(
+                    '${date.day.toString().padLeft(2, '0')}/'
+                    '${date.month.toString().padLeft(2, '0')}/'
+                    '${date.year}',
+                    style: TextStyle(
+                      fontSize: 13.sp,
+                      fontWeight: FontWeight.w600,
+                      color: AppColors.textColor,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

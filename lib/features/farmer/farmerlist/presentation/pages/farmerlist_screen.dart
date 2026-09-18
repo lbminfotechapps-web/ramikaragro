@@ -1,5 +1,7 @@
 import 'dart:async';
+import 'dart:convert';
 
+import 'package:demo/core/api_constant/api_client.dart';
 import 'package:demo/core/router/app_router.dart';
 import 'package:demo/core/secure_storage/secure_storage.dart';
 import 'package:demo/core/theme/app_colors.dart';
@@ -11,18 +13,27 @@ import 'package:demo/features/farmer/farmerlist/presentation/bloc/farmerlist_blo
 import 'package:demo/features/farmer/farmerlist/presentation/bloc/farmerlist_event.dart';
 import 'package:demo/features/farmer/farmerlist/presentation/bloc/farmerlist_state.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil_plus/flutter_screenutil_plus.dart';
 import 'package:go_router/go_router.dart';
-
-const platform = MethodChannel('phone_dialer');
+import 'package:http/http.dart' as http;
+import 'package:url_launcher/url_launcher.dart';
 
 Future<void> callFarmer(String phone) async {
-  try {
-    await platform.invokeMethod('openDialer', {'phone': phone});
-  } on PlatformException catch (e) {
-    debugPrint('Error opening dialer: ${e.message}');
+  final phoneUri = Uri(scheme: 'tel', path: phone);
+
+  if (!await canLaunchUrl(phoneUri)) {
+    debugPrint('Unable to open dialer for phone number: $phone');
+    return;
+  }
+
+  final launched = await launchUrl(
+    phoneUri,
+    mode: LaunchMode.externalApplication,
+  );
+
+  if (!launched) {
+    debugPrint('Failed to open dialer for phone number: $phone');
   }
 }
 
@@ -38,15 +49,19 @@ class _FarmerlistScreenState extends State<FarmerlistScreen> {
   Timer? _searchTimer;
   final ScrollController _scrollController = ScrollController();
   int _startLimit = 0;
+  static const int _pageSize = 20;
+
   bool _isLoadingMore = false;
   bool _hasMore = true;
+
   String _currentSearchKey = '';
+
+  String userId = '';
   @override
   void initState() {
     super.initState();
 
     _scrollController.addListener(_onScroll);
-
     _loadFarmers(searchKey: '', startLimit: 0, isLoadMore: false);
   }
 
@@ -67,7 +82,7 @@ class _FarmerlistScreenState extends State<FarmerlistScreen> {
       return;
     }
     final userData = await SecureStorage.instance.getUserData();
-    final int? userId = int.tryParse(userData?['user_id']?.toString() ?? '');
+    int? userId = int.tryParse(userData?['user_id']?.toString() ?? '');
     if (userId == null) {
       debugPrint('ERROR: Invalid user_id: ${userData?['user_id']}');
       return;
@@ -103,7 +118,7 @@ class _FarmerlistScreenState extends State<FarmerlistScreen> {
 
     final searchKey = value.trim();
 
-    _searchTimer = Timer(const Duration(milliseconds: 1000), () {
+    _searchTimer = Timer(const Duration(milliseconds: 1100), () {
       if (!mounted) return;
 
       _currentSearchKey = searchKey;
@@ -132,14 +147,6 @@ class _FarmerlistScreenState extends State<FarmerlistScreen> {
       }
 
       final nextLimit = _startLimit + 20;
-
-      debugPrint('================================');
-      debugPrint('LOAD MORE FARMERS');
-      debugPrint('Current Limit: $_startLimit');
-      debugPrint('Next Limit: $nextLimit');
-      debugPrint('Search: $_currentSearchKey');
-      debugPrint('================================');
-
       _startLimit = nextLimit;
 
       _loadFarmers(
@@ -149,144 +156,6 @@ class _FarmerlistScreenState extends State<FarmerlistScreen> {
       );
     }
   }
-
-  // void _showFilterBottomSheet(BuildContext context) {
-  //   final primaryColor = AppColors.gradientStartColor;
-
-  //   String selectedFilter = 'All';
-
-  //   showModalBottomSheet(
-  //     context: context,
-  //     backgroundColor: Colors.white,
-  //     isScrollControlled: true,
-  //     shape: const RoundedRectangleBorder(
-  //       borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-  //     ),
-  //     builder: (context) {
-  //       return StatefulBuilder(
-  //         builder: (context, setModalState) {
-  //           return Padding(
-  //             padding: const EdgeInsets.fromLTRB(20, 20, 20, 24),
-  //             child: Column(
-  //               mainAxisSize: MainAxisSize.min,
-  //               crossAxisAlignment: CrossAxisAlignment.start,
-  //               children: [
-  //                 // HEADER
-  //                 Row(
-  //                   children: [
-  //                     Container(
-  //                       width: 42,
-  //                       height: 42,
-  //                       decoration: BoxDecoration(
-  //                         color: primaryColor.withOpacity(0.10),
-  //                         borderRadius: BorderRadius.circular(12),
-  //                       ),
-  //                       child: Icon(
-  //                         Icons.filter_alt_outlined,
-  //                         color: primaryColor,
-  //                       ),
-  //                     ),
-  //                     const SizedBox(width: 12),
-  //                     const Expanded(
-  //                       child: Text(
-  //                         'Filter Farmers',
-  //                         style: TextStyle(
-  //                           fontSize: 20,
-  //                           fontWeight: FontWeight.bold,
-  //                         ),
-  //                       ),
-  //                     ),
-  //                     IconButton(
-  //                       onPressed: () {
-  //                         Navigator.pop(context);
-  //                       },
-  //                       icon: const Icon(Icons.close),
-  //                     ),
-  //                   ],
-  //                 ),
-
-  //                 const SizedBox(height: 20),
-
-  //                 // FILTER TITLE
-  //                 const Text(
-  //                   'Farmer Status',
-  //                   style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
-  //                 ),
-
-  //                 const SizedBox(height: 12),
-
-  //                 // FILTER OPTIONS
-  //                 Wrap(
-  //                   spacing: 8,
-  //                   runSpacing: 8,
-  //                   children: [
-  //                     _FilterChip(
-  //                       label: 'All',
-  //                       selected: selectedFilter == 'All',
-  //                       primaryColor: primaryColor,
-  //                       onTap: () {
-  //                         setModalState(() {
-  //                           selectedFilter = 'All';
-  //                         });
-  //                       },
-  //                     ),
-  //                     _FilterChip(
-  //                       label: 'Active',
-  //                       selected: selectedFilter == 'Active',
-  //                       primaryColor: primaryColor,
-  //                       onTap: () {
-  //                         setModalState(() {
-  //                           selectedFilter = 'Active';
-  //                         });
-  //                       },
-  //                     ),
-  //                     _FilterChip(
-  //                       label: 'Inactive',
-  //                       selected: selectedFilter == 'Inactive',
-  //                       primaryColor: primaryColor,
-  //                       onTap: () {
-  //                         setModalState(() {
-  //                           selectedFilter = 'Inactive';
-  //                         });
-  //                       },
-  //                     ),
-  //                   ],
-  //                 ),
-
-  //                 const SizedBox(height: 24),
-
-  //                 SizedBox(
-  //                   width: double.infinity,
-  //                   height: 48,
-  //                   child: ElevatedButton(
-  //                     onPressed: () {
-  //                       Navigator.pop(context);
-  //                     },
-  //                     style: ElevatedButton.styleFrom(
-  //                       backgroundColor: primaryColor,
-  //                       foregroundColor: Colors.white,
-  //                       elevation: 0,
-  //                       shape: RoundedRectangleBorder(
-  //                         borderRadius: BorderRadius.circular(14),
-  //                       ),
-  //                     ),
-  //                     child: const Text(
-  //                       'Apply Filter',
-  //                       style: TextStyle(
-  //                         fontSize: 14,
-  //                         fontWeight: FontWeight.w600,
-  //                       ),
-  //                     ),
-  //                   ),
-  //                 ),
-  //               ],
-  //             ),
-  //           );
-  //         },
-  //       );
-  //     },
-  //   );
-  // }
 
   @override
   Widget build(BuildContext context) {
@@ -563,12 +432,12 @@ class _FarmerListItem extends StatelessWidget {
                   child: SizedBox(
                     width: 54,
                     height: 54,
-                    child: Image.asset(
-                      'assets/icons/logo.jpg',
-                      fit: BoxFit.cover,
-                      errorBuilder: (context, error, stackTrace) => Container(
-                        color: primaryColor.withOpacity(0.1),
-                        child: Icon(Icons.person, color: primaryColor),
+                    child: Container(
+                      color: primaryColor.withOpacity(0.1),
+                      child: Icon(
+                        Icons.agriculture,
+                        color: primaryColor,
+                        size: 28,
                       ),
                     ),
                   ),
@@ -697,26 +566,31 @@ class _FarmerListItem extends StatelessWidget {
                         ),
                       ),
                       const SizedBox(width: 10),
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            'Last Call',
-                            style: TextStyle(
-                              fontSize: 11,
-                              color: Colors.grey.shade600,
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Last Call',
+                              overflow: TextOverflow.ellipsis,
+                              style: TextStyle(
+                                fontSize: 11,
+                                color: Colors.grey.shade600,
+                              ),
                             ),
-                          ),
-                          const SizedBox(height: 1),
-                          Text(
-                            farmer.lastDateTime ?? '10 : 30 AM',
-                            style: const TextStyle(
-                              fontSize: 12,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.black87,
+                            const SizedBox(height: 1),
+                            Text(
+                              farmer.lastDateTime ?? '10 : 30 AM',
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: const TextStyle(
+                                fontSize: 12,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.black87,
+                              ),
                             ),
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
                     ],
                   ),
@@ -742,26 +616,31 @@ class _FarmerListItem extends StatelessWidget {
                         ),
                       ),
                       const SizedBox(width: 10),
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            'Last Visit',
-                            style: TextStyle(
-                              fontSize: 11,
-                              color: Colors.grey.shade600,
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Last Visit',
+                              overflow: TextOverflow.ellipsis,
+                              style: TextStyle(
+                                fontSize: 11,
+                                color: Colors.grey.shade600,
+                              ),
                             ),
-                          ),
-                          const SizedBox(height: 1),
-                          Text(
-                            farmer.lastVisitDateTime ?? '11 : 15 AM',
-                            style: const TextStyle(
-                              fontSize: 12,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.black87,
+                            const SizedBox(height: 1),
+                            Text(
+                              farmer.lastVisitDateTime ?? '11 : 15 AM',
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: const TextStyle(
+                                fontSize: 12,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.black87,
+                              ),
                             ),
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
                     ],
                   ),
@@ -811,9 +690,12 @@ class _FarmerListItem extends StatelessWidget {
                         height: 40,
                         child: ElevatedButton.icon(
                           onPressed: () {
-                            if (farmer.farmerPhone != null &&
-                                farmer.farmerPhone!.isNotEmpty) {
-                              callFarmer(farmer.farmerPhone!);
+                            if (farmer.farmerPhone.isNotEmpty) {
+                              callFarmer(farmer.farmerPhone);
+                              FarmerCallEvent(
+                                farmer.farmerId,
+                                farmer.farmerPhone,
+                              );
                             } else {
                               debugPrint('Phone number is missing');
                             }
@@ -911,4 +793,69 @@ class _FilterChip extends StatelessWidget {
       ),
     );
   }
+}
+
+Future<void> FarmerCallEvent(String fldFarmerId, String fldMobileNo) async {
+  final url = ApiClient.baseUrl + ApiClient.famerCallApi;
+  final userData = await SecureStorage.instance.getUserData();
+
+  final id = userData?['user_id']?.toString();
+
+  try {
+    final response = await http.post(
+      Uri.parse(url),
+
+      body: {
+        "strUserId": id.toString(),
+
+        "strCallToId": fldFarmerId,
+
+        "strMobNo": fldMobileNo,
+
+        "strType": "Farmer",
+
+        "strTime": getCurrentTime(),
+      },
+    );
+
+    if (response.statusCode == 200) {
+      final data = json.decode(response.body);
+
+      if (data['status'] == true) {
+        debugPrint("Call Event Success");
+      }
+    }
+  } catch (e) {
+    debugPrint("Call Event Error: $e");
+  }
+}
+
+String getCurrentTime() {
+  final now = DateTime.now();
+
+  int hour = now.hour;
+
+  final minute = now.minute;
+
+  String period = "AM";
+
+  if (hour >= 12) {
+    period = "PM";
+
+    if (hour > 12) {
+      hour -= 12;
+    }
+  }
+
+  if (hour == 0) {
+    hour = 12;
+  }
+
+  final formattedHour = hour.toString().padLeft(2, '0');
+
+  final formattedMinute = minute.toString().padLeft(2, '0');
+
+  return "$formattedHour:"
+      "$formattedMinute "
+      "$period";
 }

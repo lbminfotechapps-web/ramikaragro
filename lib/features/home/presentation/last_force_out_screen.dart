@@ -160,7 +160,11 @@ class _LastForceOutScreenState extends State<LastForceOutScreen> {
         PunchInOutDetailsAddEvent(
           userId: userId,
 
+       
           inOutStatus: '2',
+
+          differenceByAndroid: '0.0',
+          locationHistoryString: '',
 
           batteryInfo: batteryInfo,
           networkInfo: networkInfo,
@@ -184,9 +188,16 @@ class _LastForceOutScreenState extends State<LastForceOutScreen> {
 
           route: '',
 
-          activityId: "4",
+          // LAST FORCE OUT
+          activityId: '26',
 
           isForceOutPunch: true,
+
+          // IMPORTANT
+          date: dateController.text.trim(),
+          newTime: newTimeController.text.trim(),
+
+    
         ),
       );
     } catch (e) {
@@ -241,7 +252,8 @@ class _LastForceOutScreenState extends State<LastForceOutScreen> {
             // SUCCESS
             // --------------------------------------------------
 
-            if (state.quickAccessStatus == QuickAccessStatus.punchStatusSuccess) {
+            if (state.quickAccessStatus ==
+                QuickAccessStatus.punchStatusSuccess) {
               setState(() {
                 isLoading = false;
                 _submissionSent = false;
@@ -354,6 +366,10 @@ class _LastForceOutScreenState extends State<LastForceOutScreen> {
                             enabled: true,
                             validator: (value) =>
                                 _validateKm(value, 'Closing KM'),
+                            onChanged: (value) {
+                              // Validate immediately while typing
+                              _formKey.currentState?.validate();
+                            },
                           ),
                         ),
                       ],
@@ -481,20 +497,22 @@ class _LastForceOutScreenState extends State<LastForceOutScreen> {
   String? _validateKm(String? value, String fieldName) {
     final text = value?.trim() ?? '';
 
+    // Empty field
     if (text.isEmpty) {
       return 'Please enter $fieldName';
     }
 
     final km = double.tryParse(text);
 
+    // Invalid number
     if (km == null) {
       return 'Please enter a valid $fieldName';
     }
 
     final openingText = openingKmController.text.trim();
-
     final openingKm = double.tryParse(openingText);
 
+    // Compare only when opening KM is available
     if (openingKm != null && km < openingKm) {
       return 'Closing KM cannot be less than Opening KM';
     }
@@ -531,6 +549,7 @@ class _LastForceOutScreenState extends State<LastForceOutScreen> {
     required String hintText,
     required bool enabled,
     required String? Function(String?) validator,
+    ValueChanged<String>? onChanged,
   }) {
     return CustomTextFormField(
       controller: controller,
@@ -539,6 +558,7 @@ class _LastForceOutScreenState extends State<LastForceOutScreen> {
       keyboardType: const TextInputType.numberWithOptions(decimal: true),
       enabled: enabled,
       validator: enabled ? validator : null,
+      onChanged: onChanged,
     );
   }
 

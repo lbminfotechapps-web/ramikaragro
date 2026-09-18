@@ -1,3 +1,4 @@
+
 import 'package:demo/core/api_constant/api_client.dart';
 import 'package:flutter/material.dart';
 
@@ -263,14 +264,14 @@ class ActivityTimelineItem extends StatelessWidget {
                   // TRANSACTION
                   // ==================================================
 
-                  if (activity.dailyTranId.trim().isNotEmpty) ...[
-                    const SizedBox(height: 6),
-                    _DetailRow(
-                      icon: Icons.receipt_long_outlined,
-                      title: 'Transaction',
-                      value: activity.dailyTranId,
-                    ),
-                  ],
+                  // if (activity.dailyTranId.trim().isNotEmpty) ...[
+                  //   const SizedBox(height: 6),
+                  //   _DetailRow(
+                  //     icon: Icons.receipt_long_outlined,
+                  //     title: 'Transaction',
+                  //     value: activity.dailyTranId,
+                  //   ),
+                  // ],
 
                   // ==================================================
                   // EMPLOYEE
@@ -291,8 +292,18 @@ class ActivityTimelineItem extends StatelessWidget {
 
                   if (activity.selfieImage.trim().isNotEmpty) ...[
                     const SizedBox(height: 10),
-                    _SelfieImage(
-                      imageName: activity.selfieImage,
+
+                    // TAP SELFIE TO ZOOM
+                    GestureDetector(
+                      onTap: () {
+                        _showSelfieImage(
+                          context,
+                          activity.selfieImage,
+                        );
+                      },
+                      child: _SelfieImage(
+                        imageName: activity.selfieImage,
+                      ),
                     ),
                   ],
                 ],
@@ -301,6 +312,183 @@ class ActivityTimelineItem extends StatelessWidget {
           ),
         ],
       ),
+    );
+  }
+
+  // ========================================================================
+  // SHOW SELFIE IMAGE WITH ZOOM
+  // ========================================================================
+
+  void _showSelfieImage(
+    BuildContext context,
+    String imageName,
+  ) {
+    final imageUrl =
+        '${ApiClient.imageEmployeeActivityReportUrl}$imageName';
+
+    showDialog(
+      context: context,
+      barrierColor: Colors.black87,
+      builder: (dialogContext) {
+        return Dialog(
+          backgroundColor: Colors.transparent,
+          insetPadding: const EdgeInsets.all(10),
+          child: Stack(
+            children: [
+              // ============================================================
+              // IMAGE CONTAINER
+              // ============================================================
+
+              Container(
+                width: double.infinity,
+                height: MediaQuery.of(context).size.height * 0.80,
+                decoration: BoxDecoration(
+                  color: Colors.black,
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(16),
+                  child: InteractiveViewer(
+                    minScale: 1.0,
+                    maxScale: 4.0,
+                    panEnabled: true,
+                    scaleEnabled: true,
+                    child: Image.network(
+                      imageUrl,
+                      fit: BoxFit.contain,
+
+                      // ====================================================
+                      // LOADING
+                      // ====================================================
+
+                      loadingBuilder: (
+                        context,
+                        child,
+                        loadingProgress,
+                      ) {
+                        if (loadingProgress == null) {
+                          return child;
+                        }
+
+                        return const Center(
+                          child: CircularProgressIndicator(
+                            color: Colors.white,
+                            strokeWidth: 2,
+                          ),
+                        );
+                      },
+
+                      // ====================================================
+                      // ERROR
+                      // ====================================================
+
+                      errorBuilder: (
+                        context,
+                        error,
+                        stackTrace,
+                      ) {
+                        debugPrint(
+                          'SELFIE ZOOM IMAGE ERROR: $error',
+                        );
+
+                        debugPrint(
+                          'SELFIE URL: $imageUrl',
+                        );
+
+                        return const Center(
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(
+                                Icons.broken_image_outlined,
+                                color: Colors.white,
+                                size: 50,
+                              ),
+                              SizedBox(height: 10),
+                              Text(
+                                'Image not available',
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 13,
+                                ),
+                              ),
+                            ],
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+                ),
+              ),
+
+              // ============================================================
+              // CLOSE BUTTON
+              // ============================================================
+
+              Positioned(
+                top: 8,
+                right: 8,
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: Colors.black54,
+                    shape: BoxShape.circle,
+                  ),
+                  child: IconButton(
+                    onPressed: () {
+                      Navigator.pop(dialogContext);
+                    },
+                    icon: const Icon(
+                      Icons.close_rounded,
+                      color: Colors.white,
+                    ),
+                  ),
+                ),
+              ),
+
+              // ============================================================
+              // ZOOM HINT
+              // ============================================================
+
+              Positioned(
+                bottom: 15,
+                left: 0,
+                right: 0,
+                child: Center(
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 7,
+                    ),
+                    decoration: BoxDecoration(
+                      color: Colors.black54,
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    child: const Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(
+                          Icons.zoom_in_rounded,
+                          color: Colors.white,
+                          size: 16,
+                        ),
+                        SizedBox(width: 6),
+                        Text(
+                          'Pinch to zoom',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 11,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        );
+      },
     );
   }
 }
@@ -381,12 +569,20 @@ class _SelfieImage extends StatelessWidget {
       borderRadius: BorderRadius.circular(10),
       child: Stack(
         children: [
+          // ================================================================
+          // SELFIE PREVIEW
+          // ================================================================
+
           SizedBox(
             height: 120,
             width: double.infinity,
             child: Image.network(
               imageUrl,
               fit: BoxFit.cover,
+
+              // ==========================================================
+              // LOADING
+              // ==========================================================
 
               loadingBuilder: (
                 context,
@@ -407,6 +603,10 @@ class _SelfieImage extends StatelessWidget {
                   ),
                 );
               },
+
+              // ==========================================================
+              // ERROR
+              // ==========================================================
 
               errorBuilder: (
                 context,
@@ -440,37 +640,24 @@ class _SelfieImage extends StatelessWidget {
             ),
           ),
 
-          // SELFIE LABEL
+         
+          // ================================================================
+          // TAP TO ZOOM INDICATOR
+          // ================================================================
+
           Positioned(
-            left: 8,
+            right: 8,
             bottom: 8,
             child: Container(
-              padding: const EdgeInsets.symmetric(
-                horizontal: 7,
-                vertical: 4,
-              ),
+              padding: const EdgeInsets.all(5),
               decoration: BoxDecoration(
                 color: Colors.black.withOpacity(0.55),
-                borderRadius: BorderRadius.circular(6),
+                shape: BoxShape.circle,
               ),
-              child: const Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Icon(
-                    Icons.camera_alt_rounded,
-                    color: Colors.white,
-                    size: 12,
-                  ),
-                  SizedBox(width: 4),
-                  Text(
-                    'Selfie',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 10,
-                      fontWeight: FontWeight.w700,
-                    ),
-                  ),
-                ],
+              child: const Icon(
+                Icons.zoom_in_rounded,
+                color: Colors.white,
+                size: 15,
               ),
             ),
           ),
@@ -479,3 +666,4 @@ class _SelfieImage extends StatelessWidget {
     );
   }
 }
+

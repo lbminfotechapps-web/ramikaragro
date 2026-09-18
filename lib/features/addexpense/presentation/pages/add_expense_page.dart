@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:demo/core/utility/app_toast.dart';
 import 'package:demo/core/utility/widgets/custom_appbar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -203,13 +204,11 @@ class _AddExpensePageState extends State<AddExpensePage> {
     final kmLimit = state.apiKmLimit;
 
     if (enteredKM < kmLimit && state.fldOpeningClosingKm == '1') {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
+      AppDialog.show(
+        context: context,
+        message:
             'DA is not applicable for this trip. Minimum required distance is $kmLimit KM.',
-          ),
-          duration: const Duration(seconds: 3),
-        ),
+        type: DialogType.error,
       );
 
       setState(() {
@@ -221,11 +220,10 @@ class _AddExpensePageState extends State<AddExpensePage> {
 
     if (value == 'DA') {
       if (state.localDa <= 0) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('You are not applicable for DA'),
-            duration: const Duration(seconds: 3),
-          ),
+        AppDialog.show(
+          context: context,
+          message: 'You are not applicable for DA',
+          type: DialogType.error,
         );
 
         setState(() {
@@ -246,11 +244,10 @@ class _AddExpensePageState extends State<AddExpensePage> {
 
     if (value == 'NIGHT') {
       if (state.nightDa <= 0) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('You are not applicable for Night Halt DA'),
-            duration: const Duration(seconds: 3),
-          ),
+        AppDialog.show(
+          context: context,
+          message: 'You are not applicable for Night Halt DA',
+          type: DialogType.error,
         );
 
         setState(() {

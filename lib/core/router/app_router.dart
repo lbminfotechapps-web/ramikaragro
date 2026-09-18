@@ -19,6 +19,8 @@ import 'package:demo/features/farmer/farmerlist/data/model/farmerlist_model.dart
 import 'package:demo/features/farmer/farmerregistration/presentation/pages/farmer_edit_update_scren.dart';
 import 'package:demo/features/farmer/farmerlist/presentation/pages/farmerlist_screen.dart';
 import 'package:demo/features/farmer/farmerregistration/presentation/pages/farmerregistration_page.dart';
+import 'package:demo/features/followup/presentation/bloc/followup_bloc.dart';
+import 'package:demo/features/followup/presentation/pages/followup_page.dart';
 import 'package:demo/features/gallery/presentation/pages/galleryscreen.dart';
 import 'package:demo/features/home/presentation/crop_schedule_page.dart';
 
@@ -39,6 +41,7 @@ import 'package:demo/features/products/domain/entity/fertilizer_product_entity.d
 import 'package:demo/features/products/presentation/pages/product_details.dart';
 import 'package:demo/features/products/presentation/pages/product_list.dart';
 import 'package:demo/features/products/presentation/pages/products_screen.dart';
+import 'package:demo/features/profilepage/profile_page.dart';
 import 'package:demo/features/reports/presentation/pages/about_us_page.dart';
 import 'package:demo/features/reports/presentation/pages/contact_us_page.dart';
 import 'package:demo/features/reports/presentation/pages/employee_activity_report_page.dart';
@@ -90,7 +93,7 @@ class AppRouter {
   static const String gallery = '/gallery';
   static const String scheme = '/scheme';
   static const String leaveList = '/leaveList';
-  static const String addLeave = '/addLeave';
+  static const String addLeave = '/add-Leave';
 
   static const String topTenDealer = '/topTenDealer';
   static const String social = '/social';
@@ -115,6 +118,7 @@ class AppRouter {
   static const String dealrFollowUpAdd = '/dealrFollowUpAdd';
   static const String dealrFollowUpAddNew = '/dealrFollowUpAddNew';
   static const String dealerUpdate = '/dealerUpdate';
+  static const String profile = '/profile';
 
   static final GoRouter router = GoRouter(
     initialLocation: splash,
@@ -133,6 +137,14 @@ class AppRouter {
         name: 'login',
         builder: (context, state) {
           return const LoginScreen();
+        },
+      ),
+
+      GoRoute(
+        path: profile,
+        name: 'profile',
+        builder: (context, state) {
+          return const ProfilePage();
         },
       ),
 
@@ -208,8 +220,8 @@ class AppRouter {
       ),
 
       GoRoute(
-        path: 'add-leave',
-        name: 'addLeave',
+        path: 'add-Leave',
+        name: 'add-Leave',
         builder: (context, state) {
           return const AddLeavePage();
         },
@@ -322,7 +334,10 @@ class AppRouter {
         builder: (context, state) {
           final dealerId = state.extra is String ? state.extra as String : '';
           final dealerName = state.extra is String ? state.extra as String : '';
-          return DealerFollowupListPage(dealerId: dealerId,dealerName: dealerName);
+          return DealerFollowupListPage(
+            dealerId: dealerId,
+            dealerName: dealerName,
+          );
         },
       ),
 
@@ -414,9 +429,9 @@ class AppRouter {
         path: dealrFollowUpAddNew,
         name: 'dealrFollowUpAddNew',
         builder: (context, state) {
-           final dealerId = state.extra is String ? state.extra as String : '';
-           final dealerName = state.extra is String ? state.extra as String : '';
-          return AddDealerVisitPage(dealerId: dealerId,dealerName: dealerName);
+          final dealerId = state.extra is String ? state.extra as String : '';
+          final dealerName = state.extra is String ? state.extra as String : '';
+          return AddDealerVisitPage(dealerId: dealerId, dealerName: dealerName);
         },
       ),
 
@@ -538,17 +553,40 @@ class AppRouter {
             ],
           ),
 
+          // StatefulShellBranch(
+          //   routes: [
+          //     GoRoute(
+          //       path: reports,
+          //       name: 'reports',
+          //       builder: (context, state) {
+          //         return const FollowupPage();
+          //       },
+          //     ),
+          //   ],
+          // ),
+
+
           StatefulShellBranch(
             routes: [
               GoRoute(
-                path: reports,
-                name: 'reports',
-                builder: (context, state) {
-                  return const ReportsScree();
-                },
-              ),
+              path: reports,
+              name: 'reports',
+              builder: (context, state) {
+                return BlocProvider<FollowupBloc>(
+                  create: (_) => sl<FollowupBloc>(),
+                  child: const FollowupPage(),
+                );
+              },
+            ),
+
             ],
           ),
+
+
+
+
+           
+
           StatefulShellBranch(
             routes: [
               GoRoute(

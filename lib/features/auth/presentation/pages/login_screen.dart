@@ -1,4 +1,5 @@
 import 'package:demo/core/theme/app_colors.dart';
+import 'package:demo/core/utility/app_toast.dart';
 import 'package:demo/core/utility/widgets/custom_button.dart';
 import 'package:demo/core/utility/widgets/custom_loader.dart';
 import 'package:demo/core/utility/widgets/custom_textformfield.dart';
@@ -43,17 +44,13 @@ class _LoginScreenState extends State<LoginScreen> {
       body: BlocConsumer<AuthBloc, AuthState>(
         listener: (context, state) {
           if (state.loginStatus == LoginStatus.success) {
-            // ScaffoldMessenger.of(
-            //   context,
-            // ).showSnackBar(const SnackBar(content: Text('Login successful')));
+            AppToast.success('Login SuccessFul');
 
             context.go('/home');
           }
 
           if (state.loginStatus == LoginStatus.failure) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text(state.errorMessage ?? 'Login failed')),
-            );
+            AppToast.success(state.errorMessage ?? 'Login failed');
           }
         },
 
@@ -148,24 +145,7 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 
-  // Widget _bottomLogo() {
-  //   return SizedBox(
-  //     width: double.infinity,
-  //     // height: 100.h,
-  //     child: ClipRect(
-  //       child: Align(
-  //         alignment: Alignment.topLeft,
-  //         widthFactor: 0.55,
-  //         heightFactor: 0.60,
-  //         child: Image.asset(
-  //           'assets/images/login_bottom_logo.png',
-  //           width: double.infinity,
-  //           fit: BoxFit.contain,
-  //         ),
-  //       ),
-  //     ),
-  //   );
-  // }
+ 
 
   // ============================================================
   // LOGIN SECTION
@@ -203,35 +183,17 @@ class _LoginScreenState extends State<LoginScreen> {
               ),
             ),
 
-            SizedBox(height: 10.h),
+            SizedBox(height: 15.h),
 
             // Mobile
             email(),
 
-            SizedBox(height: 15.h),
+            SizedBox(height: 20.h),
 
             // Password
             password(),
 
             SizedBox(height: 10.h),
-
-            // Forgot password
-            Align(
-              alignment: Alignment.centerRight,
-              child: GestureDetector(
-                onTap: () {
-                  // Forgot password
-                },
-                child: Text(
-                  'Forgot Password?',
-                  style: TextStyle(
-                    color: Color(0xFF087C3A),
-                    fontSize: 14.sp,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-              ),
-            ),
 
             SizedBox(height: 20.h),
 
@@ -251,7 +213,8 @@ class _LoginScreenState extends State<LoginScreen> {
   Widget email() {
     return CustomTextFormField(
       controller: _emailController,
-      hintText: 'Enter Usrname',
+      hintText: 'Enter Username',
+      labelText: 'Enter Username ',
       prefixIcon: Icons.person_outline,
       keyboardType: TextInputType.text,
 
@@ -261,6 +224,10 @@ class _LoginScreenState extends State<LoginScreen> {
         }
 
         return null;
+      },
+      onChanged: (value) {
+        // Validate immediately while typing
+        _formKey.currentState?.validate();
       },
     );
   }
@@ -292,6 +259,7 @@ class _LoginScreenState extends State<LoginScreen> {
     return CustomTextFormField(
       controller: _passwordController,
       hintText: 'Password',
+      labelText: 'Password',
       prefixIcon: Icons.lock_outline,
 
       suffixIcon: _isPasswordVisible
@@ -316,6 +284,11 @@ class _LoginScreenState extends State<LoginScreen> {
         }
 
         return null;
+      },
+
+      onChanged: (value) {
+        // Validate immediately while typing
+        _formKey.currentState?.validate();
       },
     );
   }

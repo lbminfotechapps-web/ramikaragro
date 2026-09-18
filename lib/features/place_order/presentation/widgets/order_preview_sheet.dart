@@ -16,53 +16,7 @@ class OrderPreviewSheet extends StatelessWidget {
   final CategoryEntity category;
   final List<ProductEntity> products;
 
-  // ============================================================
-  // PACKING / RATE-WISE QUANTITIES
-  //
-  // productId -> productDetailsId -> quantity
-  //
-  // Example:
-  //
-  // {
-  //   "1": {
-  //     "1": 2,
-  //     "2": 3,
-  //   },
-  //   "4": {
-  //     "5": 1,
-  //     "6": 4,
-  //   },
-  // }
-  //
-  // Product 1:
-  //   Details 1 -> Qty 2
-  //   Details 2 -> Qty 3
-  //
-  // Product 4:
-  //   Details 5 -> Qty 1
-  //   Details 6 -> Qty 4
-  // ============================================================
-
   final Map<String, Map<String, int>> packingQuantities;
-
-  // ============================================================
-  // SELECTED PRODUCT RATES
-  //
-  // productId -> multiple selected ProductRateEntity
-  //
-  // Example:
-  //
-  // {
-  //   "1": [
-  //     rate(5 KG, 200),
-  //     rate(10 KG, 380),
-  //   ],
-  //   "4": [
-  //     rate(1 KG, 350),
-  //     rate(5 KG, 600),
-  //   ],
-  // }
-  // ============================================================
 
   final Map<String, List<ProductRateEntity>> selectedRates;
 
@@ -87,28 +41,18 @@ class OrderPreviewSheet extends StatelessWidget {
 
   // ============================================================
   // TOTAL QUANTITY
-  //
-  // Calculates quantity from EVERY selected packing/rate.
-  //
-  // Example:
-  //
-  // 5 KG  -> 2
-  // 10 KG -> 3
-  // 1 KG  -> 4
-  //
-  // Total = 9
   // ============================================================
 
   int get totalQuantity {
     int total = 0;
 
     for (final product in products) {
-      final String productId = product.id.toString();
+      final productId = product.id.toString();
 
-      final Map<String, int> productQuantities =
+      final quantities =
           packingQuantities[productId] ?? <String, int>{};
 
-      for (final int quantity in productQuantities.values) {
+      for (final quantity in quantities.values) {
         total += quantity;
       }
     }
@@ -118,40 +62,28 @@ class OrderPreviewSheet extends StatelessWidget {
 
   // ============================================================
   // TOTAL AMOUNT
-  //
-  // IMPORTANT:
-  // Each selected rate uses its OWN quantity.
-  //
-  // Example:
-  //
-  // 5 KG  ₹200 × 2 = ₹400
-  // 10 KG ₹380 × 3 = ₹1140
-  //
-  // Product total = ₹1540
   // ============================================================
 
   double get totalAmount {
-    double total = 0.0;
+    double total = 0;
 
     for (final product in products) {
-      final String productId = product.id.toString();
+      final productId = product.id.toString();
 
-      final List<ProductRateEntity> rates =
+      final rates =
           selectedRates[productId] ?? <ProductRateEntity>[];
 
-      final Map<String, int> productQuantities =
+      final quantities =
           packingQuantities[productId] ?? <String, int>{};
 
       for (final rate in rates) {
-        final String productDetailsId =
+        final detailsId =
             rate.productDetailsId.toString();
 
-        final int quantity =
-            productQuantities[productDetailsId] ?? 1;
+        final quantity =
+            quantities[detailsId] ?? 1;
 
-        final double price = rate.price.toDouble();
-
-        total += price * quantity;
+        total += rate.price.toDouble() * quantity;
       }
     }
 
@@ -164,78 +96,61 @@ class OrderPreviewSheet extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final bool hasPhoto =
+        imagePath != null &&
+        imagePath!.trim().isNotEmpty;
+
+    final bool hasSignature =
+        signatureBytes != null &&
+        signatureBytes!.isNotEmpty;
+
     return Container(
       constraints: BoxConstraints(
         maxHeight:
-            MediaQuery.of(context).size.height * 0.93,
+            MediaQuery.of(context).size.height * 0.94,
       ),
       decoration: BoxDecoration(
         color: AppColors.background,
         borderRadius: BorderRadius.vertical(
-          top: Radius.circular(26.r),
+          top: Radius.circular(24.r),
         ),
       ),
       child: Column(
         children: [
           _buildHeader(context),
 
-          // ----------------------------------------------------
-          // SCROLL CONTENT
-          // ----------------------------------------------------
-
           Expanded(
             child: SingleChildScrollView(
               physics: const BouncingScrollPhysics(),
               padding: EdgeInsets.fromLTRB(
-                16.w,
-                8.h,
-                16.w,
-                20.h,
+                12.w,
+                10.h,
+                12.w,
+                12.h,
               ),
               child: Column(
                 crossAxisAlignment:
                     CrossAxisAlignment.start,
                 children: [
                   // ==================================================
-                  // DEALER
+                  // DEALER + ORDER INFORMATION
                   // ==================================================
 
-                  _sectionTitle(
-                    icon: Icons.person_outline,
-                    title: 'Dealer Details',
-                  ),
+                  _buildOrderOverview(),
 
-                  SizedBox(height: 10.h),
-
-                  _buildDealerCard(),
-
-                  SizedBox(height: 18.h),
-
-                  // ==================================================
-                  // ORDER DETAILS
-                  // ==================================================
-
-                  _sectionTitle(
-                    icon: Icons.receipt_long_outlined,
-                    title: 'Order Details',
-                  ),
-
-                  SizedBox(height: 10.h),
-
-                  _buildOrderInfoCard(),
-
-                  SizedBox(height: 18.h),
+                  SizedBox(height: 12.h),
 
                   // ==================================================
                   // PRODUCTS
                   // ==================================================
 
-                  _sectionTitle(
-                    icon: Icons.shopping_bag_outlined,
-                    title: 'Products',
+                  _buildSectionHeader(
+                    Icons.shopping_bag_outlined,
+                    'Products',
+                    '${products.length}',
                   ),
 
-                  SizedBox(height: 10.h),
+                  SizedBox(height: 7.h),
 
                   if (products.isEmpty)
                     _buildEmptyProducts()
@@ -243,55 +158,40 @@ class OrderPreviewSheet extends StatelessWidget {
                     ...products.map(
                       (product) => Padding(
                         padding: EdgeInsets.only(
-                          bottom: 10.h,
+                          bottom: 7.h,
                         ),
                         child:
                             _buildProductCard(product),
                       ),
                     ),
 
+                  SizedBox(height: 3.h),
+
                   // ==================================================
                   // TOTAL SUMMARY
                   // ==================================================
 
-                  SizedBox(height: 4.h),
-
                   _buildTotalSummary(),
 
                   // ==================================================
-                  // PHOTO
+                  // DEALER PHOTO + SIGNATURE
                   // ==================================================
 
-                  if (imagePath != null &&
-                      imagePath!.trim().isNotEmpty) ...[
-                    SizedBox(height: 18.h),
+                  if (hasPhoto || hasSignature) ...[
+                    SizedBox(height: 12.h),
 
-                    _sectionTitle(
-                      icon: Icons.camera_alt_outlined,
-                      title: 'Photo',
+                    _buildSectionHeader(
+                      Icons.verified_user_outlined,
+                      'Dealer Verification',
+                      null,
                     ),
 
-                    SizedBox(height: 10.h),
+                    SizedBox(height: 6.h),
 
-                    _buildPhoto(),
-                  ],
-
-                  // ==================================================
-                  // SIGNATURE
-                  // ==================================================
-
-                  if (signatureBytes != null &&
-                      signatureBytes!.isNotEmpty) ...[
-                    SizedBox(height: 18.h),
-
-                    _sectionTitle(
-                      icon: Icons.draw_outlined,
-                      title: 'Dealer Signature',
+                    _buildDealerVerification(
+                      hasPhoto: hasPhoto,
+                      hasSignature: hasSignature,
                     ),
-
-                    SizedBox(height: 10.h),
-
-                    _buildSignature(),
                   ],
 
                   // ==================================================
@@ -299,27 +199,28 @@ class OrderPreviewSheet extends StatelessWidget {
                   // ==================================================
 
                   if (remark.trim().isNotEmpty) ...[
-                    SizedBox(height: 18.h),
+                    SizedBox(height: 12.h),
 
-                    _sectionTitle(
-                      icon: Icons.notes_outlined,
-                      title: 'Remark',
+                    _buildSectionHeader(
+                      Icons.notes_outlined,
+                      'Remark',
+                      null,
                     ),
 
-                    SizedBox(height: 10.h),
+                    SizedBox(height: 6.h),
 
                     _buildRemark(),
                   ],
 
-                  SizedBox(height: 15.h),
+                  SizedBox(height: 5.h),
                 ],
               ),
             ),
           ),
 
-          // ----------------------------------------------------
+          // ========================================================
           // BOTTOM BUTTONS
-          // ----------------------------------------------------
+          // ========================================================
 
           _buildBottomButtons(context),
         ],
@@ -334,42 +235,42 @@ class OrderPreviewSheet extends StatelessWidget {
   Widget _buildHeader(BuildContext context) {
     return Container(
       padding: EdgeInsets.fromLTRB(
-        20.w,
-        14.h,
-        12.w,
-        14.h,
+        15.w,
+        11.h,
+        8.w,
+        11.h,
       ),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.vertical(
-          top: Radius.circular(26.r),
+          top: Radius.circular(24.r),
         ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.06),
-            blurRadius: 12,
-            offset: const Offset(0, 3),
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 10,
+            offset: const Offset(0, 2),
           ),
         ],
       ),
       child: Row(
         children: [
           Container(
-            height: 44.w,
-            width: 44.w,
+            height: 40.w,
+            width: 40.w,
             decoration: BoxDecoration(
               color: AppColors.lightGreen,
               borderRadius:
-                  BorderRadius.circular(14.r),
+                  BorderRadius.circular(12.r),
             ),
             child: Icon(
               Icons.receipt_long_rounded,
               color: AppColors.primary,
-              size: 23.sp,
+              size: 21.sp,
             ),
           ),
 
-          SizedBox(width: 12.w),
+          SizedBox(width: 10.w),
 
           Expanded(
             child: Column(
@@ -379,16 +280,16 @@ class OrderPreviewSheet extends StatelessWidget {
                 Text(
                   'Order Preview',
                   style: TextStyle(
-                    fontSize: 19.sp,
+                    fontSize: 17.sp,
                     fontWeight: FontWeight.w800,
                     color: AppColors.textPrimary,
                   ),
                 ),
-                SizedBox(height: 2.h),
+                SizedBox(height: 1.h),
                 Text(
-                  'Review your order before submitting',
+                  'Review before submitting',
                   style: TextStyle(
-                    fontSize: 12.sp,
+                    fontSize: 10.5.sp,
                     color: AppColors.textSecondary,
                   ),
                 ),
@@ -396,13 +297,36 @@ class OrderPreviewSheet extends StatelessWidget {
             ),
           ),
 
+          Container(
+            padding: EdgeInsets.symmetric(
+              horizontal: 9.w,
+              vertical: 5.h,
+            ),
+            decoration: BoxDecoration(
+              color: AppColors.lightGreen,
+              borderRadius:
+                  BorderRadius.circular(8.r),
+            ),
+            child: Text(
+              '${products.length} Items',
+              style: TextStyle(
+                fontSize: 10.sp,
+                fontWeight: FontWeight.w700,
+                color: AppColors.primary,
+              ),
+            ),
+          ),
+
+          SizedBox(width: 2.w),
+
           IconButton(
-            onPressed: () {
-              Navigator.pop(context);
-            },
+            visualDensity: VisualDensity.compact,
+            onPressed: () =>
+                Navigator.pop(context),
             icon: Icon(
               Icons.close_rounded,
               color: AppColors.textSecondary,
+              size: 21.sp,
             ),
           ),
         ],
@@ -411,200 +335,236 @@ class OrderPreviewSheet extends StatelessWidget {
   }
 
   // ============================================================
-  // SECTION TITLE
+  // SECTION HEADER
   // ============================================================
 
-  Widget _sectionTitle({
-    required IconData icon,
-    required String title,
-  }) {
+  Widget _buildSectionHeader(
+    IconData icon,
+    String title,
+    String? trailing,
+  ) {
     return Row(
       children: [
-        Icon(
-          icon,
-          size: 18.sp,
-          color: AppColors.primary,
+        Container(
+          height: 28.w,
+          width: 28.w,
+          decoration: BoxDecoration(
+            color: AppColors.lightGreen,
+            borderRadius:
+                BorderRadius.circular(8.r),
+          ),
+          child: Icon(
+            icon,
+            size: 15.sp,
+            color: AppColors.primary,
+          ),
         ),
+
         SizedBox(width: 7.w),
+
         Text(
           title,
           style: TextStyle(
-            fontSize: 15.sp,
+            fontSize: 13.5.sp,
             fontWeight: FontWeight.w800,
             color: AppColors.textPrimary,
           ),
         ),
+
+        if (trailing != null) ...[
+          SizedBox(width: 6.w),
+
+          Container(
+            padding: EdgeInsets.symmetric(
+              horizontal: 6.w,
+              vertical: 2.h,
+            ),
+            decoration: BoxDecoration(
+              color: Colors.grey.shade100,
+              borderRadius:
+                  BorderRadius.circular(6.r),
+            ),
+            child: Text(
+              trailing,
+              style: TextStyle(
+                fontSize: 9.sp,
+                fontWeight: FontWeight.w700,
+                color: AppColors.textSecondary,
+              ),
+            ),
+          ),
+        ],
       ],
     );
   }
 
   // ============================================================
-  // DEALER CARD
+  // ORDER OVERVIEW
   // ============================================================
 
-  Widget _buildDealerCard() {
+  Widget _buildOrderOverview() {
     return Container(
       width: double.infinity,
-      padding: EdgeInsets.all(14.w),
+      padding: EdgeInsets.all(12.w),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius:
-            BorderRadius.circular(16.r),
+            BorderRadius.circular(15.r),
         border: Border.all(
           color: AppColors.border,
         ),
       ),
-      child: Row(
-        crossAxisAlignment:
-            CrossAxisAlignment.start,
+      child: Column(
         children: [
-          Container(
-            height: 48.w,
-            width: 48.w,
-            decoration: BoxDecoration(
-              color: AppColors.lightGreen,
-              shape: BoxShape.circle,
-            ),
-            child: Icon(
-              Icons.storefront_rounded,
-              color: AppColors.primary,
-              size: 24.sp,
-            ),
-          ),
+          // ------------------------------------------------------
+          // DEALER
+          // ------------------------------------------------------
 
-          SizedBox(width: 12.w),
-
-          Expanded(
-            child: Column(
-              crossAxisAlignment:
-                  CrossAxisAlignment.start,
-              children: [
-                Text(
-                  dealer.name,
-                  maxLines: 2,
-                  overflow:
-                      TextOverflow.ellipsis,
-                  style: TextStyle(
-                    fontSize: 15.sp,
-                    fontWeight: FontWeight.w800,
-                    color: AppColors.textPrimary,
-                  ),
+          Row(
+            crossAxisAlignment:
+                CrossAxisAlignment.start,
+            children: [
+              Container(
+                height: 42.w,
+                width: 42.w,
+                decoration: BoxDecoration(
+                  color: AppColors.lightGreen,
+                  shape: BoxShape.circle,
                 ),
+                child: Icon(
+                  Icons.storefront_rounded,
+                  color: AppColors.primary,
+                  size: 21.sp,
+                ),
+              ),
 
-                if (dealer.mobile
-                    .trim()
-                    .isNotEmpty) ...[
-                  SizedBox(height: 5.h),
+              SizedBox(width: 10.w),
 
-                  Row(
-                    children: [
-                      Icon(
-                        Icons.phone_outlined,
-                        size: 14.sp,
+              Expanded(
+                child: Column(
+                  crossAxisAlignment:
+                      CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Dealer',
+                      style: TextStyle(
+                        fontSize: 9.5.sp,
                         color:
                             AppColors.textSecondary,
                       ),
-                      SizedBox(width: 5.w),
-                      Expanded(
-                        child: Text(
-                          dealer.mobile,
-                          overflow:
-                              TextOverflow.ellipsis,
-                          style: TextStyle(
-                            fontSize: 12.sp,
-                            color:
-                                AppColors.textSecondary,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
+                    ),
 
-                if (dealer.address
-                    .trim()
-                    .isNotEmpty) ...[
-                  SizedBox(height: 4.h),
+                    SizedBox(height: 2.h),
 
-                  Row(
-                    crossAxisAlignment:
-                        CrossAxisAlignment.start,
-                    children: [
-                      Icon(
-                        Icons.location_on_outlined,
-                        size: 14.sp,
+                    Text(
+                      dealer.name,
+                      maxLines: 1,
+                      overflow:
+                          TextOverflow.ellipsis,
+                      style: TextStyle(
+                        fontSize: 14.sp,
+                        fontWeight:
+                            FontWeight.w800,
                         color:
-                            AppColors.textSecondary,
+                            AppColors.textPrimary,
                       ),
-                      SizedBox(width: 5.w),
-                      Expanded(
-                        child: Text(
-                          dealer.address,
-                          maxLines: 2,
-                          overflow:
-                              TextOverflow.ellipsis,
-                          style: TextStyle(
-                            fontSize: 12.sp,
+                    ),
+
+                    if (dealer.mobile
+                        .trim()
+                        .isNotEmpty) ...[
+                      SizedBox(height: 3.h),
+
+                      Row(
+                        children: [
+                          Icon(
+                            Icons.phone_outlined,
+                            size: 12.sp,
                             color:
                                 AppColors.textSecondary,
                           ),
-                        ),
+
+                          SizedBox(width: 4.w),
+
+                          Text(
+                            dealer.mobile,
+                            style: TextStyle(
+                              fontSize: 10.sp,
+                              color:
+                                  AppColors.textSecondary,
+                            ),
+                          ),
+                        ],
                       ),
                     ],
-                  ),
-                ],
-              ],
-            ),
+
+                    if (dealer.address
+                        .trim()
+                        .isNotEmpty) ...[
+                      SizedBox(height: 3.h),
+
+                      Row(
+                        crossAxisAlignment:
+                            CrossAxisAlignment.start,
+                        children: [
+                          Icon(
+                            Icons
+                                .location_on_outlined,
+                            size: 12.sp,
+                            color:
+                                AppColors.textSecondary,
+                          ),
+
+                          SizedBox(width: 4.w),
+
+                          Expanded(
+                            child: Text(
+                              dealer.address,
+                              maxLines: 1,
+                              overflow:
+                                  TextOverflow.ellipsis,
+                              style: TextStyle(
+                                fontSize: 10.sp,
+                                color: AppColors
+                                    .textSecondary,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ],
+                ),
+              ),
+            ],
           ),
-        ],
-      ),
-    );
-  }
 
-  // ============================================================
-  // ORDER INFO
-  // ============================================================
+          SizedBox(height: 10.h),
 
-  Widget _buildOrderInfoCard() {
-    return Container(
-      width: double.infinity,
-      padding: EdgeInsets.all(14.w),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius:
-            BorderRadius.circular(16.r),
-        border: Border.all(
-          color: AppColors.border,
-        ),
-      ),
-      child: Row(
-        crossAxisAlignment:
-            CrossAxisAlignment.start,
-        children: [
-          Expanded(
-            child: _infoItem(
-              icon: Icons.warehouse_outlined,
-              label: 'Godown',
-              value: godown.name,
-            ),
-          ),
-
-          Container(
-            width: 1,
-            height: 60.h,
+          Divider(
+            height: 1,
             color: AppColors.border,
           ),
 
-          Expanded(
-            child: Padding(
-              padding:
-                  EdgeInsets.only(left: 14.w),
-              child: _infoItem(
-                icon: Icons.category_outlined,
-                label: 'Category',
-                value: category.name,
+          SizedBox(height: 10.h),
+
+          // ------------------------------------------------------
+          // GODOWN + CATEGORY
+          // ------------------------------------------------------
+
+          Row(
+            children: [
+              Expanded(
+                child: _compactInfo(
+                  icon:
+                      Icons.warehouse_outlined,
+                  label: 'Godown',
+                  value: godown.name,
+                ),
               ),
-            ),
+
+             
+            ],
           ),
         ],
       ),
@@ -612,44 +572,53 @@ class OrderPreviewSheet extends StatelessWidget {
   }
 
   // ============================================================
-  // INFO ITEM
+  // COMPACT INFO
   // ============================================================
 
-  Widget _infoItem({
+  Widget _compactInfo({
     required IconData icon,
     required String label,
     required String value,
   }) {
-    return Column(
-      crossAxisAlignment:
-          CrossAxisAlignment.start,
+    return Row(
       children: [
         Icon(
           icon,
-          size: 18.sp,
+          size: 17.sp,
           color: AppColors.primary,
         ),
 
-        SizedBox(height: 5.h),
+        SizedBox(width: 7.w),
 
-        Text(
-          label,
-          style: TextStyle(
-            fontSize: 11.sp,
-            color: AppColors.textSecondary,
-          ),
-        ),
+        Expanded(
+          child: Column(
+            crossAxisAlignment:
+                CrossAxisAlignment.start,
+            children: [
+              Text(
+                label,
+                style: TextStyle(
+                  fontSize: 9.sp,
+                  color:
+                      AppColors.textSecondary,
+                ),
+              ),
 
-        SizedBox(height: 2.h),
+              SizedBox(height: 1.h),
 
-        Text(
-          value,
-          maxLines: 2,
-          overflow: TextOverflow.ellipsis,
-          style: TextStyle(
-            fontSize: 13.sp,
-            fontWeight: FontWeight.w700,
-            color: AppColors.textPrimary,
+              Text(
+                value,
+                maxLines: 1,
+                overflow:
+                    TextOverflow.ellipsis,
+                style: TextStyle(
+                  fontSize: 11.sp,
+                  fontWeight: FontWeight.w700,
+                  color:
+                      AppColors.textPrimary,
+                ),
+              ),
+            ],
           ),
         ),
       ],
@@ -663,326 +632,263 @@ class OrderPreviewSheet extends StatelessWidget {
   Widget _buildProductCard(
     ProductEntity product,
   ) {
-    final String productId =
-        product.id.toString();
+    final productId = product.id.toString();
 
-    // ==========================================================
-    // SELECTED RATES
-    // ==========================================================
-
-    final List<ProductRateEntity> rates =
+    final rates =
         selectedRates[productId] ??
             <ProductRateEntity>[];
 
-    // ==========================================================
-    // RATE-WISE QUANTITIES
-    // ==========================================================
-
-    final Map<String, int> productQuantities =
+    final quantities =
         packingQuantities[productId] ??
             <String, int>{};
 
-    // ==========================================================
-    // PRODUCT TOTAL QUANTITY
-    // ==========================================================
-
-    int productTotalQuantity = 0;
-
-    // ==========================================================
-    // PRODUCT TOTAL AMOUNT
-    // ==========================================================
-
-    double productTotal = 0.0;
+    int productQuantity = 0;
+    double productTotal = 0;
 
     for (final rate in rates) {
-      final String productDetailsId =
+      final detailsId =
           rate.productDetailsId.toString();
 
-      final int quantity =
-          productQuantities[productDetailsId] ?? 1;
+      final quantity =
+          quantities[detailsId] ?? 1;
 
-      final double price =
-          rate.price.toDouble();
+      productQuantity += quantity;
 
-      productTotalQuantity += quantity;
-
-      productTotal += price * quantity;
+      productTotal +=
+          rate.price.toDouble() * quantity;
     }
 
     return Container(
       width: double.infinity,
-      padding: EdgeInsets.all(12.w),
+      padding: EdgeInsets.all(9.w),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius:
-            BorderRadius.circular(16.r),
+            BorderRadius.circular(14.r),
         border: Border.all(
           color: AppColors.border,
         ),
       ),
-      child: Row(
-        crossAxisAlignment:
-            CrossAxisAlignment.start,
+      child: Column(
         children: [
-          // ----------------------------------------------------
-          // PRODUCT IMAGE
-          // ----------------------------------------------------
+          // ======================================================
+          // PRODUCT TOP
+          // ======================================================
 
-          Container(
-            height: 62.w,
-            width: 62.w,
-            decoration: BoxDecoration(
-              color: AppColors.lightGreen,
-              borderRadius:
-                  BorderRadius.circular(12.r),
-            ),
-            child: product.image
-                    .trim()
-                    .isNotEmpty
-                ? ClipRRect(
-                    borderRadius:
-                        BorderRadius.circular(12.r),
-                    child: Image.network(
-                      product.image,
-                      fit: BoxFit.cover,
-                      errorBuilder:
-                          (_, __, ___) {
-                        return Icon(
-                          Icons
-                              .inventory_2_outlined,
-                          color:
-                              AppColors.primary,
-                          size: 25.sp,
-                        );
-                      },
-                    ),
-                  )
-                : Icon(
-                    Icons.inventory_2_outlined,
-                    color: AppColors.primary,
-                    size: 25.sp,
-                  ),
-          ),
+          Row(
+            crossAxisAlignment:
+                CrossAxisAlignment.start,
+            children: [
+              // --------------------------------------------------
+              // IMAGE
+              // --------------------------------------------------
 
-          SizedBox(width: 12.w),
-
-          // ----------------------------------------------------
-          // PRODUCT INFORMATION
-          // ----------------------------------------------------
-
-          Expanded(
-            child: Column(
-              crossAxisAlignment:
-                  CrossAxisAlignment.start,
-              children: [
-                // ==================================================
-                // PRODUCT NAME
-                // ==================================================
-
-                Text(
-                  product.name,
-                  maxLines: 2,
-                  overflow:
-                      TextOverflow.ellipsis,
-                  style: TextStyle(
-                    fontSize: 14.sp,
-                    fontWeight: FontWeight.w700,
-                    color: AppColors.textPrimary,
-                  ),
+              Container(
+                height: 52.w,
+                width: 52.w,
+                decoration: BoxDecoration(
+                  color: AppColors.lightGreen,
+                  borderRadius:
+                      BorderRadius.circular(10.r),
                 ),
+                child: product.image
+                        .trim()
+                        .isNotEmpty
+                    ? ClipRRect(
+                        borderRadius:
+                            BorderRadius.circular(
+                          10.r,
+                        ),
+                        child: Image.network(
+                          product.image,
+                          fit: BoxFit.cover,
+                          errorBuilder:
+                              (_, __, ___) {
+                            return _productIcon();
+                          },
+                        ),
+                      )
+                    : _productIcon(),
+              ),
 
-                SizedBox(height: 6.h),
+              SizedBox(width: 9.w),
 
-                // ==================================================
-                // CATEGORY
-                // ==================================================
+              // --------------------------------------------------
+              // PRODUCT NAME
+              // --------------------------------------------------
 
-                Container(
-                  padding:
-                      EdgeInsets.symmetric(
-                    horizontal: 7.w,
-                    vertical: 3.h,
-                  ),
-                  decoration: BoxDecoration(
-                    color:
-                        AppColors.lightGreen,
-                    borderRadius:
-                        BorderRadius.circular(
-                      6.r,
-                    ),
-                  ),
-                  child: Row(
-                    mainAxisSize:
-                        MainAxisSize.min,
-                    children: [
-                      Icon(
-                        Icons.category_outlined,
-                        size: 12.sp,
+              Expanded(
+                child: Column(
+                  crossAxisAlignment:
+                      CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      product.name,
+                      maxLines: 2,
+                      overflow:
+                          TextOverflow.ellipsis,
+                      style: TextStyle(
+                        fontSize: 13.sp,
+                        fontWeight:
+                            FontWeight.w800,
                         color:
-                            AppColors.primary,
+                            AppColors.textPrimary,
                       ),
+                    ),
 
-                      SizedBox(width: 4.w),
+                    SizedBox(height: 5.h),
 
-                      Flexible(
-                        child: Text(
-                          category.name,
-                          maxLines: 1,
-                          overflow:
-                              TextOverflow.ellipsis,
-                          style: TextStyle(
-                            fontSize: 10.sp,
-                            fontWeight:
-                                FontWeight.w700,
-                            color:
-                                AppColors.primary,
-                          ),
+                    Container(
+                      padding:
+                          EdgeInsets.symmetric(
+                        horizontal: 6.w,
+                        vertical: 3.h,
+                      ),
+                      decoration: BoxDecoration(
+                        color:
+                            AppColors.lightGreen,
+                        borderRadius:
+                            BorderRadius.circular(
+                          5.r,
                         ),
                       ),
-                    ],
-                  ),
-                ),
-
-                SizedBox(height: 8.h),
-
-                // ==================================================
-                // ALL SELECTED RATES
-                // ==================================================
-
-                if (rates.isNotEmpty)
-                  Column(
-                    crossAxisAlignment:
-                        CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'Selected Rates',
+                      child: Text(
+                        category.name,
+                        maxLines: 1,
+                        overflow:
+                            TextOverflow.ellipsis,
                         style: TextStyle(
-                          fontSize: 10.sp,
+                          fontSize: 8.5.sp,
                           fontWeight:
                               FontWeight.w700,
                           color:
-                              AppColors.textSecondary,
+                              AppColors.primary,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+
+              SizedBox(width: 7.w),
+
+              // --------------------------------------------------
+              // PRODUCT TOTAL
+              // --------------------------------------------------
+
+              Column(
+                crossAxisAlignment:
+                    CrossAxisAlignment.end,
+                children: [
+                  Text(
+                    '₹${productTotal.toStringAsFixed(2)}',
+                    style: TextStyle(
+                      fontSize: 13.sp,
+                      fontWeight:
+                          FontWeight.w900,
+                      color:
+                          AppColors.primary,
+                    ),
+                  ),
+
+                  SizedBox(height: 1.h),
+
+                  Text(
+                    '$productQuantity Qty',
+                    style: TextStyle(
+                      fontSize: 8.5.sp,
+                      color:
+                          AppColors.textSecondary,
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+
+          // ======================================================
+          // RATES
+          // ======================================================
+
+          if (rates.isNotEmpty) ...[
+            SizedBox(height: 8.h),
+
+            Container(
+              width: double.infinity,
+              padding: EdgeInsets.all(7.w),
+              decoration: BoxDecoration(
+                color: AppColors.background,
+                borderRadius:
+                    BorderRadius.circular(9.r),
+              ),
+              child: Column(
+                children: [
+                  Row(
+                    children: [
+                      Text(
+                        'PACKING / RATE',
+                        style: TextStyle(
+                          fontSize: 8.sp,
+                          fontWeight:
+                              FontWeight.w800,
+                          color: AppColors
+                              .textSecondary,
+                          letterSpacing: .3,
                         ),
                       ),
 
-                      SizedBox(height: 5.h),
+                      const Spacer(),
 
-                      ...rates.map(
-                        (rate) {
-                          final String
-                              productDetailsId =
-                              rate.productDetailsId
-                                  .toString();
-
-                          final int quantity =
-                              productQuantities[
-                                      productDetailsId] ??
-                                  1;
-
-                          return _buildRateRow(
-                            rate: rate,
-                            quantity: quantity,
-                          );
-                        },
+                      Text(
+                        'AMOUNT',
+                        style: TextStyle(
+                          fontSize: 8.sp,
+                          fontWeight:
+                              FontWeight.w800,
+                          color: AppColors
+                              .textSecondary,
+                          letterSpacing: .3,
+                        ),
                       ),
                     ],
                   ),
 
-                SizedBox(height: 7.h),
+                  SizedBox(height: 4.h),
 
-                // ==================================================
-                // TOTAL QUANTITY
-                // ==================================================
+                  ...rates.map(
+                    (rate) {
+                      final detailsId =
+                          rate.productDetailsId
+                              .toString();
 
-                Row(
-                  children: [
-                    Text(
-                      'Qty: $productTotalQuantity',
-                      style: TextStyle(
-                        fontSize: 12.sp,
-                        fontWeight:
-                            FontWeight.w700,
-                        color:
-                            AppColors.primary,
-                      ),
-                    ),
+                      final quantity =
+                          quantities[detailsId] ??
+                              1;
 
-                    // ------------------------------------------------
-                    // DISPLAY CASE INFO
-                    // ------------------------------------------------
-
-                    if (rates.isNotEmpty &&
-                        rates.first.unitsPerCase
-                            .trim()
-                            .isNotEmpty) ...[
-                      SizedBox(width: 8.w),
-
-                      Container(
-                        padding:
-                            EdgeInsets.symmetric(
-                          horizontal: 6.w,
-                          vertical: 2.h,
-                        ),
-                        decoration:
-                            BoxDecoration(
-                          color:
-                              Colors.grey.shade100,
-                          borderRadius:
-                              BorderRadius.circular(
-                            5.r,
-                          ),
-                        ),
-                        child: Text(
-                          rates.first.displayCase,
-                          style: TextStyle(
-                            fontSize: 10.sp,
-                            fontWeight:
-                                FontWeight.w600,
-                            color: AppColors
-                                .textSecondary,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ],
-                ),
-              ],
+                      return _buildRateRow(
+                        rate: rate,
+                        quantity: quantity,
+                      );
+                    },
+                  ),
+                ],
+              ),
             ),
-          ),
-
-          SizedBox(width: 8.w),
-
-          // ----------------------------------------------------
-          // PRODUCT TOTAL
-          // ----------------------------------------------------
-
-          Column(
-            crossAxisAlignment:
-                CrossAxisAlignment.end,
-            children: [
-              Text(
-                '₹${productTotal.toStringAsFixed(2)}',
-                style: TextStyle(
-                  fontSize: 14.sp,
-                  fontWeight: FontWeight.w800,
-                  color: AppColors.primary,
-                ),
-              ),
-
-              SizedBox(height: 1.h),
-
-              Text(
-                'Total',
-                style: TextStyle(
-                  fontSize: 9.sp,
-                  color:
-                      AppColors.textSecondary,
-                ),
-              ),
-            ],
-          ),
+          ],
         ],
       ),
+    );
+  }
+
+  // ============================================================
+  // PRODUCT ICON
+  // ============================================================
+
+  Widget _productIcon() {
+    return Icon(
+      Icons.inventory_2_outlined,
+      color: AppColors.primary,
+      size: 23.sp,
     );
   }
 
@@ -990,118 +896,201 @@ class OrderPreviewSheet extends StatelessWidget {
   // RATE ROW
   // ============================================================
 
+  // Widget _buildRateRow({
+  //   required ProductRateEntity rate,
+  //   required int quantity,
+  // }) {
+  //   final price = rate.price.toDouble();
+
+  //   final total = price * quantity;
+
+  //   return Padding(
+  //     padding: EdgeInsets.symmetric(
+  //       vertical: 3.h,
+  //     ),
+  //     child: Row(
+  //       children: [
+  //         Icon(
+  //           Icons.inventory_2_outlined,
+  //           size: 12.sp,
+  //           color: AppColors.primary,
+  //         ),
+
+  //         SizedBox(width: 5.w),
+
+  //         Expanded(
+  //           child: Text(
+  //             rate.displayPacking,
+  //             maxLines: 1,
+  //             overflow:
+  //                 TextOverflow.ellipsis,
+  //             style: TextStyle(
+  //               fontSize: 9.5.sp,
+  //               fontWeight: FontWeight.w700,
+  //               color: AppColors.textPrimary,
+  //             ),
+  //           ),
+  //         ),
+
+  //         SizedBox(width: 5.w),
+
+  //         Text(
+  //           '₹${price.toStringAsFixed(2)}',
+  //           style: TextStyle(
+  //             fontSize: 9.sp,
+  //             color: AppColors.primary,
+  //             fontWeight: FontWeight.w700,
+  //           ),
+  //         ),
+
+  //         SizedBox(width: 5.w),
+
+  //         Container(
+  //           padding:
+  //               EdgeInsets.symmetric(
+  //             horizontal: 5.w,
+  //             vertical: 2.h,
+  //           ),
+  //           decoration: BoxDecoration(
+  //             color: Colors.white,
+  //             borderRadius:
+  //                 BorderRadius.circular(5.r),
+  //           ),
+  //           child: Text(
+  //             '× $quantity',
+  //             style: TextStyle(
+  //               fontSize: 8.sp,
+  //               fontWeight:
+  //                   FontWeight.w700,
+  //               color:
+  //                   AppColors.textSecondary,
+  //             ),
+  //           ),
+  //         ),
+
+  //         SizedBox(width: 6.w),
+
+  //         SizedBox(
+  //           width: 58.w,
+  //           child: Text(
+  //             '₹${total.toStringAsFixed(2)}',
+  //             textAlign: TextAlign.end,
+  //             style: TextStyle(
+  //               fontSize: 9.5.sp,
+  //               fontWeight:
+  //                   FontWeight.w800,
+  //               color:
+  //                   AppColors.textPrimary,
+  //             ),
+  //           ),
+  //         ),
+  //       ],
+  //     ),
+  //   );
+  // }
+
+
+
   Widget _buildRateRow({
-    required ProductRateEntity rate,
-    required int quantity,
-  }) {
-    final double price =
-        rate.price.toDouble();
+  required ProductRateEntity rate,
+  required int quantity,
+}) {
+  final price = rate.price.toDouble();
+  final total = price * quantity;
 
-    final double total =
-        price * quantity;
-
-    return Container(
-      width: double.infinity,
-      margin:
-          EdgeInsets.only(bottom: 5.h),
-      padding: EdgeInsets.symmetric(
-        horizontal: 8.w,
-        vertical: 7.h,
-      ),
-      decoration: BoxDecoration(
-        color: AppColors.lightGreen
-            .withOpacity(0.45),
-        borderRadius:
-            BorderRadius.circular(8.r),
-        border: Border.all(
-          color: AppColors.primary
-              .withOpacity(0.08),
+  return Padding(
+    padding: EdgeInsets.symmetric(vertical: 3.h),
+    child: Row(
+      children: [
+        Icon(
+          Icons.inventory_2_outlined,
+          size: 12.sp,
+          color: AppColors.primary,
         ),
-      ),
-      child: Row(
-        children: [
-          // ----------------------------------------------------
-          // PACKING
-          // ----------------------------------------------------
 
-          Expanded(
-            child: Row(
-              children: [
-                Icon(
-                  Icons.inventory_2_outlined,
-                  size: 12.sp,
-                  color: AppColors.primary,
+        SizedBox(width: 5.w),
+
+        // Packing + Unit Per Case
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                rate.displayPacking,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(
+                  fontSize: 9.5.sp,
+                  fontWeight: FontWeight.w700,
+                  color: AppColors.textPrimary,
                 ),
+              ),
 
-                SizedBox(width: 5.w),
+              SizedBox(height: 1.h),
 
-                Expanded(
-                  child: Text(
-                    rate.displayPacking,
-                    maxLines: 1,
-                    overflow:
-                        TextOverflow.ellipsis,
-                    style: TextStyle(
-                      fontSize: 10.sp,
-                      fontWeight:
-                          FontWeight.w700,
-                      color:
-                          AppColors.primary,
-                    ),
-                  ),
+              Text(
+                'Unit/Case: ${rate.unitsPerCase}',
+                style: TextStyle(
+                  fontSize: 8.sp,
+                  fontWeight: FontWeight.w600,
+                  color: AppColors.textSecondary,
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
+        ),
 
-          SizedBox(width: 5.w),
+        SizedBox(width: 5.w),
 
-          // ----------------------------------------------------
-          // RATE
-          // ----------------------------------------------------
-
-          Text(
-            '₹${price.toStringAsFixed(2)}',
-            style: TextStyle(
-              fontSize: 10.sp,
-              fontWeight: FontWeight.w800,
-              color: AppColors.primary,
-            ),
+        Text(
+          '₹${price.toStringAsFixed(2)}',
+          style: TextStyle(
+            fontSize: 9.sp,
+            color: AppColors.primary,
+            fontWeight: FontWeight.w700,
           ),
+        ),
 
-          SizedBox(width: 6.w),
+        SizedBox(width: 5.w),
 
-          // ----------------------------------------------------
-          // QUANTITY
-          // ----------------------------------------------------
-
-          Text(
+        Container(
+          padding: EdgeInsets.symmetric(
+            horizontal: 5.w,
+            vertical: 2.h,
+          ),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(5.r),
+          ),
+          child: Text(
             '× $quantity',
             style: TextStyle(
-              fontSize: 9.sp,
-              color:
-                  AppColors.textSecondary,
+              fontSize: 8.sp,
+              fontWeight: FontWeight.w700,
+              color: AppColors.textSecondary,
             ),
           ),
+        ),
 
-          SizedBox(width: 6.w),
+        SizedBox(width: 6.w),
 
-          // ----------------------------------------------------
-          // RATE TOTAL
-          // ----------------------------------------------------
-
-          Text(
+        SizedBox(
+          width: 58.w,
+          child: Text(
             '₹${total.toStringAsFixed(2)}',
+            textAlign: TextAlign.end,
             style: TextStyle(
-              fontSize: 10.sp,
+              fontSize: 9.5.sp,
               fontWeight: FontWeight.w800,
               color: AppColors.textPrimary,
             ),
           ),
-        ],
-      ),
-    );
-  }
+        ),
+      ],
+    ),
+  );
+}
+
 
   // ============================================================
   // EMPTY PRODUCTS
@@ -1110,11 +1099,11 @@ class OrderPreviewSheet extends StatelessWidget {
   Widget _buildEmptyProducts() {
     return Container(
       width: double.infinity,
-      padding: EdgeInsets.all(20.w),
+      padding: EdgeInsets.all(18.w),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius:
-            BorderRadius.circular(16.r),
+            BorderRadius.circular(14.r),
         border: Border.all(
           color: AppColors.border,
         ),
@@ -1123,17 +1112,17 @@ class OrderPreviewSheet extends StatelessWidget {
         children: [
           Icon(
             Icons.inventory_2_outlined,
-            size: 40.sp,
+            size: 34.sp,
             color:
                 AppColors.textSecondary,
           ),
 
-          SizedBox(height: 8.h),
+          SizedBox(height: 6.h),
 
           Text(
             'No products selected',
             style: TextStyle(
-              fontSize: 14.sp,
+              fontSize: 13.sp,
               fontWeight: FontWeight.w700,
               color:
                   AppColors.textPrimary,
@@ -1151,179 +1140,73 @@ class OrderPreviewSheet extends StatelessWidget {
   Widget _buildTotalSummary() {
     return Container(
       width: double.infinity,
-      padding: EdgeInsets.all(16.w),
+      padding: EdgeInsets.all(12.w),
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
             AppColors.primary,
             AppColors.primary
-                .withOpacity(0.88),
+                .withOpacity(.88),
           ],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
         ),
         borderRadius:
-            BorderRadius.circular(18.r),
+            BorderRadius.circular(15.r),
         boxShadow: [
           BoxShadow(
             color: AppColors.primary
-                .withOpacity(0.18),
-            blurRadius: 12,
-            offset: const Offset(0, 5),
+                .withOpacity(.15),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
           ),
         ],
       ),
-      child: Column(
-        children: [
-          Row(
-            children: [
-              Expanded(
-                child: _summaryItem(
-                  icon:
-                      Icons.inventory_2_outlined,
-                  label: 'Total Products',
-                  value:
-                      '${products.length}',
-                ),
-              ),
-
-              Container(
-                width: 1,
-                height: 42.h,
-                color: Colors.white
-                    .withOpacity(0.25),
-              ),
-
-              Expanded(
-                child: _summaryItem(
-                  icon: Icons
-                      .format_list_numbered,
-                  label: 'Total Quantity',
-                  value:
-                      '$totalQuantity',
-                ),
-              ),
-            ],
-          ),
-
-          SizedBox(height: 14.h),
-
-          Container(
-            height: 1,
-            width: double.infinity,
-            color: Colors.white
-                .withOpacity(0.20),
-          ),
-
-          SizedBox(height: 14.h),
-
-          Row(
-            children: [
-              Container(
-                height: 42.w,
-                width: 42.w,
-                decoration: BoxDecoration(
-                  color: Colors.white
-                      .withOpacity(0.15),
-                  borderRadius:
-                      BorderRadius.circular(
-                    12.r,
-                  ),
-                ),
-                child: Icon(
-                  Icons
-                      .currency_rupee_rounded,
-                  color: Colors.white,
-                  size: 22.sp,
-                ),
-              ),
-
-              SizedBox(width: 12.w),
-
-              Expanded(
-                child: Column(
-                  crossAxisAlignment:
-                      CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Grand Total Amount',
-                      style: TextStyle(
-                        fontSize: 11.sp,
-                        color: Colors.white
-                            .withOpacity(
-                          0.85,
-                        ),
-                      ),
-                    ),
-
-                    SizedBox(height: 2.h),
-
-                    Text(
-                      '₹${totalAmount.toStringAsFixed(2)}',
-                      style: TextStyle(
-                        fontSize: 22.sp,
-                        fontWeight:
-                            FontWeight.w900,
-                        color: Colors.white,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-
-  // ============================================================
-  // SUMMARY ITEM
-  // ============================================================
-
-  Widget _summaryItem({
-    required IconData icon,
-    required String label,
-    required String value,
-  }) {
-    return Padding(
-      padding:
-          EdgeInsets.symmetric(horizontal: 6.w),
       child: Row(
         children: [
-          Icon(
-            icon,
-            color: Colors.white,
-            size: 20.sp,
+          Expanded(
+            child: _totalItem(
+              Icons.inventory_2_outlined,
+              'Products',
+              '${products.length}',
+            ),
           ),
 
-          SizedBox(width: 8.w),
+          _verticalDivider(),
 
           Expanded(
+            child: _totalItem(
+              Icons.format_list_numbered,
+              'Quantity',
+              '$totalQuantity',
+            ),
+          ),
+
+          _verticalDivider(),
+
+          Expanded(
+            flex: 2,
             child: Column(
               crossAxisAlignment:
-                  CrossAxisAlignment.start,
+                  CrossAxisAlignment.end,
               children: [
                 Text(
-                  label,
-                  maxLines: 1,
-                  overflow:
-                      TextOverflow.ellipsis,
+                  'GRAND TOTAL',
                   style: TextStyle(
-                    fontSize: 10.sp,
+                    fontSize: 8.sp,
+                    fontWeight:
+                        FontWeight.w700,
                     color: Colors.white
-                        .withOpacity(0.80),
+                        .withOpacity(.75),
                   ),
                 ),
 
                 SizedBox(height: 2.h),
 
                 Text(
-                  value,
+                  '₹${totalAmount.toStringAsFixed(2)}',
                   style: TextStyle(
-                    fontSize: 16.sp,
+                    fontSize: 18.sp,
                     fontWeight:
-                        FontWeight.w800,
+                        FontWeight.w900,
                     color: Colors.white,
                   ),
                 ),
@@ -1336,68 +1219,226 @@ class OrderPreviewSheet extends StatelessWidget {
   }
 
   // ============================================================
-  // PHOTO
+  // TOTAL ITEM
   // ============================================================
 
-  Widget _buildPhoto() {
+  Widget _totalItem(
+    IconData icon,
+    String label,
+    String value,
+  ) {
+    return Row(
+      children: [
+        Icon(
+          icon,
+          size: 18.sp,
+          color: Colors.white,
+        ),
+
+        SizedBox(width: 6.w),
+
+        Column(
+          crossAxisAlignment:
+              CrossAxisAlignment.start,
+          children: [
+            Text(
+              label,
+              style: TextStyle(
+                fontSize: 8.sp,
+                color:
+                    Colors.white.withOpacity(.75),
+              ),
+            ),
+
+            SizedBox(height: 1.h),
+
+            Text(
+              value,
+              style: TextStyle(
+                fontSize: 14.sp,
+                fontWeight:
+                    FontWeight.w800,
+                color: Colors.white,
+              ),
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+
+  Widget _verticalDivider() {
+    return Container(
+      width: 1,
+      height: 32.h,
+      margin:
+          EdgeInsets.symmetric(horizontal: 7.w),
+      color: Colors.white.withOpacity(.22),
+    );
+  }
+
+  // ============================================================
+  // DEALER VERIFICATION
+  // PHOTO + SIGNATURE IN ONE CARD
+  // ============================================================
+
+  Widget _buildDealerVerification({
+    required bool hasPhoto,
+    required bool hasSignature,
+  }) {
     return Container(
       width: double.infinity,
-      height: 170.h,
+      padding: EdgeInsets.all(9.w),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius:
-            BorderRadius.circular(16.r),
+            BorderRadius.circular(14.r),
         border: Border.all(
           color: AppColors.border,
         ),
       ),
-      child: ClipRRect(
-        borderRadius:
-            BorderRadius.circular(16.r),
-        child: Image.file(
-          File(imagePath!),
-          fit: BoxFit.cover,
-          errorBuilder:
-              (_, __, ___) {
-            return Center(
-              child: Icon(
-                Icons.broken_image_outlined,
-                size: 35.sp,
-                color:
-                    AppColors.textSecondary,
+      child: Row(
+        crossAxisAlignment:
+            CrossAxisAlignment.start,
+        children: [
+          // ======================================================
+          // PHOTO
+          // ======================================================
+
+          if (hasPhoto)
+            Expanded(
+              child: _verificationItem(
+                icon: Icons.camera_alt_outlined,
+                title: 'Dealer Photo',
+                child: Container(
+                  height: 105.h,
+                  width: double.infinity,
+                  decoration: BoxDecoration(
+                    color:
+                        AppColors.background,
+                    borderRadius:
+                        BorderRadius.circular(
+                      10.r,
+                    ),
+                    border: Border.all(
+                      color: AppColors.border,
+                    ),
+                  ),
+                  child: ClipRRect(
+                    borderRadius:
+                        BorderRadius.circular(
+                      10.r,
+                    ),
+                    child: Image.file(
+                      File(imagePath!),
+                      fit: BoxFit.cover,
+                      errorBuilder:
+                          (_, __, ___) {
+                        return Center(
+                          child: Icon(
+                            Icons
+                                .broken_image_outlined,
+                            size: 28.sp,
+                            color: AppColors
+                                .textSecondary,
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+                ),
               ),
-            );
-          },
-        ),
+            ),
+
+          // ======================================================
+          // GAP
+          // ======================================================
+
+          if (hasPhoto && hasSignature)
+            SizedBox(width: 9.w),
+
+          // ======================================================
+          // SIGNATURE
+          // ======================================================
+
+          if (hasSignature)
+            Expanded(
+              child: _verificationItem(
+                icon: Icons.draw_outlined,
+                title: 'Signature',
+                child: Container(
+                  height: 105.h,
+                  width: double.infinity,
+                  padding: EdgeInsets.all(5.w),
+                  decoration: BoxDecoration(
+                    color:
+                        AppColors.background,
+                    borderRadius:
+                        BorderRadius.circular(
+                      10.r,
+                    ),
+                    border: Border.all(
+                      color: AppColors.border,
+                    ),
+                  ),
+                  child: ClipRRect(
+                    borderRadius:
+                        BorderRadius.circular(
+                      8.r,
+                    ),
+                    child: Image.memory(
+                      signatureBytes!,
+                      fit: BoxFit.contain,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+        ],
       ),
     );
   }
 
   // ============================================================
-  // SIGNATURE
+  // VERIFICATION ITEM
   // ============================================================
 
-  Widget _buildSignature() {
-    return Container(
-      width: double.infinity,
-      height: 150.h,
-      padding: EdgeInsets.all(10.w),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius:
-            BorderRadius.circular(16.r),
-        border: Border.all(
-          color: AppColors.border,
+  Widget _verificationItem({
+    required IconData icon,
+    required String title,
+    required Widget child,
+  }) {
+    return Column(
+      crossAxisAlignment:
+          CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            Icon(
+              icon,
+              size: 13.sp,
+              color: AppColors.primary,
+            ),
+
+            SizedBox(width: 5.w),
+
+            Text(
+              title,
+              style: TextStyle(
+                fontSize: 9.5.sp,
+                fontWeight:
+                    FontWeight.w800,
+                color:
+                    AppColors.textPrimary,
+              ),
+            ),
+          ],
         ),
-      ),
-      child: ClipRRect(
-        borderRadius:
-            BorderRadius.circular(10.r),
-        child: Image.memory(
-          signatureBytes!,
-          fit: BoxFit.contain,
-        ),
-      ),
+
+        SizedBox(height: 5.h),
+
+        child,
+      ],
     );
   }
 
@@ -1408,22 +1449,51 @@ class OrderPreviewSheet extends StatelessWidget {
   Widget _buildRemark() {
     return Container(
       width: double.infinity,
-      padding: EdgeInsets.all(14.w),
+      padding: EdgeInsets.symmetric(
+        horizontal: 11.w,
+        vertical: 9.h,
+      ),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius:
-            BorderRadius.circular(16.r),
+            BorderRadius.circular(12.r),
         border: Border.all(
           color: AppColors.border,
         ),
       ),
-      child: Text(
-        remark,
-        style: TextStyle(
-          fontSize: 13.sp,
-          height: 1.5,
-          color: AppColors.textPrimary,
-        ),
+      child: Row(
+        crossAxisAlignment:
+            CrossAxisAlignment.start,
+        children: [
+          Container(
+            height: 28.w,
+            width: 28.w,
+            decoration: BoxDecoration(
+              color: AppColors.lightGreen,
+              borderRadius:
+                  BorderRadius.circular(8.r),
+            ),
+            child: Icon(
+              Icons.notes_outlined,
+              size: 15.sp,
+              color: AppColors.primary,
+            ),
+          ),
+
+          SizedBox(width: 8.w),
+
+          Expanded(
+            child: Text(
+              remark,
+              style: TextStyle(
+                fontSize: 11.5.sp,
+                height: 1.4,
+                color:
+                    AppColors.textPrimary,
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -1437,19 +1507,19 @@ class OrderPreviewSheet extends StatelessWidget {
   ) {
     return Container(
       padding: EdgeInsets.fromLTRB(
-        16.w,
-        12.h,
-        16.w,
-        16.h,
+        12.w,
+        9.h,
+        12.w,
+        10.h,
       ),
       decoration: BoxDecoration(
         color: Colors.white,
         boxShadow: [
           BoxShadow(
             color:
-                Colors.black.withOpacity(0.08),
-            blurRadius: 15,
-            offset: const Offset(0, -4),
+                Colors.black.withOpacity(.08),
+            blurRadius: 12,
+            offset: const Offset(0, -3),
           ),
         ],
       ),
@@ -1463,31 +1533,30 @@ class OrderPreviewSheet extends StatelessWidget {
 
             Expanded(
               child: OutlinedButton(
-                onPressed: () {
-                  Navigator.pop(context);
-                },
+                onPressed: () =>
+                    Navigator.pop(context),
                 style:
                     OutlinedButton.styleFrom(
                   minimumSize: Size(
                     double.infinity,
-                    50.h,
+                    46.h,
                   ),
                   side: BorderSide(
                     color: AppColors.primary,
-                    width: 1.2,
+                    width: 1.1,
                   ),
                   shape:
                       RoundedRectangleBorder(
                     borderRadius:
                         BorderRadius.circular(
-                      14.r,
+                      12.r,
                     ),
                   ),
                 ),
                 child: Text(
                   'Edit Order',
                   style: TextStyle(
-                    fontSize: 14.sp,
+                    fontSize: 12.sp,
                     fontWeight:
                         FontWeight.w700,
                     color:
@@ -1497,7 +1566,7 @@ class OrderPreviewSheet extends StatelessWidget {
               ),
             ),
 
-            SizedBox(width: 12.w),
+            SizedBox(width: 9.w),
 
             // ==================================================
             // CONFIRM
@@ -1510,7 +1579,7 @@ class OrderPreviewSheet extends StatelessWidget {
                     ElevatedButton.styleFrom(
                   minimumSize: Size(
                     double.infinity,
-                    50.h,
+                    46.h,
                   ),
                   backgroundColor:
                       AppColors.primary,
@@ -1521,7 +1590,7 @@ class OrderPreviewSheet extends StatelessWidget {
                       RoundedRectangleBorder(
                     borderRadius:
                         BorderRadius.circular(
-                      14.r,
+                      12.r,
                     ),
                   ),
                 ),
@@ -1532,15 +1601,15 @@ class OrderPreviewSheet extends StatelessWidget {
                     Icon(
                       Icons
                           .check_circle_outline,
-                      size: 19.sp,
+                      size: 17.sp,
                     ),
 
-                    SizedBox(width: 7.w),
+                    SizedBox(width: 5.w),
 
                     Text(
                       'Confirm Order',
                       style: TextStyle(
-                        fontSize: 14.sp,
+                        fontSize: 12.sp,
                         fontWeight:
                             FontWeight.w800,
                       ),

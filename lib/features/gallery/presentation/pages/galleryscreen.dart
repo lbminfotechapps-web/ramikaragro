@@ -37,7 +37,6 @@ class _GalleryScreenState extends State<GalleryScreen>
       _loadCurrentTab();
     });
 
-    // First tab = Images
     WidgetsBinding.instance.addPostFrameCallback((_) {
       context.read<GalleryBloc>().add(const GetGalleryEvent(type: 'gallery'));
     });
@@ -48,6 +47,10 @@ class _GalleryScreenState extends State<GalleryScreen>
     _tabController.dispose();
     super.dispose();
   }
+
+  // ---------------------------------------------------------------------------
+  // CURRENT TYPE
+  // ---------------------------------------------------------------------------
 
   String _currentType() {
     switch (_tabController.index) {
@@ -73,6 +76,10 @@ class _GalleryScreenState extends State<GalleryScreen>
     context.read<GalleryBloc>().add(RefreshGalleryEvent(type: _currentType()));
   }
 
+  // ---------------------------------------------------------------------------
+  // BUILD
+  // ---------------------------------------------------------------------------
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -85,14 +92,15 @@ class _GalleryScreenState extends State<GalleryScreen>
       ),
 
       body: Padding(
-    padding: const EdgeInsets.only(left: 16, right: 16),
+        padding: const EdgeInsets.only(left: 16, right: 16),
         child: Column(
           children: [
-               SizedBox(height: 14.h),
+            SizedBox(height: 14.h),
+
             _buildTabBar(),
-        
+
             const SizedBox(height: 8),
-        
+
             Expanded(
               child: TabBarView(
                 controller: _tabController,
@@ -238,11 +246,13 @@ class _GalleryScreenState extends State<GalleryScreen>
 
     final bool pdf = _isPdf(item.galleryPath);
 
-    final bool youtube = _extractYoutubeId(item.galleryPath) != null;
+    // Video tab = video
+    final bool youtube =
+        type == 'video' || _extractYoutubeId(item.galleryPath) != null;
 
     return GestureDetector(
       onTap: () {
-        _openGalleryItem(item);
+        _openGalleryItem(item, type);
       },
 
       child: Container(
@@ -301,18 +311,18 @@ class _GalleryScreenState extends State<GalleryScreen>
                   if (youtube)
                     Center(
                       child: Container(
-                        width: 48,
-                        height: 48,
+                        width: 52,
+                        height: 52,
 
                         decoration: BoxDecoration(
-                          color: Colors.black.withOpacity(0.65),
+                          color: Colors.black.withOpacity(0.70),
                           shape: BoxShape.circle,
                         ),
 
                         child: const Icon(
                           Icons.play_arrow,
                           color: Colors.white,
-                          size: 30,
+                          size: 32,
                         ),
                       ),
                     ),
@@ -320,7 +330,7 @@ class _GalleryScreenState extends State<GalleryScreen>
                   // ---------------------------------------------------------
                   // CERTIFICATE BADGE
                   // ---------------------------------------------------------
-                  if (type == 'certificate')
+                  if (type == 'CERTIFICATES')
                     Positioned(
                       top: 10,
                       left: 10,
@@ -402,33 +412,54 @@ class _GalleryScreenState extends State<GalleryScreen>
   // OPEN ITEM
   // ---------------------------------------------------------------------------
 
-  Future<void> _openGalleryItem(GalleryEntity item) async {
+  Future<void> _openGalleryItem(GalleryEntity item, String type) async {
     final String path = item.galleryPath.trim();
 
     if (path.isEmpty) {
       return;
     }
 
-    // YouTube
-    final String? youtubeId = _extractYoutubeId(path);
+    debugPrint('========================================');
 
-    if (youtubeId != null) {
-      final Uri uri = Uri.parse(path);
+    debugPrint('Gallery type: $type');
 
-      if (await canLaunchUrl(uri)) {
-        await launchUrl(uri, mode: LaunchMode.externalApplication);
-      }
+    debugPrint('Gallery item path: $path');
 
+    debugPrint('========================================');
+
+    // -------------------------------------------------------------------------
+    // VIDEO
+    // -------------------------------------------------------------------------
+
+    if (type == 'video') {
+      await _openYoutube(path);
       return;
     }
 
+    // -------------------------------------------------------------------------
+    // YOUTUBE URL EVEN IF IT IS IN ANOTHER TAB
+    // -------------------------------------------------------------------------
+
+    final String? youtubeId = _extractYoutubeId(path);
+
+    if (youtubeId != null) {
+      await _openYoutube(path);
+      return;
+    }
+
+    // -------------------------------------------------------------------------
     // PDF
+    // -------------------------------------------------------------------------
+
     if (_isPdf(path)) {
       await _openPdf(path);
       return;
     }
 
-    // Image
+    // -------------------------------------------------------------------------
+    // IMAGE
+    // -------------------------------------------------------------------------
+
     final String fullPath = _getImagePath(path);
 
     if (!mounted) {
@@ -438,6 +469,85 @@ class _GalleryScreenState extends State<GalleryScreen>
     Navigator.push(
       context,
       MaterialPageRoute(builder: (_) => FullImageScreen(imageUrl: fullPath)),
+    );
+  }
+
+  // ---------------------------------------------------------------------------
+  // OPEN YOUTUBE
+  // ---------------------------------------------------------------------------
+
+  Future<void> _openYoutube(String path) async {
+    try {
+      final String? youtubeId = _extractYoutubeId(path);
+
+      String youtubeUrl;
+
+      if (youtubeId != null) {
+        youtubeUrl = 'https://www.youtube.com/watch?v=$youtubeId';
+      } else if (path.startsWith('http://') || path.startsWith('https://')) {
+        youtubeUrl = path;
+      } else {
+        youtubeUrl = 'https://www.youtube.com/watch?v=$path';
+      }
+
+      final Uri uri = Uri.parse(youtubeUrl);
+
+      debugPrint('Opening YouTube: $uri');
+
+      // IMPORTANT:
+      // Do NOT use canLaunchUrl().
+      //
+      // Your previous log showed:
+      //
+      // component name ... is null
+      //
+      // Therefore directly call launchUrl.
+
+      final bool launched = await launchUrl(
+        uri,
+        mode: LaunchMode.externalApplication,
+      );
+
+      debugPrint('YouTube launch result: $launched');
+
+      // -----------------------------------------------------------------------
+      // FALLBACK
+      // -----------------------------------------------------------------------
+
+      if (!launched) {
+        debugPrint('External application failed. Trying platform default.');
+
+        final bool browserLaunched = await launchUrl(
+          uri,
+          mode: LaunchMode.platformDefault,
+        );
+
+        debugPrint('Browser launch result: $browserLaunched');
+
+        if (!browserLaunched && mounted) {
+          _showYoutubeError();
+        }
+      }
+    } catch (e) {
+      debugPrint('YouTube launch error: $e');
+
+      if (mounted) {
+        _showYoutubeError();
+      }
+    }
+  }
+
+  // ---------------------------------------------------------------------------
+  // YOUTUBE ERROR
+  // ---------------------------------------------------------------------------
+
+  void _showYoutubeError() {
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text(
+          'Unable to open YouTube. Please check your internet connection or browser.',
+        ),
+      ),
     );
   }
 
@@ -459,8 +569,9 @@ class _GalleryScreenState extends State<GalleryScreen>
     if (value.startsWith('http://') || value.startsWith('https://')) {
       return value;
     }
-    print("Path is. :" + '${ApiClient.imageBaseUrl}$value');
-    // Your existing gallery API path
+
+    debugPrint('Path is: ${ApiClient.imageGalleryUrl}$value');
+
     return '${ApiClient.imageGalleryUrl}$value';
   }
 
@@ -468,16 +579,56 @@ class _GalleryScreenState extends State<GalleryScreen>
   // YOUTUBE ID
   // ---------------------------------------------------------------------------
 
-  String? _extractYoutubeId(String url) {
+  String? _extractYoutubeId(String value) {
     try {
-      final Uri uri = Uri.parse(url);
+      final String url = value.trim();
 
-      // youtube.com/watch?v=xxxx
-      if (uri.host.contains('youtube.com')) {
-        return uri.queryParameters['v'];
+      if (url.isEmpty) {
+        return null;
       }
 
+      final Uri? uri = Uri.tryParse(url);
+
+      if (uri == null) {
+        return null;
+      }
+
+      // -----------------------------------------------------------------------
+      // youtube.com/watch?v=xxxx
+      // -----------------------------------------------------------------------
+
+      if (uri.host.contains('youtube.com')) {
+        final String? videoId = uri.queryParameters['v'];
+
+        if (videoId != null && videoId.isNotEmpty) {
+          return videoId;
+        }
+
+        // ---------------------------------------------------------------------
+        // youtube.com/embed/xxxx
+        // ---------------------------------------------------------------------
+
+        final int embedIndex = uri.pathSegments.indexOf('embed');
+
+        if (embedIndex != -1 && embedIndex + 1 < uri.pathSegments.length) {
+          return uri.pathSegments[embedIndex + 1];
+        }
+
+        // ---------------------------------------------------------------------
+        // youtube.com/shorts/xxxx
+        // ---------------------------------------------------------------------
+
+        final int shortsIndex = uri.pathSegments.indexOf('shorts');
+
+        if (shortsIndex != -1 && shortsIndex + 1 < uri.pathSegments.length) {
+          return uri.pathSegments[shortsIndex + 1];
+        }
+      }
+
+      // -----------------------------------------------------------------------
       // youtu.be/xxxx
+      // -----------------------------------------------------------------------
+
       if (uri.host.contains('youtu.be')) {
         if (uri.pathSegments.isNotEmpty) {
           return uri.pathSegments.first;
@@ -485,7 +636,9 @@ class _GalleryScreenState extends State<GalleryScreen>
       }
 
       return null;
-    } catch (_) {
+    } catch (e) {
+      debugPrint('YouTube ID extraction error: $e');
+
       return null;
     }
   }
@@ -503,8 +656,19 @@ class _GalleryScreenState extends State<GalleryScreen>
       path.startsWith('http') ? path : _getImagePath(path),
     );
 
-    if (await canLaunchUrl(uri)) {
-      await launchUrl(uri, mode: LaunchMode.externalApplication);
+    try {
+      final bool launched = await launchUrl(
+        uri,
+        mode: LaunchMode.externalApplication,
+      );
+
+      if (!launched && mounted) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text('Unable to open PDF')));
+      }
+    } catch (e) {
+      debugPrint('PDF launch error: $e');
     }
   }
 
@@ -563,14 +727,7 @@ class _GalleryScreenState extends State<GalleryScreen>
       color: Colors.grey.shade100,
 
       child: const Center(
-        child: SizedBox(
-          width: 25,
-          height: 25,
-
-          child: CustomLoader(
- 
-          ),
-        ),
+        child: SizedBox(width: 25, height: 25, child: CustomLoader()),
       ),
     );
   }
@@ -644,6 +801,7 @@ class _GalleryScreenState extends State<GalleryScreen>
 
               style: ElevatedButton.styleFrom(
                 backgroundColor: const Color(0xFF218838),
+
                 foregroundColor: Colors.white,
 
                 shape: RoundedRectangleBorder(
@@ -694,7 +852,7 @@ class _GalleryScreenState extends State<GalleryScreen>
                   Icon(
                     type == 'video'
                         ? Icons.video_library_outlined
-                        : type == 'certificate'
+                        : type == 'CERTIFICATES'
                         ? Icons.workspace_premium_outlined
                         : Icons.photo_library_outlined,
 
