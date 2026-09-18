@@ -11,6 +11,7 @@ class FollowupModel extends FollowupEntity {
     required super.followupDate,
     required super.outletId,
     required super.farmerId,
+    required super.mobileNo,
   });
 
   factory FollowupModel.fromJson(
@@ -22,14 +23,11 @@ class FollowupModel extends FollowupEntity {
       date: json['fld_date']?.toString() ?? '',
       time: json['fld_time']?.toString() ?? '',
       remark: json['fld_remark']?.toString() ?? '',
-      followupType:
-          json['fld_followup_type']?.toString() ?? '',
-      followupDate:
-          json['fld_followup_date']?.toString() ?? '',
-      outletId:
-          json['fld_outlet_id']?.toString() ?? '',
-      farmerId:
-          json['fld_farmer_id']?.toString() ?? '',
+      followupType:json['fld_followup_type']?.toString() ?? '',
+      followupDate:json['fld_followup_date']?.toString() ?? '',
+      outletId:json['fld_outlet_id']?.toString() ?? '',
+      farmerId:json['fld_farmer_id']?.toString() ?? '',
+       mobileNo:json['fld_mobile_no']?.toString() ?? '',
     );
   }
 }

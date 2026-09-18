@@ -7,6 +7,7 @@ import 'package:demo/features/collection/presentation/bloc/dealer_target_bloc.da
 import 'package:demo/features/dealer/presentation/bloc/dealerlist_bloc.dart';
 import 'package:demo/features/dealer_visit/presentation/bloc/add_dealer_visit_bloc.dart';
 import 'package:demo/features/distpatchistory/presentation/bloc/dispatch_bloc.dart';
+import 'package:demo/features/enquiry/presentation/bloc/enquiry_bloc.dart';
 import 'package:demo/features/farmer/famerfollowup/presentation/bloc/famerfollowup_bloc.dart';
 import 'package:demo/features/farmer/farmerlist/presentation/bloc/farmerlist_bloc.dart';
 import 'package:demo/features/farmer/farmerregistration/presentation/bloc/state_bloc.dart';
@@ -43,6 +44,8 @@ class MyApp extends StatelessWidget {
         BlocProvider<AuthBloc>(create: (_) => sl<AuthBloc>()),
         BlocProvider<FarmerListBloc>(create: (_) => sl<FarmerListBloc>()),
         BlocProvider<DealerListBloc>(create: (_) => sl<DealerListBloc>()),
+
+        BlocProvider<EnquiryBloc>(create: (_) => sl<EnquiryBloc>()),
 
         BlocProvider<NotVisitedDealerBloc>(
           create: (_) => sl<NotVisitedDealerBloc>(),

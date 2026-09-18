@@ -12,6 +12,7 @@ import 'package:demo/features/dealer_visit/presentation/pages/dealer_followup_ad
 import 'package:demo/features/dealer_visit/presentation/pages/edit_update_dealer.dart';
 import 'package:demo/features/distpatchistory/presentation/pages/dispatch_page.dart';
 import 'package:demo/features/dealer_visit/presentation/pages/add_remark_page.dart';
+import 'package:demo/features/enquiry/presentation/pages/enquiry_page.dart';
 import 'package:demo/features/expense/presentation/pages/my_expense_page.dart';
 import 'package:demo/features/expense/presentation/pages/team_expense_page.dart';
 import 'package:demo/features/farmer/famerfollowup/presentation/pages/famerfollowuppage.dart';
@@ -115,6 +116,8 @@ class AppRouter {
   static const String dealrFollowUpAdd = '/dealrFollowUpAdd';
   static const String dealrFollowUpAddNew = '/dealrFollowUpAddNew';
   static const String dealerUpdate = '/dealerUpdate';
+  static const String profile = '/profile';
+   static const String productEnquiry = '/productEnquiry';
   
 
   static final GoRouter router = GoRouter(
@@ -317,6 +320,22 @@ class AppRouter {
           return FamerFollowupPage(farmerId: farmerId);
         },
       ),
+
+
+        GoRoute(
+        path: productEnquiry,
+        name: 'productEnquiry',
+        builder: (context, state) {
+          final productId = state.extra is String ? state.extra as String : '';
+          final productName = state.extra is String ? state.extra as String : '';
+          return EnquiryPage(
+            productId: productId,
+            productName: productName,
+          );
+        },
+      ),
+
+
       GoRoute(
         path: dealerpin,
         name: 'dealerpin',

@@ -97,5 +97,8 @@ class ApiClient {
   static const String addDealerFollowUp = '/pin_location';
   static const String updateDealerFollowUp = '/update_pin_location';
   static const String famerCallApi = '/submitCallingDetails';
-  static const String upcomingNextFollowup = "/upcoming_next_followup";
+  static const String upcomingNextFollowup ="/upcoming_next_followup";
+
+  static const String submitEnquiryDetails ='/submit_enquiry_details';
+
 }

@@ -100,6 +100,19 @@ extension AppColors on ColorScheme {
   // CARD
   // ==========================================================
 
+
+//-------------------------------------------------------------
+  static const Color primaryGreen = Color(0xFF178A45);
+  static const Color darkGreen = Color(0xFF0F7138);
+  static const Color textDark = Color(0xFF18231C);
+  static const Color textGrey = Color(0xFF748078);
+//--------------------------------------------------------------  
+  
+
+
+
+
+
   static const Color card = Colors.white;
 
   Color get oppColorChange =>
