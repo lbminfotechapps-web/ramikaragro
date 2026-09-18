@@ -69,6 +69,7 @@ class DealerSearchField extends StatelessWidget {
                   color: AppColors.primary,
                   size: 22.sp,
                 ),
+                
                 suffixIcon: query.isNotEmpty
                     ? IconButton(
                         onPressed: () {

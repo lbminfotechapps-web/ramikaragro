@@ -2,6 +2,7 @@ import 'package:demo/core/di/leave_list_di.dart';
 import 'package:demo/core/router/app_router.dart';
 import 'package:demo/core/theme/app_colors.dart';
 import 'package:demo/core/utility/widgets/custom_appbar.dart';
+import 'package:demo/core/utility/widgets/custom_textformfield.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -643,12 +644,6 @@ class _AddLeavePageState extends State<AddLeavePage> {
                           // REASON
                           // ====================================
 
-                          _sectionTitle(
-                            Icons.notes_rounded,
-                            "Reason",
-                          ),
-
-                          const SizedBox(height: 7),
 
                           _buildReasonField(),
 
@@ -1045,58 +1040,72 @@ class _AddLeavePageState extends State<AddLeavePage> {
   // REASON FIELD
   // ============================================================
 
-  Widget _buildReasonField() {
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(
-          color: Colors.grey.shade200,
-        ),
-      ),
-      child: TextField(
-        controller: reasonController,
-        maxLines: 3,
-        textCapitalization:
-            TextCapitalization.sentences,
-        style: const TextStyle(
-          fontSize: 13,
-        ),
-        decoration: InputDecoration(
-          hintText:
-              "Enter reason for leave...",
-          hintStyle: TextStyle(
-            color: Colors.grey.shade400,
-            fontSize: 12,
-          ),
-          prefixIcon: const Padding(
-            padding: EdgeInsets.only(
-              left: 12,
-              right: 4,
-              top: 10,
-            ),
-            child: Icon(
-              Icons.edit_note_rounded,
-              color: primaryGreen,
-              size: 20,
-            ),
-          ),
-          prefixIconConstraints:
-              const BoxConstraints(
-            minWidth: 40,
-          ),
-          border: InputBorder.none,
-          contentPadding:
-              const EdgeInsets.fromLTRB(
-            4,
-            10,
-            10,
-            10,
-          ),
-        ),
-      ),
-    );
-  }
+  // Widget _buildReasonField() {
+  //   return Container(
+  //     decoration: BoxDecoration(
+  //       color: Colors.white,
+  //       borderRadius: BorderRadius.circular(12),
+  //       border: Border.all(
+  //         color: Colors.grey.shade200,
+  //       ),
+  //     ),
+  //     child: TextField(
+  //       controller: reasonController,
+  //       maxLines: 3,
+  //       textCapitalization:
+  //           TextCapitalization.sentences,
+  //       style: const TextStyle(
+  //         fontSize: 13,
+  //       ),
+  //       decoration: InputDecoration(
+  //         hintText:
+  //             "Enter reason for leave...",
+  //         hintStyle: TextStyle(
+  //           color: Colors.grey.shade400,
+  //           fontSize: 12,
+  //         ),
+  //         prefixIcon: const Padding(
+  //           padding: EdgeInsets.only(
+  //             left: 12,
+  //             right: 4,
+  //             top: 10,
+  //           ),
+  //           child: Icon(
+  //             Icons.edit_note_rounded,
+  //             color: primaryGreen,
+  //             size: 20,
+  //           ),
+  //         ),
+  //         prefixIconConstraints:
+  //             const BoxConstraints(
+  //           minWidth: 40,
+  //         ),
+  //         border: InputBorder.none,
+  //         contentPadding:
+  //             const EdgeInsets.fromLTRB(
+  //           4,
+  //           10,
+  //           10,
+  //           10,
+  //         ),
+  //       ),
+  //     ),
+  //   );
+  // }
+
+
+
+Widget _buildReasonField() {
+  return CustomTextFormField(
+    controller: reasonController,
+    hintText: 'Enter reason for leave...',
+    labelText: 'Reason for Leave',
+    prefixIcon: Icons.edit_note_rounded,
+    maxLines: 3,
+    keyboardType: TextInputType.multiline,
+  );
+}
+
 
   // ============================================================
   // BOTTOM BUTTONS

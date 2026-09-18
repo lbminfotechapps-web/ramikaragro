@@ -197,7 +197,7 @@ class _HomeShellState extends State<HomeShell> {
 
   static const _tabs = [
     (path: AppRouter.home, icon: Icons.home, label: 'Home'),
-    (path: AppRouter.reports, icon: Icons.report, label: 'Reports'),
+    (path: AppRouter.reports, icon: Icons.report, label: 'Follow up'),
     (path: AppRouter.visits, icon: Icons.location_city, label: 'Visits'),
     (path: AppRouter.products, icon: Icons.storage, label: 'Products'),
   ];

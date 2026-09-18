@@ -1,3 +1,4 @@
+
 import 'dart:io';
 
 import 'package:demo/core/theme/app_colors.dart';
@@ -33,153 +34,151 @@ class ImagePickerSection extends StatelessWidget {
     final bool hasImage =
         imagePath != null && imagePath!.trim().isNotEmpty;
 
-    return Container(
+    return SizedBox(
+      height: 150.h,
       width: double.infinity,
-      padding: EdgeInsets.all(12.w),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(18.r),
-        border: Border.all(
-          color: AppColors.border,
-        ),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.035),
-            blurRadius: 12,
-            offset: const Offset(0, 4),
+      child: Container(
+        padding: EdgeInsets.all(8.w),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(14.r),
+          border: Border.all(
+            color: AppColors.border,
           ),
-        ],
-      ),
-      child: hasImage
-          ? Stack(
-              children: [
-                ClipRRect(
-                  borderRadius: BorderRadius.circular(14.r),
-                  child: Image.file(
-                    File(imagePath!),
-                    width: double.infinity,
-                    height: 190.h,
-                    fit: BoxFit.cover,
-                  ),
-                ),
-
-                Positioned(
-                  top: 10.h,
-                  right: 10.w,
-                  child: Row(
-                    children: [
-                      _ActionButton(
-                        icon: Icons.camera_alt_rounded,
-                        onTap: _pickImage,
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.035),
+              blurRadius: 8,
+              offset: const Offset(0, 3),
+            ),
+          ],
+        ),
+        child: hasImage
+            ? Stack(
+                children: [
+                  Positioned.fill(
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(11.r),
+                      child: Image.file(
+                        File(imagePath!),
+                        fit: BoxFit.cover,
                       ),
-
-                      SizedBox(width: 8.w),
-
-                      _ActionButton(
-                        icon: Icons.delete_outline_rounded,
-                        color: AppColors.error,
-                        onTap: () {
-                          onChanged(null);
-                        },
-                      ),
-                    ],
+                    ),
                   ),
-                ),
 
-                Positioned(
-                  left: 10.w,
-                  bottom: 10.h,
-                  child: Container(
-                    padding: EdgeInsets.symmetric(
-                      horizontal: 10.w,
-                      vertical: 6.h,
-                    ),
-                    decoration: BoxDecoration(
-                      color: Colors.black.withOpacity(0.55),
-                      borderRadius: BorderRadius.circular(10.r),
-                    ),
+                  // Camera + Delete
+                  Positioned(
+                    top: 6.h,
+                    right: 6.w,
                     child: Row(
-                      mainAxisSize: MainAxisSize.min,
                       children: [
-                        Icon(
-                          Icons.check_circle_rounded,
-                          color: Colors.white,
-                          size: 15.sp,
+                        _ActionButton(
+                          icon: Icons.camera_alt_rounded,
+                          onTap: _pickImage,
                         ),
-
                         SizedBox(width: 5.w),
-
-                        Text(
-                          '1 photo selected',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 11.sp,
-                            fontWeight: FontWeight.w700,
-                          ),
+                        _ActionButton(
+                          icon: Icons.delete_outline_rounded,
+                          color: AppColors.error,
+                          onTap: () {
+                            onChanged(null);
+                          },
                         ),
                       ],
                     ),
                   ),
-                ),
-              ],
-            )
-          : InkWell(
-              onTap: _pickImage,
-              borderRadius: BorderRadius.circular(14.r),
-              child: Container(
-                width: double.infinity,
-                height: 170.h,
-                decoration: BoxDecoration(
-                  color:
-                      AppColors.lightGreen.withOpacity(0.35),
-                  borderRadius: BorderRadius.circular(14.r),
-                  border: Border.all(
-                    color:
-                        AppColors.primary.withOpacity(0.25),
+
+                  // Selected label
+                  Positioned(
+                    left: 6.w,
+                    bottom: 6.h,
+                    child: Container(
+                      padding: EdgeInsets.symmetric(
+                        horizontal: 7.w,
+                        vertical: 4.h,
+                      ),
+                      decoration: BoxDecoration(
+                        color: Colors.black.withOpacity(0.55),
+                        borderRadius: BorderRadius.circular(8.r),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(
+                            Icons.check_circle_rounded,
+                            color: Colors.white,
+                            size: 13.sp,
+                          ),
+                          SizedBox(width: 4.w),
+                          Text(
+                            'Photo selected',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 9.5.sp,
+                              fontWeight: FontWeight.w700,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
+              )
+            : InkWell(
+                onTap: _pickImage,
+                borderRadius: BorderRadius.circular(11.r),
+                child: Container(
+                  width: double.infinity,
+                  height: double.infinity,
+                  decoration: BoxDecoration(
+                    color: AppColors.lightGreen.withOpacity(0.35),
+                    borderRadius: BorderRadius.circular(11.r),
+                    border: Border.all(
+                      color: AppColors.primary.withOpacity(0.25),
+                    ),
+                  ),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Container(
+                        width: 42.w,
+                        height: 42.w,
+                        decoration: BoxDecoration(
+                          color: AppColors.primary,
+                          borderRadius: BorderRadius.circular(13.r),
+                        ),
+                        child: Icon(
+                          Icons.camera_alt_rounded,
+                          color: Colors.white,
+                          size: 21.sp,
+                        ),
+                      ),
+
+                      SizedBox(height: 6.h),
+
+                      Text(
+                        'Add Order Photo',
+                        style: TextStyle(
+                          fontSize: 11.5.sp,
+                          fontWeight: FontWeight.w800,
+                          color: AppColors.textPrimary,
+                        ),
+                      ),
+
+                      SizedBox(height: 2.h),
+
+                      Text(
+                        'Tap to open camera',
+                        style: TextStyle(
+                          fontSize: 9.5.sp,
+                          color: AppColors.textSecondary,
+                        ),
+                      ),
+                    ],
                   ),
                 ),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Container(
-                      width: 58.w,
-                      height: 58.w,
-                      decoration: BoxDecoration(
-                        color: AppColors.primary,
-                        borderRadius:
-                            BorderRadius.circular(18.r),
-                      ),
-                      child: Icon(
-                        Icons.camera_alt_rounded,
-                        color: Colors.white,
-                        size: 28.sp,
-                      ),
-                    ),
-
-                    SizedBox(height: 12.h),
-
-                    Text(
-                      'Add Order Photo',
-                      style: TextStyle(
-                        fontSize: 14.sp,
-                        fontWeight: FontWeight.w800,
-                        color: AppColors.textPrimary,
-                      ),
-                    ),
-
-                    SizedBox(height: 4.h),
-
-                    Text(
-                      'Tap to open camera',
-                      style: TextStyle(
-                        fontSize: 11.5.sp,
-                        color: AppColors.textSecondary,
-                      ),
-                    ),
-                  ],
-                ),
               ),
-            ),
+      ),
     );
   }
 }
@@ -199,20 +198,21 @@ class _ActionButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return Material(
       color: color ?? Colors.black.withOpacity(0.55),
-      borderRadius: BorderRadius.circular(10.r),
+      borderRadius: BorderRadius.circular(8.r),
       child: InkWell(
         onTap: onTap,
-        borderRadius: BorderRadius.circular(10.r),
+        borderRadius: BorderRadius.circular(8.r),
         child: SizedBox(
-          width: 38.w,
-          height: 38.w,
+          width: 30.w,
+          height: 30.w,
           child: Icon(
             icon,
             color: Colors.white,
-            size: 19.sp,
+            size: 16.sp,
           ),
         ),
       ),
     );
   }
 }
+
