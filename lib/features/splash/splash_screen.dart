@@ -1,5 +1,6 @@
 import 'package:demo/core/di/auth_di.dart';
 import 'package:demo/core/theme/app_colors.dart';
+import 'package:demo/core/utility/appname.dart';
 import 'package:demo/features/auth/provider/auth_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -57,14 +58,14 @@ class _SplashScreenState extends State<SplashScreen> {
                     ),
                   ],
                   image: const DecorationImage(
-                    image: AssetImage('assets/icons/logo.jpg'),
+                    image: AssetImage('assets/icons/logo.png'),
                     fit: BoxFit.cover,
                   ),
                 ),
               ),
               const SizedBox(height: 24),
-              const Text(
-                'Ramikar Agro',
+               Text(
+                appName,
                 style: TextStyle(
                   fontSize: 30,
                   fontWeight: FontWeight.bold,
