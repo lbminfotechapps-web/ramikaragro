@@ -1,3 +1,4 @@
+
 import 'package:demo/core/theme/app_colors.dart';
 import 'package:demo/features/place_order/domain/entities/product_entity.dart';
 import 'package:demo/features/place_order/domain/entities/product_rate_entity.dart';
@@ -7,18 +8,25 @@ import 'package:flutter_screenutil_plus/flutter_screenutil_plus.dart';
 class ProductCard extends StatelessWidget {
   final ProductEntity product;
   final Map<String, int> packingQuantities;
+
   /// All selected rates / packings for this product.
   final List<ProductRateEntity> selectedRates;
+
   /// Opens packing/rate selector.
   final VoidCallback onAdd;
+
   /// Opens selector again.
   final VoidCallback onAddMore;
+
   /// Delete complete product.
   final VoidCallback onDelete;
+
   /// Increase quantity of one packing.
   final void Function(ProductRateEntity rate) onIncrease;
+
   /// Decrease quantity of one packing.
   final void Function(ProductRateEntity rate) onDecrease;
+
   const ProductCard({
     super.key,
     required this.product,
@@ -83,8 +91,7 @@ class ProductCard extends StatelessWidget {
 
               Expanded(
                 child: Column(
-                  crossAxisAlignment:
-                      CrossAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
                       product.name,
@@ -151,8 +158,7 @@ class ProductCard extends StatelessWidget {
                 color: AppColors.background,
                 borderRadius: BorderRadius.circular(10.r),
                 border: Border.all(
-                  color:
-                      AppColors.border.withOpacity(0.50),
+                  color: AppColors.border.withOpacity(0.50),
                 ),
               ),
               child: Column(
@@ -164,12 +170,10 @@ class ProductCard extends StatelessWidget {
                       selectedRates[index],
                     ),
 
-                    if (index <
-                        selectedRates.length - 1)
+                    if (index < selectedRates.length - 1)
                       Divider(
                         height: 1,
-                        color: AppColors.border
-                            .withOpacity(0.35),
+                        color: AppColors.border.withOpacity(0.35),
                       ),
                   ],
                 ],
@@ -184,8 +188,7 @@ class ProductCard extends StatelessWidget {
           // ============================================================
 
           Row(
-            mainAxisAlignment:
-                MainAxisAlignment.end,
+            mainAxisAlignment: MainAxisAlignment.end,
             children: [
               if (hasRates)
                 _buildAddMoreButton()
@@ -205,7 +208,6 @@ class ProductCard extends StatelessWidget {
   Widget _buildPackingRow(
     ProductRateEntity rate,
   ) {
-    // IMPORTANT:
     // Quantity is identified by productDetailsId.
     final String productDetailsId =
         rate.productDetailsId.toString();
@@ -234,36 +236,82 @@ class ProductCard extends StatelessWidget {
           SizedBox(width: 6.w),
 
           // ==============================================================
-          // PACKING + RATE
+          // PACKING + UNIT/CASE + RATE
           // ==============================================================
 
           Expanded(
             child: Column(
-              crossAxisAlignment:
-                  CrossAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                // --------------------------------------------------------
+                // PACKING
+                // --------------------------------------------------------
+
                 Text(
                   '${rate.packing} ${rate.unit}',
                   maxLines: 1,
-                  overflow:
-                      TextOverflow.ellipsis,
+                  overflow: TextOverflow.ellipsis,
                   style: TextStyle(
                     fontSize: 11.sp,
                     fontWeight: FontWeight.w700,
-                    color:
-                        AppColors.textPrimary,
+                    color: AppColors.textPrimary,
                   ),
                 ),
 
-                SizedBox(height: 2.h),
+                SizedBox(height: 3.h),
 
-                Text(
-                  '₹${rate.rateWithGst}',
-                  style: TextStyle(
-                    fontSize: 9.sp,
-                    fontWeight: FontWeight.w700,
-                    color: AppColors.primary,
-                  ),
+                // --------------------------------------------------------
+                // UNIT PER CASE + RATE
+                // --------------------------------------------------------
+
+                Row(
+                  children: [
+                    // Unit per case
+                    Container(
+                      padding: EdgeInsets.symmetric(
+                        horizontal: 5.w,
+                        vertical: 2.5.h,
+                      ),
+                      decoration: BoxDecoration(
+                        color: AppColors.lightGreen,
+                        borderRadius: BorderRadius.circular(5.r),
+                        border: Border.all(
+                          color: AppColors.primary.withOpacity(0.12),
+                        ),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(
+                            Icons.inventory_2_outlined,
+                            size: 9.sp,
+                            color: AppColors.primary,
+                          ),
+                          SizedBox(width: 3.w),
+                          Text(
+                            rate.displayCase,
+                            style: TextStyle(
+                              fontSize: 8.sp,
+                              fontWeight: FontWeight.w800,
+                              color: AppColors.primary,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+
+                    SizedBox(width: 6.w),
+
+                    // Rate
+                    Text(
+                      '₹${rate.rateWithGst}',
+                      style: TextStyle(
+                        fontSize: 9.sp,
+                        fontWeight: FontWeight.w700,
+                        color: AppColors.primary,
+                      ),
+                    ),
+                  ],
                 ),
               ],
             ),
@@ -298,8 +346,7 @@ class ProductCard extends StatelessWidget {
         color: AppColors.lightGreen,
         borderRadius: BorderRadius.circular(8.r),
         border: Border.all(
-          color:
-              AppColors.primary.withOpacity(0.20),
+          color: AppColors.primary.withOpacity(0.20),
         ),
       ),
       child: Row(
@@ -315,8 +362,7 @@ class ProductCard extends StatelessWidget {
               onTap: quantity > 1
                   ? () => onDecrease(rate)
                   : null,
-              borderRadius:
-                  BorderRadius.circular(8.r),
+              borderRadius: BorderRadius.circular(8.r),
               child: SizedBox(
                 width: 30.w,
                 height: 32.h,
@@ -358,8 +404,7 @@ class ProductCard extends StatelessWidget {
             color: Colors.transparent,
             child: InkWell(
               onTap: () => onIncrease(rate),
-              borderRadius:
-                  BorderRadius.circular(8.r),
+              borderRadius: BorderRadius.circular(8.r),
               child: SizedBox(
                 width: 30.w,
                 height: 32.h,

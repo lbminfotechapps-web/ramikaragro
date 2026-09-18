@@ -1,3 +1,4 @@
+
 import 'package:demo/core/theme/app_colors.dart';
 import 'package:demo/features/place_order/domain/entities/product_entity.dart';
 import 'package:demo/features/place_order/domain/entities/product_rate_entity.dart';
@@ -10,10 +11,10 @@ import 'package:flutter_screenutil_plus/flutter_screenutil_plus.dart';
 /// ===========================================================================
 ///
 /// selectedRates:
-///     Product ID -> selected packing/rates
+/// Product ID -> selected packing/rates
 ///
 /// packingQuantities:
-///     Product ID -> Product Details ID -> Quantity
+/// Product ID -> Product Details ID -> Quantity
 ///
 /// Example:
 ///
@@ -26,7 +27,6 @@ import 'package:flutter_screenutil_plus/flutter_screenutil_plus.dart';
 ///
 class MultiProductRateSelectionResult {
   final Map<String, List<ProductRateEntity>> selectedRates;
-
   final Map<String, Map<String, int>> packingQuantities;
 
   const MultiProductRateSelectionResult({
@@ -44,15 +44,6 @@ class MultiProductRateBottomSheet extends StatefulWidget {
   final Map<String, List<ProductRateEntity>> existingRates;
 
   /// Product ID -> Product Details ID -> Quantity
-  ///
-  /// Example:
-  ///
-  /// {
-  ///   "1": {
-  ///     "101": 2,
-  ///     "102": 5,
-  ///   }
-  /// }
   final Map<String, Map<String, int>> existingPackingQuantities;
 
   /// Product which should be displayed initially.
@@ -81,13 +72,10 @@ class _MultiProductRateBottomSheetState
   // DATA
   // ===========================================================================
 
-  /// Product ID -> selected rates/packings
   late Map<String, List<ProductRateEntity>> _selectedRates;
 
-  /// Product ID -> Product Details ID -> Quantity
   late Map<String, Map<String, int>> _packingQuantities;
 
-  /// Product ID -> available rates
   final Map<String, List<ProductRateEntity>> _ratesCache = {};
 
   String? _selectedProductId;
@@ -104,29 +92,27 @@ class _MultiProductRateBottomSheetState
   void initState() {
     super.initState();
 
-    _selectedRates = {};
-
-    // =========================================================================
+    // -------------------------------------------------------------------------
     // COPY EXISTING SELECTED RATES
-    // =========================================================================
+    // -------------------------------------------------------------------------
 
-    for (final entry in widget.existingRates.entries) {
-      _selectedRates[entry.key] =
-          List<ProductRateEntity>.from(entry.value);
-    }
+    _selectedRates = {
+      for (final entry in widget.existingRates.entries)
+        entry.key: List<ProductRateEntity>.from(entry.value),
+    };
 
-    // =========================================================================
-    // COPY EXISTING PACKING-WISE QUANTITIES
-    // =========================================================================
+    // -------------------------------------------------------------------------
+    // COPY EXISTING QUANTITIES
+    // -------------------------------------------------------------------------
 
     _packingQuantities = {
       for (final entry in widget.existingPackingQuantities.entries)
         entry.key: Map<String, int>.from(entry.value),
     };
 
-    // =========================================================================
-    // SELECT PRODUCT
-    // =========================================================================
+    // -------------------------------------------------------------------------
+    // SELECT INITIAL PRODUCT
+    // -------------------------------------------------------------------------
 
     if (widget.initialProductId != null &&
         widget.products.any(
@@ -139,9 +125,9 @@ class _MultiProductRateBottomSheetState
           widget.products.first.id.toString();
     }
 
-    // =========================================================================
-    // LOAD RATES AFTER BUILD
-    // =========================================================================
+    // -------------------------------------------------------------------------
+    // LOAD RATES
+    // -------------------------------------------------------------------------
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted) {
@@ -221,6 +207,18 @@ class _MultiProductRateBottomSheetState
       });
 
       debugPrint('Rates loaded: ${rates.length}');
+
+      for (final rate in rates) {
+        debugPrint(
+          'RATE => '
+          'detailsId=${rate.productDetailsId}, '
+          'packing=${rate.packing}, '
+          'unit=${rate.unit}, '
+          'unitsPerCase="${rate.unitsPerCase}", '
+          'displayCase="${rate.displayCase}", '
+          'rate=${rate.rateWithGst}',
+        );
+      }
     } catch (e, stackTrace) {
       debugPrint('Get product rates error: $e');
       debugPrint(stackTrace.toString());
@@ -255,7 +253,7 @@ class _MultiProductRateBottomSheetState
   }
 
   // ===========================================================================
-  // PACKING QUANTITY
+  // QUANTITY
   // ===========================================================================
 
   int _quantity(
@@ -266,7 +264,7 @@ class _MultiProductRateBottomSheetState
   }
 
   // ===========================================================================
-  // INCREASE PACKING QUANTITY
+  // INCREASE QUANTITY
   // ===========================================================================
 
   void _increaseQuantity(
@@ -296,7 +294,7 @@ class _MultiProductRateBottomSheetState
   }
 
   // ===========================================================================
-  // DECREASE PACKING QUANTITY
+  // DECREASE QUANTITY
   // ===========================================================================
 
   void _decreaseQuantity(
@@ -370,34 +368,30 @@ class _MultiProductRateBottomSheetState
           rate.productDetailsId,
     );
 
-    // =========================================================================
-    // REMOVE RATE
-    // =========================================================================
+    // -------------------------------------------------------------------------
+    // REMOVE
+    // -------------------------------------------------------------------------
 
     if (existingIndex >= 0) {
       current.removeAt(existingIndex);
 
-      final String productDetailsId =
+      final productDetailsId =
           rate.productDetailsId.toString();
 
-      // Remove this packing's quantity.
       _packingQuantities[productId]
           ?.remove(productDetailsId);
 
       if (current.isEmpty) {
         _selectedRates.remove(productId);
-
-        // Remove all quantities because no packing
-        // is selected for this product.
         _packingQuantities.remove(productId);
       } else {
         _selectedRates[productId] = current;
       }
     }
 
-    // =========================================================================
-    // ADD RATE
-    // =========================================================================
+    // -------------------------------------------------------------------------
+    // ADD
+    // -------------------------------------------------------------------------
 
     else {
       current.add(rate);
@@ -410,10 +404,9 @@ class _MultiProductRateBottomSheetState
         () => <String, int>{},
       );
 
-      final String productDetailsId =
+      final productDetailsId =
           rate.productDetailsId.toString();
 
-      // Every newly selected packing starts with quantity 1.
       productQuantities.putIfAbsent(
         productDetailsId,
         () => 1,
@@ -431,7 +424,7 @@ class _MultiProductRateBottomSheetState
   }
 
   // ===========================================================================
-  // CLEAR PRODUCT RATES
+  // CLEAR
   // ===========================================================================
 
   void _clearProductRates(
@@ -492,7 +485,7 @@ class _MultiProductRateBottomSheetState
           color: AppColors.background,
           borderRadius:
               BorderRadius.vertical(
-            top: Radius.circular(24.r),
+            top: Radius.circular(22.r),
           ),
         ),
         child: Column(
@@ -516,35 +509,38 @@ class _MultiProductRateBottomSheetState
   Widget _buildHeader() {
     return Container(
       padding: EdgeInsets.fromLTRB(
-        18.w,
-        14.h,
-        12.w,
-        14.h,
+        16.w,
+        9.h,
+        7.w,
+        9.h,
       ),
-      decoration: const BoxDecoration(
+      decoration: BoxDecoration(
         color: Colors.white,
         borderRadius:
             BorderRadius.vertical(
-          top: Radius.circular(24),
+          top: Radius.circular(22.r),
         ),
       ),
       child: Column(
         children: [
+          // DRAG HANDLE
           Container(
-            width: 42.w,
-            height: 4.h,
+            width: 36.w,
+            height: 3.h,
             decoration: BoxDecoration(
               color: AppColors.border,
               borderRadius:
                   BorderRadius.circular(20.r),
             ),
           ),
-          SizedBox(height: 14.h),
+
+          SizedBox(height: 8.h),
+
           Row(
             children: [
               Container(
-                width: 44.w,
-                height: 44.w,
+                width: 38.w,
+                height: 38.w,
                 decoration:
                     const BoxDecoration(
                   color: AppColors.lightGreen,
@@ -553,10 +549,12 @@ class _MultiProductRateBottomSheetState
                 child: Icon(
                   Icons.price_check_rounded,
                   color: AppColors.primary,
-                  size: 23.sp,
+                  size: 20.sp,
                 ),
               ),
-              SizedBox(width: 12.w),
+
+              SizedBox(width: 9.w),
+
               Expanded(
                 child: Column(
                   crossAxisAlignment:
@@ -565,20 +563,17 @@ class _MultiProductRateBottomSheetState
                     Text(
                       'Select Product Rates',
                       style: TextStyle(
-                        fontSize: 17.sp,
+                        fontSize: 15.sp,
                         fontWeight:
                             FontWeight.w800,
                         color:
                             AppColors.textPrimary,
                       ),
                     ),
-                    SizedBox(height: 3.h),
                     Text(
                       'Select one or more packings',
                       style: TextStyle(
-                        fontSize: 11.5.sp,
-                        fontWeight:
-                            FontWeight.w500,
+                        fontSize: 9.5.sp,
                         color:
                             AppColors.textSecondary,
                       ),
@@ -586,15 +581,21 @@ class _MultiProductRateBottomSheetState
                   ],
                 ),
               ),
+
               IconButton(
                 onPressed: () {
                   Navigator.pop(context);
                 },
+                padding: EdgeInsets.zero,
+                constraints: BoxConstraints(
+                  minWidth: 34.w,
+                  minHeight: 34.w,
+                ),
                 icon: Icon(
                   Icons.close_rounded,
                   color:
                       AppColors.textSecondary,
-                  size: 22.sp,
+                  size: 20.sp,
                 ),
               ),
             ],
@@ -624,40 +625,40 @@ class _MultiProductRateBottomSheetState
     return Container(
       width: double.infinity,
       margin: EdgeInsets.fromLTRB(
-        14.w,
-        10.h,
-        14.w,
-        4.h,
+        12.w,
+        7.h,
+        12.w,
+        2.h,
       ),
-      padding: EdgeInsets.all(10.w),
+      padding: EdgeInsets.all(8.w),
       decoration: BoxDecoration(
         color: AppColors.lightGreen,
         borderRadius:
-            BorderRadius.circular(13.r),
+            BorderRadius.circular(11.r),
         border: Border.all(
           color:
-              AppColors.primary.withOpacity(
-            0.15,
-          ),
+              AppColors.primary.withOpacity(0.14),
         ),
       ),
       child: Row(
         children: [
           Container(
-            width: 42.w,
-            height: 42.w,
+            width: 36.w,
+            height: 36.w,
             decoration: BoxDecoration(
               color: AppColors.primary,
               borderRadius:
-                  BorderRadius.circular(10.r),
+                  BorderRadius.circular(8.r),
             ),
             child: Icon(
               Icons.inventory_2_rounded,
               color: Colors.white,
-              size: 20.sp,
+              size: 18.sp,
             ),
           ),
-          SizedBox(width: 10.w),
+
+          SizedBox(width: 8.w),
+
           Expanded(
             child: Column(
               crossAxisAlignment:
@@ -669,25 +670,24 @@ class _MultiProductRateBottomSheetState
                   overflow:
                       TextOverflow.ellipsis,
                   style: TextStyle(
-                    fontSize: 13.sp,
+                    fontSize: 12.sp,
                     fontWeight:
                         FontWeight.w800,
                     color:
                         AppColors.textPrimary,
                   ),
                 ),
-                SizedBox(height: 3.h),
+                SizedBox(height: 1.h),
                 Text(
                   selectedCount == 0
                       ? 'Select packing / rate'
                       : '$selectedCount packing selected',
                   style: TextStyle(
-                    fontSize: 10.sp,
+                    fontSize: 8.5.sp,
                     fontWeight:
                         FontWeight.w600,
                     color: selectedCount == 0
-                        ? AppColors
-                            .textSecondary
+                        ? AppColors.textSecondary
                         : AppColors.primary,
                   ),
                 ),
@@ -720,14 +720,20 @@ class _MultiProductRateBottomSheetState
           mainAxisSize:
               MainAxisSize.min,
           children: [
-            const CircularProgressIndicator(
-              color: AppColors.primary,
+            SizedBox(
+              width: 27.w,
+              height: 27.w,
+              child:
+                  const CircularProgressIndicator(
+                strokeWidth: 2.5,
+                color: AppColors.primary,
+              ),
             ),
-            SizedBox(height: 14.h),
+            SizedBox(height: 8.h),
             Text(
               'Loading rates...',
               style: TextStyle(
-                fontSize: 13.sp,
+                fontSize: 11.sp,
                 fontWeight:
                     FontWeight.w600,
                 color:
@@ -751,8 +757,7 @@ class _MultiProductRateBottomSheetState
     }
 
     final rates =
-        _ratesCache[
-                _selectedProductId!] ??
+        _ratesCache[_selectedProductId!] ??
             <ProductRateEntity>[];
 
     if (rates.isEmpty) {
@@ -775,12 +780,16 @@ class _MultiProductRateBottomSheetState
       crossAxisAlignment:
           CrossAxisAlignment.start,
       children: [
+        // ---------------------------------------------------------------------
+        // SECTION TITLE
+        // ---------------------------------------------------------------------
+
         Padding(
           padding: EdgeInsets.fromLTRB(
-            16.w,
-            14.h,
-            16.w,
-            10.h,
+            13.w,
+            7.h,
+            13.w,
+            6.h,
           ),
           child: Row(
             children: [
@@ -788,7 +797,7 @@ class _MultiProductRateBottomSheetState
                 child: Text(
                   'Available Packings',
                   style: TextStyle(
-                    fontSize: 15.sp,
+                    fontSize: 13.5.sp,
                     fontWeight:
                         FontWeight.w800,
                     color:
@@ -796,6 +805,7 @@ class _MultiProductRateBottomSheetState
                   ),
                 ),
               ),
+
               if (selectedCount > 0)
                 TextButton(
                   onPressed: () {
@@ -803,12 +813,25 @@ class _MultiProductRateBottomSheetState
                       _selectedProductId!,
                     );
                   },
+                  style:
+                      TextButton.styleFrom(
+                    padding:
+                        EdgeInsets.symmetric(
+                      horizontal: 6.w,
+                      vertical: 1.h,
+                    ),
+                    minimumSize:
+                        Size.zero,
+                    tapTargetSize:
+                        MaterialTapTargetSize
+                            .shrinkWrap,
+                  ),
                   child: Text(
                     'Clear',
                     style: TextStyle(
                       color:
                           AppColors.primary,
-                      fontSize: 12.sp,
+                      fontSize: 10.5.sp,
                       fontWeight:
                           FontWeight.w700,
                     ),
@@ -817,15 +840,20 @@ class _MultiProductRateBottomSheetState
             ],
           ),
         ),
+
+        // ---------------------------------------------------------------------
+        // RATE LIST
+        // ---------------------------------------------------------------------
+
         Expanded(
           child:
               ListView.separated(
             padding:
                 EdgeInsets.fromLTRB(
-              14.w,
+              12.w,
               0,
-              14.w,
-              20.h,
+              12.w,
+              10.h,
             ),
             physics:
                 const BouncingScrollPhysics(),
@@ -833,7 +861,7 @@ class _MultiProductRateBottomSheetState
                 rates.length,
             separatorBuilder:
                 (_, __) =>
-                    SizedBox(height: 10.h),
+                    SizedBox(height: 6.h),
             itemBuilder:
                 (context, index) {
               return _buildRateCard(
@@ -863,13 +891,23 @@ class _MultiProductRateBottomSheetState
       rate,
     );
 
-    final String productDetailsId =
+    final productDetailsId =
         rate.productDetailsId.toString();
 
-    final int quantity =
+    final quantity =
         _quantity(
       productId,
       productDetailsId,
+    );
+
+    // Debug to verify Unit Per Case.
+    debugPrint(
+      'RATE CARD => '
+      'Product=$productId | '
+      'Details=$productDetailsId | '
+      'Packing=${rate.packing} ${rate.unit} | '
+      'UnitsPerCase="${rate.unitsPerCase}" | '
+      'DisplayCase="${rate.displayCase}"',
     );
 
     return InkWell(
@@ -880,228 +918,323 @@ class _MultiProductRateBottomSheetState
         );
       },
       borderRadius:
-          BorderRadius.circular(16.r),
+          BorderRadius.circular(13.r),
       child: AnimatedContainer(
         duration:
             const Duration(
-          milliseconds: 160,
+          milliseconds: 150,
         ),
-        padding:
-            EdgeInsets.all(14.w),
+        padding: EdgeInsets.symmetric(
+          horizontal: 9.w,
+          vertical: 8.h,
+        ),
         decoration: BoxDecoration(
           color: selected
               ? AppColors.lightGreen
               : Colors.white,
           borderRadius:
-              BorderRadius.circular(16.r),
+              BorderRadius.circular(13.r),
           border: Border.all(
             color: selected
                 ? AppColors.primary
                 : AppColors.border,
             width:
-                selected ? 1.5 : 1,
+                selected ? 1.3 : 1,
           ),
           boxShadow: [
             BoxShadow(
-              color:
-                  Colors.black.withOpacity(
-                0.035,
-              ),
-              blurRadius: 8,
+              color: selected
+                  ? AppColors.primary
+                      .withOpacity(0.07)
+                  : Colors.black
+                      .withOpacity(0.018),
+              blurRadius:
+                  selected ? 7 : 5,
               offset:
-                  const Offset(0, 3),
+                  const Offset(0, 2),
             ),
           ],
         ),
-        child: Row(
+        child: Column(
           children: [
-            Checkbox(
-              value: selected,
-              activeColor:
-                  AppColors.primary,
-              checkColor:
-                  Colors.white,
-              shape:
-                  RoundedRectangleBorder(
-                borderRadius:
-                    BorderRadius.circular(
-                  5.r,
-                ),
-              ),
-              onChanged: (_) {
-                _toggleRate(
-                  productId,
-                  rate,
-                );
-              },
-            ),
-            SizedBox(width: 4.w),
-            Expanded(
-              child: Column(
-                crossAxisAlignment:
-                    CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      Expanded(
-                        child: Text(
-                          'Packing: ${rate.packing} ${rate.unit}',
-                          style:
-                              TextStyle(
-                            fontSize:
-                                13.sp,
-                            fontWeight:
-                                FontWeight.w800,
-                            color: AppColors
-                                .textPrimary,
-                          ),
-                        ),
-                      ),
-                      Text(
-                        '₹${rate.rateWithGst}',
-                        style:
-                            TextStyle(
-                          fontSize:
-                              15.sp,
-                          fontWeight:
-                              FontWeight.w900,
-                          color: AppColors
-                              .primary,
-                        ),
-                      ),
-                    ],
-                  ),
+            // =================================================================
+            // FIRST ROW
+            // Packing + Price
+            // =================================================================
 
-                  // ==========================================================
-                  // PACKING-WISE QUANTITY
-                  // ==========================================================
-
-                  if (selected)
-                    Padding(
-                      padding:
-                          EdgeInsets.only(
-                        top: 8.h,
-                      ),
-                      child: Row(
-                        mainAxisAlignment:
-                            MainAxisAlignment.end,
-                        children: [
-                          Container(
-                            height: 32.h,
-                            decoration:
-                                BoxDecoration(
-                              color:
-                                  Colors.white,
-                              borderRadius:
-                                  BorderRadius
-                                      .circular(
-                                8.r,
-                              ),
-                              border:
-                                  Border.all(
-                                color: AppColors
-                                    .primary
-                                    .withOpacity(
-                                  0.20,
-                                ),
-                              ),
-                            ),
-                            child: Row(
-                              mainAxisSize:
-                                  MainAxisSize
-                                      .min,
-                              children: [
-                                InkWell(
-                                  onTap:
-                                      quantity >
-                                              1
-                                          ? () {
-                                              _decreaseQuantity(
-                                                productId,
-                                                productDetailsId,
-                                              );
-                                            }
-                                          : null,
-                                  child:
-                                      SizedBox(
-                                    width:
-                                        32.w,
-                                    height:
-                                        32.h,
-                                    child:
-                                        Icon(
-                                      Icons
-                                          .remove_rounded,
-                                      size:
-                                          16.sp,
-                                      color: quantity >
-                                              1
-                                          ? AppColors
-                                              .primary
-                                          : AppColors
-                                              .border,
-                                    ),
-                                  ),
-                                ),
-                                Container(
-                                  constraints:
-                                      BoxConstraints(
-                                    minWidth:
-                                        30.w,
-                                  ),
-                                  alignment:
-                                      Alignment
-                                          .center,
-                                  child:
-                                      Text(
-                                    '$quantity',
-                                    style:
-                                        TextStyle(
-                                      fontSize:
-                                          12.sp,
-                                      fontWeight:
-                                          FontWeight
-                                              .w900,
-                                      color: AppColors
-                                          .primary,
-                                    ),
-                                  ),
-                                ),
-                                InkWell(
-                                  onTap: () {
-                                    _increaseQuantity(
-                                      productId,
-                                      productDetailsId,
-                                    );
-                                  },
-                                  child:
-                                      SizedBox(
-                                    width:
-                                        32.w,
-                                    height:
-                                        32.h,
-                                    child:
-                                        Icon(
-                                      Icons
-                                          .add_rounded,
-                                      size:
-                                          16.sp,
-                                      color: AppColors
-                                          .primary,
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ],
+            Row(
+              children: [
+                // CHECKBOX
+                SizedBox(
+                  width: 28.w,
+                  height: 28.w,
+                  child: Checkbox(
+                    value: selected,
+                    activeColor:
+                        AppColors.primary,
+                    checkColor:
+                        Colors.white,
+                    materialTapTargetSize:
+                        MaterialTapTargetSize
+                            .shrinkWrap,
+                    visualDensity:
+                        VisualDensity.compact,
+                    shape:
+                        RoundedRectangleBorder(
+                      borderRadius:
+                          BorderRadius.circular(
+                        5.r,
                       ),
                     ),
-                ],
-              ),
+                    onChanged: (_) {
+                      _toggleRate(
+                        productId,
+                        rate,
+                      );
+                    },
+                  ),
+                ),
+
+                SizedBox(width: 6.w),
+
+                // PACKING
+                Expanded(
+                  child: Text(
+                    'Packing: ${rate.packing} ${rate.unit}',
+                    maxLines: 1,
+                    overflow:
+                        TextOverflow.ellipsis,
+                    style: TextStyle(
+                      fontSize: 12.5.sp,
+                      fontWeight:
+                          FontWeight.w800,
+                      color:
+                          AppColors.textPrimary,
+                    ),
+                  ),
+                ),
+
+                SizedBox(width: 7.w),
+
+                // PRICE
+                Text(
+                  rate.displayRate,
+                  style: TextStyle(
+                    fontSize: 14.sp,
+                    fontWeight:
+                        FontWeight.w900,
+                    color:
+                        AppColors.primary,
+                  ),
+                ),
+              ],
+            ),
+
+            SizedBox(height: 6.h),
+
+            // =================================================================
+            // SECOND ROW
+            // Unit Per Case + GST + Quantity
+            // =================================================================
+
+            Row(
+              children: [
+                // UNIT PER CASE
+                _rateInfoBadge(
+                  icon:
+                      Icons.inventory_2_rounded,
+                  label:
+                      'Unit/Case',
+                  value:
+                      rate.displayCase,
+                  highlighted: true,
+                ),
+
+                SizedBox(width: 5.w),
+
+                // // GST
+                // _rateInfoBadge(
+                //   icon:
+                //       Icons.percent_rounded,
+                //   label: 'GST',
+                //   value:
+                //       '${rate.gstPercentage}%',
+                //   highlighted: false,
+                // ),
+
+                const Spacer(),
+
+                // QUANTITY
+                if (selected)
+                  _buildQuantityControl(
+                    productId:
+                        productId,
+                    productDetailsId:
+                        productDetailsId,
+                    quantity:
+                        quantity,
+                  ),
+              ],
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  // ===========================================================================
+  // INFO BADGE
+  // ===========================================================================
+
+  Widget _rateInfoBadge({
+    required IconData icon,
+    required String label,
+    required String value,
+    required bool highlighted,
+  }) {
+    return Container(
+      padding: EdgeInsets.symmetric(
+        horizontal: 6.w,
+        vertical: 4.h,
+      ),
+      decoration: BoxDecoration(
+        color: highlighted
+            ? AppColors.lightGreen.withOpacity(0.85)
+            : Colors.grey.shade100,
+        borderRadius:
+            BorderRadius.circular(6.r),
+        border: Border.all(
+          color: highlighted
+              ? AppColors.primary
+                  .withOpacity(0.12)
+              : Colors.grey.shade200,
+        ),
+      ),
+      child: Row(
+        mainAxisSize:
+            MainAxisSize.min,
+        children: [
+          Icon(
+            icon,
+            size: 10.sp,
+            color: highlighted
+                ? AppColors.primary
+                : AppColors.textSecondary,
+          ),
+
+          SizedBox(width: 3.w),
+
+          Text(
+            '$label: ',
+            style: TextStyle(
+              fontSize: 8.sp,
+              fontWeight:
+                  FontWeight.w600,
+              color:
+                  AppColors.textSecondary,
+            ),
+          ),
+
+          Text(
+            value,
+            style: TextStyle(
+              fontSize: 8.5.sp,
+              fontWeight:
+                  FontWeight.w800,
+              color: highlighted
+                  ? AppColors.primary
+                  : AppColors.textPrimary,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // ===========================================================================
+  // QUANTITY CONTROL
+  // ===========================================================================
+
+  Widget _buildQuantityControl({
+    required String productId,
+    required String productDetailsId,
+    required int quantity,
+  }) {
+    return Container(
+      height: 28.h,
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius:
+            BorderRadius.circular(7.r),
+        border: Border.all(
+          color:
+              AppColors.primary.withOpacity(0.18),
+        ),
+      ),
+      child: Row(
+        mainAxisSize:
+            MainAxisSize.min,
+        children: [
+          InkWell(
+            onTap: quantity > 1
+                ? () {
+                    _decreaseQuantity(
+                      productId,
+                      productDetailsId,
+                    );
+                  }
+                : null,
+            child: SizedBox(
+              width: 27.w,
+              height: 28.h,
+              child: Icon(
+                Icons.remove_rounded,
+                size: 14.sp,
+                color: quantity > 1
+                    ? AppColors.primary
+                    : AppColors.border,
+              ),
+            ),
+          ),
+
+          Container(
+            constraints:
+                BoxConstraints(
+              minWidth: 27.w,
+            ),
+            alignment:
+                Alignment.center,
+            child: Text(
+              '$quantity',
+              style: TextStyle(
+                fontSize: 10.5.sp,
+                fontWeight:
+                    FontWeight.w900,
+                color:
+                    AppColors.primary,
+              ),
+            ),
+          ),
+
+          InkWell(
+            onTap: () {
+              _increaseQuantity(
+                productId,
+                productDetailsId,
+              );
+            },
+            child: SizedBox(
+              width: 27.w,
+              height: 28.h,
+              child: Icon(
+                Icons.add_rounded,
+                size: 14.sp,
+                color:
+                    AppColors.primary,
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -1118,14 +1251,14 @@ class _MultiProductRateBottomSheetState
     return Center(
       child: Padding(
         padding:
-            EdgeInsets.all(25.w),
+            EdgeInsets.all(20.w),
         child: Column(
           mainAxisSize:
               MainAxisSize.min,
           children: [
             Container(
-              width: 62.w,
-              height: 62.w,
+              width: 56.w,
+              height: 56.w,
               decoration:
                   const BoxDecoration(
                 color:
@@ -1137,33 +1270,37 @@ class _MultiProductRateBottomSheetState
                 icon,
                 color:
                     AppColors.primary,
-                size: 30.sp,
+                size: 27.sp,
               ),
             ),
-            SizedBox(height: 14.h),
+
+            SizedBox(height: 10.h),
+
             Text(
               title,
               textAlign:
                   TextAlign.center,
               style: TextStyle(
-                fontSize: 15.sp,
+                fontSize: 14.sp,
                 fontWeight:
                     FontWeight.w800,
-                color: AppColors
-                    .textPrimary,
+                color:
+                    AppColors.textPrimary,
               ),
             ),
-            SizedBox(height: 5.h),
+
+            SizedBox(height: 4.h),
+
             Text(
               subtitle,
               textAlign:
                   TextAlign.center,
               style: TextStyle(
-                fontSize: 11.5.sp,
+                fontSize: 10.5.sp,
                 fontWeight:
                     FontWeight.w500,
-                color: AppColors
-                    .textSecondary,
+                color:
+                    AppColors.textSecondary,
               ),
             ),
           ],
@@ -1177,13 +1314,16 @@ class _MultiProductRateBottomSheetState
   // ===========================================================================
 
   Widget _buildBottomButton() {
+    final enabled =
+        _totalSelectedRates > 0;
+
     return Container(
       padding:
           EdgeInsets.fromLTRB(
-        16.w,
+        13.w,
+        8.h,
+        13.w,
         10.h,
-        16.w,
-        14.h,
       ),
       decoration:
           BoxDecoration(
@@ -1192,9 +1332,9 @@ class _MultiProductRateBottomSheetState
           BoxShadow(
             color:
                 Colors.black.withOpacity(
-              0.08,
+              0.07,
             ),
-            blurRadius: 12,
+            blurRadius: 10,
             offset:
                 const Offset(0, -3),
           ),
@@ -1205,29 +1345,29 @@ class _MultiProductRateBottomSheetState
         child: SizedBox(
           width:
               double.infinity,
-          height: 52.h,
+          height: 46.h,
           child:
               ElevatedButton(
             onPressed:
-                _totalSelectedRates ==
-                        0
-                    ? null
-                    : _done,
+                enabled ? _done : null,
             style:
-                ElevatedButton
-                    .styleFrom(
+                ElevatedButton.styleFrom(
               backgroundColor:
                   AppColors.primary,
               disabledBackgroundColor:
-                  AppColors.border,
+                  Colors.grey.shade300,
+              disabledForegroundColor:
+                  Colors.grey.shade600,
               foregroundColor:
                   Colors.white,
               elevation: 0,
+              padding:
+                  EdgeInsets.zero,
               shape:
                   RoundedRectangleBorder(
                 borderRadius:
                     BorderRadius.circular(
-                  15.r,
+                  12.r,
                 ),
               ),
             ),
@@ -1235,18 +1375,20 @@ class _MultiProductRateBottomSheetState
               mainAxisAlignment:
                   MainAxisAlignment.center,
               children: [
-                const Icon(
+                Icon(
                   Icons
                       .check_circle_outline_rounded,
+                  size: 18.sp,
                 ),
-                SizedBox(width: 8.w),
+
+                SizedBox(width: 7.w),
+
                 Text(
-                  _totalSelectedRates ==
-                          0
-                      ? 'Select Rate'
-                      : 'Done ($_totalSelectedRates Selected)',
+                  enabled
+                      ? 'Done ($_totalSelectedRates Selected)'
+                      : 'Select Rate',
                   style: TextStyle(
-                    fontSize: 14.sp,
+                    fontSize: 13.sp,
                     fontWeight:
                         FontWeight.w800,
                   ),
@@ -1259,3 +1401,5 @@ class _MultiProductRateBottomSheetState
     );
   }
 }
+
+
