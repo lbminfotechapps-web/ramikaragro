@@ -639,6 +639,9 @@ Widget _buildSummaryCard(int count) {
           child: Icon(icon, size: 17, color: const Color(0xFF087C3A)),
         ),
 
+
+        
+
         const SizedBox(width: 10),
 
         Expanded(
