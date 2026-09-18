@@ -13,6 +13,7 @@ class CustomTextFormField extends StatelessWidget {
   final String? Function(String?)? validator;
   final bool enabled;
   final int maxLines;
+  final int? maxLength;
   final bool readOnly;
   final VoidCallback? onTap;
   final ValueChanged<String>? onChanged;
@@ -33,113 +34,102 @@ class CustomTextFormField extends StatelessWidget {
     this.readOnly = false,
     this.onTap,
     this.onChanged,
+    this.maxLength,
   });
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(22),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.08),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
-      child: TextFormField(
-        controller: controller,
-        obscureText: obscureText,
-        keyboardType: keyboardType,
-        validator: validator,
-        enabled: enabled,
-        maxLines: maxLines,
-        readOnly: readOnly,
-        onTap: onTap,
-        onChanged: onChanged,
-
-        style: const TextStyle(fontSize: 16, color: Colors.black87),
-
-        decoration: InputDecoration(
-          hintText: hintText,
-          labelText: labelText,
-
-          // Normal label
-          labelStyle: TextStyle(
-            color: Colors.grey.shade500, // inside field
-            fontSize: 16,
-            fontWeight: FontWeight.w400,
-          ),
-
-          floatingLabelStyle: TextStyle(
-            color: AppColors.accentGreen, // floating at top
-            fontSize: 14,
-            fontWeight: FontWeight.w600,
-          ),
-
-          // Floating label when focused / text entered
-          // floatingLabelStyle: TextStyle(
-          //   color: AppColors.accentGreen,
-          //   fontSize: 14,
-          //   fontWeight: FontWeight.w600,
-          // ),
-
-          // Hint remains grey
-          hintStyle: TextStyle(
-            color: Colors.grey.shade500,
-            fontSize: 16,
-            fontWeight: FontWeight.w400,
-          ),
-
-          prefixIcon: Padding(
-            padding: const EdgeInsets.all(10),
-            child: Container(
-              decoration: const BoxDecoration(
-                shape: BoxShape.circle,
-                color: Color(0xFFE4F4E9),
-              ),
-              child: Icon(prefixIcon, color: AppColors.accentGreen, size: 22),
+    return TextFormField(
+      maxLength: maxLength,
+      controller: controller,
+      obscureText: obscureText,
+      keyboardType: keyboardType,
+      validator: validator,
+      enabled: enabled,
+      maxLines: maxLines,
+      readOnly: readOnly,
+      onTap: onTap,
+      onChanged: onChanged,
+    
+      style: const TextStyle(fontSize: 16, color: Colors.black87),
+    
+      decoration: InputDecoration(
+        hintText: hintText,
+        labelText: labelText,
+    
+        // Normal label
+        labelStyle: TextStyle(
+          color: Colors.grey.shade500, // inside field
+          fontSize: 16,
+          fontWeight: FontWeight.w400,
+        ),
+    
+        floatingLabelStyle: TextStyle(
+          color: AppColors.accentGreen, // floating at top
+          fontSize: 14,
+          fontWeight: FontWeight.w600,
+        ),
+    
+        // Floating label when focused / text entered
+        // floatingLabelStyle: TextStyle(
+        //   color: AppColors.accentGreen,
+        //   fontSize: 14,
+        //   fontWeight: FontWeight.w600,
+        // ),
+    
+        // Hint remains grey
+        hintStyle: TextStyle(
+          color: Colors.grey.shade500,
+          fontSize: 16,
+          fontWeight: FontWeight.w400,
+        ),
+    
+        prefixIcon: Padding(
+          padding: const EdgeInsets.all(10),
+          child: Container(
+            decoration: const BoxDecoration(
+              shape: BoxShape.circle,
+              color: Color(0xFFE4F4E9),
             ),
+            child: Icon(prefixIcon, color: AppColors.accentGreen, size: 22),
           ),
-
-          suffixIcon: suffixIcon != null
-              ? IconButton(
-                  onPressed: onSuffixIconTap,
-                  icon: Icon(suffixIcon, color: Colors.grey.shade500),
-                )
-              : null,
-
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(10),
-            borderSide: BorderSide(color: Colors.grey.shade200),
-          ),
-
-          enabledBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(10),
-            borderSide: BorderSide(color: Colors.grey.shade200),
-          ),
-
-          focusedBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(10),
-            borderSide: const BorderSide(color: Color(0xFF087C3A), width: 1.5),
-          ),
-
-          errorBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(10),
-            borderSide: const BorderSide(color: Colors.red),
-          ),
-
-          focusedErrorBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(10),
-            borderSide: const BorderSide(color: Colors.red, width: 1.5),
-          ),
-
-          contentPadding: const EdgeInsets.symmetric(
-            horizontal: 16,
-            vertical: 16,
-          ),
+        ),
+    
+        suffixIcon: suffixIcon != null
+            ? IconButton(
+                onPressed: onSuffixIconTap,
+                icon: Icon(suffixIcon, color: Colors.grey.shade500),
+              )
+            : null,
+    
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(10),
+          borderSide: BorderSide(color: Colors.grey.shade200),
+        ),
+    
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(10),
+          borderSide: BorderSide(color: Colors.grey.shade200),
+        ),
+    
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(10),
+          borderSide: const BorderSide(color: Color(0xFF087C3A), width: 1.5),
+        ),
+    
+        errorBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(10),
+          borderSide: const BorderSide(color: Colors.red),
+        ),
+    
+        focusedErrorBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(10),
+          borderSide: const BorderSide(color: Colors.red, width: 1.5),
+        ),
+    
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: 16,
+          vertical: 16,
         ),
       ),
     );

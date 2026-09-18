@@ -51,11 +51,7 @@ class _QuickAccessSectionState extends State<QuickAccessSection> {
 
   void _showMore() {
     setState(() {
-      visibleItemCount += loadMoreCount;
-
-      if (visibleItemCount > widget.menus.length) {
-        visibleItemCount = widget.menus.length;
-      }
+      visibleItemCount = widget.menus.length;
     });
   }
 
@@ -138,6 +134,8 @@ class _QuickAccessSectionState extends State<QuickAccessSection> {
       } else if (status == '2') {
         context.push('/lastPunchOut', extra: widget.punchStat);
       }
+    } else if (menu.menuId == '26') {
+      await _showShareLocationDialog(context);
     } else if (menu.menuId == '65') {
       context.push('/notVisitDealer');
     } else if (menu.menuId == '18') {
@@ -230,6 +228,99 @@ class _QuickAccessSectionState extends State<QuickAccessSection> {
 
       context.push(route, extra: userId);
     }
+  }
+
+  Future<void> _showShareLocationDialog(BuildContext context) async {
+    final formKey = GlobalKey<FormState>();
+    final remarkController = TextEditingController();
+
+    void submit(){
+      
+    }
+
+    await showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (dialogContext) {
+        return AlertDialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20.r),
+          ),
+          title: const Text(
+            'Share Location',
+            style: TextStyle(fontSize: 20, fontWeight: FontWeight.w700),
+          ),
+          content: Form(
+            key: formKey,
+            child: TextFormField(
+              controller: remarkController,
+              maxLines: 4,
+              textInputAction: TextInputAction.newline,
+              decoration: InputDecoration(
+                hintText: 'Enter remark',
+                labelText: 'Remark',
+                alignLabelWithHint: true,
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12.r),
+                ),
+                enabledBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12.r),
+                  borderSide: BorderSide(color: Colors.grey.shade300),
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12.r),
+                  borderSide: BorderSide(color: AppColors.primary, width: 1.5),
+                ),
+              ),
+              validator: (value) {
+                if (value == null || value.trim().isEmpty) {
+                  return 'Please enter remark';
+                }
+
+                return null;
+              },
+            ),
+          ),
+          actionsPadding: EdgeInsets.fromLTRB(16.w, 0, 16.w, 16.h),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(dialogContext).pop();
+              },
+              child: const Text('Cancel'),
+            ),
+
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppColors.primary,
+                foregroundColor: Colors.white,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10.r),
+                ),
+              ),
+              onPressed: () {
+                if (formKey.currentState!.validate()) {
+                  final remark = remarkController.text.trim();
+
+                  debugPrint('================================');
+                  debugPrint('SHARE LOCATION');
+                  debugPrint('Remark: $remark');
+                  debugPrint('================================');
+
+                  Navigator.of(dialogContext).pop();
+
+                  // TODO:
+                  // Call your Share Location API here.
+                }
+              },
+              child: const Text('Submit'),
+            ),
+          ],
+        );
+      },
+    );
+
+    remarkController.dispose();
   }
 }
 

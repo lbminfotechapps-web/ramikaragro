@@ -605,6 +605,7 @@ class _DealerFollowupAddState extends State<DealerFollowupAdd> {
 
                     SizedBox(height: 10.h),
                     CustomTextFormField(
+                      labelText:'Shop Name' ,
                       controller: shopNameController,
                       hintText: 'Shop Name *',
                       prefixIcon: Icons.shop,
@@ -615,11 +616,13 @@ class _DealerFollowupAddState extends State<DealerFollowupAdd> {
 
                         return null;
                       },
+                      
                     ),
 
                     SizedBox(height: 10.h),
 
                     CustomTextFormField(
+                         labelText:'Dealer Code' ,
                       controller: dealerCodeController,
                       hintText: 'Dealer Code',
                       prefixIcon: Icons.person_outline,
@@ -628,6 +631,7 @@ class _DealerFollowupAddState extends State<DealerFollowupAdd> {
                     SizedBox(height: 10.h),
 
                     CustomTextFormField(
+                        labelText:'Owner Name' ,
                       controller: ownerNameController,
                       hintText: 'Owner Name',
                       prefixIcon: Icons.person_2_outlined,
@@ -637,6 +641,7 @@ class _DealerFollowupAddState extends State<DealerFollowupAdd> {
                     SizedBox(height: 10.h),
 
                     CustomTextFormField(
+                        labelText:'Mobile No' ,
                       controller: mobileController,
                       hintText: 'Mobile No *',
                       prefixIcon: Icons.phone_outlined,
@@ -659,6 +664,7 @@ class _DealerFollowupAddState extends State<DealerFollowupAdd> {
                     SizedBox(height: 10.h),
 
                     CustomTextFormField(
+                        labelText:'Alternate Mobile No' ,
                       controller: alternateMobileController,
                       hintText: 'Alternate Mobile No',
                       prefixIcon: Icons.phone_outlined,
@@ -681,6 +687,7 @@ class _DealerFollowupAddState extends State<DealerFollowupAdd> {
                     SizedBox(height: 10.h),
 
                     CustomTextFormField(
+                        labelText:'GST No' ,
                       controller: gstController,
                       hintText: 'GST No',
                       prefixIcon: Icons.receipt_long_outlined,
@@ -690,6 +697,7 @@ class _DealerFollowupAddState extends State<DealerFollowupAdd> {
                     SizedBox(height: 10.h),
 
                     CustomTextFormField(
+                            labelText:'Email Id' ,
                       controller: emailController,
                       hintText: 'Email Id',
                       prefixIcon: Icons.email_outlined,
@@ -714,6 +722,7 @@ class _DealerFollowupAddState extends State<DealerFollowupAdd> {
                     SizedBox(height: 10.h),
 
                     CustomTextFormField(
+                       labelText:'Address' ,
                       controller: addressController,
                       hintText: 'Address',
                       prefixIcon: Icons.home_outlined,
@@ -868,6 +877,7 @@ class _DealerFollowupAddState extends State<DealerFollowupAdd> {
                         color: Colors.black87,
                       ),
                     ),
+                        SizedBox(height: 5.h),
                     CustomDropdown<String>(
                       value: _selectedFollowUpType,
                       hintText: 'Follow Up Type',
@@ -927,6 +937,7 @@ class _DealerFollowupAddState extends State<DealerFollowupAdd> {
                     SizedBox(height: 10.h),
 
                     CustomTextFormField(
+                      labelText: 'Remark',
                       controller: remarkController,
                       hintText: 'Remark',
                       prefixIcon: Icons.note,

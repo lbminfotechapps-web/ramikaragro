@@ -9,8 +9,8 @@ class NotVisitedCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: EdgeInsets.symmetric(horizontal: 8.w, vertical: 8.h),
-      padding: EdgeInsets.all(16.w),
+      margin: EdgeInsets.symmetric(horizontal: 8.w,),
+      padding: EdgeInsets.all(10.w),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(18.r),
@@ -30,7 +30,7 @@ class NotVisitedCard extends StatelessWidget {
           Row(
             children: [
               Container(
-                padding: EdgeInsets.all(9.w),
+                padding: EdgeInsets.all(5.w),
                 decoration: BoxDecoration(
                   color: const Color(0xFFE8F5EE),
                   borderRadius: BorderRadius.circular(10.r),
@@ -69,7 +69,7 @@ class NotVisitedCard extends StatelessWidget {
             ],
           ),
 
-          SizedBox(height: 8.h),
+          SizedBox(height: 4.h),
 
           // Statistics
           Row(
@@ -104,7 +104,7 @@ class NotVisitedCard extends StatelessWidget {
     required String value,
   }) {
     return Container(
-      padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 14.h),
+      padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 6.h),
       decoration: BoxDecoration(
         color: const Color(0xFFF8FBF9),
         borderRadius: BorderRadius.circular(14.r),
