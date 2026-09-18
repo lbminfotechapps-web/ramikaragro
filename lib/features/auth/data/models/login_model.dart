@@ -26,6 +26,9 @@ class LoginModel extends UserLoginEntity {
 
     super.lastLatitude,
     super.lastLongitude,
+    super.states,
+    super.districts,
+    super.taluka,
   });
 
   factory LoginModel.fromJson(Map<String, dynamic> json) {
@@ -60,6 +63,9 @@ class LoginModel extends UserLoginEntity {
 
       lastLatitude: json['lastLatitude']?.toString(),
       lastLongitude: json['lastLongitude']?.toString(),
+      states: json['States']?.toString(),
+      districts: json['Districts']?.toString(),
+      taluka: json['Taluka']?.toString(),
     );
   }
 }

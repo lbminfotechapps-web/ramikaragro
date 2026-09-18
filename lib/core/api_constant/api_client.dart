@@ -1,17 +1,17 @@
 class ApiClient {
   static const String baseUrl =
-      "http://192.168.1.253:85/ramikar_agro/mobileapi/Mobile_app_for_businessplus_kotlin_new";
+      "https://agroaicrm.com/solufine_agritech/mobileapi/Mobile_app_for_businessplus_kotlin_new";
   static const String imageBaseUrl =
-      "http://192.168.1.253:85/ramikar_agro/uploads/";
+      "https://agroaicrm.com/solufine_agritech/uploads/";
   static const String imageGalleryUrl =
-      "http://192.168.1.253:85/ramikar_agro/uploads/gallery/";
+      "https://agroaicrm.com/solufine_agritech/uploads/gallery/";
 
   static const String imageCropscheduleUrl =
-      "http://192.168.1.253:85/ramikar_agro/uploads/crop_schedule/";
+      "https://agroaicrm.com/solufine_agritech/uploads/crop_schedule/";
   static const String imageEmployeeActivityReportUrl =
-      "http://192.168.1.253:85/ramikar_agro/uploads/selfie/";
+      "https://agroaicrm.com/solufine_agritech/uploads/selfie/";
   static const String imageExpensetUrl =
-      "http://192.168.1.253:85/ramikar_agro/uploads/Expense_Images/";
+      "https://agroaicrm.com/solufine_agritech/uploads/Expense_Images/";
   static const String login = "/user_login";
   static const String getLastThirtyNotVisited = "/getLastThiertyNotVisited";
   static const String getNearByOutlets = "/getNearByOutlets";
@@ -97,5 +97,5 @@ class ApiClient {
   static const String addDealerFollowUp = '/pin_location';
   static const String updateDealerFollowUp = '/update_pin_location';
   static const String famerCallApi = '/submitCallingDetails';
-  static const String upcomingNextFollowup ="/upcoming_next_followup";
+  static const String upcomingNextFollowup = "/upcoming_next_followup";
 }

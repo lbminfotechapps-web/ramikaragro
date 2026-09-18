@@ -668,10 +668,9 @@ class _DealerFollowupAddState extends State<DealerFollowupAdd> {
 
                     SizedBox(height: 10.h),
                     CustomTextFormField(
-                      labelText: 'Shop Name',
                       controller: shopNameController,
                       hintText: 'Shop Name *',
-
+                      labelText: 'Shop Name *',
                       prefixIcon: Icons.shop,
                       validator: (value) {
                         if (value == null || value.trim().isEmpty) {
@@ -685,20 +684,18 @@ class _DealerFollowupAddState extends State<DealerFollowupAdd> {
                     SizedBox(height: 10.h),
 
                     CustomTextFormField(
-                      labelText: 'Dealer Code',
                       controller: dealerCodeController,
                       hintText: 'Dealer Code',
-
+                      labelText: 'Dealer Code',
                       prefixIcon: Icons.person_outline,
                     ),
 
                     SizedBox(height: 10.h),
 
                     CustomTextFormField(
-                      labelText: 'Owner Name',
                       controller: ownerNameController,
                       hintText: 'Owner Name',
-
+                      labelText: 'Owner Name',
                       prefixIcon: Icons.person_2_outlined,
                       maxLines: 1,
                     ),
@@ -706,10 +703,9 @@ class _DealerFollowupAddState extends State<DealerFollowupAdd> {
                     SizedBox(height: 10.h),
 
                     CustomTextFormField(
-                      labelText: 'Mobile No',
                       controller: mobileController,
                       hintText: 'Mobile No *',
-
+                      labelText: 'Mobile No *',
                       prefixIcon: Icons.phone_outlined,
                       keyboardType: TextInputType.phone,
                       validator: (value) {
@@ -730,10 +726,9 @@ class _DealerFollowupAddState extends State<DealerFollowupAdd> {
                     SizedBox(height: 10.h),
 
                     CustomTextFormField(
-                      labelText: 'Alternate Mobile No',
                       controller: alternateMobileController,
                       hintText: 'Alternate Mobile No',
-
+                      labelText: 'Alternate Mobile No',
                       prefixIcon: Icons.phone_outlined,
                       keyboardType: TextInputType.phone,
                       validator: (value) {
@@ -754,10 +749,9 @@ class _DealerFollowupAddState extends State<DealerFollowupAdd> {
                     SizedBox(height: 10.h),
 
                     CustomTextFormField(
-                      labelText: 'GST No',
                       controller: gstController,
                       hintText: 'GST No',
-
+                      labelText: 'GST No',
                       prefixIcon: Icons.receipt_long_outlined,
                       keyboardType: TextInputType.text,
                     ),
@@ -765,10 +759,9 @@ class _DealerFollowupAddState extends State<DealerFollowupAdd> {
                     SizedBox(height: 10.h),
 
                     CustomTextFormField(
-                      labelText: 'Email Id',
                       controller: emailController,
                       hintText: 'Email Id',
-
+                      labelText: 'Email Id',
                       prefixIcon: Icons.email_outlined,
                       keyboardType: TextInputType.emailAddress,
                       validator: (value) {
@@ -791,10 +784,9 @@ class _DealerFollowupAddState extends State<DealerFollowupAdd> {
                     SizedBox(height: 10.h),
 
                     CustomTextFormField(
-                      labelText: 'Address',
                       controller: addressController,
                       hintText: 'Address',
-
+                      labelText: 'Address',
                       prefixIcon: Icons.home_outlined,
                     ),
 
@@ -1043,10 +1035,9 @@ class _DealerFollowupAddState extends State<DealerFollowupAdd> {
                     SizedBox(height: 10.h),
 
                     CustomTextFormField(
-                      labelText: 'Remark',
                       controller: remarkController,
                       hintText: 'Remark',
-
+                      labelText: "Remark",
                       prefixIcon: Icons.note,
                       maxLines: 2,
                     ),
