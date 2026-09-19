@@ -1,5 +1,1 @@
-
-
-
-
 String appName = "Solufine Agritech";

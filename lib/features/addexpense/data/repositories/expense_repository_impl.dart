@@ -24,8 +24,11 @@ class ExpenseRepositoryImpl implements ExpenseRepository {
   }
 
   @override
-  Future<Map<String, dynamic>> getDAAmount({required String userId}) {
-    return datasource.getDAAmount(userId: userId);
+  Future<Map<String, dynamic>> getDAAmount({
+    required String userId,
+    required String expenseDate,
+  }) {
+    return datasource.getDAAmount(userId: userId, expenseDate: expenseDate);
   }
 
   @override

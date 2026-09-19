@@ -26,45 +26,30 @@ class PlaceOrderRemoteDataSource {
   }) async {
     try {
       final response = await dioClient.client.post(
-      
-        
         ApiClient.getTalukaWiseOutletForOrderNew,
 
         data: FormData.fromMap({
           'userId': userId.toString(),
           'searchText': searchText,
         }),
-        options: Options(
-          responseType: ResponseType.plain,
-        ),
+        options: Options(responseType: ResponseType.plain),
       );
 
       final dynamic data = _decodeResponse(response.data);
 
       if (data is List) {
         return data
-            .map(
-              (e) => DealerModel.fromJson(
-                Map<String, dynamic>.from(e),
-              ),
-            )
+            .map((e) => DealerModel.fromJson(Map<String, dynamic>.from(e)))
             .toList();
       }
 
       if (data is Map<String, dynamic>) {
         final dynamic list =
-            data['data'] ??
-            data['result'] ??
-            data['dealers'] ??
-            [];
+            data['data'] ?? data['result'] ?? data['dealers'] ?? [];
 
         if (list is List) {
           return list
-              .map(
-                (e) => DealerModel.fromJson(
-                  Map<String, dynamic>.from(e),
-                ),
-              )
+              .map((e) => DealerModel.fromJson(Map<String, dynamic>.from(e)))
               .toList();
         }
       }
@@ -76,15 +61,11 @@ class PlaceOrderRemoteDataSource {
     }
   }
 
-
-
   // ============================================================
   // GODOWN
   // ============================================================
 
-  Future<List<GodownModel>> getGodowns({
-    required int userId,
-  }) async {
+  Future<List<GodownModel>> getGodowns({required int userId}) async {
     try {
       print('');
       print('========================================');
@@ -94,13 +75,9 @@ class PlaceOrderRemoteDataSource {
       print('userId: $userId');
 
       final response = await dioClient.client.post(
-          ApiClient.getGodown,
-        data: FormData.fromMap({
-          'user_id': userId.toString(),
-        }),
-        options: Options(
-          responseType: ResponseType.plain,
-        ),
+        ApiClient.getGodown,
+        data: FormData.fromMap({'user_id': userId.toString()}),
+        options: Options(responseType: ResponseType.plain),
       );
 
       print('GET GODOWN RESPONSE: ${response.data}');
@@ -109,11 +86,7 @@ class PlaceOrderRemoteDataSource {
 
       if (data is List) {
         return data
-            .map(
-              (e) => GodownModel.fromJson(
-                Map<String, dynamic>.from(e),
-              ),
-            )
+            .map((e) => GodownModel.fromJson(Map<String, dynamic>.from(e)))
             .toList();
       }
 
@@ -127,11 +100,7 @@ class PlaceOrderRemoteDataSource {
 
         if (list is List) {
           return list
-              .map(
-                (e) => GodownModel.fromJson(
-                  Map<String, dynamic>.from(e),
-                ),
-              )
+              .map((e) => GodownModel.fromJson(Map<String, dynamic>.from(e)))
               .toList();
         }
       }
@@ -152,20 +121,14 @@ class PlaceOrderRemoteDataSource {
       final response = await dioClient.client.post(
         ApiClient.getCategory,
         data: FormData(),
-        options: Options(
-          responseType: ResponseType.plain,
-        ),
+        options: Options(responseType: ResponseType.plain),
       );
 
       final dynamic data = _decodeResponse(response.data);
 
       if (data is List) {
         return data
-            .map(
-              (e) => CategoryModel.fromJson(
-                Map<String, dynamic>.from(e),
-              ),
-            )
+            .map((e) => CategoryModel.fromJson(Map<String, dynamic>.from(e)))
             .toList();
       }
 
@@ -179,11 +142,7 @@ class PlaceOrderRemoteDataSource {
 
         if (list is List) {
           return list
-              .map(
-                (e) => CategoryModel.fromJson(
-                  Map<String, dynamic>.from(e),
-                ),
-              )
+              .map((e) => CategoryModel.fromJson(Map<String, dynamic>.from(e)))
               .toList();
         }
       }
@@ -205,44 +164,30 @@ class PlaceOrderRemoteDataSource {
   }) async {
     try {
       final response = await dioClient.client.post(
-      
-         ApiClient.getCatgoryProducts,
+        ApiClient.getCatgoryProducts,
 
         data: FormData.fromMap({
           'categoryId': categoryId,
           'searchText': searchText,
         }),
-        options: Options(
-          responseType: ResponseType.plain,
-        ),
+        options: Options(responseType: ResponseType.plain),
       );
 
       final dynamic data = _decodeResponse(response.data);
 
       if (data is List) {
         return data
-            .map(
-              (e) => ProductModel.fromJson(
-                Map<String, dynamic>.from(e),
-              ),
-            )
+            .map((e) => ProductModel.fromJson(Map<String, dynamic>.from(e)))
             .toList();
       }
 
       if (data is Map<String, dynamic>) {
         final dynamic list =
-            data['data'] ??
-            data['result'] ??
-            data['products'] ??
-            [];
+            data['data'] ?? data['result'] ?? data['products'] ?? [];
 
         if (list is List) {
           return list
-              .map(
-                (e) => ProductModel.fromJson(
-                  Map<String, dynamic>.from(e),
-                ),
-              )
+              .map((e) => ProductModel.fromJson(Map<String, dynamic>.from(e)))
               .toList();
         }
       }
@@ -268,235 +213,205 @@ class PlaceOrderRemoteDataSource {
   //
   // ============================================================
 
-  Future<String> uploadSignature({
-  required String signaturePath,
-}) async {
-  try {
-    print('');
-    print('========================================');
-    print('UPLOAD SIGNATURE');
-    print('========================================');
+  Future<String> uploadSignature({required String signaturePath}) async {
+    try {
+      print('');
+      print('========================================');
+      print('UPLOAD SIGNATURE');
+      print('========================================');
 
-    // ============================================================
-    // VALIDATE PATH
-    // ============================================================
+      // ============================================================
+      // VALIDATE PATH
+      // ============================================================
 
-    final String cleanPath = signaturePath.trim();
+      final String cleanPath = signaturePath.trim();
 
-    if (cleanPath.isEmpty) {
-      throw Exception('Signature path is empty');
-    }
+      if (cleanPath.isEmpty) {
+        throw Exception('Signature path is empty');
+      }
 
-    // ============================================================
-    // CHECK FILE
-    // ============================================================
+      // ============================================================
+      // CHECK FILE
+      // ============================================================
 
-    final File signatureFile = File(cleanPath);
+      final File signatureFile = File(cleanPath);
 
-    if (!await signatureFile.exists()) {
-      throw Exception(
-        'Signature file does not exist: $cleanPath',
+      if (!await signatureFile.exists()) {
+        throw Exception('Signature file does not exist: $cleanPath');
+      }
+
+      final int signatureSize = await signatureFile.length();
+
+      if (signatureSize <= 0) {
+        throw Exception('Signature file is empty');
+      }
+
+      // ============================================================
+      // CREATE SERVER FILENAME
+      // ============================================================
+
+      final String timestamp = DateTime.now().millisecondsSinceEpoch.toString();
+
+      final String fileName = 'Signature_$timestamp.png';
+
+      // ============================================================
+      // CREATE MULTIPART FILE
+      // ============================================================
+
+      final MultipartFile multipartFile = await MultipartFile.fromFile(
+        signatureFile.path,
+        filename: fileName,
       );
-    }
 
-    final int signatureSize = await signatureFile.length();
+      // ============================================================
+      // FORM DATA
+      // ============================================================
 
-    if (signatureSize <= 0) {
-      throw Exception('Signature file is empty');
-    }
+      final FormData formData = FormData();
 
-    // ============================================================
-    // CREATE SERVER FILENAME
-    // ============================================================
+      // Android:
+      // addFormDataPart("file", ...)
+      //
+      // Therefore field name MUST be "file"
 
-    final String timestamp =
-        DateTime.now().millisecondsSinceEpoch.toString();
+      formData.files.add(MapEntry('file', multipartFile));
 
-    final String fileName = 'Signature_$timestamp.png';
+      // ============================================================
+      // DEBUG
+      // ============================================================
 
-    // ============================================================
-    // CREATE MULTIPART FILE
-    // ============================================================
+      print('API: upload_sign');
+      print('Multipart field: file');
+      print('Local path: ${signatureFile.path}');
+      print('Filename: $fileName');
+      print('File size: $signatureSize bytes');
 
-    final MultipartFile multipartFile =
-        await MultipartFile.fromFile(
-      signatureFile.path,
-      filename: fileName,
-    );
+      // ============================================================
+      // API CALL
+      // ============================================================
 
-    // ============================================================
-    // FORM DATA
-    // ============================================================
-
-    final FormData formData = FormData();
-
-    // Android:
-    // addFormDataPart("file", ...)
-    //
-    // Therefore field name MUST be "file"
-
-    formData.files.add(
-      MapEntry(
-        'file',
-        multipartFile,
-      ),
-    );
-
-    // ============================================================
-    // DEBUG
-    // ============================================================
-
-    print('API: upload_sign');
-    print('Multipart field: file');
-    print('Local path: ${signatureFile.path}');
-    print('Filename: $fileName');
-    print('File size: $signatureSize bytes');
-
-    // ============================================================
-    // API CALL
-    // ============================================================
-
-    final response = await dioClient.client.post(
-      ApiClient.upload_sign,
-      data: formData,
-      options: Options(
-        responseType: ResponseType.plain,
-      ),
-    );
-
-    // ============================================================
-    // RESPONSE
-    // ============================================================
-
-    print('');
-    print('========================================');
-    print('UPLOAD SIGNATURE RESPONSE');
-    print('========================================');
-
-    print(response.data);
-
-    final dynamic decoded =
-        _decodeResponse(response.data);
-
-    if (decoded is! Map<String, dynamic>) {
-      throw Exception(
-        'Invalid upload_sign response',
+      final response = await dioClient.client.post(
+        ApiClient.upload_sign,
+        data: formData,
+        options: Options(responseType: ResponseType.plain),
       );
-    }
 
-    // ============================================================
-    // CHECK STATUS
-    // ============================================================
+      // ============================================================
+      // RESPONSE
+      // ============================================================
 
-    final String status =
-        '${decoded['status'] ?? ''}'.toLowerCase();
+      print('');
+      print('========================================');
+      print('UPLOAD SIGNATURE RESPONSE');
+      print('========================================');
 
-    print('Upload status: $status');
+      print(response.data);
 
-    if (status != 'success') {
+      final dynamic decoded = _decodeResponse(response.data);
+
+      if (decoded is! Map<String, dynamic>) {
+        throw Exception('Invalid upload_sign response');
+      }
+
+      // ============================================================
+      // CHECK STATUS
+      // ============================================================
+
+      final String status = '${decoded['status'] ?? ''}'.toLowerCase();
+
+      print('Upload status: $status');
+
+      if (status != 'success') {
+        throw Exception(
+          decoded['message']?.toString() ?? 'Signature upload failed',
+        );
+      }
+
+      // ============================================================
+      // TRY TO GET FILENAME FROM SERVER RESPONSE
+      // ============================================================
+
+      String uploadedFileName = '';
+
+      uploadedFileName = decoded['fileName']?.toString() ?? '';
+
+      if (uploadedFileName.isEmpty) {
+        uploadedFileName = decoded['filename']?.toString() ?? '';
+      }
+
+      if (uploadedFileName.isEmpty) {
+        uploadedFileName = decoded['file']?.toString() ?? '';
+      }
+
+      if (uploadedFileName.isEmpty) {
+        uploadedFileName = decoded['signature']?.toString() ?? '';
+      }
+
+      // ============================================================
+      // IMPORTANT
+      //
+      // Your API currently returns:
+      //
+      // {"status":"success"}
+      //
+      // Therefore there is no filename in response.
+      //
+      // We already know the filename that was uploaded:
+      //
+      // Signature_xxxxxxxxx.png
+      //
+      // So use that filename.
+      // ============================================================
+
+      if (uploadedFileName.isEmpty) {
+        uploadedFileName = fileName;
+      }
+
+      // ============================================================
+      // FINAL VALIDATION
+      // ============================================================
+
+      if (uploadedFileName.trim().isEmpty) {
+        throw Exception(
+          'Signature uploaded successfully, '
+          'but filename could not be determined',
+        );
+      }
+
+      print('');
+      print('========================================');
+      print('SIGNATURE UPLOAD SUCCESS');
+      print('========================================');
+
+      print('Server filename: $uploadedFileName');
+
+      return uploadedFileName;
+    } on DioException catch (e) {
+      print('');
+      print('========================================');
+      print('UPLOAD SIGNATURE DIO ERROR');
+      print('========================================');
+
+      print('Message: ${e.message}');
+
+      print('Status: ${e.response?.statusCode}');
+
+      print('Response: ${e.response?.data}');
+
       throw Exception(
-        decoded['message']?.toString() ??
-            'Signature upload failed',
+        e.response?.data?.toString() ?? e.message ?? 'Signature upload failed',
       );
+    } catch (e) {
+      print('');
+      print('========================================');
+      print('UPLOAD SIGNATURE ERROR');
+      print('========================================');
+
+      print(e);
+
+      rethrow;
     }
-
-    // ============================================================
-    // TRY TO GET FILENAME FROM SERVER RESPONSE
-    // ============================================================
-
-    String uploadedFileName = '';
-
-    uploadedFileName =
-        decoded['fileName']?.toString() ?? '';
-
-    if (uploadedFileName.isEmpty) {
-      uploadedFileName =
-          decoded['filename']?.toString() ?? '';
-    }
-
-    if (uploadedFileName.isEmpty) {
-      uploadedFileName =
-          decoded['file']?.toString() ?? '';
-    }
-
-    if (uploadedFileName.isEmpty) {
-      uploadedFileName =
-          decoded['signature']?.toString() ?? '';
-    }
-
-    // ============================================================
-    // IMPORTANT
-    //
-    // Your API currently returns:
-    //
-    // {"status":"success"}
-    //
-    // Therefore there is no filename in response.
-    //
-    // We already know the filename that was uploaded:
-    //
-    // Signature_xxxxxxxxx.png
-    //
-    // So use that filename.
-    // ============================================================
-
-    if (uploadedFileName.isEmpty) {
-      uploadedFileName = fileName;
-    }
-
-    // ============================================================
-    // FINAL VALIDATION
-    // ============================================================
-
-    if (uploadedFileName.trim().isEmpty) {
-      throw Exception(
-        'Signature uploaded successfully, '
-        'but filename could not be determined',
-      );
-    }
-
-    print('');
-    print('========================================');
-    print('SIGNATURE UPLOAD SUCCESS');
-    print('========================================');
-
-    print(
-      'Server filename: $uploadedFileName',
-    );
-
-    return uploadedFileName;
-  } on DioException catch (e) {
-    print('');
-    print('========================================');
-    print('UPLOAD SIGNATURE DIO ERROR');
-    print('========================================');
-
-    print('Message: ${e.message}');
-
-    print(
-      'Status: ${e.response?.statusCode}',
-    );
-
-    print(
-      'Response: ${e.response?.data}',
-    );
-
-    throw Exception(
-      e.response?.data?.toString() ??
-          e.message ??
-          'Signature upload failed',
-    );
-  } catch (e) {
-    print('');
-    print('========================================');
-    print('UPLOAD SIGNATURE ERROR');
-    print('========================================');
-
-    print(e);
-
-    rethrow;
   }
-}
 
   // ============================================================
   // PLACE ORDER
@@ -518,9 +433,7 @@ class PlaceOrderRemoteDataSource {
       print('========================================');
 
       if (products.isEmpty) {
-        throw Exception(
-          'Please select at least one product',
-        );
+        throw Exception('Please select at least one product');
       }
 
       // --------------------------------------------------------
@@ -533,101 +446,67 @@ class PlaceOrderRemoteDataSource {
       final List<Map<String, dynamic>> apiProducts = [];
 
       for (final product in products) {
-        final int quantity =
-            int.tryParse(
-                  '${product['quantity'] ?? 0}',
-                ) ??
-                0;
+        final int quantity = int.tryParse('${product['quantity'] ?? 0}') ?? 0;
 
-        final double price =
-            double.tryParse(
-                  '${product['price'] ?? 0}',
-                ) ??
-                0.0;
+        final double price = double.tryParse('${product['price'] ?? 0}') ?? 0.0;
 
-        final double totalAmount =
-            quantity * price;
+        final double totalAmount = quantity * price;
 
         totalQuantity += quantity;
         grandTotal += totalAmount;
 
         final Map<String, dynamic> apiProduct = {
-          'case_wise_qty':
-              product['caseWiseQty'] ?? '',
+          'case_wise_qty': quantity,
 
-          'current_date':
-              product['currentDate'] ?? '',
+          'current_date': product['currentDate'] ?? '',
 
-          'dealer_id':
-              dealerId,
+          'dealer_id': dealerId,
 
-          'fld_basic_rate':
-              product['basicRate'] ?? '0.00',
+          'fld_basic_rate': product['basicRate'] ?? '0.00',
 
-          'fld_from_date':
-              product['fromDate'] ?? '',
+          'fld_from_date': product['fromDate'] ?? '',
 
-          'fld_gst_per':
-              product['gstPercentage'] ?? 0,
+          'fld_gst_per': product['gstPercentage'] ?? 0,
 
-          'fld_mrp':
-              product['mrp'] ?? '0.00',
+          'fld_mrp': product['mrp'] ?? '0.00',
 
-          'fld_order_qty_flag':
-              product['orderQtyFlag'] ?? '',
+          'fld_order_qty_flag': product['orderQtyFlag'] ?? '',
 
-          'fld_packing':
-              product['packing'] ?? 0,
+          'fld_packing': product['packing'] ?? 0,
 
-          'fld_product_details_id':
-              product['productDetailsId'] ?? 0,
+          'fld_product_details_id': product['productDetailsId'] ?? 0,
 
-          'fld_product_id':
-              product['productId'] ?? 0,
+          'fld_product_id': product['productId'] ?? 0,
 
-          'fld_product_name':
-              product['productName'] ?? '',
+          'fld_product_name': product['productName'] ?? '',
 
-          'fld_qty':
-              quantity,
+          'fld_qty': quantity,
 
-          'fld_rate_with_gst':
-              product['rateWithGst'] ?? price,
+          'fld_rate_with_gst': product['rateWithGst'] ?? price,
 
-          'fld_statewise_det_id':
-              product['statewiseDetId'] ?? 0,
+          'fld_statewise_det_id': product['statewiseDetId'] ?? 0,
 
-          'fld_to_date':
-              product['toDate'] ?? '',
+          'fld_to_date': product['toDate'] ?? '',
 
-          'fld_unit':
-              product['unit'] ?? '',
+          'fld_unit': product['unit'] ?? '',
 
-          'fld_unit_id':
-              product['unitId'] ?? 0,
+          'fld_unit_id': product['unitId'] ?? 0,
 
-          'fld_units_per_case':
-              product['unitsPerCase'] ?? 0,
+          'fld_units_per_case': product['unitsPerCase'] ?? 0,
 
-          'id':
-              product['id'] ?? 0,
+          'id': product['id'] ?? 0,
 
-          'isProductSelected':
-              product['isProductSelected'] ?? true,
+          'isProductSelected': product['isProductSelected'] ?? true,
 
-          'totalAmount':
-              totalAmount.toStringAsFixed(2),
+          'totalAmount': totalAmount.toStringAsFixed(2),
         };
 
         apiProducts.add(apiProduct);
 
-        print(
-          'SUBMIT DATA: $apiProduct',
-        );
+        print('SUBMIT DATA: $apiProduct');
       }
 
-      final String productJsonString =
-          jsonEncode(apiProducts);
+      final String productJsonString = jsonEncode(apiProducts);
 
       // --------------------------------------------------------
       // FORM DATA
@@ -635,106 +514,45 @@ class PlaceOrderRemoteDataSource {
 
       final FormData formData = FormData();
 
-      formData.fields.add(
-        MapEntry(
-          'productJsonString',
-          productJsonString,
-        ),
-      );
+      formData.fields.add(MapEntry('productJsonString', productJsonString));
+
+      formData.fields.add(MapEntry('totalQuantity', totalQuantity.toString()));
+
+      formData.fields.add(MapEntry('empId', userId.toString()));
+
+      formData.fields.add(MapEntry('dealerId', dealerId));
+
+      formData.fields.add(const MapEntry('SchemeId', ''));
+
+      formData.fields.add(MapEntry('godownId', godownId));
 
       formData.fields.add(
-        MapEntry(
-          'totalQuantity',
-          totalQuantity.toString(),
-        ),
+        MapEntry('grandTotal', grandTotal.toStringAsFixed(2)),
       );
 
-      formData.fields.add(
-        MapEntry(
-          'empId',
-          userId.toString(),
-        ),
-      );
+      formData.fields.add(const MapEntry('orderTypeId', ''));
 
-      formData.fields.add(
-        MapEntry(
-          'dealerId',
-          dealerId,
-        ),
-      );
+      formData.fields.add(const MapEntry('orderType', ''));
 
-      formData.fields.add(
-        const MapEntry(
-          'SchemeId',
-          '',
-        ),
-      );
+      formData.fields.add(MapEntry('remark', remark));
 
-      formData.fields.add(
-        MapEntry(
-          'godownId',
-          godownId,
-        ),
-      );
-
-      formData.fields.add(
-        MapEntry(
-          'grandTotal',
-          grandTotal.toStringAsFixed(2),
-        ),
-      );
-
-      formData.fields.add(
-        const MapEntry(
-          'orderTypeId',
-          '',
-        ),
-      );
-
-      formData.fields.add(
-        const MapEntry(
-          'orderType',
-          '',
-        ),
-      );
-
-      formData.fields.add(
-        MapEntry(
-          'remark',
-          remark,
-        ),
-      );
-
-      formData.fields.add(
-        const MapEntry(
-          'subdealerId',
-          '',
-        ),
-      );
+      formData.fields.add(const MapEntry('subdealerId', ''));
 
       // --------------------------------------------------------
       // SIGNATURE FILENAME
       // --------------------------------------------------------
 
-      final String cleanSignatureFileName =
-          signatureFileName.trim();
+      final String cleanSignatureFileName = signatureFileName.trim();
 
       if (cleanSignatureFileName.isEmpty) {
-        throw Exception(
-          'Uploaded signature filename is empty',
-        );
+        throw Exception('Uploaded signature filename is empty');
       }
 
       // IMPORTANT:
       // upload_sign already uploaded the actual file.
       //
       // Here we only send the returned filename.
-      formData.fields.add(
-        MapEntry(
-          'digitalSignature',
-          cleanSignatureFileName,
-        ),
-      );
+      formData.fields.add(MapEntry('digitalSignature', cleanSignatureFileName));
 
       print('');
       print('SIGNATURE FOR PLACE ORDER');
@@ -747,55 +565,36 @@ class PlaceOrderRemoteDataSource {
       // ORDER IMAGE
       // --------------------------------------------------------
 
-      if (imagePaths.isEmpty ||
-          imagePaths.first.trim().isEmpty) {
-        throw Exception(
-          'Please select order image',
-        );
+      if (imagePaths.isEmpty || imagePaths.first.trim().isEmpty) {
+        throw Exception('Please select order image');
       }
 
-      final String imagePath =
-          imagePaths.first.trim();
+      final String imagePath = imagePaths.first.trim();
 
-      final File imageFile =
-          File(imagePath);
+      final File imageFile = File(imagePath);
 
       if (!await imageFile.exists()) {
-        throw Exception(
-          'Order image does not exist: $imagePath',
-        );
+        throw Exception('Order image does not exist: $imagePath');
       }
 
-      final int imageSize =
-          await imageFile.length();
+      final int imageSize = await imageFile.length();
 
       if (imageSize <= 0) {
-        throw Exception(
-          'Order image file is empty',
-        );
+        throw Exception('Order image file is empty');
       }
 
-      final DateTime now =
-          DateTime.now();
+      final DateTime now = DateTime.now();
 
-      final String formattedDate =
-          DateFormat(
-            'ddMMyyyy',
-          ).format(now);
+      final String formattedDate = DateFormat('ddMMyyyy').format(now);
 
-      final String timestamp =
-          (now.millisecondsSinceEpoch ~/ 1000)
-              .toString();
+      final String timestamp = (now.millisecondsSinceEpoch ~/ 1000).toString();
 
       String extension = '.jpg';
 
       if (imagePath.contains('.')) {
-        extension =
-            imagePath
-                .substring(
-                  imagePath.lastIndexOf('.'),
-                )
-                .toLowerCase();
+        extension = imagePath
+            .substring(imagePath.lastIndexOf('.'))
+            .toLowerCase();
       }
 
       final String orderImageFileName =
@@ -804,30 +603,18 @@ class PlaceOrderRemoteDataSource {
           '$timestamp'
           '$extension';
 
-      final MultipartFile orderImage =
-          await MultipartFile.fromFile(
+      final MultipartFile orderImage = await MultipartFile.fromFile(
         imageFile.path,
         filename: orderImageFileName,
       );
 
-      formData.files.add(
-        MapEntry(
-          'order_image',
-          orderImage,
-        ),
-      );
+      formData.files.add(MapEntry('order_image', orderImage));
 
       print('');
       print('ORDER IMAGE');
-      print(
-        'Path: ${imageFile.path}',
-      );
-      print(
-        'Filename: $orderImageFileName',
-      );
-      print(
-        'Size: $imageSize bytes',
-      );
+      print('Path: ${imageFile.path}');
+      print('Filename: $orderImageFileName');
+      print('Size: $imageSize bytes');
 
       // --------------------------------------------------------
       // DEBUG FORM FIELDS
@@ -839,9 +626,7 @@ class PlaceOrderRemoteDataSource {
       print('========================================');
 
       for (final field in formData.fields) {
-        print(
-          '${field.key}: ${field.value}',
-        );
+        print('${field.key}: ${field.value}');
       }
 
       // --------------------------------------------------------
@@ -854,17 +639,11 @@ class PlaceOrderRemoteDataSource {
       print('========================================');
 
       for (final file in formData.files) {
-        print(
-          'FIELD: ${file.key}',
-        );
+        print('FIELD: ${file.key}');
 
-        print(
-          'FILE: ${file.value.filename}',
-        );
+        print('FILE: ${file.value.filename}');
 
-        print(
-          'TYPE: ${file.value.contentType}',
-        );
+        print('TYPE: ${file.value.contentType}');
       }
 
       // --------------------------------------------------------
@@ -881,13 +660,10 @@ class PlaceOrderRemoteDataSource {
         '${ApiClient.baseUrl}${ApiClient.placeOrder}',
       );
 
-      final response =
-          await dioClient.client.post(
+      final response = await dioClient.client.post(
         ApiClient.placeOrder,
         data: formData,
-        options: Options(
-          responseType: ResponseType.plain,
-        ),
+        options: Options(responseType: ResponseType.plain),
       );
 
       // --------------------------------------------------------
@@ -899,13 +675,9 @@ class PlaceOrderRemoteDataSource {
       print('PLACE ORDER RESPONSE');
       print('========================================');
 
-      print(
-        'Status Code: ${response.statusCode}',
-      );
+      print('Status Code: ${response.statusCode}');
 
-      print(
-        'Response: ${response.data}',
-      );
+      print('Response: ${response.data}');
 
       if (response.statusCode == 200) {
         print('PLACE ORDER SUCCESS');
@@ -922,9 +694,7 @@ class PlaceOrderRemoteDataSource {
       print('PLACE ORDER DIO ERROR');
       print('========================================');
 
-      print(
-        'Message: ${e.message}',
-      );
+      print('Message: ${e.message}');
 
       print(
         'Status Code: '
@@ -937,9 +707,7 @@ class PlaceOrderRemoteDataSource {
       );
 
       throw Exception(
-        e.response?.data?.toString() ??
-            e.message ??
-            'Place order API failed',
+        e.response?.data?.toString() ?? e.message ?? 'Place order API failed',
       );
     } catch (e) {
       print('');
@@ -962,14 +730,12 @@ class PlaceOrderRemoteDataSource {
       return null;
     }
 
-    if (responseData is Map ||
-        responseData is List) {
+    if (responseData is Map || responseData is List) {
       return responseData;
     }
 
     if (responseData is String) {
-      final String value =
-          responseData.trim();
+      final String value = responseData.trim();
 
       if (value.isEmpty) {
         return null;
