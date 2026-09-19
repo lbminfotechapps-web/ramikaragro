@@ -48,6 +48,7 @@ class MyApp extends StatelessWidget {
 
         BlocProvider<EnquiryBloc>(create: (_) => sl<EnquiryBloc>()),
         BlocProvider<FollowupBloc>(create: (_) => sl<FollowupBloc>()),
+
         BlocProvider<NotVisitedDealerBloc>(
           create: (_) => sl<NotVisitedDealerBloc>(),
         ),

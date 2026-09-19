@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../domain/usecases/get_districts_usecase.dart';
@@ -20,27 +21,27 @@ class EnquiryBloc extends Bloc<EnquiryEvent, EnquiryState> {
     required this.getTalukasUseCase,
     required this.submitEnquiryUseCase,
   }) : super(const EnquiryState()) {
-    // ============================================================
-    // EVENTS
-    // ============================================================
-
     on<GetStatesEvent>(_onGetStates);
     on<GetDistrictsEvent>(_onGetDistricts);
     on<GetTalukasEvent>(_onGetTalukas);
     on<SubmitEnquiryEvent>(_onSubmitEnquiry);
   }
 
-  // ============================================================
-  // GET STATES
-  // ============================================================
-
   Future<void> _onGetStates(
     GetStatesEvent event,
     Emitter<EnquiryState> emit,
   ) async {
+    debugPrint(
+      'GET STATES -> userId=${event.userId}',
+    );
+
     emit(
       state.copyWith(
         stateStatus: EnquiryStatus.loading,
+        districts: const [],
+        talukas: const [],
+        districtStatus: EnquiryStatus.initial,
+        talukaStatus: EnquiryStatus.initial,
         errorMessage: '',
       ),
     );
@@ -50,6 +51,16 @@ class EnquiryBloc extends Bloc<EnquiryEvent, EnquiryState> {
         userId: event.userId,
       );
 
+      debugPrint(
+        'GET STATES SUCCESS -> ${states.length}',
+      );
+
+      for (final item in states) {
+        debugPrint(
+          'STATE: ${item.id} -> ${item.name}',
+        );
+      }
+
       emit(
         state.copyWith(
           stateStatus: EnquiryStatus.success,
@@ -58,6 +69,10 @@ class EnquiryBloc extends Bloc<EnquiryEvent, EnquiryState> {
         ),
       );
     } catch (e) {
+      debugPrint(
+        'GET STATES ERROR = $e',
+      );
+
       emit(
         state.copyWith(
           stateStatus: EnquiryStatus.error,
@@ -67,14 +82,16 @@ class EnquiryBloc extends Bloc<EnquiryEvent, EnquiryState> {
     }
   }
 
-  // ============================================================
-  // GET DISTRICTS
-  // ============================================================
-
   Future<void> _onGetDistricts(
     GetDistrictsEvent event,
     Emitter<EnquiryState> emit,
   ) async {
+    debugPrint(
+      'GET DISTRICTS -> '
+      'userId=${event.userId}, '
+      'stateId=${event.stateId}',
+    );
+
     emit(
       state.copyWith(
         districtStatus: EnquiryStatus.loading,
@@ -91,6 +108,10 @@ class EnquiryBloc extends Bloc<EnquiryEvent, EnquiryState> {
         stateId: event.stateId,
       );
 
+      debugPrint(
+        'GET DISTRICTS SUCCESS -> ${districts.length}',
+      );
+
       emit(
         state.copyWith(
           districtStatus: EnquiryStatus.success,
@@ -99,6 +120,10 @@ class EnquiryBloc extends Bloc<EnquiryEvent, EnquiryState> {
         ),
       );
     } catch (e) {
+      debugPrint(
+        'GET DISTRICTS ERROR = $e',
+      );
+
       emit(
         state.copyWith(
           districtStatus: EnquiryStatus.error,
@@ -108,14 +133,16 @@ class EnquiryBloc extends Bloc<EnquiryEvent, EnquiryState> {
     }
   }
 
-  // ============================================================
-  // GET TALUKAS
-  // ============================================================
-
   Future<void> _onGetTalukas(
     GetTalukasEvent event,
     Emitter<EnquiryState> emit,
   ) async {
+    debugPrint(
+      'GET TALUKAS -> '
+      'userId=${event.userId}, '
+      'districtId=${event.districtId}',
+    );
+
     emit(
       state.copyWith(
         talukaStatus: EnquiryStatus.loading,
@@ -130,6 +157,10 @@ class EnquiryBloc extends Bloc<EnquiryEvent, EnquiryState> {
         districtId: event.districtId,
       );
 
+      debugPrint(
+        'GET TALUKAS SUCCESS -> ${talukas.length}',
+      );
+
       emit(
         state.copyWith(
           talukaStatus: EnquiryStatus.success,
@@ -138,6 +169,10 @@ class EnquiryBloc extends Bloc<EnquiryEvent, EnquiryState> {
         ),
       );
     } catch (e) {
+      debugPrint(
+        'GET TALUKAS ERROR = $e',
+      );
+
       emit(
         state.copyWith(
           talukaStatus: EnquiryStatus.error,
@@ -146,10 +181,6 @@ class EnquiryBloc extends Bloc<EnquiryEvent, EnquiryState> {
       );
     }
   }
-
-  // ============================================================
-  // SUBMIT ENQUIRY
-  // ============================================================
 
   Future<void> _onSubmitEnquiry(
     SubmitEnquiryEvent event,
@@ -171,18 +202,20 @@ class EnquiryBloc extends Bloc<EnquiryEvent, EnquiryState> {
         emit(
           state.copyWith(
             submitStatus: SubmitEnquiryStatus.success,
-            submitMessage: response.message.isNotEmpty
-                ? response.message
-                : 'Record Submitted Successfully',
+            submitMessage:
+                response.message.isNotEmpty
+                    ? response.message
+                    : 'Record Submitted Successfully',
           ),
         );
       } else {
         emit(
           state.copyWith(
             submitStatus: SubmitEnquiryStatus.error,
-            submitMessage: response.message.isNotEmpty
-                ? response.message
-                : 'Something Went Wrong',
+            submitMessage:
+                response.message.isNotEmpty
+                    ? response.message
+                    : 'Something Went Wrong',
           ),
         );
       }

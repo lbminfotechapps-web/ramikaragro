@@ -783,7 +783,7 @@ class _MyExpensePageState extends State<MyExpensePage> {
               // ---------------------------------------------------------
 
               const Text(
-                'Unable to load expenses',
+                'No Record Found',
                 textAlign: TextAlign.center,
 
                 style: TextStyle(
@@ -795,21 +795,21 @@ class _MyExpensePageState extends State<MyExpensePage> {
 
               const SizedBox(height: 8),
 
-              // ---------------------------------------------------------
-              // ERROR MESSAGE
-              // ---------------------------------------------------------
+              // // ---------------------------------------------------------
+              // // ERROR MESSAGE
+              // // ---------------------------------------------------------
 
-              Text(
-                message,
-                textAlign: TextAlign.center,
+              // Text(
+              //   message,
+              //   textAlign: TextAlign.center,
 
-                style: const TextStyle(
-                  fontSize: 12,
-                  color: Color(0xFF7A857E),
-                ),
-              ),
+              //   style: const TextStyle(
+              //     fontSize: 12,
+              //     color: Color(0xFF7A857E),
+              //   ),
+              // ),
 
-              const SizedBox(height: 20),
+              // const SizedBox(height: 20),
 
               // ---------------------------------------------------------
               // TRY AGAIN

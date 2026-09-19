@@ -19,27 +19,15 @@ enum SubmitEnquiryStatus {
 }
 
 class EnquiryState extends Equatable {
-  // ============================================================
-  // API STATUS
-  // ============================================================
-
   final EnquiryStatus stateStatus;
   final EnquiryStatus districtStatus;
   final EnquiryStatus talukaStatus;
 
   final SubmitEnquiryStatus submitStatus;
 
-  // ============================================================
-  // DATA
-  // ============================================================
-
   final List<StateEntity> states;
   final List<DistrictEntity> districts;
   final List<TalukaEntity> talukas;
-
-  // ============================================================
-  // MESSAGES
-  // ============================================================
 
   final String errorMessage;
   final String submitMessage;
@@ -55,10 +43,6 @@ class EnquiryState extends Equatable {
     this.errorMessage = '',
     this.submitMessage = '',
   });
-
-  // ============================================================
-  // COPY WITH
-  // ============================================================
 
   EnquiryState copyWith({
     EnquiryStatus? stateStatus,
@@ -88,10 +72,6 @@ class EnquiryState extends Equatable {
           submitMessage ?? this.submitMessage,
     );
   }
-
-  // ============================================================
-  // EQUATABLE
-  // ============================================================
 
   @override
   List<Object?> get props => [

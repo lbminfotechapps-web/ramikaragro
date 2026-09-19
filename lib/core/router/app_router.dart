@@ -334,6 +334,30 @@ class AppRouter {
         path: productEnquiry,
         name: 'productEnquiry',
         builder: (context, state) {
+          debugPrint('========================================');
+          debugPrint('PRODUCT ENQUIRY ROUTER');
+          debugPrint('state.extra      : ${state.extra}');
+          debugPrint(
+            'state.extra type : ${state.extra.runtimeType}',
+          );
+
+          final extra =
+              state.extra as Map<String, dynamic>?;
+
+          final String productId =
+              extra?['productId']?.toString() ?? '';
+
+          final String productName =
+              extra?['productName']?.toString() ?? '';
+
+          debugPrint('PRODUCT ID      : $productId');
+          debugPrint('PRODUCT NAME    : $productName');
+          debugPrint('========================================');
+
+          return EnquiryPage(
+            productId: productId,
+            productName: productName,
+          );
           final productId = state.extra is String ? state.extra as String : '';
           final productName = state.extra is String
               ? state.extra as String
@@ -490,6 +514,9 @@ class AppRouter {
       //     // },
       //   },
       // ),
+
+
+  
       GoRoute(
         path: visitSummaryReport,
         name: 'visitSummaryReport',
