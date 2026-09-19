@@ -164,7 +164,22 @@ class _LeaveListPageState extends State<LeaveListPage>
   // ============================================================
 
   void _applyFilter() {
-    if (fromDate != null && toDate != null && toDate!.isBefore(fromDate!)) {
+    if (fromDate == null || toDate == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: const Text("Please select both From Date and To Date"),
+          backgroundColor: Colors.red,
+          behavior: SnackBarBehavior.floating,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+        ),
+      );
+
+      return;
+    }
+
+    if (toDate!.isBefore(fromDate!)) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: const Text("To Date cannot be before From Date"),
@@ -179,12 +194,36 @@ class _LeaveListPageState extends State<LeaveListPage>
       return;
     }
 
+    // Both dates are valid → call API
     _getLeaveList();
 
     setState(() {
       showFilter = false;
     });
   }
+
+  // void _applyFilter() {
+  //   if (fromDate != null && toDate != null && toDate!.isBefore(fromDate!)) {
+  //     ScaffoldMessenger.of(context).showSnackBar(
+  //       SnackBar(
+  //         content: const Text("To Date cannot be before From Date"),
+  //         backgroundColor: Colors.red,
+  //         behavior: SnackBarBehavior.floating,
+  //         shape: RoundedRectangleBorder(
+  //           borderRadius: BorderRadius.circular(12),
+  //         ),
+  //       ),
+  //     );
+
+  //     return;
+  //   }
+
+  //   _getLeaveList();
+
+  //   setState(() {
+  //     showFilter = false;
+  //   });
+  // }
 
   // ============================================================
   // CLEAR FILTER
@@ -345,9 +384,12 @@ class _LeaveListPageState extends State<LeaveListPage>
         // FAB
         // ======================================================
         floatingActionButton: FloatingActionButton.extended(
-          onPressed: (){
+          onPressed: () {
             //  context.push('/add-Leave');
-          Navigator.push(context, MaterialPageRoute(builder: (context)=>AddLeavePage()));
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => AddLeavePage()),
+            );
           },
           backgroundColor: Colors.green,
           foregroundColor: Colors.white,
@@ -621,10 +663,7 @@ class _LeaveListPageState extends State<LeaveListPage>
               color: Colors.green.withOpacity(0.08),
               shape: BoxShape.circle,
             ),
-            child: const CustomLoader(
-              strokeWidth: 3,
-              color: Colors.green,
-            ),
+            child: const CustomLoader(strokeWidth: 3, color: Colors.green),
           ),
 
           const SizedBox(height: 18),
@@ -682,23 +721,23 @@ class _LeaveListPageState extends State<LeaveListPage>
 
           const SizedBox(height: 20),
 
-          const Center(
+           Center(
             child: Text(
-              "Unable to Load Leaves",
+             message,
               style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
           ),
 
-          const SizedBox(height: 8),
+          // const SizedBox(height: 8),
 
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 35),
-            child: Text(
-              message,
-              textAlign: TextAlign.center,
-              style: const TextStyle(fontSize: 13, color: Colors.grey),
-            ),
-          ),
+          // Padding(
+          //   padding: const EdgeInsets.symmetric(horizontal: 35),
+          //   child: Text(
+          //     message,
+          //     textAlign: TextAlign.center,
+          //     style: const TextStyle(fontSize: 13, color: Colors.grey),
+          //   ),
+          // ),
 
           const SizedBox(height: 20),
 
@@ -822,7 +861,7 @@ class _LeaveListPageState extends State<LeaveListPage>
           else
             Center(
               child: ElevatedButton.icon(
-                onPressed: (){},
+                onPressed: () {},
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.green,
                   foregroundColor: Colors.white,

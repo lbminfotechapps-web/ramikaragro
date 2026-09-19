@@ -11,6 +11,7 @@ import 'package:demo/features/enquiry/presentation/bloc/enquiry_bloc.dart';
 import 'package:demo/features/farmer/famerfollowup/presentation/bloc/famerfollowup_bloc.dart';
 import 'package:demo/features/farmer/farmerlist/presentation/bloc/farmerlist_bloc.dart';
 import 'package:demo/features/farmer/farmerregistration/presentation/bloc/state_bloc.dart';
+import 'package:demo/features/followup/presentation/bloc/followup_bloc.dart';
 import 'package:demo/features/gallery/presentation/boc/gallery_bloc.dart';
 import 'package:demo/features/home/presentation/home_bloc/home_bloc.dart';
 
@@ -32,8 +33,8 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiBlocProvider(
       providers: [
-                BlocProvider<QuickAcessBloc>(create: (_) => sl<QuickAcessBloc>()),
-          BlocProvider<EmployeeActivityBloc>(
+        BlocProvider<QuickAcessBloc>(create: (_) => sl<QuickAcessBloc>()),
+        BlocProvider<EmployeeActivityBloc>(
           create: (_) => sl<EmployeeActivityBloc>(),
         ),
         BlocProvider<AuthBloc>(create: (_) => sl<AuthBloc>()),
@@ -46,7 +47,7 @@ class MyApp extends StatelessWidget {
         BlocProvider<DealerListBloc>(create: (_) => sl<DealerListBloc>()),
 
         BlocProvider<EnquiryBloc>(create: (_) => sl<EnquiryBloc>()),
-
+        BlocProvider<FollowupBloc>(create: (_) => sl<FollowupBloc>()),
         BlocProvider<NotVisitedDealerBloc>(
           create: (_) => sl<NotVisitedDealerBloc>(),
         ),
@@ -58,7 +59,6 @@ class MyApp extends StatelessWidget {
         BlocProvider<StateBloc>(create: (_) => sl<StateBloc>()),
         BlocProvider<HomeBloc>(create: (_) => sl<HomeBloc>()),
 
-      
         BlocProvider<GalleryBloc>(create: (_) => sl<GalleryBloc>()),
         BlocProvider<SchemeBloc>(create: (_) => sl<SchemeBloc>()),
         BlocProvider<ProductBloc>(create: (_) => sl<ProductBloc>()),

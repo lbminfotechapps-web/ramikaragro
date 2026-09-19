@@ -590,15 +590,15 @@ class _FamerFollowupPageState extends State<FamerFollowupPage> {
 
         if (state.status == FamerfollowupStatus.farmerFollowUpSuccess) {
           AppDialog.show(
-              context: context,
-              type: DialogType.success,
-              title: 'Punch In Successful',
-              message: 'Farmer Visit successfully.',
-              buttonText: 'OK',
-              onButtonPressed: () {
-                context.go(AppRouter.home);
-              },
-            );
+            context: context,
+            type: DialogType.success,
+            title: 'Successful',
+            message: 'Farmer Visit successfully.',
+            buttonText: 'OK',
+            onButtonPressed: () {
+              context.go(AppRouter.home);
+            },
+          );
         }
 
         // ----------------------------------------------------
@@ -909,10 +909,7 @@ class _FamerFollowupPageState extends State<FamerFollowupPage> {
       context: context,
       barrierDismissible: true,
       builder: (dialogContext) {
-        return BlocProvider.value(
-          value: context.read<FamerfollowupBloc>(),
-          child: _FollowupHistoryDialog(farmerId: widget.farmerId),
-        );
+        return _FollowupHistoryDialog(farmerId: widget.farmerId);
       },
     );
   }
@@ -1379,11 +1376,11 @@ class _FollowupHistoryDialog extends StatelessWidget {
             Expanded(
               child: BlocBuilder<FamerfollowupBloc, FamerfollowupState>(
                 builder: (context, state) {
-                  if (state.historyStatus == FollowupHistoryStatus.loading) {
+                  if (state.status == FamerfollowupStatus.loading) {
                     return const CustomLoader();
                   }
 
-                  if (state.historyStatus == FollowupHistoryStatus.failure) {
+                  if (state.status == FamerfollowupStatus.failure) {
                     return _buildError(context, state.historyError);
                   }
 

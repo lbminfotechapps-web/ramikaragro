@@ -7,22 +7,25 @@ enum FamerfollowupStatus {
   success,
   failure,
   farmerFollowUpSuccess,
+  farmerHistorySuccess
+
 }
 
-enum FollowupHistoryStatus { initial, loading, success, failure }
+// enum FollowupHistoryStatus { initial, loading, success, failure }
 
 class FamerfollowupState extends Equatable {
   // =========================
   // Submit Follow-up
   // =========================
   final FamerfollowupStatus status;
+    // final FollowupHistoryStatus historyStatus;
   final String? errorMessage;
   final String? successMessage;
 
   // =========================
   // Follow-up History
   // =========================
-  final FollowupHistoryStatus historyStatus;
+
   final List<RemarkListModel> historyList;
   final String? historyError;
 
@@ -31,7 +34,7 @@ class FamerfollowupState extends Equatable {
     this.errorMessage,
     this.successMessage,
 
-    this.historyStatus = FollowupHistoryStatus.initial,
+    // this.historyStatus = FollowupHistoryStatus.initial,
     this.historyList = const [],
     this.historyError,
   });
@@ -41,7 +44,7 @@ class FamerfollowupState extends Equatable {
     String? errorMessage,
     String? successMessage,
 
-    FollowupHistoryStatus? historyStatus,
+    // FollowupHistoryStatus? historyStatus,
     List<RemarkListModel>? historyList,
     String? historyError,
   }) {
@@ -52,7 +55,7 @@ class FamerfollowupState extends Equatable {
       successMessage: successMessage,
 
       // History
-      historyStatus: historyStatus ?? this.historyStatus,
+      // historyStatus: historyStatus ?? this.historyStatus,
       historyList: historyList ?? this.historyList,
       historyError: historyError,
     );
@@ -63,7 +66,7 @@ class FamerfollowupState extends Equatable {
     status,
     errorMessage,
     successMessage,
-    historyStatus,
+    // historyStatus,
     historyList,
     historyError,
   ];

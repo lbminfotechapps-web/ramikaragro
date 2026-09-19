@@ -20,6 +20,7 @@ import 'package:demo/features/farmer/farmerlist/data/model/farmerlist_model.dart
 import 'package:demo/features/farmer/farmerregistration/presentation/pages/farmer_edit_update_scren.dart';
 import 'package:demo/features/farmer/farmerlist/presentation/pages/farmerlist_screen.dart';
 import 'package:demo/features/farmer/farmerregistration/presentation/pages/farmerregistration_page.dart';
+import 'package:demo/features/followup/presentation/pages/followup_page.dart';
 import 'package:demo/features/gallery/presentation/pages/galleryscreen.dart';
 import 'package:demo/features/home/presentation/crop_schedule_page.dart';
 
@@ -564,7 +565,7 @@ class AppRouter {
                 path: reports,
                 name: 'reports',
                 builder: (context, state) {
-                  return const ReportsScree();
+                  return const FollowupPage();
                 },
               ),
             ],
