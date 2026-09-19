@@ -41,6 +41,7 @@ import 'package:demo/features/products/domain/entity/fertilizer_product_entity.d
 import 'package:demo/features/products/presentation/pages/product_details.dart';
 import 'package:demo/features/products/presentation/pages/product_list.dart';
 import 'package:demo/features/products/presentation/pages/products_screen.dart';
+import 'package:demo/features/profilepage/profile_page.dart';
 import 'package:demo/features/reports/presentation/pages/about_us_page.dart';
 import 'package:demo/features/reports/presentation/pages/contact_us_page.dart';
 import 'package:demo/features/reports/presentation/pages/employee_activity_report_page.dart';
@@ -118,8 +119,7 @@ class AppRouter {
   static const String dealrFollowUpAddNew = '/dealrFollowUpAddNew';
   static const String dealerUpdate = '/dealerUpdate';
   static const String profile = '/profile';
-   static const String productEnquiry = '/productEnquiry';
-  
+  static const String productEnquiry = '/productEnquiry';
 
   static final GoRouter router = GoRouter(
     initialLocation: splash,
@@ -138,6 +138,14 @@ class AppRouter {
         name: 'login',
         builder: (context, state) {
           return const LoginScreen();
+        },
+      ),
+
+      GoRoute(
+        path: profile,
+        name: 'profile',
+        builder: (context, state) {
+          return const ProfilePage();
         },
       ),
 
@@ -322,20 +330,17 @@ class AppRouter {
         },
       ),
 
-
-        GoRoute(
+      GoRoute(
         path: productEnquiry,
         name: 'productEnquiry',
         builder: (context, state) {
           final productId = state.extra is String ? state.extra as String : '';
-          final productName = state.extra is String ? state.extra as String : '';
-          return EnquiryPage(
-            productId: productId,
-            productName: productName,
-          );
+          final productName = state.extra is String
+              ? state.extra as String
+              : '';
+          return EnquiryPage(productId: productId, productName: productName);
         },
       ),
-
 
       GoRoute(
         path: dealerpin,
@@ -343,7 +348,10 @@ class AppRouter {
         builder: (context, state) {
           final dealerId = state.extra is String ? state.extra as String : '';
           final dealerName = state.extra is String ? state.extra as String : '';
-          return DealerFollowupListPage(dealerId: dealerId,dealerName: dealerName);
+          return DealerFollowupListPage(
+            dealerId: dealerId,
+            dealerName: dealerName,
+          );
         },
       ),
 
@@ -435,9 +443,9 @@ class AppRouter {
         path: dealrFollowUpAddNew,
         name: 'dealrFollowUpAddNew',
         builder: (context, state) {
-           final dealerId = state.extra is String ? state.extra as String : '';
- final dealerName = state.extra is String ? state.extra as String : '';
-          return AddDealerVisitPage(dealerId: dealerId,dealerName: dealerName);
+          final dealerId = state.extra is String ? state.extra as String : '';
+          final dealerName = state.extra is String ? state.extra as String : '';
+          return AddDealerVisitPage(dealerId: dealerId, dealerName: dealerName);
         },
       ),
 

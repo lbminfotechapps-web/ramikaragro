@@ -16,7 +16,10 @@ abstract class ExpenseRemoteDatasource {
     required String userId,
   });
 
-  Future<Map<String, dynamic>> getDAAmount({required String userId});
+  Future<Map<String, dynamic>> getDAAmount({
+    required String userId,
+    required String expenseDate,
+  });
 
   Future<Map<String, dynamic>> getExpenseDays({
     required String userId,
@@ -263,24 +266,15 @@ class ExpenseRemoteDatasourceImpl implements ExpenseRemoteDatasource {
   // ============================================================
 
   @override
-  Future<Map<String, dynamic>> getDAAmount({required String userId}) async {
+  Future<Map<String, dynamic>> getDAAmount({
+    required String userId,
+    required String expenseDate,
+  }) async {
     try {
       final response = await dioClient.client.post(
         ApiClient.getDAAmount,
-        data: FormData.fromMap({'userId': userId}),
+        data: FormData.fromMap({'userId': userId, 'expenseDate': expenseDate}),
       );
-
-      print('==========================================');
-      print('GET DA AMOUNT API RESPONSE');
-      print('STATUS CODE: ${response.statusCode}');
-      print('RESPONSE TYPE: ${response.data.runtimeType}');
-      print('RESPONSE DATA:');
-      print(response.data);
-      print('==========================================');
-
-      // ----------------------------------------------------------
-      // HTTP ERROR
-      // ----------------------------------------------------------
 
       if (response.statusCode != 200) {
         throw Exception(
@@ -364,20 +358,6 @@ class ExpenseRemoteDatasourceImpl implements ExpenseRemoteDatasource {
 
       return daAmount;
     } on DioException catch (e) {
-      print('==========================================');
-      print('GET DA AMOUNT DIO ERROR');
-      print('TYPE: ${e.type}');
-      print('MESSAGE: ${e.message}');
-      print('STATUS CODE: ${e.response?.statusCode}');
-      print('SERVER RESPONSE: ${e.response?.data}');
-      print('REQUEST URL: ${e.requestOptions.uri}');
-      print('REQUEST DATA: ${e.requestOptions.data}');
-      print(
-        'CONTENT TYPE: '
-        '${e.requestOptions.contentType}',
-      );
-      print('==========================================');
-
       throw Exception(
         e.response?.data?.toString() ??
             e.message ??

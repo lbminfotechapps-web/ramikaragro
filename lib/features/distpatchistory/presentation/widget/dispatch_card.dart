@@ -230,7 +230,7 @@ class DispatchCard extends StatelessWidget {
       children: [
         Expanded(
           child: _quantityCard(
-            title: 'Order Qty',
+            title: 'Order Case Qty',
             value: _orderQty(),
             icon: Icons.inventory_2_outlined,
             background: const Color(0xFFF4F7F5),

@@ -42,9 +42,7 @@ extension AppColors on ColorScheme {
   static const Color accentPurple = Color(0xFFB478FF);
   static const Color accentBlue = Color(0xFF78C8FF);
 
-
-
-    // ==========================================================
+  // ==========================================================
   // PRIMARY GREEN
   // ==========================================================
 
@@ -100,18 +98,12 @@ extension AppColors on ColorScheme {
   // CARD
   // ==========================================================
 
-
-//-------------------------------------------------------------
+  //-------------------------------------------------------------
   static const Color primaryGreen = Color(0xFF178A45);
   static const Color darkGreen = Color(0xFF0F7138);
   static const Color textDark = Color(0xFF18231C);
   static const Color textGrey = Color(0xFF748078);
-//--------------------------------------------------------------  
-  
-
-
-
-
+  //--------------------------------------------------------------
 
   static const Color card = Colors.white;
 

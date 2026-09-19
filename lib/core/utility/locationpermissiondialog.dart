@@ -23,7 +23,7 @@ class LocationPermissionDialog extends StatelessWidget {
                 height: 70,
                 width: double.infinity,
                 child: Image.asset(
-                  'assets/icons/logo.jpg',
+                  'assets/icons/logo.png',
                   fit: BoxFit.contain,
                 ),
               ),

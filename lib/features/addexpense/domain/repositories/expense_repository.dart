@@ -11,7 +11,10 @@ abstract class ExpenseRepository {
     required String userId,
   });
 
-  Future<Map<String, dynamic>> getDAAmount({required String userId});
+  Future<Map<String, dynamic>> getDAAmount({
+    required String userId,
+    required String expenseDate,
+  });
 
   Future<Map<String, dynamic>> getExpenseDays({
     required String userId,
