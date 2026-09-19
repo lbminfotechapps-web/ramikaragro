@@ -42,49 +42,69 @@ class _LoginScreenState extends State<LoginScreen> {
       resizeToAvoidBottomInset: true,
 
       body: BlocConsumer<AuthBloc, AuthState>(
-        listener: (context, state) {
-          if (state.loginStatus == LoginStatus.success) {
-            AppToast.success('Login SuccessFul');
+  listener: (context, state) {
+    if (state.loginStatus == LoginStatus.success) {
+      AppToast.success('Login SuccessFul');
+      context.go('/home');
+    }
 
-            context.go('/home');
-          }
+    if (state.loginStatus == LoginStatus.failure) {
+      AppToast.success(state.errorMessage ?? 'Login failed');
+    }
+  },
 
-          if (state.loginStatus == LoginStatus.failure) {
-            AppToast.success(state.errorMessage ?? 'Login failed');
-          }
-        },
+  builder: (context, state) {
+    if (state.loginStatus == LoginStatus.loading) {
+      return const CustomLoader(
+        showMessage: true,
+        message: 'Authentication....',
+      );
+    }
 
-        builder: (context, state) {
-          if (state.loginStatus == LoginStatus.loading) {
-            return const CustomLoader(
-              showMessage: true,
-              message: 'Authentication....',
-            );
-          }
+    return SafeArea(
+      bottom: false,
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          return SingleChildScrollView(
+            keyboardDismissBehavior:
+                ScrollViewKeyboardDismissBehavior.onDrag,
 
-          return SafeArea(
-            bottom: false,
-            child: SingleChildScrollView(
-              keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
-              child: Column(
-                children: [
-                  // =========================
-                  // HERO SECTION
-                  // =========================
-                  _heroSection(),
+            child: ConstrainedBox(
+              constraints: BoxConstraints(
+                minHeight: constraints.maxHeight,
+              ),
 
-                  // =========================
-                  // LOGIN SECTION
-                  // =========================
-                  _loginSection(),
+              child: IntrinsicHeight(
+                child: Column(
+                  children: [
+                    // =========================
+                    // HERO
+                    // =========================
+                    _heroSection(),
 
-                  _bottomLogo(),
-                ],
+                    // =========================
+                    // LOGIN
+                    // =========================
+                    _loginSection(),
+
+                    // Push bottom logo down when there is
+                    // extra available screen space.
+                    const Spacer(),
+
+                    // =========================
+                    // BOTTOM LOGO
+                    // =========================
+                    _bottomLogo(),
+                  ],
+                ),
               ),
             ),
           );
         },
       ),
+    );
+  },
+),
     );
   }
 

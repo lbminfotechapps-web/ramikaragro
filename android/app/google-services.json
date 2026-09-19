@@ -1,21 +1,21 @@
 {
   "project_info": {
-    "project_number": "833392288845",
-    "project_id": "java-2024-9d2e7",
-    "storage_bucket": "java-2024-9d2e7.firebasestorage.app"
+    "project_number": "867914085371",
+    "project_id": "kotlin-2025",
+    "storage_bucket": "kotlin-2025.firebasestorage.app"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:833392288845:android:ea059d1fa0f98f8a606804",
+        "mobilesdk_app_id": "1:867914085371:android:a451ac6264b02f5cb0d15e",
         "android_client_info": {
-          "package_name": "com.agrisis"
+          "package_name": "com.aespl.kotlin"
         }
       },
       "oauth_client": [],
       "api_key": [
         {
-          "current_key": "AIzaSyBzmUT4b8G9bsMhVqZri4GhTjhqaA0ODGc"
+          "current_key": "AIzaSyAKHle_b3B_avm6PBLvnAGNCaBYwlT7VCk"
         }
       ],
       "services": {
@@ -26,15 +26,15 @@
     },
     {
       "client_info": {
-        "mobilesdk_app_id": "1:833392288845:android:c62a684e20d6bf84606804",
+        "mobilesdk_app_id": "1:867914085371:android:682194f785127885b0d15e",
         "android_client_info": {
-          "package_name": "com.agrocrm.gnp"
+          "package_name": "com.agro.ralleyagritech"
         }
       },
       "oauth_client": [],
       "api_key": [
         {
-          "current_key": "AIzaSyBzmUT4b8G9bsMhVqZri4GhTjhqaA0ODGc"
+          "current_key": "AIzaSyAKHle_b3B_avm6PBLvnAGNCaBYwlT7VCk"
         }
       ],
       "services": {
@@ -45,15 +45,15 @@
     },
     {
       "client_info": {
-        "mobilesdk_app_id": "1:833392288845:android:c7600f7a8b0e1399606804",
+        "mobilesdk_app_id": "1:867914085371:android:a46057ae3fc9d7c8b0d15e",
         "android_client_info": {
-          "package_name": "com.agrocrm.yashodaproduction"
+          "package_name": "com.biosignature.kotlin"
         }
       },
       "oauth_client": [],
       "api_key": [
         {
-          "current_key": "AIzaSyBzmUT4b8G9bsMhVqZri4GhTjhqaA0ODGc"
+          "current_key": "AIzaSyAKHle_b3B_avm6PBLvnAGNCaBYwlT7VCk"
         }
       ],
       "services": {
@@ -64,15 +64,15 @@
     },
     {
       "client_info": {
-        "mobilesdk_app_id": "1:833392288845:android:b0e3d8c6e3fef300606804",
+        "mobilesdk_app_id": "1:867914085371:android:1577ae04fa2479fdb0d15e",
         "android_client_info": {
-          "package_name": "com.agrocrm.yashodaproductionnew"
+          "package_name": "com.bvg.kotlin"
         }
       },
       "oauth_client": [],
       "api_key": [
         {
-          "current_key": "AIzaSyBzmUT4b8G9bsMhVqZri4GhTjhqaA0ODGc"
+          "current_key": "AIzaSyAKHle_b3B_avm6PBLvnAGNCaBYwlT7VCk"
         }
       ],
       "services": {
@@ -83,15 +83,15 @@
     },
     {
       "client_info": {
-        "mobilesdk_app_id": "1:833392288845:android:85354c56f5b0d7e6606804",
+        "mobilesdk_app_id": "1:867914085371:android:b3da1a40a8e1ad61b0d15e",
         "android_client_info": {
-          "package_name": "com.agrocrm.yhsplproduction"
+          "package_name": "com.example.ralley_agritech_kotlin"
         }
       },
       "oauth_client": [],
       "api_key": [
         {
-          "current_key": "AIzaSyBzmUT4b8G9bsMhVqZri4GhTjhqaA0ODGc"
+          "current_key": "AIzaSyAKHle_b3B_avm6PBLvnAGNCaBYwlT7VCk"
         }
       ],
       "services": {
@@ -102,15 +102,15 @@
     },
     {
       "client_info": {
-        "mobilesdk_app_id": "1:833392288845:android:36b5739cb84673e2606804",
+        "mobilesdk_app_id": "1:867914085371:android:8a990975b4c91d3bb0d15e",
         "android_client_info": {
-          "package_name": "com.bsel"
+          "package_name": "com.example.readexcel"
         }
       },
       "oauth_client": [],
       "api_key": [
         {
-          "current_key": "AIzaSyBzmUT4b8G9bsMhVqZri4GhTjhqaA0ODGc"
+          "current_key": "AIzaSyAKHle_b3B_avm6PBLvnAGNCaBYwlT7VCk"
         }
       ],
       "services": {
@@ -121,15 +121,15 @@
     },
     {
       "client_info": {
-        "mobilesdk_app_id": "1:833392288845:android:18e97c741846f7dd606804",
+        "mobilesdk_app_id": "1:867914085371:android:f2f3f0b985b91819b0d15e",
         "android_client_info": {
-          "package_name": "com.bsl"
+          "package_name": "com.grapesmaster.app"
         }
       },
       "oauth_client": [],
       "api_key": [
         {
-          "current_key": "AIzaSyBzmUT4b8G9bsMhVqZri4GhTjhqaA0ODGc"
+          "current_key": "AIzaSyAKHle_b3B_avm6PBLvnAGNCaBYwlT7VCk"
         }
       ],
       "services": {
@@ -140,15 +140,15 @@
     },
     {
       "client_info": {
-        "mobilesdk_app_id": "1:833392288845:android:f7a878056445b98d606804",
+        "mobilesdk_app_id": "1:867914085371:android:158240366a16ce16b0d15e",
         "android_client_info": {
-          "package_name": "com.croptechagro.app"
+          "package_name": "com.jainoswal.jainoswalkotlin"
         }
       },
       "oauth_client": [],
       "api_key": [
         {
-          "current_key": "AIzaSyBzmUT4b8G9bsMhVqZri4GhTjhqaA0ODGc"
+          "current_key": "AIzaSyAKHle_b3B_avm6PBLvnAGNCaBYwlT7VCk"
         }
       ],
       "services": {
@@ -159,15 +159,15 @@
     },
     {
       "client_info": {
-        "mobilesdk_app_id": "1:833392288845:android:b25c700cf840c7ba606804",
+        "mobilesdk_app_id": "1:867914085371:android:2619c99cbecb8e9bb0d15e",
         "android_client_info": {
-          "package_name": "com.lbm.ramikarflutter"
+          "package_name": "com.kdmseeds.agro"
         }
       },
       "oauth_client": [],
       "api_key": [
         {
-          "current_key": "AIzaSyBzmUT4b8G9bsMhVqZri4GhTjhqaA0ODGc"
+          "current_key": "AIzaSyAKHle_b3B_avm6PBLvnAGNCaBYwlT7VCk"
         }
       ],
       "services": {
@@ -178,15 +178,15 @@
     },
     {
       "client_info": {
-        "mobilesdk_app_id": "1:833392288845:android:10c57d0b857f5a19606804",
+        "mobilesdk_app_id": "1:867914085371:android:ab860b4bc22a093fb0d15e",
         "android_client_info": {
-          "package_name": "com.greenrevolution.kotlin"
+          "package_name": "com.kewal.kotlin"
         }
       },
       "oauth_client": [],
       "api_key": [
         {
-          "current_key": "AIzaSyBzmUT4b8G9bsMhVqZri4GhTjhqaA0ODGc"
+          "current_key": "AIzaSyAKHle_b3B_avm6PBLvnAGNCaBYwlT7VCk"
         }
       ],
       "services": {
@@ -197,15 +197,15 @@
     },
     {
       "client_info": {
-        "mobilesdk_app_id": "1:833392288845:android:a1a3374e12c07594606804",
+        "mobilesdk_app_id": "1:867914085371:android:4db6c3279748e06ab0d15e",
         "android_client_info": {
-          "package_name": "com.kotlin.dvijaypatient"
+          "package_name": "com.kotlin.shivshakti"
         }
       },
       "oauth_client": [],
       "api_key": [
         {
-          "current_key": "AIzaSyBzmUT4b8G9bsMhVqZri4GhTjhqaA0ODGc"
+          "current_key": "AIzaSyAKHle_b3B_avm6PBLvnAGNCaBYwlT7VCk"
         }
       ],
       "services": {
@@ -216,15 +216,15 @@
     },
     {
       "client_info": {
-        "mobilesdk_app_id": "1:833392288845:android:2fb0e04db621778c606804",
+        "mobilesdk_app_id": "1:867914085371:android:fe26c297cd93936bb0d15e",
         "android_client_info": {
-          "package_name": "com.kotlin.waghmotors"
+          "package_name": "com.krushitek.kotlin"
         }
       },
       "oauth_client": [],
       "api_key": [
         {
-          "current_key": "AIzaSyBzmUT4b8G9bsMhVqZri4GhTjhqaA0ODGc"
+          "current_key": "AIzaSyAKHle_b3B_avm6PBLvnAGNCaBYwlT7VCk"
         }
       ],
       "services": {
@@ -235,15 +235,15 @@
     },
     {
       "client_info": {
-        "mobilesdk_app_id": "1:833392288845:android:621120a1cd963dcd606804",
+        "mobilesdk_app_id": "1:867914085371:android:6c75270b6a5efb60b0d15e",
         "android_client_info": {
-          "package_name": "com.lbmpoly"
+          "package_name": "com.lbm.bizastra"
         }
       },
       "oauth_client": [],
       "api_key": [
         {
-          "current_key": "AIzaSyBzmUT4b8G9bsMhVqZri4GhTjhqaA0ODGc"
+          "current_key": "AIzaSyAKHle_b3B_avm6PBLvnAGNCaBYwlT7VCk"
         }
       ],
       "services": {
@@ -254,15 +254,15 @@
     },
     {
       "client_info": {
-        "mobilesdk_app_id": "1:833392288845:android:1d8c151ded8e5dcc606804",
+        "mobilesdk_app_id": "1:867914085371:android:b366be418305c88eb0d15e",
         "android_client_info": {
-          "package_name": "com.naturecare.kotlin"
+          "package_name": "com.lbm.kamalconstruction"
         }
       },
       "oauth_client": [],
       "api_key": [
         {
-          "current_key": "AIzaSyBzmUT4b8G9bsMhVqZri4GhTjhqaA0ODGc"
+          "current_key": "AIzaSyAKHle_b3B_avm6PBLvnAGNCaBYwlT7VCk"
         }
       ],
       "services": {
@@ -273,15 +273,15 @@
     },
     {
       "client_info": {
-        "mobilesdk_app_id": "1:833392288845:android:0281e9b0c1e10a07606804",
+        "mobilesdk_app_id": "1:867914085371:android:0e285aebdad80cb9b0d15e",
         "android_client_info": {
-          "package_name": "com.sai.myposterframe"
+          "package_name": "com.lbm.solufine"
         }
       },
       "oauth_client": [],
       "api_key": [
         {
-          "current_key": "AIzaSyBzmUT4b8G9bsMhVqZri4GhTjhqaA0ODGc"
+          "current_key": "AIzaSyAKHle_b3B_avm6PBLvnAGNCaBYwlT7VCk"
         }
       ],
       "services": {
@@ -292,15 +292,186 @@
     },
     {
       "client_info": {
-        "mobilesdk_app_id": "1:833392288845:android:36cc1a1c4374c7c4606804",
+        "mobilesdk_app_id": "1:867914085371:android:50a281b672d4cde5b0d15e",
         "android_client_info": {
-          "package_name": "com.sai.posterframe"
+          "package_name": "com.lbm.sunrichflutter"
         }
       },
       "oauth_client": [],
       "api_key": [
         {
-          "current_key": "AIzaSyBzmUT4b8G9bsMhVqZri4GhTjhqaA0ODGc"
+          "current_key": "AIzaSyAKHle_b3B_avm6PBLvnAGNCaBYwlT7VCk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:867914085371:android:9460aae797a9e863b0d15e",
+        "android_client_info": {
+          "package_name": "com.mangalam.kotlin"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAKHle_b3B_avm6PBLvnAGNCaBYwlT7VCk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:867914085371:android:f952ed7582bf80f4b0d15e",
+        "android_client_info": {
+          "package_name": "com.nissanseeds.kotlin"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAKHle_b3B_avm6PBLvnAGNCaBYwlT7VCk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:867914085371:android:c53e93884fe951a2b0d15e",
+        "android_client_info": {
+          "package_name": "com.poster.frame"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAKHle_b3B_avm6PBLvnAGNCaBYwlT7VCk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:867914085371:android:2a6a879ed19b7578b0d15e",
+        "android_client_info": {
+          "package_name": "com.ramikaragro.app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAKHle_b3B_avm6PBLvnAGNCaBYwlT7VCk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:867914085371:android:6fb271a870fd07fbb0d15e",
+        "android_client_info": {
+          "package_name": "com.sahydaribiotech.kotlin"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAKHle_b3B_avm6PBLvnAGNCaBYwlT7VCk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:867914085371:android:477539097217f363b0d15e",
+        "android_client_info": {
+          "package_name": "com.shreesai.leaseart"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAKHle_b3B_avm6PBLvnAGNCaBYwlT7VCk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:867914085371:android:f4b8381baeeed091b0d15e",
+        "android_client_info": {
+          "package_name": "com.snehalkisannursery.app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAKHle_b3B_avm6PBLvnAGNCaBYwlT7VCk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:867914085371:android:b812d4b35cf3feb8b0d15e",
+        "android_client_info": {
+          "package_name": "com.snehalkisannursery.kotlin"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAKHle_b3B_avm6PBLvnAGNCaBYwlT7VCk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:867914085371:android:f92b320c1a3d108fb0d15e",
+        "android_client_info": {
+          "package_name": "com.sunrichagro.kotlin"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAKHle_b3B_avm6PBLvnAGNCaBYwlT7VCk"
         }
       ],
       "services": {

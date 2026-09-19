@@ -70,12 +70,31 @@ class _FarmerregistrationPageState extends State<FarmerregistrationPage> {
   String selectedAcers = '';
   String selectedIrrigationId = '';
   String selectedCropId = '';
+  String latitude = '';
+  String longitude = '';
+  String address = '';
   @override
   void initState() {
     super.initState();
     _loadStates();
+    getGeoAddress();
 
     context.read<StateBloc>().add(FarmerDropEvent());
+  }
+
+  Future<void> getGeoAddress() async {
+    final position = await LocationUtil.instance.getCurrentLocation();
+
+    if (position != null) {
+      latitude = position.latitude.toString();
+      longitude = position.longitude.toString();
+
+      address = await LocationUtil.instance.getAddress(
+        position.latitude,
+        position.longitude,
+      );
+      addressController.text = address;
+    }
   }
 
   Future<void> getUserId() async {
@@ -356,21 +375,21 @@ class _FarmerregistrationPageState extends State<FarmerregistrationPage> {
 
       final networkInfo = await DeviceInfoUtil.instance.getNetworkInfo();
 
-      final position = await LocationUtil.instance.getCurrentLocation();
+      // final position = await LocationUtil.instance.getCurrentLocation();
 
-      String latitude = '';
-      String longitude = '';
-      String address = '';
+      // String latitude = '';
+      // String longitude = '';
+      // String address = '';
 
-      if (position != null) {
-        latitude = position.latitude.toString();
-        longitude = position.longitude.toString();
+      // if (position != null) {
+      //   latitude = position.latitude.toString();
+      //   longitude = position.longitude.toString();
 
-        address = await LocationUtil.instance.getAddress(
-          position.latitude,
-          position.longitude,
-        );
-      }
+      //   address = await LocationUtil.instance.getAddress(
+      //     position.latitude,
+      //     position.longitude,
+      //   );
+      // }
 
       final userData = await SecureStorage.instance.getUserData();
 
@@ -969,10 +988,18 @@ class _FarmerregistrationPageState extends State<FarmerregistrationPage> {
 
                     CustomTextFormField(
                       controller: addressController,
-                      hintText: 'Address',
+                      hintText: 'Address *',
                       labelText: 'Address',
                       prefixIcon: Icons.location_on_outlined,
                       maxLines: 3,
+                       validator: (value) {
+                        if (value == null || value.trim().isEmpty) {
+                          return 'Please enter address';
+                        }
+
+                        return null;
+                      },
+                      
                     ),
 
                     SizedBox(height: 10.h),

@@ -60,6 +60,7 @@ class _DealerFollowupAddState extends State<DealerFollowupAdd> {
   void initState() {
     super.initState();
     _loadStates();
+    getGeoAddress();
   }
 
   void _submit() async {
@@ -262,6 +263,9 @@ class _DealerFollowupAddState extends State<DealerFollowupAdd> {
     }
   }
 
+  String latitude = '';
+  String longitude = '';
+  String address = '';
   @override
   void dispose() {
     shopNameController.dispose();
@@ -275,6 +279,21 @@ class _DealerFollowupAddState extends State<DealerFollowupAdd> {
     dateController.dispose();
     remarkController.dispose();
     super.dispose();
+  }
+
+  Future<void> getGeoAddress() async {
+    final position = await LocationUtil.instance.getCurrentLocation();
+
+    if (position != null) {
+      latitude = position.latitude.toString();
+      longitude = position.longitude.toString();
+
+      address = await LocationUtil.instance.getAddress(
+        position.latitude,
+        position.longitude,
+      );
+      addressController.text = address;
+    }
   }
 
   Future<void> _loadStates() async {
@@ -518,10 +537,11 @@ class _DealerFollowupAddState extends State<DealerFollowupAdd> {
 
             AppDialog.show(
               context: context,
+            
               message: 'Dealer Added Successfully',
               onButtonPressed: () => {context.go(AppRouter.home)},
             );
-            context.push(AppRouter.home);
+           // context.push(AppRouter.home);
           }
           // ============================================
           // API ERROR
@@ -703,6 +723,7 @@ class _DealerFollowupAddState extends State<DealerFollowupAdd> {
                     SizedBox(height: 10.h),
 
                     CustomTextFormField(
+                      maxLength: 10,
                       controller: mobileController,
                       hintText: 'Mobile No *',
                       labelText: 'Mobile No *',
@@ -726,6 +747,7 @@ class _DealerFollowupAddState extends State<DealerFollowupAdd> {
                     SizedBox(height: 10.h),
 
                     CustomTextFormField(
+                      maxLength: 10,
                       controller: alternateMobileController,
                       hintText: 'Alternate Mobile No',
                       labelText: 'Alternate Mobile No',
@@ -785,9 +807,16 @@ class _DealerFollowupAddState extends State<DealerFollowupAdd> {
 
                     CustomTextFormField(
                       controller: addressController,
-                      hintText: 'Address',
+                      hintText: 'Address *',
                       labelText: 'Address',
                       prefixIcon: Icons.home_outlined,
+                      validator: (value) {
+                        if (value == null || value.trim().isEmpty) {
+                          return 'Please enter address';
+                        }
+
+                        return null;
+                      },
                     ),
 
                     SizedBox(height: 10.h),
