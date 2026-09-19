@@ -33,8 +33,8 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiBlocProvider(
       providers: [
-                BlocProvider<QuickAcessBloc>(create: (_) => sl<QuickAcessBloc>()),
-          BlocProvider<EmployeeActivityBloc>(
+        BlocProvider<QuickAcessBloc>(create: (_) => sl<QuickAcessBloc>()),
+        BlocProvider<EmployeeActivityBloc>(
           create: (_) => sl<EmployeeActivityBloc>(),
         ),
         BlocProvider<AuthBloc>(create: (_) => sl<AuthBloc>()),
@@ -60,7 +60,6 @@ class MyApp extends StatelessWidget {
         BlocProvider<StateBloc>(create: (_) => sl<StateBloc>()),
         BlocProvider<HomeBloc>(create: (_) => sl<HomeBloc>()),
 
-      
         BlocProvider<GalleryBloc>(create: (_) => sl<GalleryBloc>()),
         BlocProvider<SchemeBloc>(create: (_) => sl<SchemeBloc>()),
         BlocProvider<ProductBloc>(create: (_) => sl<ProductBloc>()),

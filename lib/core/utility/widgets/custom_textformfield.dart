@@ -51,7 +51,7 @@ class CustomTextFormField extends StatelessWidget {
       onTap: onTap,
       onChanged: onChanged,
     
-      style: const TextStyle(fontSize: 16, color: Colors.black87),
+      style: const TextStyle(fontSize: 14, color: Colors.black87),
     
       decoration: InputDecoration(
         hintText: hintText,

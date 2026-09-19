@@ -109,7 +109,7 @@ class _HomeState extends State<Home> {
     );
   }
 
-  static  String _appName = appName;
+  static String _appName = appName;
   static const String _appSubtitle = 'Agro Company';
 
   @override
@@ -319,7 +319,7 @@ class _HomeState extends State<Home> {
                     color: AppColors.textColor,
                   ),
                   onPressed: () {
-                    Scaffold.of(scaffoldContext).openDrawer();
+                    context.push('/profile');
                   },
                 ),
               );

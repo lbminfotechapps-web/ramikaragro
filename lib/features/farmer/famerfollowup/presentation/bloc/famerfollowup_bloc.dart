@@ -121,7 +121,7 @@ class FamerfollowupBloc extends Bloc<FamerfollowupEvent, FamerfollowupState> {
   ) async {
     emit(
       state.copyWith(
-        historyStatus: FollowupHistoryStatus.loading,
+        status: FamerfollowupStatus.loading,
         historyError: null,
         historyList: [],
       ),
@@ -140,7 +140,7 @@ class FamerfollowupBloc extends Bloc<FamerfollowupEvent, FamerfollowupState> {
 
       emit(
         state.copyWith(
-          historyStatus: FollowupHistoryStatus.success,
+          status: FamerfollowupStatus.farmerHistorySuccess,
           historyList: response,
           historyError: null,
         ),
@@ -153,7 +153,7 @@ class FamerfollowupBloc extends Bloc<FamerfollowupEvent, FamerfollowupState> {
 
       emit(
         state.copyWith(
-          historyStatus: FollowupHistoryStatus.failure,
+          status: FamerfollowupStatus.failure,
           historyError: e.toString(),
         ),
       );

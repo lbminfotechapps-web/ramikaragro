@@ -39,7 +39,7 @@ class AppDialog {
                   ),
                   child: Padding(
                     padding: const EdgeInsets.all(10),
-                    child: Image.asset("assets/icons/logo.jpg"),
+                    child: Image.asset("assets/icons/logo.png"),
                   ),
                 ),
 

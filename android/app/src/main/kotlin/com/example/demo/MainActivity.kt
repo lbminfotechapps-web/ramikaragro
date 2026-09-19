@@ -1,4 +1,4 @@
-package com.lbm.ramikarflutter
+package com.lbm.solufine
 
 import io.flutter.embedding.android.FlutterActivity
 

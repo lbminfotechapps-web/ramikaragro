@@ -1342,8 +1342,7 @@ class _OrderHistoryPageState extends State<OrderHistoryPage> {
 
             _infoRow('Packing', detail.packing),
 
-            _infoRow('Quantity', detail.productQty),
-
+            // _infoRow('Quantity', detail.productQty),
             _infoRow('Case Qty', detail.totalCaseQuantity),
 
             _infoRow('Pending', detail.pendingQty),
