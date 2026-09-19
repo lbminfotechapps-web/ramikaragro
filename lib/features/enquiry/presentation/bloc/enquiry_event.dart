@@ -7,10 +7,6 @@ abstract class EnquiryEvent extends Equatable {
   List<Object?> get props => [];
 }
 
-// ============================================================
-// GET STATES
-// ============================================================
-
 class GetStatesEvent extends EnquiryEvent {
   final String userId;
 
@@ -19,14 +15,8 @@ class GetStatesEvent extends EnquiryEvent {
   });
 
   @override
-  List<Object?> get props => [
-        userId,
-      ];
+  List<Object?> get props => [userId];
 }
-
-// ============================================================
-// GET DISTRICTS
-// ============================================================
 
 class GetDistrictsEvent extends EnquiryEvent {
   final String userId;
@@ -44,10 +34,6 @@ class GetDistrictsEvent extends EnquiryEvent {
       ];
 }
 
-// ============================================================
-// GET TALUKAS
-// ============================================================
-
 class GetTalukasEvent extends EnquiryEvent {
   final String userId;
   final String districtId;
@@ -64,10 +50,6 @@ class GetTalukasEvent extends EnquiryEvent {
       ];
 }
 
-// ============================================================
-// SUBMIT ENQUIRY
-// ============================================================
-
 class SubmitEnquiryEvent extends EnquiryEvent {
   final Map<String, String> params;
 
@@ -76,7 +58,5 @@ class SubmitEnquiryEvent extends EnquiryEvent {
   });
 
   @override
-  List<Object?> get props => [
-        params,
-      ];
+  List<Object?> get props => [params];
 }

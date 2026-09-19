@@ -1,5 +1,6 @@
 import 'package:demo/core/api_constant/api_client.dart';
 import 'package:demo/core/api_constant/dio_client.dart';
+import 'package:flutter/material.dart';
 
 import '../models/district_model.dart';
 import '../models/state_model.dart';
@@ -26,8 +27,7 @@ abstract class EnquiryRemoteDataSource {
   });
 }
 
-class EnquiryRemoteDataSourceImpl
-    implements EnquiryRemoteDataSource {
+class EnquiryRemoteDataSourceImpl implements EnquiryRemoteDataSource {
   final DioClient dioClient;
 
   EnquiryRemoteDataSourceImpl({
@@ -35,7 +35,7 @@ class EnquiryRemoteDataSourceImpl
   });
 
   // ============================================================
-  // GET STATES
+  // STATES
   // ============================================================
 
   @override
@@ -49,28 +49,52 @@ class EnquiryRemoteDataSourceImpl
       },
     );
 
-    final dynamic data = response.data;
+    debugPrint('');
+    debugPrint('========== GET STATE RESPONSE ==========');
+    debugPrint('USER ID: $userId');
+    debugPrint('STATUS: ${response.statusCode}');
+    debugPrint('TYPE: ${response.data.runtimeType}');
+    debugPrint('DATA: ${response.data}');
+    debugPrint('========================================');
 
-    final List<dynamic> result;
+    final data = response.data;
 
-    if (data is List) {
-      result = data;
-    } else if (data is Map<String, dynamic>) {
-      result = data['result'] is List
-          ? data['result'] as List<dynamic>
-          : [];
-    } else {
-      result = [];
+    if (data is! List) {
+      debugPrint('STATE ERROR: Response is not List');
+      return [];
     }
 
-    return result
-        .whereType<Map<String, dynamic>>()
-        .map(StateModel.fromJson)
-        .toList();
+    final List<StateModel> states = [];
+
+    for (final item in data) {
+      debugPrint('STATE ITEM: $item');
+      debugPrint('STATE ITEM TYPE: ${item.runtimeType}');
+
+      if (item is Map) {
+        try {
+          final map = Map<String, dynamic>.from(item);
+
+          final model = StateModel.fromJson(map);
+
+          debugPrint(
+            'STATE PARSED: id=${model.id}, name=${model.name}',
+          );
+
+          states.add(model);
+        } catch (e) {
+          debugPrint('STATE MODEL ERROR: $e');
+        }
+      }
+    }
+
+    debugPrint('FINAL STATE COUNT: ${states.length}');
+    debugPrint('FINAL STATES: $states');
+
+    return states;
   }
 
   // ============================================================
-  // GET DISTRICTS
+  // DISTRICTS
   // ============================================================
 
   @override
@@ -86,28 +110,52 @@ class EnquiryRemoteDataSourceImpl
       },
     );
 
-    final dynamic data = response.data;
+    debugPrint('');
+    debugPrint('========== GET DISTRICT RESPONSE ==========');
+    debugPrint('USER ID: $userId');
+    debugPrint('STATE ID: $stateId');
+    debugPrint('STATUS: ${response.statusCode}');
+    debugPrint('TYPE: ${response.data.runtimeType}');
+    debugPrint('DATA: ${response.data}');
+    debugPrint('===========================================');
 
-    final List<dynamic> result;
+    final data = response.data;
 
-    if (data is List) {
-      result = data;
-    } else if (data is Map<String, dynamic>) {
-      result = data['result'] is List
-          ? data['result'] as List<dynamic>
-          : [];
-    } else {
-      result = [];
+    if (data is! List) {
+      debugPrint('DISTRICT ERROR: Response is not List');
+      return [];
     }
 
-    return result
-        .whereType<Map<String, dynamic>>()
-        .map(DistrictModel.fromJson)
-        .toList();
+    final List<DistrictModel> districts = [];
+
+    for (final item in data) {
+      debugPrint('DISTRICT ITEM: $item');
+
+      if (item is Map) {
+        try {
+          final map = Map<String, dynamic>.from(item);
+
+          final model = DistrictModel.fromJson(map);
+
+          debugPrint(
+            'DISTRICT PARSED: id=${model.id}, name=${model.name}',
+          );
+
+          districts.add(model);
+        } catch (e) {
+          debugPrint('DISTRICT MODEL ERROR: $e');
+        }
+      }
+    }
+
+    debugPrint('FINAL DISTRICT COUNT: ${districts.length}');
+    debugPrint('FINAL DISTRICTS: $districts');
+
+    return districts;
   }
 
   // ============================================================
-  // GET TALUKAS
+  // TALUKAS
   // ============================================================
 
   @override
@@ -123,49 +171,96 @@ class EnquiryRemoteDataSourceImpl
       },
     );
 
-    final dynamic data = response.data;
+    debugPrint('');
+    debugPrint('========== GET TALUKA RESPONSE ==========');
+    debugPrint('USER ID: $userId');
+    debugPrint('DISTRICT ID: $districtId');
+    debugPrint('STATUS: ${response.statusCode}');
+    debugPrint('TYPE: ${response.data.runtimeType}');
+    debugPrint('DATA: ${response.data}');
+    debugPrint('==========================================');
 
-    final List<dynamic> result;
+    final data = response.data;
 
-    if (data is List) {
-      result = data;
-    } else if (data is Map<String, dynamic>) {
-      result = data['result'] is List
-          ? data['result'] as List<dynamic>
-          : [];
-    } else {
-      result = [];
+    if (data is! List) {
+      debugPrint('TALUKA ERROR: Response is not List');
+      return [];
     }
 
     final List<TalukaModel> talukas = [];
 
-    for (final item in result) {
-      if (item is! Map<String, dynamic>) {
+    for (final item in data) {
+      debugPrint('TALUKA ITEM: $item');
+
+      if (item is! Map) {
         continue;
       }
 
-      final String returnedDistrictId =
-          item['fld_dist_id']?.toString() ?? '';
+      final map = Map<String, dynamic>.from(item);
 
-      // Only process selected district.
-      if (returnedDistrictId != districtId) {
-        continue;
-      }
+      // --------------------------------------------------------
+      // CASE 1: API returns nested taluka list
+      // --------------------------------------------------------
 
-      final dynamic talukaData = item['taluka'];
+      final nestedTaluka = map['taluka'];
 
-      if (talukaData is! List) {
-        continue;
-      }
+      if (nestedTaluka is List) {
+        debugPrint(
+          'NESTED TALUKA COUNT: ${nestedTaluka.length}',
+        );
 
-      for (final taluka in talukaData) {
-        if (taluka is Map<String, dynamic>) {
-          talukas.add(
-            TalukaModel.fromJson(taluka),
-          );
+        for (final talukaItem in nestedTaluka) {
+          if (talukaItem is Map) {
+            try {
+              final talukaMap =
+                  Map<String, dynamic>.from(talukaItem);
+
+              final model =
+                  TalukaModel.fromJson(talukaMap);
+
+              debugPrint(
+                'TALUKA PARSED: '
+                'id=${model.talukaId}, '
+                'name=${model.name}',
+              );
+
+              talukas.add(model);
+            } catch (e) {
+              debugPrint(
+                'TALUKA MODEL ERROR: $e',
+              );
+            }
+          }
         }
+
+        continue;
+      }
+
+      // --------------------------------------------------------
+      // CASE 2: API directly returns taluka objects
+      // --------------------------------------------------------
+
+      try {
+        final model = TalukaModel.fromJson(map);
+
+        debugPrint(
+          'DIRECT TALUKA PARSED: '
+          'id=${model.talukaId}, '
+          'name=${model.name}',
+        );
+
+        if (model.talukaId.isNotEmpty) {
+          talukas.add(model);
+        }
+      } catch (e) {
+        debugPrint(
+          'DIRECT TALUKA MODEL ERROR: $e',
+        );
       }
     }
+
+    debugPrint('FINAL TALUKA COUNT: ${talukas.length}');
+    debugPrint('FINAL TALUKAS: $talukas');
 
     return talukas;
   }
@@ -183,10 +278,14 @@ class EnquiryRemoteDataSourceImpl
       data: params,
     );
 
-    final dynamic data = response.data;
+    debugPrint('SUBMIT RESPONSE: ${response.data}');
 
-    if (data is Map<String, dynamic>) {
-      return SubmitEnquiryResponseModel.fromJson(data);
+    final data = response.data;
+
+    if (data is Map) {
+      return SubmitEnquiryResponseModel.fromJson(
+        Map<String, dynamic>.from(data),
+      );
     }
 
     throw Exception(

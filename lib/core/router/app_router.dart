@@ -20,6 +20,7 @@ import 'package:demo/features/farmer/farmerlist/data/model/farmerlist_model.dart
 import 'package:demo/features/farmer/farmerregistration/presentation/pages/farmer_edit_update_scren.dart';
 import 'package:demo/features/farmer/farmerlist/presentation/pages/farmerlist_screen.dart';
 import 'package:demo/features/farmer/farmerregistration/presentation/pages/farmerregistration_page.dart';
+import 'package:demo/features/followup/presentation/pages/followup_page.dart';
 import 'package:demo/features/gallery/presentation/pages/galleryscreen.dart';
 import 'package:demo/features/home/presentation/crop_schedule_page.dart';
 
@@ -326,8 +327,26 @@ class AppRouter {
         path: productEnquiry,
         name: 'productEnquiry',
         builder: (context, state) {
-          final productId = state.extra is String ? state.extra as String : '';
-          final productName = state.extra is String ? state.extra as String : '';
+          debugPrint('========================================');
+          debugPrint('PRODUCT ENQUIRY ROUTER');
+          debugPrint('state.extra      : ${state.extra}');
+          debugPrint(
+            'state.extra type : ${state.extra.runtimeType}',
+          );
+
+          final extra =
+              state.extra as Map<String, dynamic>?;
+
+          final String productId =
+              extra?['productId']?.toString() ?? '';
+
+          final String productName =
+              extra?['productName']?.toString() ?? '';
+
+          debugPrint('PRODUCT ID      : $productId');
+          debugPrint('PRODUCT NAME    : $productName');
+          debugPrint('========================================');
+
           return EnquiryPage(
             productId: productId,
             productName: productName,
@@ -481,6 +500,9 @@ class AppRouter {
       //     // },
       //   },
       // ),
+
+
+  
       GoRoute(
         path: visitSummaryReport,
         name: 'visitSummaryReport',
@@ -564,7 +586,7 @@ class AppRouter {
                 path: reports,
                 name: 'reports',
                 builder: (context, state) {
-                  return const ReportsScree();
+                  return const FollowupPage();
                 },
               ),
             ],
