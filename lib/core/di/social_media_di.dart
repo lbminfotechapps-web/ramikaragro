@@ -1,8 +1,8 @@
-import 'package:demo/features/home/data/home_datasource/social_media_remote_datasource.dart';
-import 'package:demo/features/home/data/home_repo_imp/social_media_repository_impl.dart';
-import 'package:demo/features/home/doman/home_repository/social_media_repository.dart';
-import 'package:demo/features/home/doman/home_usecases/get_social_media.dart';
-import 'package:demo/features/home/presentation/home_bloc/social_media_bloc.dart';
+import 'package:solufine/features/home/data/home_datasource/social_media_remote_datasource.dart';
+import 'package:solufine/features/home/data/home_repo_imp/social_media_repository_impl.dart';
+import 'package:solufine/features/home/doman/home_repository/social_media_repository.dart';
+import 'package:solufine/features/home/doman/home_usecases/get_social_media.dart';
+import 'package:solufine/features/home/presentation/home_bloc/social_media_bloc.dart';
 import 'package:get_it/get_it.dart';
 
 import '../api_constant/dio_client.dart';

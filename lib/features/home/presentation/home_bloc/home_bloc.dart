@@ -1,9 +1,9 @@
 import 'dart:async';
 
-import 'package:demo/features/home/doman/home_usecases/get_inpunch_pending_usecase.dart';
-import 'package:demo/features/home/doman/home_usecases/get_menu_usecase.dart';
-import 'package:demo/features/home/presentation/home_bloc/home_event.dart';
-import 'package:demo/features/home/presentation/home_bloc/home_state.dart';
+import 'package:solufine/features/home/doman/home_usecases/get_inpunch_pending_usecase.dart';
+import 'package:solufine/features/home/doman/home_usecases/get_menu_usecase.dart';
+import 'package:solufine/features/home/presentation/home_bloc/home_event.dart';
+import 'package:solufine/features/home/presentation/home_bloc/home_state.dart';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';

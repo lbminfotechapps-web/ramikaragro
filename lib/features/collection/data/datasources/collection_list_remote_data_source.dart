@@ -1,8 +1,8 @@
 import 'dart:convert';
 
 import 'package:dio/dio.dart';
-import 'package:demo/core/api_constant/api_client.dart';
-import 'package:demo/core/api_constant/dio_client.dart';
+import 'package:solufine/core/api_constant/api_client.dart';
+import 'package:solufine/core/api_constant/dio_client.dart';
 
 import '../models/collection_list_model.dart';
 

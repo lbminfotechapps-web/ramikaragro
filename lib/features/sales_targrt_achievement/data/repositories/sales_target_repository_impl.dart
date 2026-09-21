@@ -1,8 +1,8 @@
 
-import 'package:demo/features/sales_targrt_achievement/data/datasources/sales_target_remote_datasource.dart';
-import 'package:demo/features/sales_targrt_achievement/domain/entities/sales_target_entity.dart';
-import 'package:demo/features/sales_targrt_achievement/domain/entities/target_date_entity.dart';
-import 'package:demo/features/sales_targrt_achievement/domain/repositories/sales_target_repository.dart';
+import 'package:solufine/features/sales_targrt_achievement/data/datasources/sales_target_remote_datasource.dart';
+import 'package:solufine/features/sales_targrt_achievement/domain/entities/sales_target_entity.dart';
+import 'package:solufine/features/sales_targrt_achievement/domain/entities/target_date_entity.dart';
+import 'package:solufine/features/sales_targrt_achievement/domain/repositories/sales_target_repository.dart';
 
 class SalesTargetRepositoryImpl
     implements SalesTargetRepository {

@@ -1,16 +1,16 @@
 import 'dart:async';
 import 'dart:convert';
 
-import 'package:demo/core/api_constant/api_client.dart';
-import 'package:demo/core/secure_storage/secure_storage.dart';
-import 'package:demo/core/theme/app_colors.dart';
-import 'package:demo/core/utility/location_util.dart';
-import 'package:demo/core/utility/widgets/custom_appbar.dart';
-import 'package:demo/core/utility/widgets/custom_loader.dart';
-import 'package:demo/features/dealer/data/models/DealerListModel.dart';
-import 'package:demo/features/dealer/presentation/bloc/dealerlist_bloc.dart';
-import 'package:demo/features/dealer/presentation/bloc/dealerlist_event.dart';
-import 'package:demo/features/dealer/presentation/bloc/dealerlist_state.dart';
+import 'package:solufine/core/api_constant/api_client.dart';
+import 'package:solufine/core/secure_storage/secure_storage.dart';
+import 'package:solufine/core/theme/app_colors.dart';
+import 'package:solufine/core/utility/location_util.dart';
+import 'package:solufine/core/utility/widgets/custom_appbar.dart';
+import 'package:solufine/core/utility/widgets/custom_loader.dart';
+import 'package:solufine/features/dealer/data/models/DealerListModel.dart';
+import 'package:solufine/features/dealer/presentation/bloc/dealerlist_bloc.dart';
+import 'package:solufine/features/dealer/presentation/bloc/dealerlist_event.dart';
+import 'package:solufine/features/dealer/presentation/bloc/dealerlist_state.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 

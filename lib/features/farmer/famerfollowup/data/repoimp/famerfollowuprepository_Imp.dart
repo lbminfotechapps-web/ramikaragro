@@ -1,7 +1,7 @@
-import 'package:demo/features/farmer/famerfollowup/data/datasource/famerfollowup_datasource.dart';
-import 'package:demo/features/farmer/famerfollowup/data/model/followuplist_model.dart';
-import 'package:demo/features/farmer/famerfollowup/data/model/submitFollowup_mode.dart';
-import 'package:demo/features/farmer/famerfollowup/domain/repository/famerfollowup_repository.dart';
+import 'package:solufine/features/farmer/famerfollowup/data/datasource/famerfollowup_datasource.dart';
+import 'package:solufine/features/farmer/famerfollowup/data/model/followuplist_model.dart';
+import 'package:solufine/features/farmer/famerfollowup/data/model/submitFollowup_mode.dart';
+import 'package:solufine/features/farmer/famerfollowup/domain/repository/famerfollowup_repository.dart';
 
 class FamerfollowupRepositoryImpl implements FamerfollowupRepository {
   final FamerfollowupDatasource datasource;

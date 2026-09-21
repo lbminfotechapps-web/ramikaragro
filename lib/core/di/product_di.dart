@@ -1,9 +1,9 @@
-import 'package:demo/core/api_constant/dio_client.dart';
-import 'package:demo/features/products/data/product_datasource.dart';
-import 'package:demo/features/products/data/product_repo_imp.dart';
-import 'package:demo/features/products/domain/product_repository.dart';
-import 'package:demo/features/products/domain/product_use_cases.dart';
-import 'package:demo/features/products/presentation/bloc/product_bloc.dart';
+import 'package:solufine/core/api_constant/dio_client.dart';
+import 'package:solufine/features/products/data/product_datasource.dart';
+import 'package:solufine/features/products/data/product_repo_imp.dart';
+import 'package:solufine/features/products/domain/product_repository.dart';
+import 'package:solufine/features/products/domain/product_use_cases.dart';
+import 'package:solufine/features/products/presentation/bloc/product_bloc.dart';
 import 'package:get_it/get_it.dart';
 
 final sl = GetIt.instance;

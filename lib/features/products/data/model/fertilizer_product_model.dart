@@ -1,4 +1,4 @@
-import 'package:demo/features/products/domain/entity/fertilizer_product_entity.dart';
+import 'package:solufine/features/products/domain/entity/fertilizer_product_entity.dart';
 
 class FertilizerProductModel extends FertilizerProductEntity {
   const FertilizerProductModel({

@@ -1,9 +1,9 @@
 import 'dart:convert';
 
-import 'package:demo/core/api_constant/api_client.dart';
-import 'package:demo/core/api_constant/dio_client.dart';
-import 'package:demo/core/error/exceptions.dart';
-import 'package:demo/features/leave/data/models/team_leave_model.dart';
+import 'package:solufine/core/api_constant/api_client.dart';
+import 'package:solufine/core/api_constant/dio_client.dart';
+import 'package:solufine/core/error/exceptions.dart';
+import 'package:solufine/features/leave/data/models/team_leave_model.dart';
 import 'package:dio/dio.dart';
 
 abstract class TeamLeaveRemoteDataSource {

@@ -1,8 +1,8 @@
 
-import 'package:demo/core/api_constant/api_client.dart';
-import 'package:demo/core/theme/app_colors.dart';
-import 'package:demo/features/place_order/domain/entities/product_entity.dart';
-import 'package:demo/features/place_order/domain/entities/product_rate_entity.dart';
+import 'package:solufine/core/api_constant/api_client.dart';
+import 'package:solufine/core/theme/app_colors.dart';
+import 'package:solufine/features/place_order/domain/entities/product_entity.dart';
+import 'package:solufine/features/place_order/domain/entities/product_rate_entity.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil_plus/flutter_screenutil_plus.dart';
 

@@ -1,7 +1,7 @@
 import 'dart:convert';
 
-import 'package:demo/core/api_constant/api_client.dart';
-import 'package:demo/core/api_constant/dio_client.dart';
+import 'package:solufine/core/api_constant/api_client.dart';
+import 'package:solufine/core/api_constant/dio_client.dart';
 import 'package:dio/dio.dart';
 import 'package:dio/dio.dart' as Dio;
 import 'package:http/http.dart';

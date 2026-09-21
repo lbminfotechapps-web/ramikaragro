@@ -1,7 +1,7 @@
 
-import 'package:demo/features/dealer/domain/repository/dealer_repo.dart';
-import 'package:demo/features/dealer/presentation/bloc/dealerlist_event.dart';
-import 'package:demo/features/dealer/presentation/bloc/dealerlist_state.dart';
+import 'package:solufine/features/dealer/domain/repository/dealer_repo.dart';
+import 'package:solufine/features/dealer/presentation/bloc/dealerlist_event.dart';
+import 'package:solufine/features/dealer/presentation/bloc/dealerlist_state.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class DealerListBloc extends Bloc<DealerListEvent, DealerListState> {

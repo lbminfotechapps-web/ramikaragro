@@ -1,10 +1,10 @@
 import 'dart:async';
 import 'dart:io';
 
-import 'package:demo/core/utility/image_compression.dart';
-import 'package:demo/features/farmer/farmerregistration/domain/repository/farmerregistration_repo.dart';
-import 'package:demo/features/farmer/farmerregistration/presentation/bloc/state_event.dart';
-import 'package:demo/features/farmer/farmerregistration/presentation/bloc/states_state.dart';
+import 'package:solufine/core/utility/image_compression.dart';
+import 'package:solufine/features/farmer/farmerregistration/domain/repository/farmerregistration_repo.dart';
+import 'package:solufine/features/farmer/farmerregistration/presentation/bloc/state_event.dart';
+import 'package:solufine/features/farmer/farmerregistration/presentation/bloc/states_state.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class StateBloc extends Bloc<StatesEvent, StatsState> {

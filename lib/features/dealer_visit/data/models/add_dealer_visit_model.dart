@@ -1,4 +1,4 @@
-import 'package:demo/features/dealer_visit/domain/entities/add_dealer_visit_entity.dart';
+import 'package:solufine/features/dealer_visit/domain/entities/add_dealer_visit_entity.dart';
 
 class AddDealerVisitModel extends AddDealerVisitEntity {
   const AddDealerVisitModel({

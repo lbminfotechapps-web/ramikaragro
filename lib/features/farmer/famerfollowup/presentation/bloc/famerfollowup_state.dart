@@ -1,4 +1,4 @@
-import 'package:demo/features/farmer/famerfollowup/data/model/followuplist_model.dart';
+import 'package:solufine/features/farmer/famerfollowup/data/model/followuplist_model.dart';
 import 'package:equatable/equatable.dart';
 
 enum FamerfollowupStatus {

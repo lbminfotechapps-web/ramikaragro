@@ -1,5 +1,5 @@
 
-import 'package:demo/features/farmer/farmerregistration/domain/entity/irrigation_entity.dart';
+import 'package:solufine/features/farmer/farmerregistration/domain/entity/irrigation_entity.dart';
 
 class IrrigationModel extends IrrigationEntity {
   const IrrigationModel({

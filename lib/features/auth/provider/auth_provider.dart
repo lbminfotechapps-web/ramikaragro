@@ -1,6 +1,6 @@
 
 
-import 'package:demo/core/secure_storage/secure_storage.dart';
+import 'package:solufine/core/secure_storage/secure_storage.dart';
 import 'package:flutter/material.dart';
 
 class AuthProvider extends ChangeNotifier {

@@ -1,12 +1,12 @@
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:demo/core/api_constant/api_client.dart';
-import 'package:demo/core/api_constant/dio_client.dart';
-import 'package:demo/core/error/exceptions.dart';
-import 'package:demo/features/collection/data/models/bank_model.dart';
-import 'package:demo/features/collection/data/models/dealer_model.dart';
-import 'package:demo/features/collection/data/models/submit_payment_response_model.dart';
+import 'package:solufine/core/api_constant/api_client.dart';
+import 'package:solufine/core/api_constant/dio_client.dart';
+import 'package:solufine/core/error/exceptions.dart';
+import 'package:solufine/features/collection/data/models/bank_model.dart';
+import 'package:solufine/features/collection/data/models/dealer_model.dart';
+import 'package:solufine/features/collection/data/models/submit_payment_response_model.dart';
 import 'package:dio/dio.dart';
 
 abstract class CollectionRemoteDataSource {

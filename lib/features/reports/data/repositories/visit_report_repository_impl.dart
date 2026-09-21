@@ -1,6 +1,6 @@
 import 'dart:convert';
 
-import 'package:demo/features/reports/data/modles/visit_report_model.dart';
+import 'package:solufine/features/reports/data/modles/visit_report_model.dart';
 import 'package:dio/dio.dart';
 
 import '../../domain/entities/visit_report.dart';

@@ -1,4 +1,4 @@
-import 'package:demo/features/scheme/domain/entity/scheme_entity.dart';
+import 'package:solufine/features/scheme/domain/entity/scheme_entity.dart';
 
 class SchemeResponseModel extends SchemeEntity {
   const SchemeResponseModel({

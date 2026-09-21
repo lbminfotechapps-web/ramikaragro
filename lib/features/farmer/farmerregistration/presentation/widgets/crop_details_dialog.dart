@@ -1,8 +1,8 @@
 
 
-import 'package:demo/features/farmer/farmerregistration/domain/entity/crop_entity.dart';
-import 'package:demo/features/farmer/farmerregistration/domain/entity/irrigation_entity.dart' show IrrigationEntity;
-import 'package:demo/features/farmer/farmerregistration/domain/entity/selected_crop_detail.dart';
+import 'package:solufine/features/farmer/farmerregistration/domain/entity/crop_entity.dart';
+import 'package:solufine/features/farmer/farmerregistration/domain/entity/irrigation_entity.dart' show IrrigationEntity;
+import 'package:solufine/features/farmer/farmerregistration/domain/entity/selected_crop_detail.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil_plus/flutter_screenutil_plus.dart';
 

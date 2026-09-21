@@ -1,6 +1,6 @@
-import 'package:demo/features/farmer/farmerlist/domain/repository/farmerlist_repo.dart';
-import 'package:demo/features/farmer/farmerlist/presentation/bloc/farmerlist_event.dart';
-import 'package:demo/features/farmer/farmerlist/presentation/bloc/farmerlist_state.dart';
+import 'package:solufine/features/farmer/farmerlist/domain/repository/farmerlist_repo.dart';
+import 'package:solufine/features/farmer/farmerlist/presentation/bloc/farmerlist_event.dart';
+import 'package:solufine/features/farmer/farmerlist/presentation/bloc/farmerlist_state.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 

@@ -1,4 +1,4 @@
-import 'package:demo/features/gallery/domain/usecases/GetGalleryDetails.dart';
+import 'package:solufine/features/gallery/domain/usecases/GetGalleryDetails.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'gallery_event.dart';

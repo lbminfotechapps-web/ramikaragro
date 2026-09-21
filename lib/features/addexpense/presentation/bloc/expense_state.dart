@@ -1,5 +1,5 @@
-import 'package:demo/features/addexpense/domain/entities/expense_parameter_entity.dart';
-import 'package:demo/features/addexpense/domain/entities/vehicle_entity.dart';
+import 'package:solufine/features/addexpense/domain/entities/expense_parameter_entity.dart';
+import 'package:solufine/features/addexpense/domain/entities/vehicle_entity.dart';
 import 'package:equatable/equatable.dart';
 
 enum ExpenseStatus { initial, loading, loaded, submitting, success, error }

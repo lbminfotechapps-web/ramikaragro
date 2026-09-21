@@ -1,7 +1,7 @@
 
 
-import 'package:demo/features/dealer_visit/domain/entities/dealer_followup_list_entity.dart';
-import 'package:demo/features/dealer_visit/domain/entities/visit_purpose_entity.dart';
+import 'package:solufine/features/dealer_visit/domain/entities/dealer_followup_list_entity.dart';
+import 'package:solufine/features/dealer_visit/domain/entities/visit_purpose_entity.dart';
 
 abstract class AddDealerVisitRepository {
 

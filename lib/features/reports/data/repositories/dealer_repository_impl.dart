@@ -1,6 +1,6 @@
 import 'dart:convert';
 
-import 'package:demo/features/reports/data/modles/not_visited_dealer_model.dart';
+import 'package:solufine/features/reports/data/modles/not_visited_dealer_model.dart';
 import 'package:dio/dio.dart';
 
 import '../../../../core/error/exceptions.dart';

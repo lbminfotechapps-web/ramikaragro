@@ -1,10 +1,10 @@
-import 'package:demo/core/api_constant/dio_client.dart';
-import 'package:demo/features/salesreturnhistory/data/datasource/sales_return_history_remote_datasource.dart';
-import 'package:demo/features/salesreturnhistory/data/repoimp/sales_return_history_repository_impl.dart';
-import 'package:demo/features/salesreturnhistory/domain/repositries/sales_return_history_repository.dart';
-import 'package:demo/features/salesreturnhistory/domain/usecases/get_sales_return_history_usecase.dart';
-import 'package:demo/features/salesreturnhistory/domain/usecases/search_sales_return_dealer_usecase.dart';
-import 'package:demo/features/salesreturnhistory/presentation/bloc/sales_return_history_bloc.dart';
+import 'package:solufine/core/api_constant/dio_client.dart';
+import 'package:solufine/features/salesreturnhistory/data/datasource/sales_return_history_remote_datasource.dart';
+import 'package:solufine/features/salesreturnhistory/data/repoimp/sales_return_history_repository_impl.dart';
+import 'package:solufine/features/salesreturnhistory/domain/repositries/sales_return_history_repository.dart';
+import 'package:solufine/features/salesreturnhistory/domain/usecases/get_sales_return_history_usecase.dart';
+import 'package:solufine/features/salesreturnhistory/domain/usecases/search_sales_return_dealer_usecase.dart';
+import 'package:solufine/features/salesreturnhistory/presentation/bloc/sales_return_history_bloc.dart';
 
 import 'package:get_it/get_it.dart';
 

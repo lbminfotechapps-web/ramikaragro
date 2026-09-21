@@ -1,12 +1,12 @@
-import 'package:demo/core/api_constant/dio_client.dart';
-import 'package:demo/core/notifiations/fcm_token_service.dart';
-import 'package:demo/core/secure_storage/secure_storage.dart';
-import 'package:demo/features/auth/data/datasource/auth_datasource.dart';
-import 'package:demo/features/auth/data/repoimp/login_repo_imp.dart';
-import 'package:demo/features/auth/domain/repository/login_repo.dart';
-import 'package:demo/features/auth/domain/usecases/login_usecase.dart';
-import 'package:demo/features/auth/presentation/bloc/auth_bloc.dart';
-import 'package:demo/features/auth/provider/auth_provider.dart';
+import 'package:solufine/core/api_constant/dio_client.dart';
+import 'package:solufine/core/notifiations/fcm_token_service.dart';
+import 'package:solufine/core/secure_storage/secure_storage.dart';
+import 'package:solufine/features/auth/data/datasource/auth_datasource.dart';
+import 'package:solufine/features/auth/data/repoimp/login_repo_imp.dart';
+import 'package:solufine/features/auth/domain/repository/login_repo.dart';
+import 'package:solufine/features/auth/domain/usecases/login_usecase.dart';
+import 'package:solufine/features/auth/presentation/bloc/auth_bloc.dart';
+import 'package:solufine/features/auth/provider/auth_provider.dart';
 
 import 'package:get_it/get_it.dart';
 

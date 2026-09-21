@@ -1,5 +1,5 @@
 import 'package:equatable/equatable.dart';
-import 'package:demo/features/gallery/domain/entities/gallery_entity.dart';
+import 'package:solufine/features/gallery/domain/entities/gallery_entity.dart';
 
 enum GalleryStatus { initial, loading, success, failure }
 

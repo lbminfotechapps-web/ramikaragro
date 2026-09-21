@@ -1,6 +1,6 @@
 import 'dart:math' as math;
 
-import 'package:demo/core/theme/app_colors.dart';
+import 'package:solufine/core/theme/app_colors.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil_plus/flutter_screenutil_plus.dart';

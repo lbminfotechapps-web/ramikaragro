@@ -1,6 +1,6 @@
 import 'dart:convert';
 
-import 'package:demo/features/reports/data/modles/employee_activity_model.dart';
+import 'package:solufine/features/reports/data/modles/employee_activity_model.dart';
 import 'package:dio/dio.dart';
 
 import '../../domain/entities/employee_activity.dart';

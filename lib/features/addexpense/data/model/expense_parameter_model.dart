@@ -1,4 +1,4 @@
-import 'package:demo/features/addexpense/domain/entities/expense_parameter_entity.dart';
+import 'package:solufine/features/addexpense/domain/entities/expense_parameter_entity.dart';
 
 class ExpenseParameterModel extends ExpenseParameterEntity {
   const ExpenseParameterModel({

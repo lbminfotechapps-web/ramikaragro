@@ -1,10 +1,6 @@
-
-import 'dart:convert';
-
-import 'package:demo/core/api_constant/api_client.dart';
-import 'package:demo/core/api_constant/dio_client.dart';
-import 'package:demo/features/enquiry/data/models/submit_enquiry_response_model.dart';
-import 'package:dio/dio.dart';
+import 'package:solufine/core/api_constant/api_client.dart';
+import 'package:solufine/core/api_constant/dio_client.dart';
+import 'package:flutter/material.dart';
 
 import '../models/state_model.dart';
 import '../models/district_model.dart';

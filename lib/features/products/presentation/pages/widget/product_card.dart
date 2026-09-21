@@ -1,5 +1,5 @@
-import 'package:demo/core/api_constant/api_client.dart';
-import 'package:demo/features/products/domain/entity/fertilizer_product_entity.dart';
+import 'package:solufine/core/api_constant/api_client.dart';
+import 'package:solufine/features/products/domain/entity/fertilizer_product_entity.dart';
 import 'package:flutter/material.dart';
 
 class ProductCard extends StatelessWidget {

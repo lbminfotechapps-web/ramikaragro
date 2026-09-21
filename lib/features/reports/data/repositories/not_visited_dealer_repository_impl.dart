@@ -1,5 +1,5 @@
 
-import 'package:demo/features/reports/domain/repositories/not_visited_dealer_repository.dart';
+import 'package:solufine/features/reports/domain/repositories/not_visited_dealer_repository.dart';
 
 import '../../domain/entities/not_visited_dealer.dart';
 import '../datasources/not_visited_dealer_remote_data_source.dart';

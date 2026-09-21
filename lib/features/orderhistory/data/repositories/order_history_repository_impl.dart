@@ -1,6 +1,6 @@
-import 'package:demo/features/orderhistory/data/datasource/order_history_remote_datasource.dart';
-import 'package:demo/features/orderhistory/domain/entities/order_history_entity.dart';
-import 'package:demo/features/orderhistory/domain/repository/order_history_repository.dart';
+import 'package:solufine/features/orderhistory/data/datasource/order_history_remote_datasource.dart';
+import 'package:solufine/features/orderhistory/domain/entities/order_history_entity.dart';
+import 'package:solufine/features/orderhistory/domain/repository/order_history_repository.dart';
 
 class OrderHistoryRepositoryImpl implements OrderHistoryRepository {
   final OrderHistoryRemoteDataSource remoteDataSource;

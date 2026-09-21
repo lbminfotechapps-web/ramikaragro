@@ -1,63 +1,63 @@
-import 'package:demo/core/utility/widgets/bottom_navigation.dart';
-import 'package:demo/core/di/auth_di.dart';
-import 'package:demo/features/addexpense/presentation/pages/add_expense_page.dart';
-import 'package:demo/features/auth/presentation/pages/login_screen.dart';
-import 'package:demo/features/collection/presentation/pages/collection_list_page.dart';
-import 'package:demo/features/collection/presentation/pages/collection_wise_form_page.dart';
-import 'package:demo/features/collection/presentation/pages/dealer_wise_target_page.dart';
-import 'package:demo/features/dealer/data/models/DealerListModel.dart';
-import 'package:demo/features/dealer/presentation/pages/DealerListScreen.dart';
-import 'package:demo/features/dealer_visit/presentation/pages/dealer_followup_list_page.dart';
-import 'package:demo/features/dealer_visit/presentation/pages/dealer_followup_add.dart';
-import 'package:demo/features/dealer_visit/presentation/pages/edit_update_dealer.dart';
-import 'package:demo/features/distpatchistory/presentation/pages/dispatch_page.dart';
-import 'package:demo/features/dealer_visit/presentation/pages/add_remark_page.dart';
-import 'package:demo/features/enquiry/presentation/pages/enquiry_page.dart';
-import 'package:demo/features/expense/presentation/pages/my_expense_page.dart';
-import 'package:demo/features/expense/presentation/pages/team_expense_page.dart';
-import 'package:demo/features/farmer/famerfollowup/presentation/pages/famerfollowuppage.dart';
-import 'package:demo/features/farmer/farmerlist/data/model/farmerlist_model.dart';
-import 'package:demo/features/farmer/farmerregistration/presentation/pages/farmer_edit_update_scren.dart';
-import 'package:demo/features/farmer/farmerlist/presentation/pages/farmerlist_screen.dart';
-import 'package:demo/features/farmer/farmerregistration/presentation/pages/farmerregistration_page.dart';
-import 'package:demo/features/followup/presentation/pages/followup_page.dart';
-import 'package:demo/features/gallery/presentation/pages/galleryscreen.dart';
-import 'package:demo/features/home/presentation/crop_schedule_page.dart';
+import 'package:solufine/core/utility/widgets/bottom_navigation.dart';
+import 'package:solufine/core/di/auth_di.dart';
+import 'package:solufine/features/addexpense/presentation/pages/add_expense_page.dart';
+import 'package:solufine/features/auth/presentation/pages/login_screen.dart';
+import 'package:solufine/features/collection/presentation/pages/collection_list_page.dart';
+import 'package:solufine/features/collection/presentation/pages/collection_wise_form_page.dart';
+import 'package:solufine/features/collection/presentation/pages/dealer_wise_target_page.dart';
+import 'package:solufine/features/dealer/data/models/DealerListModel.dart';
+import 'package:solufine/features/dealer/presentation/pages/DealerListScreen.dart';
+import 'package:solufine/features/dealer_visit/presentation/pages/dealer_followup_list_page.dart';
+import 'package:solufine/features/dealer_visit/presentation/pages/dealer_followup_add.dart';
+import 'package:solufine/features/dealer_visit/presentation/pages/edit_update_dealer.dart';
+import 'package:solufine/features/distpatchistory/presentation/pages/dispatch_page.dart';
+import 'package:solufine/features/dealer_visit/presentation/pages/add_remark_page.dart';
+import 'package:solufine/features/enquiry/presentation/pages/enquiry_page.dart';
+import 'package:solufine/features/expense/presentation/pages/my_expense_page.dart';
+import 'package:solufine/features/expense/presentation/pages/team_expense_page.dart';
+import 'package:solufine/features/farmer/famerfollowup/presentation/pages/famerfollowuppage.dart';
+import 'package:solufine/features/farmer/farmerlist/data/model/farmerlist_model.dart';
+import 'package:solufine/features/farmer/farmerregistration/presentation/pages/farmer_edit_update_scren.dart';
+import 'package:solufine/features/farmer/farmerlist/presentation/pages/farmerlist_screen.dart';
+import 'package:solufine/features/farmer/farmerregistration/presentation/pages/farmerregistration_page.dart';
+import 'package:solufine/features/followup/presentation/pages/followup_page.dart';
+import 'package:solufine/features/gallery/presentation/pages/galleryscreen.dart';
+import 'package:solufine/features/home/presentation/crop_schedule_page.dart';
 
-import 'package:demo/features/home/presentation/home.dart';
-import 'package:demo/features/home/presentation/punch_screen.dart';
-import 'package:demo/features/home/doman/home_entity/punch_stat_entity.dart';
-import 'package:demo/features/home/presentation/punch_out_screen.dart';
-import 'package:demo/features/home/presentation/social_media_page.dart';
-import 'package:demo/features/leave/presentation/pages/add_leave_page.dart';
-import 'package:demo/features/leave/presentation/pages/leave_list_page.dart';
-import 'package:demo/features/leave/presentation/pages/team_leave_list_page.dart';
-import 'package:demo/features/leave/presentation/pages/top_ten_dealer_page.dart';
-import 'package:demo/features/home/presentation/last_force_out_screen.dart';
-import 'package:demo/features/place_order/presentation/pages/place_order_page.dart';
-import 'package:demo/features/orderhistory/presentation/presentattion/order_history_page.dart';
-import 'package:demo/features/products/domain/entity/fertilizer_category_entity.dart';
-import 'package:demo/features/products/domain/entity/fertilizer_product_entity.dart';
-import 'package:demo/features/products/presentation/pages/product_details.dart';
-import 'package:demo/features/products/presentation/pages/product_list.dart';
-import 'package:demo/features/products/presentation/pages/products_screen.dart';
-import 'package:demo/features/profilepage/profile_page.dart';
-import 'package:demo/features/reports/presentation/pages/about_us_page.dart';
-import 'package:demo/features/reports/presentation/pages/contact_us_page.dart';
-import 'package:demo/features/reports/presentation/pages/employee_activity_report_page.dart';
-import 'package:demo/features/reports/presentation/pages/employee_output_report_page.dart';
-import 'package:demo/features/reports/presentation/pages/not_visited_dealer_page.dart';
-import 'package:demo/features/reports/presentation/pages/notification_page.dart';
+import 'package:solufine/features/home/presentation/home.dart';
+import 'package:solufine/features/home/presentation/punch_screen.dart';
+import 'package:solufine/features/home/doman/home_entity/punch_stat_entity.dart';
+import 'package:solufine/features/home/presentation/punch_out_screen.dart';
+import 'package:solufine/features/home/presentation/social_media_page.dart';
+import 'package:solufine/features/leave/presentation/pages/add_leave_page.dart';
+import 'package:solufine/features/leave/presentation/pages/leave_list_page.dart';
+import 'package:solufine/features/leave/presentation/pages/team_leave_list_page.dart';
+import 'package:solufine/features/leave/presentation/pages/top_ten_dealer_page.dart';
+import 'package:solufine/features/home/presentation/last_force_out_screen.dart';
+import 'package:solufine/features/place_order/presentation/pages/place_order_page.dart';
+import 'package:solufine/features/orderhistory/presentation/presentattion/order_history_page.dart';
+import 'package:solufine/features/products/domain/entity/fertilizer_category_entity.dart';
+import 'package:solufine/features/products/domain/entity/fertilizer_product_entity.dart';
+import 'package:solufine/features/products/presentation/pages/product_details.dart';
+import 'package:solufine/features/products/presentation/pages/product_list.dart';
+import 'package:solufine/features/products/presentation/pages/products_screen.dart';
+import 'package:solufine/features/profilepage/profile_page.dart';
+import 'package:solufine/features/reports/presentation/pages/about_us_page.dart';
+import 'package:solufine/features/reports/presentation/pages/contact_us_page.dart';
+import 'package:solufine/features/reports/presentation/pages/employee_activity_report_page.dart';
+import 'package:solufine/features/reports/presentation/pages/employee_output_report_page.dart';
+import 'package:solufine/features/reports/presentation/pages/not_visited_dealer_page.dart';
+import 'package:solufine/features/reports/presentation/pages/notification_page.dart';
 
-import 'package:demo/features/reports/presentation/pages/reports_scree.dart';
-import 'package:demo/features/reports/presentation/pages/user_guidelines_page.dart';
-import 'package:demo/features/reports/presentation/pages/visit_summary_page.dart';
-import 'package:demo/features/reports/presentation/bloc/employee_output_bloc.dart';
-import 'package:demo/features/reports/presentation/bloc/visit_report_bloc.dart';
-import 'package:demo/features/sales_targrt_achievement/presentation/pages/sales_wise_target_page.dart';
-import 'package:demo/features/salesreturnhistory/presentation/presentation/sales_return_history_page.dart';
-import 'package:demo/features/scheme/presentation/pages/schemescreen.dart';
-import 'package:demo/features/splash/splash_screen.dart';
+import 'package:solufine/features/reports/presentation/pages/reports_scree.dart';
+import 'package:solufine/features/reports/presentation/pages/user_guidelines_page.dart';
+import 'package:solufine/features/reports/presentation/pages/visit_summary_page.dart';
+import 'package:solufine/features/reports/presentation/bloc/employee_output_bloc.dart';
+import 'package:solufine/features/reports/presentation/bloc/visit_report_bloc.dart';
+import 'package:solufine/features/sales_targrt_achievement/presentation/pages/sales_wise_target_page.dart';
+import 'package:solufine/features/salesreturnhistory/presentation/presentation/sales_return_history_page.dart';
+import 'package:solufine/features/scheme/presentation/pages/schemescreen.dart';
+import 'package:solufine/features/splash/splash_screen.dart';
 import 'package:flutter/foundation.dart';
 
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -310,6 +310,20 @@ class AppRouter {
 
 
       
+      GoRoute(
+        path: farmers,
+        name: 'farmers',
+        builder: (context, state) => const FarmerlistScreen(),
+      ),
+      GoRoute(
+        path: farmerpin,
+        name: 'farmerpin',
+        builder: (context, state) {
+          final farmerId = state.extra is String ? state.extra as String : '';
+          return FamerFollowupPage(farmerId: farmerId);
+        },
+      ),
+
   GoRoute(
         path: productEnquiry,
         name: 'productEnquiry',
@@ -317,18 +331,13 @@ class AppRouter {
           debugPrint('========================================');
           debugPrint('PRODUCT ENQUIRY ROUTER');
           debugPrint('state.extra      : ${state.extra}');
-          debugPrint(
-            'state.extra type : ${state.extra.runtimeType}',
-          );
+          debugPrint('state.extra type : ${state.extra.runtimeType}');
 
-          final extra =
-              state.extra as Map<String, dynamic>?;
+          final extra = state.extra as Map<String, dynamic>?;
 
-          final String productId =
-              extra?['productId']?.toString() ?? '';
+          final String productId = extra?['productId']?.toString() ?? '';
 
-          final String productName =
-              extra?['productName']?.toString() ?? '';
+          final String productName = extra?['productName']?.toString() ?? '';
 
           debugPrint('PRODUCT ID      : $productId');
           debugPrint('PRODUCT NAME    : $productName');
@@ -341,6 +350,7 @@ class AppRouter {
         },
       ),
   
+
 
       GoRoute(
         path: dealerpin,
@@ -490,9 +500,6 @@ class AppRouter {
       //     // },
       //   },
       // ),
-
-
-  
       GoRoute(
         path: visitSummaryReport,
         name: 'visitSummaryReport',

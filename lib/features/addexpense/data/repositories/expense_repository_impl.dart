@@ -1,7 +1,7 @@
-import 'package:demo/features/addexpense/data/datasource/expense_remote_datasource.dart';
-import 'package:demo/features/addexpense/domain/entities/expense_parameter_entity.dart';
-import 'package:demo/features/addexpense/domain/entities/vehicle_entity.dart';
-import 'package:demo/features/addexpense/domain/repositories/expense_repository.dart';
+import 'package:solufine/features/addexpense/data/datasource/expense_remote_datasource.dart';
+import 'package:solufine/features/addexpense/domain/entities/expense_parameter_entity.dart';
+import 'package:solufine/features/addexpense/domain/entities/vehicle_entity.dart';
+import 'package:solufine/features/addexpense/domain/repositories/expense_repository.dart';
 
 class ExpenseRepositoryImpl implements ExpenseRepository {
   final ExpenseRemoteDatasource datasource;

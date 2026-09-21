@@ -1,10 +1,10 @@
-import 'package:demo/core/api_constant/api_client.dart';
-import 'package:demo/core/utility/fullimage.dart';
-import 'package:demo/core/utility/widgets/custom_appbar.dart';
-import 'package:demo/core/utility/widgets/custom_loader.dart';
-import 'package:demo/features/gallery/presentation/boc/gallery_bloc.dart';
-import 'package:demo/features/gallery/presentation/boc/gallery_event.dart';
-import 'package:demo/features/gallery/presentation/boc/gallery_state.dart';
+import 'package:solufine/core/api_constant/api_client.dart';
+import 'package:solufine/core/utility/fullimage.dart';
+import 'package:solufine/core/utility/widgets/custom_appbar.dart';
+import 'package:solufine/core/utility/widgets/custom_loader.dart';
+import 'package:solufine/features/gallery/presentation/boc/gallery_bloc.dart';
+import 'package:solufine/features/gallery/presentation/boc/gallery_event.dart';
+import 'package:solufine/features/gallery/presentation/boc/gallery_state.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil_plus/flutter_screenutil_plus.dart';

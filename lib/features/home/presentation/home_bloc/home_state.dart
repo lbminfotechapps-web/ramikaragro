@@ -1,7 +1,7 @@
-import 'package:demo/features/home/doman/home_entity/homevisit_entity.dart';
-import 'package:demo/features/home/doman/home_entity/inpunch_pending_entity.dart';
+import 'package:solufine/features/home/doman/home_entity/homevisit_entity.dart';
+import 'package:solufine/features/home/doman/home_entity/inpunch_pending_entity.dart';
 import 'package:equatable/equatable.dart';
-import 'package:demo/features/home/doman/home_entity/menu_entity.dart';
+import 'package:solufine/features/home/doman/home_entity/menu_entity.dart';
 
 enum HomeStatus { initial, loading, success, failure }
 

@@ -1,4 +1,4 @@
-import 'package:demo/features/leave/domain/entities/team_leave.dart';
+import 'package:solufine/features/leave/domain/entities/team_leave.dart';
 
 class TeamLeaveModel extends TeamLeave {
   const TeamLeaveModel({

@@ -1,5 +1,5 @@
-import 'package:demo/features/distpatchistory/domain/entities/dispatch_list_entity.dart';
-import 'package:demo/features/distpatchistory/domain/usecases/get_dispatch_list_usecase.dart';
+import 'package:solufine/features/distpatchistory/domain/entities/dispatch_list_entity.dart';
+import 'package:solufine/features/distpatchistory/domain/usecases/get_dispatch_list_usecase.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'dispatch_event.dart';

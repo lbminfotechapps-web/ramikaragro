@@ -1,7 +1,7 @@
-import 'package:demo/features/home/data/home_datasource/quick_access_datasource.dart';
-import 'package:demo/features/home/doman/home_entity/punch_stat_entity.dart';
-import 'package:demo/features/home/doman/home_entity/vehicle_type_entity.dart';
-import 'package:demo/features/home/doman/home_repository/qick_access_repo.dart';
+import 'package:solufine/features/home/data/home_datasource/quick_access_datasource.dart';
+import 'package:solufine/features/home/doman/home_entity/punch_stat_entity.dart';
+import 'package:solufine/features/home/doman/home_entity/vehicle_type_entity.dart';
+import 'package:solufine/features/home/doman/home_repository/qick_access_repo.dart';
 
 class QuickAccessRepoImp implements QickAccessRepo {
   final QuickAccessDatasource quickAccessDatasource;

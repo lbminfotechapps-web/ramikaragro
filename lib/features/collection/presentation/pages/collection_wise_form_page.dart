@@ -1,15 +1,15 @@
 import 'dart:io';
 
-import 'package:demo/core/di/collection_di.dart';
-import 'package:demo/core/router/app_router.dart';
-import 'package:demo/core/secure_storage/secure_storage.dart';
-import 'package:demo/core/theme/app_colors.dart';
-import 'package:demo/core/utility/widgets/custom_appbar.dart';
-import 'package:demo/features/collection/domain/entities/dealer.dart';
-import 'package:demo/features/collection/presentation/bloc/collection_bloc.dart';
-import 'package:demo/features/collection/presentation/bloc/collection_event.dart';
-import 'package:demo/features/collection/presentation/bloc/collection_state.dart';
-import 'package:demo/features/collection/presentation/pages/dealer_search_bottom_sheet.dart';
+import 'package:solufine/core/di/collection_di.dart';
+import 'package:solufine/core/router/app_router.dart';
+import 'package:solufine/core/secure_storage/secure_storage.dart';
+import 'package:solufine/core/theme/app_colors.dart';
+import 'package:solufine/core/utility/widgets/custom_appbar.dart';
+import 'package:solufine/features/collection/domain/entities/dealer.dart';
+import 'package:solufine/features/collection/presentation/bloc/collection_bloc.dart';
+import 'package:solufine/features/collection/presentation/bloc/collection_event.dart';
+import 'package:solufine/features/collection/presentation/bloc/collection_state.dart';
+import 'package:solufine/features/collection/presentation/pages/dealer_search_bottom_sheet.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';

@@ -1,9 +1,9 @@
-import 'package:demo/core/api_constant/dio_client.dart';
-import 'package:demo/features/expense/data/datasources/my_expense_remote_datasource.dart';
-import 'package:demo/features/expense/data/repositories/my_expense_repository_impl.dart';
-import 'package:demo/features/expense/domain/repositories/my_expense_repository.dart';
-import 'package:demo/features/expense/domain/usecases/get_my_expenses_usecase.dart';
-import 'package:demo/features/expense/presentation/bloc/my_expense_bloc.dart';
+import 'package:solufine/core/api_constant/dio_client.dart';
+import 'package:solufine/features/expense/data/datasources/my_expense_remote_datasource.dart';
+import 'package:solufine/features/expense/data/repositories/my_expense_repository_impl.dart';
+import 'package:solufine/features/expense/domain/repositories/my_expense_repository.dart';
+import 'package:solufine/features/expense/domain/usecases/get_my_expenses_usecase.dart';
+import 'package:solufine/features/expense/presentation/bloc/my_expense_bloc.dart';
 import 'package:get_it/get_it.dart';
 
 final GetIt sl = GetIt.instance;

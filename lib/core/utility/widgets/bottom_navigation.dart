@@ -1,10 +1,10 @@
-import 'package:demo/core/router/app_router.dart';
-import 'package:demo/core/secure_storage/secure_storage.dart';
-import 'package:demo/core/theme/app_colors.dart';
-import 'package:demo/features/home/presentation/home_bloc/home_bloc.dart';
-import 'package:demo/features/home/presentation/home_bloc/home_event.dart';
-import 'package:demo/features/home/presentation/quick_aceess_bloc/quick_access_event.dart';
-import 'package:demo/features/home/presentation/quick_aceess_bloc/quick_acess_bloc.dart';
+import 'package:solufine/core/router/app_router.dart';
+import 'package:solufine/core/secure_storage/secure_storage.dart';
+import 'package:solufine/core/theme/app_colors.dart';
+import 'package:solufine/features/home/presentation/home_bloc/home_bloc.dart';
+import 'package:solufine/features/home/presentation/home_bloc/home_event.dart';
+import 'package:solufine/features/home/presentation/quick_aceess_bloc/quick_access_event.dart';
+import 'package:solufine/features/home/presentation/quick_aceess_bloc/quick_acess_bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';

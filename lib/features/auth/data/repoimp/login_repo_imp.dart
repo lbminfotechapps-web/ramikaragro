@@ -1,8 +1,8 @@
-import 'package:demo/core/secure_storage/secure_storage.dart';
-import 'package:demo/features/auth/data/datasource/auth_datasource.dart';
+import 'package:solufine/core/secure_storage/secure_storage.dart';
+import 'package:solufine/features/auth/data/datasource/auth_datasource.dart';
 
-import 'package:demo/features/auth/domain/entity/login_entity.dart';
-import 'package:demo/features/auth/domain/repository/login_repo.dart';
+import 'package:solufine/features/auth/domain/entity/login_entity.dart';
+import 'package:solufine/features/auth/domain/repository/login_repo.dart';
 
 class LoginRepoImp implements LoginRepository {
   final AuthDatasource authDatasource;

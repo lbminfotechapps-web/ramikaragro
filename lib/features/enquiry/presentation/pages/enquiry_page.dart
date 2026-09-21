@@ -1,13 +1,12 @@
-import 'package:demo/core/secure_storage/secure_storage.dart';
-import 'package:demo/core/theme/app_colors.dart';
-import 'package:demo/core/utility/widgets/custom_appbar.dart';
-import 'package:demo/core/utility/widgets/custom_textformfield.dart';
-import 'package:demo/features/enquiry/domain/entities/district_entity.dart';
-import 'package:demo/features/enquiry/domain/entities/state_entity.dart';
-import 'package:demo/features/enquiry/domain/entities/taluka_entity.dart';
-import 'package:demo/features/enquiry/presentation/bloc/enquiry_bloc.dart';
-import 'package:demo/features/enquiry/presentation/bloc/enquiry_event.dart';
-import 'package:demo/features/enquiry/presentation/bloc/enquiry_state.dart';
+import 'package:solufine/core/secure_storage/secure_storage.dart';
+import 'package:solufine/core/theme/app_colors.dart';
+import 'package:solufine/core/utility/widgets/custom_textformfield.dart';
+import 'package:solufine/features/enquiry/domain/entities/district_entity.dart';
+import 'package:solufine/features/enquiry/domain/entities/state_entity.dart';
+import 'package:solufine/features/enquiry/domain/entities/taluka_entity.dart';
+import 'package:solufine/features/enquiry/presentation/bloc/enquiry_bloc.dart';
+import 'package:solufine/features/enquiry/presentation/bloc/enquiry_event.dart';
+import 'package:solufine/features/enquiry/presentation/bloc/enquiry_state.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 

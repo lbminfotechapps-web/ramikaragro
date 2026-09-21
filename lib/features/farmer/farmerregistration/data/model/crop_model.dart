@@ -1,6 +1,6 @@
 
 
-import 'package:demo/features/farmer/farmerregistration/domain/entity/crop_entity.dart';
+import 'package:solufine/features/farmer/farmerregistration/domain/entity/crop_entity.dart';
 
 class CropModel extends CropEntity {
   const CropModel({
