@@ -1,6 +1,6 @@
-import 'package:demo/core/notifiations/fcm_token_service.dart';
-import 'package:demo/features/auth/domain/entity/login_entity.dart';
-import 'package:demo/features/auth/domain/repository/login_repo.dart';
+import 'package:solufine/core/notifiations/fcm_token_service.dart';
+import 'package:solufine/features/auth/domain/entity/login_entity.dart';
+import 'package:solufine/features/auth/domain/repository/login_repo.dart';
 
 class LoginUsecase {
   final LoginRepository loginRepository;

@@ -1,6 +1,6 @@
-import 'package:demo/core/api_constant/dio_client.dart';
-import 'package:demo/core/di/auth_di.dart';
-import 'package:demo/features/expense/data/repositories/team_expense_repository_impl.dart';
+import 'package:solufine/core/api_constant/dio_client.dart';
+import 'package:solufine/core/di/auth_di.dart';
+import 'package:solufine/features/expense/data/repositories/team_expense_repository_impl.dart';
 
 import '../../features/expense/data/datasources/team_expense_remote_datasource.dart';
 import '../../features/expense/domain/repositories/team_expense_repository.dart';

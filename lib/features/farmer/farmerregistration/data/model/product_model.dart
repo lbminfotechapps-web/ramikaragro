@@ -1,5 +1,5 @@
 
-import 'package:demo/features/farmer/farmerregistration/domain/entity/product_entity.dart';
+import 'package:solufine/features/farmer/farmerregistration/domain/entity/product_entity.dart';
 
 class ProductModel extends ProductEntity {
   const ProductModel({

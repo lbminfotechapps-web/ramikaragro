@@ -1,18 +1,18 @@
 import 'package:get_it/get_it.dart';
 
-import 'package:demo/core/api_constant/dio_client.dart';
+import 'package:solufine/core/api_constant/dio_client.dart';
 
-import 'package:demo/features/reports/data/datasources/employee_output_remote_data_source.dart';
+import 'package:solufine/features/reports/data/datasources/employee_output_remote_data_source.dart';
 
-import 'package:demo/features/reports/data/repositories/employee_output_repository_impl.dart';
+import 'package:solufine/features/reports/data/repositories/employee_output_repository_impl.dart';
 
-import 'package:demo/features/reports/domain/repositories/employee_output_repository.dart';
+import 'package:solufine/features/reports/domain/repositories/employee_output_repository.dart';
 
-import 'package:demo/features/reports/domain/usecases/get_employee_output_report.dart';
+import 'package:solufine/features/reports/domain/usecases/get_employee_output_report.dart';
 
-import 'package:demo/features/reports/domain/usecases/get_employees.dart';
+import 'package:solufine/features/reports/domain/usecases/get_employees.dart';
 
-import 'package:demo/features/reports/presentation/bloc/employee_output_bloc.dart';
+import 'package:solufine/features/reports/presentation/bloc/employee_output_bloc.dart';
 
 final sl = GetIt.instance;
 

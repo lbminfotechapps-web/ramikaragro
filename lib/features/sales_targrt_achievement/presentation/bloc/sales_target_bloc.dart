@@ -1,7 +1,7 @@
-import 'package:demo/features/sales_targrt_achievement/domain/usecases/get_sales_wise_target.dart';
-import 'package:demo/features/sales_targrt_achievement/domain/usecases/get_target_dates.dart';
-import 'package:demo/features/sales_targrt_achievement/presentation/bloc/sales_target_event.dart';
-import 'package:demo/features/sales_targrt_achievement/presentation/bloc/sales_target_state.dart';
+import 'package:solufine/features/sales_targrt_achievement/domain/usecases/get_sales_wise_target.dart';
+import 'package:solufine/features/sales_targrt_achievement/domain/usecases/get_target_dates.dart';
+import 'package:solufine/features/sales_targrt_achievement/presentation/bloc/sales_target_event.dart';
+import 'package:solufine/features/sales_targrt_achievement/presentation/bloc/sales_target_state.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 

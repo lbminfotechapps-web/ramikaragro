@@ -1,7 +1,7 @@
 
 
-import 'package:demo/features/home/doman/home_entity/social_media.dart';
-import 'package:demo/features/home/doman/home_repository/social_media_repository.dart';
+import 'package:solufine/features/home/doman/home_entity/social_media.dart';
+import 'package:solufine/features/home/doman/home_repository/social_media_repository.dart';
 
 class GetSocialMedia {
   final SocialMediaRepository repository;

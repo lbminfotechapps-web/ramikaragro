@@ -1,7 +1,7 @@
 import 'dart:io';
 
-import 'package:demo/features/collection/data/models/bank_model.dart';
-import 'package:demo/features/collection/data/models/dealer_model.dart';
+import 'package:solufine/features/collection/data/models/bank_model.dart';
+import 'package:solufine/features/collection/data/models/dealer_model.dart';
 
 import '../../domain/entities/submit_payment_response.dart';
 import '../../domain/repositories/collection_repository.dart';

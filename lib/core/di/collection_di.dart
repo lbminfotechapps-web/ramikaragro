@@ -1,10 +1,10 @@
-import 'package:demo/features/collection/data/datasources/collection_remote_datasource.dart';
-import 'package:demo/features/collection/data/repositories/collection_repository_impl.dart';
-import 'package:demo/features/collection/domain/repositories/collection_repository.dart';
-import 'package:demo/features/collection/domain/usecases/get_bank_details.dart';
-import 'package:demo/features/collection/domain/usecases/search_dealers.dart';
-import 'package:demo/features/collection/domain/usecases/submit_payment_details.dart';
-import 'package:demo/features/collection/presentation/bloc/collection_bloc.dart';
+import 'package:solufine/features/collection/data/datasources/collection_remote_datasource.dart';
+import 'package:solufine/features/collection/data/repositories/collection_repository_impl.dart';
+import 'package:solufine/features/collection/domain/repositories/collection_repository.dart';
+import 'package:solufine/features/collection/domain/usecases/get_bank_details.dart';
+import 'package:solufine/features/collection/domain/usecases/search_dealers.dart';
+import 'package:solufine/features/collection/domain/usecases/submit_payment_details.dart';
+import 'package:solufine/features/collection/presentation/bloc/collection_bloc.dart';
 import 'package:get_it/get_it.dart';
 
 import '../api_constant/dio_client.dart';

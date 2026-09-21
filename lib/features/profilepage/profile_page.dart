@@ -1,7 +1,7 @@
 import 'dart:convert';
 
-import 'package:demo/core/theme/app_colors.dart';
-import 'package:demo/core/utility/widgets/custom_appbar.dart';
+import 'package:solufine/core/theme/app_colors.dart';
+import 'package:solufine/core/utility/widgets/custom_appbar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_screenutil_plus/flutter_screenutil_plus.dart';

@@ -1,6 +1,6 @@
-import 'package:demo/features/home/doman/home_entity/homevisit_entity.dart';
-import 'package:demo/features/home/doman/home_entity/inpunch_pending_entity.dart';
-import 'package:demo/features/home/doman/home_entity/menu_entity.dart';
+import 'package:solufine/features/home/doman/home_entity/homevisit_entity.dart';
+import 'package:solufine/features/home/doman/home_entity/inpunch_pending_entity.dart';
+import 'package:solufine/features/home/doman/home_entity/menu_entity.dart';
 
 abstract class HomeRepo {
   Future<List<MenuEntity>> getMenus(int userID, String menuName);

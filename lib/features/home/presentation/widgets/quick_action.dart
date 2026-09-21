@@ -1,16 +1,16 @@
-import 'package:demo/core/secure_storage/secure_storage.dart';
-import 'package:demo/core/theme/app_colors.dart';
+import 'package:solufine/core/secure_storage/secure_storage.dart';
+import 'package:solufine/core/theme/app_colors.dart';
 
-import 'package:demo/core/utility/appdialog.dart';
-import 'package:demo/core/utility/device_info_util.dart';
-import 'package:demo/core/utility/location_util.dart';
-import 'package:demo/core/utility/widgets/custom_card.dart';
-import 'package:demo/core/utility/widgets/custom_loader.dart';
-import 'package:demo/features/home/doman/home_entity/menu_entity.dart';
-import 'package:demo/features/home/doman/home_entity/punch_stat_entity.dart';
-import 'package:demo/features/home/presentation/quick_aceess_bloc/quick_access_event.dart';
-import 'package:demo/features/home/presentation/quick_aceess_bloc/quick_access_state.dart';
-import 'package:demo/features/home/presentation/quick_aceess_bloc/quick_acess_bloc.dart';
+import 'package:solufine/core/utility/appdialog.dart';
+import 'package:solufine/core/utility/device_info_util.dart';
+import 'package:solufine/core/utility/location_util.dart';
+import 'package:solufine/core/utility/widgets/custom_card.dart';
+import 'package:solufine/core/utility/widgets/custom_loader.dart';
+import 'package:solufine/features/home/doman/home_entity/menu_entity.dart';
+import 'package:solufine/features/home/doman/home_entity/punch_stat_entity.dart';
+import 'package:solufine/features/home/presentation/quick_aceess_bloc/quick_access_event.dart';
+import 'package:solufine/features/home/presentation/quick_aceess_bloc/quick_access_state.dart';
+import 'package:solufine/features/home/presentation/quick_aceess_bloc/quick_acess_bloc.dart';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart' show ReadContext, BlocListener;

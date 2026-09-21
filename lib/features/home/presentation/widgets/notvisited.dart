@@ -1,4 +1,4 @@
-import 'package:demo/features/home/doman/home_entity/homevisit_entity.dart';
+import 'package:solufine/features/home/doman/home_entity/homevisit_entity.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil_plus/flutter_screenutil_plus.dart';
 

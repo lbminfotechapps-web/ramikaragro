@@ -1,8 +1,8 @@
-import 'package:demo/features/home/data/home_datasource/home_datasource.dart';
-import 'package:demo/features/home/doman/home_entity/homevisit_entity.dart';
-import 'package:demo/features/home/doman/home_entity/inpunch_pending_entity.dart';
-import 'package:demo/features/home/doman/home_entity/menu_entity.dart';
-import 'package:demo/features/home/doman/home_repository/home_repo.dart';
+import 'package:solufine/features/home/data/home_datasource/home_datasource.dart';
+import 'package:solufine/features/home/doman/home_entity/homevisit_entity.dart';
+import 'package:solufine/features/home/doman/home_entity/inpunch_pending_entity.dart';
+import 'package:solufine/features/home/doman/home_entity/menu_entity.dart';
+import 'package:solufine/features/home/doman/home_repository/home_repo.dart';
 
 class HomeRepoImp implements HomeRepo {
   final HomeDatasource homeDatasource;

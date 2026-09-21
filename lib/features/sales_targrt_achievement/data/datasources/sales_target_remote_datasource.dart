@@ -1,10 +1,10 @@
 import 'dart:convert';
 
-import 'package:demo/core/api_constant/api_client.dart';
-import 'package:demo/core/api_constant/dio_client.dart';
-import 'package:demo/core/error/exceptions.dart';
-import 'package:demo/features/sales_targrt_achievement/data/models/sales_target_model.dart';
-import 'package:demo/features/sales_targrt_achievement/data/models/target_date_model.dart';
+import 'package:solufine/core/api_constant/api_client.dart';
+import 'package:solufine/core/api_constant/dio_client.dart';
+import 'package:solufine/core/error/exceptions.dart';
+import 'package:solufine/features/sales_targrt_achievement/data/models/sales_target_model.dart';
+import 'package:solufine/features/sales_targrt_achievement/data/models/target_date_model.dart';
 import 'package:dio/dio.dart';
 
 abstract class SalesTargetRemoteDataSource {

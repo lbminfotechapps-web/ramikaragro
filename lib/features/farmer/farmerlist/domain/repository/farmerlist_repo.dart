@@ -1,5 +1,5 @@
-import 'package:demo/features/farmer/farmerlist/data/model/farmerlist_model.dart';
-import 'package:demo/features/farmer/farmerlist/data/model/farmerlist_model.dart';
+import 'package:solufine/features/farmer/farmerlist/data/model/farmerlist_model.dart';
+import 'package:solufine/features/farmer/farmerlist/data/model/farmerlist_model.dart';
 
 abstract class FarmerListRepository {
   Future<List<FarmerlistModel>> getFarmers(

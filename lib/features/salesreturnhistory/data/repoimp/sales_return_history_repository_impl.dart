@@ -1,5 +1,5 @@
-import 'package:demo/features/salesreturnhistory/data/datasource/sales_return_history_remote_datasource.dart';
-import 'package:demo/features/salesreturnhistory/domain/repositries/sales_return_history_repository.dart';
+import 'package:solufine/features/salesreturnhistory/data/datasource/sales_return_history_remote_datasource.dart';
+import 'package:solufine/features/salesreturnhistory/domain/repositries/sales_return_history_repository.dart';
 
 import '../../domain/entities/dealer_name_entity.dart';
 import '../../domain/entities/sales_return_history_entity.dart';

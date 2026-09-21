@@ -1,7 +1,7 @@
 import 'dart:convert';
 
-import 'package:demo/core/api_constant/api_client.dart';
-import 'package:demo/features/orderhistory/data/model/order_history_model.dart';
+import 'package:solufine/core/api_constant/api_client.dart';
+import 'package:solufine/features/orderhistory/data/model/order_history_model.dart';
 import 'package:dio/dio.dart';
 
 abstract class OrderHistoryRemoteDataSource {

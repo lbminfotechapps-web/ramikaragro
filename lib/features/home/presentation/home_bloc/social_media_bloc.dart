@@ -1,4 +1,4 @@
-import 'package:demo/features/home/doman/home_usecases/get_social_media.dart';
+import 'package:solufine/features/home/doman/home_usecases/get_social_media.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'social_media_event.dart';

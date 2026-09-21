@@ -1,9 +1,9 @@
-import 'package:demo/core/api_constant/dio_client.dart';
-import 'package:demo/features/scheme/data/datatsource/scheme_datasource.dart';
-import 'package:demo/features/scheme/data/repoimp/schemerepository_impl.dart';
-import 'package:demo/features/scheme/domain/repository/schemerepository.dart';
-import 'package:demo/features/scheme/domain/usercases/schemeusecase.dart';
-import 'package:demo/features/scheme/presentation/bloc/scheme_bloc.dart';
+import 'package:solufine/core/api_constant/dio_client.dart';
+import 'package:solufine/features/scheme/data/datatsource/scheme_datasource.dart';
+import 'package:solufine/features/scheme/data/repoimp/schemerepository_impl.dart';
+import 'package:solufine/features/scheme/domain/repository/schemerepository.dart';
+import 'package:solufine/features/scheme/domain/usercases/schemeusecase.dart';
+import 'package:solufine/features/scheme/presentation/bloc/scheme_bloc.dart';
 import 'package:get_it/get_it.dart';
 
 final sl = GetIt.instance;

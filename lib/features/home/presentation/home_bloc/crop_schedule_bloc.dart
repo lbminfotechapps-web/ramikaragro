@@ -1,4 +1,4 @@
-import 'package:demo/features/home/doman/home_usecases/get_crop_schedules.dart';
+import 'package:solufine/features/home/doman/home_usecases/get_crop_schedules.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 

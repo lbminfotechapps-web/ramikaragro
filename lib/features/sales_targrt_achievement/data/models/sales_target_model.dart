@@ -1,5 +1,5 @@
 
-import 'package:demo/features/sales_targrt_achievement/domain/entities/sales_target_entity.dart';
+import 'package:solufine/features/sales_targrt_achievement/domain/entities/sales_target_entity.dart';
 
 class SalesTargetModel extends SalesTargetEntity {
   const SalesTargetModel({

@@ -1,5 +1,5 @@
-import 'package:demo/features/leave/domain/entities/team_leave.dart';
-import 'package:demo/features/leave/domain/repositories/team_leave_repository.dart';
+import 'package:solufine/features/leave/domain/entities/team_leave.dart';
+import 'package:solufine/features/leave/domain/repositories/team_leave_repository.dart';
 
 class GetTeamLeaveList {
   final TeamLeaveRepository repository;

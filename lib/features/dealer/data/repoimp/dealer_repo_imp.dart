@@ -1,7 +1,7 @@
 
-import 'package:demo/features/dealer/data/datasource/dealer_datasource.dart';
-import 'package:demo/features/dealer/data/models/DealerListModel.dart';
-import 'package:demo/features/dealer/domain/repository/dealer_repo.dart';
+import 'package:solufine/features/dealer/data/datasource/dealer_datasource.dart';
+import 'package:solufine/features/dealer/data/models/DealerListModel.dart';
+import 'package:solufine/features/dealer/domain/repository/dealer_repo.dart';
 
 class DealerListRepositoryImpl implements DealerListRepository {
   final DealerListDataSource dealerListDatasource;

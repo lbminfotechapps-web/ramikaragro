@@ -1,10 +1,10 @@
-import 'package:demo/features/dealer/data/datasource/dealer_datasource.dart';
-import 'package:demo/features/dealer/data/repoimp/dealer_repo_imp.dart';
-import 'package:demo/features/dealer/domain/repository/dealer_repo.dart';
-import 'package:demo/features/dealer/presentation/bloc/dealerlist_bloc.dart';
+import 'package:solufine/features/dealer/data/datasource/dealer_datasource.dart';
+import 'package:solufine/features/dealer/data/repoimp/dealer_repo_imp.dart';
+import 'package:solufine/features/dealer/domain/repository/dealer_repo.dart';
+import 'package:solufine/features/dealer/presentation/bloc/dealerlist_bloc.dart';
 import 'package:get_it/get_it.dart';
 
-import 'package:demo/core/api_constant/dio_client.dart';
+import 'package:solufine/core/api_constant/dio_client.dart';
 
 
 

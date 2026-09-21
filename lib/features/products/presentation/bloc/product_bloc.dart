@@ -1,8 +1,8 @@
 import 'dart:async';
 
-import 'package:demo/features/products/domain/product_use_cases.dart';
-import 'package:demo/features/products/presentation/bloc/product_event.dart';
-import 'package:demo/features/products/presentation/bloc/product_state.dart';
+import 'package:solufine/features/products/domain/product_use_cases.dart';
+import 'package:solufine/features/products/presentation/bloc/product_event.dart';
+import 'package:solufine/features/products/presentation/bloc/product_state.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 

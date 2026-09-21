@@ -1,17 +1,17 @@
 import 'dart:async';
 import 'dart:convert';
 
-import 'package:demo/core/api_constant/api_client.dart';
-import 'package:demo/core/router/app_router.dart';
-import 'package:demo/core/secure_storage/secure_storage.dart';
-import 'package:demo/core/theme/app_colors.dart';
+import 'package:solufine/core/api_constant/api_client.dart';
+import 'package:solufine/core/router/app_router.dart';
+import 'package:solufine/core/secure_storage/secure_storage.dart';
+import 'package:solufine/core/theme/app_colors.dart';
 
-import 'package:demo/core/utility/widgets/custom_appbar.dart';
-import 'package:demo/core/utility/widgets/custom_loader.dart';
-import 'package:demo/features/farmer/farmerlist/data/model/farmerlist_model.dart';
-import 'package:demo/features/farmer/farmerlist/presentation/bloc/farmerlist_bloc.dart';
-import 'package:demo/features/farmer/farmerlist/presentation/bloc/farmerlist_event.dart';
-import 'package:demo/features/farmer/farmerlist/presentation/bloc/farmerlist_state.dart';
+import 'package:solufine/core/utility/widgets/custom_appbar.dart';
+import 'package:solufine/core/utility/widgets/custom_loader.dart';
+import 'package:solufine/features/farmer/farmerlist/data/model/farmerlist_model.dart';
+import 'package:solufine/features/farmer/farmerlist/presentation/bloc/farmerlist_bloc.dart';
+import 'package:solufine/features/farmer/farmerlist/presentation/bloc/farmerlist_event.dart';
+import 'package:solufine/features/farmer/farmerlist/presentation/bloc/farmerlist_state.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil_plus/flutter_screenutil_plus.dart';

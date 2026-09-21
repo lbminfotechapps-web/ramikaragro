@@ -1,9 +1,9 @@
-import 'package:demo/core/api_constant/dio_client.dart';
-import 'package:demo/features/home/data/home_datasource/crop_schedule_remote_data_source.dart';
-import 'package:demo/features/home/data/home_repo_imp/crop_schedule_repository_impl.dart';
-import 'package:demo/features/home/doman/home_repository/crop_schedule_repository.dart';
-import 'package:demo/features/home/doman/home_usecases/get_crop_schedules.dart';
-import 'package:demo/features/home/presentation/home_bloc/crop_schedule_bloc.dart';
+import 'package:solufine/core/api_constant/dio_client.dart';
+import 'package:solufine/features/home/data/home_datasource/crop_schedule_remote_data_source.dart';
+import 'package:solufine/features/home/data/home_repo_imp/crop_schedule_repository_impl.dart';
+import 'package:solufine/features/home/doman/home_repository/crop_schedule_repository.dart';
+import 'package:solufine/features/home/doman/home_usecases/get_crop_schedules.dart';
+import 'package:solufine/features/home/presentation/home_bloc/crop_schedule_bloc.dart';
 import 'package:get_it/get_it.dart';
 
 

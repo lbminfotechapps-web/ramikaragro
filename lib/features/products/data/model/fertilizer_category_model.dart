@@ -1,5 +1,5 @@
-import 'package:demo/features/products/data/model/fertilizer_product_model.dart';
-import 'package:demo/features/products/domain/entity/fertilizer_category_entity.dart';
+import 'package:solufine/features/products/data/model/fertilizer_product_model.dart';
+import 'package:solufine/features/products/domain/entity/fertilizer_category_entity.dart';
 
 class FertilizerCategoryModel extends FertilizerCategoryEntity {
   const FertilizerCategoryModel({

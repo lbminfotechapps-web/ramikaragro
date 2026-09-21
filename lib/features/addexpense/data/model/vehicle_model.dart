@@ -1,4 +1,4 @@
-import 'package:demo/features/addexpense/domain/entities/vehicle_entity.dart';
+import 'package:solufine/features/addexpense/domain/entities/vehicle_entity.dart';
 
 class VehicleModel extends VehicleEntity {
   const VehicleModel({

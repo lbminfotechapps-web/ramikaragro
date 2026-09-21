@@ -1,9 +1,9 @@
-import 'package:demo/features/farmer/farmerregistration/data/datasource/farmerregistration_datasource.dart';
-import 'package:demo/features/farmer/farmerregistration/data/model/baseresponse_model.dart';
-import 'package:demo/features/farmer/farmerregistration/domain/entity/district_entity.dart';
-import 'package:demo/features/farmer/farmerregistration/domain/entity/farmer_details_entity.dart';
-import 'package:demo/features/farmer/farmerregistration/domain/entity/state_entity.dart';
-import 'package:demo/features/farmer/farmerregistration/domain/repository/farmerregistration_repo.dart';
+import 'package:solufine/features/farmer/farmerregistration/data/datasource/farmerregistration_datasource.dart';
+import 'package:solufine/features/farmer/farmerregistration/data/model/baseresponse_model.dart';
+import 'package:solufine/features/farmer/farmerregistration/domain/entity/district_entity.dart';
+import 'package:solufine/features/farmer/farmerregistration/domain/entity/farmer_details_entity.dart';
+import 'package:solufine/features/farmer/farmerregistration/domain/entity/state_entity.dart';
+import 'package:solufine/features/farmer/farmerregistration/domain/repository/farmerregistration_repo.dart';
 
 class FarmerregistrationRepositoryImpl implements FarmerregistrationRepository {
   final FarmerregistrationDatasource datasource;

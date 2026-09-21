@@ -1,6 +1,6 @@
 import 'dart:convert';
-import 'package:demo/core/api_constant/api_client.dart';
-import 'package:demo/features/distpatchistory/data/models/dispatch_list_model.dart';
+import 'package:solufine/core/api_constant/api_client.dart';
+import 'package:solufine/features/distpatchistory/data/models/dispatch_list_model.dart';
 import 'package:dio/dio.dart';
 
 class DispatchRemoteDataSource {

@@ -1,5 +1,5 @@
-import 'package:demo/features/farmer/famerfollowup/data/model/followuplist_model.dart';
-import 'package:demo/features/farmer/famerfollowup/data/model/submitFollowup_mode.dart';
+import 'package:solufine/features/farmer/famerfollowup/data/model/followuplist_model.dart';
+import 'package:solufine/features/farmer/famerfollowup/data/model/submitFollowup_mode.dart';
 
 abstract class FamerfollowupRepository {
   Future<SubmitFollowupModel> submitFollowup({

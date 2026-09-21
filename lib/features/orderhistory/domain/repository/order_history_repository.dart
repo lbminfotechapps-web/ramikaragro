@@ -1,4 +1,4 @@
-import 'package:demo/features/orderhistory/domain/entities/order_history_entity.dart';
+import 'package:solufine/features/orderhistory/domain/entities/order_history_entity.dart';
 
 abstract class OrderHistoryRepository {
   Future<List<OrderHistoryEntity>> getOrderHistory({

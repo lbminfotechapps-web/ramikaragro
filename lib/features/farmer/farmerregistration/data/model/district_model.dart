@@ -1,5 +1,5 @@
-import 'package:demo/features/farmer/farmerregistration/data/model/talukha_model.dart';
-import 'package:demo/features/farmer/farmerregistration/domain/entity/district_entity.dart';
+import 'package:solufine/features/farmer/farmerregistration/data/model/talukha_model.dart';
+import 'package:solufine/features/farmer/farmerregistration/domain/entity/district_entity.dart';
 
 class DistrictModel extends DistrictEntity {
   const DistrictModel({

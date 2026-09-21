@@ -1,8 +1,8 @@
 import 'dart:convert';
 
-import 'package:demo/core/api_constant/api_client.dart';
-import 'package:demo/features/salesreturnhistory/data/model/dealer_name_model.dart';
-import 'package:demo/features/salesreturnhistory/data/model/sales_return_history_model.dart';
+import 'package:solufine/core/api_constant/api_client.dart';
+import 'package:solufine/features/salesreturnhistory/data/model/dealer_name_model.dart';
+import 'package:solufine/features/salesreturnhistory/data/model/sales_return_history_model.dart';
 import 'package:dio/dio.dart';
 
 class SalesReturnHistoryRemoteDatasource {

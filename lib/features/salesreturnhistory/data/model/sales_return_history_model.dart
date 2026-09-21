@@ -1,4 +1,4 @@
-import 'package:demo/features/salesreturnhistory/domain/entities/sales_return_history_entity.dart';
+import 'package:solufine/features/salesreturnhistory/domain/entities/sales_return_history_entity.dart';
 
 import 'sales_return_history_detail_model.dart';
 

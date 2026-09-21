@@ -1,4 +1,4 @@
-import 'package:demo/features/home/doman/home_entity/homevisit_entity.dart';
+import 'package:solufine/features/home/doman/home_entity/homevisit_entity.dart';
 
 abstract class HomeVisitState {
   const HomeVisitState();

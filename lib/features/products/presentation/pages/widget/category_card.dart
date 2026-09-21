@@ -1,5 +1,5 @@
-import 'package:demo/core/api_constant/api_client.dart';
-import 'package:demo/features/products/domain/entity/fertilizer_category_entity.dart';
+import 'package:solufine/core/api_constant/api_client.dart';
+import 'package:solufine/features/products/domain/entity/fertilizer_category_entity.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil_plus/flutter_screenutil_plus.dart';
 

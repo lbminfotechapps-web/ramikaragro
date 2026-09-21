@@ -1,4 +1,4 @@
-import 'package:demo/features/home/doman/home_entity/vehicle_type_entity.dart';
+import 'package:solufine/features/home/doman/home_entity/vehicle_type_entity.dart';
 
 class VehicleTypeModel extends VehicleTypeEntity {
   const VehicleTypeModel({

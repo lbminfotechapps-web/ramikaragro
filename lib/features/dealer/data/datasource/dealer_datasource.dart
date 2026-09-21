@@ -1,8 +1,8 @@
 import 'dart:convert';
 
-import 'package:demo/core/api_constant/api_client.dart';
-import 'package:demo/core/api_constant/dio_client.dart';
-import 'package:demo/features/dealer/data/models/DealerListModel.dart';
+import 'package:solufine/core/api_constant/api_client.dart';
+import 'package:solufine/core/api_constant/dio_client.dart';
+import 'package:solufine/features/dealer/data/models/DealerListModel.dart';
 import 'package:dio/dio.dart';
 
 

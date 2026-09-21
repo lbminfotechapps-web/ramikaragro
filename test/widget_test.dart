@@ -5,8 +5,8 @@
 // gestures. You can also use WidgetTester to find child widgets in the widget
 // tree, read text, and verify that the values of widget properties are correct.
 
-import 'package:demo/app.dart';
-import 'package:demo/core/theme/app_colors.dart';
+import 'package:solufine/app.dart';
+import 'package:solufine/core/theme/app_colors.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
