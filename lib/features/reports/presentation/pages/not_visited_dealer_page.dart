@@ -172,7 +172,6 @@ class _NotVisitedDealerViewState extends State<NotVisitedDealerView> {
       child: Scaffold(
         backgroundColor: const Color(0xFFF6F8FB),
 
-  
         appBar: CustomAppBar(
           title: 'Not Visited Dealers',
           showBackButton: true,
@@ -504,17 +503,16 @@ class _ErrorView extends StatelessWidget {
 
             const SizedBox(height: 16),
 
-            const Text(
-              'Something went wrong',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
-            ),
+            // const Text(
+            //   'Something went wrong',
+            //   style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
+            // ),
 
-            const SizedBox(height: 8),
-
+            // const SizedBox(height: 8),
             Text(
-              message,
+              "No Record Found",
               textAlign: TextAlign.center,
-              style: const TextStyle(color: Color(0xFF7A8491)),
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500),
             ),
 
             const SizedBox(height: 20),

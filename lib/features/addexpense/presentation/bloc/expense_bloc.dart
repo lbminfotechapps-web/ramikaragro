@@ -42,7 +42,7 @@ class ExpenseBloc extends Bloc<ExpenseEvent, ExpenseState> {
       final results = await Future.wait([
         getVehicles(userId: event.userId, lastDate: event.date),
         getParameters(userId: event.userId),
-        getDAAmount(userId: event.userId),
+        getDAAmount(userId: event.userId, expenseDate: event.date),
         getExpenseDays(userId: event.userId, expenseDate: event.date),
         checkStatus(userId: event.userId, expenseDate: event.date),
       ]);

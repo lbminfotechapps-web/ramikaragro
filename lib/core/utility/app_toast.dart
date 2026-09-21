@@ -8,7 +8,7 @@ class AppToast {
     Fluttertoast.showToast(
       msg: message,
       toastLength: Toast.LENGTH_SHORT,
-      gravity: ToastGravity.TOP,
+      gravity: ToastGravity.CENTER,
       backgroundColor: Colors.green,
       textColor: Colors.white,
       fontSize: 14.0,

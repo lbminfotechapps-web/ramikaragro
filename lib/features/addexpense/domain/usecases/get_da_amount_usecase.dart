@@ -5,7 +5,10 @@ class GetDAAmountUseCase {
 
   GetDAAmountUseCase(this.repository);
 
-  Future<Map<String, dynamic>> call({required String userId}) {
-    return repository.getDAAmount(userId: userId);
+  Future<Map<String, dynamic>> call({
+    required String userId,
+    required String expenseDate,
+  }) {
+    return repository.getDAAmount(userId: userId, expenseDate: expenseDate);
   }
 }
