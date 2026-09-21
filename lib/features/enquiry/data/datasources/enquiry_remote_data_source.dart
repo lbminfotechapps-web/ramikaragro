@@ -2,10 +2,9 @@ import 'package:solufine/core/api_constant/api_client.dart';
 import 'package:solufine/core/api_constant/dio_client.dart';
 import 'package:flutter/material.dart';
 
-import '../models/district_model.dart';
 import '../models/state_model.dart';
+import '../models/district_model.dart';
 import '../models/taluka_model.dart';
-import '../models/submit_enquiry_response_model.dart';
 
 abstract class EnquiryRemoteDataSource {
   Future<List<StateModel>> getStates({
@@ -27,7 +26,8 @@ abstract class EnquiryRemoteDataSource {
   });
 }
 
-class EnquiryRemoteDataSourceImpl implements EnquiryRemoteDataSource {
+class EnquiryRemoteDataSourceImpl
+    implements EnquiryRemoteDataSource {
   final DioClient dioClient;
 
   EnquiryRemoteDataSourceImpl({
@@ -42,55 +42,56 @@ class EnquiryRemoteDataSourceImpl implements EnquiryRemoteDataSource {
   Future<List<StateModel>> getStates({
     required String userId,
   }) async {
-    final response = await dioClient.client.post(
-      ApiClient.getState,
-      data: {
-        'user_id': userId,
-      },
-    );
+    try {
+      print('');
+      print('========== GET STATES ==========');
+      print('USER ID: $userId');
 
-    debugPrint('');
-    debugPrint('========== GET STATE RESPONSE ==========');
-    debugPrint('USER ID: $userId');
-    debugPrint('STATUS: ${response.statusCode}');
-    debugPrint('TYPE: ${response.data.runtimeType}');
-    debugPrint('DATA: ${response.data}');
-    debugPrint('========================================');
+      final Response response = await dioClient.client.post(
+        ApiClient.getState,
+        data: FormData.fromMap({
+          'user_id': userId,
+        }),
+      );
 
-    final data = response.data;
+      print('STATE RESPONSE: ${response.data}');
+      print(
+        'STATE RESPONSE TYPE: ${response.data.runtimeType}',
+      );
 
-    if (data is! List) {
-      debugPrint('STATE ERROR: Response is not List');
-      return [];
-    }
+      final List<dynamic> list =
+          _extractList(response.data);
 
-    final List<StateModel> states = [];
+      print('STATE LIST LENGTH: ${list.length}');
 
-    for (final item in data) {
-      debugPrint('STATE ITEM: $item');
-      debugPrint('STATE ITEM TYPE: ${item.runtimeType}');
+      final List<StateModel> result = [];
 
-      if (item is Map) {
-        try {
-          final map = Map<String, dynamic>.from(item);
-
-          final model = StateModel.fromJson(map);
-
-          debugPrint(
-            'STATE PARSED: id=${model.id}, name=${model.name}',
+      for (final item in list) {
+        if (item is Map) {
+          final model = StateModel.fromJson(
+            Map<String, dynamic>.from(item),
           );
 
-          states.add(model);
-        } catch (e) {
-          debugPrint('STATE MODEL ERROR: $e');
+          print(
+            'STATE -> id=${model.id}, name=${model.name}',
+          );
+
+          if (model.id.isNotEmpty &&
+              model.name.isNotEmpty) {
+            result.add(model);
+          }
         }
       }
+
+      print('FINAL STATE COUNT: ${result.length}');
+      print('================================');
+
+      return result;
+    } catch (e, stackTrace) {
+      print('GET STATES ERROR: $e');
+      print(stackTrace);
+      rethrow;
     }
-
-    debugPrint('FINAL STATE COUNT: ${states.length}');
-    debugPrint('FINAL STATES: $states');
-
-    return states;
   }
 
   // ============================================================
@@ -102,167 +103,232 @@ class EnquiryRemoteDataSourceImpl implements EnquiryRemoteDataSource {
     required String userId,
     required String stateId,
   }) async {
-    final response = await dioClient.client.post(
-      ApiClient.getDistrictTaluka,
-      data: {
-        'user_id': userId,
-        'state_id': stateId,
-      },
-    );
+    try {
+      print('');
+      print('========== GET DISTRICTS ==========');
+      print('USER ID : $userId');
+      print('STATE ID: $stateId');
 
-    debugPrint('');
-    debugPrint('========== GET DISTRICT RESPONSE ==========');
-    debugPrint('USER ID: $userId');
-    debugPrint('STATE ID: $stateId');
-    debugPrint('STATUS: ${response.statusCode}');
-    debugPrint('TYPE: ${response.data.runtimeType}');
-    debugPrint('DATA: ${response.data}');
-    debugPrint('===========================================');
+      final Response response = await dioClient.client.post(
+        ApiClient.getDistrictTaluka,
+        data: FormData.fromMap({
+          'user_id': userId,
+          'state_id': stateId,
+        }),
+      );
 
-    final data = response.data;
+      print('DISTRICT RESPONSE: ${response.data}');
+      print(
+        'DISTRICT RESPONSE TYPE: '
+        '${response.data.runtimeType}',
+      );
 
-    if (data is! List) {
-      debugPrint('DISTRICT ERROR: Response is not List');
-      return [];
-    }
+      final List<dynamic> list =
+          _extractList(response.data);
 
-    final List<DistrictModel> districts = [];
+      print('DISTRICT LIST LENGTH: ${list.length}');
 
-    for (final item in data) {
-      debugPrint('DISTRICT ITEM: $item');
+      final List<DistrictModel> result = [];
 
-      if (item is Map) {
-        try {
-          final map = Map<String, dynamic>.from(item);
-
-          final model = DistrictModel.fromJson(map);
-
-          debugPrint(
-            'DISTRICT PARSED: id=${model.id}, name=${model.name}',
+      for (final item in list) {
+        if (item is Map) {
+          final model = DistrictModel.fromJson(
+            Map<String, dynamic>.from(item),
           );
 
-          districts.add(model);
-        } catch (e) {
-          debugPrint('DISTRICT MODEL ERROR: $e');
+          print(
+            'DISTRICT -> id=${model.id}, '
+            'name=${model.name}',
+          );
+
+          if (model.id.isNotEmpty &&
+              model.name.isNotEmpty) {
+            result.add(model);
+          }
         }
       }
+
+      print(
+        'FINAL DISTRICT COUNT: ${result.length}',
+      );
+      print('====================================');
+
+      return result;
+    } catch (e, stackTrace) {
+      print('GET DISTRICTS ERROR: $e');
+      print(stackTrace);
+      rethrow;
     }
-
-    debugPrint('FINAL DISTRICT COUNT: ${districts.length}');
-    debugPrint('FINAL DISTRICTS: $districts');
-
-    return districts;
   }
 
   // ============================================================
   // TALUKAS
   // ============================================================
 
-  @override
-  Future<List<TalukaModel>> getTalukas({
-    required String userId,
-    required String districtId,
-  }) async {
-    final response = await dioClient.client.post(
+ 
+@override
+Future<List<TalukaModel>> getTalukas({
+  required String userId,
+  required String districtId,
+}) async {
+  try {
+    print('');
+    print('========== GET TALUKAS ==========');
+    print('USER ID    : $userId');
+    print('DISTRICT ID: $districtId');
+
+    final Response response = await dioClient.client.post(
       ApiClient.getDistrictTaluka,
-      data: {
+      data: FormData.fromMap({
         'user_id': userId,
         'dist_id': districtId,
-      },
+      }),
     );
 
-    debugPrint('');
-    debugPrint('========== GET TALUKA RESPONSE ==========');
-    debugPrint('USER ID: $userId');
-    debugPrint('DISTRICT ID: $districtId');
-    debugPrint('STATUS: ${response.statusCode}');
-    debugPrint('TYPE: ${response.data.runtimeType}');
-    debugPrint('DATA: ${response.data}');
-    debugPrint('==========================================');
+    print('TALUKA RESPONSE: ${response.data}');
+    print(
+      'TALUKA RESPONSE TYPE: '
+      '${response.data.runtimeType}',
+    );
 
-    final data = response.data;
+    dynamic responseData = response.data;
 
-    if (data is! List) {
-      debugPrint('TALUKA ERROR: Response is not List');
+    // API is returning JSON as String
+    if (responseData is String) {
+      responseData = jsonDecode(responseData);
+    }
+
+    final List<TalukaModel> result = [];
+
+    if (responseData is List) {
+      for (final districtItem in responseData) {
+        if (districtItem is! Map) {
+          continue;
+        }
+
+        final Map<String, dynamic> district =
+            Map<String, dynamic>.from(districtItem);
+
+        // Find the selected district
+        final String responseDistrictId =
+            district['fld_dist_id']?.toString() ?? '';
+
+        print(
+          'DISTRICT FROM RESPONSE: $responseDistrictId',
+        );
+
+        if (responseDistrictId != districtId) {
+          continue;
+        }
+
+        // IMPORTANT:
+        // Talukas are inside the "taluka" array
+        final dynamic talukaData = district['taluka'];
+
+        if (talukaData is! List) {
+          print('NO TALUKA LIST FOUND');
+          continue;
+        }
+
+        print(
+          'TALUKA LIST LENGTH: ${talukaData.length}',
+        );
+
+        for (final talukaItem in talukaData) {
+          if (talukaItem is! Map) {
+            continue;
+          }
+
+          final model = TalukaModel.fromJson(
+            Map<String, dynamic>.from(talukaItem),
+          );
+
+          print(
+            'TALUKA -> id=${model.talukaId}, '
+            'name=${model.name}',
+          );
+
+          if (model.talukaId.isNotEmpty &&
+              model.name.isNotEmpty) {
+            result.add(model);
+          }
+        }
+      }
+    }
+
+    print(
+      'FINAL TALUKA COUNT: ${result.length}',
+    );
+    print('=================================');
+
+    return result;
+  } catch (e, stackTrace) {
+    print('GET TALUKAS ERROR: $e');
+    print(stackTrace);
+    rethrow;
+  }
+}
+
+
+
+
+  // ============================================================
+  // COMMON RESPONSE PARSER
+  // ============================================================
+
+  List<dynamic> _extractList(dynamic responseData) {
+    // API returned JSON as String
+    if (responseData is String) {
+      try {
+        final decoded = jsonDecode(responseData);
+
+        // Direct List
+        if (decoded is List) {
+          return decoded;
+        }
+
+        // Map containing result/data/etc.
+        if (decoded is Map) {
+          return _extractList(decoded);
+        }
+      } catch (e) {
+        print('JSON DECODE ERROR: $e');
+      }
+
       return [];
     }
 
-    final List<TalukaModel> talukas = [];
+    // API already returned List
+    if (responseData is List) {
+      return responseData;
+    }
 
-    for (final item in data) {
-      debugPrint('TALUKA ITEM: $item');
+    // API returned Map
+    if (responseData is Map) {
+      final Map<String, dynamic> map =
+          Map<String, dynamic>.from(responseData);
 
-      if (item is! Map) {
-        continue;
-      }
+      final possibleKeys = [
+        'result',
+        'data',
+        'states',
+        'state',
+        'district',
+        'districts',
+        'taluka',
+        'talukas',
+      ];
 
-      final map = Map<String, dynamic>.from(item);
+      for (final key in possibleKeys) {
+        final value = map[key];
 
-      // --------------------------------------------------------
-      // CASE 1: API returns nested taluka list
-      // --------------------------------------------------------
-
-      final nestedTaluka = map['taluka'];
-
-      if (nestedTaluka is List) {
-        debugPrint(
-          'NESTED TALUKA COUNT: ${nestedTaluka.length}',
-        );
-
-        for (final talukaItem in nestedTaluka) {
-          if (talukaItem is Map) {
-            try {
-              final talukaMap =
-                  Map<String, dynamic>.from(talukaItem);
-
-              final model =
-                  TalukaModel.fromJson(talukaMap);
-
-              debugPrint(
-                'TALUKA PARSED: '
-                'id=${model.talukaId}, '
-                'name=${model.name}',
-              );
-
-              talukas.add(model);
-            } catch (e) {
-              debugPrint(
-                'TALUKA MODEL ERROR: $e',
-              );
-            }
-          }
+        if (value is List) {
+          return value;
         }
-
-        continue;
-      }
-
-      // --------------------------------------------------------
-      // CASE 2: API directly returns taluka objects
-      // --------------------------------------------------------
-
-      try {
-        final model = TalukaModel.fromJson(map);
-
-        debugPrint(
-          'DIRECT TALUKA PARSED: '
-          'id=${model.talukaId}, '
-          'name=${model.name}',
-        );
-
-        if (model.talukaId.isNotEmpty) {
-          talukas.add(model);
-        }
-      } catch (e) {
-        debugPrint(
-          'DIRECT TALUKA MODEL ERROR: $e',
-        );
       }
     }
 
-    debugPrint('FINAL TALUKA COUNT: ${talukas.length}');
-    debugPrint('FINAL TALUKAS: $talukas');
-
-    return talukas;
+    return [];
   }
 
   // ============================================================
@@ -270,26 +336,48 @@ class EnquiryRemoteDataSourceImpl implements EnquiryRemoteDataSource {
   // ============================================================
 
   @override
-  Future<SubmitEnquiryResponseModel> submitEnquiry({
-    required Map<String, String> params,
-  }) async {
-    final response = await dioClient.client.post(
+Future<SubmitEnquiryResponseModel> submitEnquiry({
+  required Map<String, String> params,
+}) async {
+  try {
+    print('');
+    print('========== SUBMIT ENQUIRY ==========');
+    print('PARAMS: $params');
+
+    final Response response = await dioClient.client.post(
       ApiClient.submitEnquiryDetails,
-      data: params,
+
+      // IMPORTANT:
+      // API expects form-data
+      data: FormData.fromMap(params),
     );
 
-    debugPrint('SUBMIT RESPONSE: ${response.data}');
+    print('SUBMIT RESPONSE: ${response.data}');
+    print('SUBMIT RESPONSE TYPE: ${response.data.runtimeType}');
 
-    final data = response.data;
+    dynamic responseData = response.data;
 
-    if (data is Map) {
+    // API may return JSON as String
+    if (responseData is String) {
+      responseData = jsonDecode(responseData);
+    }
+
+    if (responseData is Map) {
       return SubmitEnquiryResponseModel.fromJson(
-        Map<String, dynamic>.from(data),
+        Map<String, dynamic>.from(responseData),
       );
     }
 
     throw Exception(
-      'Invalid submit enquiry response',
+      'Invalid submit enquiry response: $responseData',
     );
+  } catch (e, stackTrace) {
+    print('SUBMIT ENQUIRY ERROR: $e');
+    print(stackTrace);
+    rethrow;
   }
 }
+
+
+}
+

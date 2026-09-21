@@ -31,12 +31,23 @@ class _EnquiryPageState extends State<EnquiryPage> {
   // CONTROLLERS
   // ============================================================
 
-  final TextEditingController _nameController = TextEditingController();
-  final TextEditingController _mobileController = TextEditingController();
-  final TextEditingController _emailController = TextEditingController();
-  final TextEditingController _villageController = TextEditingController();
-  final TextEditingController _addressController = TextEditingController();
-  final TextEditingController _messageController = TextEditingController();
+  final TextEditingController _nameController =
+      TextEditingController();
+
+  final TextEditingController _mobileController =
+      TextEditingController();
+
+  final TextEditingController _emailController =
+      TextEditingController();
+
+  final TextEditingController _villageController =
+      TextEditingController();
+
+  final TextEditingController _addressController =
+      TextEditingController();
+
+  final TextEditingController _messageController =
+      TextEditingController();
 
   // ============================================================
   // SELECTED VALUES
@@ -77,10 +88,14 @@ class _EnquiryPageState extends State<EnquiryPage> {
       final storedUserId =
           userData?['user_id']?.toString().trim() ?? '';
 
-      debugPrint('STORED USER ID = $storedUserId');
+      debugPrint(
+        'STORED USER ID = $storedUserId',
+      );
 
       if (storedUserId.isEmpty) {
-        debugPrint('ERROR: USER ID IS EMPTY');
+        debugPrint(
+          'ERROR: USER ID IS EMPTY',
+        );
 
         if (mounted) {
           _showMessage(
@@ -98,7 +113,9 @@ class _EnquiryPageState extends State<EnquiryPage> {
         userId = storedUserId;
       });
 
-      debugPrint('PRODUCT ENQUIRY USER ID = $userId');
+      debugPrint(
+        'PRODUCT ENQUIRY USER ID = $userId',
+      );
 
       // ========================================================
       // GET STATES
@@ -110,13 +127,18 @@ class _EnquiryPageState extends State<EnquiryPage> {
       debugPrint('======================================');
 
       context.read<EnquiryBloc>().add(
-            GetStatesEvent(
-              userId: userId,
-            ),
-          );
+        GetStatesEvent(
+          userId: userId,
+        ),
+      );
     } catch (e, stackTrace) {
-      debugPrint('LOAD USER ERROR = $e');
-      debugPrint('$stackTrace');
+      debugPrint(
+        'LOAD USER ERROR = $e',
+      );
+
+      debugPrint(
+        '$stackTrace',
+      );
 
       if (mounted) {
         _showMessage(
@@ -148,170 +170,121 @@ class _EnquiryPageState extends State<EnquiryPage> {
   // ============================================================
 
   @override
-  Widget build(BuildContext context) {
-    return BlocListener<EnquiryBloc, EnquiryState>(
-      listener: (context, state) {
-        // ------------------------------------------------------
-        // SUBMIT SUCCESS
-        // ------------------------------------------------------
+Widget build(BuildContext context) {
+  return BlocListener<EnquiryBloc, EnquiryState>(
+    listenWhen: (previous, current) {
+      // Listen ONLY when submit status changes.
+      return previous.submitStatus != current.submitStatus;
+    },
+    listener: (context, state) {
+      // ------------------------------------------------------
+      // SUBMIT SUCCESS
+      // ------------------------------------------------------
 
-        if (state.submitStatus ==
-            SubmitEnquiryStatus.success) {
-          _showSuccessDialog(
-            state.submitMessage.isNotEmpty
-                ? state.submitMessage
-                : 'Enquiry submitted successfully.',
-          );
-        }
+      if (state.submitStatus == SubmitEnquiryStatus.success) {
+        _showSuccessDialog(
+          state.submitMessage.isNotEmpty
+              ? state.submitMessage
+              : 'Enquiry submitted successfully.',
+        );
+        return;
+      }
 
-        // ------------------------------------------------------
-        // SUBMIT ERROR
-        // ------------------------------------------------------
+      // ------------------------------------------------------
+      // SUBMIT ERROR
+      // ------------------------------------------------------
 
-        if (state.submitStatus ==
-            SubmitEnquiryStatus.error) {
-          _showErrorSnackBar(
-            state.submitMessage.isNotEmpty
-                ? state.submitMessage
-                : 'Something went wrong.',
-          );
-        }
+      if (state.submitStatus == SubmitEnquiryStatus.error) {
+        _showErrorSnackBar(
+          state.submitMessage.isNotEmpty
+              ? state.submitMessage
+              : 'Something went wrong.',
+        );
+        return;
+      }
+    },
+    child: Scaffold(
+      backgroundColor: const Color(0xFFF6F9F7),
+      appBar: _buildAppBar(),
+      body: SafeArea(
+        child: Form(
+          key: _formKey,
+          child: SingleChildScrollView(
+            physics: const BouncingScrollPhysics(),
+            padding: const EdgeInsets.fromLTRB(
+              16,
+              12,
+              16,
+              30,
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                _buildProductCard(),
 
-        // ------------------------------------------------------
-        // API ERROR
-        // ------------------------------------------------------
+                const SizedBox(height: 20),
 
-        if (state.errorMessage.isNotEmpty) {
-          if (state.stateStatus ==
-                  EnquiryStatus.error ||
-              state.districtStatus ==
-                  EnquiryStatus.error ||
-              state.talukaStatus ==
-                  EnquiryStatus.error) {
-            _showErrorSnackBar(
-              state.errorMessage,
-            );
-          }
-        }
-      },
-      child: Scaffold(
-        backgroundColor: const Color(0xFFF6F9F7),
-        appBar: _buildAppBar(),
-        body: SafeArea(
-          child: Form(
-            key: _formKey,
-            child: SingleChildScrollView(
-              physics: const BouncingScrollPhysics(),
-              padding: const EdgeInsets.fromLTRB(
-                16,
-                12,
-                16,
-                30,
-              ),
-              child: Column(
-                crossAxisAlignment:
-                    CrossAxisAlignment.start,
-                children: [
-                  _buildProductCard(),
+                _buildSectionTitle(
+                  icon: Icons.person_outline_rounded,
+                  title: 'Contact Details',
+                  subtitle: 'Enter your basic contact information',
+                ),
 
-                  const SizedBox(height: 20),
+                const SizedBox(height: 14),
 
-                  _buildSectionTitle(
-                    icon:
-                        Icons.person_outline_rounded,
-                    title: 'Contact Details',
-                    subtitle:
-                        'Enter your basic contact information',
-                  ),
+                _buildContactFields(),
 
-                  const SizedBox(height: 14),
+                const SizedBox(height: 24),
 
-                  _buildContactFields(),
+                _buildSectionTitle(
+                  icon: Icons.location_on_outlined,
+                  title: 'Location Details',
+                  subtitle: 'Select your location',
+                ),
 
-                  const SizedBox(height: 24),
+                const SizedBox(height: 14),
 
-                  _buildSectionTitle(
-                    icon:
-                        Icons.location_on_outlined,
-                    title: 'Location Details',
-                    subtitle:
-                        'Select your location',
-                  ),
+                _buildLocationFields(),
 
-                  const SizedBox(height: 14),
+                const SizedBox(height: 24),
 
-                  _buildLocationFields(),
+                _buildSectionTitle(
+                  icon: Icons.description_outlined,
+                  title: 'Enquiry Details',
+                  subtitle: 'Tell us what you would like to know',
+                ),
 
-                  const SizedBox(height: 24),
+                const SizedBox(height: 14),
 
-                  _buildSectionTitle(
-                    icon:
-                        Icons.description_outlined,
-                    title: 'Enquiry Details',
-                    subtitle:
-                        'Tell us what you would like to know',
-                  ),
+                _buildEnquiryFields(),
 
-                  const SizedBox(height: 14),
+                const SizedBox(height: 28),
 
-                  _buildEnquiryFields(),
+                _buildSubmitButton(),
 
-                  const SizedBox(height: 28),
-
-                  _buildSubmitButton(),
-
-                  const SizedBox(height: 10),
-                ],
-              ),
+                const SizedBox(height: 10),
+              ],
             ),
           ),
         ),
       ),
-    );
-  }
+    ),
+  );
+}
+
+
 
   // ============================================================
   // APP BAR
   // ============================================================
 
   PreferredSizeWidget _buildAppBar() {
-    return AppBar(
-      elevation: 0,
-      backgroundColor: AppColors.accentGreen,
-      foregroundColor: Colors.white,
-      centerTitle: false,
-      titleSpacing: 0,
-      title: const Column(
-        crossAxisAlignment:
-            CrossAxisAlignment.start,
-        children: [
-          Text(
-            'Product Enquiry',
-            style: TextStyle(
-              fontSize: 19,
-              fontWeight: FontWeight.w700,
-              color: Colors.white,
-            ),
-          ),
-          SizedBox(height: 2),
-          Text(
-            'Send us your enquiry',
-            style: TextStyle(
-              fontSize: 12,
-              fontWeight: FontWeight.w400,
-              color: Colors.white70,
-            ),
-          ),
-        ],
-      ),
-      leading: IconButton(
-        icon: const Icon(
-          Icons.arrow_back_rounded,
-        ),
-        onPressed: () =>
-            Navigator.pop(context),
-      ),
-    );
+    return CustomAppBar(
+     title: 'Product Enquiry',
+        showBackButton: true,
+        onBackTap: () => Navigator.pop(context),
+       
+      );
   }
 
   // ============================================================
@@ -326,7 +299,8 @@ class _EnquiryPageState extends State<EnquiryPage> {
       width: double.infinity,
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        gradient: const LinearGradient(
+        gradient:
+            const LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
           colors: [
@@ -337,7 +311,8 @@ class _EnquiryPageState extends State<EnquiryPage> {
         borderRadius:
             BorderRadius.circular(18),
         border: Border.all(
-          color: const Color(0xFFD5ECDD),
+          color:
+              const Color(0xFFD5ECDD),
         ),
       ),
       child: Row(
@@ -363,7 +338,8 @@ class _EnquiryPageState extends State<EnquiryPage> {
             ),
             child: const Icon(
               Icons.inventory_2_outlined,
-              color: AppColors.accentGreen,
+              color:
+                  AppColors.accentGreen,
               size: 25,
             ),
           ),
@@ -395,7 +371,8 @@ class _EnquiryPageState extends State<EnquiryPage> {
                   maxLines: 2,
                   overflow:
                       TextOverflow.ellipsis,
-                  style: const TextStyle(
+                  style:
+                      const TextStyle(
                     fontSize: 16,
                     color:
                         Color(0xFF1D2A22),
@@ -403,20 +380,6 @@ class _EnquiryPageState extends State<EnquiryPage> {
                         FontWeight.w700,
                   ),
                 ),
-
-                // if (widget.productId
-                //     .trim()
-                //     .isNotEmpty) ...[
-                //   const SizedBox(height: 4),
-                //   Text(
-                //     'Product ID: ${widget.productId}',
-                //     style: TextStyle(
-                //       fontSize: 11,
-                //       color:
-                //           Colors.grey.shade600,
-                //     ),
-                //   ),
-                // ],
               ],
             ),
           ),
@@ -427,7 +390,8 @@ class _EnquiryPageState extends State<EnquiryPage> {
               horizontal: 9,
               vertical: 5,
             ),
-            decoration: BoxDecoration(
+            decoration:
+                BoxDecoration(
               color:
                   const Color(0xFFD8F0DF),
               borderRadius:
@@ -466,7 +430,8 @@ class _EnquiryPageState extends State<EnquiryPage> {
         Container(
           height: 38,
           width: 38,
-          decoration: BoxDecoration(
+          decoration:
+              BoxDecoration(
             color:
                 const Color(0xFFE3F3E8),
             borderRadius:
@@ -474,7 +439,8 @@ class _EnquiryPageState extends State<EnquiryPage> {
           ),
           child: Icon(
             icon,
-            color: AppColors.accentGreen,
+            color:
+                AppColors.accentGreen,
             size: 21,
           ),
         ),
@@ -488,7 +454,8 @@ class _EnquiryPageState extends State<EnquiryPage> {
             children: [
               Text(
                 title,
-                style: const TextStyle(
+                style:
+                    const TextStyle(
                   fontSize: 16,
                   fontWeight:
                       FontWeight.w700,
@@ -520,31 +487,37 @@ class _EnquiryPageState extends State<EnquiryPage> {
     return Column(
       children: [
         CustomTextFormField(
-          controller: _nameController,
-          hintText: 'Enter your name',
+          controller:
+              _nameController,
+          hintText:
+              'Enter your name',
           labelText: 'Name',
           prefixIcon:
               Icons.person_outline_rounded,
           suffixIcon: null,
           keyboardType:
               TextInputType.name,
-          validator: _validateName,
+          validator:
+              _validateName,
         ),
 
         const SizedBox(height: 14),
 
         CustomTextFormField(
-          controller: _mobileController,
+          controller:
+              _mobileController,
           hintText:
               'Enter 10 digit mobile number',
-          labelText: 'Mobile Number',
+          labelText:
+              'Mobile Number',
           prefixIcon:
               Icons.phone_outlined,
           suffixIcon: null,
           keyboardType:
               TextInputType.phone,
           maxLength: 10,
-          validator: _validateMobile,
+          validator:
+              _validateMobile,
           onChanged: (value) {
             if (value.length > 10) {
               _mobileController.text =
@@ -554,7 +527,9 @@ class _EnquiryPageState extends State<EnquiryPage> {
                   TextSelection.fromPosition(
                 TextPosition(
                   offset:
-                      _mobileController.text.length,
+                      _mobileController
+                          .text
+                          .length,
                 ),
               );
             }
@@ -564,7 +539,8 @@ class _EnquiryPageState extends State<EnquiryPage> {
         const SizedBox(height: 14),
 
         CustomTextFormField(
-          controller: _emailController,
+          controller:
+              _emailController,
           hintText:
               'Enter email address',
           labelText: 'Email',
@@ -573,7 +549,8 @@ class _EnquiryPageState extends State<EnquiryPage> {
           suffixIcon: null,
           keyboardType:
               TextInputType.emailAddress,
-          validator: _validateEmail,
+          validator:
+              _validateEmail,
         ),
       ],
     );
@@ -584,7 +561,8 @@ class _EnquiryPageState extends State<EnquiryPage> {
   // ============================================================
 
   Widget _buildLocationFields() {
-    return BlocBuilder<EnquiryBloc,
+    return BlocBuilder<
+        EnquiryBloc,
         EnquiryState>(
       builder: (context, state) {
         return Column(
@@ -646,7 +624,16 @@ class _EnquiryPageState extends State<EnquiryPage> {
   Widget _buildStateDropdown(
     EnquiryState state,
   ) {
-    final states = state.states;
+    final List<StateEntity> states =
+        state.states;
+
+    final validValue = states.any(
+      (item) =>
+          item.id.trim() ==
+          selectedStateId?.trim(),
+    )
+        ? selectedStateId
+        : null;
 
     debugPrint(
       '========== STATE DROPDOWN ==========',
@@ -657,53 +644,68 @@ class _EnquiryPageState extends State<EnquiryPage> {
     debugPrint(
       'States Count: ${states.length}',
     );
+
+    for (final item in states) {
+      debugPrint(
+        'STATE ITEM -> '
+        'ID=${item.id}, '
+        'NAME=${item.name}',
+      );
+    }
+
     debugPrint(
-      'States: $states',
+      'Selected State: $selectedStateId',
     );
     debugPrint(
-      'User ID: $userId',
+      'Valid Value: $validValue',
     );
     debugPrint(
       '====================================',
     );
 
-    final validValue = states.any(
-      (item) =>
-          item.id == selectedStateId,
-    )
-        ? selectedStateId
-        : null;
+    final bool isLoading =
+        state.stateStatus ==
+            EnquiryStatus.loading;
 
     return _buildDropdownContainer(
-      child: DropdownButtonFormField<String>(
+      child:
+          DropdownButtonFormField<String>(
         value: validValue,
         isExpanded: true,
 
         icon: _dropdownIcon(
-          state.stateStatus ==
-              EnquiryStatus.loading,
+          isLoading,
         ),
 
         decoration:
             _dropdownDecoration(
           icon: Icons.map_outlined,
           label: 'State',
-          hint: 'Select state',
+          hint: isLoading
+              ? 'Loading states...'
+              : states.isEmpty
+                  ? 'No states available'
+                  : 'Select state',
         ),
 
         items: states
             .where(
               (item) =>
-                  item.id != '0' &&
-                  item.id.isNotEmpty &&
-                  item.name.isNotEmpty,
+                  item.id
+                      .trim()
+                      .isNotEmpty &&
+                  item.id.trim() != '0' &&
+                  item.name
+                      .trim()
+                      .isNotEmpty,
             )
             .map(
               (StateEntity item) {
-                return DropdownMenuItem<String>(
-                  value: item.id,
+                return DropdownMenuItem<
+                    String>(
+                  value: item.id.trim(),
                   child: Text(
-                    item.name,
+                    item.name.trim(),
                     overflow:
                         TextOverflow.ellipsis,
                     style:
@@ -720,24 +722,39 @@ class _EnquiryPageState extends State<EnquiryPage> {
             )
             .toList(),
 
-        onChanged:
-            state.stateStatus ==
-                    EnquiryStatus.loading
+        validator: (value) {
+          if (value == null ||
+              value.trim().isEmpty) {
+            return 'Please select state';
+          }
+
+          return null;
+        },
+
+        onChanged: isLoading
+            ? null
+            : states.isEmpty
                 ? null
                 : (value) {
-                    if (value == null) {
+                    if (value == null ||
+                        value.trim().isEmpty) {
                       return;
                     }
 
+                    final String stateId =
+                        value.trim();
+
                     debugPrint(
-                      'SELECTED STATE ID = $value',
+                      'SELECTED STATE ID = $stateId',
                     );
 
                     setState(() {
                       selectedStateId =
-                          value;
+                          stateId;
+
                       selectedDistrictId =
                           null;
+
                       selectedTalukaId =
                           null;
                     });
@@ -747,7 +764,7 @@ class _EnquiryPageState extends State<EnquiryPage> {
                         .add(
                           GetDistrictsEvent(
                             userId: userId,
-                            stateId: value,
+                            stateId: stateId,
                           ),
                         );
                   },
@@ -762,24 +779,34 @@ class _EnquiryPageState extends State<EnquiryPage> {
   Widget _buildDistrictDropdown(
     EnquiryState state,
   ) {
-    final districts = state.districts;
+    final List<DistrictEntity> districts =
+        state.districts;
 
     final validValue = districts.any(
       (item) =>
-          item.id ==
-          selectedDistrictId,
+          item.id.trim() ==
+          selectedDistrictId?.trim(),
     )
         ? selectedDistrictId
         : null;
 
+    final bool isLoading =
+        state.districtStatus ==
+            EnquiryStatus.loading;
+
+    final bool disabled =
+        selectedStateId == null ||
+        selectedStateId!.trim().isEmpty ||
+        isLoading;
+
     return _buildDropdownContainer(
-      child: DropdownButtonFormField<String>(
+      child:
+          DropdownButtonFormField<String>(
         value: validValue,
         isExpanded: true,
 
         icon: _dropdownIcon(
-          state.districtStatus ==
-              EnquiryStatus.loading,
+          isLoading,
         ),
 
         decoration:
@@ -789,22 +816,31 @@ class _EnquiryPageState extends State<EnquiryPage> {
           label: 'District',
           hint: selectedStateId == null
               ? 'Select state first'
-              : 'Select district',
+              : isLoading
+                  ? 'Loading districts...'
+                  : districts.isEmpty
+                      ? 'No districts available'
+                      : 'Select district',
         ),
 
         items: districts
             .where(
               (item) =>
-                  item.id != '0' &&
-                  item.id.isNotEmpty &&
-                  item.name.isNotEmpty,
+                  item.id
+                      .trim()
+                      .isNotEmpty &&
+                  item.id.trim() != '0' &&
+                  item.name
+                      .trim()
+                      .isNotEmpty,
             )
             .map(
               (DistrictEntity item) {
-                return DropdownMenuItem<String>(
-                  value: item.id,
+                return DropdownMenuItem<
+                    String>(
+                  value: item.id.trim(),
                   child: Text(
-                    item.name,
+                    item.name.trim(),
                     overflow:
                         TextOverflow.ellipsis,
                     style:
@@ -823,43 +859,47 @@ class _EnquiryPageState extends State<EnquiryPage> {
 
         validator: (value) {
           if (value == null ||
-              value.isEmpty) {
+              value.trim().isEmpty) {
             return 'Please select district';
           }
 
           return null;
         },
 
-        onChanged:
-            selectedStateId == null ||
-                    state.districtStatus ==
-                        EnquiryStatus.loading
-                ? null
-                : (value) {
-                    if (value == null) {
-                      return;
-                    }
+        onChanged: disabled
+            ? null
+            : (value) {
+                if (value == null ||
+                    value.trim().isEmpty) {
+                  return;
+                }
 
-                    debugPrint(
-                      'SELECTED DISTRICT ID = $value',
+                final String districtId =
+                    value.trim();
+
+                debugPrint(
+                  'SELECTED DISTRICT ID = '
+                  '$districtId',
+                );
+
+                setState(() {
+                  selectedDistrictId =
+                      districtId;
+
+                  selectedTalukaId =
+                      null;
+                });
+
+                context
+                    .read<EnquiryBloc>()
+                    .add(
+                      GetTalukasEvent(
+                        userId: userId,
+                        districtId:
+                            districtId,
+                      ),
                     );
-
-                    setState(() {
-                      selectedDistrictId =
-                          value;
-                      selectedTalukaId =
-                          null;
-                    });
-
-                    context
-                        .read<EnquiryBloc>()
-                        .add(
-                          GetTalukasEvent(
-                            userId: userId,
-                            districtId: value,
-                          ),
-                        );
-                  },
+              },
       ),
     );
   }
@@ -871,24 +911,34 @@ class _EnquiryPageState extends State<EnquiryPage> {
   Widget _buildTalukaDropdown(
     EnquiryState state,
   ) {
-    final talukas = state.talukas;
+    final List<TalukaEntity> talukas =
+        state.talukas;
 
     final validValue = talukas.any(
       (item) =>
-          item.talukaId ==
-          selectedTalukaId,
+          item.talukaId.trim() ==
+          selectedTalukaId?.trim(),
     )
         ? selectedTalukaId
         : null;
 
+    final bool isLoading =
+        state.talukaStatus ==
+            EnquiryStatus.loading;
+
+    final bool disabled =
+        selectedDistrictId == null ||
+        selectedDistrictId!.trim().isEmpty ||
+        isLoading;
+
     return _buildDropdownContainer(
-      child: DropdownButtonFormField<String>(
+      child:
+          DropdownButtonFormField<String>(
         value: validValue,
         isExpanded: true,
 
         icon: _dropdownIcon(
-          state.talukaStatus ==
-              EnquiryStatus.loading,
+          isLoading,
         ),
 
         decoration:
@@ -898,22 +948,32 @@ class _EnquiryPageState extends State<EnquiryPage> {
           label: 'Taluka',
           hint: selectedDistrictId == null
               ? 'Select district first'
-              : 'Select taluka',
+              : isLoading
+                  ? 'Loading talukas...'
+                  : talukas.isEmpty
+                      ? 'No talukas available'
+                      : 'Select taluka',
         ),
 
         items: talukas
             .where(
               (item) =>
-                  item.talukaId != '0' &&
-                  item.talukaId.isNotEmpty &&
-                  item.name.isNotEmpty,
+                  item.talukaId
+                      .trim()
+                      .isNotEmpty &&
+                  item.talukaId.trim() != '0' &&
+                  item.name
+                      .trim()
+                      .isNotEmpty,
             )
             .map(
               (TalukaEntity item) {
-                return DropdownMenuItem<String>(
-                  value: item.talukaId,
+                return DropdownMenuItem<
+                    String>(
+                  value:
+                      item.talukaId.trim(),
                   child: Text(
-                    item.name,
+                    item.name.trim(),
                     overflow:
                         TextOverflow.ellipsis,
                     style:
@@ -932,32 +992,34 @@ class _EnquiryPageState extends State<EnquiryPage> {
 
         validator: (value) {
           if (value == null ||
-              value.isEmpty) {
+              value.trim().isEmpty) {
             return 'Please select taluka';
           }
 
           return null;
         },
 
-        onChanged:
-            selectedDistrictId == null ||
-                    state.talukaStatus ==
-                        EnquiryStatus.loading
-                ? null
-                : (value) {
-                    if (value == null) {
-                      return;
-                    }
+        onChanged: disabled
+            ? null
+            : (value) {
+                if (value == null ||
+                    value.trim().isEmpty) {
+                  return;
+                }
 
-                    debugPrint(
-                      'SELECTED TALUKA ID = $value',
-                    );
+                final String talukaId =
+                    value.trim();
 
-                    setState(() {
-                      selectedTalukaId =
-                          value;
-                    });
-                  },
+                debugPrint(
+                  'SELECTED TALUKA ID = '
+                  '$talukaId',
+                );
+
+                setState(() {
+                  selectedTalukaId =
+                      talukaId;
+                });
+              },
       ),
     );
   }
@@ -968,10 +1030,12 @@ class _EnquiryPageState extends State<EnquiryPage> {
 
   Widget _buildEnquiryFields() {
     return CustomTextFormField(
-      controller: _messageController,
+      controller:
+          _messageController,
       hintText:
           'Write your enquiry here...',
-      labelText: 'Message / Remark',
+      labelText:
+          'Message / Remark',
       prefixIcon:
           Icons.chat_bubble_outline_rounded,
       suffixIcon: null,
@@ -992,7 +1056,8 @@ class _EnquiryPageState extends State<EnquiryPage> {
     required Widget child,
   }) {
     return Container(
-      decoration: BoxDecoration(
+      decoration:
+          BoxDecoration(
         color: Colors.white,
         borderRadius:
             BorderRadius.circular(10),
@@ -1017,20 +1082,24 @@ class _EnquiryPageState extends State<EnquiryPage> {
       labelStyle: TextStyle(
         color: Colors.grey.shade500,
         fontSize: 16,
-        fontWeight: FontWeight.w400,
+        fontWeight:
+            FontWeight.w400,
       ),
 
       floatingLabelStyle:
           const TextStyle(
-        color: AppColors.accentGreen,
+        color:
+            AppColors.accentGreen,
         fontSize: 14,
-        fontWeight: FontWeight.w600,
+        fontWeight:
+            FontWeight.w600,
       ),
 
       hintStyle: TextStyle(
         color: Colors.grey.shade500,
         fontSize: 15,
-        fontWeight: FontWeight.w400,
+        fontWeight:
+            FontWeight.w400,
       ),
 
       prefixIcon: Padding(
@@ -1040,7 +1109,8 @@ class _EnquiryPageState extends State<EnquiryPage> {
           decoration:
               const BoxDecoration(
             shape: BoxShape.circle,
-            color: Color(0xFFE4F4E9),
+            color:
+                Color(0xFFE4F4E9),
           ),
           child: Icon(
             icon,
@@ -1057,11 +1127,13 @@ class _EnquiryPageState extends State<EnquiryPage> {
         vertical: 16,
       ),
 
-      border: OutlineInputBorder(
+      border:
+          OutlineInputBorder(
         borderRadius:
             BorderRadius.circular(10),
         borderSide: BorderSide(
-          color: Colors.grey.shade200,
+          color:
+              Colors.grey.shade200,
         ),
       ),
 
@@ -1070,7 +1142,8 @@ class _EnquiryPageState extends State<EnquiryPage> {
         borderRadius:
             BorderRadius.circular(10),
         borderSide: BorderSide(
-          color: Colors.grey.shade200,
+          color:
+              Colors.grey.shade200,
         ),
       ),
 
@@ -1080,7 +1153,8 @@ class _EnquiryPageState extends State<EnquiryPage> {
             BorderRadius.circular(10),
         borderSide:
             const BorderSide(
-          color: Color(0xFF087C3A),
+          color:
+              Color(0xFF087C3A),
           width: 1.5,
         ),
       ),
@@ -1112,7 +1186,9 @@ class _EnquiryPageState extends State<EnquiryPage> {
   // DROPDOWN ICON
   // ============================================================
 
-  Widget _dropdownIcon(bool loading) {
+  Widget _dropdownIcon(
+    bool loading,
+  ) {
     if (loading) {
       return const Padding(
         padding:
@@ -1141,14 +1217,15 @@ class _EnquiryPageState extends State<EnquiryPage> {
   // ============================================================
 
   Widget _buildSubmitButton() {
-    return BlocBuilder<EnquiryBloc,
+    return BlocBuilder<
+        EnquiryBloc,
         EnquiryState>(
       buildWhen:
           (previous, current) =>
               previous.submitStatus !=
               current.submitStatus,
       builder: (context, state) {
-        final isLoading =
+        final bool isLoading =
             state.submitStatus ==
                 SubmitEnquiryStatus.loading;
 
@@ -1235,15 +1312,16 @@ class _EnquiryPageState extends State<EnquiryPage> {
   void _submitEnquiry() {
     FocusScope.of(context).unfocus();
 
-    if (!_formKey.currentState!.validate()) {
+    if (!_formKey.currentState!
+        .validate()) {
       return;
     }
 
     // ----------------------------------------------------------
-    // USER ID CHECK
+    // USER ID
     // ----------------------------------------------------------
 
-    if (userId.isEmpty) {
+    if (userId.trim().isEmpty) {
       _showErrorSnackBar(
         'User ID not found. Please login again.',
       );
@@ -1251,11 +1329,11 @@ class _EnquiryPageState extends State<EnquiryPage> {
     }
 
     // ----------------------------------------------------------
-    // STATE CHECK
+    // STATE
     // ----------------------------------------------------------
 
     if (selectedStateId == null ||
-        selectedStateId!.isEmpty ||
+        selectedStateId!.trim().isEmpty ||
         selectedStateId == '0') {
       _showErrorSnackBar(
         'Please select state.',
@@ -1264,11 +1342,13 @@ class _EnquiryPageState extends State<EnquiryPage> {
     }
 
     // ----------------------------------------------------------
-    // DISTRICT CHECK
+    // DISTRICT
     // ----------------------------------------------------------
 
     if (selectedDistrictId == null ||
-        selectedDistrictId!.isEmpty ||
+        selectedDistrictId!
+            .trim()
+            .isEmpty ||
         selectedDistrictId == '0') {
       _showErrorSnackBar(
         'Please select district.',
@@ -1277,11 +1357,13 @@ class _EnquiryPageState extends State<EnquiryPage> {
     }
 
     // ----------------------------------------------------------
-    // TALUKA CHECK
+    // TALUKA
     // ----------------------------------------------------------
 
     if (selectedTalukaId == null ||
-        selectedTalukaId!.isEmpty ||
+        selectedTalukaId!
+            .trim()
+            .isEmpty ||
         selectedTalukaId == '0') {
       _showErrorSnackBar(
         'Please select taluka.',
@@ -1290,7 +1372,7 @@ class _EnquiryPageState extends State<EnquiryPage> {
     }
 
     // ----------------------------------------------------------
-    // PRODUCT NAME
+    // PRODUCT
     // ----------------------------------------------------------
 
     final String productName =
@@ -1304,44 +1386,45 @@ class _EnquiryPageState extends State<EnquiryPage> {
     }
 
     // ==========================================================
-    // POST PARAMETERS
+    // PARAMETERS
     // ==========================================================
 
     final Map<String, String> params = {
-      // User
-      'userId': userId,
+      'userId': userId.trim(),
 
-      // Product
       'productId':
           widget.productId.trim(),
-      'product_name': productName,
 
-      // Contact
+      'product_name':
+          productName,
+
       'name':
           _nameController.text.trim(),
+
       'mobileNo':
           _mobileController.text.trim(),
+
       'email':
           _emailController.text.trim(),
 
-      // Location
       'stateId':
-          selectedStateId!,
+          selectedStateId!.trim(),
+
       'districtId':
-          selectedDistrictId!,
+          selectedDistrictId!.trim(),
+
       'talukaId':
-          selectedTalukaId!,
+          selectedTalukaId!.trim(),
+
       'village':
           _villageController.text.trim(),
 
-      // Android API uses village as city
       'city':
           _villageController.text.trim(),
 
       'address':
           _addressController.text.trim(),
 
-      // Enquiry
       'message':
           _messageController.text.trim(),
     };
@@ -1353,41 +1436,52 @@ class _EnquiryPageState extends State<EnquiryPage> {
     debugPrint(
       '======================================',
     );
-    debugPrint('SUBMIT ENQUIRY');
+
+    debugPrint(
+      'SUBMIT ENQUIRY',
+    );
+
     debugPrint(
       'USER ID      : $userId',
     );
+
     debugPrint(
       'PRODUCT ID   : ${widget.productId}',
     );
+
     debugPrint(
       'PRODUCT NAME : $productName',
     );
+
     debugPrint(
       'STATE ID     : $selectedStateId',
     );
+
     debugPrint(
       'DISTRICT ID  : $selectedDistrictId',
     );
+
     debugPrint(
       'TALUKA ID    : $selectedTalukaId',
     );
+
     debugPrint(
       'REQUEST DATA : $params',
     );
+
     debugPrint(
       '======================================',
     );
 
     // ==========================================================
-    // SEND POST
+    // SEND
     // ==========================================================
 
     context.read<EnquiryBloc>().add(
-          SubmitEnquiryEvent(
-            params: params,
-          ),
-        );
+      SubmitEnquiryEvent(
+        params: params,
+      ),
+    );
   }
 
   // ============================================================
@@ -1514,7 +1608,8 @@ class _EnquiryPageState extends State<EnquiryPage> {
                 width: 68,
                 decoration:
                     const BoxDecoration(
-                  shape: BoxShape.circle,
+                  shape:
+                      BoxShape.circle,
                   color:
                       Color(0xFFE2F5E8),
                 ),
@@ -1532,7 +1627,8 @@ class _EnquiryPageState extends State<EnquiryPage> {
                 'Enquiry Submitted',
                 textAlign:
                     TextAlign.center,
-                style: TextStyle(
+                style:
+                    TextStyle(
                   fontSize: 19,
                   fontWeight:
                       FontWeight.w700,
@@ -1558,9 +1654,11 @@ class _EnquiryPageState extends State<EnquiryPage> {
               const SizedBox(height: 22),
 
               SizedBox(
-                width: double.infinity,
+                width:
+                    double.infinity,
                 height: 46,
-                child: ElevatedButton(
+                child:
+                    ElevatedButton(
                   onPressed: () {
                     Navigator.of(
                       dialogContext,
@@ -1570,8 +1668,9 @@ class _EnquiryPageState extends State<EnquiryPage> {
                       context,
                     ).pop();
                   },
-                  style: ElevatedButton
-                      .styleFrom(
+                  style:
+                      ElevatedButton
+                          .styleFrom(
                     backgroundColor:
                         AppColors
                             .accentGreen,
@@ -1581,14 +1680,17 @@ class _EnquiryPageState extends State<EnquiryPage> {
                     shape:
                         RoundedRectangleBorder(
                       borderRadius:
-                          BorderRadius.circular(
+                          BorderRadius
+                              .circular(
                         13,
                       ),
                     ),
                   ),
-                  child: const Text(
+                  child:
+                      const Text(
                     'Done',
-                    style: TextStyle(
+                    style:
+                        TextStyle(
                       fontSize: 14,
                       fontWeight:
                           FontWeight.w700,
@@ -1636,7 +1738,8 @@ class _EnquiryPageState extends State<EnquiryPage> {
           content: Row(
             children: [
               const Icon(
-                Icons.error_outline_rounded,
+                Icons
+                    .error_outline_rounded,
                 color: Colors.white,
               ),
               const SizedBox(width: 10),
@@ -1674,7 +1777,8 @@ class _EnquiryPageState extends State<EnquiryPage> {
         backgroundColor: isError
             ? Colors.red
             : const Color(0xff0F8A4B),
-        content: Text(message),
+        content:
+            Text(message),
       ),
     );
   }

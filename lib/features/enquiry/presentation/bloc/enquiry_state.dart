@@ -1,7 +1,7 @@
 import 'package:equatable/equatable.dart';
 
-import '../../domain/entities/district_entity.dart';
 import '../../domain/entities/state_entity.dart';
+import '../../domain/entities/district_entity.dart';
 import '../../domain/entities/taluka_entity.dart';
 
 enum EnquiryStatus {
@@ -57,19 +57,14 @@ class EnquiryState extends Equatable {
   }) {
     return EnquiryState(
       stateStatus: stateStatus ?? this.stateStatus,
-      districtStatus:
-          districtStatus ?? this.districtStatus,
-      talukaStatus:
-          talukaStatus ?? this.talukaStatus,
-      submitStatus:
-          submitStatus ?? this.submitStatus,
+      districtStatus: districtStatus ?? this.districtStatus,
+      talukaStatus: talukaStatus ?? this.talukaStatus,
+      submitStatus: submitStatus ?? this.submitStatus,
       states: states ?? this.states,
       districts: districts ?? this.districts,
       talukas: talukas ?? this.talukas,
-      errorMessage:
-          errorMessage ?? this.errorMessage,
-      submitMessage:
-          submitMessage ?? this.submitMessage,
+      errorMessage: errorMessage ?? this.errorMessage,
+      submitMessage: submitMessage ?? this.submitMessage,
     );
   }
 

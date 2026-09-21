@@ -308,14 +308,8 @@ class AppRouter {
         },
       ),
 
-      GoRoute(
-        path: teamExpenseList,
-        name: 'teamExpenseList',
-        builder: (context, state) {
-          return const TeamExpensePage();
-        },
-      ),
 
+      
       GoRoute(
         path: farmers,
         name: 'farmers',
@@ -349,9 +343,13 @@ class AppRouter {
           debugPrint('PRODUCT NAME    : $productName');
           debugPrint('========================================');
 
-          return EnquiryPage(productId: productId, productName: productName);
+          return EnquiryPage(
+            productId: productId,
+            productName: productName,
+          );
         },
       ),
+  
 
 
       GoRoute(
