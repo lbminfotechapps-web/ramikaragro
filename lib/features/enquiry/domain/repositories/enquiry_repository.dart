@@ -1,5 +1,5 @@
-import '../entities/district_entity.dart';
 import '../entities/state_entity.dart';
+import '../entities/district_entity.dart';
 import '../entities/taluka_entity.dart';
 import '../entities/submit_enquiry_entity.dart';
 

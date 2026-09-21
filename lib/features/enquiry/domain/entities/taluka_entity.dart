@@ -10,8 +10,5 @@ class TalukaEntity extends Equatable {
   });
 
   @override
-  List<Object?> get props => [
-        talukaId,
-        name,
-      ];
+  List<Object?> get props => [talukaId, name];
 }

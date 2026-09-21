@@ -4,9 +4,7 @@ import '../repositories/enquiry_repository.dart';
 class GetTalukasUseCase {
   final EnquiryRepository repository;
 
-  GetTalukasUseCase(
-    this.repository,
-  );
+  GetTalukasUseCase(this.repository);
 
   Future<List<TalukaEntity>> call({
     required String userId,

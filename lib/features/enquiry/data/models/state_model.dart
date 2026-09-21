@@ -6,56 +6,34 @@ class StateModel extends StateEntity {
     required super.name,
   });
 
-  factory StateModel.fromJson(dynamic json) {
-    if (json is! Map) {
-      return const StateModel(
-        id: '',
-        name: '',
-      );
-    }
-
-    final id = _readValue(
-      json,
-      [
+  factory StateModel.fromJson(Map<String, dynamic> json) {
+    return StateModel(
+      id: _getString(json, [
+        'fld_id',
         'id',
         'state_id',
         'stateId',
-        'fld_id',
         'fld_state_id',
-        'value',
-      ],
-    );
-
-    final name = _readValue(
-      json,
-      [
+      ]),
+      name: _getString(json, [
+        'fld_name',
         'name',
         'state_name',
         'stateName',
-        'fld_name',
         'fld_state_name',
-        'label',
-        'text',
-      ],
-    );
-
-    return StateModel(
-      id: id,
-      name: name,
+      ]),
     );
   }
 
-  static String _readValue(
-    Map json,
+  static String _getString(
+    Map<String, dynamic> json,
     List<String> keys,
   ) {
     for (final key in keys) {
-      if (json.containsKey(key) && json[key] != null) {
-        final value = json[key].toString().trim();
+      final value = json[key];
 
-        if (value.isNotEmpty) {
-          return value;
-        }
+      if (value != null && value.toString().trim().isNotEmpty) {
+        return value.toString().trim();
       }
     }
 
