@@ -1,9 +1,9 @@
 
 
-import 'package:demo/features/farmer/farmerregistration/data/model/crop_model.dart';
-import 'package:demo/features/farmer/farmerregistration/data/model/irrigation_model.dart';
-import 'package:demo/features/farmer/farmerregistration/data/model/product_model.dart';
-import 'package:demo/features/farmer/farmerregistration/domain/entity/farmer_details_entity.dart';
+import 'package:solufine/features/farmer/farmerregistration/data/model/crop_model.dart';
+import 'package:solufine/features/farmer/farmerregistration/data/model/irrigation_model.dart';
+import 'package:solufine/features/farmer/farmerregistration/data/model/product_model.dart';
+import 'package:solufine/features/farmer/farmerregistration/domain/entity/farmer_details_entity.dart';
 
 class FarmerDetailsModel extends FarmerDetailsEntity {
   const FarmerDetailsModel({

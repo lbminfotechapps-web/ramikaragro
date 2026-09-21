@@ -1,14 +1,14 @@
 import 'dart:io';
 
-import 'package:demo/core/router/app_router.dart';
-import 'package:demo/core/secure_storage/secure_storage.dart';
-import 'package:demo/core/utility/appdialog.dart';
-import 'package:demo/core/utility/widgets/custom_appbar.dart';
-import 'package:demo/core/utility/widgets/custom_loader.dart';
-import 'package:demo/features/farmer/famerfollowup/data/model/followuplist_model.dart';
-import 'package:demo/features/farmer/famerfollowup/presentation/bloc/famerfollowup_bloc.dart';
-import 'package:demo/features/farmer/famerfollowup/presentation/bloc/famerfollowup_event.dart';
-import 'package:demo/features/farmer/famerfollowup/presentation/bloc/famerfollowup_state.dart';
+import 'package:solufine/core/router/app_router.dart';
+import 'package:solufine/core/secure_storage/secure_storage.dart';
+import 'package:solufine/core/utility/appdialog.dart';
+import 'package:solufine/core/utility/widgets/custom_appbar.dart';
+import 'package:solufine/core/utility/widgets/custom_loader.dart';
+import 'package:solufine/features/farmer/famerfollowup/data/model/followuplist_model.dart';
+import 'package:solufine/features/farmer/famerfollowup/presentation/bloc/famerfollowup_bloc.dart';
+import 'package:solufine/features/farmer/famerfollowup/presentation/bloc/famerfollowup_event.dart';
+import 'package:solufine/features/farmer/famerfollowup/presentation/bloc/famerfollowup_state.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil_plus/flutter_screenutil_plus.dart';

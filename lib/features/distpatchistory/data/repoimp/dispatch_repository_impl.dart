@@ -1,6 +1,6 @@
-import 'package:demo/features/distpatchistory/data/datasource/dispatch_remote_datasource.dart';
-import 'package:demo/features/distpatchistory/domain/entities/dispatch_list_entity.dart';
-import 'package:demo/features/distpatchistory/domain/repository/dispatch_repository.dart';
+import 'package:solufine/features/distpatchistory/data/datasource/dispatch_remote_datasource.dart';
+import 'package:solufine/features/distpatchistory/domain/entities/dispatch_list_entity.dart';
+import 'package:solufine/features/distpatchistory/domain/repository/dispatch_repository.dart';
 
 class DispatchRepositoryImpl implements DispatchRepository {
   final DispatchRemoteDataSource remoteDataSource;

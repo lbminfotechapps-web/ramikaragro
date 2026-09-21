@@ -1,7 +1,7 @@
 import 'package:dio/dio.dart';
 
-import 'package:demo/core/api_constant/api_client.dart';
-import 'package:demo/core/api_constant/dio_client.dart';
+import 'package:solufine/core/api_constant/api_client.dart';
+import 'package:solufine/core/api_constant/dio_client.dart';
 
 class EmployeeOutputRemoteDataSource {
   final DioClient dioClient;

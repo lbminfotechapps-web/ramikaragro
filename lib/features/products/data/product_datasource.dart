@@ -1,6 +1,6 @@
-import 'package:demo/core/api_constant/api_client.dart';
-import 'package:demo/core/api_constant/dio_client.dart';
-import 'package:demo/features/products/data/model/fertilizer_category_model.dart';
+import 'package:solufine/core/api_constant/api_client.dart';
+import 'package:solufine/core/api_constant/dio_client.dart';
+import 'package:solufine/features/products/data/model/fertilizer_category_model.dart';
 import 'package:dio/dio.dart';
 import 'dart:convert';
 

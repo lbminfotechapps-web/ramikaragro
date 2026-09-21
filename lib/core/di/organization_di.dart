@@ -1,8 +1,8 @@
-import 'package:demo/features/reports/data/datasources/organization_remote_data_source.dart';
-import 'package:demo/features/reports/data/repositories/organization_repository_impl.dart';
-import 'package:demo/features/reports/domain/repositories/organization_repository.dart';
-import 'package:demo/features/reports/domain/usecases/get_organization_details.dart';
-import 'package:demo/features/reports/presentation/bloc/organization_bloc.dart';
+import 'package:solufine/features/reports/data/datasources/organization_remote_data_source.dart';
+import 'package:solufine/features/reports/data/repositories/organization_repository_impl.dart';
+import 'package:solufine/features/reports/domain/repositories/organization_repository.dart';
+import 'package:solufine/features/reports/domain/usecases/get_organization_details.dart';
+import 'package:solufine/features/reports/presentation/bloc/organization_bloc.dart';
 import 'package:dio/dio.dart';
 
 class OrganizationDI {

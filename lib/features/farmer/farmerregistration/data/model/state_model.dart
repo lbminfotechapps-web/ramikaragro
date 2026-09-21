@@ -1,4 +1,4 @@
-import 'package:demo/features/farmer/farmerregistration/domain/entity/state_entity.dart';
+import 'package:solufine/features/farmer/farmerregistration/domain/entity/state_entity.dart';
 
 class StateModel extends StateEntity {
   StateModel({required super.stateId, required super.stateName});

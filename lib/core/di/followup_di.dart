@@ -1,14 +1,14 @@
-import 'package:demo/core/api_constant/dio_client.dart';
-import 'package:demo/core/secure_storage/secure_storage.dart';
+import 'package:solufine/core/api_constant/dio_client.dart';
+import 'package:solufine/core/secure_storage/secure_storage.dart';
 
-import 'package:demo/features/followup/data/datasources/followup_remote_data_source.dart';
-import 'package:demo/features/followup/data/repositories/followup_repository_impl.dart';
+import 'package:solufine/features/followup/data/datasources/followup_remote_data_source.dart';
+import 'package:solufine/features/followup/data/repositories/followup_repository_impl.dart';
 
-import 'package:demo/features/followup/domain/repositories/followup_repository.dart';
-import 'package:demo/features/followup/domain/usecases/get_followup.dart';
+import 'package:solufine/features/followup/domain/repositories/followup_repository.dart';
+import 'package:solufine/features/followup/domain/usecases/get_followup.dart';
 
 
-import 'package:demo/features/followup/presentation/bloc/followup_bloc.dart';
+import 'package:solufine/features/followup/presentation/bloc/followup_bloc.dart';
 
 import 'package:get_it/get_it.dart';
 

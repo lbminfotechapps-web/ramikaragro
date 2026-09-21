@@ -1,4 +1,4 @@
-import 'package:demo/features/auth/domain/entity/login_entity.dart';
+import 'package:solufine/features/auth/domain/entity/login_entity.dart';
 
 class LoginModel extends UserLoginEntity {
   const LoginModel({

@@ -1,4 +1,4 @@
-import 'package:demo/core/api_constant/dio_client.dart';
+import 'package:solufine/core/api_constant/dio_client.dart';
 import 'package:get_it/get_it.dart';
 
 // ==========================================================

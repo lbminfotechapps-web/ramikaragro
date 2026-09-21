@@ -1,7 +1,7 @@
 import 'dart:io';
-import 'package:demo/core/utility/appdialog.dart';
-import 'package:demo/core/utility/device_info_util.dart';
-import 'package:demo/core/utility/location_util.dart';
+import 'package:solufine/core/utility/appdialog.dart';
+import 'package:solufine/core/utility/device_info_util.dart';
+import 'package:solufine/core/utility/location_util.dart';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -9,9 +9,9 @@ import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 
-import 'package:demo/core/di/leave_list_di.dart';
-import 'package:demo/core/router/app_router.dart';
-import 'package:demo/core/secure_storage/secure_storage.dart';
+import 'package:solufine/core/di/leave_list_di.dart';
+import 'package:solufine/core/router/app_router.dart';
+import 'package:solufine/core/secure_storage/secure_storage.dart';
 
 import '../bloc/add_dealer_visit_bloc.dart';
 import '../bloc/add_dealer_visit_event.dart';

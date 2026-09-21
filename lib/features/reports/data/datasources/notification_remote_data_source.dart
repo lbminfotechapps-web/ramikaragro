@@ -1,8 +1,8 @@
 
 import 'dart:convert';
 
-import 'package:demo/core/api_constant/api_client.dart';
-import 'package:demo/features/reports/data/modles/notification_model.dart';
+import 'package:solufine/core/api_constant/api_client.dart';
+import 'package:solufine/features/reports/data/modles/notification_model.dart';
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 

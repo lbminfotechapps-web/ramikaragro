@@ -1,4 +1,4 @@
-import 'package:demo/features/followup/domain/usecases/get_followup.dart';
+import 'package:solufine/features/followup/domain/usecases/get_followup.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'followup_event.dart';

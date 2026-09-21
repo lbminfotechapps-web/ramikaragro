@@ -1,4 +1,4 @@
-import 'package:demo/features/farmer/farmerregistration/domain/entity/taluka_entity.dart';
+import 'package:solufine/features/farmer/farmerregistration/domain/entity/taluka_entity.dart';
 
 class TalukaModel extends TalukaEntity {
   const TalukaModel({

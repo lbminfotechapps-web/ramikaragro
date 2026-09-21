@@ -1,5 +1,5 @@
 
-import 'package:demo/features/home/doman/home_entity/social_media.dart';
+import 'package:solufine/features/home/doman/home_entity/social_media.dart';
 
 class SocialMediaModel extends SocialMedia {
   const SocialMediaModel({

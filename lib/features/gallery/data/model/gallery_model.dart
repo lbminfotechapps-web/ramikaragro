@@ -1,4 +1,4 @@
-import 'package:demo/features/gallery/domain/entities/gallery_entity.dart';
+import 'package:solufine/features/gallery/domain/entities/gallery_entity.dart';
 
 class GalleryModel extends GalleryEntity {
   const GalleryModel({

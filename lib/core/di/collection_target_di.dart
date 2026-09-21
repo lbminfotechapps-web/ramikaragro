@@ -1,9 +1,9 @@
-import 'package:demo/features/collection/data/datasources/dealer_target_remote_datasource.dart';
-import 'package:demo/features/collection/data/repositories/dealer_target_repository_impl.dart';
-import 'package:demo/features/collection/domain/repositories/dealer_target_repository.dart';
-import 'package:demo/features/collection/domain/usecases/get_collection_wise_target.dart';
-import 'package:demo/features/collection/domain/usecases/get_target_dates.dart';
-import 'package:demo/features/collection/presentation/bloc/dealer_target_bloc.dart';
+import 'package:solufine/features/collection/data/datasources/dealer_target_remote_datasource.dart';
+import 'package:solufine/features/collection/data/repositories/dealer_target_repository_impl.dart';
+import 'package:solufine/features/collection/domain/repositories/dealer_target_repository.dart';
+import 'package:solufine/features/collection/domain/usecases/get_collection_wise_target.dart';
+import 'package:solufine/features/collection/domain/usecases/get_target_dates.dart';
+import 'package:solufine/features/collection/presentation/bloc/dealer_target_bloc.dart';
 import 'package:get_it/get_it.dart';
 
 import '../api_constant/dio_client.dart';

@@ -1,6 +1,6 @@
 
 
-import 'package:demo/features/home/doman/home_entity/menu_entity.dart';
+import 'package:solufine/features/home/doman/home_entity/menu_entity.dart';
 
 class MenuModel extends MenuEntity {
   const MenuModel({

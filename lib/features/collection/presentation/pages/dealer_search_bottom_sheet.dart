@@ -1,11 +1,11 @@
 import 'dart:async';
 
-import 'package:demo/core/utility/widgets/custom_loader.dart';
-import 'package:demo/features/collection/data/models/dealer_model.dart';
-import 'package:demo/features/collection/domain/entities/dealer.dart';
-import 'package:demo/features/collection/presentation/bloc/collection_bloc.dart';
-import 'package:demo/features/collection/presentation/bloc/collection_event.dart';
-import 'package:demo/features/collection/presentation/bloc/collection_state.dart';
+import 'package:solufine/core/utility/widgets/custom_loader.dart';
+import 'package:solufine/features/collection/data/models/dealer_model.dart';
+import 'package:solufine/features/collection/domain/entities/dealer.dart';
+import 'package:solufine/features/collection/presentation/bloc/collection_bloc.dart';
+import 'package:solufine/features/collection/presentation/bloc/collection_event.dart';
+import 'package:solufine/features/collection/presentation/bloc/collection_state.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 

@@ -1,8 +1,8 @@
-import 'package:demo/features/dealer_visit/domain/entities/add_dealer_visit_entity.dart';
-import 'package:demo/features/dealer_visit/domain/entities/dealer_followup_list_entity.dart';
-import 'package:demo/features/dealer_visit/domain/entities/visit_purpose_entity.dart';
-import 'package:demo/features/farmer/farmerregistration/domain/entity/district_entity.dart';
-import 'package:demo/features/farmer/farmerregistration/domain/entity/state_entity.dart';
+import 'package:solufine/features/dealer_visit/domain/entities/add_dealer_visit_entity.dart';
+import 'package:solufine/features/dealer_visit/domain/entities/dealer_followup_list_entity.dart';
+import 'package:solufine/features/dealer_visit/domain/entities/visit_purpose_entity.dart';
+import 'package:solufine/features/farmer/farmerregistration/domain/entity/district_entity.dart';
+import 'package:solufine/features/farmer/farmerregistration/domain/entity/state_entity.dart';
 import 'package:equatable/equatable.dart';
 
 enum AddDealerVisitStatus {

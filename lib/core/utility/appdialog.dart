@@ -98,7 +98,7 @@
 //   });
 // }
 
-import 'package:demo/core/utility/appname.dart';
+import 'package:solufine/core/utility/appname.dart';
 import 'package:flutter/material.dart';
 
 enum DialogType { success, error, warning, info }

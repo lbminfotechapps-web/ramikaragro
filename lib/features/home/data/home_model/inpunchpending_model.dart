@@ -1,4 +1,4 @@
-import 'package:demo/features/home/doman/home_entity/inpunch_pending_entity.dart';
+import 'package:solufine/features/home/doman/home_entity/inpunch_pending_entity.dart';
 
 class InpunchPendingResponseModel extends InpunchPendingResponseEntity {
   const InpunchPendingResponseModel({

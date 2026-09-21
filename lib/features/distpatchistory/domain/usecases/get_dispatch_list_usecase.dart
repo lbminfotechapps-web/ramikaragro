@@ -1,4 +1,4 @@
-import 'package:demo/features/distpatchistory/domain/repository/dispatch_repository.dart';
+import 'package:solufine/features/distpatchistory/domain/repository/dispatch_repository.dart';
 
 import '../entities/dispatch_list_entity.dart';
 

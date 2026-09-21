@@ -1,6 +1,6 @@
-import 'package:demo/features/home/doman/home_entity/punch_stat_entity.dart';
-import 'package:demo/features/home/doman/home_entity/vehicle_type_entity.dart';
-import 'package:demo/features/home/doman/home_repository/qick_access_repo.dart';
+import 'package:solufine/features/home/doman/home_entity/punch_stat_entity.dart';
+import 'package:solufine/features/home/doman/home_entity/vehicle_type_entity.dart';
+import 'package:solufine/features/home/doman/home_repository/qick_access_repo.dart';
 
 class GetPunchStatusUsecase {
   final QickAccessRepo qickAccessRepo;

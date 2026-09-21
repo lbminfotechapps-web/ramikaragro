@@ -1,8 +1,8 @@
 import 'dart:convert';
 
-import 'package:demo/features/farmer/famerfollowup/domain/repository/famerfollowup_repository.dart';
-import 'package:demo/features/farmer/famerfollowup/presentation/bloc/famerfollowup_event.dart';
-import 'package:demo/features/farmer/famerfollowup/presentation/bloc/famerfollowup_state.dart';
+import 'package:solufine/features/farmer/famerfollowup/domain/repository/famerfollowup_repository.dart';
+import 'package:solufine/features/farmer/famerfollowup/presentation/bloc/famerfollowup_event.dart';
+import 'package:solufine/features/farmer/famerfollowup/presentation/bloc/famerfollowup_state.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 

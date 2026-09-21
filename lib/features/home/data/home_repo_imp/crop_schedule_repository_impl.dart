@@ -1,8 +1,8 @@
 
 
-import 'package:demo/features/home/data/home_datasource/crop_schedule_remote_data_source.dart';
-import 'package:demo/features/home/doman/home_entity/crop_schedule.dart';
-import 'package:demo/features/home/doman/home_repository/crop_schedule_repository.dart';
+import 'package:solufine/features/home/data/home_datasource/crop_schedule_remote_data_source.dart';
+import 'package:solufine/features/home/doman/home_entity/crop_schedule.dart';
+import 'package:solufine/features/home/doman/home_repository/crop_schedule_repository.dart';
 
 class CropScheduleRepositoryImpl
     implements CropScheduleRepository {

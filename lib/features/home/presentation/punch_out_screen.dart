@@ -1,22 +1,22 @@
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:demo/core/router/app_router.dart';
-import 'package:demo/core/secure_storage/secure_storage.dart';
-import 'package:demo/core/theme/app_colors.dart';
-import 'package:demo/core/utility/app_image_picker.dart';
-import 'package:demo/core/utility/appdialog.dart';
-import 'package:demo/core/utility/device_info_util.dart';
-import 'package:demo/core/utility/location_util.dart';
-import 'package:demo/core/utility/widgets/custom_appbar.dart';
-import 'package:demo/core/utility/widgets/custom_button.dart';
-import 'package:demo/core/utility/widgets/custom_textformfield.dart';
-import 'package:demo/features/home/doman/home_entity/punch_stat_entity.dart';
-import 'package:demo/features/home/doman/home_entity/vehicle_type_entity.dart';
-import 'package:demo/features/home/presentation/quick_aceess_bloc/quick_access_event.dart'
+import 'package:solufine/core/router/app_router.dart';
+import 'package:solufine/core/secure_storage/secure_storage.dart';
+import 'package:solufine/core/theme/app_colors.dart';
+import 'package:solufine/core/utility/app_image_picker.dart';
+import 'package:solufine/core/utility/appdialog.dart';
+import 'package:solufine/core/utility/device_info_util.dart';
+import 'package:solufine/core/utility/location_util.dart';
+import 'package:solufine/core/utility/widgets/custom_appbar.dart';
+import 'package:solufine/core/utility/widgets/custom_button.dart';
+import 'package:solufine/core/utility/widgets/custom_textformfield.dart';
+import 'package:solufine/features/home/doman/home_entity/punch_stat_entity.dart';
+import 'package:solufine/features/home/doman/home_entity/vehicle_type_entity.dart';
+import 'package:solufine/features/home/presentation/quick_aceess_bloc/quick_access_event.dart'
     show PunchInOutDetailsAddEvent, VehicleTypeEvent;
-import 'package:demo/features/home/presentation/quick_aceess_bloc/quick_access_state.dart';
-import 'package:demo/features/home/presentation/quick_aceess_bloc/quick_acess_bloc.dart';
+import 'package:solufine/features/home/presentation/quick_aceess_bloc/quick_access_state.dart';
+import 'package:solufine/features/home/presentation/quick_aceess_bloc/quick_acess_bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil_plus/flutter_screenutil_plus.dart';

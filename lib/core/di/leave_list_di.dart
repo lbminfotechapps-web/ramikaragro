@@ -1,11 +1,11 @@
-import 'package:demo/core/api_constant/dio_client.dart';
-import 'package:demo/core/secure_storage/secure_storage.dart';
-import 'package:demo/features/leave/data/datasources/leave_remote_data_source.dart';
-import 'package:demo/features/leave/data/repositories/leave_repository_impl.dart';
-import 'package:demo/features/leave/domain/repositories/leave_repository.dart';
-import 'package:demo/features/leave/domain/usecases/add_leave.dart';
-import 'package:demo/features/leave/domain/usecases/get_leave_list.dart';
-import 'package:demo/features/leave/presentation/bloc/leave_bloc.dart';
+import 'package:solufine/core/api_constant/dio_client.dart';
+import 'package:solufine/core/secure_storage/secure_storage.dart';
+import 'package:solufine/features/leave/data/datasources/leave_remote_data_source.dart';
+import 'package:solufine/features/leave/data/repositories/leave_repository_impl.dart';
+import 'package:solufine/features/leave/domain/repositories/leave_repository.dart';
+import 'package:solufine/features/leave/domain/usecases/add_leave.dart';
+import 'package:solufine/features/leave/domain/usecases/get_leave_list.dart';
+import 'package:solufine/features/leave/presentation/bloc/leave_bloc.dart';
 import 'package:get_it/get_it.dart';
 
 final GetIt sl = GetIt.instance;

@@ -1,9 +1,9 @@
 import 'dart:async';
 
-import 'package:demo/features/home/doman/home_usecases/get_punch_status_usecase.dart';
-import 'package:demo/features/home/doman/home_entity/vehicle_type_entity.dart';
-import 'package:demo/features/home/presentation/quick_aceess_bloc/quick_access_event.dart';
-import 'package:demo/features/home/presentation/quick_aceess_bloc/quick_access_state.dart';
+import 'package:solufine/features/home/doman/home_usecases/get_punch_status_usecase.dart';
+import 'package:solufine/features/home/doman/home_entity/vehicle_type_entity.dart';
+import 'package:solufine/features/home/presentation/quick_aceess_bloc/quick_access_event.dart';
+import 'package:solufine/features/home/presentation/quick_aceess_bloc/quick_access_state.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 

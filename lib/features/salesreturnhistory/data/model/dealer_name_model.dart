@@ -1,4 +1,4 @@
-import 'package:demo/features/salesreturnhistory/domain/entities/dealer_name_entity.dart';
+import 'package:solufine/features/salesreturnhistory/domain/entities/dealer_name_entity.dart';
 
 class DealerNameModel extends DealerNameEntity {
   const DealerNameModel({

@@ -1,5 +1,5 @@
-import 'package:demo/features/collection/data/models/bank_model.dart';
-import 'package:demo/features/collection/data/models/dealer_model.dart';
+import 'package:solufine/features/collection/data/models/bank_model.dart';
+import 'package:solufine/features/collection/data/models/dealer_model.dart';
 import 'package:equatable/equatable.dart';
 
 enum CollectionStatus {

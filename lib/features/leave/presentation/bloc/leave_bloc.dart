@@ -1,4 +1,4 @@
-import 'package:demo/core/secure_storage/secure_storage.dart';
+import 'package:solufine/core/secure_storage/secure_storage.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../core/error/exceptions.dart';

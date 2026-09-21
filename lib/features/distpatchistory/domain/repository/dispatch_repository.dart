@@ -1,4 +1,4 @@
-import 'package:demo/features/distpatchistory/domain/entities/dispatch_list_entity.dart';
+import 'package:solufine/features/distpatchistory/domain/entities/dispatch_list_entity.dart';
 
 abstract class DispatchRepository {
   Future<List<DispatchListEntity>> getDispatchList({

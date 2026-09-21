@@ -1,6 +1,6 @@
 
 
-import 'package:demo/features/home/doman/home_entity/crop_schedule_detail.dart';
+import 'package:solufine/features/home/doman/home_entity/crop_schedule_detail.dart';
 
 class CropScheduleDetailModel extends CropScheduleDetail {
   const CropScheduleDetailModel({

@@ -2,27 +2,28 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:android_intent_plus/android_intent.dart';
-import 'package:demo/core/api_constant/api_client.dart';
-import 'package:demo/core/api_constant/dio_client.dart';
-import 'package:demo/core/router/app_router.dart';
-import 'package:demo/core/secure_storage/secure_storage.dart';
-import 'package:demo/core/theme/app_colors.dart';
-import 'package:demo/core/utility/appname.dart';
-import 'package:demo/core/utility/locationpermissiondialog.dart';
-import 'package:demo/core/utility/widgets/custom_appbar.dart';
-import 'package:demo/core/utility/widgets/custom_card.dart';
-import 'package:demo/features/home/doman/home_entity/homevisit_entity.dart';
-import 'package:demo/features/home/doman/home_entity/inpunch_pending_entity.dart';
-import 'package:demo/features/home/presentation/home_bloc/home_bloc.dart';
-import 'package:demo/features/home/presentation/home_bloc/home_event.dart';
-import 'package:demo/features/home/presentation/home_bloc/home_state.dart';
+import 'package:solufine/core/api_constant/api_client.dart';
+import 'package:solufine/core/api_constant/dio_client.dart';
+import 'package:solufine/core/router/app_router.dart';
+import 'package:solufine/core/secure_storage/secure_storage.dart';
+import 'package:solufine/core/theme/app_colors.dart';
+import 'package:solufine/core/utility/appname.dart';
+import 'package:solufine/core/utility/developer_options_checker.dart';
+import 'package:solufine/core/utility/locationpermissiondialog.dart';
+import 'package:solufine/core/utility/widgets/custom_appbar.dart';
+import 'package:solufine/core/utility/widgets/custom_card.dart';
+import 'package:solufine/features/home/doman/home_entity/homevisit_entity.dart';
+import 'package:solufine/features/home/doman/home_entity/inpunch_pending_entity.dart';
+import 'package:solufine/features/home/presentation/home_bloc/home_bloc.dart';
+import 'package:solufine/features/home/presentation/home_bloc/home_event.dart';
+import 'package:solufine/features/home/presentation/home_bloc/home_state.dart';
 
-import 'package:demo/features/home/presentation/quick_aceess_bloc/quick_access_state.dart';
-import 'package:demo/features/home/presentation/quick_aceess_bloc/quick_acess_bloc.dart';
-import 'package:demo/features/home/presentation/widgets/notvisited.dart';
-import 'package:demo/features/home/presentation/widgets/quick_action.dart';
-import 'package:demo/features/home/presentation/widgets/todays_overwiew.dart';
-import 'package:demo/features/home/presentation/widgets/visit_overview.dart';
+import 'package:solufine/features/home/presentation/quick_aceess_bloc/quick_access_state.dart';
+import 'package:solufine/features/home/presentation/quick_aceess_bloc/quick_acess_bloc.dart';
+import 'package:solufine/features/home/presentation/widgets/notvisited.dart';
+import 'package:solufine/features/home/presentation/widgets/quick_action.dart';
+import 'package:solufine/features/home/presentation/widgets/todays_overwiew.dart';
+import 'package:solufine/features/home/presentation/widgets/visit_overview.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -115,11 +116,18 @@ class _HomeState extends State<Home> {
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (!mounted) return;
+ WidgetsBinding.instance.addPostFrameCallback((_) async {
+  if (!mounted) return;
 
-      showDeveloperOptionWarning();
-    });
+  final isEnabled =
+      await DeveloperOptionsChecker.isDeveloperOptionsEnabled();
+
+  if (!mounted) return;
+
+  if (isEnabled) {
+    await showDeveloperOptionWarning();
+  }
+});
     _appBarTimer = Timer.periodic(const Duration(seconds: 4), (timer) {
       if (!mounted) return;
 

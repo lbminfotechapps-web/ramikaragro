@@ -1,9 +1,9 @@
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:demo/core/api_constant/dio_client.dart';
-import 'package:demo/features/farmer/famerfollowup/data/model/followuplist_model.dart';
-import 'package:demo/features/farmer/famerfollowup/data/model/submitFollowup_mode.dart';
+import 'package:solufine/core/api_constant/dio_client.dart';
+import 'package:solufine/features/farmer/famerfollowup/data/model/followuplist_model.dart';
+import 'package:solufine/features/farmer/famerfollowup/data/model/submitFollowup_mode.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 

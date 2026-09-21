@@ -1,4 +1,4 @@
-import 'package:demo/features/scheme/domain/entity/scheme_entity.dart';
+import 'package:solufine/features/scheme/domain/entity/scheme_entity.dart';
 
 abstract class SchemeRepository {
   Future<List<SchemeEntity>> getScheme({

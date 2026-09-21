@@ -1,4 +1,4 @@
-import 'package:demo/features/orderhistory/domain/entities/order_detail_entity.dart';
+import 'package:solufine/features/orderhistory/domain/entities/order_detail_entity.dart';
 
 class OrderDetailModel extends OrderDetailEntity {
   const OrderDetailModel({
