@@ -1,12 +1,12 @@
-import 'package:demo/core/theme/app_colors.dart';
-import 'package:demo/core/utility/app_toast.dart';
-import 'package:demo/core/utility/widgets/custom_button.dart';
-import 'package:demo/core/utility/widgets/custom_loader.dart';
-import 'package:demo/core/utility/widgets/custom_textformfield.dart';
-import 'package:demo/features/auth/presentation/bloc/auth_bloc.dart';
-import 'package:demo/features/auth/presentation/bloc/auth_event.dart';
+import 'package:solufine/core/theme/app_colors.dart';
+import 'package:solufine/core/utility/app_toast.dart';
+import 'package:solufine/core/utility/widgets/custom_button.dart';
+import 'package:solufine/core/utility/widgets/custom_loader.dart';
+import 'package:solufine/core/utility/widgets/custom_textformfield.dart';
+import 'package:solufine/features/auth/presentation/bloc/auth_bloc.dart';
+import 'package:solufine/features/auth/presentation/bloc/auth_event.dart';
 
-import 'package:demo/features/auth/presentation/bloc/auth_state.dart';
+import 'package:solufine/features/auth/presentation/bloc/auth_state.dart';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';

@@ -1,11 +1,11 @@
-import 'package:demo/core/router/app_router.dart';
-import 'package:demo/core/theme/app_colors.dart';
-import 'package:demo/core/utility/widgets/custom_appbar.dart';
-import 'package:demo/core/utility/widgets/custom_loader.dart';
+import 'package:solufine/core/router/app_router.dart';
+import 'package:solufine/core/theme/app_colors.dart';
+import 'package:solufine/core/utility/widgets/custom_appbar.dart';
+import 'package:solufine/core/utility/widgets/custom_loader.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import 'package:demo/core/di/top_ten_dealer_di.dart';
+import 'package:solufine/core/di/top_ten_dealer_di.dart';
 import 'package:go_router/go_router.dart';
 
 import '../bloc/top_ten_dealer_bloc.dart';

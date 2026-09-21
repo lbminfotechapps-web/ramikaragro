@@ -1,7 +1,7 @@
 import 'dart:convert';
 
-import 'package:demo/core/api_constant/dio_client.dart';
-import 'package:demo/features/farmer/farmerlist/data/model/farmerlist_model.dart';
+import 'package:solufine/core/api_constant/dio_client.dart';
+import 'package:solufine/features/farmer/farmerlist/data/model/farmerlist_model.dart';
 import 'package:dio/dio.dart';
 
 class FarmerListDataSource {

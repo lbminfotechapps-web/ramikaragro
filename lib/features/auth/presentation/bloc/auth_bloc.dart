@@ -1,8 +1,8 @@
 import 'dart:async';
 
-import 'package:demo/features/auth/domain/usecases/login_usecase.dart';
-import 'package:demo/features/auth/presentation/bloc/auth_event.dart';
-import 'package:demo/features/auth/presentation/bloc/auth_state.dart';
+import 'package:solufine/features/auth/domain/usecases/login_usecase.dart';
+import 'package:solufine/features/auth/presentation/bloc/auth_event.dart';
+import 'package:solufine/features/auth/presentation/bloc/auth_state.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class AuthBloc extends Bloc<AuthEvent, AuthState> {

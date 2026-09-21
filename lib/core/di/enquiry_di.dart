@@ -1,17 +1,17 @@
 import 'package:get_it/get_it.dart';
 
-import 'package:demo/core/api_constant/dio_client.dart';
+import 'package:solufine/core/api_constant/dio_client.dart';
 
-import 'package:demo/features/enquiry/data/datasources/enquiry_remote_data_source.dart';
-import 'package:demo/features/enquiry/data/repositories/enquiry_repository_impl.dart';
+import 'package:solufine/features/enquiry/data/datasources/enquiry_remote_data_source.dart';
+import 'package:solufine/features/enquiry/data/repositories/enquiry_repository_impl.dart';
 
-import 'package:demo/features/enquiry/domain/repositories/enquiry_repository.dart';
-import 'package:demo/features/enquiry/domain/usecases/get_districts_usecase.dart';
-import 'package:demo/features/enquiry/domain/usecases/get_states_usecase.dart';
-import 'package:demo/features/enquiry/domain/usecases/get_talukas_usecase.dart';
-import 'package:demo/features/enquiry/domain/usecases/submit_enquiry_usecase.dart';
+import 'package:solufine/features/enquiry/domain/repositories/enquiry_repository.dart';
+import 'package:solufine/features/enquiry/domain/usecases/get_districts_usecase.dart';
+import 'package:solufine/features/enquiry/domain/usecases/get_states_usecase.dart';
+import 'package:solufine/features/enquiry/domain/usecases/get_talukas_usecase.dart';
+import 'package:solufine/features/enquiry/domain/usecases/submit_enquiry_usecase.dart';
 
-import 'package:demo/features/enquiry/presentation/bloc/enquiry_bloc.dart';
+import 'package:solufine/features/enquiry/presentation/bloc/enquiry_bloc.dart';
 
 final GetIt sl = GetIt.instance;
 

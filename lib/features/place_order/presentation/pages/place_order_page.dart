@@ -2,32 +2,32 @@
 import 'dart:io';
 import 'dart:typed_data';
 
-import 'package:demo/core/di/place_order_target_di.dart';
-import 'package:demo/core/router/app_router.dart';
-import 'package:demo/core/secure_storage/secure_storage.dart';
-import 'package:demo/core/theme/app_colors.dart';
-import 'package:demo/core/utility/widgets/custom_appbar.dart';
-import 'package:demo/core/utility/widgets/custom_textformfield.dart';
+import 'package:solufine/core/di/place_order_target_di.dart';
+import 'package:solufine/core/router/app_router.dart';
+import 'package:solufine/core/secure_storage/secure_storage.dart';
+import 'package:solufine/core/theme/app_colors.dart';
+import 'package:solufine/core/utility/widgets/custom_appbar.dart';
+import 'package:solufine/core/utility/widgets/custom_textformfield.dart';
 
-import 'package:demo/features/place_order/domain/entities/category_entity.dart';
-import 'package:demo/features/place_order/domain/entities/dealer_entity.dart';
-import 'package:demo/features/place_order/domain/entities/godown_entity.dart';
-import 'package:demo/features/place_order/domain/entities/product_entity.dart';
-import 'package:demo/features/place_order/domain/entities/product_rate_entity.dart';
-import 'package:demo/features/place_order/domain/repositories/product_rate_repository.dart';
-import 'package:demo/features/place_order/domain/usecases/get_product_detail_rates_usecase.dart';
+import 'package:solufine/features/place_order/domain/entities/category_entity.dart';
+import 'package:solufine/features/place_order/domain/entities/dealer_entity.dart';
+import 'package:solufine/features/place_order/domain/entities/godown_entity.dart';
+import 'package:solufine/features/place_order/domain/entities/product_entity.dart';
+import 'package:solufine/features/place_order/domain/entities/product_rate_entity.dart';
+import 'package:solufine/features/place_order/domain/repositories/product_rate_repository.dart';
+import 'package:solufine/features/place_order/domain/usecases/get_product_detail_rates_usecase.dart';
 
-import 'package:demo/features/place_order/presentation/bloc/place_order_bloc.dart';
-import 'package:demo/features/place_order/presentation/bloc/place_order_event.dart';
-import 'package:demo/features/place_order/presentation/bloc/place_order_state.dart';
+import 'package:solufine/features/place_order/presentation/bloc/place_order_bloc.dart';
+import 'package:solufine/features/place_order/presentation/bloc/place_order_event.dart';
+import 'package:solufine/features/place_order/presentation/bloc/place_order_state.dart';
 
-import 'package:demo/features/place_order/presentation/widgets/dealer_search_field.dart';
-import 'package:demo/features/place_order/presentation/widgets/image_picker_section.dart';
-import 'package:demo/features/place_order/presentation/widgets/modern_dropdown.dart';
-import 'package:demo/features/place_order/presentation/widgets/multi_product_selection_sheet.dart';
-import 'package:demo/features/place_order/presentation/widgets/order_preview_sheet.dart';
-import 'package:demo/features/place_order/presentation/widgets/product_card.dart';
-import 'package:demo/features/place_order/presentation/widgets/signature_section.dart';
+import 'package:solufine/features/place_order/presentation/widgets/dealer_search_field.dart';
+import 'package:solufine/features/place_order/presentation/widgets/image_picker_section.dart';
+import 'package:solufine/features/place_order/presentation/widgets/modern_dropdown.dart';
+import 'package:solufine/features/place_order/presentation/widgets/multi_product_selection_sheet.dart';
+import 'package:solufine/features/place_order/presentation/widgets/order_preview_sheet.dart';
+import 'package:solufine/features/place_order/presentation/widgets/product_card.dart';
+import 'package:solufine/features/place_order/presentation/widgets/signature_section.dart';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';

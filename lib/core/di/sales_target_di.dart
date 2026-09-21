@@ -1,9 +1,9 @@
-import 'package:demo/features/sales_targrt_achievement/data/datasources/sales_target_remote_datasource.dart';
-import 'package:demo/features/sales_targrt_achievement/data/repositories/sales_target_repository_impl.dart';
-import 'package:demo/features/sales_targrt_achievement/domain/repositories/sales_target_repository.dart';
-import 'package:demo/features/sales_targrt_achievement/domain/usecases/get_sales_wise_target.dart';
-import 'package:demo/features/sales_targrt_achievement/domain/usecases/get_target_dates.dart';
-import 'package:demo/features/sales_targrt_achievement/presentation/bloc/sales_target_bloc.dart';
+import 'package:solufine/features/sales_targrt_achievement/data/datasources/sales_target_remote_datasource.dart';
+import 'package:solufine/features/sales_targrt_achievement/data/repositories/sales_target_repository_impl.dart';
+import 'package:solufine/features/sales_targrt_achievement/domain/repositories/sales_target_repository.dart';
+import 'package:solufine/features/sales_targrt_achievement/domain/usecases/get_sales_wise_target.dart';
+import 'package:solufine/features/sales_targrt_achievement/domain/usecases/get_target_dates.dart';
+import 'package:solufine/features/sales_targrt_achievement/presentation/bloc/sales_target_bloc.dart';
 import 'package:get_it/get_it.dart';
 
 import '../api_constant/dio_client.dart';

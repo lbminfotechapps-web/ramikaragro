@@ -1,7 +1,7 @@
-import 'package:demo/core/error/exceptions.dart';
-import 'package:demo/features/leave/data/datasources/team_leave_remote_datasource.dart';
-import 'package:demo/features/leave/data/models/team_leave_model.dart';
-import 'package:demo/features/leave/domain/repositories/team_leave_repository.dart';
+import 'package:solufine/core/error/exceptions.dart';
+import 'package:solufine/features/leave/data/datasources/team_leave_remote_datasource.dart';
+import 'package:solufine/features/leave/data/models/team_leave_model.dart';
+import 'package:solufine/features/leave/domain/repositories/team_leave_repository.dart';
 
 class TeamLeaveRepositoryImpl
     implements TeamLeaveRepository {

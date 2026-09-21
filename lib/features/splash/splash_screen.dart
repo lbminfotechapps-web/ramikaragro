@@ -1,7 +1,7 @@
-import 'package:demo/core/di/auth_di.dart';
-import 'package:demo/core/theme/app_colors.dart';
-import 'package:demo/core/utility/appname.dart';
-import 'package:demo/features/auth/provider/auth_provider.dart';
+import 'package:solufine/core/di/auth_di.dart';
+import 'package:solufine/core/theme/app_colors.dart';
+import 'package:solufine/core/utility/appname.dart';
+import 'package:solufine/features/auth/provider/auth_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 

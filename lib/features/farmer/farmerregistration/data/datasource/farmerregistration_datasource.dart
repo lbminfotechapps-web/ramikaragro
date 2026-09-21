@@ -1,12 +1,12 @@
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:demo/core/api_constant/api_client.dart';
-import 'package:demo/core/api_constant/dio_client.dart';
-import 'package:demo/features/farmer/farmerregistration/data/model/baseresponse_model.dart';
-import 'package:demo/features/farmer/farmerregistration/data/model/district_model.dart';
-import 'package:demo/features/farmer/farmerregistration/data/model/farmer_details_model.dart';
-import 'package:demo/features/farmer/farmerregistration/data/model/state_model.dart';
+import 'package:solufine/core/api_constant/api_client.dart';
+import 'package:solufine/core/api_constant/dio_client.dart';
+import 'package:solufine/features/farmer/farmerregistration/data/model/baseresponse_model.dart';
+import 'package:solufine/features/farmer/farmerregistration/data/model/district_model.dart';
+import 'package:solufine/features/farmer/farmerregistration/data/model/farmer_details_model.dart';
+import 'package:solufine/features/farmer/farmerregistration/data/model/state_model.dart';
 import 'package:dio/dio.dart';
 
 class FarmerregistrationDatasource {

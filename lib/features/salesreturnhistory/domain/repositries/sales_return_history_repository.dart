@@ -1,5 +1,5 @@
-import 'package:demo/features/salesreturnhistory/domain/entities/dealer_name_entity.dart';
-import 'package:demo/features/salesreturnhistory/domain/entities/sales_return_history_entity.dart';
+import 'package:solufine/features/salesreturnhistory/domain/entities/dealer_name_entity.dart';
+import 'package:solufine/features/salesreturnhistory/domain/entities/sales_return_history_entity.dart';
 
 abstract class SalesReturnHistoryRepository {
   Future<List<SalesReturnHistoryEntity>> getSalesReturnHistory({

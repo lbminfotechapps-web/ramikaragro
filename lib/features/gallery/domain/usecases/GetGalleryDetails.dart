@@ -1,5 +1,5 @@
-import 'package:demo/features/gallery/domain/entities/gallery_entity.dart';
-import 'package:demo/features/gallery/domain/repository/gallery_repository.dart';
+import 'package:solufine/features/gallery/domain/entities/gallery_entity.dart';
+import 'package:solufine/features/gallery/domain/repository/gallery_repository.dart';
 
 class GetGalleryDetails {
   final GalleryRepository repository;

@@ -1,4 +1,4 @@
-import 'package:demo/core/api_constant/api_client.dart';
+import 'package:solufine/core/api_constant/api_client.dart';
 import 'package:flutter/material.dart';
 
 class FullImageScreen extends StatelessWidget {

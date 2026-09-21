@@ -1,9 +1,9 @@
 import 'dart:convert';
 
-import 'package:demo/core/api_constant/api_client.dart';
-import 'package:demo/core/api_constant/dio_client.dart';
-import 'package:demo/features/addexpense/data/model/expense_parameter_model.dart';
-import 'package:demo/features/addexpense/data/model/vehicle_model.dart';
+import 'package:solufine/core/api_constant/api_client.dart';
+import 'package:solufine/core/api_constant/dio_client.dart';
+import 'package:solufine/features/addexpense/data/model/expense_parameter_model.dart';
+import 'package:solufine/features/addexpense/data/model/vehicle_model.dart';
 import 'package:dio/dio.dart';
 
 abstract class ExpenseRemoteDatasource {

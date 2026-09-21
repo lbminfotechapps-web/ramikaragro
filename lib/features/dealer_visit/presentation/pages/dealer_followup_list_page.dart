@@ -1,11 +1,11 @@
-import 'package:demo/core/router/app_router.dart';
-import 'package:demo/core/utility/widgets/custom_appbar.dart';
+import 'package:solufine/core/router/app_router.dart';
+import 'package:solufine/core/utility/widgets/custom_appbar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
-import 'package:demo/core/di/leave_list_di.dart';
-import 'package:demo/features/dealer_visit/domain/entities/dealer_followup_list_entity.dart';
+import 'package:solufine/core/di/leave_list_di.dart';
+import 'package:solufine/features/dealer_visit/domain/entities/dealer_followup_list_entity.dart';
 import '../bloc/add_dealer_visit_bloc.dart';
 import '../bloc/add_dealer_visit_event.dart';
 import '../bloc/add_dealer_visit_state.dart';

@@ -1,8 +1,8 @@
-import 'package:demo/features/orderhistory/domain/entities/order_history_entity.dart';
-import 'package:demo/features/orderhistory/domain/usecases/get_order_history_usecase.dart';
-import 'package:demo/features/orderhistory/domain/usecases/update_order_status_usecase.dart';
-import 'package:demo/features/orderhistory/presentation/bloc/order_history_event.dart';
-import 'package:demo/features/orderhistory/presentation/bloc/order_history_state.dart';
+import 'package:solufine/features/orderhistory/domain/entities/order_history_entity.dart';
+import 'package:solufine/features/orderhistory/domain/usecases/get_order_history_usecase.dart';
+import 'package:solufine/features/orderhistory/domain/usecases/update_order_status_usecase.dart';
+import 'package:solufine/features/orderhistory/presentation/bloc/order_history_event.dart';
+import 'package:solufine/features/orderhistory/presentation/bloc/order_history_state.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class OrderHistoryBloc extends Bloc<OrderHistoryEvent, OrderHistoryState> {

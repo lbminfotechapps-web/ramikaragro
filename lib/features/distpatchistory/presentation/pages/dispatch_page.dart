@@ -1,9 +1,9 @@
-import 'package:demo/core/router/app_router.dart';
-import 'package:demo/core/secure_storage/secure_storage.dart';
-import 'package:demo/core/theme/app_colors.dart';
-import 'package:demo/core/utility/widgets/custom_appbar.dart';
-import 'package:demo/features/distpatchistory/presentation/widget/dispatch_card.dart';
-import 'package:demo/features/distpatchistory/presentation/widget/dispatch_detail_card.dart';
+import 'package:solufine/core/router/app_router.dart';
+import 'package:solufine/core/secure_storage/secure_storage.dart';
+import 'package:solufine/core/theme/app_colors.dart';
+import 'package:solufine/core/utility/widgets/custom_appbar.dart';
+import 'package:solufine/features/distpatchistory/presentation/widget/dispatch_card.dart';
+import 'package:solufine/features/distpatchistory/presentation/widget/dispatch_detail_card.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil_plus/flutter_screenutil_plus.dart';

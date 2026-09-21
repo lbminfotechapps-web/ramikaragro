@@ -1,5 +1,5 @@
-import 'package:demo/features/orderhistory/data/model/order_detail_model.dart';
-import 'package:demo/features/orderhistory/domain/entities/order_history_entity.dart';
+import 'package:solufine/features/orderhistory/data/model/order_detail_model.dart';
+import 'package:solufine/features/orderhistory/domain/entities/order_history_entity.dart';
 
 class OrderHistoryModel extends OrderHistoryEntity {
   const OrderHistoryModel({

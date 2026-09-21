@@ -1,5 +1,5 @@
-import 'package:demo/features/scheme/data/model/statedata.dart';
-import 'package:demo/features/scheme/domain/entity/scheme_entity.dart';
+import 'package:solufine/features/scheme/data/model/statedata.dart';
+import 'package:solufine/features/scheme/domain/entity/scheme_entity.dart';
 import 'package:equatable/equatable.dart';
 
 abstract class SchemeState extends Equatable {

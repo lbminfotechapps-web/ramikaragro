@@ -1,10 +1,10 @@
 import 'dart:convert';
 
-import 'package:demo/core/secure_storage/secure_storage.dart';
-import 'package:demo/features/scheme/data/model/statedata.dart';
-import 'package:demo/features/scheme/domain/usercases/schemeusecase.dart';
-import 'package:demo/features/scheme/presentation/bloc/scheme_event.dart';
-import 'package:demo/features/scheme/presentation/bloc/scheme_state.dart';
+import 'package:solufine/core/secure_storage/secure_storage.dart';
+import 'package:solufine/features/scheme/data/model/statedata.dart';
+import 'package:solufine/features/scheme/domain/usercases/schemeusecase.dart';
+import 'package:solufine/features/scheme/presentation/bloc/scheme_event.dart';
+import 'package:solufine/features/scheme/presentation/bloc/scheme_state.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class SchemeBloc extends Bloc<SchemeEvent, SchemeState> {

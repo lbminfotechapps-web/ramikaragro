@@ -1,10 +1,10 @@
-import 'package:demo/core/api_constant/dio_client.dart';
-import 'package:demo/core/secure_storage/secure_storage.dart';
-import 'package:demo/features/leave/data/datasources/top_ten_dealer_remote_data_source.dart';
-import 'package:demo/features/leave/data/repositories/top_ten_dealer_repository_impl.dart';
-import 'package:demo/features/leave/domain/repositories/top_ten_dealer_repository.dart';
-import 'package:demo/features/leave/domain/usecases/get_top_ten_dealer.dart';
-import 'package:demo/features/leave/presentation/bloc/top_ten_dealer_bloc.dart';
+import 'package:solufine/core/api_constant/dio_client.dart';
+import 'package:solufine/core/secure_storage/secure_storage.dart';
+import 'package:solufine/features/leave/data/datasources/top_ten_dealer_remote_data_source.dart';
+import 'package:solufine/features/leave/data/repositories/top_ten_dealer_repository_impl.dart';
+import 'package:solufine/features/leave/domain/repositories/top_ten_dealer_repository.dart';
+import 'package:solufine/features/leave/domain/usecases/get_top_ten_dealer.dart';
+import 'package:solufine/features/leave/presentation/bloc/top_ten_dealer_bloc.dart';
 
 import 'package:get_it/get_it.dart';
 

@@ -1,4 +1,4 @@
-import 'package:demo/features/leave/domain/repositories/team_leave_repository.dart';
+import 'package:solufine/features/leave/domain/repositories/team_leave_repository.dart';
 
 class UpdateTeamLeaveStatus {
   final TeamLeaveRepository repository;

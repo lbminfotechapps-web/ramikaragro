@@ -1,5 +1,5 @@
 
-import 'package:demo/features/home/doman/home_entity/crop_schedule.dart';
+import 'package:solufine/features/home/doman/home_entity/crop_schedule.dart';
 
 import 'crop_schedule_detail_model.dart';
 

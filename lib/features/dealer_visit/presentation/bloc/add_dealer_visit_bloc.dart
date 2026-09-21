@@ -1,9 +1,9 @@
 import 'dart:async';
 import 'dart:io';
 
-import 'package:demo/core/utility/image_compression.dart';
-import 'package:demo/features/dealer_visit/presentation/bloc/add_dealer_visit_state.dart';
-import 'package:demo/features/farmer/farmerregistration/domain/repository/farmerregistration_repo.dart';
+import 'package:solufine/core/utility/image_compression.dart';
+import 'package:solufine/features/dealer_visit/presentation/bloc/add_dealer_visit_state.dart';
+import 'package:solufine/features/farmer/farmerregistration/domain/repository/farmerregistration_repo.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../core/error/exceptions.dart';

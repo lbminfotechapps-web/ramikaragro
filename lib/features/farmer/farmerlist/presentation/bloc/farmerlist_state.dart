@@ -1,4 +1,4 @@
-import 'package:demo/features/farmer/farmerlist/data/model/farmerlist_model.dart';
+import 'package:solufine/features/farmer/farmerlist/data/model/farmerlist_model.dart';
 
 enum FarmerlistStatus { initial, loading, success, failure }
 

@@ -1,4 +1,4 @@
-import 'package:demo/features/distpatchistory/domain/entities/dispatch_list_entity.dart';
+import 'package:solufine/features/distpatchistory/domain/entities/dispatch_list_entity.dart';
 import 'package:equatable/equatable.dart';
 
 abstract class DispatchState extends Equatable {

@@ -1,4 +1,4 @@
-import 'package:demo/features/orderhistory/domain/repository/order_history_repository.dart';
+import 'package:solufine/features/orderhistory/domain/repository/order_history_repository.dart';
 
 class UpdateOrderStatusUseCase {
   final OrderHistoryRepository repository;

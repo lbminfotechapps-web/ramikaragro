@@ -1,4 +1,4 @@
-import 'package:demo/features/distpatchistory/domain/entities/dispatch_order_detail_entity.dart';
+import 'package:solufine/features/distpatchistory/domain/entities/dispatch_order_detail_entity.dart';
 
 abstract class DispatchListEntity {
   final String dispatchOrderId;

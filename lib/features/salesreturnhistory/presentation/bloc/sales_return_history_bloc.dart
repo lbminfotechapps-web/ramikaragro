@@ -1,9 +1,9 @@
 import 'dart:async';
 
-import 'package:demo/features/salesreturnhistory/domain/usecases/get_sales_return_history_usecase.dart';
-import 'package:demo/features/salesreturnhistory/domain/usecases/search_sales_return_dealer_usecase.dart';
-import 'package:demo/features/salesreturnhistory/presentation/bloc/sales_return_history_event.dart';
-import 'package:demo/features/salesreturnhistory/presentation/bloc/sales_return_history_state.dart';
+import 'package:solufine/features/salesreturnhistory/domain/usecases/get_sales_return_history_usecase.dart';
+import 'package:solufine/features/salesreturnhistory/domain/usecases/search_sales_return_dealer_usecase.dart';
+import 'package:solufine/features/salesreturnhistory/presentation/bloc/sales_return_history_event.dart';
+import 'package:solufine/features/salesreturnhistory/presentation/bloc/sales_return_history_state.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class SalesReturnHistoryBloc

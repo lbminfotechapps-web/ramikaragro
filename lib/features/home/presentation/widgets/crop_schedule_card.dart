@@ -1,6 +1,6 @@
 
-import 'package:demo/core/api_constant/api_client.dart';
-import 'package:demo/features/home/doman/home_entity/crop_schedule.dart';
+import 'package:solufine/core/api_constant/api_client.dart';
+import 'package:solufine/features/home/doman/home_entity/crop_schedule.dart';
 import 'package:flutter/material.dart';
 
 import 'crop_schedule_detail_card.dart';

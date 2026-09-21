@@ -1,6 +1,6 @@
-import 'package:demo/features/farmer/farmerregistration/domain/entity/district_entity.dart';
-import 'package:demo/features/farmer/farmerregistration/domain/entity/farmer_details_entity.dart';
-import 'package:demo/features/farmer/farmerregistration/domain/entity/state_entity.dart';
+import 'package:solufine/features/farmer/farmerregistration/domain/entity/district_entity.dart';
+import 'package:solufine/features/farmer/farmerregistration/domain/entity/farmer_details_entity.dart';
+import 'package:solufine/features/farmer/farmerregistration/domain/entity/state_entity.dart';
 import 'package:equatable/equatable.dart';
 
 enum StatesStatus { initial, loading, failed, sucess,farmerRegiSuccess ,farmerUpdateSuccess}

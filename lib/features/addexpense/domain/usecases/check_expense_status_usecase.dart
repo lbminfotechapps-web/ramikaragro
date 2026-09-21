@@ -1,4 +1,4 @@
-import 'package:demo/features/addexpense/domain/repositories/expense_repository.dart';
+import 'package:solufine/features/addexpense/domain/repositories/expense_repository.dart';
 
 class CheckExpenseStatusUseCase {
   final ExpenseRepository repository;

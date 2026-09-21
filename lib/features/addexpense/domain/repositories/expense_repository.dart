@@ -1,5 +1,5 @@
-import 'package:demo/features/addexpense/domain/entities/expense_parameter_entity.dart';
-import 'package:demo/features/addexpense/domain/entities/vehicle_entity.dart';
+import 'package:solufine/features/addexpense/domain/entities/expense_parameter_entity.dart';
+import 'package:solufine/features/addexpense/domain/entities/vehicle_entity.dart';
 
 abstract class ExpenseRepository {
   Future<List<VehicleEntity>> getVehicles({
