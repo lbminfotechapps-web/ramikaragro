@@ -20,9 +20,12 @@ class DispatchDetailCard extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Product Name
+              
+
                 Text(
-                  detail.productName.isEmpty ? '-' : detail.productName,
+                  detail.productName.isEmpty
+                      ? '-'
+                      : '${detail.productName} (${detail.packing})',
                   textAlign: TextAlign.start,
                   style: TextStyle(
                     fontSize: 15.sp,
@@ -30,7 +33,6 @@ class DispatchDetailCard extends StatelessWidget {
                     color: Theme.of(context).colorScheme.primary,
                   ),
                 ),
-
                 SizedBox(height: 5.h),
 
                 // Quantity

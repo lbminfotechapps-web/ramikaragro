@@ -978,7 +978,7 @@ class _OrderHistoryPageState extends State<OrderHistoryPage> {
               ),
               child: Column(
                 children: [
-                  _infoRow('SR No', order.empId),
+                //  _infoRow('SR No', order.empId),
 
                   _infoRow('Employee', order.admName),
 

@@ -1,4 +1,3 @@
-
 import 'dart:io';
 import 'dart:typed_data';
 
@@ -45,7 +44,6 @@ class PlaceOrderPage extends StatefulWidget {
 
 class _PlaceOrderPageState extends State<PlaceOrderPage> {
   int? userId;
-
   bool isLoadingUser = true;
 
   @override
@@ -54,14 +52,9 @@ class _PlaceOrderPageState extends State<PlaceOrderPage> {
     _loadUser();
   }
 
-  // ===========================================================================
-  // LOAD USER
-  // ===========================================================================
-
   Future<void> _loadUser() async {
     try {
       final storage = SecureStorage.instance;
-
       final userData = await storage.getUserData();
 
       if (userData == null) {
@@ -96,10 +89,6 @@ class _PlaceOrderPageState extends State<PlaceOrderPage> {
       });
     }
   }
-
-  // ===========================================================================
-  // BUILD
-  // ===========================================================================
 
   @override
   Widget build(BuildContext context) {
@@ -216,11 +205,25 @@ class _PlaceOrderViewState extends State<_PlaceOrderView> {
 
   GodownEntity? selectedGodown;
 
-  CategoryEntity? selectedCategory;
+  /// IMPORTANT:
+  /// Multiple categories are now supported.
+  final List<CategoryEntity> selectedCategories = [];
 
   String? imagePath;
 
   Uint8List? signatureBytes;
+
+  // ===========================================================================
+  // ALL PRODUCTS FROM SELECTED CATEGORIES
+  // ===========================================================================
+
+  /// Products loaded for all selected categories.
+  ///
+  /// Your Bloc currently replaces state.products whenever
+  /// GetProductsEvent is called.
+  ///
+  /// Therefore we keep our own accumulated list here.
+  final List<ProductEntity> allCategoryProducts = [];
 
   // ===========================================================================
   // PRODUCT -> SELECTED RATES
@@ -254,21 +257,22 @@ class _PlaceOrderViewState extends State<_PlaceOrderView> {
   }
 
   // ===========================================================================
-  // CLEAR ALL SELECTED PRODUCTS
+  // CLEAR PRODUCTS
   // ===========================================================================
 
   void _clearAllSelectedProducts() {
     final bloc = context.read<PlaceOrderBloc>();
     final currentState = bloc.state;
 
-    for (final product in currentState.products) {
+    for (final product in allCategoryProducts) {
       final String productId = product.id.toString();
 
       final Map<String, int> packingQuantities =
           currentState.packingQuantities[productId] ??
               <String, int>{};
 
-      final bool hasQuantity = packingQuantities.values.any(
+      final bool hasQuantity =
+          packingQuantities.values.any(
         (quantity) => quantity > 0,
       );
 
@@ -284,9 +288,36 @@ class _PlaceOrderViewState extends State<_PlaceOrderView> {
     if (mounted) {
       setState(() {
         selectedRates.clear();
+        allCategoryProducts.clear();
       });
     } else {
       selectedRates.clear();
+      allCategoryProducts.clear();
+    }
+  }
+
+  // ===========================================================================
+  // ADD PRODUCTS FROM CURRENT BLOC STATE
+  // ===========================================================================
+
+  void _mergeCurrentProducts(List<ProductEntity> products) {
+    bool changed = false;
+
+    for (final product in products) {
+      final String productId = product.id.toString();
+
+      final bool alreadyExists = allCategoryProducts.any(
+        (element) => element.id.toString() == productId,
+      );
+
+      if (!alreadyExists) {
+        allCategoryProducts.add(product);
+        changed = true;
+      }
+    }
+
+    if (changed && mounted) {
+      setState(() {});
     }
   }
 
@@ -319,6 +350,8 @@ class _PlaceOrderViewState extends State<_PlaceOrderView> {
     setState(() {
       selectedDealer = dealer;
       dealerController.text = dealer.name;
+
+      selectedCategories.clear();
     });
 
     debugPrint(
@@ -336,6 +369,7 @@ class _PlaceOrderViewState extends State<_PlaceOrderView> {
     setState(() {
       selectedDealer = null;
       dealerController.clear();
+      selectedCategories.clear();
     });
   }
 
@@ -362,18 +396,178 @@ class _PlaceOrderViewState extends State<_PlaceOrderView> {
       return;
     }
 
+    // -------------------------------------------------------------------------
+    // DUPLICATE CHECK
+    // -------------------------------------------------------------------------
+
+    final bool alreadySelected = selectedCategories.any(
+      (element) => element.id == category.id,
+    );
+
+    if (alreadySelected) {
+      _showMessage(
+        '${category.name} is already selected',
+      );
+      return;
+    }
+
+    // -------------------------------------------------------------------------
+    // ADD CATEGORY
+    // -------------------------------------------------------------------------
+
     setState(() {
-      selectedCategory = category;
+      selectedCategories.add(category);
     });
+
+    debugPrint('========================================');
+    debugPrint('CATEGORY SELECTED');
+    debugPrint('Category ID   : ${category.id}');
+    debugPrint('Category Name : ${category.name}');
+    debugPrint(
+      'Total Categories: ${selectedCategories.length}',
+    );
+    debugPrint('========================================');
+
+    // -------------------------------------------------------------------------
+    // LOAD PRODUCTS
+    // -------------------------------------------------------------------------
 
     context.read<PlaceOrderBloc>().add(
           GetProductsEvent(
             categoryId: category.id,
           ),
         );
+  }
+
+  // ===========================================================================
+  // REMOVE CATEGORY
+  // ===========================================================================
+
+  void _removeCategory(CategoryEntity category) {
+    final String categoryId = category.id;
 
     debugPrint(
-      'Category selected: ${category.id} - ${category.name}',
+      'Removing category: $categoryId - ${category.name}',
+    );
+
+    setState(() {
+      selectedCategories.removeWhere(
+        (element) => element.id == categoryId,
+      );
+    });
+
+    // -------------------------------------------------------------------------
+    // IMPORTANT
+    //
+    // If your ProductEntity has categoryId, use it here to remove only
+    // products belonging to this category.
+    //
+    // For now, because your current ProductEntity code was not provided,
+    // we keep products already loaded.
+    // -------------------------------------------------------------------------
+  }
+
+  // ===========================================================================
+  // CATEGORY CHIPS
+  // ===========================================================================
+
+  Widget _buildSelectedCategoryChips() {
+    if (selectedCategories.isEmpty) {
+      return const SizedBox.shrink();
+    }
+
+    return Container(
+      width: double.infinity,
+      margin: EdgeInsets.only(top: 8.h),
+      padding: EdgeInsets.all(10.w),
+      decoration: BoxDecoration(
+        color: AppColors.lightGreen,
+        borderRadius: BorderRadius.circular(12.r),
+        border: Border.all(
+          color: AppColors.primary.withOpacity(0.15),
+        ),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(
+                Icons.check_circle_rounded,
+                size: 16.sp,
+                color: AppColors.primary,
+              ),
+              SizedBox(width: 6.w),
+              Text(
+                'Selected Categories',
+                style: TextStyle(
+                  fontSize: 11.sp,
+                  fontWeight: FontWeight.w800,
+                  color: AppColors.textPrimary,
+                ),
+              ),
+            ],
+          ),
+          SizedBox(height: 8.h),
+          Wrap(
+            spacing: 7.w,
+            runSpacing: 7.h,
+            children: selectedCategories.map(
+              (category) {
+                return Container(
+                  padding: EdgeInsets.only(
+                    left: 10.w,
+                    right: 5.w,
+                    top: 5.h,
+                    bottom: 5.h,
+                  ),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(20.r),
+                    border: Border.all(
+                      color: AppColors.primary.withOpacity(0.25),
+                    ),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(
+                        Icons.category_rounded,
+                        size: 14.sp,
+                        color: AppColors.primary,
+                      ),
+                      SizedBox(width: 5.w),
+                      Text(
+                        category.name,
+                        style: TextStyle(
+                          fontSize: 11.sp,
+                          fontWeight: FontWeight.w700,
+                          color: AppColors.textPrimary,
+                        ),
+                      ),
+                      SizedBox(width: 3.w),
+                      InkWell(
+                        borderRadius: BorderRadius.circular(20.r),
+                        onTap: () {
+                          _removeCategory(category);
+                        },
+                        child: Padding(
+                          padding: EdgeInsets.all(3.w),
+                          child: Icon(
+                            Icons.close_rounded,
+                            size: 14.sp,
+                            color: AppColors.primary,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                );
+              },
+            ).toList(),
+          ),
+        ],
+      ),
     );
   }
 
@@ -400,12 +594,14 @@ class _PlaceOrderViewState extends State<_PlaceOrderView> {
   }
 
   // ===========================================================================
-  // SAVE DIGITAL SIGNATURE TO FILE
+  // SAVE DIGITAL SIGNATURE
   // ===========================================================================
 
   Future<String?> _saveSignatureToFile() async {
     if (signatureBytes == null || signatureBytes!.isEmpty) {
-      debugPrint('Digital signature bytes are empty');
+      debugPrint(
+        'Digital signature bytes are empty',
+      );
       return null;
     }
 
@@ -426,7 +622,8 @@ class _PlaceOrderViewState extends State<_PlaceOrderView> {
         flush: true,
       );
 
-      final bool exists = await signatureFile.exists();
+      final bool exists =
+          await signatureFile.exists();
 
       if (!exists) {
         debugPrint(
@@ -435,14 +632,9 @@ class _PlaceOrderViewState extends State<_PlaceOrderView> {
         return null;
       }
 
-      final int fileSize = await signatureFile.length();
-
-      debugPrint('========================================');
-      debugPrint('DIGITAL SIGNATURE FILE');
-      debugPrint('File name: $fileName');
-      debugPrint('File path: ${signatureFile.path}');
-      debugPrint('File size: $fileSize bytes');
-      debugPrint('========================================');
+      debugPrint(
+        'Digital signature saved: ${signatureFile.path}',
+      );
 
       return signatureFile.path;
     } catch (e, stackTrace) {
@@ -464,7 +656,16 @@ class _PlaceOrderViewState extends State<_PlaceOrderView> {
     String? initialProductId,
   }) async {
     if (selectedDealer == null) {
-      _showMessage('Please select dealer first');
+      _showMessage(
+        'Please select dealer first',
+      );
+      return;
+    }
+
+    if (selectedCategories.isEmpty) {
+      _showMessage(
+        'Please select at least one category',
+      );
       return;
     }
 
@@ -472,11 +673,15 @@ class _PlaceOrderViewState extends State<_PlaceOrderView> {
       return;
     }
 
-    final bloc = context.read<PlaceOrderBloc>();
-    final currentState = bloc.state;
+    final List<ProductEntity> currentProducts =
+        List<ProductEntity>.from(
+      allCategoryProducts,
+    );
 
-    if (currentState.products.isEmpty) {
-      _showMessage('No products available');
+    if (currentProducts.isEmpty) {
+      _showMessage(
+        'No products available',
+      );
       return;
     }
 
@@ -490,34 +695,45 @@ class _PlaceOrderViewState extends State<_PlaceOrderView> {
         repository: sl<ProductRateRepository>(),
       );
 
-      final MultiProductRateSelectionResult? result =
+      final bloc =
+          context.read<PlaceOrderBloc>();
+
+      final currentState = bloc.state;
+
+      final MultiProductRateSelectionResult?
+          result =
           await showModalBottomSheet<
               MultiProductRateSelectionResult>(
         context: context,
         isScrollControlled: true,
         backgroundColor: Colors.transparent,
-        barrierColor: Colors.black.withOpacity(0.45),
+        barrierColor:
+            Colors.black.withOpacity(0.45),
         builder: (bottomSheetContext) {
           return MultiProductRateBottomSheet(
-            products: currentState.products,
-            dealerId: selectedDealer!.id.toString(),
+            products: currentProducts,
+            dealerId:
+                selectedDealer!.id.toString(),
             existingRates: {
-              for (final entry in selectedRates.entries)
+              for (final entry
+                  in selectedRates.entries)
                 entry.key:
                     List<ProductRateEntity>.from(
                   entry.value,
                 ),
             },
             existingPackingQuantities: {
-              for (final entry
-                  in currentState.packingQuantities.entries)
+              for (final entry in currentState
+                  .packingQuantities.entries)
                 entry.key:
                     Map<String, int>.from(
                   entry.value,
                 ),
             },
-            initialProductId: initialProductId,
-            getRatesUseCase: getRatesUseCase,
+            initialProductId:
+                initialProductId,
+            getRatesUseCase:
+                getRatesUseCase,
           );
         },
       );
@@ -528,7 +744,7 @@ class _PlaceOrderViewState extends State<_PlaceOrderView> {
 
       await _processSelectedRates(
         result: result,
-        products: currentState.products,
+        products: currentProducts,
       );
     } finally {
       if (mounted) {
@@ -547,75 +763,44 @@ class _PlaceOrderViewState extends State<_PlaceOrderView> {
     required MultiProductRateSelectionResult result,
     required List<ProductEntity> products,
   }) async {
-    final bloc = context.read<PlaceOrderBloc>();
+    final bloc =
+        context.read<PlaceOrderBloc>();
 
-    final Map<String, List<ProductRateEntity>> returnedRates =
+    final Map<String, List<ProductRateEntity>>
+        returnedRates =
         result.selectedRates;
 
     final Map<String, Map<String, int>>
         returnedPackingQuantities =
         result.packingQuantities;
 
-    debugPrint('========================================');
-    debugPrint('MULTIPLE PRODUCT RATE RESULT');
+    // -------------------------------------------------------------------------
+    // UPDATE PACKING QUANTITIES
+    // -------------------------------------------------------------------------
 
-    debugPrint(
-      'Returned product count: ${returnedRates.length}',
-    );
-
-    debugPrint(
-      'Returned packing quantity count: '
-      '${returnedPackingQuantities.length}',
-    );
-
-    for (final entry in returnedPackingQuantities.entries) {
-      debugPrint(
-        'Product ${entry.key} packing quantities:',
-      );
-
-      for (final quantityEntry in entry.value.entries) {
-        debugPrint(
-          '  ProductDetailsId: '
-          '${quantityEntry.key} -> '
-          'Quantity: ${quantityEntry.value}',
-        );
-      }
-    }
-
-    // =========================================================================
-    // UPDATE PACKING-WISE QUANTITIES
-    // =========================================================================
-
-    for (final entry in returnedPackingQuantities.entries) {
+    for (final entry
+        in returnedPackingQuantities.entries) {
       final String productId = entry.key;
 
-      final Map<String, int> packingQuantities =
-          entry.value;
-
       for (final quantityEntry
-          in packingQuantities.entries) {
+          in entry.value.entries) {
         bloc.add(
           SetPackingQuantityEvent(
             productId: productId,
-            productDetailsId: quantityEntry.key,
+            productDetailsId:
+                quantityEntry.key,
             quantity: quantityEntry.value,
           ),
-        );
-
-        debugPrint(
-          'Packing quantity updated: '
-          'product=$productId, '
-          'details=${quantityEntry.key}, '
-          'quantity=${quantityEntry.value}',
         );
       }
     }
 
-    // =========================================================================
-    // SAVE SELECTED RATES
-    // =========================================================================
+    // -------------------------------------------------------------------------
+    // SAVE RATES
+    // -------------------------------------------------------------------------
 
-    for (final entry in returnedRates.entries) {
+    for (final entry
+        in returnedRates.entries) {
       final String productId = entry.key;
 
       final List<ProductRateEntity> rates =
@@ -626,7 +811,8 @@ class _PlaceOrderViewState extends State<_PlaceOrderView> {
       try {
         product = products.firstWhere(
           (element) =>
-              element.id.toString() == productId,
+              element.id.toString() ==
+              productId,
         );
       } catch (_) {
         product = null;
@@ -654,23 +840,15 @@ class _PlaceOrderViewState extends State<_PlaceOrderView> {
       selectedRates[productId] =
           List<ProductRateEntity>.from(rates);
 
-      debugPrint('Product ID: $productId');
-      debugPrint('Product Name: ${product.name}');
-      debugPrint(
-        'Selected Rates: ${rates.length}',
-      );
-
       final Map<String, int>
           productPackingQuantities =
-          returnedPackingQuantities[productId] ??
+          returnedPackingQuantities[
+                  productId] ??
               <String, int>{};
 
       for (final rate in rates) {
         final String detailsId =
             rate.productDetailsId.toString();
-
-        final int quantity =
-            productPackingQuantities[detailsId] ?? 1;
 
         if (!productPackingQuantities
             .containsKey(detailsId)) {
@@ -682,27 +860,6 @@ class _PlaceOrderViewState extends State<_PlaceOrderView> {
             ),
           );
         }
-
-        debugPrint(
-          'Packing: ${rate.packing}',
-        );
-
-        debugPrint(
-          'Rate: ${rate.rateWithGst}',
-        );
-
-        debugPrint(
-          'Product Details ID: '
-          '${rate.productDetailsId}',
-        );
-
-        debugPrint(
-          'Quantity: $quantity',
-        );
-
-        debugPrint(
-          '----------------------------------------',
-        );
       }
 
       final bool hasQuantity =
@@ -711,7 +868,9 @@ class _PlaceOrderViewState extends State<_PlaceOrderView> {
             rate.productDetailsId.toString();
 
         final int quantity =
-            productPackingQuantities[detailsId] ?? 1;
+            productPackingQuantities[
+                    detailsId] ??
+                1;
 
         return quantity > 0;
       });
@@ -725,93 +884,37 @@ class _PlaceOrderViewState extends State<_PlaceOrderView> {
       }
     }
 
-    // =========================================================================
-    // REMOVE PRODUCTS THAT WERE DESELECTED
-    // =========================================================================
-
-    final Set<String> returnedProductIds =
-        returnedRates.keys.toSet();
-
-    final List<String> oldSelectedProductIds =
-        selectedRates.keys.toList();
-
-    for (final productId
-        in oldSelectedProductIds) {
-      if (returnedProductIds.contains(productId)) {
-        continue;
-      }
-
-      ProductEntity? product;
-
-      try {
-        product = products.firstWhere(
-          (element) =>
-              element.id.toString() == productId,
-        );
-      } catch (_) {
-        product = null;
-      }
-
-      selectedRates.remove(productId);
-
-      if (product != null) {
-        bloc.add(
-          RemoveProductEvent(
-            productId: product.id,
-          ),
-        );
-
-        debugPrint(
-          'Removed product: ${product.name}',
-        );
-      }
-    }
+    // -------------------------------------------------------------------------
+    // IMPORTANT:
+    //
+    // Do NOT remove products based only on returnedRates here.
+    //
+    // The selector can be opened while products from multiple categories
+    // are already selected.
+    // -------------------------------------------------------------------------
 
     if (mounted) {
       setState(() {});
     }
 
-    // =========================================================================
-    // FINAL DEBUG
-    // =========================================================================
+    debugPrint(
+      '========================================',
+    );
+    debugPrint(
+      'FINAL SELECTED RATES',
+    );
 
-    debugPrint('========================================');
-    debugPrint('FINAL SELECTED RATES');
-
-    int totalRates = 0;
-
-    for (final entry in selectedRates.entries) {
-      totalRates += entry.value.length;
-
+    for (final entry
+        in selectedRates.entries) {
       debugPrint(
         'Product ${entry.key} -> '
         '${entry.value.length} rate(s)',
       );
-
-      for (final rate in entry.value) {
-        final String productDetailsId =
-            rate.productDetailsId.toString();
-
-        final int quantity =
-            returnedPackingQuantities[
-                    entry.key]?[productDetailsId] ??
-                1;
-
-        debugPrint(
-          '  ${rate.productName} -> '
-          'Rate ${rate.rateWithGst} -> '
-          'Packing ${rate.packing} -> '
-          'Details $productDetailsId -> '
-          'Quantity $quantity',
-        );
-      }
     }
 
     debugPrint(
-      'Total selected rates: $totalRates',
+      '========================================',
     );
-
-    debugPrint('========================================');
   }
 
   // ===========================================================================
@@ -822,16 +925,15 @@ class _PlaceOrderViewState extends State<_PlaceOrderView> {
     ProductEntity product,
   ) async {
     if (selectedDealer == null) {
-      _showMessage('Please select dealer first');
+      _showMessage(
+        'Please select dealer first',
+      );
       return;
     }
 
     await _openMultiProductSelector(
-      initialProductId: product.id.toString(),
-    );
-
-    debugPrint(
-      'Add clicked for product: ${product.id}',
+      initialProductId:
+          product.id.toString(),
     );
   }
 
@@ -839,7 +941,9 @@ class _PlaceOrderViewState extends State<_PlaceOrderView> {
   // DELETE PRODUCT
   // ===========================================================================
 
-  void _deleteProduct(ProductEntity product) {
+  void _deleteProduct(
+    ProductEntity product,
+  ) {
     final String productId =
         product.id.toString();
 
@@ -861,24 +965,30 @@ class _PlaceOrderViewState extends State<_PlaceOrderView> {
   List<ProductEntity> _getSelectedProducts(
     PlaceOrderState state,
   ) {
-    return state.products.where((product) {
-      final String productId =
-          product.id.toString();
+    return allCategoryProducts.where(
+      (product) {
+        final String productId =
+            product.id.toString();
 
-      final Map<String, int>
-          productPackingQuantities =
-          state.packingQuantities[productId] ??
-              <String, int>{};
+        final Map<String, int>
+            productPackingQuantities =
+            state.packingQuantities[
+                    productId] ??
+                <String, int>{};
 
-      final bool hasQuantity =
-          productPackingQuantities.values.any(
-        (quantity) => quantity > 0,
-      );
+        final bool hasQuantity =
+            productPackingQuantities.values.any(
+          (quantity) => quantity > 0,
+        );
 
-      return hasQuantity &&
-          selectedRates.containsKey(productId) &&
-          selectedRates[productId]!.isNotEmpty;
-    }).toList();
+        return hasQuantity &&
+            selectedRates.containsKey(
+              productId,
+            ) &&
+            selectedRates[productId]!
+                .isNotEmpty;
+      },
+    ).toList();
   }
 
   // ===========================================================================
@@ -892,11 +1002,13 @@ class _PlaceOrderViewState extends State<_PlaceOrderView> {
       return null;
     }
 
-    final selectedId = selectedGodown!.id;
+    final selectedId =
+        selectedGodown!.id;
 
     final matchingIds = godowns
         .where(
-          (godown) => godown.id == selectedId,
+          (godown) =>
+              godown.id == selectedId,
         )
         .map(
           (godown) => godown.id,
@@ -911,32 +1023,15 @@ class _PlaceOrderViewState extends State<_PlaceOrderView> {
   }
 
   // ===========================================================================
-  // SAFE CATEGORY VALUE
+  // CATEGORY DROPDOWN VALUE
   // ===========================================================================
 
-  String? _getSafeCategoryValue(
-    List<CategoryEntity> categories,
-  ) {
-    if (selectedCategory == null) {
-      return null;
-    }
-
-    final selectedId = selectedCategory!.id;
-
-    final matchingIds = categories
-        .where(
-          (category) => category.id == selectedId,
-        )
-        .map(
-          (category) => category.id,
-        )
-        .toSet();
-
-    if (matchingIds.length != 1) {
-      return null;
-    }
-
-    return selectedId;
+  /// A normal DropdownButton cannot contain multiple values.
+  ///
+  /// Therefore this dropdown always has value = null after selecting a
+  /// category. This allows the user to select another category.
+  String? _getCategoryDropdownValue() {
+    return null;
   }
 
   // ===========================================================================
@@ -946,8 +1041,8 @@ class _PlaceOrderViewState extends State<_PlaceOrderView> {
   List<DropdownMenuItem<String>> _buildGodownItems(
     List<GodownEntity> godowns,
   ) {
-    final Map<String, GodownEntity> uniqueGodowns =
-        {};
+    final Map<String, GodownEntity>
+        uniqueGodowns = {};
 
     for (final godown in godowns) {
       final id = godown.id.trim();
@@ -964,15 +1059,19 @@ class _PlaceOrderViewState extends State<_PlaceOrderView> {
 
     return uniqueGodowns.values
         .map(
-          (godown) => DropdownMenuItem<String>(
+          (godown) =>
+              DropdownMenuItem<String>(
             value: godown.id,
             child: Text(
               godown.name,
-              overflow: TextOverflow.ellipsis,
+              overflow:
+                  TextOverflow.ellipsis,
               style: TextStyle(
                 fontSize: 14.sp,
-                fontWeight: FontWeight.w600,
-                color: AppColors.textPrimary,
+                fontWeight:
+                    FontWeight.w600,
+                color:
+                    AppColors.textPrimary,
               ),
             ),
           ),
@@ -984,7 +1083,8 @@ class _PlaceOrderViewState extends State<_PlaceOrderView> {
   // UNIQUE CATEGORY ITEMS
   // ===========================================================================
 
-  List<DropdownMenuItem<String>> _buildCategoryItems(
+  List<DropdownMenuItem<String>>
+      _buildCategoryItems(
     List<CategoryEntity> categories,
   ) {
     final Map<String, CategoryEntity>
@@ -1005,15 +1105,19 @@ class _PlaceOrderViewState extends State<_PlaceOrderView> {
 
     return uniqueCategories.values
         .map(
-          (category) => DropdownMenuItem<String>(
+          (category) =>
+              DropdownMenuItem<String>(
             value: category.id,
             child: Text(
               category.name,
-              overflow: TextOverflow.ellipsis,
+              overflow:
+                  TextOverflow.ellipsis,
               style: TextStyle(
                 fontSize: 14.sp,
-                fontWeight: FontWeight.w600,
-                color: AppColors.textPrimary,
+                fontWeight:
+                    FontWeight.w600,
+                color:
+                    AppColors.textPrimary,
               ),
             ),
           ),
@@ -1021,7 +1125,8 @@ class _PlaceOrderViewState extends State<_PlaceOrderView> {
         .toList();
   }
 
-  // ===========================================================================
+
+    // ===========================================================================
   // CONFIRM ORDER
   // ===========================================================================
 
@@ -1380,43 +1485,53 @@ class _PlaceOrderViewState extends State<_PlaceOrderView> {
         );
   }
 
+
+
+
+
   // ===========================================================================
-  // SUBMIT
+  // SUBMIT / PREVIEW
   // ===========================================================================
 
   Future<void> _submit(
     PlaceOrderState state,
   ) async {
-    // =========================================================================
+    // -------------------------------------------------------------------------
     // DEALER
-    // =========================================================================
+    // -------------------------------------------------------------------------
 
     if (selectedDealer == null) {
-      _showMessage('Please select dealer');
+      _showMessage(
+        'Please select dealer',
+      );
       return;
     }
 
-    // =========================================================================
+    // -------------------------------------------------------------------------
     // GODOWN
-    // =========================================================================
+    // -------------------------------------------------------------------------
 
     if (selectedGodown == null) {
-      _showMessage('Please select godown');
+      _showMessage(
+        'Please select godown',
+      );
       return;
     }
 
-    // =========================================================================
-    // CATEGORY
-    // =========================================================================
+    // -------------------------------------------------------------------------
+    // CATEGORIES
+    // -------------------------------------------------------------------------
 
-    if (selectedCategory == null) {
-      _showMessage('Please select category');
+    if (selectedCategories.isEmpty) {
+      _showMessage(
+        'Please select at least one category',
+      );
       return;
     }
 
-    // =========================================================================
+    // -------------------------------------------------------------------------
     // PRODUCTS
-    // =========================================================================
+    // -------------------------------------------------------------------------
 
     final selectedProducts =
         _getSelectedProducts(state);
@@ -1428,16 +1543,20 @@ class _PlaceOrderViewState extends State<_PlaceOrderView> {
       return;
     }
 
-    // =========================================================================
+    // -------------------------------------------------------------------------
     // RATE VALIDATION
-    // =========================================================================
+    // -------------------------------------------------------------------------
 
-    for (final product in selectedProducts) {
+    for (final product
+        in selectedProducts) {
       final String productId =
           product.id.toString();
 
-      if (!selectedRates.containsKey(productId) ||
-          selectedRates[productId]!.isEmpty) {
+      if (!selectedRates.containsKey(
+            productId,
+          ) ||
+          selectedRates[productId]!
+              .isEmpty) {
         _showMessage(
           'Please select rate for ${product.name}',
         );
@@ -1445,19 +1564,21 @@ class _PlaceOrderViewState extends State<_PlaceOrderView> {
       }
     }
 
-    // =========================================================================
+    // -------------------------------------------------------------------------
     // IMAGE
-    // =========================================================================
+    // -------------------------------------------------------------------------
 
     if (imagePath == null ||
         imagePath!.trim().isEmpty) {
-      _showMessage('Please add order photo');
+      _showMessage(
+        'Please add order photo',
+      );
       return;
     }
 
-    // =========================================================================
+    // -------------------------------------------------------------------------
     // SIGNATURE
-    // =========================================================================
+    // -------------------------------------------------------------------------
 
     if (signatureBytes == null ||
         signatureBytes!.isEmpty) {
@@ -1467,69 +1588,69 @@ class _PlaceOrderViewState extends State<_PlaceOrderView> {
       return;
     }
 
-    // =========================================================================
-    // BUILD PACKING-WISE PAYLOAD
-    // =========================================================================
+    // -------------------------------------------------------------------------
+    // BUILD PRODUCT PAYLOAD
+    // -------------------------------------------------------------------------
 
     final List<Map<String, dynamic>>
         selectedProductPayload = [];
 
-    for (final product in selectedProducts) {
+    for (final product
+        in selectedProducts) {
       final String productId =
           product.id.toString();
 
-      final List<ProductRateEntity> rates =
+      final List<ProductRateEntity>
+          rates =
           selectedRates[productId] ??
               <ProductRateEntity>[];
 
       final Map<String, int>
           productPackingQuantities =
-          state.packingQuantities[productId] ??
+          state.packingQuantities[
+                  productId] ??
               <String, int>{};
 
-      for (final selectedRate in rates) {
+      for (final selectedRate
+          in rates) {
         final String productDetailsId =
-            selectedRate.productDetailsId.toString();
+            selectedRate
+                .productDetailsId
+                .toString();
 
         final int quantity =
             productPackingQuantities[
                     productDetailsId] ??
                 1;
 
-        final Map<String, dynamic> payload = {
+        final Map<String, dynamic>
+            payload = {
           'productId': product.id,
           'productDetailsId':
-              selectedRate.productDetailsId,
+              selectedRate
+                  .productDetailsId,
           'quantity': quantity,
-          'price': selectedRate.rateWithGst,
-          'packing': selectedRate.packing,
-          'unit': selectedRate.unit,
+          'price':
+              selectedRate.rateWithGst,
+          'packing':
+              selectedRate.packing,
+          'unit':
+              selectedRate.unit,
           'unitsPerCase':
               selectedRate.unitsPerCase,
           'gstPercentage':
               selectedRate.gstPercentage,
           'basicRate':
               selectedRate.basicRate,
-          'mrp': selectedRate.mrp,
+          'mrp':
+              selectedRate.mrp,
         };
 
         selectedProductPayload.add(
           payload,
         );
-
-        debugPrint(
-          'PAYLOAD -> '
-          'product=$productId '
-          'details=$productDetailsId '
-          'packing=${selectedRate.packing} '
-          'quantity=$quantity',
-        );
       }
     }
-
-    // =========================================================================
-    // SAFETY
-    // =========================================================================
 
     if (selectedProductPayload.isEmpty) {
       _showMessage(
@@ -1538,78 +1659,115 @@ class _PlaceOrderViewState extends State<_PlaceOrderView> {
       return;
     }
 
-    // =========================================================================
+    // -------------------------------------------------------------------------
     // DEBUG
-    // =========================================================================
+    // -------------------------------------------------------------------------
 
-    debugPrint('========================================');
     debugPrint(
-      'PLACE ORDER PACKING-WISE PAYLOAD',
+      '========================================',
     );
 
     debugPrint(
-      'Dealer ID   : ${selectedDealer!.id}',
+      'PLACE ORDER',
     );
 
     debugPrint(
-      'Godown ID   : ${selectedGodown!.id}',
+      'Dealer ID: ${selectedDealer!.id}',
     );
 
     debugPrint(
-      'Category ID : ${selectedCategory!.id}',
+      'Godown ID: ${selectedGodown!.id}',
     );
 
     debugPrint(
-      'Products    : ${selectedProducts.length}',
+      'SELECTED CATEGORIES:',
     );
 
-    debugPrint(
-      'Rate Lines  : '
-      '${selectedProductPayload.length}',
-    );
-
-    for (final product
-        in selectedProductPayload) {
+    for (final category
+        in selectedCategories) {
       debugPrint(
-        'FINAL PRODUCT PAYLOAD: $product',
+        'Category ID: ${category.id}',
+      );
+      debugPrint(
+        'Category Name: ${category.name}',
       );
     }
 
-    debugPrint('========================================');
+    debugPrint(
+      'Category Count: '
+      '${selectedCategories.length}',
+    );
 
-    // =========================================================================
+    debugPrint(
+      'Products: ${selectedProducts.length}',
+    );
+
+    debugPrint(
+      'Rate Lines: '
+      '${selectedProductPayload.length}',
+    );
+
+    debugPrint(
+      '========================================',
+    );
+
+    // -------------------------------------------------------------------------
     // PREVIEW
-    // =========================================================================
+    // -------------------------------------------------------------------------
 
     await showModalBottomSheet(
       context: context,
       isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      barrierColor: Colors.black.withOpacity(0.45),
+      backgroundColor:
+          Colors.transparent,
+      barrierColor:
+          Colors.black.withOpacity(0.45),
       builder: (previewContext) {
         return OrderPreviewSheet(
           dealer: selectedDealer!,
           godown: selectedGodown!,
-          category: selectedCategory!,
+
+          // IMPORTANT:
+          // Your OrderPreviewSheet must be changed from:
+          //
+          // category: selectedCategory!,
+          //
+          // to:
+          //
+          // categories: selectedCategories,
+          //
+          // See explanation below.
+          //
+          // TEMPORARY current parameter:
+          category: selectedCategories.first,
+
           products: selectedProducts,
           selectedRates: selectedRates,
           packingQuantities:
               state.packingQuantities,
           imagePath: imagePath,
-          signatureBytes: signatureBytes,
-          remark: remarkController.text.trim(),
+          signatureBytes:
+              signatureBytes,
+          remark:
+              remarkController.text.trim(),
           onConfirm: () {
-            Navigator.pop(previewContext);
+            Navigator.pop(
+              previewContext,
+            );
 
-            final List<String> selectedImages =
+            final List<String>
+                selectedImages =
                 imagePath == null
                     ? <String>[]
-                    : <String>[imagePath!];
+                    : <String>[
+                        imagePath!
+                      ];
 
             _confirmAndSubmitOrder(
               selectedProductPayload:
                   selectedProductPayload,
-              selectedImages: selectedImages,
+              selectedImages:
+                  selectedImages,
             );
           },
         );
@@ -1621,8 +1779,10 @@ class _PlaceOrderViewState extends State<_PlaceOrderView> {
   // SUCCESS DIALOG
   // ===========================================================================
 
-  Future<void> _showOrderSuccessDialog() async {
-    if (!mounted || isShowingSuccessDialog) {
+  Future<void>
+      _showOrderSuccessDialog() async {
+    if (!mounted ||
+        isShowingSuccessDialog) {
       return;
     }
 
@@ -1635,33 +1795,43 @@ class _PlaceOrderViewState extends State<_PlaceOrderView> {
       builder: (dialogContext) {
         return AlertDialog(
           backgroundColor: Colors.white,
-          shape: RoundedRectangleBorder(
+          shape:
+              RoundedRectangleBorder(
             borderRadius:
-                BorderRadius.circular(20.r),
+                BorderRadius.circular(
+              20.r,
+            ),
           ),
-          contentPadding: EdgeInsets.fromLTRB(
+          contentPadding:
+              EdgeInsets.fromLTRB(
             24.w,
             28.h,
             24.w,
             20.h,
           ),
           content: Column(
-            mainAxisSize: MainAxisSize.min,
+            mainAxisSize:
+                MainAxisSize.min,
             children: [
               Container(
                 width: 76.w,
                 height: 76.w,
                 decoration:
                     const BoxDecoration(
-                  color: AppColors.lightGreen,
-                  shape: BoxShape.circle,
+                  color:
+                      AppColors.lightGreen,
+                  shape:
+                      BoxShape.circle,
                 ),
                 child: Container(
-                  margin: EdgeInsets.all(9.w),
+                  margin:
+                      EdgeInsets.all(9.w),
                   decoration:
                       const BoxDecoration(
-                    color: AppColors.primary,
-                    shape: BoxShape.circle,
+                    color:
+                        AppColors.primary,
+                    shape:
+                        BoxShape.circle,
                   ),
                   child: Icon(
                     Icons.check_rounded,
@@ -1673,10 +1843,12 @@ class _PlaceOrderViewState extends State<_PlaceOrderView> {
               SizedBox(height: 20.h),
               Text(
                 'Order Placed Successfully',
-                textAlign: TextAlign.center,
+                textAlign:
+                    TextAlign.center,
                 style: TextStyle(
                   fontSize: 19.sp,
-                  fontWeight: FontWeight.w800,
+                  fontWeight:
+                      FontWeight.w800,
                   color:
                       AppColors.textPrimary,
                 ),
@@ -1684,27 +1856,32 @@ class _PlaceOrderViewState extends State<_PlaceOrderView> {
               SizedBox(height: 10.h),
               Text(
                 'Your order has been submitted successfully.',
-                textAlign: TextAlign.center,
+                textAlign:
+                    TextAlign.center,
                 style: TextStyle(
                   fontSize: 13.sp,
                   height: 1.45,
-                  fontWeight: FontWeight.w500,
+                  fontWeight:
+                      FontWeight.w500,
                   color:
                       AppColors.textSecondary,
                 ),
               ),
               SizedBox(height: 24.h),
               SizedBox(
-                width: double.infinity,
+                width:
+                    double.infinity,
                 height: 48.h,
-                child: ElevatedButton(
+                child:
+                    ElevatedButton(
                   onPressed: () {
                     Navigator.of(
                       dialogContext,
                     ).pop(true);
                   },
                   style:
-                      ElevatedButton.styleFrom(
+                      ElevatedButton
+                          .styleFrom(
                     backgroundColor:
                         AppColors.primary,
                     foregroundColor:
@@ -1713,7 +1890,8 @@ class _PlaceOrderViewState extends State<_PlaceOrderView> {
                     shape:
                         RoundedRectangleBorder(
                       borderRadius:
-                          BorderRadius.circular(
+                          BorderRadius
+                              .circular(
                         14.r,
                       ),
                     ),
@@ -1736,8 +1914,11 @@ class _PlaceOrderViewState extends State<_PlaceOrderView> {
 
     isShowingSuccessDialog = false;
 
-    if (goHome == true && mounted) {
-      context.go(AppRouter.home);
+    if (goHome == true &&
+        mounted) {
+      context.go(
+        AppRouter.home,
+      );
     }
   }
 
@@ -1745,7 +1926,9 @@ class _PlaceOrderViewState extends State<_PlaceOrderView> {
   // MESSAGE
   // ===========================================================================
 
-  void _showMessage(String message) {
+  void _showMessage(
+    String message,
+  ) {
     if (!mounted) {
       return;
     }
@@ -1756,18 +1939,25 @@ class _PlaceOrderViewState extends State<_PlaceOrderView> {
         SnackBar(
           content: Text(
             message,
-            style: const TextStyle(
+            style:
+                const TextStyle(
               color: Colors.white,
-              fontWeight: FontWeight.w600,
+              fontWeight:
+                  FontWeight.w600,
             ),
           ),
-          backgroundColor: AppColors.primary,
+          backgroundColor:
+              AppColors.primary,
           behavior:
               SnackBarBehavior.floating,
-          margin: EdgeInsets.all(12.w),
-          shape: RoundedRectangleBorder(
+          margin:
+              EdgeInsets.all(12.w),
+          shape:
+              RoundedRectangleBorder(
             borderRadius:
-                BorderRadius.circular(14.r),
+                BorderRadius.circular(
+              14.r,
+            ),
           ),
         ),
       );
@@ -1778,46 +1968,70 @@ class _PlaceOrderViewState extends State<_PlaceOrderView> {
   // ===========================================================================
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(
+    BuildContext context,
+  ) {
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor:
+          AppColors.background,
 
       appBar: CustomAppBar(
         title: 'Place Order',
-        subtitle: 'Create a new dealer order',
         showBackButton: true,
         onBackTap: () =>
             Navigator.pop(context),
       ),
 
-      body: BlocConsumer<PlaceOrderBloc,
+      body: BlocConsumer<
+          PlaceOrderBloc,
           PlaceOrderState>(
-        listener: (context, state) {
+        listener:
+            (context, state) {
+          // ---------------------------------------------------------------
+          // IMPORTANT:
+          // Every time the Bloc gets products, merge them into our local
+          // multi-category product list.
+          // ---------------------------------------------------------------
+
+          if (state.products
+              .isNotEmpty) {
+            _mergeCurrentProducts(
+              state.products,
+            );
+          }
+
           if (state.status ==
-              PlaceOrderStatus.success) {
+              PlaceOrderStatus
+                  .success) {
             _showOrderSuccessDialog();
             return;
           }
 
           if (state.status ==
-              PlaceOrderStatus.failure) {
+              PlaceOrderStatus
+                  .failure) {
             _showMessage(
-              state.errorMessage.isEmpty
+              state.errorMessage
+                      .isEmpty
                   ? 'Something went wrong'
                   : state.errorMessage,
             );
           }
         },
 
-        builder: (context, state) {
+        builder:
+            (context, state) {
           if (state.status ==
-                  PlaceOrderStatus.loading &&
+                  PlaceOrderStatus
+                      .loading &&
               state.dealers.isEmpty &&
               state.godowns.isEmpty &&
               state.categories.isEmpty) {
             return const Center(
-              child: CircularProgressIndicator(
-                color: AppColors.primary,
+              child:
+                  CircularProgressIndicator(
+                color:
+                    AppColors.primary,
               ),
             );
           }
@@ -1827,47 +2041,42 @@ class _PlaceOrderViewState extends State<_PlaceOrderView> {
             state.godowns,
           );
 
-          final safeCategoryValue =
-              _getSafeCategoryValue(
-            state.categories,
-          );
-
           return SafeArea(
-            child: SingleChildScrollView(
+            child:
+                SingleChildScrollView(
               physics:
                   const BouncingScrollPhysics(),
-
-              // ===============================================================
-              // COMPACT PAGE PADDING
-              // ===============================================================
-
-              padding: EdgeInsets.fromLTRB(
+              padding:
+                  EdgeInsets.fromLTRB(
                 14.w,
                 10.h,
                 14.w,
                 18.h,
               ),
-
               child: Column(
                 crossAxisAlignment:
-                    CrossAxisAlignment.start,
+                    CrossAxisAlignment
+                        .start,
                 children: [
-                  // =============================================================
+                  // =========================================================
                   // HEADER
-                  // =============================================================
+                  // =========================================================
 
                   _buildOrderHeader(),
 
-                  SizedBox(height: 12.h),
+                  SizedBox(
+                    height: 12.h,
+                  ),
 
-                  // =============================================================
+                  // =========================================================
                   // DEALER
-                  // =============================================================
+                  // =========================================================
 
                   DealerSearchField(
                     controller:
                         dealerController,
-                    dealers: state.dealers,
+                    dealers:
+                        state.dealers,
                     selectedDealer:
                         selectedDealer,
                     onChanged:
@@ -1878,39 +2087,45 @@ class _PlaceOrderViewState extends State<_PlaceOrderView> {
                         _clearDealer,
                   ),
 
-                  SizedBox(height: 12.h),
+                  SizedBox(
+                    height: 12.h,
+                  ),
 
-                  // =============================================================
+                  // =========================================================
                   // GODOWN
-                  // FULL WIDTH
-                  // =============================================================
+                  // =========================================================
 
                   ModernDropdown<String>(
-                    label: 'Godown',
-                    hint: 'Select godown',
-                    icon:
-                        Icons.warehouse_rounded,
+                    label:
+                        'Godown *',
+                    hint:
+                        'Select godown',
+                    icon: Icons
+                        .warehouse_rounded,
                     value:
                         safeGodownValue,
                     items:
                         _buildGodownItems(
                       state.godowns,
                     ),
-                    onChanged: (value) {
-                      if (value == null) {
+                    onChanged:
+                        (value) {
+                      if (value ==
+                          null) {
                         return;
                       }
 
                       final matches =
                           state.godowns
                               .where(
-                                (element) =>
-                                    element.id ==
-                                    value,
-                              )
+                        (element) =>
+                            element.id ==
+                            value,
+                      )
                               .toList();
 
-                      if (matches.length != 1) {
+                      if (matches.length !=
+                          1) {
                         _showMessage(
                           'Invalid godown selection',
                         );
@@ -1923,40 +2138,54 @@ class _PlaceOrderViewState extends State<_PlaceOrderView> {
                     },
                   ),
 
-                  SizedBox(height: 12.h),
+                  SizedBox(
+                    height: 12.h,
+                  ),
 
-                  // =============================================================
+                  // =========================================================
                   // CATEGORY
-                  // FULL WIDTH
-                  // =============================================================
+                  // =========================================================
 
                   ModernDropdown<String>(
-                    label: 'Category',
+                    label:
+                        'Category *',
                     hint:
-                        'Select product category',
-                    icon:
-                        Icons.category_rounded,
+                        selectedCategories
+                                .isEmpty
+                            ? 'Select product category'
+                            : 'Select another category',
+                    icon: Icons
+                        .category_rounded,
+
+                    // IMPORTANT:
+                    // Always null because dropdown is used to ADD another
+                    // category.
                     value:
-                        safeCategoryValue,
+                        _getCategoryDropdownValue(),
+
                     items:
                         _buildCategoryItems(
                       state.categories,
                     ),
-                    onChanged: (value) {
-                      if (value == null) {
+
+                    onChanged:
+                        (value) {
+                      if (value ==
+                          null) {
                         return;
                       }
 
                       final matches =
                           state.categories
                               .where(
-                                (element) =>
-                                    element.id ==
-                                    value,
-                              )
+                        (element) =>
+                            element.id ==
+                            value,
+                      )
                               .toList();
 
-                      if (matches.length != 1) {
+                      if (matches.length !=
+                          1) {
                         _showMessage(
                           'Invalid category selection',
                         );
@@ -1969,50 +2198,70 @@ class _PlaceOrderViewState extends State<_PlaceOrderView> {
                     },
                   ),
 
-                  // =============================================================
-                  // PRODUCTS
-                  // =============================================================
+                  // =========================================================
+                  // SELECTED CATEGORY CHIPS
+                  // =========================================================
 
-                  if (selectedCategory != null) ...[
-                    SizedBox(height: 16.h),
+                  _buildSelectedCategoryChips(),
+
+                  // =========================================================
+                  // PRODUCTS
+                  // =========================================================
+
+                  if (selectedCategories
+                      .isNotEmpty) ...[
+                    SizedBox(
+                      height: 16.h,
+                    ),
 
                     Row(
                       children: [
                         Expanded(
-                          child: _sectionTitle(
-                            title: 'Products',
+                          child:
+                              _sectionTitle(
+                            title:
+                                'Products',
                             subtitle:
-                                'Select multiple products in one order',
+                                'Products from all selected categories',
                             icon: Icons
                                 .inventory_2_rounded,
                           ),
                         ),
 
-                        SizedBox(width: 6.w),
+                        SizedBox(
+                          width: 6.w,
+                        ),
 
                         InkWell(
                           borderRadius:
-                              BorderRadius.circular(
+                              BorderRadius
+                                  .circular(
                             10.r,
                           ),
-                          onTap: state.products
-                                      .isEmpty ||
-                                  isOpeningRateSelector
-                              ? null
-                              : () =>
-                                  _openMultiProductSelector(),
-                          child: Container(
+                          onTap:
+                              allCategoryProducts
+                                          .isEmpty ||
+                                      isOpeningRateSelector
+                                  ? null
+                                  : () =>
+                                      _openMultiProductSelector(),
+                          child:
+                              Container(
                             padding:
-                                EdgeInsets.symmetric(
-                              horizontal: 10.w,
-                              vertical: 8.h,
+                                EdgeInsets
+                                    .symmetric(
+                              horizontal:
+                                  10.w,
+                              vertical:
+                                  8.h,
                             ),
                             decoration:
                                 BoxDecoration(
-                              color: state.products
+                              color: allCategoryProducts
                                           .isEmpty ||
                                       isOpeningRateSelector
-                                  ? Colors.grey
+                                  ? Colors
+                                      .grey
                                   : AppColors
                                       .primary,
                               borderRadius:
@@ -2024,29 +2273,34 @@ class _PlaceOrderViewState extends State<_PlaceOrderView> {
                             child:
                                 isOpeningRateSelector
                                     ? SizedBox(
-                                        width: 18.sp,
-                                        height: 18.sp,
+                                        width:
+                                            18.sp,
+                                        height:
+                                            18.sp,
                                         child:
                                             const CircularProgressIndicator(
                                           strokeWidth:
                                               2,
-                                          color: Colors
-                                              .white,
+                                          color:
+                                              Colors.white,
                                         ),
                                       )
                                     : Icon(
                                         Icons
                                             .library_add_check_rounded,
-                                        color: Colors
-                                            .white,
-                                        size: 18.sp,
+                                        color:
+                                            Colors.white,
+                                        size:
+                                            18.sp,
                                       ),
                           ),
                         ),
                       ],
                     ),
 
-                    SizedBox(height: 8.h),
+                    SizedBox(
+                      height: 8.h,
+                    ),
 
                     _buildSelectedProductSummary(
                       state,
@@ -2055,13 +2309,18 @@ class _PlaceOrderViewState extends State<_PlaceOrderView> {
                     if (_getSelectedProducts(
                       state,
                     ).isNotEmpty)
-                      SizedBox(height: 8.h),
+                      SizedBox(
+                        height: 8.h,
+                      ),
 
                     if (state.status ==
-                            PlaceOrderStatus.loading &&
-                        state.products.isEmpty)
+                            PlaceOrderStatus
+                                .loading &&
+                        allCategoryProducts
+                            .isEmpty)
                       _buildProductLoading()
-                    else if (state.products.isEmpty)
+                    else if (allCategoryProducts
+                        .isEmpty)
                       _emptyBox(
                         icon: Icons
                             .inventory_2_outlined,
@@ -2069,10 +2328,12 @@ class _PlaceOrderViewState extends State<_PlaceOrderView> {
                             'No products found',
                       )
                     else
-                      ...state.products.map(
+                      ...allCategoryProducts.map(
                         (product) {
-                          final String productId =
-                              product.id.toString();
+                          final String
+                              productId =
+                              product.id
+                                  .toString();
 
                           final List<
                                   ProductRateEntity>
@@ -2083,59 +2344,64 @@ class _PlaceOrderViewState extends State<_PlaceOrderView> {
 
                           return Padding(
                             padding:
-                                EdgeInsets.only(
+                                EdgeInsets
+                                    .only(
                               bottom: 8.h,
                             ),
-                            child: ProductCard(
-                              product: product,
+                            child:
+                                ProductCard(
+                              product:
+                                  product,
                               selectedRates:
                                   productRates,
                               packingQuantities:
                                   state.packingQuantities[
                                           productId] ??
-                                      <String, int>{},
-                              onAdd: () async {
+                                      <String,
+                                          int>{},
+                              onAdd:
+                                  () async {
                                 await _addProduct(
                                   product,
                                 );
                               },
-                              onAddMore: () async {
+                              onAddMore:
+                                  () async {
                                 await _openMultiProductSelector(
                                   initialProductId:
                                       productId,
                                 );
                               },
-                              onIncrease: (rate) {
+                              onIncrease:
+                                  (rate) {
                                 context
                                     .read<
                                         PlaceOrderBloc>()
                                     .add(
                                       IncreasePackingQuantityEvent(
                                         productId:
-                                            product.id
-                                                .toString(),
+                                            product.id.toString(),
                                         productDetailsId:
-                                            rate.productDetailsId
-                                                .toString(),
+                                            rate.productDetailsId.toString(),
                                       ),
                                     );
                               },
-                              onDecrease: (rate) {
+                              onDecrease:
+                                  (rate) {
                                 context
                                     .read<
                                         PlaceOrderBloc>()
                                     .add(
                                       DecreasePackingQuantityEvent(
                                         productId:
-                                            product.id
-                                                .toString(),
+                                            product.id.toString(),
                                         productDetailsId:
-                                            rate.productDetailsId
-                                                .toString(),
+                                            rate.productDetailsId.toString(),
                                       ),
                                     );
                               },
-                              onDelete: () {
+                              onDelete:
+                                  () {
                                 _deleteProduct(
                                   product,
                                 );
@@ -2146,32 +2412,39 @@ class _PlaceOrderViewState extends State<_PlaceOrderView> {
                       ),
                   ],
 
-                  // =============================================================
+                  // =========================================================
                   // PHOTO + SIGNATURE
-                  // HORIZONTAL ROW
-                  // =============================================================
+                  // =========================================================
 
-                  SizedBox(height: 16.h),
+                  SizedBox(
+                    height: 16.h,
+                  ),
 
                   Row(
                     crossAxisAlignment:
-                        CrossAxisAlignment.start,
+                        CrossAxisAlignment
+                            .start,
                     children: [
                       Expanded(
-                        child: ImagePickerSection(
-                          imagePath: imagePath,
-                          onChanged: (path) {
+                        child:
+                            ImagePickerSection(
+                          imagePath:
+                              imagePath,
+                          onChanged:
+                              (path) {
                             setState(() {
-                              imagePath = path;
+                              imagePath =
+                                  path;
                             });
                           },
                         ),
                       ),
-
-                      SizedBox(width: 10.w),
-
+                      SizedBox(
+                        width: 10.w,
+                      ),
                       Expanded(
-                        child: SignatureSection(
+                        child:
+                            SignatureSection(
                           controller:
                               signatureController,
                           onClear:
@@ -2183,23 +2456,31 @@ class _PlaceOrderViewState extends State<_PlaceOrderView> {
                     ],
                   ),
 
-                  // =============================================================
+                  // =========================================================
                   // REMARK
-                  // =============================================================
+                  // =========================================================
 
-                  SizedBox(height: 14.h),
+                  SizedBox(
+                    height: 14.h,
+                  ),
 
                   _buildRemarkField(),
 
-                  // =============================================================
+                  // =========================================================
                   // SUBMIT
-                  // =============================================================
+                  // =========================================================
 
-                  SizedBox(height: 18.h),
+                  SizedBox(
+                    height: 18.h,
+                  ),
 
-                  _buildSubmitButton(state),
+                  _buildSubmitButton(
+                    state,
+                  ),
 
-                  SizedBox(height: 6.h),
+                  SizedBox(
+                    height: 6.h,
+                  ),
                 ],
               ),
             ),
@@ -2231,29 +2512,34 @@ class _PlaceOrderViewState extends State<_PlaceOrderView> {
       final String productId =
           product.id.toString();
 
-      final List<ProductRateEntity> rates =
+      final List<ProductRateEntity>
+          rates =
           selectedRates[productId] ??
               <ProductRateEntity>[];
 
       final Map<String, int>
           productPackingQuantities =
-          state.packingQuantities[productId] ??
+          state.packingQuantities[
+                  productId] ??
               <String, int>{};
 
       for (final rate in rates) {
-        final String productDetailsId =
-            rate.productDetailsId.toString();
+        final String detailsId =
+            rate.productDetailsId
+                .toString();
 
         final int quantity =
             productPackingQuantities[
-                    productDetailsId] ??
+                    detailsId] ??
                 1;
 
-        totalQuantity += quantity;
+        totalQuantity +=
+            quantity;
 
         final double rateValue =
             double.tryParse(
-                  rate.rateWithGst.toString(),
+                  rate.rateWithGst
+                      .toString(),
                 ) ??
                 0.0;
 
@@ -2264,22 +2550,24 @@ class _PlaceOrderViewState extends State<_PlaceOrderView> {
 
     return Container(
       width: double.infinity,
-
-      padding: EdgeInsets.symmetric(
+      padding:
+          EdgeInsets.symmetric(
         horizontal: 11.w,
         vertical: 9.h,
       ),
-
-      decoration: BoxDecoration(
-        color: AppColors.lightGreen,
+      decoration:
+          BoxDecoration(
+        color:
+            AppColors.lightGreen,
         borderRadius:
-            BorderRadius.circular(13.r),
+            BorderRadius.circular(
+          13.r,
+        ),
         border: Border.all(
           color: AppColors.primary
               .withOpacity(0.12),
         ),
       ),
-
       child: Row(
         children: [
           Container(
@@ -2287,22 +2575,26 @@ class _PlaceOrderViewState extends State<_PlaceOrderView> {
             height: 34.w,
             decoration:
                 const BoxDecoration(
-              color: AppColors.primary,
-              shape: BoxShape.circle,
+              color:
+                  AppColors.primary,
+              shape:
+                  BoxShape.circle,
             ),
             child: Icon(
-              Icons.shopping_cart_rounded,
+              Icons
+                  .shopping_cart_rounded,
               color: Colors.white,
               size: 17.sp,
             ),
           ),
-
-          SizedBox(width: 8.w),
-
+          SizedBox(
+            width: 8.w,
+          ),
           Expanded(
             child: Column(
               crossAxisAlignment:
-                  CrossAxisAlignment.start,
+                  CrossAxisAlignment
+                      .start,
               children: [
                 Text(
                   '${selectedProducts.length} '
@@ -2315,12 +2607,13 @@ class _PlaceOrderViewState extends State<_PlaceOrderView> {
                         AppColors.textPrimary,
                   ),
                 ),
-
-                SizedBox(height: 1.h),
-
+                SizedBox(
+                  height: 1.h,
+                ),
                 Text(
-                  'Total quantity: '
-                  '$totalQuantity',
+                  '${selectedCategories.length} '
+                  'categor${selectedCategories.length == 1 ? 'y' : 'ies'} • '
+                  'Total quantity: $totalQuantity',
                   style: TextStyle(
                     fontSize: 10.sp,
                     fontWeight:
@@ -2332,14 +2625,14 @@ class _PlaceOrderViewState extends State<_PlaceOrderView> {
               ],
             ),
           ),
-
           Text(
             '₹${totalAmount.toStringAsFixed(2)}',
             style: TextStyle(
               fontSize: 13.sp,
               fontWeight:
                   FontWeight.w900,
-              color: AppColors.primary,
+              color:
+                  AppColors.primary,
             ),
           ),
         ],
@@ -2354,69 +2647,84 @@ class _PlaceOrderViewState extends State<_PlaceOrderView> {
   Widget _buildOrderHeader() {
     return Container(
       width: double.infinity,
-
-      padding: EdgeInsets.all(14.w),
-
-      decoration: BoxDecoration(
-        color: AppColors.primary,
+      padding:
+          EdgeInsets.all(14.w),
+      decoration:
+          BoxDecoration(
+        color:
+            AppColors.primary,
         borderRadius:
-            BorderRadius.circular(17.r),
+            BorderRadius.circular(
+          17.r,
+        ),
         boxShadow: [
           BoxShadow(
             color: AppColors.primary
                 .withOpacity(0.16),
             blurRadius: 14,
-            offset: const Offset(0, 6),
+            offset:
+                const Offset(0, 6),
           ),
         ],
       ),
-
       child: Row(
         children: [
           Container(
             width: 46.w,
             height: 46.w,
-            decoration: BoxDecoration(
+            decoration:
+                BoxDecoration(
               color:
                   Colors.white.withOpacity(
                 0.16,
               ),
               borderRadius:
-                  BorderRadius.circular(13.r),
+                  BorderRadius.circular(
+                13.r,
+              ),
             ),
             child: Icon(
               Icons
                   .shopping_cart_checkout_rounded,
-              color: Colors.white,
+              color:
+                  Colors.white,
               size: 24.sp,
             ),
           ),
-
-          SizedBox(width: 10.w),
-
+          SizedBox(
+            width: 10.w,
+          ),
           Expanded(
             child: Column(
               crossAxisAlignment:
-                  CrossAxisAlignment.start,
+                  CrossAxisAlignment
+                      .start,
               children: [
                 Text(
                   'Create New Order',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 16.sp,
+                  style:
+                      TextStyle(
+                    color:
+                        Colors.white,
+                    fontSize:
+                        16.sp,
                     fontWeight:
                         FontWeight.w800,
                   ),
                 ),
-
-                SizedBox(height: 2.h),
-
+                SizedBox(
+                  height: 2.h,
+                ),
                 Text(
                   'Select dealer, products and order details',
-                  style: TextStyle(
+                  style:
+                      TextStyle(
                     color: Colors.white
-                        .withOpacity(0.82),
-                    fontSize: 11.sp,
+                        .withOpacity(
+                      0.82,
+                    ),
+                    fontSize:
+                        11.sp,
                     fontWeight:
                         FontWeight.w500,
                   ),
@@ -2443,45 +2751,56 @@ class _PlaceOrderViewState extends State<_PlaceOrderView> {
         Container(
           width: 36.w,
           height: 36.w,
-          decoration: BoxDecoration(
-            color: AppColors.lightGreen,
+          decoration:
+              BoxDecoration(
+            color:
+                AppColors.lightGreen,
             borderRadius:
-                BorderRadius.circular(11.r),
+                BorderRadius.circular(
+              11.r,
+            ),
           ),
           child: Icon(
             icon,
             size: 18.sp,
-            color: AppColors.primary,
+            color:
+                AppColors.primary,
           ),
         ),
-
-        SizedBox(width: 9.w),
-
+        SizedBox(
+          width: 9.w,
+        ),
         Expanded(
           child: Column(
             crossAxisAlignment:
-                CrossAxisAlignment.start,
+                CrossAxisAlignment
+                    .start,
             children: [
               Text(
                 title,
-                style: TextStyle(
-                  fontSize: 14.sp,
+                style:
+                    TextStyle(
+                  fontSize:
+                      14.sp,
                   fontWeight:
                       FontWeight.w800,
                   color:
                       AppColors.textPrimary,
                 ),
               ),
-
-              SizedBox(height: 1.h),
-
+              SizedBox(
+                height: 1.h,
+              ),
               Text(
                 subtitle,
                 maxLines: 1,
                 overflow:
-                    TextOverflow.ellipsis,
-                style: TextStyle(
-                  fontSize: 10.5.sp,
+                    TextOverflow
+                        .ellipsis,
+                style:
+                    TextStyle(
+                  fontSize:
+                      10.5.sp,
                   fontWeight:
                       FontWeight.w500,
                   color:
@@ -2502,30 +2821,35 @@ class _PlaceOrderViewState extends State<_PlaceOrderView> {
   Widget _buildProductLoading() {
     return Container(
       width: double.infinity,
-
       padding:
-          EdgeInsets.symmetric(vertical: 24.h),
-
-      decoration: BoxDecoration(
+          EdgeInsets.symmetric(
+        vertical: 24.h,
+      ),
+      decoration:
+          BoxDecoration(
         color: Colors.white,
         borderRadius:
-            BorderRadius.circular(15.r),
+            BorderRadius.circular(
+          15.r,
+        ),
         border: Border.all(
-          color: AppColors.border,
+          color:
+              AppColors.border,
         ),
       ),
-
       child: Column(
         children: [
           const CircularProgressIndicator(
-            color: AppColors.primary,
+            color:
+                AppColors.primary,
           ),
-
-          SizedBox(height: 8.h),
-
+          SizedBox(
+            height: 8.h,
+          ),
           Text(
             'Loading products...',
-            style: TextStyle(
+            style:
+                TextStyle(
               fontSize: 12.sp,
               fontWeight:
                   FontWeight.w600,
@@ -2548,42 +2872,51 @@ class _PlaceOrderViewState extends State<_PlaceOrderView> {
   }) {
     return Container(
       width: double.infinity,
-
-      padding: EdgeInsets.symmetric(
+      padding:
+          EdgeInsets.symmetric(
         vertical: 24.h,
         horizontal: 18.w,
       ),
-
-      decoration: BoxDecoration(
+      decoration:
+          BoxDecoration(
         color: Colors.white,
         borderRadius:
-            BorderRadius.circular(15.r),
+            BorderRadius.circular(
+          15.r,
+        ),
         border: Border.all(
-          color: AppColors.border,
+          color:
+              AppColors.border,
         ),
       ),
-
       child: Column(
         children: [
           Container(
-            padding: EdgeInsets.all(11.w),
+            padding:
+                EdgeInsets.all(
+              11.w,
+            ),
             decoration:
                 const BoxDecoration(
-              color: AppColors.lightGreen,
-              shape: BoxShape.circle,
+              color:
+                  AppColors.lightGreen,
+              shape:
+                  BoxShape.circle,
             ),
             child: Icon(
               icon,
               size: 25.sp,
-              color: AppColors.primary,
+              color:
+                  AppColors.primary,
             ),
           ),
-
-          SizedBox(height: 8.h),
-
+          SizedBox(
+            height: 8.h,
+          ),
           Text(
             text,
-            style: TextStyle(
+            style:
+                TextStyle(
               fontSize: 12.sp,
               fontWeight:
                   FontWeight.w600,
@@ -2602,14 +2935,18 @@ class _PlaceOrderViewState extends State<_PlaceOrderView> {
 
   Widget _buildRemarkField() {
     return CustomTextFormField(
-      controller: remarkController,
-      hintText: 'Enter order remark...',
-      prefixIcon: Icons.edit_note_rounded,
+      controller:
+          remarkController,
+      hintText:
+          'Enter order remark...',
+      prefixIcon:
+          Icons.edit_note_rounded,
       suffixIcon: null,
       maxLines: 2,
       keyboardType:
           TextInputType.multiline,
-      labelText: 'Enter order remark',
+      labelText:
+          'Enter order remark',
     );
   }
 
@@ -2622,67 +2959,81 @@ class _PlaceOrderViewState extends State<_PlaceOrderView> {
   ) {
     final bool isSubmitting =
         state.status ==
-            PlaceOrderStatus.submitting;
+            PlaceOrderStatus
+                .submitting;
 
     return SizedBox(
       width: double.infinity,
       height: 52.h,
-
-      child: ElevatedButton(
+      child:
+          ElevatedButton(
         onPressed: isSubmitting
             ? null
-            : () => _submit(state),
-
+            : () => _submit(
+                  state,
+                ),
         style:
             ElevatedButton.styleFrom(
           backgroundColor:
               AppColors.primary,
-          foregroundColor: Colors.white,
+          foregroundColor:
+              Colors.white,
           disabledBackgroundColor:
               AppColors.primary
-                  .withOpacity(0.55),
+                  .withOpacity(
+            0.55,
+          ),
           elevation: 2,
-
           shape:
               RoundedRectangleBorder(
             borderRadius:
-                BorderRadius.circular(15.r),
+                BorderRadius.circular(
+              15.r,
+            ),
           ),
         ),
-
-        child: isSubmitting
-            ? SizedBox(
-                width: 23.w,
-                height: 23.w,
-                child:
-                    const CircularProgressIndicator(
-                  strokeWidth: 2.5,
-                  color: Colors.white,
-                ),
-              )
-            : Row(
-                mainAxisAlignment:
-                    MainAxisAlignment.center,
-                children: [
-                  Icon(
-                    Icons
-                        .shopping_cart_checkout_rounded,
-                    size: 19.sp,
-                    color: Colors.white,
-                  ),
-
-                  SizedBox(width: 8.w),
-
-                  Text(
-                    'Preview Order',
-                    style: TextStyle(
-                      fontSize: 14.sp,
-                      fontWeight:
-                          FontWeight.w800,
+        child:
+            isSubmitting
+                ? SizedBox(
+                    width: 23.w,
+                    height: 23.w,
+                    child:
+                        const CircularProgressIndicator(
+                      strokeWidth:
+                          2.5,
+                      color:
+                          Colors.white,
                     ),
+                  )
+                : Row(
+                    mainAxisAlignment:
+                        MainAxisAlignment
+                            .center,
+                    children: [
+                      Icon(
+                        Icons
+                            .shopping_cart_checkout_rounded,
+                        size:
+                            19.sp,
+                        color:
+                            Colors.white,
+                      ),
+                      SizedBox(
+                        width: 8.w,
+                      ),
+                      Text(
+                        'Preview Order',
+                        style:
+                            TextStyle(
+                          fontSize:
+                              14.sp,
+                          fontWeight:
+                              FontWeight
+                                  .w800,
+                        ),
+                      ),
+                    ],
                   ),
-                ],
-              ),
       ),
     );
   }

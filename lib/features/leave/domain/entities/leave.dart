@@ -9,6 +9,8 @@ class Leave extends Equatable {
   final String leaveDays;
   final String remark;
   final String reasonForReject;
+  final String rejectStatus;
+  final String adminStatus;
 
   const Leave({
     required this.leaveApplicationDate,
@@ -19,6 +21,8 @@ class Leave extends Equatable {
     required this.leaveDays,
     required this.remark,
     required this.reasonForReject,
+    required this.rejectStatus,
+    required this.adminStatus,
   });
 
   @override
@@ -31,5 +35,7 @@ class Leave extends Equatable {
         leaveDays,
         remark,
         reasonForReject,
+        rejectStatus,
+        adminStatus,
       ];
 }

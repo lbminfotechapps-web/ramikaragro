@@ -1,4 +1,5 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:solufine/features/place_order/domain/entities/product_entity.dart';
 
 import '../../domain/usecases/get_categories_usecase.dart';
 import '../../domain/usecases/get_dealers_usecase.dart';
@@ -174,40 +175,105 @@ class PlaceOrderBloc
   // GET CATEGORY PRODUCTS
   // ==========================================================
 
-  Future<void> _getProducts(
-    GetProductsEvent event,
-    Emitter<PlaceOrderState> emit,
-  ) async {
-    emit(
-      state.copyWith(
-        status: PlaceOrderStatus.loading,
-        products: const [],
-        errorMessage: null,
-      ),
+
+Future<void> _getProducts(
+  GetProductsEvent event,
+  Emitter<PlaceOrderState> emit,
+) async {
+  emit(
+    state.copyWith(
+      status: PlaceOrderStatus.loading,
+      errorMessage: '',
+    ),
+  );
+
+  try {
+    final products = await getProductsUseCase(
+      categoryId: event.categoryId,
+      searchText: '',
     );
 
-    try {
-      final products = await getProductsUseCase(
-        categoryId: event.categoryId,
-        searchText: '',
-      );
+    // ========================================================
+    // COPY EXISTING CATEGORY PRODUCTS
+    // ========================================================
 
-      emit(
-        state.copyWith(
-          status: PlaceOrderStatus.loaded,
-          products: products,
-          errorMessage: null,
-        ),
-      );
-    } catch (e) {
-      emit(
-        state.copyWith(
-          status: PlaceOrderStatus.failure,
-          errorMessage: e.toString(),
-        ),
-      );
+    final Map<String, List<ProductEntity>> updatedProductsByCategory =
+        <String, List<ProductEntity>>{};
+
+    for (final entry in state.productsByCategory.entries) {
+      updatedProductsByCategory[entry.key] =
+          List<ProductEntity>.from(entry.value);
     }
+
+    // ========================================================
+    // STORE PRODUCTS FOR THIS CATEGORY
+    // ========================================================
+
+    updatedProductsByCategory[event.categoryId] =
+        List<ProductEntity>.from(products);
+
+    // ========================================================
+    // MERGE PRODUCTS FROM ALL SELECTED CATEGORIES
+    // ========================================================
+
+    final List<ProductEntity> allProducts = <ProductEntity>[];
+
+    for (final categoryProducts
+        in updatedProductsByCategory.values) {
+      allProducts.addAll(categoryProducts);
+    }
+
+    // ========================================================
+    // REMOVE DUPLICATE PRODUCTS
+    // ========================================================
+
+    final Map<String, ProductEntity> uniqueProducts =
+        <String, ProductEntity>{};
+
+    for (final product in allProducts) {
+      final String productId = product.id.toString();
+
+      uniqueProducts[productId] = product;
+    }
+
+    final List<ProductEntity> mergedProducts =
+        uniqueProducts.values.toList();
+
+    // ========================================================
+    // DEBUG
+    // ========================================================
+
+    print('========================================');
+    print('MULTIPLE CATEGORY PRODUCTS');
+    print('Category ID : ${event.categoryId}');
+    print('New Products: ${products.length}');
+    print(
+      'Total Categories Loaded: '
+      '${updatedProductsByCategory.length}',
+    );
+    print(
+      'Total Products: '
+      '${mergedProducts.length}',
+    );
+    print('========================================');
+
+    emit(
+      state.copyWith(
+        status: PlaceOrderStatus.loaded,
+        products: mergedProducts,
+        productsByCategory: updatedProductsByCategory,
+        errorMessage: '',
+      ),
+    );
+  } catch (e) {
+    emit(
+      state.copyWith(
+        status: PlaceOrderStatus.failure,
+        errorMessage: e.toString(),
+      ),
+    );
   }
+}
 
   // ==========================================================
   // ADD PRODUCT

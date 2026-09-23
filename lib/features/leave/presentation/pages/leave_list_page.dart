@@ -202,29 +202,7 @@ class _LeaveListPageState extends State<LeaveListPage>
     });
   }
 
-  // void _applyFilter() {
-  //   if (fromDate != null && toDate != null && toDate!.isBefore(fromDate!)) {
-  //     ScaffoldMessenger.of(context).showSnackBar(
-  //       SnackBar(
-  //         content: const Text("To Date cannot be before From Date"),
-  //         backgroundColor: Colors.red,
-  //         behavior: SnackBarBehavior.floating,
-  //         shape: RoundedRectangleBorder(
-  //           borderRadius: BorderRadius.circular(12),
-  //         ),
-  //       ),
-  //     );
-
-  //     return;
-  //   }
-
-  //   _getLeaveList();
-
-  //   setState(() {
-  //     showFilter = false;
-  //   });
-  // }
-
+ 
   // ============================================================
   // CLEAR FILTER
   // ============================================================
@@ -304,82 +282,7 @@ class _LeaveListPageState extends State<LeaveListPage>
           },
         ),
 
-        //         appBar: CustomAppBar(
-        //   title: 'My Leave',
-        //   subtitle: "Manage your leave applications",
-        //   actionIcon: Icons.filter_list_rounded,
-        //    onBackTap: () => Navigator.pop(context),
-        //   onActionIconTap: () {
-        //     setState(() {
-        //       showFilter = !showFilter;
-        //     });
-        //   },
-
-        // ),
-
-        /*
-        appBar:
-         AppBar(
-          elevation: 0,
-          backgroundColor: Colors.green,
-          foregroundColor: Colors.white,
-
-          titleSpacing: 18,
-
-          title: const Column(
-            crossAxisAlignment:
-                CrossAxisAlignment.start,
-            children: [
-              Text(
-                "My Leave",
-                style: TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              SizedBox(height: 2),
-              Text(
-                "Manage your leave applications",
-                style: TextStyle(
-                  fontSize: 11,
-                  color: Colors.white70,
-                  fontWeight: FontWeight.w400,
-                ),
-              ),
-            ],
-          ),
-
-            leading: IconButton(
-          icon: const Icon(
-            Icons.arrow_back_ios_new,
-            size: 19,
-            color: AppColors.backgroundColor,
-          ),
-          onPressed: () {
-            context.go(AppRouter.home);
-          },
-        ),
-        
-          actions: [
-            IconButton(
-              tooltip: "Filter",
-              onPressed: () {
-                setState(() {
-                  showFilter = !showFilter;
-                });
-              },
-              icon: Icon(
-                showFilter
-                    ? Icons.filter_alt_rounded
-                    : Icons.filter_alt_outlined,
-              ),
-            ),
-
-            const SizedBox(width: 5),
-          ],
-        ),
-        */
-
+      
         // ======================================================
         // FAB
         // ======================================================
@@ -423,7 +326,7 @@ class _LeaveListPageState extends State<LeaveListPage>
 
           builder: (context, state) {
             return Padding(
-              padding: const EdgeInsets.only(left: 16, right: 16),
+              padding: const EdgeInsets.only(left: 5, right: 5),
               child: Column(
                 children: [
                   SizedBox(height: 14.h),

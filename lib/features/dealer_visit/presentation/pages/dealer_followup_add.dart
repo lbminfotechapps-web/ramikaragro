@@ -1143,7 +1143,7 @@ class _DealerFollowupAddState extends State<DealerFollowupAdd> {
 
                   Expanded(
                     child: Text(
-                      'Upload Photo',
+                      'Upload Photo *',
                       style: TextStyle(
                         fontSize: 16.sp,
                         fontWeight: FontWeight.w600,

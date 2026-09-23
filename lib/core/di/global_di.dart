@@ -20,6 +20,7 @@ import 'package:solufine/core/di/not_visited_dealer_di.dart';
 import 'package:solufine/core/di/notification_di.dart';
 import 'package:solufine/core/di/place_order_target_di.dart';
 import 'package:solufine/core/di/product_di.dart';
+import 'package:solufine/core/di/sales_return_di.dart';
 import 'package:solufine/core/di/sales_target_di.dart';
 import 'package:solufine/core/di/order_history_di.dart';
 import 'package:solufine/core/di/product_di.dart';
@@ -62,6 +63,7 @@ Future<void> initGlobalDi() async {
   await initTeamExpenseFeature();
   await initSalesTargetDi();
   await initPlaceOrderTargetDi();
+  await initSalesReturnDi();
   await initOrderHistoryDi();
   await initDispatchDi();
   await initSalesReturnHistoryDi();
