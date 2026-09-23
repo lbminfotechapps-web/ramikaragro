@@ -1,6 +1,9 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:flutter_screenutil_plus/flutter_screenutil_plus.dart';
+import 'package:go_router/go_router.dart';
+import 'package:solufine/core/router/app_router.dart';
 import 'package:solufine/core/utility/app_toast.dart';
 import 'package:solufine/core/utility/widgets/custom_appbar.dart';
 import 'package:flutter/material.dart';
@@ -326,7 +329,8 @@ class _AddExpensePageState extends State<AddExpensePage> {
         appBar: CustomAppBar(
           title: 'Add Expesne',
           showBackButton: true,
-          onBackTap: () => Navigator.pop(context),
+    onBackTap: () => context.go(AppRouter.home),
+          // onBackTap: () => Navigator.pop(context),
         ),
         backgroundColor: Colors.grey.shade100,
         body: BlocBuilder<ExpenseBloc, ExpenseState>(
@@ -456,7 +460,7 @@ class _AddExpensePageState extends State<AddExpensePage> {
               Expanded(
                 child: DropdownButtonFormField<String>(
                   value: daType,
-                  hint: const Text('Select DA Type'),
+                  hint:  Text('Select DA Type',style: TextStyle(fontSize: 14.sp),),
                   decoration: InputDecoration(
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),

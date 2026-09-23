@@ -419,7 +419,7 @@ class _PunchScreenState extends State<PunchScreen> {
 
       body: SafeArea(
         child: BlocConsumer<QuickAcessBloc, QuickAccessState>(
-          listener: (context, state)async {
+          listener: (context, state) async {
             if (!isLoading || !_submissionSent) return;
 
             if (state.quickAccessStatus ==
@@ -442,10 +442,7 @@ class _PunchScreenState extends State<PunchScreen> {
                   ),
                 );
 
-
-                await BackgroundLocationService.start(
-  userId: _punchInUserId!,
-);
+                await BackgroundLocationService.start(userId: _punchInUserId!);
 
                 debugPrint('SavePunchInLocationEvent DISPATCHED');
               } else {
@@ -464,7 +461,8 @@ class _PunchScreenState extends State<PunchScreen> {
                 message: 'Your punch in has been submitted successfully.',
                 buttonText: 'OK',
                 onButtonPressed: () {
-                  context.go(AppRouter.home);
+                  Navigator.pop(context, true);
+                  // context.go(AppRouter.home);
                 },
               );
             }

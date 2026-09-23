@@ -727,7 +727,7 @@ class _FarmerEditUpdateScrenState extends State<FarmerEditUpdateScren> {
 
     setState(() {
       isLoading = true;
-      _submissionSent = false;
+      _submissionSent = true;
     });
 
     try {
@@ -835,7 +835,6 @@ class _FarmerEditUpdateScrenState extends State<FarmerEditUpdateScren> {
         isLoading = false;
         _submissionSent = false;
       });
-
       ScaffoldMessenger.of(
         context,
       ).showSnackBar(SnackBar(content: Text(e.toString())));

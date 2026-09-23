@@ -359,7 +359,10 @@ class _QuickAccessSectionState extends State<QuickAccessSection> {
       } else if (status == '2') {
         context.push('/lastPunchOut', extra: widget.punchStat);
       }
-    } else if (menu.menuId == '26') {
+    }
+    
+    
+     else if (menu.menuId == '26') {
       if (status == '1') {
         await _showShareLocationDialog(context);
       } else if (status == '2') {
