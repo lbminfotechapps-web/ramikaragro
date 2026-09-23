@@ -117,6 +117,76 @@ class PunchInOutDetailsAddEvent extends QuickAccessEvent {
   ];
 }
 
+class SavePunchInLocationEvent extends QuickAccessEvent {
+  final int userId;
+  final String latitude;
+  final String longitude;
+  final String geoAddress;
+  final int capturedAt;
+  final double accuracy;
+  final String provider;
+
+  SavePunchInLocationEvent({
+    required this.userId,
+    required this.latitude,
+    required this.longitude,
+    required this.geoAddress,
+    required this.capturedAt,
+    required this.accuracy,
+    required this.provider,
+  });
+
+  @override
+  List<Object?> get props => [
+    userId,
+    latitude,
+    longitude,
+    geoAddress,
+    capturedAt,
+    accuracy,
+    provider,
+  ];
+}
+
+class SaveNextLocationEvent extends QuickAccessEvent {
+  final int userId;
+  final String latitude;
+  final String longitude;
+  final String geoAddress;
+  final int capturedAt;
+  final double accuracy;
+  final String provider;
+
+  SaveNextLocationEvent({
+    required this.userId,
+    required this.latitude,
+    required this.longitude,
+    required this.geoAddress,
+    required this.capturedAt,
+    required this.accuracy,
+    required this.provider,
+  });
+
+  @override
+  List<Object?> get props => [
+    userId,
+    latitude,
+    longitude,
+    geoAddress,
+    capturedAt,
+    accuracy,
+    provider,
+  ];
+}
+
+class StoreTrackLocation extends QuickAccessEvent {
+  final String userId;
+  final String dailyTranId;
+  final String strAllLocations;
+
+  StoreTrackLocation(this.userId, this.dailyTranId, this.strAllLocations);
+}
+
 class ShareLocationEvent extends QuickAccessEvent {
   final int userId;
 

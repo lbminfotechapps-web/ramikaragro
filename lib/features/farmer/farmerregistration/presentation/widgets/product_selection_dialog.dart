@@ -1,3 +1,4 @@
+import 'package:solufine/core/utility/app_toast.dart';
 import 'package:solufine/features/farmer/farmerregistration/domain/entity/product_entity.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil_plus/flutter_screenutil_plus.dart';
@@ -238,14 +239,16 @@ class _ProductSelectionDialogState extends State<ProductSelectionDialog> {
             child: ElevatedButton(
               onPressed: () {
                 if (_selectedProductIds.isEmpty) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text(
-                        'Please select at least one product',
-                      ),
-                      backgroundColor: Colors.red,
-                    ),
-                  );
+
+                     AppToast.error('Please select at least one product',);
+                  // ScaffoldMessenger.of(context).showSnackBar(
+                  //   const SnackBar(
+                  //     content: Text(
+                  //       'Please select at least one product',
+                  //     ),
+                  //     backgroundColor: Colors.red,
+                  //   ),
+                  // );
                   return;
                 }
 

@@ -57,7 +57,6 @@ class QuickAccessDatasource {
     return PunchStatModel.fromJson(Map<String, dynamic>.from(transaction));
   }
 
-
   Future<List<VehicleTypeModel>> getVehicleType(
     int userId,
     String lastDate,
@@ -108,152 +107,210 @@ class QuickAccessDatasource {
         .toList();
   }
 
-Future<Map<String, dynamic>> savePunchDetails(
-  Map<String, dynamic> jsonData,
-) async {
-  try {
-    final formData = FormData();
+  Future<Map<String, dynamic>> savePunchDetails(
+    Map<String, dynamic> jsonData,
+  ) async {
+    try {
+      final formData = FormData();
 
-    // ============================================
-    // NORMAL FORM FIELDS
-    // ============================================
-    for (final entry in jsonData.entries) {
-      final value = entry.value;
+      // ============================================
+      // NORMAL FORM FIELDS
+      // ============================================
+      for (final entry in jsonData.entries) {
+        final value = entry.value;
 
-      if (value is File) {
-        continue;
+        if (value is File) {
+          continue;
+        }
+
+        formData.fields.add(MapEntry(entry.key, value?.toString() ?? ''));
       }
 
-      formData.fields.add(
-        MapEntry(
-          entry.key,
-          value?.toString() ?? '',
-        ),
-      );
-    }
+      // ============================================
+      // STARTING KM IMAGE
+      // ============================================
+      final startingFile = jsonData['startingKmImage'];
 
-    // ============================================
-    // STARTING KM IMAGE
-    // ============================================
-    final startingFile = jsonData['startingKmImage'];
+      if (startingFile is File) {
+        final multipartFile = await MultipartFile.fromFile(
+          startingFile.path,
+          filename: 'startingKmImage.jpg',
+        );
 
-    if (startingFile is File) {
-      final multipartFile = await MultipartFile.fromFile(
-        startingFile.path,
-        filename: 'startingKmImage.jpg',
-      );
+        formData.files.add(MapEntry('startingKmImage', multipartFile));
+      }
 
-      formData.files.add(
-        MapEntry(
-          'startingKmImage',
-          multipartFile,
-        ),
-      );
-    }
+      // ============================================
+      // CLOSING KM IMAGE
+      // ============================================
+      final closingFile = jsonData['closingKmImage'];
 
-    // ============================================
-    // CLOSING KM IMAGE
-    // ============================================
-    final closingFile = jsonData['closingKmImage'];
+      if (closingFile is File) {
+        final multipartFile = await MultipartFile.fromFile(
+          closingFile.path,
+          filename: 'closingKmImage.jpg',
+        );
 
-    if (closingFile is File) {
-      final multipartFile = await MultipartFile.fromFile(
-        closingFile.path,
-        filename: 'closingKmImage.jpg',
-      );
+        formData.files.add(MapEntry('closingKmImage', multipartFile));
+      }
 
-      formData.files.add(
-        MapEntry(
-          'closingKmImage',
-          multipartFile,
-        ),
-      );
-    }
+      // ============================================
+      // DEBUG REQUEST
+      // ============================================
+      print('========== MULTIPART REQUEST ==========');
 
-    // ============================================
-    // DEBUG REQUEST
-    // ============================================
-    print('========== MULTIPART REQUEST ==========');
+      for (final field in formData.fields) {
+        print('${field.key}: ${field.value}');
+      }
 
-    for (final field in formData.fields) {
-      print('${field.key}: ${field.value}');
-    }
-
-    for (final file in formData.files) {
-      print(
-        '${file.key}: '
-        '${file.value.filename}',
-      );
-    }
-
-    print('========================================');
-
-    // ============================================
-    // API CALL
-    // ============================================
-    final response = await dioClient.client.post(
-      ApiClient.punchAddInOut,
-      data: formData,
-      options: Options(
-        contentType: 'multipart/form-data',
-      ),
-    );
-
-    print(
-      'Save punch HTTP code: '
-      '${response.statusCode}',
-    );
-
-    print(
-      'Save punch response: '
-      '${response.data}',
-    );
-
-    dynamic data = response.data;
-
-    if (data is String) {
-      try {
-        data = jsonDecode(data);
-      } catch (e) {
-        throw const FormatException(
-          'Invalid JSON response from save punch API',
+      for (final file in formData.files) {
+        print(
+          '${file.key}: '
+          '${file.value.filename}',
         );
       }
-    }
 
-    if (data is! Map) {
-      throw const FormatException(
-        'Save punch API response is not a JSON object',
+      print('========================================');
+
+      // ============================================
+      // API CALL
+      // ============================================
+      final response = await dioClient.client.post(
+        ApiClient.punchAddInOut,
+        data: formData,
+        options: Options(contentType: 'multipart/form-data'),
       );
-    }
 
-    final result = Map<String, dynamic>.from(data);
-
-    if (result['status'] != true) {
-      throw FormatException(
-        result['message']?.toString() ??
-            'Failed to save punch details',
+      print(
+        'Save punch HTTP code: '
+        '${response.statusCode}',
       );
+
+      print(
+        'Save punch response: '
+        '${response.data}',
+      );
+
+      dynamic data = response.data;
+
+      if (data is String) {
+        try {
+          data = jsonDecode(data);
+        } catch (e) {
+          throw const FormatException(
+            'Invalid JSON response from save punch API',
+          );
+        }
+      }
+
+      if (data is! Map) {
+        throw const FormatException(
+          'Save punch API response is not a JSON object',
+        );
+      }
+
+      final result = Map<String, dynamic>.from(data);
+
+      if (result['status'] != true) {
+        throw FormatException(
+          result['message']?.toString() ?? 'Failed to save punch details',
+        );
+      }
+
+      return result;
+    } on DioException catch (e) {
+      print('========== DIO ERROR ==========');
+      print('URL: ${e.requestOptions.uri}');
+      print('Method: ${e.requestOptions.method}');
+      print('Status: ${e.response?.statusCode}');
+      print('Response: ${e.response?.data}');
+      print('Error Type: ${e.type}');
+      print('Message: ${e.message}');
+      print('================================');
+
+      throw Exception(
+        'API Error ${e.response?.statusCode}: '
+        '${e.response?.data ?? e.message}',
+      );
+    } catch (e) {
+      print('Save punch unexpected error: $e');
+      rethrow;
     }
-
-    return result;
-  } on DioException catch (e) {
-    print('========== DIO ERROR ==========');
-    print('URL: ${e.requestOptions.uri}');
-    print('Method: ${e.requestOptions.method}');
-    print('Status: ${e.response?.statusCode}');
-    print('Response: ${e.response?.data}');
-    print('Error Type: ${e.type}');
-    print('Message: ${e.message}');
-    print('================================');
-
-    throw Exception(
-      'API Error ${e.response?.statusCode}: '
-      '${e.response?.data ?? e.message}',
-    );
-  } catch (e) {
-    print('Save punch unexpected error: $e');
-    rethrow;
   }
-}
+
+  Future<Map<String, dynamic>> storeLocationData(
+    Map<String, dynamic> data,
+  ) async {
+    try {
+      final formMap = Map<String, dynamic>.from(data);
+
+      print('==========================================');
+      print('STORE LOCATION API');
+      print('URL: ${ApiClient.trackLocationStore}');
+      print('METHOD: POST');
+      print('==========================================');
+
+      print('========== FINAL SORE FORM DATA ==========');
+
+      final formData = FormData.fromMap(formMap);
+
+      for (final field in formData.fields) {
+        print('${field.key}: ${field.value}');
+      }
+
+      print('============================================');
+
+      final response = await dioClient.client.post(
+        ApiClient.trackLocationStore,
+        data: formData,
+      );
+
+      print('STORE LOCATION STATUS: ${response.statusCode}');
+      print('STORE LOCATION RESPONSE TYPE: ${response.data.runtimeType}');
+      print('STORE LOCATION RESPONSE: ${response.data}');
+
+      dynamic responseData = response.data;
+
+      if (responseData is String) {
+        final responseString = responseData.trim();
+
+        try {
+          responseData = jsonDecode(responseString);
+        } catch (e) {
+          print('Normal JSON decode failed: $e');
+
+          // Server is returning extra cURL text before JSON.
+          final jsonStart = responseString.indexOf('{');
+
+          if (jsonStart != -1) {
+            final jsonPart = responseString.substring(jsonStart).trim();
+
+            print('Extracted JSON: $jsonPart');
+
+            responseData = jsonDecode(jsonPart);
+          } else {
+            throw Exception(
+              'Invalid store location API response: $responseString',
+            );
+          }
+        }
+      }
+      if (responseData is Map<String, dynamic>) {
+        return responseData;
+      }
+
+      if (responseData is Map) {
+        return Map<String, dynamic>.from(responseData);
+      }
+
+      throw Exception('Invalid store location API response');
+    } catch (e) {
+      print('============================================');
+      print('STORE LOCATION ERROR');
+      print(e);
+      print('============================================');
+
+      rethrow;
+    }
+  }
 }
