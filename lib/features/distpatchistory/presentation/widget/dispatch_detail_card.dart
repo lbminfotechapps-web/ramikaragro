@@ -5,7 +5,10 @@ import 'package:flutter_screenutil_plus/flutter_screenutil_plus.dart';
 class DispatchDetailCard extends StatelessWidget {
   final DispatchOrderDetailEntity detail;
 
-  const DispatchDetailCard({super.key, required this.detail});
+  const DispatchDetailCard({
+    super.key,
+    required this.detail,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -16,16 +19,22 @@ class DispatchDetailCard extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Padding(
-            padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 5.h),
+            padding: EdgeInsets.symmetric(
+              horizontal: 10.w,
+              vertical: 8.h,
+            ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-              
-
+                // =========================================================
+                // PRODUCT NAME
+                // =========================================================
                 Text(
                   detail.productName.isEmpty
                       ? '-'
-                      : '${detail.productName} (${detail.packing})',
+                      : detail.packing.isEmpty
+                          ? detail.productName
+                          : '${detail.productName} (${detail.packing})',
                   textAlign: TextAlign.start,
                   style: TextStyle(
                     fontSize: 15.sp,
@@ -33,30 +42,47 @@ class DispatchDetailCard extends StatelessWidget {
                     color: Theme.of(context).colorScheme.primary,
                   ),
                 ),
+
                 SizedBox(height: 5.h),
 
-                // Quantity
-                _detailRow(title: 'Quantity', value: detail.productQty),
+                // =========================================================
+                // QUANTITY
+                // =========================================================
+                _detailRow(
+                  title: 'Quantity',
+                  value: detail.productQty,
+                ),
 
-                // Dispatch Quantity
+                // =========================================================
+                // DISPATCH QUANTITY
+                // =========================================================
                 _detailRow(
                   title: 'Dispatch Quantity',
                   value: detail.actualDispatchQty,
                 ),
 
-                // Remaining Quantity
+                // =========================================================
+                // REMAINING QUANTITY
+                // =========================================================
                 _detailRow(
                   title: 'Remaining Quantity',
                   value: detail.remainingDispatchQty,
                 ),
 
-                // Remark
-                _detailRow(title: 'Remark', value: detail.remark),
+                // =========================================================
+                // REMARK
+                // =========================================================
+                _detailRow(
+                  title: 'Remark',
+                  value: detail.remark,
+                ),
               ],
             ),
           ),
 
-          // Divider
+          // =============================================================
+          // DIVIDER BETWEEN PRODUCTS
+          // =============================================================
           Container(
             width: double.infinity,
             height: 1.h,
@@ -68,38 +94,61 @@ class DispatchDetailCard extends StatelessWidget {
     );
   }
 
-  Widget _detailRow({required String title, required String value}) {
+  Widget _detailRow({
+    required String title,
+    required String value,
+  }) {
     return Padding(
-      padding: EdgeInsets.symmetric(horizontal: 0.w, vertical: 2.h),
+      padding: EdgeInsets.symmetric(
+        vertical: 2.h,
+      ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Label
+          // =============================================================
+          // LABEL
+          // =============================================================
           Expanded(
             flex: 50,
             child: Text(
               title,
-              style: TextStyle(fontSize: 13.sp, color: Colors.black),
+              style: TextStyle(
+                fontSize: 13.sp,
+                color: Colors.black,
+              ),
             ),
           ),
 
-          // :
+          // =============================================================
+          // COLON
+          // =============================================================
           SizedBox(
             width: 15.w,
             child: Text(
               ':',
-              style: TextStyle(fontSize: 15.sp, color: Colors.black),
+              style: TextStyle(
+                fontSize: 15.sp,
+                color: Colors.black,
+              ),
             ),
           ),
 
-          // Value
+          // =============================================================
+          // VALUE
+          // =============================================================
           Expanded(
             flex: 50,
             child: Padding(
-              padding: EdgeInsets.only(left: 5.w, right: 5.w),
+              padding: EdgeInsets.only(
+                left: 5.w,
+                right: 5.w,
+              ),
               child: Text(
-                value.isEmpty ? '-' : value,
-                style: TextStyle(fontSize: 13.sp, color: Colors.grey.shade700),
+                value.trim().isEmpty ? '-' : value,
+                style: TextStyle(
+                  fontSize: 13.sp,
+                  color: Colors.grey.shade700,
+                ),
               ),
             ),
           ),

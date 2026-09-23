@@ -121,255 +121,6 @@ class StateBloc extends Bloc<StatesEvent, StatsState> {
     }
   }
 
-  Future<void> _onAddFarmerDetails(
-    FarmerSubmitDetailsEvent event,
-    Emitter<StatsState> emit,
-  ) async {
-    emit(state.copyWith(status: StatesStatus.loading, errorMessage: null));
-
-    try {
-      // ============================================
-      // FARMER IMAGE -> COMPRESS -> BASE64
-      // ============================================
-      String? farmerImageBase64;
-
-      if (event.image.isNotEmpty) {
-        final originalFile = File(event.image);
-
-        if (await originalFile.exists()) {
-          debugPrint('Farmer original image: ${event.image}');
-
-          final farmerImageFile = await ImageCompression.compressImage(
-            originalFile,
-            maxWidth: 450,
-            maxHeight: 450,
-            quality: 45,
-          );
-
-          if (farmerImageFile == null) {
-            throw Exception('Unable to compress farmer image');
-          }
-
-          // Read compressed image
-          final imageBytes = await farmerImageFile.readAsBytes();
-
-          // Convert to Base64
-          farmerImageBase64 = base64Encode(imageBytes);
-
-          debugPrint(
-            'Farmer image Base64 length: '
-            '${farmerImageBase64.length}',
-          );
-        } else {
-          debugPrint('Farmer image file not found: ${event.image}');
-        }
-      } else {
-        debugPrint('Farmer image: NOT SELECTED');
-      }
-
-      // ============================================
-      // REQUEST DATA
-      // ============================================
-      final jsonData = <String, dynamic>{
-        'fld_farmer_name': event.fldFarmerName,
-        'fld_address': event.fldAddress,
-        'user_id': event.userId,
-        'fld_category_id': event.fldCategoryId,
-        'state': event.state,
-        'fld_demo_type_id': event.fldDemoTypeId,
-        'district': event.district,
-        'taluka': event.taluka,
-
-        'status_of_farmer': event.statusOfFarmer,
-        'campaign_radio': event.campaignRadio,
-
-        'fld_mobile_no': event.fldMobileNo,
-        'fld_mobile_no2': event.fldMobileNo2,
-        'fld_total_acre': event.fldTotalAcre,
-        'fld_email_id': event.fldEmailId,
-        'fld_tractor_mode': event.fldTractorMode,
-        'fld_village': event.fldVillage,
-
-        'selectedProductId': event.selectedProductId,
-        'selectedCropId': event.selectedCropId,
-        'selectedAcers': event.selectedAcers,
-        'selectedSowingDates': event.selectedSowingDates,
-        'selectedIrrigationId': event.selectedIrrigationId,
-
-        'selectedCattleId': event.selectedCattleId,
-        'selectedCattleCount': event.selectedCattleCount,
-
-        'latitude': event.latitude,
-        'longitude': event.longitude,
-        'networkLatitude': event.networkLatitude,
-        'networkLongitude': event.networkLongitude,
-        'gpsLatitude': event.gpsLatitude,
-        'gpsLongitude': event.gpsLongitude,
-        'differenceByAndroid': event.differenceByAndroid,
-
-        'contactPersonName': event.contactPersonName,
-        'meetingLocation': event.meetingLocation,
-        'marketNearby': event.marketNearby,
-        'aadhaarNo': event.aadhaarNo,
-        'remark': event.remark,
-        'geoAddress': event.geoAddress,
-        'strNetworkInfo': event.strNetworkInfo,
-        'currentProductUsed': event.currentProductUsed,
-        'strBatteryInfo': event.strBatteryInfo,
-        'activityId': event.activityId,
-      };
-
-      // ============================================
-      // ADD BASE64 IMAGE
-      // ============================================
-      if (farmerImageBase64 != null && farmerImageBase64.isNotEmpty) {
-        jsonData['selfie_capture_image'] = farmerImageBase64;
-
-        debugPrint(
-          'image: BASE64 IMAGE '
-          '($farmerImageBase64 characters)',
-        );
-      } else {
-        debugPrint('image: NOT SENT');
-      }
-
-      // ============================================
-      // PRINT REQUEST DATA
-      // ============================================
-      jsonData.forEach((key, value) {
-        if (key == 'selfie_capture_image') {
-          final String image = value?.toString() ?? '';
-
-          debugPrint(
-            '$key: BASE64 IMAGE '
-            '($image characters)',
-          );
-        } else {
-          debugPrint('$key: $value');
-        }
-      });
-
-      debugPrint('====================================');
-
-      // ============================================
-      // CALL API
-      // ============================================
-      final response = await repositoryProvider.saveFarmerDetails(jsonData);
-
-      debugPrint('Farmer details response: $response');
-
-      // ============================================
-      // DEBUG
-      // ============================================
-      print('========== FARMER REQUEST ==========');
-
-      print(
-        'selectedSowingDates: '
-        '${event.selectedSowingDates}',
-      );
-
-      print(
-        'marketNearby: '
-        '${event.marketNearby}',
-      );
-
-      print(
-        'status_of_farmer: '
-        '${event.statusOfFarmer}',
-      );
-
-      print(
-        'selectedAcers: '
-        '${event.selectedAcers}',
-      );
-
-      print(
-        'selectedIrrigationId: '
-        '${event.selectedIrrigationId}',
-      );
-
-      print(
-        'selectedProductId: '
-        '${event.selectedProductId}',
-      );
-
-      print(
-        'activityId: '
-        '${event.activityId}',
-      );
-
-      print(
-        'campaign_radio: '
-        '${event.campaignRadio}',
-      );
-
-      print(
-        'currentProductUsed: '
-        '${event.currentProductUsed}',
-      );
-
-      print(
-        'state: '
-        '${event.state}',
-      );
-
-      print(
-        'district: '
-        '${event.district}',
-      );
-
-      print(
-        'taluka: '
-        '${event.taluka}',
-      );
-
-      print(
-        'fld_farmer_name: '
-        '${event.fldFarmerName}',
-      );
-
-      print(
-        'fld_mobile_no: '
-        '${event.fldMobileNo}',
-      );
-
-      print(
-        'image: '
-        '${farmerImageBase64}',
-      );
-
-      print('====================================');
-
-      // ============================================
-      // SUCCESS
-      // ============================================
-      if (response['status'] == true) {
-        emit(
-          state.copyWith(
-            status: StatesStatus.farmerRegiSuccess,
-            errorMessage: response['message'],
-          ),
-        );
-      } else {
-        emit(
-          state.copyWith(
-            status: StatesStatus.failed,
-            errorMessage: response['message'],
-          ),
-        );
-      }
-    } catch (error) {
-      debugPrint('Farmer details error: $error');
-
-      emit(
-        state.copyWith(
-          status: StatesStatus.failed,
-          errorMessage: error.toString(),
-        ),
-      );
-    }
-  }
-
   // Future<void> _onAddFarmerDetails(
   //   FarmerSubmitDetailsEvent event,
   //   Emitter<StatsState> emit,
@@ -377,16 +128,18 @@ class StateBloc extends Bloc<StatesEvent, StatsState> {
   //   emit(state.copyWith(status: StatesStatus.loading, errorMessage: null));
 
   //   try {
-  //     File? farmerImageFile;
+  //     // ============================================
+  //     // FARMER IMAGE -> COMPRESS -> BASE64
+  //     // ============================================
+  //     String? farmerImageBase64;
 
-  //     // ============================================
-  //     // COMPRESS FARMER IMAGE
-  //     // ============================================
   //     if (event.image.isNotEmpty) {
   //       final originalFile = File(event.image);
 
   //       if (await originalFile.exists()) {
-  //         farmerImageFile = await ImageCompression.compressImage(
+  //         debugPrint('Farmer original image: ${event.image}');
+
+  //         final farmerImageFile = await ImageCompression.compressImage(
   //           originalFile,
   //           maxWidth: 450,
   //           maxHeight: 450,
@@ -396,12 +149,22 @@ class StateBloc extends Bloc<StatesEvent, StatsState> {
   //         if (farmerImageFile == null) {
   //           throw Exception('Unable to compress farmer image');
   //         }
-  //       } else {
-  //         print(
-  //           'Farmer image file not found: '
-  //           '${event.image}',
+
+  //         // Read compressed image
+  //         final imageBytes = await farmerImageFile.readAsBytes();
+
+  //         // Convert to Base64
+  //         farmerImageBase64 = base64Encode(imageBytes);
+
+  //         debugPrint(
+  //           'Farmer image Base64 length: '
+  //           '${farmerImageBase64.length}',
   //         );
+  //       } else {
+  //         debugPrint('Farmer image file not found: ${event.image}');
   //       }
+  //     } else {
+  //       debugPrint('Farmer image: NOT SELECTED');
   //     }
 
   //     // ============================================
@@ -457,105 +220,129 @@ class StateBloc extends Bloc<StatesEvent, StatsState> {
   //     };
 
   //     // ============================================
-  //     // ADD FARMER IMAGE FILE
+  //     // ADD BASE64 IMAGE
   //     // ============================================
-  //     if (farmerImageFile != null) {
-  //       jsonData['image'] = farmerImageFile;
+  //     if (farmerImageBase64 != null && farmerImageBase64.isNotEmpty) {
+  //       jsonData['selfie_capture_image'] = farmerImageBase64;
+
+  //       debugPrint(
+  //         'image: BASE64 IMAGE '
+  //         '($farmerImageBase64 characters)',
+  //       );
+  //     } else {
+  //       debugPrint('image: NOT SENT');
   //     }
 
-  // // ============================================
-  // // DEBUG
-  // // ============================================
-  // print('========== FARMER REQUEST ==========');
+  //     // ============================================
+  //     // PRINT REQUEST DATA
+  //     // ============================================
+  //     jsonData.forEach((key, value) {
+  //       if (key == 'selfie_capture_image') {
+  //         final String image = value?.toString() ?? '';
 
-  // print(
-  //   'selectedSowingDates: '
-  //   '${event.selectedSowingDates}',
-  // );
+  //         debugPrint(
+  //           '$key: BASE64 IMAGE '
+  //           '($image characters)',
+  //         );
+  //       } else {
+  //         debugPrint('$key: $value');
+  //       }
+  //     });
 
-  // print(
-  //   'marketNearby: '
-  //   '${event.marketNearby}',
-  // );
+  //     debugPrint('====================================');
 
-  // print(
-  //   'status_of_farmer: '
-  //   '${event.statusOfFarmer}',
-  // );
+  //     // ============================================
+  //     // CALL API
+  //     // ============================================
+  //     final response = await repositoryProvider.saveFarmerDetails(jsonData);
 
-  // print(
-  //   'selectedAcers: '
-  //   '${event.selectedAcers}',
-  // );
+  //     debugPrint('Farmer details response: $response');
 
-  // print(
-  //   'selectedIrrigationId: '
-  //   '${event.selectedIrrigationId}',
-  // );
+  //     // ============================================
+  //     // DEBUG
+  //     // ============================================
+  //     print('========== FARMER REQUEST ==========');
 
-  // print(
-  //   'selectedProductId: '
-  //   '${event.selectedProductId}',
-  // );
+  //     print(
+  //       'selectedSowingDates: '
+  //       '${event.selectedSowingDates}',
+  //     );
 
-  // print(
-  //   'activityId: '
-  //   '${event.activityId}',
-  // );
+  //     print(
+  //       'marketNearby: '
+  //       '${event.marketNearby}',
+  //     );
 
-  // print(
-  //   'campaign_radio: '
-  //   '${event.campaignRadio}',
-  // );
+  //     print(
+  //       'status_of_farmer: '
+  //       '${event.statusOfFarmer}',
+  //     );
 
-  // print(
-  //   'currentProductUsed: '
-  //   '${event.currentProductUsed}',
-  // );
+  //     print(
+  //       'selectedAcers: '
+  //       '${event.selectedAcers}',
+  //     );
 
-  // print(
-  //   'state: '
-  //   '${event.state}',
-  // );
+  //     print(
+  //       'selectedIrrigationId: '
+  //       '${event.selectedIrrigationId}',
+  //     );
 
-  // print(
-  //   'district: '
-  //   '${event.district}',
-  // );
+  //     print(
+  //       'selectedProductId: '
+  //       '${event.selectedProductId}',
+  //     );
 
-  // print(
-  //   'taluka: '
-  //   '${event.taluka}',
-  // );
+  //     print(
+  //       'activityId: '
+  //       '${event.activityId}',
+  //     );
 
-  // print(
-  //   'fld_farmer_name: '
-  //   '${event.fldFarmerName}',
-  // );
+  //     print(
+  //       'campaign_radio: '
+  //       '${event.campaignRadio}',
+  //     );
 
-  // print(
-  //   'fld_mobile_no: '
-  //   '${event.fldMobileNo}',
-  // );
+  //     print(
+  //       'currentProductUsed: '
+  //       '${event.currentProductUsed}',
+  //     );
 
-  // print(
-  //   'image: '
-  //   '${farmerImageFile?.path ?? 'NO FILE'}',
-  // );
+  //     print(
+  //       'state: '
+  //       '${event.state}',
+  //     );
 
-  // print('====================================');
+  //     print(
+  //       'district: '
+  //       '${event.district}',
+  //     );
 
-  // // ============================================
-  // // CALL API
-  // // ============================================
-  // final response = await repositoryProvider.saveFarmerDetails(jsonData);
+  //     print(
+  //       'taluka: '
+  //       '${event.taluka}',
+  //     );
 
-  // print('Farmer details response: $response');
+  //     print(
+  //       'fld_farmer_name: '
+  //       '${event.fldFarmerName}',
+  //     );
+
+  //     print(
+  //       'fld_mobile_no: '
+  //       '${event.fldMobileNo}',
+  //     );
+
+  //     print(
+  //       'image: '
+  //       '${farmerImageBase64}',
+  //     );
+
+  //     print('====================================');
 
   //     // ============================================
   //     // SUCCESS
   //     // ============================================
-
   //     if (response['status'] == true) {
   //       emit(
   //         state.copyWith(
@@ -572,11 +359,8 @@ class StateBloc extends Bloc<StatesEvent, StatsState> {
   //       );
   //     }
   //   } catch (error) {
-  //     print('Farmer details error: $error');
+  //     debugPrint('Farmer details error: $error');
 
-  //     // ============================================
-  //     // FAILURE
-  //     // ============================================
   //     emit(
   //       state.copyWith(
   //         status: StatesStatus.failed,
@@ -585,6 +369,389 @@ class StateBloc extends Bloc<StatesEvent, StatsState> {
   //     );
   //   }
   // }
+
+
+
+   Future<void> _onAddFarmerDetails(
+  FarmerSubmitDetailsEvent event,
+  Emitter<StatsState> emit,
+) async {
+  emit(
+    state.copyWith(
+      status: StatesStatus.loading,
+      errorMessage: null,
+    ),
+  );
+
+  try {
+ 
+
+    File? farmerImageFile;
+
+    debugPrint('==========================================');
+    debugPrint('FARMER IMAGE CHECK');
+    debugPrint('EVENT IMAGE PATH: ${event.image}');
+    debugPrint('==========================================');
+
+    if (event.image.trim().isNotEmpty) {
+      final originalFile = File(
+        event.image.trim(),
+      );
+
+      final bool exists =
+          await originalFile.exists();
+
+      debugPrint(
+        'ORIGINAL IMAGE EXISTS: $exists',
+      );
+
+      if (exists) {
+        debugPrint(
+          'ORIGINAL IMAGE PATH: ${originalFile.path}',
+        );
+
+        debugPrint(
+          'ORIGINAL IMAGE SIZE: '
+          '${await originalFile.length()} bytes',
+        );
+
+        // ========================================================
+        // COMPRESS IMAGE
+        // ========================================================
+
+        final compressedFile =
+            await ImageCompression.compressImage(
+          originalFile,
+          maxWidth: 450,
+          maxHeight: 450,
+          quality: 45,
+        );
+
+        // ========================================================
+        // Use compressed image if compression succeeds.
+        // Otherwise use original image.
+        // ========================================================
+
+        if (compressedFile != null &&
+            await compressedFile.exists()) {
+          farmerImageFile =
+              compressedFile;
+
+          debugPrint(
+            ' USING COMPRESSED IMAGE',
+          );
+
+          debugPrint(
+            'COMPRESSED PATH: '
+            '${farmerImageFile.path}',
+          );
+
+          debugPrint(
+            'COMPRESSED SIZE: '
+            '${await farmerImageFile.length()} bytes',
+          );
+        } else {
+          farmerImageFile =
+              originalFile;
+
+          debugPrint(
+            ' COMPRESSION FAILED - '
+            'USING ORIGINAL IMAGE',
+          );
+
+          debugPrint(
+            'IMAGE PATH: '
+            '${farmerImageFile.path}',
+          );
+        }
+      } else {
+        debugPrint(
+          ' FARMER IMAGE FILE DOES NOT EXIST',
+        );
+      }
+    } else {
+      debugPrint(
+        ' FARMER IMAGE NOT SELECTED',
+      );
+    }
+
+    // ============================================================
+    // 2. NORMAL REQUEST DATA
+    // ============================================================
+    //
+    // IMPORTANT:
+    // selfie_capture_image is NOT added here.
+    //
+    // It will be added by Datasource as MultipartFile.
+    //
+    // ============================================================
+
+    final jsonData =
+        <String, dynamic>{
+      'fld_farmer_name':
+          event.fldFarmerName,
+
+      'fld_address':
+          event.fldAddress,
+
+      'user_id':
+          event.userId,
+
+      'fld_category_id':
+          event.fldCategoryId,
+
+      'state':
+          event.state,
+
+      'fld_demo_type_id':
+          event.fldDemoTypeId,
+
+      'district':
+          event.district,
+
+      'taluka':
+          event.taluka,
+
+      'status_of_farmer':
+          event.statusOfFarmer,
+
+      'campaign_radio':
+          event.campaignRadio,
+
+      'fld_mobile_no':
+          event.fldMobileNo,
+
+      'fld_mobile_no2':
+          event.fldMobileNo2,
+
+      'fld_total_acre':
+          event.fldTotalAcre,
+
+      'fld_email_id':
+          event.fldEmailId,
+
+      'fld_tractor_mode':
+          event.fldTractorMode,
+
+      'fld_village':
+          event.fldVillage,
+
+      'selectedProductId':
+          event.selectedProductId,
+
+      'selectedCropId':
+          event.selectedCropId,
+
+      'selectedAcers':
+          event.selectedAcers,
+
+      'selectedSowingDates':
+          event.selectedSowingDates,
+
+      'selectedIrrigationId':
+          event.selectedIrrigationId,
+
+      'selectedCattleId':
+          event.selectedCattleId,
+
+      'selectedCattleCount':
+          event.selectedCattleCount,
+
+      'latitude':
+          event.latitude,
+
+      'longitude':
+          event.longitude,
+
+      'networkLatitude':
+          event.networkLatitude,
+
+      'networkLongitude':
+          event.networkLongitude,
+
+      'gpsLatitude':
+          event.gpsLatitude,
+
+      'gpsLongitude':
+          event.gpsLongitude,
+
+      'differenceByAndroid':
+          event.differenceByAndroid,
+
+      'contactPersonName':
+          event.contactPersonName,
+
+      'meetingLocation':
+          event.meetingLocation,
+
+      'marketNearby':
+          event.marketNearby,
+
+      'aadhaarNo':
+          event.aadhaarNo,
+
+      'remark':
+          event.remark,
+
+      'geoAddress':
+          event.geoAddress,
+
+      'strNetworkInfo':
+          event.strNetworkInfo,
+
+      'currentProductUsed':
+          event.currentProductUsed,
+
+      'strBatteryInfo':
+          event.strBatteryInfo,
+
+      'activityId':
+          event.activityId,
+    };
+
+    // ============================================================
+    // 3. PRINT NORMAL FORM DATA
+    // ============================================================
+
+    debugPrint('');
+    debugPrint(
+      '==========================================',
+    );
+    debugPrint(
+      'FARMER NORMAL REQUEST DATA',
+    );
+    debugPrint(
+      '==========================================',
+    );
+
+    jsonData.forEach(
+      (key, value) {
+        debugPrint(
+          '$key: $value',
+        );
+      },
+    );
+
+    // ============================================================
+    // 4. PRINT IMAGE INFORMATION
+    // ============================================================
+
+    debugPrint(
+      '==========================================',
+    );
+    debugPrint(
+      'IMAGE TO REPOSITORY',
+    );
+    debugPrint(
+      '==========================================',
+    );
+
+    if (farmerImageFile != null) {
+      debugPrint(
+        ' IMAGE AVAILABLE',
+      );
+
+      debugPrint(
+        'PATH: ${farmerImageFile.path}',
+      );
+
+      debugPrint(
+        'EXISTS: '
+        '${await farmerImageFile.exists()}',
+      );
+
+      debugPrint(
+        'SIZE: '
+        '${await farmerImageFile.length()} bytes',
+      );
+    } else {
+      debugPrint(
+        ' IMAGE FILE IS NULL',
+      );
+    }
+
+    debugPrint(
+      '==========================================',
+    );
+
+  
+    final response =
+        await repositoryProvider
+            .saveFarmerDetails(
+      jsonData,
+      farmerImageFile,
+    );
+
+    debugPrint(
+      '==========================================',
+    );
+
+    debugPrint(
+      'FARMER DETAILS RESPONSE: $response',
+    );
+
+    debugPrint(
+      '==========================================',
+    );
+
+    // ============================================================
+    // 6. HANDLE RESPONSE
+    // ============================================================
+
+    if (response['status'] == true) {
+      emit(
+        state.copyWith(
+          status:
+              StatesStatus
+                  .farmerRegiSuccess,
+          errorMessage:
+              response['message'],
+        ),
+      );
+    } else {
+      emit(
+        state.copyWith(
+          status:
+              StatesStatus.failed,
+          errorMessage:
+              response['message'],
+        ),
+      );
+    }
+  } catch (error, stackTrace) {
+    debugPrint(
+      '==========================================',
+    );
+
+    debugPrint(
+      ' FARMER DETAILS ERROR',
+    );
+
+    debugPrint(
+      'ERROR: $error',
+    );
+
+    debugPrint(
+      'STACK TRACE: $stackTrace',
+    );
+
+    debugPrint(
+      '==========================================',
+    );
+
+    emit(
+      state.copyWith(
+        status:
+            StatesStatus.failed,
+        errorMessage:
+            error.toString(),
+      ),
+    );
+  }
+}
+
+
+
 
   FutureOr<void> _onUpdateFarmerDetails(
     UpdateFarmerSubmitDetailsEvent event,
