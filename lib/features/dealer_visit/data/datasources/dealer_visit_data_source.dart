@@ -591,6 +591,92 @@ Future<Map<String, dynamic>> addRemark(
     }
   }
 
+    // ============================================================
+    // RETURN RESPONSE
+    // ============================================================
+
+    if (responseData
+        is Map<String, dynamic>) {
+      return responseData;
+    }
+
+    if (responseData is Map) {
+      return Map<String, dynamic>.from(
+        responseData,
+      );
+    }
+
+    throw Exception(
+      'Invalid dealer follow-up API response',
+    );
+  } on DioException catch (e) {
+    // ============================================================
+    // DIO ERROR
+    // ============================================================
+
+    print(
+      '========== ADD DEALER FOLLOW UP DIO ERROR ==========',
+    );
+
+    print(
+      'URL: ${e.requestOptions.uri}',
+    );
+
+    print(
+      'METHOD: ${e.requestOptions.method}',
+    );
+
+    print(
+      'STATUS CODE: ${e.response?.statusCode}',
+    );
+
+    print(
+      'RESPONSE: ${e.response?.data}',
+    );
+
+    print(
+      'MESSAGE: ${e.message}',
+    );
+
+    print(
+      '====================================================',
+    );
+
+    rethrow;
+  } catch (e, stackTrace) {
+    // ============================================================
+    // OTHER ERROR
+    // ============================================================
+
+    print(
+      '========== ADD DEALER FOLLOW UP ERROR ==========',
+    );
+
+    print(
+      'ERROR: $e',
+    );
+
+    print(
+      'STACK TRACE: $stackTrace',
+    );
+
+    print(
+      '================================================',
+    );
+
+    rethrow;
+  }
+}
+
+
+
+
+
+    Future<Map<String, dynamic>> updateDealer(
+      Map<String, dynamic> jsonData,
+    ) async {
+      try {
+        final formMap = Map<String, dynamic>.from(jsonData);
   Future<Map<String, dynamic>> updateDealer(
     Map<String, dynamic> jsonData,
   ) async {

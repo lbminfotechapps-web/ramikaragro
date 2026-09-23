@@ -775,321 +775,655 @@ class AddDealerVisitBlock
     }
   }
 
+  // Future<void> _onAddDealerFollowUp(
+  //   AddDealerFollowUpEvent event,
+  //   Emitter<AddDealerVisitState> emit,
+  // ) async {
+  //   emit(
+  //     state.copyWith(
+  //       addLeaveStatus: AddDealerVisitStatus.loading,
+  //       errorMessage: null,
+  //     ),
+  //   );
+
+  //   try {
+  //     File? selfieImageFile;
+
+  //     // ============================================
+  //     // COMPRESS SELFIE IMAGE
+  //     // ============================================
+  //     if (event.selfieCaptureImage.isNotEmpty) {
+  //       final originalFile = File(event.selfieCaptureImage);
+
+  //       if (await originalFile.exists()) {
+  //         selfieImageFile = await ImageCompression.compressImage(
+  //           originalFile,
+  //           maxWidth: 450,
+  //           maxHeight: 450,
+  //           quality: 45,
+  //         );
+
+  //         if (selfieImageFile == null) {
+  //           throw Exception('Unable to compress selfie image');
+  //         }
+  //       } else {
+  //         print(
+  //           'Selfie image file not found: '
+  //           '${event.selfieCaptureImage}',
+  //         );
+  //       }
+  //     }
+
+  //     // ============================================
+  //     // REQUEST DATA
+  //     // ============================================
+  //     final jsonData = <String, dynamic>{
+  //       'user_id': event.userId,
+  //       'type': event.type,
+  //       'outlet_name': event.outletName,
+  //       'contact_person': event.contactPerson,
+  //       'gst_no': event.gstNo,
+  //       'mobile_no': event.mobileNo,
+  //       'mobile_no2': event.mobileNo2,
+  //       'email_id': event.emailId,
+  //       'address': event.address,
+
+  //       'state': event.state,
+  //       'district': event.district,
+  //       'taluka': event.taluka,
+
+  //       'remark': event.remark,
+  //       'city': event.city,
+
+  //       'latitude': event.latitude,
+  //       'longitude': event.longitude,
+  //       'networkLatitude': event.networkLatitude,
+  //       'networkLongitude': event.networkLongitude,
+  //       'gpsLatitude': event.gpsLatitude,
+  //       'gpsLongitude': event.gpsLongitude,
+
+  //       'geoAddress': event.geoAddress,
+  //       'differenceByAndroid': event.differenceByAndroid,
+
+  //       'mobile_info': event.mobileInfo,
+  //       'mobile_imei': event.mobileImei,
+
+  //       'followUpDate': event.followUpDate,
+  //       'followUpType': event.followUpType,
+
+  //       'strNetworkInfo': event.strNetworkInfo,
+  //       'strBatteryInfo': event.strBatteryInfo,
+
+  //       'registrationType': event.registrationType,
+  //       'flag': event.flag,
+  //       'dealerCode': event.dealerCode,
+  //       'activityId': event.activityId,
+  //     };
+
+  //     // ============================================
+  //     // ADD SELFIE IMAGE FILE
+  //     // ============================================
+  //     if (selfieImageFile != null) {
+  //       jsonData['selfie_capture_image'] = selfieImageFile;
+  //     }
+
+  //     // ============================================
+  //     // DEBUG
+  //     // ============================================
+  //     print('========== DEALER FOLLOW UP REQUEST ==========');
+
+  //     print(
+  //       'user_id: '
+  //       '${event.userId}',
+  //     );
+
+  //     print(
+  //       'type: '
+  //       '${event.type}',
+  //     );
+
+  //     print(
+  //       'outlet_name: '
+  //       '${event.outletName}',
+  //     );
+
+  //     print(
+  //       'contact_person: '
+  //       '${event.contactPerson}',
+  //     );
+
+  //     print(
+  //       'gst_no: '
+  //       '${event.gstNo}',
+  //     );
+
+  //     print(
+  //       'mobile_no: '
+  //       '${event.mobileNo}',
+  //     );
+
+  //     print(
+  //       'mobile_no2: '
+  //       '${event.mobileNo2}',
+  //     );
+
+  //     print(
+  //       'email_id: '
+  //       '${event.emailId}',
+  //     );
+
+  //     print(
+  //       'address: '
+  //       '${event.address}',
+  //     );
+
+  //     print(
+  //       'state: '
+  //       '${event.state}',
+  //     );
+
+  //     print(
+  //       'district: '
+  //       '${event.district}',
+  //     );
+
+  //     print(
+  //       'taluka: '
+  //       '${event.taluka}',
+  //     );
+
+  //     print(
+  //       'remark: '
+  //       '${event.remark}',
+  //     );
+
+  //     print(
+  //       'city: '
+  //       '${event.city}',
+  //     );
+
+  //     print(
+  //       'latitude: '
+  //       '${event.latitude}',
+  //     );
+
+  //     print(
+  //       'longitude: '
+  //       '${event.longitude}',
+  //     );
+
+  //     print(
+  //       'networkLatitude: '
+  //       '${event.networkLatitude}',
+  //     );
+
+  //     print(
+  //       'networkLongitude: '
+  //       '${event.networkLongitude}',
+  //     );
+
+  //     print(
+  //       'gpsLatitude: '
+  //       '${event.gpsLatitude}',
+  //     );
+
+  //     print(
+  //       'gpsLongitude: '
+  //       '${event.gpsLongitude}',
+  //     );
+
+  //     print(
+  //       'geoAddress: '
+  //       '${event.geoAddress}',
+  //     );
+
+  //     print(
+  //       'differenceByAndroid: '
+  //       '${event.differenceByAndroid}',
+  //     );
+
+  //     print(
+  //       'mobile_info: '
+  //       '${event.mobileInfo}',
+  //     );
+
+  //     print(
+  //       'mobile_imei: '
+  //       '${event.mobileImei}',
+  //     );
+
+  //     print(
+  //       'followUpDate: '
+  //       '${event.followUpDate}',
+  //     );
+
+  //     print(
+  //       'followUpType: '
+  //       '${event.followUpType}',
+  //     );
+
+  //     print(
+  //       'strNetworkInfo: '
+  //       '${event.strNetworkInfo}',
+  //     );
+
+  //     print(
+  //       'strBatteryInfo: '
+  //       '${event.strBatteryInfo}',
+  //     );
+
+  //     print(
+  //       'registrationType: '
+  //       '${event.registrationType}',
+  //     );
+
+  //     print(
+  //       'flag: '
+  //       '${event.flag}',
+  //     );
+
+  //     print(
+  //       'dealerCode: '
+  //       '${event.dealerCode}',
+  //     );
+
+  //     print(
+  //       'activityId: '
+  //       '${event.activityId}',
+  //     );
+
+  //     print(
+  //       'selfie_capture_image: '
+  //       '${selfieImageFile?.path ?? 'NO FILE'}',
+  //     );
+
+  //     print('==============================================');
+
+  //     // ============================================
+  //     // CALL API
+  //     // ============================================
+  //     final response = await addLeave.addDealerFollowUp(jsonData);
+
+  //     print('Dealer follow up response: $response');
+
+  //     // ============================================
+  //     // SUCCESS
+  //     // ============================================
+  //     final responseStatus = response['status']
+  //         ?.toString()
+  //         .toLowerCase()
+  //         .trim();
+
+  //     debugPrint('API STATUS: "$responseStatus"');
+
+  //     if (responseStatus == 'success' ||
+  //         responseStatus == 'true' ||
+  //         responseStatus == '1' ||
+  //         responseStatus!.startsWith('success-')) {
+  //       emit(
+  //         state.copyWith(
+  //           addLeaveStatus: AddDealerVisitStatus.dealerAddedSuccess,
+  //           errorMessage: null,
+  //         ),
+  //       );
+  //     } else {
+  //       emit(
+  //         state.copyWith(
+  //           addLeaveStatus: AddDealerVisitStatus.failure,
+  //           errorMessage:
+  //               response['message']?.toString() ??
+  //               'Unable to add dealer follow up',
+  //         ),
+  //       );
+  //     }
+  //   } catch (error) {
+  //     print('Dealer follow up error: $error');
+
+  //     // ============================================
+  //     // FAILURE
+  //     // ============================================
+  //     emit(
+  //       state.copyWith(
+  //         addLeaveStatus: AddDealerVisitStatus.failure,
+  //         errorMessage: error.toString(),
+  //       ),
+  //     );
+  //   }
+  // }
+
+
   Future<void> _onAddDealerFollowUp(
-    AddDealerFollowUpEvent event,
-    Emitter<AddDealerVisitState> emit,
-  ) async {
-    emit(
-      state.copyWith(
-        addLeaveStatus: AddDealerVisitStatus.loading,
-        errorMessage: null,
-      ),
-    );
+  AddDealerFollowUpEvent event,
+  Emitter<AddDealerVisitState> emit,
+) async {
+  emit(
+    state.copyWith(
+      addLeaveStatus: AddDealerVisitStatus.loading,
+      errorMessage: null,
+    ),
+  );
 
-    try {
-      File? selfieImageFile;
+  try {
+    // ============================================================
+    // 1. PREPARE SELFIE IMAGE
+    // ============================================================
 
-      // ============================================
-      // COMPRESS SELFIE IMAGE
-      // ============================================
-      if (event.selfieCaptureImage.isNotEmpty) {
-        final originalFile = File(event.selfieCaptureImage);
+    File? selfieImageFile;
 
-        if (await originalFile.exists()) {
-          selfieImageFile = await ImageCompression.compressImage(
-            originalFile,
-            maxWidth: 450,
-            maxHeight: 450,
-            quality: 45,
+    debugPrint('==========================================');
+    debugPrint('DEALER SELFIE IMAGE');
+    debugPrint('ORIGINAL PATH: ${event.selfieCaptureImage}');
+    debugPrint('==========================================');
+
+    if (event.selfieCaptureImage.trim().isNotEmpty) {
+      final originalFile = File(
+        event.selfieCaptureImage.trim(),
+      );
+
+      final bool exists = await originalFile.exists();
+
+      debugPrint('ORIGINAL IMAGE EXISTS: $exists');
+
+      if (exists) {
+        debugPrint(
+          'ORIGINAL IMAGE SIZE: '
+          '${await originalFile.length()} bytes',
+        );
+
+        // ========================================================
+        // COMPRESS IMAGE
+        // ========================================================
+
+        final compressedFile =
+            await ImageCompression.compressImage(
+          originalFile,
+          maxWidth: 450,
+          maxHeight: 450,
+          quality: 45,
+        );
+
+        if (compressedFile != null &&
+            await compressedFile.exists()) {
+          selfieImageFile = compressedFile;
+
+          debugPrint(' COMPRESSED IMAGE READY');
+          debugPrint(
+            'COMPRESSED IMAGE PATH: ${selfieImageFile.path}',
           );
-
-          if (selfieImageFile == null) {
-            throw Exception('Unable to compress selfie image');
-          }
+          debugPrint(
+            'COMPRESSED IMAGE SIZE: '
+            '${await selfieImageFile.length()} bytes',
+          );
         } else {
-          print(
-            'Selfie image file not found: '
-            '${event.selfieCaptureImage}',
+          // If compression fails, use original file.
+          selfieImageFile = originalFile;
+
+          debugPrint(
+            ' IMAGE COMPRESSION FAILED',
+          );
+          debugPrint(
+            'USING ORIGINAL IMAGE',
           );
         }
-      }
-
-      // ============================================
-      // REQUEST DATA
-      // ============================================
-      final jsonData = <String, dynamic>{
-        'user_id': event.userId,
-        'type': event.type,
-        'outlet_name': event.outletName,
-        'contact_person': event.contactPerson,
-        'gst_no': event.gstNo,
-        'mobile_no': event.mobileNo,
-        'mobile_no2': event.mobileNo2,
-        'email_id': event.emailId,
-        'address': event.address,
-
-        'state': event.state,
-        'district': event.district,
-        'taluka': event.taluka,
-
-        'remark': event.remark,
-        'city': event.city,
-
-        'latitude': event.latitude,
-        'longitude': event.longitude,
-        'networkLatitude': event.networkLatitude,
-        'networkLongitude': event.networkLongitude,
-        'gpsLatitude': event.gpsLatitude,
-        'gpsLongitude': event.gpsLongitude,
-
-        'geoAddress': event.geoAddress,
-        'differenceByAndroid': event.differenceByAndroid,
-
-        'mobile_info': event.mobileInfo,
-        'mobile_imei': event.mobileImei,
-
-        'followUpDate': event.followUpDate,
-        'followUpType': event.followUpType,
-
-        'strNetworkInfo': event.strNetworkInfo,
-        'strBatteryInfo': event.strBatteryInfo,
-
-        'registrationType': event.registrationType,
-        'flag': event.flag,
-        'dealerCode': event.dealerCode,
-        'activityId': event.activityId,
-      };
-
-      // ============================================
-      // ADD SELFIE IMAGE FILE
-      // ============================================
-      if (selfieImageFile != null) {
-        jsonData['selfie_capture_image'] = selfieImageFile;
-      }
-
-      // ============================================
-      // DEBUG
-      // ============================================
-      print('========== DEALER FOLLOW UP REQUEST ==========');
-
-      print(
-        'user_id: '
-        '${event.userId}',
-      );
-
-      print(
-        'type: '
-        '${event.type}',
-      );
-
-      print(
-        'outlet_name: '
-        '${event.outletName}',
-      );
-
-      print(
-        'contact_person: '
-        '${event.contactPerson}',
-      );
-
-      print(
-        'gst_no: '
-        '${event.gstNo}',
-      );
-
-      print(
-        'mobile_no: '
-        '${event.mobileNo}',
-      );
-
-      print(
-        'mobile_no2: '
-        '${event.mobileNo2}',
-      );
-
-      print(
-        'email_id: '
-        '${event.emailId}',
-      );
-
-      print(
-        'address: '
-        '${event.address}',
-      );
-
-      print(
-        'state: '
-        '${event.state}',
-      );
-
-      print(
-        'district: '
-        '${event.district}',
-      );
-
-      print(
-        'taluka: '
-        '${event.taluka}',
-      );
-
-      print(
-        'remark: '
-        '${event.remark}',
-      );
-
-      print(
-        'city: '
-        '${event.city}',
-      );
-
-      print(
-        'latitude: '
-        '${event.latitude}',
-      );
-
-      print(
-        'longitude: '
-        '${event.longitude}',
-      );
-
-      print(
-        'networkLatitude: '
-        '${event.networkLatitude}',
-      );
-
-      print(
-        'networkLongitude: '
-        '${event.networkLongitude}',
-      );
-
-      print(
-        'gpsLatitude: '
-        '${event.gpsLatitude}',
-      );
-
-      print(
-        'gpsLongitude: '
-        '${event.gpsLongitude}',
-      );
-
-      print(
-        'geoAddress: '
-        '${event.geoAddress}',
-      );
-
-      print(
-        'differenceByAndroid: '
-        '${event.differenceByAndroid}',
-      );
-
-      print(
-        'mobile_info: '
-        '${event.mobileInfo}',
-      );
-
-      print(
-        'mobile_imei: '
-        '${event.mobileImei}',
-      );
-
-      print(
-        'followUpDate: '
-        '${event.followUpDate}',
-      );
-
-      print(
-        'followUpType: '
-        '${event.followUpType}',
-      );
-
-      print(
-        'strNetworkInfo: '
-        '${event.strNetworkInfo}',
-      );
-
-      print(
-        'strBatteryInfo: '
-        '${event.strBatteryInfo}',
-      );
-
-      print(
-        'registrationType: '
-        '${event.registrationType}',
-      );
-
-      print(
-        'flag: '
-        '${event.flag}',
-      );
-
-      print(
-        'dealerCode: '
-        '${event.dealerCode}',
-      );
-
-      print(
-        'activityId: '
-        '${event.activityId}',
-      );
-
-      print(
-        'selfie_capture_image: '
-        '${selfieImageFile?.path ?? 'NO FILE'}',
-      );
-
-      print('==============================================');
-
-      // ============================================
-      // CALL API
-      // ============================================
-      final response = await addLeave.addDealerFollowUp(jsonData);
-
-      print('Dealer follow up response: $response');
-
-      // ============================================
-      // SUCCESS
-      // ============================================
-      final responseStatus = response['status']
-          ?.toString()
-          .toLowerCase()
-          .trim();
-
-      debugPrint('API STATUS: "$responseStatus"');
-
-      if (responseStatus == 'success' ||
-          responseStatus == 'true' ||
-          responseStatus == '1' ||
-          responseStatus!.startsWith('success-')) {
-        emit(
-          state.copyWith(
-            addLeaveStatus: AddDealerVisitStatus.dealerAddedSuccess,
-            errorMessage: null,
-          ),
-        );
       } else {
-        emit(
-          state.copyWith(
-            addLeaveStatus: AddDealerVisitStatus.failure,
-            errorMessage:
-                response['message']?.toString() ??
-                'Unable to add dealer follow up',
-          ),
+        debugPrint(
+          ' SELFIE IMAGE FILE NOT FOUND',
+        );
+
+        debugPrint(
+          'PATH: ${event.selfieCaptureImage}',
         );
       }
-    } catch (error) {
-      print('Dealer follow up error: $error');
-
-      // ============================================
-      // FAILURE
-      // ============================================
-      emit(
-        state.copyWith(
-          addLeaveStatus: AddDealerVisitStatus.failure,
-          errorMessage: error.toString(),
-        ),
+    } else {
+      debugPrint(
+        ' SELFIE IMAGE PATH IS EMPTY',
       );
     }
+
+   
+
+    final Map<String, dynamic> jsonData = {
+      'user_id': event.userId,
+      'type': event.type,
+      'outlet_name': event.outletName,
+      'contact_person': event.contactPerson,
+      'gst_no': event.gstNo,
+      'mobile_no': event.mobileNo,
+      'mobile_no2': event.mobileNo2,
+      'email_id': event.emailId,
+      'address': event.address,
+
+      'state': event.state,
+      'district': event.district,
+      'taluka': event.taluka,
+
+      'remark': event.remark,
+      'city': event.city,
+
+      'latitude': event.latitude,
+      'longitude': event.longitude,
+
+      'networkLatitude': event.networkLatitude,
+      'networkLongitude': event.networkLongitude,
+
+      'gpsLatitude': event.gpsLatitude,
+      'gpsLongitude': event.gpsLongitude,
+
+      'geoAddress': event.geoAddress,
+      'differenceByAndroid': event.differenceByAndroid,
+
+      'mobile_info': event.mobileInfo,
+      'mobile_imei': event.mobileImei,
+
+      'followUpDate': event.followUpDate,
+      'followUpType': event.followUpType,
+
+      'strNetworkInfo': event.strNetworkInfo,
+      'strBatteryInfo': event.strBatteryInfo,
+
+      'registrationType': event.registrationType,
+      'flag': event.flag,
+      'dealerCode': event.dealerCode,
+      'activityId': event.activityId,
+    };
+
+    // ============================================================
+    // 3. PRINT NORMAL REQUEST DATA
+    // ============================================================
+
+    debugPrint('');
+    debugPrint(
+      '========== DEALER FOLLOW UP REQUEST ==========',
+    );
+
+    jsonData.forEach((key, value) {
+      debugPrint(
+        '$key: $value',
+      );
+    });
+
+    debugPrint(
+      '===============================================',
+    );
+
+    // ============================================================
+    // 4. PRINT IMAGE INFORMATION
+    // ============================================================
+
+    debugPrint('');
+    debugPrint(
+      '========== DEALER SELFIE IMAGE ==========',
+    );
+
+    if (selfieImageFile != null) {
+      debugPrint(
+        ' SELFIE IMAGE AVAILABLE',
+      );
+
+      debugPrint(
+        'IMAGE PATH: ${selfieImageFile.path}',
+      );
+
+      final bool imageExists =
+          await selfieImageFile.exists();
+
+      debugPrint(
+        'IMAGE EXISTS: $imageExists',
+      );
+
+      if (imageExists) {
+        final int imageSize =
+            await selfieImageFile.length();
+
+        debugPrint(
+          'IMAGE SIZE: $imageSize bytes',
+        );
+      }
+    } else {
+      debugPrint(
+        ' SELFIE IMAGE FILE IS NULL',
+      );
+    }
+
+    debugPrint(
+      '=========================================',
+    );
+
+   
+    final response =
+        await addLeave.addDealerFollowUp(
+      jsonData,
+      selfieImageFile,
+    );
+
+    // ============================================================
+    // 6. PRINT RESPONSE
+    // ============================================================
+
+    debugPrint('');
+    debugPrint(
+      '========== DEALER FOLLOW UP RESPONSE ==========',
+    );
+
+    debugPrint(
+      '$response',
+    );
+
+    debugPrint(
+      '================================================',
+    );
+
+    // ============================================================
+    // 7. GET RESPONSE STATUS
+    // ============================================================
+
+    final String responseStatus =
+        response['status']
+                ?.toString()
+                .trim()
+                .toLowerCase() ??
+            '';
+
+    debugPrint(
+      'API STATUS: "$responseStatus"',
+    );
+
+    // ============================================================
+    // 8. SUCCESS
+    // ============================================================
+
+    if (responseStatus == 'success' ||
+        responseStatus == 'true' ||
+        responseStatus == '1' ||
+        responseStatus.startsWith('success-')) {
+      debugPrint(
+        '==========================================',
+      );
+      debugPrint(
+        ' DEALER FOLLOW UP SUCCESS',
+      );
+      debugPrint(
+        '==========================================',
+      );
+
+      emit(
+        state.copyWith(
+          addLeaveStatus:
+              AddDealerVisitStatus.dealerAddedSuccess,
+          errorMessage: null,
+        ),
+      );
+
+      return;
+    }
+
+    // ============================================================
+    // 9. API FAILURE
+    // ============================================================
+
+    final String errorMessage =
+        response['message']?.toString() ??
+        'Unable to add dealer follow up';
+
+    debugPrint(
+      '==========================================',
+    );
+    debugPrint(
+      ' DEALER FOLLOW UP FAILED',
+    );
+    debugPrint(
+      'MESSAGE: $errorMessage',
+    );
+    debugPrint(
+      '==========================================',
+    );
+
+    emit(
+      state.copyWith(
+        addLeaveStatus:
+            AddDealerVisitStatus.failure,
+        errorMessage: errorMessage,
+      ),
+    );
+  } catch (error, stackTrace) {
+    // ============================================================
+    // 10. EXCEPTION
+    // ============================================================
+
+    debugPrint(
+      '==========================================',
+    );
+
+    debugPrint(
+      ' DEALER FOLLOW UP ERROR',
+    );
+
+    debugPrint(
+      'ERROR: $error',
+    );
+
+    debugPrint(
+      'STACK TRACE:',
+    );
+
+    debugPrint(
+      '$stackTrace',
+    );
+
+    debugPrint(
+      '==========================================',
+    );
+
+    emit(
+      state.copyWith(
+        addLeaveStatus:
+            AddDealerVisitStatus.failure,
+        errorMessage: error.toString(),
+      ),
+    );
   }
+}
+
 
   FutureOr<void> _onUpdateDealer(
     UpdateDealerEvent event,

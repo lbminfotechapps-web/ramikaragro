@@ -421,6 +421,7 @@ class _PunchOutScreenState extends State<PunchOutScreen> {
 
                           return null;
                         },
+                        
                         builder: (field) {
                           return Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
