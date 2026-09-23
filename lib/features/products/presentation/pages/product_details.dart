@@ -1,16 +1,14 @@
 import 'package:solufine/core/api_constant/api_client.dart';
-import 'package:solufine/core/di/auth_di.dart';
+
 import 'package:solufine/core/secure_storage/secure_storage.dart';
 import 'package:solufine/core/theme/app_colors.dart';
 import 'package:solufine/core/utility/widgets/custom_appbar.dart';
 
-import 'package:solufine/features/enquiry/presentation/bloc/enquiry_bloc.dart';
-import 'package:solufine/features/enquiry/presentation/pages/enquiry_page.dart';
 
 import 'package:solufine/features/products/domain/entity/fertilizer_product_entity.dart';
 
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
+
 import 'package:flutter_screenutil_plus/flutter_screenutil_plus.dart';
 import 'package:go_router/go_router.dart';
 

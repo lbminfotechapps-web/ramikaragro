@@ -25,6 +25,7 @@ class AddDealerRemarkSubmitEvent extends AddDealerRemarkEvent {
   final String strNetworkInfo;
   final String strBatteryInfo;
   final String activityId;
+  final String? imagePath;
 
   const AddDealerRemarkSubmitEvent({
     required this.userId,
@@ -44,6 +45,7 @@ class AddDealerRemarkSubmitEvent extends AddDealerRemarkEvent {
     required this.strNetworkInfo,
     required this.strBatteryInfo,
     required this.activityId,
+    this.imagePath,
   });
 }
 
@@ -253,8 +255,9 @@ class UpdateDealerEvent extends AddDealerRemarkEvent {
     registrationType,
   ];
 }
-class GetFollowupEvent extends AddDealerRemarkEvent{
-   final String outlet_id;
 
- const GetFollowupEvent(this.outlet_id);
- }
+class GetFollowupEvent extends AddDealerRemarkEvent {
+  final String outlet_id;
+
+  const GetFollowupEvent(this.outlet_id);
+}

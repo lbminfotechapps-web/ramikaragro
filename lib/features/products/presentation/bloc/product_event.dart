@@ -15,3 +15,12 @@ class ProductListingEvent extends ProductEvent {
   @override
   List<Object?> get props => [searchText];
 }
+
+class ProductNameListingEvent extends ProductEvent {
+  final String searchText;
+
+  const ProductNameListingEvent(this.searchText);
+
+  @override
+  List<Object?> get props => [searchText];
+}
