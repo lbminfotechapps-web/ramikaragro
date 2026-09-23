@@ -26,106 +26,208 @@ class AddDealerVisitBlock
     on<UpdateDealerEvent>(_onUpdateDealer);
   }
 
-Future<void> _onAddRemark(
-  AddDealerRemarkSubmitEvent event,
-  Emitter<AddDealerVisitState> emit,
-) async {
-  emit(
-    state.copyWith(
-      addLeaveStatus: AddDealerVisitStatus.loading,
-      clearError: true,
-      clearSuccess: true,
-    ),
-  );
-
-  try {
-    print('========== ADD DEALER REMARK ==========');
-
-    final Map<String, dynamic> formData = {
-      'user_id': event.userId,
-      'outlet_id': event.outletId,
-      'purposeId': event.purposeId,
-      'amount': event.amount,
-      'followUpDate': event.followUpDate,
-      'followUpType': event.followUpType,
-      'remark': event.remark,
-      'latitude': event.latitude,
-      'longitude': event.longitude,
-      'networkLatitude': event.networkLatitude,
-      'networkLongitude': event.networkLongitude,
-      'gpsLatitude': event.gpsLatitude,
-      'gpsLongitude': event.gpsLongitude,
-      'geoAddress': event.geoAddress,
-      'strNetworkInfo': event.strNetworkInfo,
-      'strBatteryInfo': event.strBatteryInfo,
-      'activityId': event.activityId,
-    };
-
-    print('========== REQUEST DATA ==========');
-
-    formData.forEach((key, value) {
-      print('$key : $value');
-    });
-
-    print('==================================');
-
-    final response = await addLeave.call(formData);
-
-    print('========== ADD REMARK RESPONSE ==========');
-    print(response);
-    print('=========================================');
-
-    final responseStatus =
-        response['status']?.toString().trim().toLowerCase() ?? '';
-
-    debugPrint('FULL API STATUS: "$responseStatus"');
-
-    // success-48 -> success
-    // success-47 -> success
-    // success-25 -> success
-    // success -> success
-    final mainStatus = responseStatus.split('-').first.trim();
-
-    debugPrint('MAIN API STATUS: "$mainStatus"');
-
-    if (mainStatus == 'success') {
-      emit(
-        state.copyWith(
-          addLeaveStatus: AddDealerVisitStatus.dealerAddedSuccess,
-          errorMessage: null,
-        ),
-      );
-    } else {
-      emit(
-        state.copyWith(
-          addLeaveStatus: AddDealerVisitStatus.failure,
-          errorMessage:
-              response['message']?.toString() ??
-              'Unable to add dealer follow up',
-        ),
-      );
-    }
-  } catch (e, stackTrace) {
-    print('========== ADD REMARK ERROR ==========');
-    print(e);
-    print(stackTrace);
-    print('======================================');
-
-    String message = 'Unable to add dealer follow-up';
-
-    if (e is ServerException || e is NetworkException) {
-      message = e.toString();
-    }
-
+  Future<void> _onAddRemark(
+    AddDealerRemarkSubmitEvent event,
+    Emitter<AddDealerVisitState> emit,
+  ) async {
+    // ============================================================
+    // 1. SET LOADING STATE
+    // ============================================================
     emit(
       state.copyWith(
-        addLeaveStatus: AddDealerVisitStatus.failure,
-        errorMessage: message,
+        addLeaveStatus: AddDealerVisitStatus.loading,
+        clearError: true,
         clearSuccess: true,
       ),
     );
+
+    try {
+      debugPrint('==========================================');
+      debugPrint('ADD DEALER REMARK');
+      debugPrint('==========================================');
+
+      // ============================================================
+      // 2. PREPARE REQUEST DATA
+      // ============================================================
+      final Map<String, dynamic> formData = {
+        'user_id': event.userId,
+        'outlet_id': event.outletId,
+        'purposeId': event.purposeId,
+        'amount': event.amount,
+        'followUpDate': event.followUpDate,
+        'followUpType': event.followUpType,
+        'remark': event.remark,
+
+        // Location
+        'latitude': event.latitude,
+        'longitude': event.longitude,
+
+        // Network Location
+        'networkLatitude': event.networkLatitude,
+        'networkLongitude': event.networkLongitude,
+
+        // GPS Location
+        'gpsLatitude': event.gpsLatitude,
+        'gpsLongitude': event.gpsLongitude,
+
+        // Address
+        'geoAddress': event.geoAddress,
+
+        // Device Information
+        'strNetworkInfo': event.strNetworkInfo,
+        'strBatteryInfo': event.strBatteryInfo,
+
+        // Activity
+        'activityId': event.activityId,
+      };
+
+      // ============================================================
+      // 3. PRINT REQUEST
+      // ============================================================
+      debugPrint('========== REQUEST DATA ==========');
+
+      formData.forEach((key, value) {
+        debugPrint('$key : $value');
+      });
+
+      debugPrint('==================================');
+
+      // ============================================================
+      // 4. CALL DEALER VISIT API
+      // ============================================================
+      final response = await addLeave.call(formData);
+
+      // ============================================================
+      // 5. PRINT RESPONSE
+      // ============================================================
+      debugPrint('========== ADD REMARK RESPONSE ==========');
+      debugPrint('$response');
+      debugPrint('=========================================');
+
+      // Example:
+      //
+      // {status: success-5}
+      // {status: success-48}
+      // {status: success-125}
+
+      final String responseStatus =
+          response['status']?.toString().trim().toLowerCase() ?? '';
+
+      debugPrint('FULL API STATUS: "$responseStatus"');
+
+      // ============================================================
+      // 6. EXTRACT STATUS + DAILY TRAN ID
+      // ============================================================
+      //
+      // success-5
+      //    ↓
+      // parts[0] = success
+      // parts[1] = 5
+      //
+      // 5 = dailyTranId
+      // ============================================================
+
+      final List<String> parts = responseStatus.split('-');
+
+      final String mainStatus = parts.isNotEmpty ? parts.first.trim() : '';
+
+      final String dailyTranId = parts.length > 1 ? parts[1].trim() : '';
+
+      debugPrint('==========================================');
+      debugPrint('DEALER VISIT RESPONSE PARSED');
+      debugPrint('MAIN API STATUS : "$dailyTranId"');
+      debugPrint('DAILY TRAN ID   : "$dailyTranId"');
+      debugPrint('==========================================');
+
+      // ============================================================
+      // 7. SUCCESS
+      // ============================================================
+      if (mainStatus == 'success') {
+        // Safety check:
+        // Store-location API needs dailyTranId.
+        if (dailyTranId.isEmpty) {
+          debugPrint('==========================================');
+          debugPrint('WARNING');
+          debugPrint('Dealer API succeeded but dailyTranId is empty');
+          debugPrint('Original status: $responseStatus');
+          debugPrint('==========================================');
+
+          emit(
+            state.copyWith(
+              addLeaveStatus: AddDealerVisitStatus.failure,
+              errorMessage:
+                  'Dealer visit saved but transaction ID was not received',
+            ),
+          );
+
+          return;
+        }
+
+        debugPrint('==========================================');
+        debugPrint('DEALER VISIT SUCCESS');
+        debugPrint('Daily Tran ID saved in state: $dailyTranId');
+        debugPrint('==========================================');
+
+        emit(
+          state.copyWith(
+            addLeaveStatus: AddDealerVisitStatus.dealerAddedSuccess,
+
+            // IMPORTANT
+            // We will use this from UI when calling
+            // StoreTrackLocation.
+            dailyTranId: dailyTranId,
+
+            errorMessage: null,
+          ),
+        );
+
+        return;
+      }
+
+      // ============================================================
+      // 8. API FAILURE
+      // ============================================================
+      final String errorMessage =
+          response['message']?.toString() ?? 'Unable to add dealer follow up';
+
+      debugPrint('==========================================');
+      debugPrint('DEALER VISIT FAILED');
+      debugPrint('Message: $errorMessage');
+      debugPrint('==========================================');
+
+      emit(
+        state.copyWith(
+          addLeaveStatus: AddDealerVisitStatus.failure,
+          errorMessage: errorMessage,
+        ),
+      );
+    } catch (e, stackTrace) {
+      // ============================================================
+      // 9. EXCEPTION
+      // ============================================================
+      debugPrint('==========================================');
+      debugPrint('ADD REMARK ERROR');
+      debugPrint('ERROR: $e');
+      debugPrint('STACK TRACE:');
+      debugPrint('$stackTrace');
+      debugPrint('==========================================');
+
+      String message = 'Unable to add dealer follow-up';
+
+      if (e is ServerException || e is NetworkException) {
+        message = e.toString();
+      }
+
+      emit(
+        state.copyWith(
+          addLeaveStatus: AddDealerVisitStatus.failure,
+          errorMessage: message,
+          clearSuccess: true,
+        ),
+      );
+    }
   }
-}
+
   Future<void> _onGetPurpose(
     GetPurposeEvent event,
     Emitter<AddDealerVisitState> emit,

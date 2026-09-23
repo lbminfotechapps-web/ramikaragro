@@ -1,6 +1,8 @@
 import 'dart:async';
+import 'dart:convert';
 import 'dart:io';
 
+import 'package:flutter/material.dart';
 import 'package:solufine/core/utility/image_compression.dart';
 import 'package:solufine/features/farmer/farmerregistration/domain/repository/farmerregistration_repo.dart';
 import 'package:solufine/features/farmer/farmerregistration/presentation/bloc/state_event.dart';
@@ -9,7 +11,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 class StateBloc extends Bloc<StatesEvent, StatsState> {
   final FarmerregistrationRepository repositoryProvider;
-  
 
   StateBloc({required this.repositoryProvider}) : super(StatsState()) {
     on<StateListEvent>(_onStateListGet);
@@ -127,16 +128,18 @@ class StateBloc extends Bloc<StatesEvent, StatsState> {
     emit(state.copyWith(status: StatesStatus.loading, errorMessage: null));
 
     try {
-      File? farmerImageFile;
+      // ============================================
+      // FARMER IMAGE -> COMPRESS -> BASE64
+      // ============================================
+      String? farmerImageBase64;
 
-      // ============================================
-      // COMPRESS FARMER IMAGE
-      // ============================================
       if (event.image.isNotEmpty) {
         final originalFile = File(event.image);
 
         if (await originalFile.exists()) {
-          farmerImageFile = await ImageCompression.compressImage(
+          debugPrint('Farmer original image: ${event.image}');
+
+          final farmerImageFile = await ImageCompression.compressImage(
             originalFile,
             maxWidth: 450,
             maxHeight: 450,
@@ -146,12 +149,22 @@ class StateBloc extends Bloc<StatesEvent, StatsState> {
           if (farmerImageFile == null) {
             throw Exception('Unable to compress farmer image');
           }
-        } else {
-          print(
-            'Farmer image file not found: '
-            '${event.image}',
+
+          // Read compressed image
+          final imageBytes = await farmerImageFile.readAsBytes();
+
+          // Convert to Base64
+          farmerImageBase64 = base64Encode(imageBytes);
+
+          debugPrint(
+            'Farmer image Base64 length: '
+            '${farmerImageBase64.length}',
           );
+        } else {
+          debugPrint('Farmer image file not found: ${event.image}');
         }
+      } else {
+        debugPrint('Farmer image: NOT SELECTED');
       }
 
       // ============================================
@@ -207,11 +220,43 @@ class StateBloc extends Bloc<StatesEvent, StatsState> {
       };
 
       // ============================================
-      // ADD FARMER IMAGE FILE
+      // ADD BASE64 IMAGE
       // ============================================
-      if (farmerImageFile != null) {
-        jsonData['image'] = farmerImageFile;
+      if (farmerImageBase64 != null && farmerImageBase64.isNotEmpty) {
+        jsonData['selfie_capture_image'] = farmerImageBase64;
+
+        debugPrint(
+          'image: BASE64 IMAGE '
+          '($farmerImageBase64 characters)',
+        );
+      } else {
+        debugPrint('image: NOT SENT');
       }
+
+      // ============================================
+      // PRINT REQUEST DATA
+      // ============================================
+      jsonData.forEach((key, value) {
+        if (key == 'selfie_capture_image') {
+          final String image = value?.toString() ?? '';
+
+          debugPrint(
+            '$key: BASE64 IMAGE '
+            '($image characters)',
+          );
+        } else {
+          debugPrint('$key: $value');
+        }
+      });
+
+      debugPrint('====================================');
+
+      // ============================================
+      // CALL API
+      // ============================================
+      final response = await repositoryProvider.saveFarmerDetails(jsonData);
+
+      debugPrint('Farmer details response: $response');
 
       // ============================================
       // DEBUG
@@ -290,22 +335,14 @@ class StateBloc extends Bloc<StatesEvent, StatsState> {
 
       print(
         'image: '
-        '${farmerImageFile?.path ?? 'NO FILE'}',
+        '${farmerImageBase64}',
       );
 
       print('====================================');
 
       // ============================================
-      // CALL API
-      // ============================================
-      final response = await repositoryProvider.saveFarmerDetails(jsonData);
-
-      print('Farmer details response: $response');
-
-      // ============================================
       // SUCCESS
       // ============================================
-
       if (response['status'] == true) {
         emit(
           state.copyWith(
@@ -322,11 +359,8 @@ class StateBloc extends Bloc<StatesEvent, StatsState> {
         );
       }
     } catch (error) {
-      print('Farmer details error: $error');
+      debugPrint('Farmer details error: $error');
 
-      // ============================================
-      // FAILURE
-      // ============================================
       emit(
         state.copyWith(
           status: StatesStatus.failed,
@@ -335,6 +369,222 @@ class StateBloc extends Bloc<StatesEvent, StatsState> {
       );
     }
   }
+
+  // Future<void> _onAddFarmerDetails(
+  //   FarmerSubmitDetailsEvent event,
+  //   Emitter<StatsState> emit,
+  // ) async {
+  //   emit(state.copyWith(status: StatesStatus.loading, errorMessage: null));
+
+  //   try {
+  //     File? farmerImageFile;
+
+  //     // ============================================
+  //     // COMPRESS FARMER IMAGE
+  //     // ============================================
+  //     if (event.image.isNotEmpty) {
+  //       final originalFile = File(event.image);
+
+  //       if (await originalFile.exists()) {
+  //         farmerImageFile = await ImageCompression.compressImage(
+  //           originalFile,
+  //           maxWidth: 450,
+  //           maxHeight: 450,
+  //           quality: 45,
+  //         );
+
+  //         if (farmerImageFile == null) {
+  //           throw Exception('Unable to compress farmer image');
+  //         }
+  //       } else {
+  //         print(
+  //           'Farmer image file not found: '
+  //           '${event.image}',
+  //         );
+  //       }
+  //     }
+
+  //     // ============================================
+  //     // REQUEST DATA
+  //     // ============================================
+  //     final jsonData = <String, dynamic>{
+  //       'fld_farmer_name': event.fldFarmerName,
+  //       'fld_address': event.fldAddress,
+  //       'user_id': event.userId,
+  //       'fld_category_id': event.fldCategoryId,
+  //       'state': event.state,
+  //       'fld_demo_type_id': event.fldDemoTypeId,
+  //       'district': event.district,
+  //       'taluka': event.taluka,
+
+  //       'status_of_farmer': event.statusOfFarmer,
+  //       'campaign_radio': event.campaignRadio,
+
+  //       'fld_mobile_no': event.fldMobileNo,
+  //       'fld_mobile_no2': event.fldMobileNo2,
+  //       'fld_total_acre': event.fldTotalAcre,
+  //       'fld_email_id': event.fldEmailId,
+  //       'fld_tractor_mode': event.fldTractorMode,
+  //       'fld_village': event.fldVillage,
+
+  //       'selectedProductId': event.selectedProductId,
+  //       'selectedCropId': event.selectedCropId,
+  //       'selectedAcers': event.selectedAcers,
+  //       'selectedSowingDates': event.selectedSowingDates,
+  //       'selectedIrrigationId': event.selectedIrrigationId,
+
+  //       'selectedCattleId': event.selectedCattleId,
+  //       'selectedCattleCount': event.selectedCattleCount,
+
+  //       'latitude': event.latitude,
+  //       'longitude': event.longitude,
+  //       'networkLatitude': event.networkLatitude,
+  //       'networkLongitude': event.networkLongitude,
+  //       'gpsLatitude': event.gpsLatitude,
+  //       'gpsLongitude': event.gpsLongitude,
+  //       'differenceByAndroid': event.differenceByAndroid,
+
+  //       'contactPersonName': event.contactPersonName,
+  //       'meetingLocation': event.meetingLocation,
+  //       'marketNearby': event.marketNearby,
+  //       'aadhaarNo': event.aadhaarNo,
+  //       'remark': event.remark,
+  //       'geoAddress': event.geoAddress,
+  //       'strNetworkInfo': event.strNetworkInfo,
+  //       'currentProductUsed': event.currentProductUsed,
+  //       'strBatteryInfo': event.strBatteryInfo,
+  //       'activityId': event.activityId,
+  //     };
+
+  //     // ============================================
+  //     // ADD FARMER IMAGE FILE
+  //     // ============================================
+  //     if (farmerImageFile != null) {
+  //       jsonData['image'] = farmerImageFile;
+  //     }
+
+  // // ============================================
+  // // DEBUG
+  // // ============================================
+  // print('========== FARMER REQUEST ==========');
+
+  // print(
+  //   'selectedSowingDates: '
+  //   '${event.selectedSowingDates}',
+  // );
+
+  // print(
+  //   'marketNearby: '
+  //   '${event.marketNearby}',
+  // );
+
+  // print(
+  //   'status_of_farmer: '
+  //   '${event.statusOfFarmer}',
+  // );
+
+  // print(
+  //   'selectedAcers: '
+  //   '${event.selectedAcers}',
+  // );
+
+  // print(
+  //   'selectedIrrigationId: '
+  //   '${event.selectedIrrigationId}',
+  // );
+
+  // print(
+  //   'selectedProductId: '
+  //   '${event.selectedProductId}',
+  // );
+
+  // print(
+  //   'activityId: '
+  //   '${event.activityId}',
+  // );
+
+  // print(
+  //   'campaign_radio: '
+  //   '${event.campaignRadio}',
+  // );
+
+  // print(
+  //   'currentProductUsed: '
+  //   '${event.currentProductUsed}',
+  // );
+
+  // print(
+  //   'state: '
+  //   '${event.state}',
+  // );
+
+  // print(
+  //   'district: '
+  //   '${event.district}',
+  // );
+
+  // print(
+  //   'taluka: '
+  //   '${event.taluka}',
+  // );
+
+  // print(
+  //   'fld_farmer_name: '
+  //   '${event.fldFarmerName}',
+  // );
+
+  // print(
+  //   'fld_mobile_no: '
+  //   '${event.fldMobileNo}',
+  // );
+
+  // print(
+  //   'image: '
+  //   '${farmerImageFile?.path ?? 'NO FILE'}',
+  // );
+
+  // print('====================================');
+
+  // // ============================================
+  // // CALL API
+  // // ============================================
+  // final response = await repositoryProvider.saveFarmerDetails(jsonData);
+
+  // print('Farmer details response: $response');
+
+  //     // ============================================
+  //     // SUCCESS
+  //     // ============================================
+
+  //     if (response['status'] == true) {
+  //       emit(
+  //         state.copyWith(
+  //           status: StatesStatus.farmerRegiSuccess,
+  //           errorMessage: response['message'],
+  //         ),
+  //       );
+  //     } else {
+  //       emit(
+  //         state.copyWith(
+  //           status: StatesStatus.failed,
+  //           errorMessage: response['message'],
+  //         ),
+  //       );
+  //     }
+  //   } catch (error) {
+  //     print('Farmer details error: $error');
+
+  //     // ============================================
+  //     // FAILURE
+  //     // ============================================
+  //     emit(
+  //       state.copyWith(
+  //         status: StatesStatus.failed,
+  //         errorMessage: error.toString(),
+  //       ),
+  //     );
+  //   }
+  // }
 
   FutureOr<void> _onUpdateFarmerDetails(
     UpdateFarmerSubmitDetailsEvent event,

@@ -14,12 +14,16 @@ class AuthDatasource {
     String username,
     String password,
     String fcmToken,
+    String mobileInfo,
+    String macAddress,
   ) async {
     try {
       print('Login request data:');
       print('username/email: $username');
       print('fcmToken: $fcmToken');
       print('password: $password');
+          print('mobileInfo: $mobileInfo');
+      print('macAddress: $macAddress');
 
       final response = await dioClient.client.post(
         ApiClient.login,
@@ -27,6 +31,8 @@ class AuthDatasource {
           'username': username,
           'password': password,
           'fcmId': fcmToken,
+          'mobileInfo':mobileInfo,
+          'macAddress':macAddress
         }),
       );
 
