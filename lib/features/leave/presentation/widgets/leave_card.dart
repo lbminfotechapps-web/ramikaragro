@@ -1,7 +1,8 @@
-
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil_plus/flutter_screenutil_plus.dart';
 
-import '../../domain/entities/leave.dart';
+import 'package:solufine/core/theme/app_colors.dart';
+import 'package:solufine/features/leave/domain/entities/leave.dart';
 
 class LeaveCard extends StatelessWidget {
   final Leave leave;
@@ -16,15 +17,23 @@ class LeaveCard extends StatelessWidget {
   // ============================================================
 
   String _statusText(String status) {
-    switch (status) {
-      case "0":
-        return "Pending";
-      case "1":
-        return "Approved";
-      case "2":
-        return "Rejected";
+    switch (status.trim().toLowerCase()) {
+      case '0':
+      case 'pending':
+        return 'Pending';
+
+      case '1':
+      case 'approved':
+      case 'approve':
+        return 'Approved';
+
+      case '2':
+      case 'rejected':
+      case 'reject':
+        return 'Rejected';
+
       default:
-        return "Unknown";
+        return status.trim().isEmpty ? '-' : status.trim();
     }
   }
 
@@ -33,15 +42,23 @@ class LeaveCard extends StatelessWidget {
   // ============================================================
 
   Color _statusColor(String status) {
-    switch (status) {
-      case "0":
+    switch (status.trim().toLowerCase()) {
+      case '0':
+      case 'pending':
         return Colors.orange;
-      case "1":
+
+      case '1':
+      case 'approved':
+      case 'approve':
         return Colors.green;
-      case "2":
+
+      case '2':
+      case 'rejected':
+      case 'reject':
         return Colors.red;
+
       default:
-        return Colors.grey;
+        return Colors.blue;
     }
   }
 
@@ -50,15 +67,23 @@ class LeaveCard extends StatelessWidget {
   // ============================================================
 
   IconData _statusIcon(String status) {
-    switch (status) {
-      case "0":
+    switch (status.trim().toLowerCase()) {
+      case '0':
+      case 'pending':
         return Icons.access_time_rounded;
-      case "1":
+
+      case '1':
+      case 'approved':
+      case 'approve':
         return Icons.check_circle_outline_rounded;
-      case "2":
+
+      case '2':
+      case 'rejected':
+      case 'reject':
         return Icons.cancel_outlined;
+
       default:
-        return Icons.help_outline_rounded;
+        return Icons.info_outline_rounded;
     }
   }
 
@@ -66,134 +91,192 @@ class LeaveCard extends StatelessWidget {
   // APPLICATION DATE
   // ============================================================
 
-  String _applicationDate(String value) {
-    if (value.trim().isEmpty) {
-      return "";
+  String _applicationDate(String date) {
+    if (date.trim().isEmpty) {
+      return '-';
     }
 
-    return value.trim().split(" ").first;
+    try {
+      final parsedDate = DateTime.parse(date);
+
+      return '${parsedDate.day.toString().padLeft(2, '0')}-'
+          '${parsedDate.month.toString().padLeft(2, '0')}-'
+          '${parsedDate.year}';
+    } catch (_) {
+      return date;
+    }
   }
+
+  // ============================================================
+  // STATUS DISPLAY TEXT
+  // ============================================================
+
+  String _statusDisplayText(String status) {
+    switch (status.trim().toLowerCase()) {
+      case '0':
+        return 'Pending';
+
+      case '1':
+        return 'Approved';
+
+      case '2':
+        return 'Rejected';
+
+      case 'pending':
+        return 'Pending';
+
+      case 'approved':
+      case 'approve':
+        return 'Approved';
+
+      case 'rejected':
+      case 'reject':
+        return 'Rejected';
+
+      default:
+        return status.trim().isEmpty ? '-' : status.trim();
+    }
+  }
+
+  // ============================================================
+  // BUILD
+  // ============================================================
 
   @override
   Widget build(BuildContext context) {
-    final statusColor = _statusColor(leave.status);
+    final mainStatusColor = _statusColor(leave.status);
 
     return Container(
-      margin: const EdgeInsets.only(bottom: 10),
+      margin: EdgeInsets.only(
+        left: 5.w,
+        right: 5.w,
+        bottom: 5.h,
+      ),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(14.r),
         border: Border.all(
           color: Colors.grey.shade200,
         ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.035),
-            blurRadius: 10,
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 8,
             offset: const Offset(0, 3),
           ),
         ],
       ),
       child: Padding(
-        padding: const EdgeInsets.all(12),
+        padding: EdgeInsets.all(12.w),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+
             // ==================================================
             // HEADER
             // ==================================================
 
             Row(
-              crossAxisAlignment: CrossAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+
                 // Leave icon
                 Container(
-                  height: 44,
-                  width: 44,
+                  height: 38.w,
+                  width: 38.w,
                   decoration: BoxDecoration(
-                    color: const Color(0xFFEAF7EE),
-                    borderRadius: BorderRadius.circular(12),
+                    color: AppColors.primary.withOpacity(0.10),
+                    borderRadius: BorderRadius.circular(10.r),
                   ),
-                  child: const Icon(
-                    Icons.event_available_rounded,
-                    color: Color(0xFF087C3A),
-                    size: 23,
+                  child: Icon(
+                    Icons.event_note_rounded,
+                    color: AppColors.primary,
+                    size: 20.sp,
                   ),
                 ),
 
-                const SizedBox(width: 10),
+                SizedBox(width: 9.w),
 
-                // Application information
+                // Application details
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      // const Text(
-                      //   "APPLICATION DATE",
-                      //   style: TextStyle(
-                      //     fontSize: 8,
-                      //     color: Colors.grey,
-                      //     fontWeight: FontWeight.w700,
-                      //     letterSpacing: 0.6,
-                      //   ),
-                      // ),
-                      // const SizedBox(height: 2),
+
                       Text(
-                        _applicationDate(
-                          leave.leaveApplicationDate,
-                        ),
-                        style: const TextStyle(
-                          fontSize: 14,
+                        'Leave Application',
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          fontSize: 13.sp,
                           fontWeight: FontWeight.w800,
-                          color: Colors.black87,
+                          color: Colors.grey.shade900,
                         ),
                       ),
-                      if (leave.admName.trim().isNotEmpty)
-                        Padding(
-                          padding: const EdgeInsets.only(top: 2),
-                          child: Text(
-                            leave.admName,
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            style: TextStyle(
-                              fontSize: 10,
-                              color: Colors.grey.shade600,
-                            ),
+
+                      SizedBox(height: 3.h),
+
+                      Text(
+                        'Applied on ${_applicationDate(leave.leaveApplicationDate)}',
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          fontSize: 10.sp,
+                          color: Colors.grey.shade600,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+
+                      if (leave.admName.trim().isNotEmpty) ...[
+                        SizedBox(height: 2.h),
+
+                        Text(
+                          leave.admName,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(
+                            fontSize: 9.5.sp,
+                            color: Colors.grey.shade500,
+                            fontWeight: FontWeight.w600,
                           ),
                         ),
+                      ],
                     ],
                   ),
                 ),
 
-                const SizedBox(width: 8),
+                SizedBox(width: 8.w),
 
-                // Status
+                // Main status
                 Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 8,
-                    vertical: 5,
+                  padding: EdgeInsets.symmetric(
+                    horizontal: 8.w,
+                    vertical: 5.h,
                   ),
                   decoration: BoxDecoration(
-                    color: statusColor.withOpacity(0.08),
-                    borderRadius: BorderRadius.circular(20),
+                    color: mainStatusColor.withOpacity(0.08),
+                    borderRadius: BorderRadius.circular(20.r),
                     border: Border.all(
-                      color: statusColor.withOpacity(0.14),
+                      color: mainStatusColor.withOpacity(0.15),
                     ),
                   ),
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
+
                       Icon(
                         _statusIcon(leave.status),
-                        size: 13,
-                        color: statusColor,
+                        size: 13.sp,
+                        color: mainStatusColor,
                       ),
-                      const SizedBox(width: 4),
+
+                      SizedBox(width: 4.w),
+
                       Text(
                         _statusText(leave.status),
                         style: TextStyle(
-                          fontSize: 9,
-                          color: statusColor,
+                          fontSize: 9.sp,
+                          color: mainStatusColor,
                           fontWeight: FontWeight.w800,
                         ),
                       ),
@@ -203,49 +286,59 @@ class LeaveCard extends StatelessWidget {
               ],
             ),
 
-            const SizedBox(height: 10),
+            SizedBox(height: 12.h),
 
             // ==================================================
             // DATE INFORMATION
             // ==================================================
 
             Container(
-              padding: const EdgeInsets.symmetric(
-                horizontal: 4,
-                vertical: 9,
+              width: double.infinity,
+              padding: EdgeInsets.symmetric(
+                horizontal: 8.w,
+                vertical: 10.h,
               ),
               decoration: BoxDecoration(
-                color: const Color(0xFFF7F9F8),
-                borderRadius: BorderRadius.circular(12),
+                color: Colors.grey.shade50,
+                borderRadius: BorderRadius.circular(10.r),
                 border: Border.all(
-                  color: Colors.grey.shade100,
+                  color: Colors.grey.shade200,
                 ),
               ),
               child: Row(
                 children: [
+
                   Expanded(
-                    child: _buildDateColumn(
-                      title: "FROM",
+                    child: _buildDateItem(
+                      title: 'FROM',
                       value: leave.fromDate,
-                      icon: Icons.calendar_today_outlined,
+                      icon: Icons.calendar_today_rounded,
                     ),
                   ),
 
-                  _divider(),
+                  Container(
+                    height: 32.h,
+                    width: 1,
+                    color: Colors.grey.shade300,
+                  ),
 
                   Expanded(
-                    child: _buildDateColumn(
-                      title: "TO",
+                    child: _buildDateItem(
+                      title: 'TO',
                       value: leave.toDate,
-                      icon: Icons.event_outlined,
+                      icon: Icons.event_rounded,
                     ),
                   ),
 
-                  _divider(),
+                  Container(
+                    height: 32.h,
+                    width: 1,
+                    color: Colors.grey.shade300,
+                  ),
 
                   Expanded(
-                    child: _buildDateColumn(
-                      title: "DAYS",
+                    child: _buildDateItem(
+                      title: 'DAYS',
                       value: leave.leaveDays,
                       icon: Icons.timelapse_rounded,
                     ),
@@ -255,24 +348,56 @@ class LeaveCard extends StatelessWidget {
             ),
 
             // ==================================================
+            // REPORTING STATUS
+            // ==================================================
+
+            if (leave.rejectStatus.trim().isNotEmpty) ...[
+              SizedBox(height: 8.h),
+
+              _buildStatusBox(
+                title: 'REPORTING STATUS',
+                value: leave.rejectStatus,
+                icon: Icons.supervisor_account_rounded,
+                color: _statusColor(leave.rejectStatus),
+              ),
+            ],
+
+            // ==================================================
+            // ADMIN STATUS
+            // ==================================================
+
+            if (leave.adminStatus.trim().isNotEmpty) ...[
+              SizedBox(height: 8.h),
+
+              _buildStatusBox(
+                title: 'ADMIN STATUS',
+                value: leave.adminStatus,
+                icon: Icons.admin_panel_settings_outlined,
+                color: _statusColor(leave.adminStatus),
+              ),
+            ],
+
+            // ==================================================
             // REMARK
             // ==================================================
 
             if (leave.remark.trim().isNotEmpty) ...[
-              const SizedBox(height: 8),
+              SizedBox(height: 8.h),
+
               _buildInfoBox(
                 icon: Icons.notes_rounded,
-                title: "Remark",
+                title: 'Remark',
                 value: leave.remark,
               ),
             ],
 
             // ==================================================
-            // REJECT REASON
+            // REJECTION REASON
             // ==================================================
 
             if (leave.reasonForReject.trim().isNotEmpty) ...[
-              const SizedBox(height: 8),
+              SizedBox(height: 8.h),
+
               _buildRejectBox(),
             ],
           ],
@@ -282,41 +407,46 @@ class LeaveCard extends StatelessWidget {
   }
 
   // ============================================================
-  // DATE COLUMN
+  // DATE ITEM
   // ============================================================
 
-  Widget _buildDateColumn({
+  Widget _buildDateItem({
     required String title,
     required String value,
     required IconData icon,
   }) {
     return Column(
       children: [
+
         Icon(
           icon,
-          size: 14,
-          color: const Color(0xFF087C3A),
+          size: 15.sp,
+          color: AppColors.primary,
         ),
-        const SizedBox(height: 3),
+
+        SizedBox(height: 4.h),
+
         Text(
           title,
-          style: const TextStyle(
-            fontSize: 7.5,
-            color: Colors.grey,
+          style: TextStyle(
+            fontSize: 7.5.sp,
+            color: Colors.grey.shade500,
             fontWeight: FontWeight.w800,
-            letterSpacing: 0.5,
+            letterSpacing: 0.4,
           ),
         ),
-        const SizedBox(height: 2),
+
+        SizedBox(height: 2.h),
+
         Text(
-          value.isEmpty ? "-" : value,
-          textAlign: TextAlign.center,
+          value.trim().isEmpty ? '-' : value,
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
-          style: const TextStyle(
-            fontSize: 11,
-            fontWeight: FontWeight.w800,
-            color: Colors.black87,
+          textAlign: TextAlign.center,
+          style: TextStyle(
+            fontSize: 10.sp,
+            color: Colors.grey.shade800,
+            fontWeight: FontWeight.w700,
           ),
         ),
       ],
@@ -324,19 +454,86 @@ class LeaveCard extends StatelessWidget {
   }
 
   // ============================================================
-  // DIVIDER
+  // REPORTING / ADMIN STATUS BOX
   // ============================================================
 
-  Widget _divider() {
+  Widget _buildStatusBox({
+    required String title,
+    required String value,
+    required IconData icon,
+    required Color color,
+  }) {
     return Container(
-      height: 34,
-      width: 1,
-      color: Colors.grey.shade300,
+      width: double.infinity,
+      padding: EdgeInsets.symmetric(
+        horizontal: 9.w,
+        vertical: 8.h,
+      ),
+      decoration: BoxDecoration(
+        color: color.withOpacity(0.06),
+        borderRadius: BorderRadius.circular(10.r),
+        border: Border.all(
+          color: color.withOpacity(0.12),
+        ),
+      ),
+      child: Row(
+        children: [
+
+          Container(
+            height: 29.w,
+            width: 29.w,
+            decoration: BoxDecoration(
+              color: color.withOpacity(0.10),
+              shape: BoxShape.circle,
+            ),
+            child: Icon(
+              icon,
+              size: 15.sp,
+              color: color,
+            ),
+          ),
+
+          SizedBox(width: 8.w),
+
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+
+                Text(
+                  title,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    fontSize: 7.5.sp,
+                    color: color,
+                    fontWeight: FontWeight.w800,
+                    letterSpacing: 0.3,
+                  ),
+                ),
+
+                SizedBox(height: 3.h),
+
+                Text(
+                  _statusDisplayText(value),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    fontSize: 10.5.sp,
+                    color: color,
+                    fontWeight: FontWeight.w800,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
     );
   }
 
   // ============================================================
-  // INFO BOX
+  // REMARK BOX
   // ============================================================
 
   Widget _buildInfoBox({
@@ -346,55 +543,60 @@ class LeaveCard extends StatelessWidget {
   }) {
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.symmetric(
-        horizontal: 9,
-        vertical: 8,
+      padding: EdgeInsets.symmetric(
+        horizontal: 9.w,
+        vertical: 8.h,
       ),
       decoration: BoxDecoration(
-        color: const Color(0xFFF2F7FF),
-        borderRadius: BorderRadius.circular(10),
+        color: Colors.blue.withOpacity(0.05),
+        borderRadius: BorderRadius.circular(10.r),
         border: Border.all(
-          color: Colors.blue.withOpacity(0.08),
+          color: Colors.blue.withOpacity(0.12),
         ),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+
           Container(
-            height: 28,
-            width: 28,
+            height: 29.w,
+            width: 29.w,
             decoration: BoxDecoration(
-              color: Colors.blue.withOpacity(0.08),
+              color: Colors.blue.withOpacity(0.10),
               shape: BoxShape.circle,
             ),
             child: Icon(
               icon,
-              size: 15,
+              size: 15.sp,
               color: Colors.blue,
             ),
           ),
 
-          const SizedBox(width: 8),
+          SizedBox(width: 8.w),
 
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+
                 Text(
-                  title.toUpperCase(),
-                  style: const TextStyle(
-                    fontSize: 8,
-                    color: Colors.blue,
+                  title,
+                  style: TextStyle(
+                    fontSize: 7.5.sp,
+                    color: Colors.blue.shade700,
                     fontWeight: FontWeight.w800,
-                    letterSpacing: 0.4,
+                    letterSpacing: 0.3,
                   ),
                 ),
-                const SizedBox(height: 2),
+
+                SizedBox(height: 3.h),
+
                 Text(
                   value,
-                  style: const TextStyle(
-                    fontSize: 11,
-                    color: Colors.black87,
+                  style: TextStyle(
+                    fontSize: 10.sp,
+                    color: Colors.grey.shade800,
+                    fontWeight: FontWeight.w600,
                     height: 1.25,
                   ),
                 ),
@@ -407,61 +609,66 @@ class LeaveCard extends StatelessWidget {
   }
 
   // ============================================================
-  // REJECT BOX
+  // REJECTION BOX
   // ============================================================
 
   Widget _buildRejectBox() {
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.symmetric(
-        horizontal: 9,
-        vertical: 8,
+      padding: EdgeInsets.symmetric(
+        horizontal: 9.w,
+        vertical: 8.h,
       ),
       decoration: BoxDecoration(
-        color: const Color(0xFFFFF4F4),
-        borderRadius: BorderRadius.circular(10),
+        color: Colors.red.withOpacity(0.05),
+        borderRadius: BorderRadius.circular(10.r),
         border: Border.all(
-          color: Colors.red.withOpacity(0.10),
+          color: Colors.red.withOpacity(0.12),
         ),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+
           Container(
-            height: 28,
-            width: 28,
+            height: 29.w,
+            width: 29.w,
             decoration: BoxDecoration(
-              color: Colors.red.withOpacity(0.08),
+              color: Colors.red.withOpacity(0.10),
               shape: BoxShape.circle,
             ),
-            child: const Icon(
-              Icons.info_outline_rounded,
-              size: 15,
+            child: Icon(
+              Icons.warning_amber_rounded,
+              size: 16.sp,
               color: Colors.red,
             ),
           ),
 
-          const SizedBox(width: 8),
+          SizedBox(width: 8.w),
 
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text(
-                  "REJECTION REASON",
+
+                Text(
+                  'REJECTION REASON',
                   style: TextStyle(
-                    fontSize: 8,
-                    color: Colors.red,
+                    fontSize: 7.5.sp,
+                    color: Colors.red.shade700,
                     fontWeight: FontWeight.w800,
-                    letterSpacing: 0.4,
+                    letterSpacing: 0.3,
                   ),
                 ),
-                const SizedBox(height: 2),
+
+                SizedBox(height: 3.h),
+
                 Text(
                   leave.reasonForReject,
-                  style: const TextStyle(
-                    fontSize: 11,
-                    color: Colors.red,
+                  style: TextStyle(
+                    fontSize: 10.sp,
+                    color: Colors.red.shade900,
+                    fontWeight: FontWeight.w600,
                     height: 1.25,
                   ),
                 ),
@@ -473,4 +680,3 @@ class LeaveCard extends StatelessWidget {
     );
   }
 }
-

@@ -56,6 +56,19 @@ class DispatchCard extends StatelessWidget {
                         value: _orderNumber(),
                       ),
 
+                         _buildInfoRow(
+                        icon: Icons.receipt_long_outlined,
+                        label: 'Dispatch No.',
+                        value: _dispatchNumber(),
+                      ),
+
+
+                      _buildInfoRow(
+                        icon: Icons.receipt_long_outlined,
+                        label: 'Dispatch Date',
+                        value: _orderDate(),
+                      ),
+
                       SizedBox(height: 12.h),
 
                       _buildQuantitySection(),
@@ -395,6 +408,14 @@ class DispatchCard extends StatelessWidget {
     return _getValue(['orderNo', 'order_no', 'orderNumber', 'order_number']);
   }
 
+    String _orderDate() {
+    return _getValue(['orderDate', 'order_date', 'orderDate', 'order_date']);
+  }
+
+   String _dispatchNumber() {
+    return _getValue(['dispatchNo', 'dispatch_no', 'dispatchNumber', 'dispatch_number']);
+  }
+
   String _orderQty() {
     return _getValue([
       'totalQty',
@@ -668,6 +689,17 @@ class DispatchCard extends StatelessWidget {
         return dispatch.outlet_name;
       case 'orderBy':
         return dispatch.orderBy;
+
+     
+
+      case 'dispatchNo':
+        return dispatch.dispatchNo;
+       case 'dispatch_no':
+        return dispatch.dispatch_no;
+      case 'dispatchNumber':
+        return dispatch.dispatchNumber;
+      case 'dispatch_number':
+        return dispatch.dispatch_number;  
 
       case 'orderNo':
         return dispatch.orderNo;

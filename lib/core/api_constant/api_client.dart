@@ -71,11 +71,11 @@ class ApiClient {
   static const String getOrderHistory = '/getOrderList';
 
   static const String getGodown = "/get_godown";
-
   static const String getCategory = "/getCategory";
-
   static const String getCatgoryProducts = "/getCatgoryProducts";
   static const String placeOrder = "/placeOrder";
+  static const String submitSalesReturnRequest= "/submitSalesReturnRequest";
+
   static const String getProductDetailRatesKvat = "/getProductDetailRatesKvat";
   static const String getEmployeeStatus = '/getEmployeeStatus';
 

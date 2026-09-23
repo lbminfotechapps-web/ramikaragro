@@ -581,7 +581,7 @@ class _FarmerListItem extends StatelessWidget {
                             const SizedBox(height: 1),
                             Text(
                               farmer.lastDateTime ?? '10 : 30 AM',
-                              maxLines: 1,
+                              maxLines: 2,
                               overflow: TextOverflow.ellipsis,
                               style: const TextStyle(
                                 fontSize: 12,
@@ -631,7 +631,7 @@ class _FarmerListItem extends StatelessWidget {
                             const SizedBox(height: 1),
                             Text(
                               farmer.lastVisitDateTime ?? '11 : 15 AM',
-                              maxLines: 1,
+                              maxLines: 2,
                               overflow: TextOverflow.ellipsis,
                               style: const TextStyle(
                                 fontSize: 12,

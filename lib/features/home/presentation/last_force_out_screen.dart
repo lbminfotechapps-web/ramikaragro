@@ -47,13 +47,42 @@ class _LastForceOutScreenState extends State<LastForceOutScreen> {
   void initState() {
     super.initState();
 
-    dateController.text = widget.punchStat?.date ?? '';
-    lastTimeController.text = widget.punchStat?.time ?? '';
+    // dateController.text = widget.punchStat?.date ?? '';
+    // lastTimeController.text = widget.punchStat?.time ?? '';
 
-    openingKmController.text = widget.punchStat?.startingKm.trim() ?? '';
-    dateController.text = widget.punchStat?.date.trim() ?? '';
+    // openingKmController.text = widget.punchStat?.startingKm.trim() ?? '';
+    // dateController.text = widget.punchStat?.date.trim() ?? '';
+
+
+    dateController.text = _formatDate(
+    widget.punchStat?.date.trim() ?? '',
+  );
+
+  lastTimeController.text =widget.punchStat?.time.trim() ?? '';
+  openingKmController.text =widget.punchStat?.startingKm.trim() ?? '';
+
   }
 
+   String _formatDate(String value) {
+  if (value.trim().isEmpty) {
+    return '';
+  }
+
+  final date = DateTime.tryParse(value.trim());
+
+  if (date != null) {
+    return DateFormat('dd-MM-yyyy').format(date);
+  }
+
+  try {
+    final parsedDate =
+        DateFormat('dd-MM-yyyy').parseStrict(value.trim());
+
+    return DateFormat('dd-MM-yyyy').format(parsedDate);
+  } catch (_) {
+    return value;
+  }
+}
   // ------------------------------------------------------------
   // TIME PICKER
   // ------------------------------------------------------------
@@ -425,25 +454,14 @@ class _LastForceOutScreenState extends State<LastForceOutScreen> {
       return 'Last time is not available';
     }
 
-    // Compare only hours and minutes.
-    //
-    // Example:
-    // Last Time = 02:00 AM
-    // New Time  = 01:00 PM
-    //
-    // 13:00 > 02:00 => VALID
-    //
-    // Last Time = 02:00 AM
-    // New Time  = 01:00 AM
-    //
-    // 01:00 < 02:00 => INVALID
+    
 
     final lastMinutes = lastTime.hour * 60 + lastTime.minute;
 
     final newMinutes = newTime.hour * 60 + newTime.minute;
 
     if (newMinutes < lastMinutes) {
-      return 'New time cannot be less than last time';
+      return 'Out-Punch time can not be less than last Activity time';
     }
 
     return null;

@@ -10,6 +10,8 @@ class LeaveModel extends Leave {
     required super.leaveDays,
     required super.remark,
     required super.reasonForReject,
+    required super.rejectStatus,
+    required super.adminStatus,
   });
 
   factory LeaveModel.fromJson(Map<String, dynamic> json) {
@@ -37,6 +39,12 @@ class LeaveModel extends Leave {
 
       reasonForReject:
           json['fld_reason_for_reject']?.toString() ?? '',
+
+      rejectStatus:
+          json['fld_reporting_status']?.toString() ?? '',
+
+      adminStatus:
+          json['fld_admin_status']?.toString() ?? '',
     );
   }
 }

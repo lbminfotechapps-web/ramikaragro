@@ -99,7 +99,7 @@ class _DispatchPageState extends State<DispatchPage> {
           return Column(
             children: [
               _buildFilter(),
-
+           
               Expanded(child: _buildBody(state)),
             ],
           );
@@ -167,6 +167,7 @@ class _DispatchPageState extends State<DispatchPage> {
             ),
           ),
 
+          
           AnimatedCrossFade(
             duration: const Duration(milliseconds: 200),
             crossFadeState: isFilterExpanded
@@ -182,14 +183,14 @@ class _DispatchPageState extends State<DispatchPage> {
 
   Widget _buildExpandedFilters() {
     return Padding(
-      padding: EdgeInsets.fromLTRB(14.w, 0, 14.w, 14.h),
+      padding: EdgeInsets.fromLTRB(5.w, 5, 14.w, 14.h),
       child: Column(
         children: [
           TextField(
             controller: searchController,
             decoration: InputDecoration(
-              labelText: 'Search Name',
-              hintText: 'Enter dealer name',
+              labelText: 'Search dealer Name',
+              hintText: 'Search dealer Name',
               prefixIcon: const Icon(Icons.search),
               suffixIcon: searchController.text.isNotEmpty
                   ? IconButton(
@@ -210,7 +211,7 @@ class _DispatchPageState extends State<DispatchPage> {
             },
           ),
 
-          SizedBox(height: 10.h),
+          SizedBox(height: 5.h),
 
           DropdownButtonFormField<String>(
             value: selectedStatus.isEmpty ? null : selectedStatus,
@@ -282,6 +283,9 @@ class _DispatchPageState extends State<DispatchPage> {
       ),
     );
   }
+
+
+  
 
   Widget _dateField({
     required TextEditingController controller,
@@ -417,8 +421,8 @@ class _DispatchPageState extends State<DispatchPage> {
     if (picked == null) return;
 
     final formatted =
-        '${picked.day.toString().padLeft(2, '0')}/'
-        '${picked.month.toString().padLeft(2, '0')}/'
+        '${picked.day.toString().padLeft(2, '0')}-'
+        '${picked.month.toString().padLeft(2, '0')}-'
         '${picked.year}';
 
     setState(() {

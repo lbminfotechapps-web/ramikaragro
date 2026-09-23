@@ -49,6 +49,7 @@ class _MyExpenseCardState extends State<MyExpenseCard> {
           // ============================================================
           // MAIN CARD
           // ============================================================
+
           Padding(
             padding: const EdgeInsets.all(16),
             child: Column(
@@ -56,6 +57,7 @@ class _MyExpenseCardState extends State<MyExpenseCard> {
                 // ======================================================
                 // HEADER
                 // ======================================================
+
                 Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -108,6 +110,8 @@ class _MyExpenseCardState extends State<MyExpenseCard> {
                       ),
                     ),
 
+                    const SizedBox(width: 8),
+
                     _statusBadge(approved),
                   ],
                 ),
@@ -117,6 +121,7 @@ class _MyExpenseCardState extends State<MyExpenseCard> {
                 // ======================================================
                 // TOTAL EXPENSE
                 // ======================================================
+
                 Container(
                   width: double.infinity,
                   padding: const EdgeInsets.symmetric(
@@ -142,7 +147,9 @@ class _MyExpenseCardState extends State<MyExpenseCard> {
                                 fontWeight: FontWeight.w800,
                               ),
                             ),
+
                             SizedBox(height: 4),
+
                             Text(
                               'Daily total',
                               style: TextStyle(
@@ -171,6 +178,7 @@ class _MyExpenseCardState extends State<MyExpenseCard> {
                 // ======================================================
                 // VISITED PLACE + TRAVEL MODE
                 // ======================================================
+
                 Row(
                   children: [
                     Expanded(
@@ -193,11 +201,58 @@ class _MyExpenseCardState extends State<MyExpenseCard> {
                   ],
                 ),
 
+                // ======================================================
+                // REPORTING STATUS
+                // ======================================================
+
+                if (expense.reportingStatus.trim().isNotEmpty) ...[
+                  const SizedBox(height: 10),
+
+                  _buildStatusBox(
+                    title: 'REPORTING STATUS',
+                    value: expense.reportingStatus,
+                    icon: Icons.supervisor_account_rounded,
+                    color: _getStatusColor(
+                      expense.reportingStatus,
+                    ),
+                  ),
+                ],
+
+                // ======================================================
+                // ADMIN STATUS
+                // ======================================================
+
+                if (expense.adminStatus.trim().isNotEmpty) ...[
+                  const SizedBox(height: 10),
+
+                  _buildStatusBox(
+                    title: 'ADMIN STATUS',
+                    value: expense.adminStatus,
+                    icon: Icons.admin_panel_settings_outlined,
+                    color: _getStatusColor(
+                      expense.adminStatus,
+                    ),
+                  ),
+                ],
+
+                // ======================================================
+                // REMARK
+                // ======================================================
+
+                if (expense.remark.trim().isNotEmpty) ...[
+                  const SizedBox(height: 10),
+
+                  _buildRemarkBox(
+                    expense.remark,
+                  ),
+                ],
+
                 const SizedBox(height: 14),
 
                 // ======================================================
                 // VIEW DETAILS BUTTON
                 // ======================================================
+
                 Material(
                   color: Colors.transparent,
                   child: InkWell(
@@ -208,14 +263,18 @@ class _MyExpenseCardState extends State<MyExpenseCard> {
                       });
                     },
                     child: AnimatedContainer(
-                      duration: const Duration(milliseconds: 250),
+                      duration: const Duration(
+                        milliseconds: 250,
+                      ),
                       width: double.infinity,
                       padding: const EdgeInsets.symmetric(
                         horizontal: 14,
                         vertical: 12,
                       ),
                       decoration: BoxDecoration(
-                        color: showDetails ? primaryGreen : lightGreen,
+                        color: showDetails
+                            ? primaryGreen
+                            : lightGreen,
                         borderRadius: BorderRadius.circular(15),
                       ),
                       child: Row(
@@ -281,6 +340,7 @@ class _MyExpenseCardState extends State<MyExpenseCard> {
           // ============================================================
           // EXPENSE DETAILS
           // ============================================================
+
           AnimatedCrossFade(
             duration: const Duration(milliseconds: 250),
             crossFadeState: showDetails
@@ -295,7 +355,7 @@ class _MyExpenseCardState extends State<MyExpenseCard> {
   }
 
   // ==================================================================
-  // STATUS BADGE
+  // MAIN STATUS BADGE
   // ==================================================================
 
   Widget _statusBadge(bool approved) {
@@ -334,6 +394,211 @@ class _MyExpenseCardState extends State<MyExpenseCard> {
               color: approved
                   ? const Color(0xFF2E7D32)
                   : const Color(0xFFE65100),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // ==================================================================
+  // STATUS COLOR
+  // ==================================================================
+
+  Color _getStatusColor(String status) {
+    switch (status.trim().toLowerCase()) {
+      case '0':
+      case 'pending':
+        return Colors.orange;
+
+      case '1':
+      case 'approved':
+      case 'approve':
+        return Colors.green;
+
+      case '2':
+      case 'rejected':
+      case 'reject':
+        return Colors.red;
+
+      default:
+        return mediumGreen;
+    }
+  }
+
+  // ==================================================================
+  // STATUS DISPLAY TEXT
+  // ==================================================================
+
+  String _statusDisplayText(String status) {
+    switch (status.trim().toLowerCase()) {
+      case '0':
+        return 'Pending';
+
+      case '1':
+        return 'Approved';
+
+      case '2':
+        return 'Rejected';
+
+      case 'pending':
+        return 'Pending';
+
+      case 'approved':
+      case 'approve':
+        return 'Approved';
+
+      case 'rejected':
+      case 'reject':
+        return 'Rejected';
+
+      default:
+        return status.trim().isEmpty
+            ? '-'
+            : status.trim();
+    }
+  }
+
+
+
+   Widget _buildStatusBox({
+  required String title,
+  required String value,
+  required IconData icon,
+  required Color color,
+}) {
+  return Container(
+    width: double.infinity,
+    padding: const EdgeInsets.symmetric(
+      horizontal: 11,
+      vertical: 9,
+    ),
+    decoration: BoxDecoration(
+      color: color.withOpacity(0.055),
+      borderRadius: BorderRadius.circular(13),
+      border: Border.all(
+        color: color.withOpacity(0.13),
+      ),
+    ),
+    child: Row(
+      children: [
+        Container(
+          width: 34,
+          height: 34,
+          decoration: BoxDecoration(
+            color: color.withOpacity(0.10),
+            shape: BoxShape.circle,
+          ),
+          child: Icon(
+            icon,
+            size: 17,
+            color: color,
+          ),
+        ),
+
+        const SizedBox(width: 10),
+
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                title,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(
+                  fontSize: 8,
+                  letterSpacing: 0.5,
+                  color: color,
+                  fontWeight: FontWeight.w900,
+                ),
+              ),
+
+              const SizedBox(height: 3),
+
+              Text(
+                _statusDisplayText(value),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(
+                  fontSize: 11,
+                  color: color,
+                  fontWeight: FontWeight.w900,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
+    ),
+  );
+}
+
+
+
+  // ==================================================================
+  // REMARK BOX
+  // ==================================================================
+
+  Widget _buildRemarkBox(String remark) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(
+        horizontal: 11,
+        vertical: 9,
+      ),
+      decoration: BoxDecoration(
+        color: const Color(0xFFF3F7FF),
+        borderRadius: BorderRadius.circular(13),
+        border: Border.all(
+          color: const Color(0xFFDCE7FA),
+        ),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            width: 34,
+            height: 34,
+            decoration: BoxDecoration(
+              color: const Color(0xFFE6EEFF),
+              shape: BoxShape.circle,
+            ),
+            child: const Icon(
+              Icons.notes_rounded,
+              size: 17,
+              color: Color(0xFF4267A8),
+            ),
+          ),
+
+          const SizedBox(width: 10),
+
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text(
+                  'REMARK',
+                  style: TextStyle(
+                    fontSize: 8,
+                    letterSpacing: 0.5,
+                    color: Color(0xFF4267A8),
+                    fontWeight: FontWeight.w900,
+                  ),
+                ),
+
+                const SizedBox(height: 3),
+
+                Text(
+                  remark,
+                  style: const TextStyle(
+                    fontSize: 10,
+                    color: Color(0xFF37474F),
+                    fontWeight: FontWeight.w600,
+                    height: 1.3,
+                  ),
+                ),
+              ],
             ),
           ),
         ],
@@ -600,7 +865,8 @@ class _MyExpenseCardState extends State<MyExpenseCard> {
                           height: 180,
                           decoration: BoxDecoration(
                             color: const Color(0xFFF1F5F2),
-                            borderRadius: BorderRadius.circular(12),
+                            borderRadius:
+                                BorderRadius.circular(12),
                           ),
                           child: Center(
                             child: CircularProgressIndicator(
@@ -630,7 +896,8 @@ class _MyExpenseCardState extends State<MyExpenseCard> {
                           height: 180,
                           decoration: BoxDecoration(
                             color: const Color(0xFFFFF5F5),
-                            borderRadius: BorderRadius.circular(12),
+                            borderRadius:
+                                BorderRadius.circular(12),
                           ),
                           child: Column(
                             mainAxisAlignment:
@@ -691,7 +958,8 @@ class _MyExpenseCardState extends State<MyExpenseCard> {
                           vertical: 7,
                         ),
                         decoration: BoxDecoration(
-                          color: Colors.black.withOpacity(0.65),
+                          color:
+                              Colors.black.withOpacity(0.65),
                           borderRadius:
                               BorderRadius.circular(20),
                         ),
@@ -843,7 +1111,9 @@ class _MyExpenseCardState extends State<MyExpenseCard> {
                                   color: Colors.white70,
                                   size: 50,
                                 ),
+
                                 SizedBox(height: 12),
+
                                 Text(
                                   'Unable to load image',
                                   style: TextStyle(

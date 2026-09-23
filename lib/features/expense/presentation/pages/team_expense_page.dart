@@ -36,8 +36,11 @@ class _TeamExpenseViewState extends State<_TeamExpenseView> {
   final TextEditingController searchController =
       TextEditingController();
 
-  String fromDate = '10-09-2026';
-  String toDate = '10-09-2026';
+ // String fromDate = '10-09-2026';
+ // String toDate = '10-09-2026';
+
+    String fromDate = '';
+    String toDate = '';
 
   int startLimit = 0;
 
@@ -46,6 +49,11 @@ class _TeamExpenseViewState extends State<_TeamExpenseView> {
   @override
   void initState() {
     super.initState();
+
+ final today = DateTime.now();
+
+   fromDate = _formatDate(today);
+   toDate = _formatDate(today);
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _loadUserAndExpenses();

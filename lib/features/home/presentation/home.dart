@@ -566,6 +566,11 @@ class _HomeState extends State<Home> {
                 ),
                 SizedBox(height: 12.h),
 
+
+
+
+                
+
                 BlocBuilder<HomeBloc, HomeState>(
                   builder: (context, homeState) {
                     if (homeState.status == HomeStatus.loading) {

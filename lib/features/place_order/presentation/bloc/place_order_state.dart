@@ -28,51 +28,48 @@ class PlaceOrderState extends Equatable {
   final List<DealerEntity> dealers;
   final List<GodownEntity> godowns;
   final List<CategoryEntity> categories;
+
+  // ==========================================================
+  // ALL SELECTED CATEGORY PRODUCTS
+  // ==========================================================
+  //
+  // IMPORTANT:
+  //
+  // Earlier:
+  //
+  // final List<ProductEntity> products;
+  //
+  // was replaced every time a category was selected.
+  //
+  // Now products from all selected categories are retained.
+  //
   final List<ProductEntity> products;
+
+  // ==========================================================
+  // PRODUCTS BY CATEGORY
+  // ==========================================================
+  //
+  // categoryId -> products
+  //
+  // Example:
+  //
+  // {
+  //   "1": [product1, product2],
+  //   "2": [product3, product4],
+  // }
+  //
+  final Map<String, List<ProductEntity>> productsByCategory;
 
   // ==========================================================
   // OLD PRODUCT-LEVEL QUANTITY
   // ==========================================================
-  //
-  // Keep this temporarily because your existing page/code
-  // may still use it.
-  //
-  // Example:
-  //
-  // {
-  //   "1": 2,
-  //   "2": 3,
-  // }
-  //
+
   final Map<String, int> quantities;
 
   // ==========================================================
-  // NEW PACKING-LEVEL QUANTITY
+  // PACKING-LEVEL QUANTITY
   // ==========================================================
-  //
-  // Structure:
-  //
-  // productId
-  //      ↓
-  // productDetailsId
-  //      ↓
-  // quantity
-  //
-  // Example:
-  //
-  // {
-  //   "1": {
-  //     "1": 2,
-  //     "2": 5,
-  //   }
-  // }
-  //
-  // Meaning:
-  //
-  // Product 1
-  //   Details 1 = quantity 2
-  //   Details 2 = quantity 5
-  //
+
   final Map<String, Map<String, int>> packingQuantities;
 
   // ==========================================================
@@ -87,6 +84,7 @@ class PlaceOrderState extends Equatable {
     this.godowns = const [],
     this.categories = const [],
     this.products = const [],
+    this.productsByCategory = const {},
     this.quantities = const {},
     this.packingQuantities = const {},
     this.errorMessage = '',
@@ -102,6 +100,7 @@ class PlaceOrderState extends Equatable {
     List<GodownEntity>? godowns,
     List<CategoryEntity>? categories,
     List<ProductEntity>? products,
+    Map<String, List<ProductEntity>>? productsByCategory,
     Map<String, int>? quantities,
     Map<String, Map<String, int>>? packingQuantities,
     String? errorMessage,
@@ -112,6 +111,8 @@ class PlaceOrderState extends Equatable {
       godowns: godowns ?? this.godowns,
       categories: categories ?? this.categories,
       products: products ?? this.products,
+      productsByCategory:
+          productsByCategory ?? this.productsByCategory,
       quantities: quantities ?? this.quantities,
       packingQuantities:
           packingQuantities ?? this.packingQuantities,
@@ -131,6 +132,7 @@ class PlaceOrderState extends Equatable {
         godowns,
         categories,
         products,
+        productsByCategory,
         quantities,
         packingQuantities,
         errorMessage,

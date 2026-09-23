@@ -1,10 +1,10 @@
 import 'dart:convert';
 
+import 'package:dio/dio.dart';
 import 'package:solufine/core/api_constant/api_client.dart';
 import 'package:solufine/core/api_constant/dio_client.dart';
 import 'package:solufine/core/error/exceptions.dart';
 import 'package:solufine/features/leave/data/models/team_leave_model.dart';
-import 'package:dio/dio.dart';
 
 abstract class TeamLeaveRemoteDataSource {
   // ==========================================================
@@ -72,32 +72,17 @@ class TeamLeaveRemoteDataSourceImpl
 
       // ------------------------------------------------------
       // Normal JSON
-      // Example:
-      // {"status":true,"result":[],"message":"success"}
       // ------------------------------------------------------
 
       try {
         return jsonDecode(rawResponse);
       } catch (_) {
-        // ----------------------------------------------------
-        // Ignore here.
-        //
-        // The response may contain PHP warning/HTML before
-        // the actual JSON.
-        // ----------------------------------------------------
+        // Continue below.
+        // Response may contain PHP warning/HTML before JSON.
       }
 
       // ------------------------------------------------------
       // PHP WARNING + JSON
-      //
-      // Example:
-      //
-      // <div>
-      //   PHP Warning...
-      // </div>
-      // {"status":true,"result":"success"}
-      //
-      // Find the first JSON object.
       // ------------------------------------------------------
 
       final jsonStart = rawResponse.indexOf('{');
@@ -163,9 +148,9 @@ class TeamLeaveRemoteDataSourceImpl
     required String searchText,
   }) async {
     try {
-      // ------------------------------------------------------
-      // Request
-      // ------------------------------------------------------
+      // ======================================================
+      // REQUEST
+      // ======================================================
 
       final requestData = {
         'userId': userId,
@@ -190,9 +175,9 @@ class TeamLeaveRemoteDataSourceImpl
 
       print('========================================');
 
-      // ------------------------------------------------------
-      // API call
-      // ------------------------------------------------------
+      // ======================================================
+      // API CALL
+      // ======================================================
 
       final response = await dioClient.client.post(
         ApiClient.getMyEmployeeLeaveList,
@@ -200,17 +185,17 @@ class TeamLeaveRemoteDataSourceImpl
         options: Options(
           contentType: Headers.formUrlEncodedContentType,
 
-          // Do not let Dio throw automatically for 4xx/5xx.
-          // We handle it manually.
+          // Do not let Dio throw automatically.
+          // We handle HTTP status manually.
           validateStatus: (status) {
             return status != null && status < 600;
           },
         ),
       );
 
-      // ------------------------------------------------------
-      // Response
-      // ------------------------------------------------------
+      // ======================================================
+      // RAW RESPONSE
+      // ======================================================
 
       print('');
       print('========== TEAM LEAVE RESPONSE ==========');
@@ -218,33 +203,38 @@ class TeamLeaveRemoteDataSourceImpl
       print(
         'TYPE: ${response.data.runtimeType}',
       );
-      print('RAW RESPONSE: ${response.data}');
+      print(
+        'RAW RESPONSE: ${response.data}',
+      );
       print('==========================================');
 
-      // ------------------------------------------------------
-      // Check HTTP status
-      // ------------------------------------------------------
+      // ======================================================
+      // CHECK HTTP STATUS
+      // ======================================================
 
       _checkHttpStatus(response);
 
-      // ------------------------------------------------------
-      // Parse response
-      // ------------------------------------------------------
+      // ======================================================
+      // PARSE RESPONSE
+      // ======================================================
 
-      final parsedData =
-          _parseJsonResponse(response.data);
+      final parsedData = _parseJsonResponse(
+        response.data,
+      );
 
       print('');
       print('========== PARSED TEAM LEAVE ==========');
       print(
         'TYPE: ${parsedData.runtimeType}',
       );
-      print('DATA: $parsedData');
+      print(
+        'DATA: $parsedData',
+      );
       print('========================================');
 
-      // ------------------------------------------------------
-      // Response must be Map
-      // ------------------------------------------------------
+      // ======================================================
+      // RESPONSE MUST BE MAP
+      // ======================================================
 
       if (parsedData is! Map) {
         throw ServerException(
@@ -252,77 +242,194 @@ class TeamLeaveRemoteDataSourceImpl
         );
       }
 
-      final data =
-          Map<String, dynamic>.from(parsedData);
+      final data = Map<String, dynamic>.from(
+        parsedData,
+      );
 
-      // ------------------------------------------------------
-      // API status
-      // ------------------------------------------------------
+      // ======================================================
+      // API STATUS
+      // ======================================================
 
       final apiStatus = data['status'];
 
-      print(
-        'API STATUS: $apiStatus',
-      );
+      print('');
+      print('========================================');
+      print('       TEAM LEAVE API STATUS');
+      print('========================================');
+      print('STATUS: $apiStatus');
+      print('MESSAGE: ${data['message']}');
+      print('========================================');
 
       final bool success =
           apiStatus == true ||
-          apiStatus
-                  ?.toString()
-                  .toLowerCase() ==
-              'true';
+          apiStatus?.toString().toLowerCase() == 'true';
 
-      if (!success) {
+      // ======================================================
+      // GET RESULT
+      //
+      // IMPORTANT:
+      //
+      // We get result BEFORE checking success because the
+      // backend sends:
+      //
+      // status: false
+      // message: No Record Found
+      // result: []
+      //
+      // This should be treated as an empty list.
+      // ======================================================
+
+      final result = data['result'];
+
+      print('');
+      print('========== TEAM LEAVE RESULT ==========');
+      print(
+        'RESULT TYPE: ${result.runtimeType}',
+      );
+      print(
+        'RESULT: $result',
+      );
+      print('========================================');
+
+      // ======================================================
+      // NO RECORDS
+      //
+      // Handles:
+      //
+      // {
+      //   "status": false,
+      //   "message": "No Record Found",
+      //   "result": []
+      // }
+      //
+      // AND:
+      //
+      // {
+      //   "status": true,
+      //   "result": []
+      // }
+      //
+      // Both return an empty list.
+      // ======================================================
+
+      if (result is List && result.isEmpty) {
+        print('');
+        print('========================================');
+        print('       TEAM LEAVE: NO RECORDS');
+        print('========================================');
+        print('API STATUS: $apiStatus');
+        print(
+          'MESSAGE: ${data['message']}',
+        );
+        print('RESULT COUNT: 0');
+        print('Returning empty list...');
+        print('========================================');
+
+        return [];
+      }
+
+      // ======================================================
+      // NULL RESULT
+      // ======================================================
+
+      if (result == null) {
+        print('');
+        print('========================================');
+        print('TEAM LEAVE RESULT IS NULL');
+        print('========================================');
+
+        // If API says success and result is null,
+        // consider it an empty list.
+        if (success) {
+          print(
+            'API SUCCESS WITH NULL RESULT',
+          );
+
+          return [];
+        }
+
         throw ServerException(
           data['message']?.toString() ??
               'Unable to fetch team leave list',
         );
       }
 
-      // ------------------------------------------------------
-      // Result
-      // ------------------------------------------------------
+      // ======================================================
+      // API FAILURE
+      //
+      // If status=false but result is NOT an empty list,
+      // this is considered an actual API failure.
+      // ======================================================
 
-      final result = data['result'];
-
-      print(
-        'RESULT TYPE: ${result.runtimeType}',
-      );
-
-      print(
-        'RESULT: $result',
-      );
-
-      // ------------------------------------------------------
-      // No records
-      // ------------------------------------------------------
-
-      if (result == null) {
+      if (!success) {
+        print('');
+        print('========================================');
+        print('       TEAM LEAVE API FAILURE');
+        print('========================================');
+        print('STATUS: $apiStatus');
         print(
-          'TEAM LEAVE RESULT IS NULL',
+          'MESSAGE: ${data['message']}',
         );
+        print(
+          'RESULT: $result',
+        );
+        print('========================================');
 
-        return [];
+        throw ServerException(
+          data['message']?.toString() ??
+              'Unable to fetch team leave list',
+        );
       }
 
-      // ------------------------------------------------------
-      // Result must be List
-      // ------------------------------------------------------
+      // ======================================================
+      // RESULT MUST BE LIST
+      // ======================================================
 
       if (result is! List) {
+        print('');
+        print('========================================');
+        print('INVALID TEAM LEAVE RESULT');
+        print('========================================');
+        print(
+          'EXPECTED: List',
+        );
+        print(
+          'ACTUAL: ${result.runtimeType}',
+        );
+        print(
+          'VALUE: $result',
+        );
+        print('========================================');
+
         throw ServerException(
           'Invalid leave result format',
         );
       }
 
-      // ------------------------------------------------------
-      // Convert JSON → Model
-      // ------------------------------------------------------
+      // ======================================================
+      // CONVERT JSON → MODEL
+      // ======================================================
 
       final List<TeamLeaveModel> leaves = [];
 
+      print('');
+      print('========================================');
+      print('       MAPPING TEAM LEAVE LIST');
+      print('========================================');
+
+      print(
+        'TOTAL API RECORDS: ${result.length}',
+      );
+
+      print('========================================');
+
       for (final item in result) {
+        // ----------------------------------------------------
+        // Validate item
+        // ----------------------------------------------------
+
         if (item is! Map) {
+          print('');
           print(
             'SKIPPING INVALID LEAVE ITEM: $item',
           );
@@ -330,16 +437,20 @@ class TeamLeaveRemoteDataSourceImpl
           continue;
         }
 
-        final json =
-            Map<String, dynamic>.from(item);
+        final json = Map<String, dynamic>.from(
+          item,
+        );
 
         print('');
         print('---------- MAPPING LEAVE ----------');
-        print('JSON: $json');
+        print(
+          'JSON: $json',
+        );
 
         try {
-          final leave =
-              TeamLeaveModel.fromJson(json);
+          final leave = TeamLeaveModel.fromJson(
+            json,
+          );
 
           print(
             'LEAVE ID: ${leave.leaveId}',
@@ -355,23 +466,28 @@ class TeamLeaveRemoteDataSourceImpl
 
           leaves.add(leave);
         } catch (e, stackTrace) {
+          print('');
           print(
             'LEAVE MODEL MAPPING ERROR: $e',
           );
 
+          print('');
+          print('STACK TRACE:');
           print(stackTrace);
 
-          // If one bad record exists, don't necessarily
-          // destroy the complete list.
+          // One invalid record should not destroy
+          // the complete leave list.
           continue;
         }
       }
 
-      // ------------------------------------------------------
-      // Final result
-      // ------------------------------------------------------
+      // ======================================================
+      // FINAL RESULT
+      // ======================================================
 
       print('');
+      print('========================================');
+      print('       TEAM LEAVE FINAL RESULT');
       print('========================================');
       print(
         'TOTAL TEAM LEAVES: ${leaves.length}',
@@ -379,21 +495,59 @@ class TeamLeaveRemoteDataSourceImpl
       print('========================================');
 
       return leaves;
-    } on ServerException {
+    }
+
+    // ========================================================
+    // SERVER EXCEPTION
+    // ========================================================
+
+    on ServerException {
+      print('');
+      print('TEAM LEAVE SERVER EXCEPTION');
       rethrow;
-    } on NetworkException {
+    }
+
+    // ========================================================
+    // NETWORK EXCEPTION
+    // ========================================================
+
+    on NetworkException {
+      print('');
+      print('TEAM LEAVE NETWORK EXCEPTION');
       rethrow;
-    } on DioException catch (e, stackTrace) {
+    }
+
+    // ========================================================
+    // DIO EXCEPTION
+    // ========================================================
+
+    on DioException catch (e, stackTrace) {
       print('');
       print('========================================');
       print('       TEAM LEAVE DIO ERROR');
       print('========================================');
 
-      print('MESSAGE: ${e.message}');
-      print('TYPE: ${e.type}');
-      print('ERROR: ${e.error}');
-      print('RESPONSE: ${e.response?.data}');
+      print(
+        'MESSAGE: ${e.message}',
+      );
 
+      print(
+        'TYPE: ${e.type}',
+      );
+
+      print(
+        'ERROR: ${e.error}',
+      );
+
+      print(
+        'STATUS: ${e.response?.statusCode}',
+      );
+
+      print(
+        'RESPONSE: ${e.response?.data}',
+      );
+
+      print('');
       print('STACK TRACE:');
       print(stackTrace);
 
@@ -402,14 +556,25 @@ class TeamLeaveRemoteDataSourceImpl
       throw NetworkException(
         e.message ?? 'Network error occurred',
       );
-    } catch (e, stackTrace) {
+    }
+
+    // ========================================================
+    // UNKNOWN EXCEPTION
+    // ========================================================
+
+    catch (e, stackTrace) {
       print('');
       print('========================================');
       print('       TEAM LEAVE ERROR');
       print('========================================');
 
-      print('ERROR: $e');
-      print('STACK TRACE: $stackTrace');
+      print(
+        'ERROR: $e',
+      );
+
+      print('');
+      print('STACK TRACE:');
+      print(stackTrace);
 
       print('========================================');
 
@@ -431,9 +596,9 @@ class TeamLeaveRemoteDataSourceImpl
     required String status,
   }) async {
     try {
-      // ------------------------------------------------------
-      // Request data
-      // ------------------------------------------------------
+      // ======================================================
+      // REQUEST DATA
+      // ======================================================
 
       final requestData = {
         'leaveId': leaveId,
@@ -453,13 +618,26 @@ class TeamLeaveRemoteDataSourceImpl
         '${ApiClient.updateLeaveStatus}',
       );
 
-      print('REQUEST: $requestData');
+      print(
+        'REQUEST: $requestData',
+      );
 
       print('');
-      print('LEAVE ID: $leaveId');
-      print('USER ID: $userId');
-      print('REMARK: $remark');
-      print('STATUS: $status');
+      print(
+        'LEAVE ID: $leaveId',
+      );
+
+      print(
+        'USER ID: $userId',
+      );
+
+      print(
+        'REMARK: $remark',
+      );
+
+      print(
+        'STATUS: $status',
+      );
 
       if (status == '1') {
         print('ACTION: APPROVE');
@@ -471,9 +649,9 @@ class TeamLeaveRemoteDataSourceImpl
 
       print('========================================');
 
-      // ------------------------------------------------------
-      // API call
-      // ------------------------------------------------------
+      // ======================================================
+      // API CALL
+      // ======================================================
 
       final response = await dioClient.client.post(
         ApiClient.updateLeaveStatus,
@@ -487,9 +665,9 @@ class TeamLeaveRemoteDataSourceImpl
         ),
       );
 
-      // ------------------------------------------------------
-      // Raw response
-      // ------------------------------------------------------
+      // ======================================================
+      // RAW RESPONSE
+      // ======================================================
 
       print('');
       print('========================================');
@@ -511,24 +689,19 @@ class TeamLeaveRemoteDataSourceImpl
 
       print('========================================');
 
-      // ------------------------------------------------------
-      // HTTP status
-      // ------------------------------------------------------
+      // ======================================================
+      // HTTP STATUS
+      // ======================================================
 
       _checkHttpStatus(response);
 
-      // ------------------------------------------------------
-      // Parse response
-      //
-      // Handles:
-      //
-      // 1. Map
-      // 2. JSON String
-      // 3. PHP warning + JSON
-      // ------------------------------------------------------
+      // ======================================================
+      // PARSE RESPONSE
+      // ======================================================
 
-      final parsedData =
-          _parseJsonResponse(response.data);
+      final parsedData = _parseJsonResponse(
+        response.data,
+      );
 
       print('');
       print('========================================');
@@ -545,9 +718,9 @@ class TeamLeaveRemoteDataSourceImpl
 
       print('========================================');
 
-      // ------------------------------------------------------
-      // Check Map
-      // ------------------------------------------------------
+      // ======================================================
+      // CHECK MAP
+      // ======================================================
 
       if (parsedData is! Map) {
         throw ServerException(
@@ -555,21 +728,19 @@ class TeamLeaveRemoteDataSourceImpl
         );
       }
 
-      final result =
-          Map<String, dynamic>.from(parsedData);
+      final result = Map<String, dynamic>.from(
+        parsedData,
+      );
 
-      // ------------------------------------------------------
-      // API status
-      // ------------------------------------------------------
+      // ======================================================
+      // API STATUS
+      // ======================================================
 
       final apiStatus = result['status'];
 
       final bool success =
           apiStatus == true ||
-          apiStatus
-                  ?.toString()
-                  .toLowerCase() ==
-              'true';
+          apiStatus?.toString().toLowerCase() == 'true';
 
       print('');
       print('========================================');
@@ -594,9 +765,9 @@ class TeamLeaveRemoteDataSourceImpl
 
       print('========================================');
 
-      // ------------------------------------------------------
-      // API returned failure
-      // ------------------------------------------------------
+      // ======================================================
+      // API RETURNED FAILURE
+      // ======================================================
 
       if (!success) {
         throw ServerException(
@@ -605,9 +776,9 @@ class TeamLeaveRemoteDataSourceImpl
         );
       }
 
-      // ------------------------------------------------------
+      // ======================================================
       // SUCCESS
-      // ------------------------------------------------------
+      // ======================================================
 
       print('');
       print('****************************************');
@@ -615,9 +786,13 @@ class TeamLeaveRemoteDataSourceImpl
       print('****************************************');
 
       if (status == '1') {
-        print('Leave APPROVED successfully');
+        print(
+          'Leave APPROVED successfully',
+        );
       } else if (status == '2') {
-        print('Leave REJECTED successfully');
+        print(
+          'Leave REJECTED successfully',
+        );
       }
 
       print(
@@ -628,26 +803,55 @@ class TeamLeaveRemoteDataSourceImpl
       print('');
 
       return result;
-    } on ServerException {
+    }
+
+    // ========================================================
+    // SERVER EXCEPTION
+    // ========================================================
+
+    on ServerException {
       rethrow;
-    } on NetworkException {
+    }
+
+    // ========================================================
+    // NETWORK EXCEPTION
+    // ========================================================
+
+    on NetworkException {
       rethrow;
-    } on DioException catch (e, stackTrace) {
+    }
+
+    // ========================================================
+    // DIO EXCEPTION
+    // ========================================================
+
+    on DioException catch (e, stackTrace) {
       print('');
       print('========================================');
       print('       UPDATE LEAVE DIO ERROR');
       print('========================================');
 
-      print('MESSAGE: ${e.message}');
-      print('TYPE: ${e.type}');
-      print('ERROR: ${e.error}');
+      print(
+        'MESSAGE: ${e.message}',
+      );
+
+      print(
+        'TYPE: ${e.type}',
+      );
+
+      print(
+        'ERROR: ${e.error}',
+      );
+
       print(
         'STATUS: ${e.response?.statusCode}',
       );
+
       print(
         'RESPONSE: ${e.response?.data}',
       );
 
+      print('');
       print('STACK TRACE:');
       print(stackTrace);
 
@@ -656,14 +860,23 @@ class TeamLeaveRemoteDataSourceImpl
       throw NetworkException(
         e.message ?? 'Network error occurred',
       );
-    } catch (e, stackTrace) {
+    }
+
+    // ========================================================
+    // UNKNOWN EXCEPTION
+    // ========================================================
+
+    catch (e, stackTrace) {
       print('');
       print('========================================');
       print('       UPDATE LEAVE ERROR');
       print('========================================');
 
-      print('ERROR: $e');
+      print(
+        'ERROR: $e',
+      );
 
+      print('');
       print('STACK TRACE:');
       print(stackTrace);
 
