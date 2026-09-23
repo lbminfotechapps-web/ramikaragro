@@ -12,7 +12,7 @@ enum AddDealerVisitStatus {
   failure,
   dealerAddedSuccess,
   dealerUpdateSucess,
-  dealerFollowupAddSuccess
+  dealerFollowupAddSuccess,
 }
 
 class AddDealerVisitState extends Equatable {
@@ -24,6 +24,7 @@ class AddDealerVisitState extends Equatable {
   final List<DistrictEntity> districtList;
   final String? errorMessage;
   final String? successMessage;
+  final String? dailyTranId;
 
   const AddDealerVisitState({
     this.addLeaveStatus = AddDealerVisitStatus.initial,
@@ -34,6 +35,7 @@ class AddDealerVisitState extends Equatable {
     this.districtList = const [],
     this.errorMessage,
     this.successMessage,
+    this.dailyTranId,
   });
 
   AddDealerVisitState copyWith({
@@ -47,34 +49,32 @@ class AddDealerVisitState extends Equatable {
     String? successMessage,
     bool clearError = false,
     bool clearSuccess = false,
+    String? dailyTranId,
   }) {
     return AddDealerVisitState(
       addLeaveStatus: addLeaveStatus ?? this.addLeaveStatus,
       leaves: leaves ?? this.leaves,
       purpose: purpose ?? this.purpose,
       followupList: followupList ?? this.followupList,
-      errorMessage: clearError
-          ? null
-          : errorMessage ?? this.errorMessage,
-
-
+      errorMessage: clearError ? null : errorMessage ?? this.errorMessage,
 
       successMessage: clearSuccess
           ? null
           : successMessage ?? this.successMessage,
       statentity: statentity ?? this.statentity,
       districtList: districtList ?? this.districtList,
+      dailyTranId: dailyTranId ?? this.dailyTranId,
     );
   }
 
   @override
   List<Object?> get props => [
-        addLeaveStatus,
-        leaves,
-        purpose,
-        followupList,
-        errorMessage,
-        successMessage,
-      ];
+    addLeaveStatus,
+    leaves,
+    purpose,
+    followupList,
+    errorMessage,
+    successMessage,
+    dailyTranId,
+  ];
 }
-   

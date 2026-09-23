@@ -1,4 +1,7 @@
+import 'dart:convert';
 import 'dart:io';
+import 'package:solufine/core/location_tracking/app_database.dart';
+import 'package:solufine/core/location_tracking/location_repository.dart';
 import 'package:solufine/core/utility/appdialog.dart';
 import 'package:solufine/core/utility/device_info_util.dart';
 import 'package:solufine/core/utility/location_util.dart';
@@ -12,14 +15,12 @@ import 'package:intl/intl.dart';
 import 'package:solufine/core/di/leave_list_di.dart';
 import 'package:solufine/core/router/app_router.dart';
 import 'package:solufine/core/secure_storage/secure_storage.dart';
+import 'package:solufine/features/home/presentation/quick_aceess_bloc/quick_access_event.dart';
+import 'package:solufine/features/home/presentation/quick_aceess_bloc/quick_acess_bloc.dart';
 
 import '../bloc/add_dealer_visit_bloc.dart';
 import '../bloc/add_dealer_visit_event.dart';
 import '../bloc/add_dealer_visit_state.dart';
-
-import 'package:battery_plus/battery_plus.dart';
-import 'package:connectivity_plus/connectivity_plus.dart';
-import 'package:geolocator/geolocator.dart';
 
 class AddDealerVisitPage extends StatefulWidget {
   final String dealerId;
@@ -283,6 +284,78 @@ class _AddDealerVisitPageState extends State<AddDealerVisitPage> {
   // ============================================================
   // DISPOSE
   // ============================================================
+
+  Future<String> _getStoredLocations() async {
+    try {
+      final int? parsedUserId = int.tryParse(userId);
+
+      if (parsedUserId == null) {
+        debugPrint('LOCATION: Invalid userId = $userId');
+        return '[]';
+      }
+
+      final LocationRepository repository = sl<LocationRepository>();
+
+      final List<LocationHistoryData> locations = await repository
+          .getAllLocations(parsedUserId);
+
+      debugPrint('========================================');
+      debugPrint('DEALER VISIT - STORED LOCATIONS');
+      debugPrint('TOTAL LOCATIONS: ${locations.length}');
+      debugPrint('========================================');
+
+      for (final location in locations) {
+        debugPrint(
+          'ID: ${location.id} | '
+          'Lat: ${location.latitude} | '
+          'Lng: ${location.longitude} | '
+          'Time: ${location.capturedAt} | '
+          'Accuracy: ${location.accuracy} | '
+          'Provider: ${location.provider} | '
+          'Address: ${location.geoAddress} | '
+          'Distance: ${location.distance}',
+        );
+      }
+
+      // ============================================================
+      // CREATE DATA FOR STORE LOCATION API
+      // ============================================================
+
+      final List<Map<String, dynamic>> locationList = locations.map((location) {
+        return {
+          'latitude': location.latitude,
+          'longitude': location.longitude,
+          'time': location.capturedAt,
+          'accuracy': location.accuracy,
+          'provider': location.provider,
+          'address': location.geoAddress,
+          'distance': location.distance,
+        };
+      }).toList();
+
+      // ============================================================
+      // JSON ARRAY -> STRING
+      // ============================================================
+
+      final String strAllLocations = jsonEncode(locationList);
+
+      debugPrint('========================================');
+      debugPrint('STR ALL LOCATIONS');
+      debugPrint('TOTAL: ${locations.length}');
+      debugPrint(strAllLocations);
+      debugPrint('========================================');
+
+      return strAllLocations;
+    } catch (e, stackTrace) {
+      debugPrint('========================================');
+      debugPrint('GET STORED LOCATIONS ERROR');
+      debugPrint('$e');
+      debugPrint('$stackTrace');
+      debugPrint('========================================');
+
+      return '[]';
+    }
+  }
 
   @override
   void dispose() {
@@ -583,18 +656,30 @@ class _AddDealerVisitPageState extends State<AddDealerVisitPage> {
       value: dealerVisitBloc,
 
       child: BlocConsumer<AddDealerVisitBlock, AddDealerVisitState>(
-        listener: (context, state) {
+        listener: (context, state) async {
           // ======================================================
           // SUCCESS
           // ======================================================
 
           if (state.addLeaveStatus == AddDealerVisitStatus.dealerAddedSuccess) {
-            // final puposeData=state.purpose;
+            debugPrint('DAILY TRAN ID FROM STATE: ${state.dailyTranId}');
+
+            final String strAllLocations = await _getStoredLocations();
+            debugPrint('========================================');
+            debugPrint('CALLING STORE TRACK LOCATION API');
+            debugPrint('USER ID: $userId');
+            debugPrint('DAILY TRAN ID: ${state.dailyTranId}');
+            debugPrint('STR ALL LOCATIONS: $strAllLocations');
+            debugPrint('========================================');
+
+            context.read<QuickAcessBloc>().add(
+              StoreTrackLocation(userId, state.dailyTranId!, strAllLocations),
+            );
 
             AppDialog.show(
               context: context,
               type: DialogType.success,
-              title: 'Punch In Successful',
+              title: 'Successful',
               message: 'Dealer Visit successfully.',
               buttonText: 'OK',
               onButtonPressed: () {

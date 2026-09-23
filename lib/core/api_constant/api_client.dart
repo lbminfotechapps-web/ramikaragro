@@ -100,4 +100,5 @@ class ApiClient {
   static const String upcomingNextFollowup = "/upcoming_next_followup";
 
   static const String submitEnquiryDetails = '/submit_enquiry_details';
+  static const String trackLocationStore = '/addLocation';
 }

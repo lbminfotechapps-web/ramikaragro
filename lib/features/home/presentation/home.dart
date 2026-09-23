@@ -4,6 +4,9 @@ import 'dart:convert';
 import 'package:android_intent_plus/android_intent.dart';
 import 'package:solufine/core/api_constant/api_client.dart';
 import 'package:solufine/core/api_constant/dio_client.dart';
+import 'package:solufine/core/di/auth_di.dart';
+import 'package:solufine/core/location_tracking/background_location_service.dart';
+import 'package:solufine/core/location_tracking/location_repository.dart';
 import 'package:solufine/core/router/app_router.dart';
 import 'package:solufine/core/secure_storage/secure_storage.dart';
 import 'package:solufine/core/theme/app_colors.dart';
@@ -116,18 +119,18 @@ class _HomeState extends State<Home> {
   @override
   void initState() {
     super.initState();
- WidgetsBinding.instance.addPostFrameCallback((_) async {
-  if (!mounted) return;
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      if (!mounted) return;
 
-  final isEnabled =
-      await DeveloperOptionsChecker.isDeveloperOptionsEnabled();
+      final isEnabled =
+          await DeveloperOptionsChecker.isDeveloperOptionsEnabled();
 
-  if (!mounted) return;
+      if (!mounted) return;
 
-  if (isEnabled) {
-    await showDeveloperOptionWarning();
-  }
-});
+      if (isEnabled) {
+        await showDeveloperOptionWarning();
+      }
+    });
     _appBarTimer = Timer.periodic(const Duration(seconds: 4), (timer) {
       if (!mounted) return;
 
@@ -141,6 +144,44 @@ class _HomeState extends State<Home> {
     _loadUserData();
   }
 
+  Future<void> printCurrentLocationTable() async {
+    try {
+      final LocationRepository repository = sl<LocationRepository>();
+
+      const int userId = 4; // temporary for testing
+
+      final locations = await repository.getAllLocations(userId);
+
+      debugPrint('========================================');
+      debugPrint('CURRENT LOCATION TABLE');
+      debugPrint('TOTAL RECORDS: ${locations.length}');
+      debugPrint('========================================');
+
+      if (locations.isEmpty) {
+        debugPrint('NO LOCATION RECORDS FOUND');
+      }
+
+      for (final location in locations) {
+        debugPrint(
+          'ID: ${location.id} | '
+          'UserId: ${location.userId} | '
+          'Lat: ${location.latitude} | '
+          'Lng: ${location.longitude} | '
+          'Time: ${location.capturedAt} | '
+          'Accuracy: ${location.accuracy} | '
+          'Provider: ${location.provider} | '
+          'Address: ${location.geoAddress} | '
+          'Distance: ${location.distance}',
+        );
+      }
+
+      debugPrint('========================================');
+    } catch (e, stackTrace) {
+      debugPrint('PRINT LOCATION TABLE ERROR: $e');
+      debugPrint('$stackTrace');
+    }
+  }
+
   @override
   void dispose() {
     _appBarTimer?.cancel();
@@ -148,6 +189,7 @@ class _HomeState extends State<Home> {
   }
 
   Future<void> _loadUserData() async {
+    await printCurrentLocationTable();
     final userData = await SecureStorage.instance.getUserData();
 
     if (userData == null) {
@@ -351,6 +393,23 @@ class _HomeState extends State<Home> {
               children: [
                 SizedBox(height: 8.h),
 
+                // Row(
+                //   children: [
+                //     ElevatedButton(
+                //       onPressed: () async {
+                //         await BackgroundLocationService.start();
+                //       },
+                //       child: const Text('Start Location'),
+                //     ),
+
+                //     ElevatedButton(
+                //       onPressed: () async {
+                //         await BackgroundLocationService.stop();
+                //       },
+                //       child: const Text('Stop Location'),
+                //     ),
+                //   ],
+                // ),
                 BlocBuilder<HomeBloc, HomeState>(
                   builder: (context, state) {
                     int pendingCount = 0;

@@ -15,6 +15,7 @@ import 'package:solufine/core/di/followup_di.dart';
 import 'package:solufine/core/di/gallery_di.dart';
 import 'package:solufine/core/di/home_di.dart';
 import 'package:solufine/core/di/leave_list_di.dart';
+import 'package:solufine/core/di/location_tracking_di.dart';
 import 'package:solufine/core/di/my_expense_di.dart';
 import 'package:solufine/core/di/not_visited_dealer_di.dart';
 import 'package:solufine/core/di/notification_di.dart';
@@ -69,5 +70,6 @@ Future<void> initGlobalDi() async {
   await initSalesReturnHistoryDi();
   await initExpenseDi();
   await initFollowupDi();
-  await initEnquiryDi() ;
+  await initEnquiryDi();
+  // await initLocationTrackingDi();
 }

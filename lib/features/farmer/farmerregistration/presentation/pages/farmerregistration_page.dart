@@ -82,6 +82,8 @@ class _FarmerregistrationPageState extends State<FarmerregistrationPage> {
     context.read<StateBloc>().add(FarmerDropEvent());
   }
 
+  
+
   Future<void> getGeoAddress() async {
     final position = await LocationUtil.instance.getCurrentLocation();
 
@@ -413,7 +415,6 @@ class _FarmerregistrationPageState extends State<FarmerregistrationPage> {
 
           state: _selectedStateId ?? '0',
 
-          fldDemoTypeId: '',
 
           district: _selectedDistrictId ?? '0',
 
@@ -490,7 +491,7 @@ class _FarmerregistrationPageState extends State<FarmerregistrationPage> {
 
           activityId: '2',
 
-          image: _uploadedImage?.path ?? '',
+          image: _uploadedImage?.path ?? '', fldDemoTypeId: '',
         ),
       );
 
@@ -574,7 +575,7 @@ class _FarmerregistrationPageState extends State<FarmerregistrationPage> {
 
   //   debugPrint('fld_category_id: ');
   //   debugPrint('state: ${_selectedStateId ?? '0'}');
-  //   debugPrint('fld_demo_type_id: ');
+  //   debugPrint('fld_solufine_type_id: ');
   //   debugPrint('district: ${_selectedDistrictId ?? '0'}');
   //   debugPrint('taluka: ${_selectedTalukaId ?? '0'}');
 
@@ -718,7 +719,7 @@ class _FarmerregistrationPageState extends State<FarmerregistrationPage> {
 
   //         state: _selectedStateId ?? '0',
 
-  //         fldDemoTypeId: '',
+  //         fldsolufineTypeId: '',
 
   //         district: _selectedDistrictId ?? '0',
 
