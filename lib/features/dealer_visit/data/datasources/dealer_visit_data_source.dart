@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:solufine/core/api_constant/api_client.dart';
 import 'package:solufine/core/api_constant/dio_client.dart';
@@ -276,160 +277,10 @@ class DealerVisitDataSource {
     }
   }
 
-  /*
-Future<Map<String, dynamic>> addRemark(
-  Map<String, dynamic> jsonData,
-) async {
-  try {
-    final formData = FormData();
 
-    // ============================================
-    // NORMAL FORM FIELDS
-    // ============================================
-    for (final entry in jsonData.entries) {
-      final value = entry.value;
 
-      if (value is File) {
-        continue;
-      }
 
-      formData.fields.add(
-        MapEntry(
-          entry.key,
-          value?.toString() ?? '',
-        ),
-      );
-    }
 
-    // ============================================
-    // IMAGE
-    // ============================================
-    final closingFile = jsonData['selfie_capture_image'];
-
-    if (closingFile is File) {
-      final multipartFile = await MultipartFile.fromFile(
-        closingFile.path,
-        filename: 'closingKmImage.jpg',
-      );
-
-      formData.files.add(
-        MapEntry(
-          'closingKmImage',
-          multipartFile,
-        ),
-      );
-    }
-
-    // ============================================
-    // DEBUG REQUEST
-    // ============================================
-    print('========== MULTIPART REQUEST ==========');
-
-    for (final field in formData.fields) {
-      print('${field.key}: ${field.value}');
-    }
-
-    for (final file in formData.files) {
-      print(
-        '${file.key}: ${file.value.filename}',
-      );
-    }
-
-    print('========================================');
-
-    // ============================================
-    // API CALL
-    // ============================================
-    final response = await dioClient.client.post(
-      ApiClient.add_remark,
-      data: formData,
-      options: Options(
-        contentType: 'multipart/form-data',
-      ),
-    );
-
-    print(
-      'Add Followup HTTP code: ${response.statusCode}',
-    );
-
-    print(
-      'Add Followup response: ${response.data}',
-    );
-
-    // ============================================
-    // PARSE RESPONSE
-    // ============================================
-    dynamic data = response.data;
-
-    if (data is String) {
-      try {
-        data = jsonDecode(data);
-      } catch (e) {
-        throw const FormatException(
-          'Invalid JSON response from add remark API',
-        );
-      }
-    }
-
-    if (data is! Map) {
-      throw const FormatException(
-        'Add remark API response is not a JSON object',
-      );
-    }
-
-    final result = Map<String, dynamic>.from(data);
-
-    // ============================================
-    // CHECK API STATUS
-    // ============================================
-    final responseStatus =
-        result['status']?.toString().trim().toLowerCase() ?? '';
-
-    print('FULL API STATUS: "$responseStatus"');
-
-    // Example:
-    // success-48 -> success
-    // success-47 -> success
-    // success-25 -> success
-    // success   -> success
-    final mainStatus = responseStatus.split('-').first.trim();
-
-    print('MAIN API STATUS: "$mainStatus"');
-
-    // ============================================
-    // SUCCESS
-    // ============================================
-    if (mainStatus == 'success') {
-      return result;
-    }
-
-    // ============================================
-    // FAILURE
-    // ============================================
-    throw FormatException(
-      result['message']?.toString() ??
-          'Failed to save dealer remark',
-    );
-  } on DioException catch (e) {
-    print('========== DIO ERROR ==========');
-    print('URL: ${e.requestOptions.uri}');
-    print('Method: ${e.requestOptions.method}');
-    print('Status: ${e.response?.statusCode}');
-    print('Response: ${e.response?.data}');
-    print('Error Type: ${e.type}');
-    print('Message: ${e.message}');
-    print('================================');
-
-    throw Exception(
-      'API Error ${e.response?.statusCode}: '
-      '${e.response?.data ?? e.message}',
-    );
-  } catch (e) {
-    print('Save punch unexpected error: $e');
-    rethrow;
-  }
-}
-*/
   Future<List<PurposeModel>> getPurpose(String userId) async {
     final formData = FormData.fromMap({'userId': userId});
 
@@ -510,86 +361,260 @@ Future<Map<String, dynamic>> addRemark(
   }
 
   Future<Map<String, dynamic>> addDealerFollowUp(
-    Map<String, dynamic> jsonData,
-  ) async {
-    try {
-      final formMap = Map<String, dynamic>.from(jsonData);
+  Map<String, dynamic> jsonData,
+  File? image,
+) async {
+  try {
+    // ============================================================
+    // COPY NORMAL REQUEST DATA
+    // ============================================================
 
-      print('========== FINAL DEALER FOLLOW UP FORM DATA ==========');
+    final Map<String, dynamic> formMap =
+        Map<String, dynamic>.from(jsonData);
 
-      formMap.forEach((key, value) {
-        if (key == 'image' || key == 'file') {
-          print('$key: FILE');
-        } else {
-          print('$key: $value');
-        }
-      });
+    // Safety:
+    // Image must NOT be sent as normal FormData field.
+    formMap.remove('selfie_capture_image');
+    formMap.remove('image');
+    formMap.remove('file');
 
-      print('======================================');
+    print(
+      '========== FINAL DEALER FOLLOW UP FORM DATA ==========',
+    );
 
-      final formData = FormData.fromMap(formMap);
+    formMap.forEach((key, value) {
+      print('$key: $value');
+    });
 
-      print('========== DEALER FOLLOW UP MULTIPART FIELDS ==========');
+    print(
+      '======================================================',
+    );
 
-      for (final field in formData.fields) {
-        print('${field.key}: ${field.value}');
-      }
+    // ============================================================
+    // CREATE FORM DATA FOR NORMAL FIELDS
+    // ============================================================
 
-      print('======================================');
+    final FormData formData =
+        FormData.fromMap(formMap);
 
-      final response = await dioClient.client.post(
-        ApiClient.addDealerFollowUp,
-        data: formData,
+    // ============================================================
+    // ADD SELFIE IMAGE AS MULTIPART FILE
+    // ============================================================
+
+    if (image != null) {
+      print(
+        '========== SELFIE IMAGE CHECK ==========',
       );
 
-      print('ADD DEALER FOLLOW UP RESPONSE STATUS: ${response.statusCode}');
+      print(
+        'IMAGE PATH: ${image.path}',
+      );
 
-      print('ADD DEALER FOLLOW UP RESPONSE TYPE: ${response.data.runtimeType}');
+      final bool exists =
+          await image.exists();
 
-      print('ADD DEALER FOLLOW UP RESPONSE: ${response.data}');
+      print(
+        'IMAGE EXISTS: $exists',
+      );
 
-      dynamic responseData = response.data;
+      if (exists) {
+        final int imageSize =
+            await image.length();
 
-      if (responseData is String) {
-        final responseString = responseData.trim();
+        print(
+          'IMAGE SIZE: $imageSize bytes',
+        );
 
-        try {
-          responseData = jsonDecode(responseString);
-        } catch (e) {
-          print('Normal JSON decode failed: $e');
+        // Get original file name.
+        String fileName =
+            image.path
+                .split(Platform.pathSeparator)
+                .last;
 
-          // Handles cases where backend prints
-          // warning/error text before JSON.
-          final jsonStart = responseString.indexOf('{');
+        // If filename somehow becomes empty,
+        // use fallback filename.
+        if (fileName.trim().isEmpty) {
+          fileName =
+              'DealerSelfie_${DateTime.now().millisecondsSinceEpoch}.jpg';
+        }
 
-          if (jsonStart != -1) {
-            final jsonPart = responseString.substring(jsonStart).trim();
+        // ========================================================
+        // CREATE MULTIPART FILE
+        // ========================================================
 
-            print('Extracted JSON: $jsonPart');
+        final MultipartFile multipartFile =
+            await MultipartFile.fromFile(
+          image.path,
+          filename: fileName,
+        );
 
-            responseData = jsonDecode(jsonPart);
-          } else {
-            throw Exception(
-              'Invalid dealer follow-up API response: $responseString',
-            );
-          }
+        // ========================================================
+        // IMPORTANT
+        //
+        // THIS IS YOUR BACKEND IMAGE PARAMETER:
+        //
+        // selfie_capture_image
+        // ========================================================
+
+        formData.files.add(
+          MapEntry(
+            'selfie_capture_image',
+            multipartFile,
+          ),
+        );
+
+        print(
+          ' SELFIE IMAGE ADDED TO MULTIPART',
+        );
+
+        print(
+          'PARAMETER NAME: selfie_capture_image',
+        );
+
+        print(
+          'FILE NAME: $fileName',
+        );
+
+        print(
+          'FILE SIZE: $imageSize bytes',
+        );
+      } else {
+        print(
+          ' SELFIE IMAGE FILE DOES NOT EXIST',
+        );
+      }
+
+      print(
+        '========================================',
+      );
+    } else {
+      print(
+        ' selfie_capture_image: IMAGE IS NULL',
+      );
+    }
+
+    // ============================================================
+    // PRINT ALL NORMAL MULTIPART FIELDS
+    // ============================================================
+
+    print(
+      '========== DEALER FOLLOW UP MULTIPART FIELDS ==========',
+    );
+
+    for (final field in formData.fields) {
+      print(
+        '${field.key}: ${field.value}',
+      );
+    }
+
+    // ============================================================
+    // PRINT MULTIPART FILES
+    // ============================================================
+
+    print(
+      '========== DEALER FOLLOW UP MULTIPART FILES ==========',
+    );
+
+    if (formData.files.isEmpty) {
+      print(
+        ' NO FILES ADDED TO MULTIPART REQUEST',
+      );
+    } else {
+      for (final file in formData.files) {
+        print(
+          'PARAMETER: ${file.key}',
+        );
+
+        print(
+          'FILENAME: ${file.value.filename}',
+        );
+
+        print(
+          'LENGTH: ${file.value.length}',
+        );
+      }
+    }
+
+    print(
+      '=======================================================',
+    );
+
+    // ============================================================
+    // API CALL
+    // ============================================================
+
+    final response =
+        await dioClient.client.post(
+      ApiClient.addDealerFollowUp,
+      data: formData,
+    );
+
+    // ============================================================
+    // DEBUG RESPONSE
+    // ============================================================
+
+    print(
+      'ADD DEALER FOLLOW UP RESPONSE STATUS: '
+      '${response.statusCode}',
+    );
+
+    print(
+      'ADD DEALER FOLLOW UP RESPONSE TYPE: '
+      '${response.data.runtimeType}',
+    );
+
+    print(
+      'ADD DEALER FOLLOW UP RESPONSE: '
+      '${response.data}',
+    );
+
+    // ============================================================
+    // RESPONSE PARSING
+    // ============================================================
+
+    dynamic responseData =
+        response.data;
+
+    if (responseData is String) {
+      final responseString =
+          responseData.trim();
+
+      try {
+        responseData =
+            jsonDecode(
+          responseString,
+        );
+      } catch (e) {
+        print(
+          'Normal JSON decode failed: $e',
+        );
+
+        // Backend may print warning/error before JSON.
+        final int jsonStart =
+            responseString.indexOf('{');
+
+        if (jsonStart != -1) {
+          final String jsonPart =
+              responseString
+                  .substring(jsonStart)
+                  .trim();
+
+          print(
+            'Extracted JSON: $jsonPart',
+          );
+
+          responseData =
+              jsonDecode(
+            jsonPart,
+          );
+        } else {
+          throw Exception(
+            'Invalid dealer follow-up API response: '
+            '$responseString',
+          );
         }
       }
-
-      if (responseData is Map<String, dynamic>) {
-        return responseData;
-      }
-
-      if (responseData is Map) {
-        return Map<String, dynamic>.from(responseData);
-      }
-
-      throw Exception('Invalid dealer follow-up API response');
-    } catch (e) {
-      print('ADD DEALER FOLLOW UP ERROR: $e');
-      rethrow;
     }
-  }
 
     // ============================================================
     // RETURN RESPONSE
@@ -672,110 +697,112 @@ Future<Map<String, dynamic>> addRemark(
 
 
 
-    Future<Map<String, dynamic>> updateDealer(
+
+
+ Future<Map<String, dynamic>> updateDealer(
       Map<String, dynamic> jsonData,
     ) async {
       try {
         final formMap = Map<String, dynamic>.from(jsonData);
-  Future<Map<String, dynamic>> updateDealer(
-    Map<String, dynamic> jsonData,
-  ) async {
-    try {
-      final formMap = Map<String, dynamic>.from(jsonData);
 
-      print('========== FINAL UPDATE DEALER FORM DATA ==========');
+        print('========== FINAL UPDATE DEALER FORM DATA ==========');
 
-      formMap.forEach((key, value) {
-        print('$key: $value');
-      });
+        formMap.forEach((key, value) {
+          print('$key: $value');
+        });
 
-      print('====================================================');
+        print('====================================================');
 
-      // ============================================
-      // FORM DATA
-      // ============================================
-      final formData = FormData.fromMap(formMap);
+        // ============================================
+        // FORM DATA
+        // ============================================
+        final formData = FormData.fromMap(formMap);
 
-      print('========== UPDATE DEALER MULTIPART FIELDS ==========');
+        print('========== UPDATE DEALER MULTIPART FIELDS ==========');
 
-      for (final field in formData.fields) {
-        print('${field.key}: ${field.value}');
-      }
+        for (final field in formData.fields) {
+          print('${field.key}: ${field.value}');
+        }
 
-      print('====================================================');
+        print('====================================================');
 
-      // ============================================
-      // API CALL
-      // ============================================
-      final response = await dioClient.client.post(
-        ApiClient.updateDealerFollowUp,
-        data: formData,
-      );
+        // ============================================
+        // API CALL
+        // ============================================
+        final response = await dioClient.client.post(
+          ApiClient.updateDealerFollowUp,
+          data: formData,
+        );
 
-      print(
-        'UPDATE DEALER RESPONSE STATUS: '
-        '${response.statusCode}',
-      );
+        print(
+          'UPDATE DEALER RESPONSE STATUS: '
+          '${response.statusCode}',
+        );
 
-      print(
-        'UPDATE DEALER RESPONSE TYPE: '
-        '${response.data.runtimeType}',
-      );
+        print(
+          'UPDATE DEALER RESPONSE TYPE: '
+          '${response.data.runtimeType}',
+        );
 
-      print(
-        'UPDATE DEALER RESPONSE: '
-        '${response.data}',
-      );
+        print(
+          'UPDATE DEALER RESPONSE: '
+          '${response.data}',
+        );
 
-      // ============================================
-      // RESPONSE PARSING
-      // ============================================
-      dynamic responseData = response.data;
+        // ============================================
+        // RESPONSE PARSING
+        // ============================================
+        dynamic responseData = response.data;
 
-      if (responseData is String) {
-        final responseString = responseData.trim();
+        if (responseData is String) {
+          final responseString = responseData.trim();
 
-        try {
-          responseData = jsonDecode(responseString);
-        } catch (e) {
-          print('Normal JSON decode failed: $e');
+          try {
+            responseData = jsonDecode(responseString);
+          } catch (e) {
+            print('Normal JSON decode failed: $e');
 
-          // ============================================
-          // HANDLE TEXT BEFORE JSON
-          // ============================================
-          final jsonStart = responseString.indexOf('{');
+            // ============================================
+            // HANDLE TEXT BEFORE JSON
+            // ============================================
+            final jsonStart = responseString.indexOf('{');
 
-          if (jsonStart != -1) {
-            final jsonPart = responseString.substring(jsonStart).trim();
+            if (jsonStart != -1) {
+              final jsonPart = responseString.substring(jsonStart).trim();
 
-            print('Extracted JSON: $jsonPart');
+              print('Extracted JSON: $jsonPart');
 
-            responseData = jsonDecode(jsonPart);
-          } else {
-            throw Exception(
-              'Invalid update dealer API response: '
-              '$responseString',
-            );
+              responseData = jsonDecode(jsonPart);
+            } else {
+              throw Exception(
+                'Invalid update dealer API response: '
+                '$responseString',
+              );
+            }
           }
         }
+
+        // ============================================
+        // RETURN RESPONSE
+        // ============================================
+        if (responseData is Map<String, dynamic>) {
+          return responseData;
+        }
+
+        if (responseData is Map) {
+          return Map<String, dynamic>.from(responseData);
+        }
+
+        throw Exception('Invalid update dealer API response');
+      } catch (e) {
+        print('UPDATE DEALER ERROR: $e');
+
+        rethrow;
       }
-
-      // ============================================
-      // RETURN RESPONSE
-      // ============================================
-      if (responseData is Map<String, dynamic>) {
-        return responseData;
-      }
-
-      if (responseData is Map) {
-        return Map<String, dynamic>.from(responseData);
-      }
-
-      throw Exception('Invalid update dealer API response');
-    } catch (e) {
-      print('UPDATE DEALER ERROR: $e');
-
-      rethrow;
     }
   }
-}
+
+
+    
+
+
