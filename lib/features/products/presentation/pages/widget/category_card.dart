@@ -47,7 +47,7 @@ class CategoryCard extends StatelessWidget {
               // IMAGE
               SizedBox(width: 150, height: 120, child: _buildImage()),
 
-               SizedBox(height: 5.h),
+              //  SizedBox(height: 5.h),
 
               // CATEGORY NAME
               Text(
@@ -61,7 +61,7 @@ class CategoryCard extends StatelessWidget {
                 ),
               ),
 
-              const SizedBox(height: 5),
+              // const SizedBox(height: 5),
 
               // PRODUCT COUNT
               Text(

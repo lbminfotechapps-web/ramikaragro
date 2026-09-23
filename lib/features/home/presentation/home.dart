@@ -46,7 +46,8 @@ class Home extends StatefulWidget {
 
 class _HomeState extends State<Home> {
   String _username = 'user';
-  String _userId = '0';
+  String? _userId;
+
   Timer? _appBarTimer;
 
   bool _showUserInfo = true;
@@ -99,13 +100,18 @@ class _HomeState extends State<Home> {
   Future<void> _loadVisitGraph() async {
     final userData = await SecureStorage.instance.getUserData();
 
-    final userId = int.tryParse(userData?['user_id']?.toString() ?? '');
+    final userId = int.tryParse(userData?['user_id']?.toString() ?? '') ?? 0;
 
-    if (!mounted || userId == null) {
+    if (!mounted) return;
+
+    if (userId == 0) {
+      debugPrint('VISIT GRAPH: Guest user, API skipped');
+
       return;
     }
 
     final searchFromDate = _formatDate(_fromDate);
+
     final searchToDate = _formatDate(_toDate);
 
     context.read<HomeBloc>().add(
@@ -119,6 +125,13 @@ class _HomeState extends State<Home> {
   @override
   void initState() {
     super.initState();
+
+    // Load login state immediately
+    _loadUserData();
+
+    // ------------------------------------------------------------
+    // DEVELOPER OPTIONS CHECK
+    // ------------------------------------------------------------
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       if (!mounted) return;
 
@@ -131,6 +144,10 @@ class _HomeState extends State<Home> {
         await showDeveloperOptionWarning();
       }
     });
+
+    // ------------------------------------------------------------
+    // APP BAR USER/APP NAME SWITCH
+    // ------------------------------------------------------------
     _appBarTimer = Timer.periodic(const Duration(seconds: 4), (timer) {
       if (!mounted) return;
 
@@ -138,17 +155,49 @@ class _HomeState extends State<Home> {
         _showUserInfo = !_showUserInfo;
       });
     });
+
+    // ------------------------------------------------------------
+    // LOCATION PERMISSION
+    // ------------------------------------------------------------
     WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+
       checkLocationPermission(context);
     });
-    _loadUserData();
   }
+  // @override
+  // void initState() {
+  //   super.initState();
+  //   WidgetsBinding.instance.addPostFrameCallback((_) async {
+  //     if (!mounted) return;
+
+  //     final isEnabled =
+  //         await DeveloperOptionsChecker.isDeveloperOptionsEnabled();
+
+  //     if (!mounted) return;
+
+  //     if (isEnabled) {
+  //       await showDeveloperOptionWarning();
+  //     }
+  //   });
+  //   _appBarTimer = Timer.periodic(const Duration(seconds: 4), (timer) {
+  //     if (!mounted) return;
+
+  //     setState(() {
+  //       _showUserInfo = !_showUserInfo;
+  //     });
+  //   });
+  //   WidgetsBinding.instance.addPostFrameCallback((_) {
+  //     checkLocationPermission(context);
+  //   });
+  //   _loadUserData();
+  // }
 
   Future<void> printCurrentLocationTable() async {
     try {
       final LocationRepository repository = sl<LocationRepository>();
 
-      const int userId = 4; // temporary for testing
+      const int userId = 4;
 
       final locations = await repository.getAllLocations(userId);
 
@@ -189,32 +238,91 @@ class _HomeState extends State<Home> {
   }
 
   Future<void> _loadUserData() async {
-    await printCurrentLocationTable();
-    final userData = await SecureStorage.instance.getUserData();
+    try {
+      await printCurrentLocationTable();
 
-    if (userData == null) {
-      debugPrint('No stored user data found');
-      return;
-    }
+      final userData = await SecureStorage.instance.getUserData();
 
-    final userId = userData['user_id']?.toString() ?? '';
-    final userName = userData['user_name']?.toString();
-    if (userId.isEmpty) {
-      debugPrint('Stored user data has no user_id');
-    } else {
+      if (!mounted) return;
+
+      // ==========================================================
+      // NO USER DATA = GUEST
+      // ==========================================================
+
+      if (userData == null) {
+        debugPrint('================================');
+        debugPrint('HOME: NO STORED USER');
+        debugPrint('USER ID: 0');
+        debugPrint('LOGIN STATUS: GUEST');
+        debugPrint('================================');
+
+        setState(() {
+          _userId = '0';
+          _username = 'user';
+        });
+
+        return;
+      }
+
+      // ==========================================================
+      // READ USER
+      // ==========================================================
+
+      final userId = userData['user_id']?.toString().trim() ?? '';
+
+      final userName = userData['user_name']?.toString().trim() ?? '';
+
+      // ==========================================================
+      // EMPTY / ZERO USER ID = GUEST
+      // ==========================================================
+
+      if (userId.isEmpty || userId == '0') {
+        debugPrint('================================');
+        debugPrint('HOME: GUEST USER');
+        debugPrint('USER ID: 0');
+        debugPrint('================================');
+
+        setState(() {
+          _userId = '0';
+          _username = 'user';
+        });
+
+        return;
+      }
+
+      // ==========================================================
+      // LOGGED-IN USER
+      // ==========================================================
+
       setState(() {
         _userId = userId;
 
-        _username = userName!;
+        _username = userName.isNotEmpty ? userName : 'user';
       });
+
+      debugPrint('================================');
+      debugPrint('HOME: USER LOGGED IN');
+      debugPrint('USER ID: $_userId');
+      debugPrint('USER NAME: $_username');
+      debugPrint('================================');
+
       await getEmployeeStatus(userId);
 
       if (!mounted) return;
-      // Load pending punch data
-    }
+    } catch (e, stackTrace) {
+      debugPrint('================================');
+      debugPrint('LOAD USER DATA ERROR');
+      debugPrint('$e');
+      debugPrint('$stackTrace');
+      debugPrint('================================');
 
-    if (!mounted || userName == null || userName.isEmpty) {
-      return;
+      if (!mounted) return;
+
+      // If reading storage fails, treat as guest.
+      setState(() {
+        _userId = '0';
+        _username = 'user';
+      });
     }
   }
 
@@ -292,14 +400,14 @@ class _HomeState extends State<Home> {
     final shouldLogout = await showDialog<bool>(
       context: context,
       barrierDismissible: false,
-      builder: (context) {
+      builder: (dialogContext) {
         return AlertDialog(
           title: const Text('Logout'),
           content: const Text('Are you sure you want to logout?'),
           actions: [
             TextButton(
               onPressed: () {
-                Navigator.of(context).pop(false);
+                Navigator.of(dialogContext).pop(false);
               },
               child: Text(
                 'CANCEL',
@@ -313,7 +421,8 @@ class _HomeState extends State<Home> {
                 foregroundColor: Colors.white,
               ),
               onPressed: () {
-                Navigator.of(context).pop(true);
+                // Return TRUE to _logout()
+                Navigator.of(dialogContext).pop(true);
               },
               child: const Text('LOGOUT'),
             ),
@@ -327,13 +436,22 @@ class _HomeState extends State<Home> {
     }
 
     try {
+      // Clear logged-in user data
       await SecureStorage.instance.clearAll();
 
       if (!mounted) return;
 
+      // Update local state
+      setState(() {
+        _userId = '0';
+        _username = 'user';
+      });
+
+      // Go to login
       context.go(AppRouter.login);
-    } catch (e) {
+    } catch (e, stackTrace) {
       debugPrint('Logout error: $e');
+      debugPrint('$stackTrace');
     }
   }
 
@@ -376,15 +494,42 @@ class _HomeState extends State<Home> {
             },
           ),
 
-          title: _showUserInfo ? '$_username ($_userId)' : _appName,
+          // ============================================================
+          // LOGIN / LOGOUT
+          //
+          // null -> still loading -> show neither
+          // 0    -> guest         -> Login
+          // >0   -> logged in     -> Logout
+          // ============================================================
+          showLogin: _userId != null && _userId == '0',
 
-          subtitle: _showUserInfo ? 'Good Morning' : _appSubtitle,
+          showLogout: _userId != null && _userId != '0',
+
+          onLoginTap: () {
+            context.go(AppRouter.login);
+          },
+
+          onLogOutTap: _logout,
+
+          // ============================================================
+          // USER NAME
+          // ============================================================
+          userName: _userId != null && _userId != '0' && _showUserInfo
+              ? _username
+              : null,
+
+          // ============================================================
+          // APP NAME
+          // ============================================================
+          title: !_showUserInfo || _userId == null || _userId == '0'
+              ? _appName
+              : null,
+
+          subtitle: !_showUserInfo || _userId == null || _userId == '0'
+              ? _appSubtitle
+              : null,
 
           showBackButton: false,
-
-          onLogOutTap: () {
-            _logout();
-          },
         ),
         body: Padding(
           padding: const EdgeInsets.only(left: 10, right: 10),
@@ -565,11 +710,6 @@ class _HomeState extends State<Home> {
                   },
                 ),
                 SizedBox(height: 12.h),
-
-
-
-
-                
 
                 BlocBuilder<HomeBloc, HomeState>(
                   builder: (context, homeState) {
