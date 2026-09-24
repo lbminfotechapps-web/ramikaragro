@@ -578,6 +578,11 @@ class DealerVisitDataSource {
       // OTHER ERROR
       // ============================================================
 
+ Future<Map<String, dynamic>> updateDealer(
+      Map<String, dynamic> jsonData,
+    ) async {
+      try {
+        final formMap = Map<String, dynamic>.from(jsonData);
       print('========== ADD DEALER FOLLOW UP ERROR ==========');
 
       print('ERROR: $e');

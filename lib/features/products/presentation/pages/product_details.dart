@@ -172,8 +172,8 @@ class ProductDetails extends StatelessWidget {
   Future<void> _openProductEnquiry(BuildContext context) async {
     final userData = await SecureStorage.instance.getUserData();
 
-    if (userData == null) {
-      if (!context.mounted) return;
+    // if (userData == null) {
+    //   if (!context.mounted) return;
 
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
@@ -182,13 +182,13 @@ class ProductDetails extends StatelessWidget {
         ),
       );
 
-      return;
-    }
+    //   return;
+    // }
 
-    final String userId = userData['user_id']?.toString() ?? '';
+    final String userId = userData?['user_id']?.toString() ?? '';
 
-    if (userId.isEmpty) {
-      if (!context.mounted) return;
+    // if (userId.isEmpty) {
+    //   if (!context.mounted) return;
 
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
@@ -197,8 +197,8 @@ class ProductDetails extends StatelessWidget {
         ),
       );
 
-      return;
-    }
+    //   return;
+    // }
 
     if (!context.mounted) return;
 

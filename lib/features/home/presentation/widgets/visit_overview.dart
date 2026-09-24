@@ -1,3 +1,4 @@
+
 import 'dart:math' as math;
 
 import 'package:fl_chart/fl_chart.dart';
@@ -56,31 +57,31 @@ class VisitOverviewCard extends StatelessWidget {
                 ),
               ),
 
-              GestureDetector(
-                onTap: onViewReport,
-                behavior: HitTestBehavior.opaque,
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Text(
-                      'View Report',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 14.sp,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
+              // GestureDetector(
+              //   onTap: onViewReport,
+              //   behavior: HitTestBehavior.opaque,
+              //   child: Row(
+              //     mainAxisSize: MainAxisSize.min,
+              //     children: [
+              //       Text(
+              //         'View Report',
+              //         style: TextStyle(
+              //           color: Colors.white,
+              //           fontSize: 14.sp,
+              //           fontWeight: FontWeight.w600,
+              //         ),
+              //       ),
 
-                    SizedBox(width: 8.w),
+              //       SizedBox(width: 8.w),
 
-                    Icon(
-                      Icons.arrow_forward_rounded,
-                      color: Colors.white,
-                      size: 20.sp,
-                    ),
-                  ],
-                ),
-              ),
+              //       Icon(
+              //         Icons.arrow_forward_rounded,
+              //         color: Colors.white,
+              //         size: 20.sp,
+              //       ),
+              //     ],
+              //   ),
+              // ),
             ],
           ),
 

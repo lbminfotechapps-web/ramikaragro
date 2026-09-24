@@ -1762,7 +1762,7 @@ class _SalesReurnViewState extends State<_SalesReturnView> {
               fontWeight: FontWeight.w600,
             ),
           ),
-          backgroundColor: AppColors.primary,
+          backgroundColor: AppColors.error,
           behavior:
               SnackBarBehavior.floating,
           margin: EdgeInsets.all(12.w),

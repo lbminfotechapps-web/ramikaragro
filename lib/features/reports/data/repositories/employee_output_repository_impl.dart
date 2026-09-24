@@ -154,69 +154,184 @@ class EmployeeOutputRepositoryImpl
   // SEARCH EMPLOYEES
   // ============================================================
 
-  @override
-  Future<List<AssignEmployee>> searchEmployees({
-    required String logUserId,
-    required String search,
-  }) async {
-    try {
-      final Response response =
-          await remoteDataSource.searchEmployees(
-        logUserId: logUserId,
-        search: search,
-      );
+//   @override
+//  Future<List<AssignEmployee>> searchEmployees({
+//     required String logUserId,
+//     required String search,
+//   }) async {
+//     try {
+//       final Response response =
+//           await remoteDataSource.searchEmployees(
+//         logUserId: logUserId,
+//         search: search,
+//       );
 
-      dynamic data = response.data;
+//       dynamic data = response.data;
 
-      // API can return JSON as String
-      if (data is String) {
-        data = jsonDecode(data);
-      }
+//       // API can return JSON as String
+//       if (data is String) {
+//         data = jsonDecode(data);
+//       }
 
-      if (data is! Map) {
-        throw Exception(
-          'Invalid employee search response format',
-        );
-      }
+//       if (data is! Map) {
+//         throw Exception(
+//           'Invalid employee search response format',
+//         );
+//       }
 
-      final Map<String, dynamic> responseData =
-          Map<String, dynamic>.from(data);
+//       final Map<String, dynamic> responseData =
+//           Map<String, dynamic>.from(data);
 
-      // status false = no employees found
-      if (responseData['status'] != true) {
-        return [];
-      }
+//       // status false = no employees found
+//       if (responseData['status'] != true) {
+//         return [];
+//       }
 
-      final dynamic result = responseData['result'];
+//       final dynamic result = responseData['result'];
 
-      if (result == null) {
-        return [];
-      }
+//       if (result == null) {
+//         return [];
+//       }
 
-      if (result is! List) {
-        throw Exception(
-          'Invalid employee search result format',
-        );
-      }
+//       if (result is! List) {
+//         throw Exception(
+//           'Invalid employee search result format',
+//         );
+//       }
 
-      return result
-          .whereType<Map>()
-          .map(
-            (item) => AssignEmployeeModel.fromJson(
-              Map<String, dynamic>.from(item),
-            ),
-          )
-          .toList();
-    } on DioException catch (e) {
+//       return result
+//           .whereType<Map>()
+//           .map(
+//             (item) => AssignEmployeeModel.fromJson(
+//               Map<String, dynamic>.from(item),
+//             ),
+//           )
+//           .toList();
+//     } on DioException catch (e) {
+//       throw Exception(
+//         e.response?.data is String
+//             ? e.response?.data
+//             : e.message ?? 'Network error',
+//       );
+//     } catch (e) {
+//       throw Exception(
+//         'Failed to search employees: $e',
+//       );
+//     }
+//   }
+
+
+
+@override
+Future<List<AssignEmployee>> searchEmployees({
+  required String logUserId,
+  required String search,
+}) async {
+  try {
+    print('');
+    print('========================================');
+    print('REPOSITORY → SEARCH EMPLOYEES');
+    print('========================================');
+    print('LOG USER ID : $logUserId');
+    print('SEARCH      : $search');
+    print('========================================');
+
+    final Response response =
+        await remoteDataSource.searchEmployees(
+      logUserId: logUserId,
+      search: search,
+    );
+
+    dynamic data = response.data;
+
+    if (data is String) {
+      data = jsonDecode(data);
+    }
+
+    if (data is! Map) {
       throw Exception(
-        e.response?.data is String
-            ? e.response?.data
-            : e.message ?? 'Network error',
-      );
-    } catch (e) {
-      throw Exception(
-        'Failed to search employees: $e',
+        'Invalid employee search response format',
       );
     }
+
+    final Map<String, dynamic> responseData =
+        Map<String, dynamic>.from(data);
+
+    print('API STATUS : ${responseData['status']}');
+    print('API DATA   : $responseData');
+
+    if (responseData['status'] != true) {
+      return [];
+    }
+
+    final dynamic result =
+        responseData['result'];
+
+    if (result == null) {
+      return [];
+    }
+
+    if (result is! List) {
+      throw Exception(
+        'Invalid employee search result format',
+      );
+    }
+
+    final List<AssignEmployee> employees =
+        result
+            .whereType<Map>()
+            .map(
+              (item) =>
+                  AssignEmployeeModel.fromJson(
+                Map<String, dynamic>.from(
+                  item,
+                ),
+              ),
+            )
+            .where(
+              (employee) =>
+                  employee.fldId.toString() != '0' &&
+                  employee.fldAdmName
+                      .trim()
+                      .isNotEmpty,
+            )
+            .toList();
+
+    print('');
+    print('EMPLOYEE COUNT : ${employees.length}');
+
+    for (final employee in employees) {
+      print(
+        'EMPLOYEE → ID: ${employee.fldId} '
+        'NAME: ${employee.fldAdmName}',
+      );
+    }
+
+    print('========================================');
+
+    return employees;
+  } on DioException catch (e) {
+    print(
+      'SEARCH EMPLOYEE DIO ERROR: '
+      '${e.response?.data}',
+    );
+
+    throw Exception(
+      e.response?.data is String
+          ? e.response?.data
+          : e.message ?? 'Network error',
+    );
+  } catch (e) {
+    print(
+      'SEARCH EMPLOYEE REPOSITORY ERROR: $e',
+    );
+
+    throw Exception(
+      'Failed to search employees: $e',
+    );
   }
 }
+
+
+}
+
