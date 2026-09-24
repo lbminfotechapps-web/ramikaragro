@@ -109,7 +109,7 @@ class BackgroundLocationService {
       service.stopSelf();
     });
 
-    Timer.periodic(const Duration(seconds: 5), (timer) async {
+    Timer.periodic(const Duration(minutes: 5), (timer) async {
       try {
         debugPrint('========================================');
         debugPrint('BACKGROUND LOCATION');

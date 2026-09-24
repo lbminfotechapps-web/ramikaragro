@@ -15,6 +15,12 @@ class VisitSummaryFilter extends StatelessWidget {
 
   final ValueChanged<String> onStatusChanged;
 
+  // ============================================================
+  // EMPLOYEE
+  // ============================================================
+
+  final ValueChanged<String> onEmployeeChanged;
+
   final VoidCallback onReset;
   final VoidCallback onSearch;
 
@@ -29,6 +35,7 @@ class VisitSummaryFilter extends StatelessWidget {
     required this.onFromDateTap,
     required this.onToDateTap,
     required this.onStatusChanged,
+    required this.onEmployeeChanged,
     required this.onReset,
     required this.onSearch,
   });
@@ -47,28 +54,34 @@ class VisitSummaryFilter extends StatelessWidget {
           ),
         ],
       ),
+
       child: Column(
         children: [
           // ============================================================
           // FILTER HEADER
           // ============================================================
+
           InkWell(
             borderRadius: BorderRadius.circular(14),
             onTap: onExpandChanged,
+
             child: Padding(
               padding: const EdgeInsets.symmetric(
                 horizontal: 13,
                 vertical: 10,
               ),
+
               child: Row(
                 children: [
                   Container(
                     height: 34,
                     width: 34,
+
                     decoration: BoxDecoration(
                       color: const Color(0xFFEAF6EE),
                       borderRadius: BorderRadius.circular(9),
                     ),
+
                     child: const Icon(
                       Icons.filter_alt_outlined,
                       color: Color(0xFF287A4B),
@@ -81,6 +94,7 @@ class VisitSummaryFilter extends StatelessWidget {
                   const Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
+
                       children: [
                         Text(
                           'Search & Filter',
@@ -90,9 +104,11 @@ class VisitSummaryFilter extends StatelessWidget {
                             color: Color(0xFF202923),
                           ),
                         ),
+
                         SizedBox(height: 1),
+
                         Text(
-                          'Select date and visit status',
+                          'Select employee, date and visit status',
                           style: TextStyle(
                             fontSize: 10.5,
                             color: Color(0xFF7A837E),
@@ -117,6 +133,7 @@ class VisitSummaryFilter extends StatelessWidget {
           // ============================================================
           // EXPANDED FILTER
           // ============================================================
+
           if (expanded) ...[
             const Divider(
               height: 1,
@@ -131,76 +148,110 @@ class VisitSummaryFilter extends StatelessWidget {
                 12,
                 11,
               ),
+
               child: Column(
                 children: [
-                  // ======================================================
+                  // ====================================================
                   // EMPLOYEE
-                  // ======================================================
-                  const _FieldLabel(
-                    icon: Icons.person_outline_rounded,
-                    title: 'Employee',
-                  ),
+                  // ====================================================
 
-                  const SizedBox(height: 5),
+                  // const _FieldLabel(
+                  //   icon: Icons.person_outline_rounded,
+                  //   title: 'Employee',
+                  // ),
 
-                  TextField(
-                    controller: employeeController,
-                    style: const TextStyle(
-                      fontSize: 12.5,
-                      color: Color(0xFF303934),
-                    ),
-                    decoration: InputDecoration(
-                      hintText: 'Employee name',
-                      hintStyle: const TextStyle(
-                        fontSize: 12.5,
-                        color: Color(0xFF9AA19D),
-                      ),
+                  // const SizedBox(height: 5),
 
-                      prefixIcon: const Icon(
-                        Icons.search_rounded,
-                        size: 19,
-                        color: Color(0xFF68736D),
-                      ),
+                  // TextField(
+                  //   controller: employeeController,
 
-                      prefixIconConstraints: const BoxConstraints(
-                        minWidth: 42,
-                      ),
+                  //   // IMPORTANT:
+                  //   // Send employee value to parent page
+                  //   onChanged: onEmployeeChanged,
 
-                      isDense: true,
+                  //   style: const TextStyle(
+                  //     fontSize: 12.5,
+                  //     color: Color(0xFF303934),
+                  //   ),
 
-                      contentPadding: const EdgeInsets.symmetric(
-                        horizontal: 11,
-                        vertical: 11,
-                      ),
+                  //   decoration: InputDecoration(
+                  //     hintText: 'Employee ID',
 
-                      filled: true,
-                      fillColor: const Color(0xFFF7F9F8),
+                  //     hintStyle: const TextStyle(
+                  //       fontSize: 12.5,
+                  //       color: Color(0xFF9AA19D),
+                  //     ),
 
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(10),
-                        borderSide: BorderSide.none,
-                      ),
+                  //     prefixIcon: const Icon(
+                  //       Icons.search_rounded,
+                  //       size: 19,
+                  //       color: Color(0xFF68736D),
+                  //     ),
 
-                      enabledBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(10),
-                        borderSide: BorderSide.none,
-                      ),
+                  //     prefixIconConstraints:
+                  //         const BoxConstraints(
+                  //       minWidth: 42,
+                  //     ),
 
-                      focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(10),
-                        borderSide: const BorderSide(
-                          color: Color(0xFF287A4B),
-                          width: 1,
-                        ),
-                      ),
-                    ),
-                  ),
+                  //     // ================================================
+                  //     // CLEAR EMPLOYEE
+                  //     // ================================================
 
-                  const SizedBox(height: 11),
+                  //     suffixIcon: employeeController.text.isNotEmpty
+                  //         ? IconButton(
+                  //             icon: const Icon(
+                  //               Icons.close_rounded,
+                  //               size: 18,
+                  //               color: Color(0xFF68736D),
+                  //             ),
 
-                  // ======================================================
+                  //             onPressed: () {
+                  //               employeeController.clear();
+
+                  //               // Also clear selectedEmployeeId
+                  //               // in parent
+                  //               onEmployeeChanged('');
+                  //             },
+                  //           )
+                  //         : null,
+
+                  //     isDense: true,
+
+                  //     contentPadding:
+                  //         const EdgeInsets.symmetric(
+                  //       horizontal: 11,
+                  //       vertical: 11,
+                  //     ),
+
+                  //     filled: true,
+                  //     fillColor: const Color(0xFFF7F9F8),
+
+                  //     border: OutlineInputBorder(
+                  //       borderRadius: BorderRadius.circular(10),
+                  //       borderSide: BorderSide.none,
+                  //     ),
+
+                  //     enabledBorder: OutlineInputBorder(
+                  //       borderRadius: BorderRadius.circular(10),
+                  //       borderSide: BorderSide.none,
+                  //     ),
+
+                  //     focusedBorder: OutlineInputBorder(
+                  //       borderRadius: BorderRadius.circular(10),
+                  //       borderSide: const BorderSide(
+                  //         color: Color(0xFF287A4B),
+                  //         width: 1,
+                  //       ),
+                  //     ),
+                  //   ),
+                  // ),
+
+                  // const SizedBox(height: 11),
+
+                  // ====================================================
                   // DATE
-                  // ======================================================
+                  // ====================================================
+
                   Row(
                     children: [
                       Expanded(
@@ -225,9 +276,10 @@ class VisitSummaryFilter extends StatelessWidget {
 
                   const SizedBox(height: 11),
 
-                  // ======================================================
+                  // ====================================================
                   // STATUS
-                  // ======================================================
+                  // ====================================================
+
                   const _FieldLabel(
                     icon: Icons.assessment_outlined,
                     title: 'Status',
@@ -237,7 +289,6 @@ class VisitSummaryFilter extends StatelessWidget {
 
                   DropdownButtonFormField<String>(
                     value: selectedStatus,
-
                     isDense: true,
 
                     style: const TextStyle(
@@ -251,7 +302,8 @@ class VisitSummaryFilter extends StatelessWidget {
 
                       isDense: true,
 
-                      contentPadding: const EdgeInsets.symmetric(
+                      contentPadding:
+                          const EdgeInsets.symmetric(
                         horizontal: 11,
                         vertical: 11,
                       ),
@@ -286,10 +338,12 @@ class VisitSummaryFilter extends StatelessWidget {
                         value: 'All Status',
                         child: Text('All Status'),
                       ),
+
                       DropdownMenuItem(
                         value: 'Present',
                         child: Text('Present'),
                       ),
+
                       DropdownMenuItem(
                         value: 'Absent',
                         child: Text('Absent'),
@@ -305,9 +359,10 @@ class VisitSummaryFilter extends StatelessWidget {
 
                   const SizedBox(height: 12),
 
-                  // ======================================================
+                  // ====================================================
                   // BUTTONS
-                  // ======================================================
+                  // ====================================================
+
                   Row(
                     children: [
                       Expanded(
@@ -340,10 +395,8 @@ class VisitSummaryFilter extends StatelessWidget {
                                   BorderRadius.circular(10),
                             ),
 
-                            minimumSize: const Size(
-                              0,
-                              40,
-                            ),
+                            minimumSize:
+                                const Size(0, 40),
 
                             padding: EdgeInsets.zero,
                           ),
@@ -382,10 +435,8 @@ class VisitSummaryFilter extends StatelessWidget {
                                   BorderRadius.circular(10),
                             ),
 
-                            minimumSize: const Size(
-                              0,
-                              40,
-                            ),
+                            minimumSize:
+                                const Size(0, 40),
 
                             padding: EdgeInsets.zero,
                           ),
@@ -460,6 +511,7 @@ class _DateField extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
+
       children: [
         Text(
           title,

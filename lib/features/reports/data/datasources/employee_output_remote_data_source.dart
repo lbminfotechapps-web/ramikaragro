@@ -63,32 +63,98 @@ class EmployeeOutputRemoteDataSource {
   // SEARCH EMPLOYEES
   // ============================================================
 
-  Future<Response> searchEmployees({
-    required String logUserId,
-    required String search,
-  }) async {
-    try {
-      final formData = FormData.fromMap({
-        'logUserId': logUserId,
-        'search': search,
-      });
+  // Future<Response> searchEmployees({
+  //   required String logUserId,
+  //   required String search,
+  // }) async {
+  //   try {
+  //     final formData = FormData.fromMap({
+  //       'logUserId': logUserId,
+  //       'search': search,
+  //     });
 
-      final response = await dioClient.client.post(
-        ApiClient.getEmployees,
-        data: formData,
-      );
+  //     final response = await dioClient.client.post(
+  //       ApiClient.getEmployees,
+  //       data: formData,
+  //     );
 
-      return response;
-    } on DioException catch (e) {
-      throw Exception(
-        e.response?.data is String
-            ? e.response?.data
-            : e.message ?? 'Network error',
-      );
-    } catch (e) {
-      throw Exception(
-        'Failed to search employees: $e',
-      );
-    }
+  //     return response;
+  //   } on DioException catch (e) {
+  //     throw Exception(
+  //       e.response?.data is String
+  //           ? e.response?.data
+  //           : e.message ?? 'Network error',
+  //     );
+  //   } catch (e) {
+  //     throw Exception(
+  //       'Failed to search employees: $e',
+  //     );
+  //   }
+  // }
+
+
+
+Future<Response> searchEmployees({
+  required String logUserId,
+  required String search,
+}) async {
+  try {
+    final FormData formData = FormData.fromMap({
+      'user_id': logUserId,
+      'searchtext': search,
+    });
+
+    print('');
+    print('========================================');
+    print('SEARCH EMPLOYEE API REQUEST');
+    print('========================================');
+    print('user_id    : $logUserId');
+    print('searchtext : $search');
+    print('========================================');
+
+    final Response response =
+        await dioClient.client.post(
+      ApiClient.getEmployees,
+      data: formData,
+    );
+
+    print('');
+    print('========================================');
+    print('SEARCH EMPLOYEE API RESPONSE');
+    print('========================================');
+    print('STATUS CODE : ${response.statusCode}');
+    print('DATA        : ${response.data}');
+    print('========================================');
+
+    return response;
+  } on DioException catch (e) {
+    print('');
+    print('========================================');
+    print('SEARCH EMPLOYEE DIO ERROR');
+    print('========================================');
+    print('MESSAGE  : ${e.message}');
+    print('RESPONSE : ${e.response?.data}');
+    print('========================================');
+
+    throw Exception(
+      e.response?.data is String
+          ? e.response?.data
+          : e.message ?? 'Network error',
+    );
+  } catch (e) {
+    print('');
+    print('========================================');
+    print('SEARCH EMPLOYEE ERROR');
+    print('========================================');
+    print(e);
+    print('========================================');
+
+    throw Exception(
+      'Failed to search employees: $e',
+    );
   }
+}
+
+
+
 }
