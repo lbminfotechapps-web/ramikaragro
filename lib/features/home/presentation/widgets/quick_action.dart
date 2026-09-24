@@ -1,3 +1,8 @@
+import 'dart:convert';
+
+import 'package:solufine/core/di/auth_di.dart';
+import 'package:solufine/core/location_tracking/app_database.dart';
+import 'package:solufine/core/location_tracking/location_repository.dart';
 import 'package:solufine/core/secure_storage/secure_storage.dart';
 import 'package:solufine/core/theme/app_colors.dart';
 
@@ -47,7 +52,7 @@ class QuickAccessSection extends StatefulWidget {
 class _QuickAccessSectionState extends State<QuickAccessSection> {
   static const int initialItemCount = 5;
   static const int loadMoreCount = 6;
-
+  int? userId;
   int visibleItemCount = initialItemCount;
 
   Future<void> _submitShareLocation({required String remark}) async {
@@ -64,7 +69,7 @@ class _QuickAccessSectionState extends State<QuickAccessSection> {
 
     debugPrint('User data: $userData');
 
-    final userId = int.tryParse(userData?['user_id']?.toString() ?? '');
+    userId = int.tryParse(userData?['user_id']?.toString() ?? '');
 
     if (userId == null) {
       debugPrint('SHARE LOCATION ERROR: User ID not found');
@@ -177,7 +182,7 @@ class _QuickAccessSectionState extends State<QuickAccessSection> {
 
     context.read<QuickAcessBloc>().add(
       ShareLocationEvent(
-        userId: userId,
+        userId: userId!,
 
         inOutStatus: inOutStatus,
 
@@ -222,6 +227,18 @@ class _QuickAccessSectionState extends State<QuickAccessSection> {
     debugPrint('SHARE LOCATION EVENT DISPATCHED SUCCESSFULLY');
 
     debugPrint('========================================');
+
+    // final String strAllLocations = await _getStoredLocations();
+    //           debugPrint('========================================');
+    //           debugPrint('CALLING STORE TRACK LOCATION API');
+    //           debugPrint('USER ID: $userId');
+    //           debugPrint('DAILY TRAN ID: ${state.dailyTranId}');
+    //           debugPrint('STR ALL LOCATIONS: $strAllLocations');
+    //           debugPrint('========================================');
+
+    //           context.read<QuickAcessBloc>().add(
+    //             StoreTrackLocation(userId, state.dailyTranId!, strAllLocations),
+    //           );
   }
 
   @override
@@ -239,6 +256,78 @@ class _QuickAccessSectionState extends State<QuickAccessSection> {
     });
   }
 
+  Future<String> _getStoredLocations() async {
+    try {
+      final int? parsedUserId = userId;
+
+      if (parsedUserId == null) {
+        debugPrint('LOCATION: Invalid userId = $userId');
+        return '[]';
+      }
+
+      final LocationRepository repository = sl<LocationRepository>();
+
+      final List<LocationHistoryData> locations = await repository
+          .getAllLocations(parsedUserId);
+
+      debugPrint('========================================');
+      debugPrint('DEALER VISIT - STORED LOCATIONS');
+      debugPrint('TOTAL LOCATIONS: ${locations.length}');
+      debugPrint('========================================');
+
+      for (final location in locations) {
+        debugPrint(
+          'ID: ${location.id} | '
+          'Lat: ${location.latitude} | '
+          'Lng: ${location.longitude} | '
+          'Time: ${location.capturedAt} | '
+          'Accuracy: ${location.accuracy} | '
+          'Provider: ${location.provider} | '
+          'Address: ${location.geoAddress} | '
+          'Distance: ${location.distance}',
+        );
+      }
+
+      // ============================================================
+      // CREATE DATA FOR STORE LOCATION API
+      // ============================================================
+
+      final List<Map<String, dynamic>> locationList = locations.map((location) {
+        return {
+          'latitude': location.latitude,
+          'longitude': location.longitude,
+          'time': location.capturedAt,
+          'accuracy': location.accuracy,
+          'provider': location.provider,
+          'address': location.geoAddress,
+          'distance': location.distance,
+        };
+      }).toList();
+
+      // ============================================================
+      // JSON ARRAY -> STRING
+      // ============================================================
+
+      final String strAllLocations = jsonEncode(locationList);
+
+      debugPrint('========================================');
+      debugPrint('STR ALL LOCATIONS');
+      debugPrint('TOTAL: ${locations.length}');
+      debugPrint(strAllLocations);
+      debugPrint('========================================');
+
+      return strAllLocations;
+    } catch (e, stackTrace) {
+      debugPrint('========================================');
+      debugPrint('GET STORED LOCATIONS ERROR');
+      debugPrint('$e');
+      debugPrint('$stackTrace');
+      debugPrint('========================================');
+
+      return '[]';
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     if (widget.menus.isEmpty) {
@@ -254,12 +343,48 @@ class _QuickAccessSectionState extends State<QuickAccessSection> {
     return BlocListener<QuickAcessBloc, QuickAccessState>(
       listenWhen: (previous, current) =>
           previous.quickAccessStatus != current.quickAccessStatus,
-      listener: (context, state) {
+      listener: (context, state) async {
         // ==========================================
         // SHARE LOCATION SUCCESS
         // ==========================================
         if (state.quickAccessStatus == QuickAccessStatus.locationAddedSucces) {
           ScaffoldMessenger.of(context).hideCurrentSnackBar();
+          final String? dailyTranId = state.dailyTranId;
+          if (userId == null) {
+            debugPrint('STORE TRACK LOCATION NOT CALLED: userId is null');
+            return;
+          }
+
+          if (dailyTranId == null || dailyTranId.isEmpty) {
+            debugPrint(
+              'STORE TRACK LOCATION NOT CALLED: dailyTranId is null/empty',
+            );
+            return;
+          }
+
+          final String strAllLocations = await _getStoredLocations();
+
+          if (strAllLocations == '[]') {
+            debugPrint('STORE TRACK LOCATION NOT CALLED: No stored locations');
+            return;
+          }
+
+          debugPrint('DAILY TRAN ID FROM STATE: ${state.dailyTranId}');
+
+          debugPrint('========================================');
+          debugPrint('CALLING STORE TRACK LOCATION API');
+          debugPrint('USER ID: $userId');
+          debugPrint('DAILY TRAN ID: ${state.dailyTranId}');
+          debugPrint('STR ALL LOCATIONS: $strAllLocations');
+          debugPrint('========================================');
+
+          context.read<QuickAcessBloc>().add(
+            StoreTrackLocation(
+              userId.toString(),
+              state.dailyTranId.toString(),
+              strAllLocations,
+            ),
+          );
 
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
@@ -359,10 +484,7 @@ class _QuickAccessSectionState extends State<QuickAccessSection> {
       } else if (status == '2') {
         context.push('/lastPunchOut', extra: widget.punchStat);
       }
-    }
-    
-    
-     else if (menu.menuId == '26') {
+    } else if (menu.menuId == '26') {
       if (status == '1') {
         await _showShareLocationDialog(context);
       } else if (status == '2') {
@@ -463,18 +585,11 @@ class _QuickAccessSectionState extends State<QuickAccessSection> {
       context.push('/expenseList');
     } else if (menu.menuId == '67') {
       context.push('/teamExpenseList');
-    } 
-    
-    else if (menu.menuId == '69') {
+    } else if (menu.menuId == '69') {
       context.push('/placeOrder');
-    } 
-  
-
-     else if (menu.menuId == '77') {
+    } else if (menu.menuId == '77') {
       context.push('/salesReturn');
-    } 
-
-    else if (menu.menuId == '82') {
+    } else if (menu.menuId == '82') {
       context.push('/salesTargetAndAchievement');
     } else if (menu.menuId == '74') {
       context.push('/orderHistoy');

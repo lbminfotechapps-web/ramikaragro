@@ -542,6 +542,14 @@ class AppRouter {
         },
       ),
 
+        GoRoute(
+        path: visits,
+        name: 'visits',
+        builder: (context, state) {
+          return const DealerListScreen();
+        },
+      ),
+    
       GoRoute(
         path: contactUs,
         name: 'contactUs',
@@ -609,17 +617,17 @@ class AppRouter {
               ),
             ],
           ),
-          StatefulShellBranch(
-            routes: [
-              GoRoute(
-                path: visits,
-                name: 'visits',
-                builder: (context, state) {
-                  return const DealerListScreen();
-                },
-              ),
-            ],
-          ),
+          // StatefulShellBranch(
+          //   routes: [
+          //     GoRoute(
+          //       path: visits,
+          //       name: 'visits',
+          //       builder: (context, state) {
+          //         return const DealerListScreen();
+          //       },
+          //     ),
+          //   ],
+          // ),
           StatefulShellBranch(
             routes: [
               GoRoute(

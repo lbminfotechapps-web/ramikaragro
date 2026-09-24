@@ -103,4 +103,6 @@ class ApiClient {
 
   static const String submitEnquiryDetails = '/submit_enquiry_details';
   static const String trackLocationStore = '/addLocation';
+
+  static const String addDealerLocation = '/addExistingDealerLocation';
 }

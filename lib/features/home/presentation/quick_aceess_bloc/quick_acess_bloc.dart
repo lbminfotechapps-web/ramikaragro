@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:math' as math;
 
+import 'package:solufine/core/location_tracking/background_location_service.dart';
 import 'package:solufine/core/location_tracking/location_repository.dart';
 import 'package:solufine/features/home/doman/home_usecases/get_punch_status_usecase.dart';
 import 'package:solufine/features/home/doman/home_entity/vehicle_type_entity.dart';
@@ -26,39 +27,132 @@ class QuickAcessBloc extends Bloc<QuickAccessEvent, QuickAccessState> {
     on<StoreTrackLocation>(_onStoretrackLocation);
   }
   String? punchStatus;
+
   Future<void> _onGetPunchStatus(
-    PunchStatEvent event,
-    Emitter<QuickAccessState> emit,
-  ) async {
+  PunchStatEvent event,
+  Emitter<QuickAccessState> emit,
+) async {
+  emit(
+    state.copyWith(
+      quickAccessStatus: QuickAccessStatus.loading,
+      errorMessage: null,
+    ),
+  );
+
+  try {
+    final punchStat =
+        await getPunchStatusUsecase.getPunchStatus(
+      event.userId,
+    );
+
+    punchStatus = punchStat.inOutStatus;
+
+    debugPrint('========================================');
+    debugPrint('PUNCH STATUS API SUCCESS');
+    debugPrint('USER ID: ${event.userId}');
+    debugPrint(
+      'PUNCH STATUS: ${punchStat.inOutStatus}',
+    );
+    debugPrint('========================================');
+
+    // ============================================================
+    // RESTORE BACKGROUND LOCATION SERVICE
+    // ============================================================
+
+    if (punchStat.inOutStatus == '1') {
+      debugPrint('USER IS CURRENTLY PUNCHED IN');
+
+      final bool isRunning =
+          await BackgroundLocationService.isRunning();
+
+      debugPrint(
+        'BACKGROUND SERVICE RUNNING: $isRunning',
+      );
+
+      if (!isRunning) {
+        debugPrint(
+          'RESTARTING BACKGROUND LOCATION SERVICE...',
+        );
+
+        await BackgroundLocationService.start(
+          userId: event.userId,
+        );
+
+        debugPrint(
+          'BACKGROUND LOCATION SERVICE STARTED',
+        );
+      } else {
+        debugPrint(
+          'BACKGROUND LOCATION SERVICE ALREADY RUNNING',
+        );
+      }
+    } else {
+      debugPrint('USER IS NOT PUNCHED IN');
+      debugPrint(
+        'BACKGROUND LOCATION SERVICE NOT STARTED',
+      );
+    }
+
+    // ============================================================
+    // UPDATE UI
+    // ============================================================
+
     emit(
       state.copyWith(
-        quickAccessStatus: QuickAccessStatus.loading,
+        quickAccessStatus: QuickAccessStatus.success,
+        punchStat: punchStat,
+        punchStatus: punchStat.inOutStatus,
         errorMessage: null,
       ),
     );
+  } catch (error) {
+    debugPrint('========================================');
+    debugPrint('PUNCH STATUS ERROR');
+    debugPrint('$error');
+    debugPrint('========================================');
 
-    try {
-      final punchStat = await getPunchStatusUsecase.getPunchStatus(
-        event.userId,
-      );
-      punchStatus = punchStat.inOutStatus;
-      emit(
-        state.copyWith(
-          quickAccessStatus: QuickAccessStatus.success,
-          punchStat: punchStat,
-          punchStatus: punchStat.inOutStatus,
-          errorMessage: null,
-        ),
-      );
-    } catch (error) {
-      emit(
-        state.copyWith(
-          quickAccessStatus: QuickAccessStatus.failure,
-          errorMessage: error.toString(),
-        ),
-      );
-    }
+    emit(
+      state.copyWith(
+        quickAccessStatus:
+            QuickAccessStatus.failure,
+        errorMessage: error.toString(),
+      ),
+    );
   }
+}
+  // Future<void> _onGetPunchStatus(
+  //   PunchStatEvent event,
+  //   Emitter<QuickAccessState> emit,
+  // ) async {
+  //   emit(
+  //     state.copyWith(
+  //       quickAccessStatus: QuickAccessStatus.loading,
+  //       errorMessage: null,
+  //     ),
+  //   );
+
+  //   try {
+  //     final punchStat = await getPunchStatusUsecase.getPunchStatus(
+  //       event.userId,
+  //     );
+  //     punchStatus = punchStat.inOutStatus;
+  //     emit(
+  //       state.copyWith(
+  //         quickAccessStatus: QuickAccessStatus.success,
+  //         punchStat: punchStat,
+  //         punchStatus: punchStat.inOutStatus,
+  //         errorMessage: null,
+  //       ),
+  //     );
+  //   } catch (error) {
+  //     emit(
+  //       state.copyWith(
+  //         quickAccessStatus: QuickAccessStatus.failure,
+  //         errorMessage: error.toString(),
+  //       ),
+  //     );
+  //   }
+  // }
 
   Future<void> _onGetVehicleType(
     VehicleTypeEvent event,
@@ -108,6 +202,10 @@ class QuickAcessBloc extends Bloc<QuickAccessEvent, QuickAccessState> {
     PunchInOutDetailsAddEvent event,
     Emitter<QuickAccessState> emit,
   ) async {
+    // ============================================================
+    // 1. LOADING
+    // ============================================================
+
     emit(
       state.copyWith(
         quickAccessStatus: QuickAccessStatus.loading,
@@ -115,9 +213,13 @@ class QuickAcessBloc extends Bloc<QuickAccessEvent, QuickAccessState> {
       ),
     );
 
+    debugPrint('========================================');
+    debugPrint('PUNCH IN/OUT STATUS: LOADING');
+    debugPrint('========================================');
+
     try {
       // ============================================================
-      // BASIC REQUEST DATA
+      // 2. BASIC REQUEST DATA
       // ============================================================
 
       final Map<String, dynamic> jsonData = <String, dynamic>{
@@ -131,19 +233,30 @@ class QuickAcessBloc extends Bloc<QuickAccessEvent, QuickAccessState> {
         'strStartingClosingKmAmount': event.startingClosingKmAmount,
         'strVehicleTypeId': event.vehicleTypeId,
         'route': event.route,
+
+        // Location
         'latitude': event.latitude,
         'longitude': event.longitude,
+
+        // Network Location
         'networkLatitude': event.networkLatitude,
         'networkLongitude': event.networkLongitude,
+
+        // GPS Location
         'gpsLatitude': event.gpsLatitude,
         'gpsLongitude': event.gpsLongitude,
+
+        // Address
         'geoAddress': event.geoAddress,
+
+        // Activity
         'activityId': event.activityId,
       };
 
       // ============================================================
-      // DETERMINE PUNCH TYPE
+      // 3. DETERMINE PUNCH TYPE
       // ============================================================
+
       final bool isPunchIn = event.inOutStatus == '1';
 
       final bool isOutPunch =
@@ -154,23 +267,34 @@ class QuickAcessBloc extends Bloc<QuickAccessEvent, QuickAccessState> {
 
       debugPrint('========================================');
       debugPrint('PUNCH REQUEST TYPE');
-      debugPrint('isPunchIn: $isPunchIn');
-      debugPrint('isOutPunch: $isOutPunch');
-      debugPrint('isLastForceOut: $isLastForceOut');
+      debugPrint('========================================');
+
+      debugPrint('isPunchIn       : $isPunchIn');
+
+      debugPrint('isOutPunch      : $isOutPunch');
+
+      debugPrint('isLastForceOut  : $isLastForceOut');
+
       debugPrint('========================================');
 
       // ============================================================
-      // PUNCH IN
-      // ============================================================
-      // Send ONLY startingKmImage if available.
+      // 4. PUNCH IN
       //
-      // Do NOT send closingKmImage.
-      // Do NOT send date.
-      // Do NOT send time.
-      // Do NOT send isForceOutPunch.
+      // Send:
+      // startingKmImage -> only when available
+      //
+      // Do NOT send:
+      // closingKmImage
+      // date
+      // time
+      // isForceOutPunch
       // ============================================================
 
       if (isPunchIn) {
+        debugPrint('========================================');
+        debugPrint('NORMAL PUNCH IN');
+        debugPrint('========================================');
+
         if (event.startingKmImage != null &&
             event.startingKmImage!.isNotEmpty) {
           jsonData['startingKmImage'] = event.startingKmImage;
@@ -182,22 +306,26 @@ class QuickAcessBloc extends Bloc<QuickAccessEvent, QuickAccessState> {
         } else {
           debugPrint('startingKmImage: NOT PROVIDED');
         }
-        debugPrint('PUNCH IN API SUCCESS');
-        debugPrint('Saving Punch In location locally');
-        debugPrint('========================================');
       }
+
       // ============================================================
-      // NORMAL OUT PUNCH
-      // ============================================================
-      // Send ONLY closingKmImage if available.
+      // 5. NORMAL PUNCH OUT
       //
-      // Do NOT send startingKmImage.
-      // Do NOT send date.
-      // Do NOT send time.
-      // isForceOutPunch is not sent.
+      // Send:
+      // closingKmImage -> only when available
+      //
+      // Do NOT send:
+      // startingKmImage
+      // date
+      // time
+      // isForceOutPunch
       // ============================================================
 
       if (isOutPunch) {
+        debugPrint('========================================');
+        debugPrint('NORMAL PUNCH OUT');
+        debugPrint('========================================');
+
         if (event.closingKmImage != null && event.closingKmImage!.isNotEmpty) {
           jsonData['closingKmImage'] = event.closingKmImage;
 
@@ -211,101 +339,288 @@ class QuickAcessBloc extends Bloc<QuickAccessEvent, QuickAccessState> {
       }
 
       // ============================================================
-      // LAST FORCE OUT
-      // ============================================================
-      // Do NOT send any image.
+      // 6. LAST FORCE OUT
       //
-      // Do NOT send startingKmImage.
-      // Do NOT send closingKmImage.
+      // Send:
+      // date
+      // time
+      // isForceOutPunch = true
       //
-      // Send isForceOutPunch only if your API requires it.
+      // Do NOT send:
+      // startingKmImage
+      // closingKmImage
       // ============================================================
 
       if (isLastForceOut) {
+        debugPrint('========================================');
         debugPrint('LAST FORCE OUT');
+        debugPrint('========================================');
 
         debugPrint('Date: ${event.date}');
 
         debugPrint('Time: ${event.newTime}');
 
         // Date
-        if (event.date != null && event.date!.isNotEmpty) {
-          jsonData['date'] = event.date;
+        if (event.date != null && event.date!.trim().isNotEmpty) {
+          jsonData['date'] = event.date!.trim();
         }
 
         // Time
-        if (event.newTime != null && event.newTime!.isNotEmpty) {
-          jsonData['time'] = event.newTime;
+        if (event.newTime != null && event.newTime!.trim().isNotEmpty) {
+          jsonData['time'] = event.newTime!.trim();
         }
 
-        // Force out flag
+        // Force Out
         jsonData['isForceOutPunch'] = true;
 
-        // IMPORTANT:
-        // Do NOT add startingKmImage
-        // Do NOT add closingKmImage
+        // Safety:
+        // Make sure images are NOT present
+        jsonData.remove('startingKmImage');
+        jsonData.remove('closingKmImage');
       }
 
       // ============================================================
-      // OPTIONAL DATE
-      // ============================================================
-
-      if (event.date != null && event.date!.isNotEmpty) {
-        jsonData['date'] = event.date;
-
-        debugPrint('date: ${event.date}');
-      }
-
-      // ============================================================
-      // OPTIONAL TIME
-      // ============================================================
-
-      if (event.newTime != null && event.newTime!.isNotEmpty) {
-        jsonData['time'] = event.newTime;
-
-        debugPrint('time: ${event.newTime}');
-      }
-
-      // ============================================================
-      // FINAL REQUEST DEBUG
+      // 7. FINAL REQUEST DEBUG
       // ============================================================
 
       debugPrint('');
-      debugPrint('========== FINAL PUNCH REQUEST ==========');
+      debugPrint('========================================');
+      debugPrint('FINAL PUNCH REQUEST');
+      debugPrint('========================================');
 
       jsonData.forEach((key, value) {
         if (key == 'startingKmImage' || key == 'closingKmImage') {
           final String image = value?.toString() ?? '';
 
           debugPrint(
-            '$key: BASE64 IMAGE '
-            '($image characters)',
+            '$key: '
+            'BASE64 IMAGE (${image.length} chars)',
           );
         } else {
           debugPrint('$key: $value');
         }
       });
 
-      debugPrint('==========================================');
+      debugPrint('========================================');
 
       // ============================================================
-      // API CALL
+      // 8. API CALL
       // ============================================================
 
       final response = await getPunchStatusUsecase.savePunchDetails(jsonData);
 
-      debugPrint('Punch details response: $response');
+      // ============================================================
+      // 9. PRINT RESPONSE
+      //
+      // Your response:
+      //
+      // {
+      //   "status": true,
+      //   "message": "2",
+      //   "result": "success-141"
+      // }
+      //
+      // ============================================================
+
+      debugPrint('');
+      debugPrint('========================================');
+      debugPrint('PUNCH DETAILS RESPONSE');
+      debugPrint('========================================');
+
+      debugPrint('FULL RESPONSE: $response');
+
+      debugPrint('STATUS: ${response['status']}');
+
+      debugPrint('MESSAGE: ${response['message']}');
+
+      debugPrint('RESULT: ${response['result']}');
+
+      debugPrint('========================================');
+
+      // ============================================================
+      // 10. GET API STATUS
+      // ============================================================
+
+      final bool apiStatus = response['status'] == true;
+
+      // ============================================================
+      // 11. GET MESSAGE
+      // ============================================================
+
+      final String apiMessage = response['message']?.toString().trim() ?? '';
+
+      // ============================================================
+      // 12. GET RESULT
+      //
+      // success-141
+      // ============================================================
+
+      final String responseResult =
+          response['result']?.toString().trim().toLowerCase() ?? '';
+
+      debugPrint('========================================');
+      debugPrint('PUNCH RESPONSE VALUES');
+      debugPrint('========================================');
+
+      debugPrint('API STATUS  : $apiStatus');
+
+      debugPrint('API MESSAGE : "$apiMessage"');
+
+      debugPrint('API RESULT  : "$responseResult"');
+
+      debugPrint('========================================');
+
+      // ============================================================
+      // 13. SPLIT RESULT
+      //
+      // success-141
+      //
+      // parts[0] = success
+      // parts[1] = 141
+      // ============================================================
+
+      final List<String> parts = responseResult.split('-');
+
+      final String mainStatus = parts.isNotEmpty ? parts.first.trim() : '';
+
+      final String dailyTranId = parts.length > 1 ? parts[1].trim() : '';
+
+      debugPrint('========================================');
+      debugPrint('PUNCH RESPONSE PARSED');
+      debugPrint('========================================');
+
+      debugPrint('API STATUS      : $apiStatus');
+
+      debugPrint('MAIN API STATUS : "$mainStatus"');
+
+      debugPrint('DAILY TRAN ID   : "$dailyTranId"');
+
+      debugPrint('MESSAGE         : "$apiMessage"');
+
+      debugPrint('========================================');
+
+      // ============================================================
+      // 14. SUCCESS
+      //
+      // Both must be valid:
+      //
+      // status == true
+      // result == success-xxx
+      // ============================================================
+
+      if (apiStatus && mainStatus == 'success') {
+        // ==========================================================
+        // TRANSACTION ID CHECK
+        // ==========================================================
+
+        if (dailyTranId.isEmpty) {
+          debugPrint('========================================');
+          debugPrint('PUNCH WARNING');
+          debugPrint('========================================');
+
+          debugPrint(
+            'Punch API returned success but '
+            'dailyTranId is empty',
+          );
+
+          debugPrint('Original result: "$responseResult"');
+
+          debugPrint('========================================');
+
+          emit(
+            state.copyWith(
+              quickAccessStatus: QuickAccessStatus.failure,
+              errorMessage:
+                  'Punch saved but transaction ID '
+                  'was not received',
+            ),
+          );
+
+          return;
+        }
+
+        // ==========================================================
+        // COMPLETE SUCCESS
+        // ==========================================================
+
+        debugPrint('========================================');
+        debugPrint('PUNCH DETAILS SUCCESS');
+        debugPrint('========================================');
+
+        debugPrint(
+          'PUNCH TYPE: '
+          '${isPunchIn
+              ? "PUNCH IN"
+              : isOutPunch
+              ? "PUNCH OUT"
+              : "FORCE OUT"}',
+        );
+
+        debugPrint('MAIN STATUS   : $mainStatus');
+
+        debugPrint('DAILY TRAN ID : $dailyTranId');
+
+        debugPrint('MESSAGE       : $apiMessage');
+
+        debugPrint('========================================');
+
+        emit(
+          state.copyWith(
+            quickAccessStatus: QuickAccessStatus.punchStatusSuccess,
+
+            // Save transaction ID
+            dailyTranId: dailyTranId,
+
+            errorMessage: null,
+          ),
+        );
+
+        return;
+      }
+
+      // ============================================================
+      // 15. API FAILURE
+      // ============================================================
+
+      debugPrint('========================================');
+      debugPrint('PUNCH DETAILS FAILED');
+      debugPrint('========================================');
+
+      debugPrint('API STATUS      : $apiStatus');
+
+      debugPrint('MAIN API STATUS : "$mainStatus"');
+
+      debugPrint('API RESULT      : "$responseResult"');
+
+      debugPrint('API MESSAGE     : "$apiMessage"');
+
+      debugPrint('========================================');
 
       emit(
         state.copyWith(
-          quickAccessStatus: QuickAccessStatus.punchStatusSuccess,
-          errorMessage: null,
+          quickAccessStatus: QuickAccessStatus.failure,
+
+          errorMessage: apiMessage.isNotEmpty
+              ? apiMessage
+              : 'Failed to save punch details',
         ),
       );
     } catch (error, stackTrace) {
-      debugPrint('Punch details error: $error');
+      // ============================================================
+      // 16. EXCEPTION
+      // ============================================================
 
-      debugPrint('StackTrace: $stackTrace');
+      debugPrint('========================================');
+      debugPrint('PUNCH DETAILS ERROR');
+      debugPrint('========================================');
+
+      debugPrint('ERROR: $error');
+
+      debugPrint('STACK TRACE:');
+
+      debugPrint('$stackTrace');
+
+      debugPrint('========================================');
 
       emit(
         state.copyWith(
@@ -315,6 +630,217 @@ class QuickAcessBloc extends Bloc<QuickAccessEvent, QuickAccessState> {
       );
     }
   }
+  // Future<void> _onPunchInOutAddDetails(
+  //   PunchInOutDetailsAddEvent event,
+  //   Emitter<QuickAccessState> emit,
+  // ) async {
+  //   emit(
+  //     state.copyWith(
+  //       quickAccessStatus: QuickAccessStatus.loading,
+  //       errorMessage: null,
+  //     ),
+  //   );
+
+  //   try {
+  //     // ============================================================
+  //     // BASIC REQUEST DATA
+  //     // ============================================================
+
+  //     final Map<String, dynamic> jsonData = <String, dynamic>{
+  //       'user_id': event.userId,
+  //       'in_out_status': event.inOutStatus,
+  //       'differenceByAndroid': event.differenceByAndroid,
+  //       'locationHistoryString': event.locationHistoryString,
+  //       'strBatteryInfo': event.batteryInfo,
+  //       'strNetworkInfo': event.networkInfo,
+  //       'pinRemark': event.pinRemark,
+  //       'strStartingClosingKmAmount': event.startingClosingKmAmount,
+  //       'strVehicleTypeId': event.vehicleTypeId,
+  //       'route': event.route,
+  //       'latitude': event.latitude,
+  //       'longitude': event.longitude,
+  //       'networkLatitude': event.networkLatitude,
+  //       'networkLongitude': event.networkLongitude,
+  //       'gpsLatitude': event.gpsLatitude,
+  //       'gpsLongitude': event.gpsLongitude,
+  //       'geoAddress': event.geoAddress,
+  //       'activityId': event.activityId,
+  //     };
+
+  //     // ============================================================
+  //     // DETERMINE PUNCH TYPE
+  //     // ============================================================
+  //     final bool isPunchIn = event.inOutStatus == '1';
+
+  //     final bool isOutPunch =
+  //         event.inOutStatus == '2' && event.isForceOutPunch != true;
+
+  //     final bool isLastForceOut =
+  //         event.inOutStatus == '2' && event.isForceOutPunch == true;
+
+  //     debugPrint('========================================');
+  //     debugPrint('PUNCH REQUEST TYPE');
+  //     debugPrint('isPunchIn: $isPunchIn');
+  //     debugPrint('isOutPunch: $isOutPunch');
+  //     debugPrint('isLastForceOut: $isLastForceOut');
+  //     debugPrint('========================================');
+
+  //     // ============================================================
+  //     // PUNCH IN
+  //     // ============================================================
+  //     // Send ONLY startingKmImage if available.
+  //     //
+  //     // Do NOT send closingKmImage.
+  //     // Do NOT send date.
+  //     // Do NOT send time.
+  //     // Do NOT send isForceOutPunch.
+  //     // ============================================================
+
+  //     if (isPunchIn) {
+  //       if (event.startingKmImage != null &&
+  //           event.startingKmImage!.isNotEmpty) {
+  //         jsonData['startingKmImage'] = event.startingKmImage;
+
+  //         debugPrint(
+  //           'startingKmImage: '
+  //           'BASE64 (${event.startingKmImage!.length} chars)',
+  //         );
+  //       } else {
+  //         debugPrint('startingKmImage: NOT PROVIDED');
+  //       }
+  //       debugPrint('PUNCH IN API SUCCESS');
+  //       debugPrint('Saving Punch In location locally');
+  //       debugPrint('========================================');
+  //     }
+  //     // ============================================================
+  //     // NORMAL OUT PUNCH
+  //     // ============================================================
+  //     // Send ONLY closingKmImage if available.
+  //     //
+  //     // Do NOT send startingKmImage.
+  //     // Do NOT send date.
+  //     // Do NOT send time.
+  //     // isForceOutPunch is not sent.
+  //     // ============================================================
+
+  //     if (isOutPunch) {
+  //       if (event.closingKmImage != null && event.closingKmImage!.isNotEmpty) {
+  //         jsonData['closingKmImage'] = event.closingKmImage;
+
+  //         debugPrint(
+  //           'closingKmImage: '
+  //           'BASE64 (${event.closingKmImage!.length} chars)',
+  //         );
+  //       } else {
+  //         debugPrint('closingKmImage: NOT PROVIDED');
+  //       }
+  //     }
+
+  //     // ============================================================
+  //     // LAST FORCE OUT
+  //     // ============================================================
+  //     // Do NOT send any image.
+  //     //
+  //     // Do NOT send startingKmImage.
+  //     // Do NOT send closingKmImage.
+  //     //
+  //     // Send isForceOutPunch only if your API requires it.
+  //     // ============================================================
+
+  //     if (isLastForceOut) {
+  //       debugPrint('LAST FORCE OUT');
+
+  //       debugPrint('Date: ${event.date}');
+
+  //       debugPrint('Time: ${event.newTime}');
+
+  //       // Date
+  //       if (event.date != null && event.date!.isNotEmpty) {
+  //         jsonData['date'] = event.date;
+  //       }
+
+  //       // Time
+  //       if (event.newTime != null && event.newTime!.isNotEmpty) {
+  //         jsonData['time'] = event.newTime;
+  //       }
+
+  //       // Force out flag
+  //       jsonData['isForceOutPunch'] = true;
+
+  //       // IMPORTANT:
+  //       // Do NOT add startingKmImage
+  //       // Do NOT add closingKmImage
+  //     }
+
+  //     // ============================================================
+  //     // OPTIONAL DATE
+  //     // ============================================================
+
+  //     if (event.date != null && event.date!.isNotEmpty) {
+  //       jsonData['date'] = event.date;
+
+  //       debugPrint('date: ${event.date}');
+  //     }
+
+  //     // ============================================================
+  //     // OPTIONAL TIME
+  //     // ============================================================
+
+  //     if (event.newTime != null && event.newTime!.isNotEmpty) {
+  //       jsonData['time'] = event.newTime;
+
+  //       debugPrint('time: ${event.newTime}');
+  //     }
+
+  //     // ============================================================
+  //     // FINAL REQUEST DEBUG
+  //     // ============================================================
+
+  //     debugPrint('');
+  //     debugPrint('========== FINAL PUNCH REQUEST ==========');
+
+  //     jsonData.forEach((key, value) {
+  //       if (key == 'startingKmImage' || key == 'closingKmImage') {
+  //         final String image = value?.toString() ?? '';
+
+  //         debugPrint(
+  //           '$key: BASE64 IMAGE '
+  //           '($image characters)',
+  //         );
+  //       } else {
+  //         debugPrint('$key: $value');
+  //       }
+  //     });
+
+  //     debugPrint('==========================================');
+
+  //     // ============================================================
+  //     // API CALL
+  //     // ============================================================
+
+  //     final response = await getPunchStatusUsecase.savePunchDetails(jsonData);
+
+  //     debugPrint('Punch details response: $response');
+
+  //     emit(
+  //       state.copyWith(
+  //         quickAccessStatus: QuickAccessStatus.punchStatusSuccess,
+  //         errorMessage: null,
+  //       ),
+  //     );
+  //   } catch (error, stackTrace) {
+  //     debugPrint('Punch details error: $error');
+
+  //     debugPrint('StackTrace: $stackTrace');
+
+  //     emit(
+  //       state.copyWith(
+  //         quickAccessStatus: QuickAccessStatus.failure,
+  //         errorMessage: error.toString(),
+  //       ),
+  //     );
+  //   }
+  // }
 
   Future<void> _onSavePunchInLocation(
     SavePunchInLocationEvent event,
@@ -499,6 +1025,10 @@ class QuickAcessBloc extends Bloc<QuickAccessEvent, QuickAccessState> {
     ShareLocationEvent event,
     Emitter<QuickAccessState> emit,
   ) async {
+    // ============================================================
+    // 1. LOADING
+    // ============================================================
+
     emit(
       state.copyWith(
         quickAccessStatus: QuickAccessStatus.loading,
@@ -506,7 +1036,15 @@ class QuickAcessBloc extends Bloc<QuickAccessEvent, QuickAccessState> {
       ),
     );
 
+    debugPrint('========================================');
+    debugPrint('SHARE LOCATION STATUS: LOADING');
+    debugPrint('========================================');
+
     try {
+      // ============================================================
+      // 2. PREPARE REQUEST
+      // ============================================================
+
       final Map<String, dynamic> jsonData = <String, dynamic>{
         'user_id': event.userId,
         'in_out_status': event.inOutStatus,
@@ -518,57 +1056,257 @@ class QuickAcessBloc extends Bloc<QuickAccessEvent, QuickAccessState> {
         'strStartingClosingKmAmount': event.startingClosingKmAmount,
         'strVehicleTypeId': event.vehicleTypeId,
         'route': event.route,
+
+        // Location
         'latitude': event.latitude,
         'longitude': event.longitude,
+
+        // Network Location
         'networkLatitude': event.networkLatitude,
         'networkLongitude': event.networkLongitude,
+
+        // GPS Location
         'gpsLatitude': event.gpsLatitude,
         'gpsLongitude': event.gpsLongitude,
+
+        // Address
         'geoAddress': event.geoAddress,
+
+        // Images
         'startingKmImage': event.startingKmImage ?? '',
         'closingKmImage': event.closingKmImage ?? '',
+
+        // Activity
         'activityId': event.activityId,
       };
 
+      // ============================================================
+      // 3. PRINT REQUEST
+      // ============================================================
+
+      debugPrint('');
       debugPrint('========================================');
       debugPrint('SHARE LOCATION REQUEST');
       debugPrint('========================================');
 
       jsonData.forEach((key, value) {
-        debugPrint('$key : $value');
+        // Avoid printing full Base64 image in console
+        if (key == 'startingKmImage' || key == 'closingKmImage') {
+          final String imageValue = value?.toString() ?? '';
+
+          debugPrint(
+            '$key : '
+            '${imageValue.isNotEmpty ? "IMAGE AVAILABLE (${imageValue.length} chars)" : "EMPTY"}',
+          );
+        } else {
+          debugPrint('$key : $value');
+        }
       });
 
       debugPrint('========================================');
 
+      // ============================================================
+      // 4. CALL API
+      // ============================================================
+
       final result = await getPunchStatusUsecase.savePunchDetails(jsonData);
 
+      // ============================================================
+      // 5. PRINT COMPLETE RESPONSE
+      //
+      // Example:
+      //
+      // {
+      //   status: true,
+      //   message: 3,
+      //   result: success-129
+      // }
+      //
+      // ============================================================
+
+      debugPrint('');
       debugPrint('========================================');
       debugPrint('SHARE LOCATION RESPONSE');
       debugPrint('========================================');
-      debugPrint('Status: ${result}');
+
+      debugPrint('FULL RESPONSE: $result');
+
+      debugPrint('STATUS: ${result['status']}');
+
+      debugPrint('MESSAGE: ${result['message']}');
+
+      debugPrint('RESULT: ${result['result']}');
 
       debugPrint('========================================');
 
-      if (result['status'] == true) {
+      // ============================================================
+      // 6. GET API STATUS
+      // ============================================================
+
+      final bool apiStatus = result['status'] == true;
+
+      // ============================================================
+      // 7. GET MESSAGE
+      // ============================================================
+
+      final String apiMessage = result['message']?.toString().trim() ?? '';
+
+      // ============================================================
+      // 8. GET RESULT
+      //
+      // Example:
+      //
+      // success-129
+      //
+      // ============================================================
+
+      final String responseResult =
+          result['result']?.toString().trim().toLowerCase() ?? '';
+
+      debugPrint('API STATUS       : $apiStatus');
+
+      debugPrint('API MESSAGE      : "$apiMessage"');
+
+      debugPrint('API RESULT       : "$responseResult"');
+
+      // ============================================================
+      // 9. SPLIT RESULT
+      //
+      // success-129
+      //
+      // parts[0] = success
+      // parts[1] = 129
+      //
+      // ============================================================
+
+      final List<String> parts = responseResult.split('-');
+
+      final String mainStatus = parts.isNotEmpty ? parts.first.trim() : '';
+
+      final String dailyTranId = parts.length > 1 ? parts[1].trim() : '';
+
+      debugPrint('========================================');
+      debugPrint('SHARE LOCATION RESPONSE PARSED');
+      debugPrint('========================================');
+
+      debugPrint('API STATUS      : $apiStatus');
+
+      debugPrint('MAIN API STATUS : "$mainStatus"');
+
+      debugPrint('DAILY TRAN ID   : "$dailyTranId"');
+
+      debugPrint('MESSAGE         : "$apiMessage"');
+
+      debugPrint('========================================');
+
+      // ============================================================
+      // 10. SUCCESS
+      //
+      // BOTH MUST BE SUCCESS:
+      //
+      // status == true
+      // result starts with success
+      //
+      // ============================================================
+
+      if (apiStatus && mainStatus == 'success') {
+        // ==========================================================
+        // TRANSACTION ID CHECK
+        // ==========================================================
+
+        if (dailyTranId.isEmpty) {
+          debugPrint('========================================');
+          debugPrint('WARNING');
+          debugPrint(
+            'Share location API succeeded but '
+            'dailyTranId is empty',
+          );
+          debugPrint('Original result: $responseResult');
+          debugPrint('========================================');
+
+          emit(
+            state.copyWith(
+              quickAccessStatus: QuickAccessStatus.failure,
+              errorMessage:
+                  'Location saved but transaction ID '
+                  'was not received',
+            ),
+          );
+
+          return;
+        }
+
+        // ==========================================================
+        // COMPLETE SUCCESS
+        // ==========================================================
+
+        debugPrint('========================================');
+        debugPrint('SHARE LOCATION SUCCESS');
+        debugPrint('========================================');
+
+        debugPrint('MAIN STATUS   : $mainStatus');
+
+        debugPrint('DAILY TRAN ID : $dailyTranId');
+
+        debugPrint('MESSAGE       : $apiMessage');
+
+        debugPrint('========================================');
+
         emit(
           state.copyWith(
             quickAccessStatus: QuickAccessStatus.locationAddedSucces,
-            // errorMessage: result.message,
+
+            // Add this in QuickAccessState
+            dailyTranId: dailyTranId,
+
+            errorMessage: null,
           ),
         );
-      } else {
-        emit(
-          state.copyWith(
-            quickAccessStatus: QuickAccessStatus.failure,
-            // errorMessage: result.message,
-          ),
-        );
+
+        return;
       }
+
+      // ============================================================
+      // 11. FAILURE
+      // ============================================================
+
+      debugPrint('========================================');
+      debugPrint('SHARE LOCATION FAILED');
+      debugPrint('========================================');
+
+      debugPrint('API STATUS      : $apiStatus');
+
+      debugPrint('MAIN API STATUS : "$mainStatus"');
+
+      debugPrint('API RESULT      : "$responseResult"');
+
+      debugPrint('API MESSAGE     : "$apiMessage"');
+
+      debugPrint('========================================');
+
+      emit(
+        state.copyWith(
+          quickAccessStatus: QuickAccessStatus.failure,
+          errorMessage: apiMessage.isNotEmpty
+              ? apiMessage
+              : 'Failed to share location',
+        ),
+      );
     } catch (e, stackTrace) {
+      // ============================================================
+      // 12. EXCEPTION
+      // ============================================================
+
       debugPrint('========================================');
       debugPrint('SHARE LOCATION ERROR');
-      debugPrint('$e');
-      debugPrint('STACK TRACE: $stackTrace');
+      debugPrint('========================================');
+
+      debugPrint('ERROR: $e');
+
+      debugPrint('STACK TRACE:');
+
+      debugPrint('$stackTrace');
+
       debugPrint('========================================');
 
       emit(
@@ -579,6 +1317,91 @@ class QuickAcessBloc extends Bloc<QuickAccessEvent, QuickAccessState> {
       );
     }
   }
+
+  // FutureOr<void> _onShareLocationAdd(
+  //   ShareLocationEvent event,
+  //   Emitter<QuickAccessState> emit,
+  // ) async {
+  //   emit(
+  //     state.copyWith(
+  //       quickAccessStatus: QuickAccessStatus.loading,
+  //       errorMessage: null,
+  //     ),
+  //   );
+
+  //   try {
+  //     final Map<String, dynamic> jsonData = <String, dynamic>{
+  //       'user_id': event.userId,
+  //       'in_out_status': event.inOutStatus,
+  //       'differenceByAndroid': event.differenceByAndroid,
+  //       'locationHistoryString': event.locationHistoryString,
+  //       'strBatteryInfo': event.batteryInfo,
+  //       'strNetworkInfo': event.networkInfo,
+  //       'pinRemark': event.pinRemark,
+  //       'strStartingClosingKmAmount': event.startingClosingKmAmount,
+  //       'strVehicleTypeId': event.vehicleTypeId,
+  //       'route': event.route,
+  //       'latitude': event.latitude,
+  //       'longitude': event.longitude,
+  //       'networkLatitude': event.networkLatitude,
+  //       'networkLongitude': event.networkLongitude,
+  //       'gpsLatitude': event.gpsLatitude,
+  //       'gpsLongitude': event.gpsLongitude,
+  //       'geoAddress': event.geoAddress,
+  //       'startingKmImage': event.startingKmImage ?? '',
+  //       'closingKmImage': event.closingKmImage ?? '',
+  //       'activityId': event.activityId,
+  //     };
+
+  //     debugPrint('========================================');
+  //     debugPrint('SHARE LOCATION REQUEST');
+  //     debugPrint('========================================');
+
+  //     jsonData.forEach((key, value) {
+  //       debugPrint('$key : $value');
+  //     });
+
+  //     debugPrint('========================================');
+
+  //     final result = await getPunchStatusUsecase.savePunchDetails(jsonData);
+
+  //     debugPrint('========================================');
+  //     debugPrint('SHARE LOCATION RESPONSE');
+  //     debugPrint('========================================');
+  //     debugPrint('Status: ${result}');
+
+  //     debugPrint('========================================');
+
+  //     if (result['status'] == true) {
+  //       emit(
+  //         state.copyWith(
+  //           quickAccessStatus: QuickAccessStatus.locationAddedSucces,
+  //           // errorMessage: result.message,
+  //         ),
+  //       );
+  //     } else {
+  //       emit(
+  //         state.copyWith(
+  //           quickAccessStatus: QuickAccessStatus.failure,
+  //           // errorMessage: result.message,
+  //         ),
+  //       );
+  //     }
+  //   } catch (e, stackTrace) {
+  //     debugPrint('========================================');
+  //     debugPrint('SHARE LOCATION ERROR');
+  //     debugPrint('$e');
+  //     debugPrint('STACK TRACE: $stackTrace');
+  //     debugPrint('========================================');
+
+  //     emit(
+  //       state.copyWith(
+  //         quickAccessStatus: QuickAccessStatus.failure,
+  //         errorMessage: e.toString(),
+  //       ),
+  //     );
+  //   }
+  // }
 
   FutureOr<void> _onStoretrackLocation(
     StoreTrackLocation event,

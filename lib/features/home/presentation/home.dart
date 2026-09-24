@@ -531,7 +531,281 @@ class _HomeState extends State<Home> {
 
           showBackButton: false,
         ),
+
         body: Padding(
+          padding: const EdgeInsets.only(left: 10, right: 10),
+          child: SingleChildScrollView(
+            child: Column(
+              children: [
+            
+                // ========================================================
+                // USER DATA STILL LOADING
+                // ========================================================
+                if (_userId == null)
+                  const Padding(
+                    padding: EdgeInsets.all(30),
+                    child: Center(child: CircularProgressIndicator()),
+                  )
+                // ========================================================
+                // GUEST USER
+                //
+                // USER ID = 0
+                //
+                // SHOW ONLY QUICK ACCESS
+                // ========================================================
+                else if (_userId == '0') ...[
+                      SizedBox(height: 10,),
+                  BlocBuilder<HomeBloc, HomeState>(
+                    builder: (context, homeState) {
+                      if (homeState.status == HomeStatus.loading &&
+                          homeState.menus.isEmpty) {
+                        return const Center(child: CircularProgressIndicator());
+                      }
+
+                      if (homeState.menus.isEmpty) {
+                        return const SizedBox.shrink();
+                      }
+
+                      return BlocBuilder<QuickAcessBloc, QuickAccessState>(
+                        builder: (context, quickAccessState) {
+                          return QuickAccessSection(
+                            menus: homeState.menus,
+                            punchStat: quickAccessState.punchStat,
+                          );
+                        },
+                      );
+                    },
+                  ),
+
+                  SizedBox(height: 12.h),
+                ]
+                // ========================================================
+                // LOGGED-IN USER
+                //
+                // USER ID != 0
+                //
+                // SHOW COMPLETE HOME
+                // ========================================================
+                else ...[
+                  // ======================================================
+                  // TODAY PUNCH + PENDING PUNCH
+                  // ======================================================
+                  BlocBuilder<HomeBloc, HomeState>(
+                    builder: (context, state) {
+                      int pendingCount = 0;
+                      int pendingTotalCount = 0;
+
+                      String punchTiming = '';
+                      String city = '';
+                      String countryState = '';
+
+                      final data = state.data;
+
+                      if (state.status == HomeStatus.success && data != null) {
+                        pendingCount = data.pendingInpunchCount;
+
+                        pendingTotalCount = data.totalRecursiveEmployee;
+
+                        punchTiming = data.inpunchTime ?? '';
+
+                        city = data.city ?? '';
+
+                        countryState = data.state ?? '';
+                      }
+
+                      return Row(
+                        children: [
+                          Expanded(
+                            child: SizedBox(
+                              height: 100.h,
+                              child: buildPunchCard(
+                                "Today's Punch",
+                                punchTiming.isEmpty ? '--' : punchTiming,
+                                [
+                                  city,
+                                  countryState,
+                                ].where((e) => e.isNotEmpty).join(', '),
+                              ),
+                            ),
+                          ),
+
+                          SizedBox(width: 8.w),
+
+                          Expanded(
+                            child: SizedBox(
+                              height: 100.h,
+                              child: buildInfoCard(
+                                'In Punch Pending',
+                                '$pendingCount/'
+                                    '$pendingTotalCount',
+                                onTap: () {
+                                  final pendingList = data?.result ?? [];
+
+                                  _showPendingListDialog(pendingList);
+                                },
+                              ),
+                            ),
+                          ),
+                        ],
+                      );
+                    },
+                  ),
+
+                  SizedBox(height: 8.h),
+
+                  // ======================================================
+                  // VISIT STATISTICS
+                  // ======================================================
+                  BlocBuilder<HomeBloc, HomeState>(
+                    builder: (context, state) {
+                      if (state.status == HomeStatus.loading) {
+                        return Container(
+                          margin: EdgeInsets.symmetric(
+                            horizontal: 8.w,
+                            vertical: 8.h,
+                          ),
+                          height: 140.h,
+                          child: const Center(
+                            child: CircularProgressIndicator(),
+                          ),
+                        );
+                      }
+
+                      final homeData =
+                          state.homedata ??
+                          HomeVisitEntity(
+                            status: false,
+                            message: '',
+                            todayTotalVisit: '0',
+                            todayDealerCnt: '0',
+                            todayFarmerCnt: '0',
+                            monthlyTotalVisit: '0',
+                            monthlyDealerCnt: '0',
+                            monthlyFarmerCnt: '0',
+                            monthlyUniqueDealerCnt: '0',
+                            monthlyUniqueFarmerCnt: '0',
+                            lastThirNotVisitDealer: '0',
+                            lastThirNotVisitFarmer: '0',
+                          );
+
+                      return VisitStatisticsTable(homeData);
+                    },
+                  ),
+
+                  // ======================================================
+                  // NOT VISITED
+                  // ======================================================
+                  BlocBuilder<HomeBloc, HomeState>(
+                    builder: (context, state) {
+                      if (state.status == HomeStatus.loading) {
+                        return Container(
+                          margin: EdgeInsets.symmetric(horizontal: 8.w),
+                          height: 140.h,
+                          child: const Center(
+                            child: CircularProgressIndicator(),
+                          ),
+                        );
+                      }
+
+                      final homeData =
+                          state.homedata ??
+                          HomeVisitEntity(
+                            status: false,
+                            message: '',
+                            todayTotalVisit: '0',
+                            todayDealerCnt: '0',
+                            todayFarmerCnt: '0',
+                            monthlyTotalVisit: '0',
+                            monthlyDealerCnt: '0',
+                            monthlyFarmerCnt: '0',
+                            monthlyUniqueDealerCnt: '0',
+                            monthlyUniqueFarmerCnt: '0',
+                            lastThirNotVisitDealer: '0',
+                            lastThirNotVisitFarmer: '0',
+                          );
+
+                      return NotVisitedCard(homeData);
+                    },
+                  ),
+
+                  SizedBox(height: 8.h),
+
+                  // ======================================================
+                  // FROM / TO DATE
+                  // ======================================================
+                  Row(
+                    children: [
+                      Expanded(
+                        child: _buildDateField(
+                          label: 'From Date',
+                          date: _fromDate,
+                          onTap: _selectFromDate,
+                        ),
+                      ),
+
+                      SizedBox(width: 10.w),
+
+                      Expanded(
+                        child: _buildDateField(
+                          label: 'To Date',
+                          date: _toDate,
+                          onTap: _selectToDate,
+                        ),
+                      ),
+                    ],
+                  ),
+
+                  SizedBox(height: 8.h),
+
+                  // ======================================================
+                  // VISIT OVERVIEW
+                  // ======================================================
+                  BlocBuilder<HomeBloc, HomeState>(
+                    builder: (context, state) {
+                      return VisitOverviewCard(
+                        dealerCount: state.totalDealerCount ?? '0',
+                        farmerCount: state.totalFarmerCount ?? '0',
+                      );
+                    },
+                  ),
+
+                  SizedBox(height: 12.h),
+
+                  // ======================================================
+                  // QUICK ACCESS
+                  //
+                  // LOGGED-IN USER VERSION
+                  // ======================================================
+                  BlocBuilder<HomeBloc, HomeState>(
+                    builder: (context, homeState) {
+                      if (homeState.status == HomeStatus.loading &&
+                          homeState.menus.isEmpty) {
+                        return const Center(child: CircularProgressIndicator());
+                      }
+
+                      if (homeState.menus.isEmpty) {
+                        return const SizedBox.shrink();
+                      }
+
+                      return BlocBuilder<QuickAcessBloc, QuickAccessState>(
+                        builder: (context, quickAccessState) {
+                          return QuickAccessSection(
+                            menus: homeState.menus,
+                            punchStat: quickAccessState.punchStat,
+                          );
+                        },
+                      );
+                    },
+                  ),
+
+                  SizedBox(height: 12.h),
+                ],
+              ],
+            ),
+          ),
+        ),
+        /*
+        Padding(
           padding: const EdgeInsets.only(left: 10, right: 10),
           child: SingleChildScrollView(
             child: Column(
@@ -743,6 +1017,8 @@ class _HomeState extends State<Home> {
             ),
           ),
         ),
+
+        */
       ),
     );
 

@@ -1,6 +1,10 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:solufine/core/di/auth_di.dart';
+import 'package:solufine/core/location_tracking/app_database.dart';
+import 'package:solufine/core/location_tracking/background_location_service.dart';
+import 'package:solufine/core/location_tracking/location_repository.dart';
 import 'package:solufine/core/router/app_router.dart';
 import 'package:solufine/core/secure_storage/secure_storage.dart';
 import 'package:solufine/core/theme/app_colors.dart';
@@ -14,7 +18,7 @@ import 'package:solufine/core/utility/widgets/custom_textformfield.dart';
 import 'package:solufine/features/home/doman/home_entity/punch_stat_entity.dart';
 import 'package:solufine/features/home/doman/home_entity/vehicle_type_entity.dart';
 import 'package:solufine/features/home/presentation/quick_aceess_bloc/quick_access_event.dart'
-    show PunchInOutDetailsAddEvent, VehicleTypeEvent;
+    show PunchInOutDetailsAddEvent, VehicleTypeEvent, StoreTrackLocation;
 import 'package:solufine/features/home/presentation/quick_aceess_bloc/quick_access_state.dart';
 import 'package:solufine/features/home/presentation/quick_aceess_bloc/quick_acess_bloc.dart';
 import 'package:flutter/material.dart';
@@ -45,16 +49,112 @@ class _PunchOutScreenState extends State<PunchOutScreen> {
   final TextEditingController remarkController = TextEditingController();
   final TextEditingController vehicleController = TextEditingController();
   // String? punchVehicleId;
-
+  String? userId;
   bool isLoading = false;
   bool _submissionSent = false;
-
+  bool _waitingForStoreLocation = false;
   @override
   void initState() {
     super.initState();
-
+    getUserId();
     openingKmController.text = widget.punchStat?.startingKm?.trim() ?? '';
     _loadVehicleTypes();
+  }
+
+  Future<void> getUserId() async {
+    try {
+      final userData = await SecureStorage.instance.getUserData();
+
+      debugPrint('USER DATA: $userData');
+
+      if (!mounted) return;
+
+      setState(() {
+        userId = userData?['user_id']?.toString();
+      });
+
+      debugPrint('LOGGED IN USER ID: $userId');
+    } catch (e) {
+      debugPrint('GET USER DATA ERROR: $e');
+
+      if (!mounted) return;
+
+      setState(() {
+        userId = null;
+      });
+    }
+  }
+
+  Future<String> _getStoredLocations() async {
+    try {
+      final int? parsedUserId = int.tryParse(userId.toString());
+
+      if (parsedUserId == null) {
+        debugPrint('LOCATION: Invalid userId = $userId');
+        return '[]';
+      }
+
+      final LocationRepository repository = sl<LocationRepository>();
+
+      final List<LocationHistoryData> locations = await repository
+          .getAllLocations(parsedUserId);
+
+      debugPrint('========================================');
+      debugPrint('DEALER VISIT - STORED LOCATIONS');
+      debugPrint('TOTAL LOCATIONS: ${locations.length}');
+      debugPrint('========================================');
+
+      for (final location in locations) {
+        debugPrint(
+          'ID: ${location.id} | '
+          'Lat: ${location.latitude} | '
+          'Lng: ${location.longitude} | '
+          'Time: ${location.capturedAt} | '
+          'Accuracy: ${location.accuracy} | '
+          'Provider: ${location.provider} | '
+          'Address: ${location.geoAddress} | '
+          'Distance: ${location.distance}',
+        );
+      }
+
+      // ============================================================
+      // CREATE DATA FOR STORE LOCATION API
+      // ============================================================
+
+      final List<Map<String, dynamic>> locationList = locations.map((location) {
+        return {
+          'latitude': location.latitude,
+          'longitude': location.longitude,
+          'time': location.capturedAt,
+          'accuracy': location.accuracy,
+          'provider': location.provider,
+          'address': location.geoAddress,
+          'distance': location.distance,
+        };
+      }).toList();
+
+      // ============================================================
+      // JSON ARRAY -> STRING
+      // ============================================================
+
+      final String strAllLocations = jsonEncode(locationList);
+
+      debugPrint('========================================');
+      debugPrint('STR ALL LOCATIONS');
+      debugPrint('TOTAL: ${locations.length}');
+      debugPrint(strAllLocations);
+      debugPrint('========================================');
+
+      return strAllLocations;
+    } catch (e, stackTrace) {
+      debugPrint('========================================');
+      debugPrint('GET STORED LOCATIONS ERROR');
+      debugPrint('$e');
+      debugPrint('$stackTrace');
+      debugPrint('========================================');
+
+      return '[]';
+    }
   }
 
   Future<void> _loadVehicleTypes() async {
@@ -285,7 +385,7 @@ class _PunchOutScreenState extends State<PunchOutScreen> {
 
       body: SafeArea(
         child: BlocConsumer<QuickAcessBloc, QuickAccessState>(
-          listener: (context, state) {
+          listener: (context, state) async {
             if (state.quickAccessStatus == QuickAccessStatus.success &&
                 !_submissionSent) {
               _setMatchedVehicleAndRoute(state);
@@ -305,11 +405,90 @@ class _PunchOutScreenState extends State<PunchOutScreen> {
             }
 
             if (state.quickAccessStatus ==
+                    QuickAccessStatus.punchStatusSuccess &&
+                _submissionSent) {
+              debugPrint('========================================');
+              debugPrint('PUNCH OUT API SUCCESS');
+              debugPrint('========================================');
+
+              final String? dailyTranId = state.dailyTranId;
+
+              if (userId == null || userId!.isEmpty) {
+                debugPrint('PUNCH OUT STORE LOCATION NOT CALLED: userId null');
+                return;
+              }
+
+              if (dailyTranId == null || dailyTranId.isEmpty) {
+                debugPrint(
+                  'PUNCH OUT STORE LOCATION NOT CALLED: dailyTranId null',
+                );
+                return;
+              }
+
+              final String strAllLocations = await _getStoredLocations();
+
+              debugPrint('========================================');
+              debugPrint('PUNCH OUT - CALL STORE LOCATION API');
+              debugPrint('USER ID: $userId');
+              debugPrint('DAILY TRAN ID: $dailyTranId');
+              debugPrint('STR ALL LOCATIONS: $strAllLocations');
+              debugPrint('========================================');
+
+              // IMPORTANT:
+              // Keep _submissionSent = true.
+              // Now wait for StoreTrackLocation API success.
+              _waitingForStoreLocation = true;
+
+              context.read<QuickAcessBloc>().add(
+                StoreTrackLocation(userId!, dailyTranId, strAllLocations),
+              );
+
+              // DO NOT:
+              // _submissionSent = false;
+              // isLoading = false;
+              // show success dialog here.
+
+              return;
+            }
+
+            /*
+            if (state.quickAccessStatus ==
                 QuickAccessStatus.punchStatusSuccess) {
               setState(() {
                 isLoading = false;
                 _submissionSent = false;
               });
+
+              final String? dailyTranId = state.dailyTranId;
+
+              if (userId == null) {
+                debugPrint('PUNCH OUT STORE LOCATION NOT CALLED: userId null');
+                return;
+              }
+
+              if (dailyTranId == null || dailyTranId.isEmpty) {
+                debugPrint(
+                  'PUNCH OUT STORE LOCATION NOT CALLED: dailyTranId null',
+                );
+                return;
+              }
+
+              final String strAllLocations = await _getStoredLocations();
+
+              debugPrint('========================================');
+              debugPrint('PUNCH OUT - CALL STORE LOCATION API');
+              debugPrint('USER ID: $userId');
+              debugPrint('DAILY TRAN ID: $dailyTranId');
+              debugPrint('STR ALL LOCATIONS: $strAllLocations');
+              debugPrint('========================================');
+
+              context.read<QuickAcessBloc>().add(
+                StoreTrackLocation(
+                  userId.toString(),
+                  dailyTranId,
+                  strAllLocations,
+                ),
+              );
 
               AppDialog.show(
                 context: context,
@@ -323,6 +502,186 @@ class _PunchOutScreenState extends State<PunchOutScreen> {
                 },
               );
             }
+
+            */
+
+            if (state.quickAccessStatus ==
+                    QuickAccessStatus.locationAddedSucces &&
+                _waitingForStoreLocation) {
+              debugPrint('========================================');
+              debugPrint('PUNCH OUT STORE LOCATION API SUCCESS');
+              debugPrint('STARTING FINAL CLEANUP');
+              debugPrint('========================================');
+
+              // Prevent this block from executing twice.
+              _waitingForStoreLocation = false;
+
+              try {
+                // ============================================================
+                // 1. STOP BACKGROUND LOCATION SERVICE
+                // ============================================================
+
+                await BackgroundLocationService.stop();
+
+                debugPrint('========================================');
+                debugPrint('BACKGROUND LOCATION SERVICE STOPPED');
+                debugPrint('========================================');
+
+                // Give any active background callback time to finish.
+                await Future.delayed(const Duration(milliseconds: 500));
+
+                // ============================================================
+                // 2. DELETE ALL LOCAL LOCATION RECORDS
+                // ============================================================
+
+                final int? parsedUserId = int.tryParse(userId ?? '');
+
+                if (parsedUserId != null) {
+                  final LocationRepository repository =
+                      sl<LocationRepository>();
+
+                  final int deletedCount = await repository.deleteUserLocations(
+                    parsedUserId,
+                  );
+
+                  debugPrint('========================================');
+                  debugPrint('PUNCH OUT LOCATION CLEANUP');
+                  debugPrint('DELETED RECORDS: $deletedCount');
+
+                  // Verify DB is empty.
+                  final remaining = await repository.getAllLocations(
+                    parsedUserId,
+                  );
+
+                  debugPrint('REMAINING RECORDS: ${remaining.length}');
+
+                  debugPrint('========================================');
+                } else {
+                  debugPrint(
+                    'PUNCH OUT CLEANUP ERROR: Invalid userId = $userId',
+                  );
+                }
+              } catch (e, stackTrace) {
+                debugPrint('========================================');
+                debugPrint('PUNCH OUT CLEANUP ERROR');
+                debugPrint('$e');
+                debugPrint('$stackTrace');
+                debugPrint('========================================');
+              }
+
+              if (!mounted) return;
+
+              // ============================================================
+              // 3. NOW COMPLETE PUNCH OUT
+              // ============================================================
+
+              setState(() {
+                isLoading = false;
+                _submissionSent = false;
+              });
+
+              // ============================================================
+              // 4. SHOW SUCCESS DIALOG
+              // ============================================================
+
+              AppDialog.show(
+                context: context,
+                type: DialogType.success,
+                title: 'Punch Out Successful',
+                message: 'Your punch out has been submitted successfully.',
+                buttonText: 'OK',
+                onButtonPressed: () {
+                  context.go('${AppRouter.addExpense}?refresh=true');
+                },
+              );
+
+              return;
+            }
+            /*
+
+            if (state.quickAccessStatus ==
+                QuickAccessStatus.locationAddedSucces) {
+              debugPrint('========================================');
+              debugPrint('PUNCH OUT STORE LOCATION API SUCCESS');
+              debugPrint('STARTING FINAL CLEANUP');
+              debugPrint('========================================');
+
+              try {
+                // ============================================
+                // 1. STOP BACKGROUND TRACKING FIRST
+                // ============================================
+
+                await BackgroundLocationService.stop();
+
+                debugPrint('BACKGROUND LOCATION SERVICE STOPPED');
+
+                // Give active callback a moment to finish.
+                await Future.delayed(const Duration(milliseconds: 500));
+
+                // ============================================
+                // 2. DELETE ALL LOCAL LOCATIONS
+                // ============================================
+
+                if (userId != null) {
+                  final LocationRepository repository =
+                      sl<LocationRepository>();
+
+                  final int? parsedUserId = int.tryParse(userId ?? '');
+
+                  if (parsedUserId != null) {
+                    final int deletedCount = await repository
+                        .deleteUserLocations(parsedUserId);
+
+                    debugPrint('========================================');
+                    debugPrint('PUNCH OUT LOCATION CLEANUP');
+                    debugPrint('DELETED RECORDS: $deletedCount');
+
+                    final remaining = await repository.getAllLocations(
+                      parsedUserId,
+                    );
+
+                    debugPrint('REMAINING RECORDS: ${remaining.length}');
+                    debugPrint('========================================');
+                    debugPrint('========================================');
+                    debugPrint('PUNCH OUT LOCATION CLEANUP');
+                    debugPrint('DELETED RECORDS: $deletedCount');
+
+                    debugPrint('REMAINING RECORDS: ${remaining.length}');
+                    debugPrint('========================================');
+                  }
+                }
+              } catch (e, stackTrace) {
+                debugPrint('PUNCH OUT CLEANUP ERROR: $e');
+                debugPrint('$stackTrace');
+              }
+
+              if (!mounted) return;
+
+              setState(() {
+                isLoading = false;
+                _submissionSent = false;
+              });
+
+              // ============================================
+              // 3. SHOW FINAL SUCCESS
+              // ============================================
+
+              // AppDialog.show(
+              //   context: context,
+              //   type: DialogType.success,
+              //   title: 'Punch Out Successful',
+              //   message:
+              //       'Your punch out has been submitted successfully.',
+              //   buttonText: 'OK',
+              //   onButtonPressed: () {
+              //     context.go(
+              //       '${AppRouter.addExpense}?refresh=true',
+              //     );
+              //   },
+              // );
+            }
+
+            */
 
             if (state.quickAccessStatus == QuickAccessStatus.failure) {
               setState(() {
@@ -421,7 +780,7 @@ class _PunchOutScreenState extends State<PunchOutScreen> {
 
                           return null;
                         },
-                        
+
                         builder: (field) {
                           return Column(
                             crossAxisAlignment: CrossAxisAlignment.start,

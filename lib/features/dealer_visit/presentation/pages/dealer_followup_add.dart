@@ -1,5 +1,9 @@
+import 'dart:convert';
 import 'dart:io';
 
+import 'package:solufine/core/di/auth_di.dart';
+import 'package:solufine/core/location_tracking/app_database.dart';
+import 'package:solufine/core/location_tracking/location_repository.dart';
 import 'package:solufine/core/router/app_router.dart';
 import 'package:solufine/core/secure_storage/secure_storage.dart';
 import 'package:solufine/core/theme/app_colors.dart';
@@ -24,6 +28,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil_plus/flutter_screenutil_plus.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
+import 'package:solufine/features/home/presentation/quick_aceess_bloc/quick_access_event.dart';
+import 'package:solufine/features/home/presentation/quick_aceess_bloc/quick_acess_bloc.dart';
 
 class DealerFollowupAdd extends StatefulWidget {
   const DealerFollowupAdd({super.key});
@@ -55,7 +61,7 @@ class _DealerFollowupAddState extends State<DealerFollowupAdd> {
   String? _selectedStateId = '0';
   String? _selectedDistrictId = '0';
   String? _selectedTalukaId = '0';
-
+  String? userId;
   @override
   void initState() {
     super.initState();
@@ -266,6 +272,79 @@ class _DealerFollowupAddState extends State<DealerFollowupAdd> {
   String latitude = '';
   String longitude = '';
   String address = '';
+
+  Future<String> _getStoredLocations() async {
+    try {
+      final int? parsedUserId = int.tryParse(userId.toString());
+
+      if (parsedUserId == null) {
+        debugPrint('LOCATION: Invalid userId = $userId');
+        return '[]';
+      }
+
+      final LocationRepository repository = sl<LocationRepository>();
+
+      final List<LocationHistoryData> locations = await repository
+          .getAllLocations(parsedUserId);
+
+      debugPrint('========================================');
+      debugPrint('DEALER VISIT - STORED LOCATIONS');
+      debugPrint('TOTAL LOCATIONS: ${locations.length}');
+      debugPrint('========================================');
+
+      for (final location in locations) {
+        debugPrint(
+          'ID: ${location.id} | '
+          'Lat: ${location.latitude} | '
+          'Lng: ${location.longitude} | '
+          'Time: ${location.capturedAt} | '
+          'Accuracy: ${location.accuracy} | '
+          'Provider: ${location.provider} | '
+          'Address: ${location.geoAddress} | '
+          'Distance: ${location.distance}',
+        );
+      }
+
+      // ============================================================
+      // CREATE DATA FOR STORE LOCATION API
+      // ============================================================
+
+      final List<Map<String, dynamic>> locationList = locations.map((location) {
+        return {
+          'latitude': location.latitude,
+          'longitude': location.longitude,
+          'time': location.capturedAt,
+          'accuracy': location.accuracy,
+          'provider': location.provider,
+          'address': location.geoAddress,
+          'distance': location.distance,
+        };
+      }).toList();
+
+      // ============================================================
+      // JSON ARRAY -> STRING
+      // ============================================================
+
+      final String strAllLocations = jsonEncode(locationList);
+
+      debugPrint('========================================');
+      debugPrint('STR ALL LOCATIONS');
+      debugPrint('TOTAL: ${locations.length}');
+      debugPrint(strAllLocations);
+      debugPrint('========================================');
+
+      return strAllLocations;
+    } catch (e, stackTrace) {
+      debugPrint('========================================');
+      debugPrint('GET STORED LOCATIONS ERROR');
+      debugPrint('$e');
+      debugPrint('$stackTrace');
+      debugPrint('========================================');
+
+      return '[]';
+    }
+  }
+
   @override
   void dispose() {
     shopNameController.dispose();
@@ -301,17 +380,31 @@ class _DealerFollowupAddState extends State<DealerFollowupAdd> {
   }
 
   Future<void> getUserId() async {
-    final userData = await SecureStorage.instance.getUserData();
+    try {
+      final userData = await SecureStorage.instance.getUserData();
 
-    final userId = userData?['user_id']?.toString();
+      debugPrint('USER DATA: $userData');
 
-    if (!mounted || userId == null || userId.isEmpty) {
-      return;
+      if (!mounted) return;
+
+      setState(() {
+        userId = userData?['user_id']?.toString();
+      });
+
+      debugPrint('LOGGED IN USER ID: $userId');
+    } catch (e) {
+      debugPrint('GET USER DATA ERROR: $e');
+
+      if (!mounted) return;
+
+      setState(() {
+        userId = null;
+      });
     }
 
-    debugPrint('USER ID: $userId');
-
-    context.read<AddDealerVisitBlock>().add(StateListEvent(userId: userId));
+    context.read<AddDealerVisitBlock>().add(
+      StateListEvent(userId: userId.toString()),
+    );
   }
 
   Future<void> _pickDate() async {
@@ -514,20 +607,23 @@ class _DealerFollowupAddState extends State<DealerFollowupAdd> {
       floatingActionButton:
           BlocBuilder<AddDealerVisitBlock, AddDealerVisitState>(
             builder: (context, state) {
-              return CustomButton(
-                text: 'Register Dealer',
-                onPressed: _submit,
-                isLoading: isLoading,
-                width: double.infinity,
-                height: 52,
-                borderRadius: 22,
-                backgroundColor: const Color(0xFF087C3A),
-                textColor: Colors.white,
+              return Padding(
+                padding: const EdgeInsets.only(left: 16,right: 16),
+                child: CustomButton(
+                  text: 'Register Dealer',
+                  onPressed: _submit,
+                  isLoading: isLoading,
+                  width: double.infinity,
+                  height: 52,
+                  borderRadius: 22,
+                  backgroundColor: const Color(0xFF087C3A),
+                  textColor: Colors.white,
+                ),
               );
             },
           ),
       body: BlocConsumer<AddDealerVisitBlock, AddDealerVisitState>(
-        listener: (context, state) {
+        listener: (context, state) async {
           if (!isLoading || !_submissionSent) return;
           if (state.addLeaveStatus == AddDealerVisitStatus.dealerAddedSuccess) {
             setState(() {
@@ -535,13 +631,26 @@ class _DealerFollowupAddState extends State<DealerFollowupAdd> {
               _submissionSent = false;
             });
 
+            final String strAllLocations = await _getStoredLocations();
+
+            debugPrint('========================================');
+            debugPrint('CALLING STORE TRACK LOCATION API');
+            debugPrint('USER ID: $userId');
+
+            debugPrint('STR ALL LOCATIONS: $strAllLocations');
+            debugPrint('========================================');
+
+            context.read<QuickAcessBloc>().add(
+              StoreTrackLocation(userId.toString(), '', strAllLocations),
+            );
+
             AppDialog.show(
               context: context,
-            
+
               message: 'Dealer Added Successfully',
               onButtonPressed: () => {context.go(AppRouter.home)},
             );
-           // context.push(AppRouter.home);
+            // context.push(AppRouter.home);
           }
           // ============================================
           // API ERROR
@@ -679,7 +788,7 @@ class _DealerFollowupAddState extends State<DealerFollowupAdd> {
 
                       validator: (value) {
                         if (value == null || value.isEmpty) {
-                          return 'Please select farmer status';
+                          return 'Please select Dealer type';
                         }
 
                         return null;
