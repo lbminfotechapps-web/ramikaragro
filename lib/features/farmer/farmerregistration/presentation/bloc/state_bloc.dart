@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:io';
 
+import 'package:flutter/material.dart';
 import 'package:solufine/core/utility/image_compression.dart';
 import 'package:solufine/features/farmer/farmerregistration/domain/repository/farmerregistration_repo.dart';
 import 'package:solufine/features/farmer/farmerregistration/presentation/bloc/state_event.dart';
@@ -9,7 +10,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 class StateBloc extends Bloc<StatesEvent, StatsState> {
   final FarmerregistrationRepository repositoryProvider;
-  
 
   StateBloc({required this.repositoryProvider}) : super(StatsState()) {
     on<StateListEvent>(_onStateListGet);
@@ -129,182 +129,224 @@ class StateBloc extends Bloc<StatesEvent, StatsState> {
     try {
       File? farmerImageFile;
 
-      // ============================================
-      // COMPRESS FARMER IMAGE
-      // ============================================
-      if (event.image.isNotEmpty) {
-        final originalFile = File(event.image);
+      debugPrint('==========================================');
+      debugPrint('FARMER IMAGE CHECK');
+      debugPrint('EVENT IMAGE PATH: ${event.image}');
+      debugPrint('==========================================');
 
-        if (await originalFile.exists()) {
-          farmerImageFile = await ImageCompression.compressImage(
+      if (event.image.trim().isNotEmpty) {
+        final originalFile = File(event.image.trim());
+
+        final bool exists = await originalFile.exists();
+
+        debugPrint('ORIGINAL IMAGE EXISTS: $exists');
+
+        if (exists) {
+          debugPrint('ORIGINAL IMAGE PATH: ${originalFile.path}');
+
+          debugPrint(
+            'ORIGINAL IMAGE SIZE: '
+            '${await originalFile.length()} bytes',
+          );
+
+          // ========================================================
+          // COMPRESS IMAGE
+          // ========================================================
+
+          final compressedFile = await ImageCompression.compressImage(
             originalFile,
             maxWidth: 450,
             maxHeight: 450,
             quality: 45,
           );
 
-          if (farmerImageFile == null) {
-            throw Exception('Unable to compress farmer image');
+          // ========================================================
+          // Use compressed image if compression succeeds.
+          // Otherwise use original image.
+          // ========================================================
+
+          if (compressedFile != null && await compressedFile.exists()) {
+            farmerImageFile = compressedFile;
+
+            debugPrint(' USING COMPRESSED IMAGE');
+
+            debugPrint(
+              'COMPRESSED PATH: '
+              '${farmerImageFile.path}',
+            );
+
+            debugPrint(
+              'COMPRESSED SIZE: '
+              '${await farmerImageFile.length()} bytes',
+            );
+          } else {
+            farmerImageFile = originalFile;
+
+            debugPrint(
+              ' COMPRESSION FAILED - '
+              'USING ORIGINAL IMAGE',
+            );
+
+            debugPrint(
+              'IMAGE PATH: '
+              '${farmerImageFile.path}',
+            );
           }
         } else {
-          print(
-            'Farmer image file not found: '
-            '${event.image}',
-          );
+          debugPrint(' FARMER IMAGE FILE DOES NOT EXIST');
         }
+      } else {
+        debugPrint(' FARMER IMAGE NOT SELECTED');
       }
 
-      // ============================================
-      // REQUEST DATA
-      // ============================================
+      // ============================================================
+      // 2. NORMAL REQUEST DATA
+      // ============================================================
+      //
+      // IMPORTANT:
+      // selfie_capture_image is NOT added here.
+      //
+      // It will be added by Datasource as MultipartFile.
+      //
+      // ============================================================
+
       final jsonData = <String, dynamic>{
         'fld_farmer_name': event.fldFarmerName,
+
         'fld_address': event.fldAddress,
+
         'user_id': event.userId,
+
         'fld_category_id': event.fldCategoryId,
+
         'state': event.state,
+
         'fld_demo_type_id': event.fldDemoTypeId,
+
         'district': event.district,
+
         'taluka': event.taluka,
 
         'status_of_farmer': event.statusOfFarmer,
+
         'campaign_radio': event.campaignRadio,
 
         'fld_mobile_no': event.fldMobileNo,
+
         'fld_mobile_no2': event.fldMobileNo2,
+
         'fld_total_acre': event.fldTotalAcre,
+
         'fld_email_id': event.fldEmailId,
+
         'fld_tractor_mode': event.fldTractorMode,
+
         'fld_village': event.fldVillage,
 
         'selectedProductId': event.selectedProductId,
+
         'selectedCropId': event.selectedCropId,
+
         'selectedAcers': event.selectedAcers,
+
         'selectedSowingDates': event.selectedSowingDates,
+
         'selectedIrrigationId': event.selectedIrrigationId,
 
         'selectedCattleId': event.selectedCattleId,
+
         'selectedCattleCount': event.selectedCattleCount,
 
         'latitude': event.latitude,
+
         'longitude': event.longitude,
+
         'networkLatitude': event.networkLatitude,
+
         'networkLongitude': event.networkLongitude,
+
         'gpsLatitude': event.gpsLatitude,
+
         'gpsLongitude': event.gpsLongitude,
+
         'differenceByAndroid': event.differenceByAndroid,
 
         'contactPersonName': event.contactPersonName,
+
         'meetingLocation': event.meetingLocation,
+
         'marketNearby': event.marketNearby,
+
         'aadhaarNo': event.aadhaarNo,
+
         'remark': event.remark,
+
         'geoAddress': event.geoAddress,
+
         'strNetworkInfo': event.strNetworkInfo,
+
         'currentProductUsed': event.currentProductUsed,
+
         'strBatteryInfo': event.strBatteryInfo,
+
         'activityId': event.activityId,
       };
 
-      // ============================================
-      // ADD FARMER IMAGE FILE
-      // ============================================
+      // ============================================================
+      // 3. PRINT NORMAL FORM DATA
+      // ============================================================
+
+      debugPrint('');
+      debugPrint('==========================================');
+      debugPrint('FARMER NORMAL REQUEST DATA');
+      debugPrint('==========================================');
+
+      jsonData.forEach((key, value) {
+        debugPrint('$key: $value');
+      });
+
+      // ============================================================
+      // 4. PRINT IMAGE INFORMATION
+      // ============================================================
+
+      debugPrint('==========================================');
+      debugPrint('IMAGE TO REPOSITORY');
+      debugPrint('==========================================');
+
       if (farmerImageFile != null) {
-        jsonData['image'] = farmerImageFile;
+        debugPrint(' IMAGE AVAILABLE');
+
+        debugPrint('PATH: ${farmerImageFile.path}');
+
+        debugPrint(
+          'EXISTS: '
+          '${await farmerImageFile.exists()}',
+        );
+
+        debugPrint(
+          'SIZE: '
+          '${await farmerImageFile.length()} bytes',
+        );
+      } else {
+        debugPrint(' IMAGE FILE IS NULL');
       }
 
-      // ============================================
-      // DEBUG
-      // ============================================
-      print('========== FARMER REQUEST ==========');
+      debugPrint('==========================================');
 
-      print(
-        'selectedSowingDates: '
-        '${event.selectedSowingDates}',
+      final response = await repositoryProvider.saveFarmerDetails(
+        jsonData,
+        farmerImageFile,
       );
 
-      print(
-        'marketNearby: '
-        '${event.marketNearby}',
-      );
+      debugPrint('==========================================');
 
-      print(
-        'status_of_farmer: '
-        '${event.statusOfFarmer}',
-      );
+      debugPrint('FARMER DETAILS RESPONSE: $response');
 
-      print(
-        'selectedAcers: '
-        '${event.selectedAcers}',
-      );
+      debugPrint('==========================================');
 
-      print(
-        'selectedIrrigationId: '
-        '${event.selectedIrrigationId}',
-      );
-
-      print(
-        'selectedProductId: '
-        '${event.selectedProductId}',
-      );
-
-      print(
-        'activityId: '
-        '${event.activityId}',
-      );
-
-      print(
-        'campaign_radio: '
-        '${event.campaignRadio}',
-      );
-
-      print(
-        'currentProductUsed: '
-        '${event.currentProductUsed}',
-      );
-
-      print(
-        'state: '
-        '${event.state}',
-      );
-
-      print(
-        'district: '
-        '${event.district}',
-      );
-
-      print(
-        'taluka: '
-        '${event.taluka}',
-      );
-
-      print(
-        'fld_farmer_name: '
-        '${event.fldFarmerName}',
-      );
-
-      print(
-        'fld_mobile_no: '
-        '${event.fldMobileNo}',
-      );
-
-      print(
-        'image: '
-        '${farmerImageFile?.path ?? 'NO FILE'}',
-      );
-
-      print('====================================');
-
-      // ============================================
-      // CALL API
-      // ============================================
-      final response = await repositoryProvider.saveFarmerDetails(jsonData);
-
-      print('Farmer details response: $response');
-
-      // ============================================
-      // SUCCESS
-      // ============================================
+      // ============================================================
+      // 6. HANDLE RESPONSE
+      // ============================================================
 
       if (response['status'] == true) {
         emit(
@@ -321,12 +363,17 @@ class StateBloc extends Bloc<StatesEvent, StatsState> {
           ),
         );
       }
-    } catch (error) {
-      print('Farmer details error: $error');
+    } catch (error, stackTrace) {
+      debugPrint('==========================================');
 
-      // ============================================
-      // FAILURE
-      // ============================================
+      debugPrint(' FARMER DETAILS ERROR');
+
+      debugPrint('ERROR: $error');
+
+      debugPrint('STACK TRACE: $stackTrace');
+
+      debugPrint('==========================================');
+
       emit(
         state.copyWith(
           status: StatesStatus.failed,
