@@ -2,8 +2,11 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:solufine/core/api_constant/api_client.dart';
+import 'package:solufine/core/di/auth_di.dart';
+import 'package:solufine/core/location_tracking/location_repository.dart';
 import 'package:solufine/core/secure_storage/secure_storage.dart';
 import 'package:solufine/core/theme/app_colors.dart';
+import 'package:solufine/core/utility/device_info_util.dart';
 import 'package:solufine/core/utility/location_util.dart';
 import 'package:solufine/core/utility/widgets/custom_appbar.dart';
 import 'package:solufine/core/utility/widgets/custom_loader.dart';
@@ -138,9 +141,213 @@ class _DealerListScreenState extends State<DealerListScreen> {
     );
   }
 
-  // =========================================================
-  // BUILD
-  // =========================================================
+  Future<void> _submitDealerLocation(DealerListModel dealer) async {
+    try {
+      debugPrint('');
+      debugPrint('========================================');
+      debugPrint('UPDATE DEALER LOCATION');
+      debugPrint('========================================');
+
+      // ============================================================
+      // 1. DEALER ID
+      // ============================================================
+
+      final String dealerId = dealer.outletId?.toString().trim() ?? '';
+
+      // if (dealerId.isEmpty || dealerId == '0') {
+      //   _showError('Dealer ID is not available');
+      //   return;
+      // }
+
+      // ============================================================
+      // 2. GET USER ID
+      // ============================================================
+
+      final userData = await SecureStorage.instance.getUserData();
+
+      final String userId = userData?['user_id']?.toString().trim() ?? '';
+
+      // if (userId.isEmpty || userId == '0') {
+      //   _showError('User ID is not available');
+      //   return;
+      // }
+
+      // ============================================================
+      // 3. GET FRESH CURRENT LOCATION
+      // ============================================================
+
+      final position = await LocationUtil.instance.getCurrentLocation();
+
+      // if (position == null) {
+      //   _showError(
+      //     'Unable to get current location. Please try again.',
+      //   );
+      //   return;
+      // }
+
+      final String latitude = position!.latitude.toString();
+
+      final String longitude = position.longitude.toString();
+
+      final String accuracy = position.accuracy.toString();
+
+      debugPrint('Current Latitude  : $latitude');
+      debugPrint('Current Longitude : $longitude');
+      debugPrint('Accuracy          : $accuracy');
+
+      // ============================================================
+
+      final String networkLatitude = latitude;
+      final String networkLongitude = longitude;
+
+      final String gpsLatitude = latitude;
+      final String gpsLongitude = longitude;
+
+      // ============================================================
+      // 5. GET ADDRESS
+      // ============================================================
+
+      String geoAddress = '';
+
+      try {
+        geoAddress = await LocationUtil.instance.getAddress(
+          position.latitude,
+          position.longitude,
+        );
+      } catch (e) {
+        debugPrint('GET ADDRESS ERROR: $e');
+      }
+
+      // ============================================================
+      // 6. DEVICE INFORMATION
+      // ============================================================
+
+      String strNetworkInfo = '';
+      String strBatteryInfo = '';
+
+      try {
+        strNetworkInfo = await DeviceInfoUtil.instance.getNetworkInfo();
+      } catch (e) {
+        debugPrint('NETWORK INFO ERROR: $e');
+      }
+
+      try {
+        strBatteryInfo = await DeviceInfoUtil.instance.getBatteryInfo();
+      } catch (e) {
+        debugPrint('BATTERY INFO ERROR: $e');
+      }
+
+      // ============================================================
+      // 7. LOCATION HISTORY
+      // ============================================================
+
+      String locationHistoryString = '';
+
+      try {
+        final int parsedUserId = int.tryParse(userId) ?? 0;
+
+        if (parsedUserId > 0) {
+          final locationRepository = sl<LocationRepository>();
+
+          final locations = await locationRepository.getAllLocations(
+            parsedUserId,
+          );
+
+          final List<Map<String, dynamic>> history = locations.map((location) {
+            return {
+              'latitude': location.latitude,
+              'longitude': location.longitude,
+              'time': location.capturedAt,
+              'accuracy': location.accuracy,
+              'provider': location.provider,
+              'address': location.geoAddress,
+              'distance': location.distance,
+            };
+          }).toList();
+
+          locationHistoryString = jsonEncode(history);
+        }
+      } catch (e) {
+        debugPrint('LOCATION HISTORY ERROR: $e');
+      }
+
+      // ============================================================
+      // 8. PRINT FINAL DATA
+      // ============================================================
+
+      debugPrint('');
+      debugPrint('========================================');
+      debugPrint('DEALER LOCATION FINAL DATA');
+      debugPrint('========================================');
+
+      debugPrint('Dealer ID          : $dealerId');
+      debugPrint('User ID            : $userId');
+
+      debugPrint('Latitude           : $latitude');
+      debugPrint('Longitude          : $longitude');
+
+      debugPrint('Network Latitude   : $networkLatitude');
+      debugPrint('Network Longitude  : $networkLongitude');
+
+      debugPrint('GPS Latitude       : $gpsLatitude');
+      debugPrint('GPS Longitude      : $gpsLongitude');
+
+      debugPrint('Geo Address        : $geoAddress');
+
+      debugPrint('Network Info       : $strNetworkInfo');
+      debugPrint('Battery Info       : $strBatteryInfo');
+
+      debugPrint('Location History   : $locationHistoryString');
+
+      debugPrint('========================================');
+
+      if (!mounted) return;
+
+      // ============================================================
+      // 9. CALL BLOC
+      // ============================================================
+
+      context.read<DealerListBloc>().add(
+        AddDealerLocation(
+          dealerId: dealerId,
+          userId: userId,
+
+          locationHistoryString: locationHistoryString,
+
+          latitude: latitude,
+          longitude: longitude,
+
+          networkLatitude: networkLatitude,
+          networkLongitude: networkLongitude,
+
+          gpsLatitude: gpsLatitude,
+          gpsLongitude: gpsLongitude,
+
+          geoAddress: geoAddress,
+
+          mobileInfo: '',
+          mobileImei: '',
+
+          networkInfo: strNetworkInfo,
+          batteryInfo: strBatteryInfo,
+        ),
+      );
+
+      debugPrint('ADD DEALER LOCATION EVENT SENT');
+    } catch (e, stackTrace) {
+      debugPrint('========================================');
+      debugPrint('UPDATE DEALER LOCATION ERROR');
+      debugPrint('ERROR: $e');
+      debugPrint('STACK: $stackTrace');
+      debugPrint('========================================');
+
+      if (!mounted) return;
+
+      // _showError(
+      //   'Unable to update dealer location. Please try again.',
+      // );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -185,6 +392,25 @@ class _DealerListScreenState extends State<DealerListScreen> {
               });
             }
           }
+          // ============================================================
+          // ADD DEALER LOCATION SUCCESS
+          // ============================================================
+
+          if (state.status == DealerListStatus.addDealerLocationSuccess) {
+            debugPrint('DEALER LOCATION UPDATED SUCCESSFULLY');
+
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text('Dealer location updated successfully'),
+                duration: Duration(seconds: 2),
+              ),
+            );
+
+            // Refresh dealer list after location update
+            _loadDealers(searchKey: _searchController.text.trim());
+          }
+
+          //
         },
         builder: (context, state) {
           if (_isInitialLoading || state.status == DealerListStatus.loading) {
@@ -264,7 +490,12 @@ class _DealerListScreenState extends State<DealerListScreen> {
                           itemBuilder: (context, index) {
                             final dealer = dealers[index];
 
-                            return _DealerListItem(dealer: dealer);
+                            return _DealerListItem(
+                              dealer: dealer,
+                              onLocationTap: () {
+                                _submitDealerLocation(dealer);
+                              },
+                            );
                           },
                         ),
                       ),
@@ -375,11 +606,17 @@ class _DealerListScreenState extends State<DealerListScreen> {
 
 class _DealerListItem extends StatelessWidget {
   final DealerListModel dealer;
+  final VoidCallback onLocationTap;
 
-  const _DealerListItem({required this.dealer});
+  const _DealerListItem({required this.dealer, required this.onLocationTap});
 
   @override
   Widget build(BuildContext context) {
+    final double latitude = double.tryParse(dealer.latitude ?? '0') ?? 0;
+
+    final double longitude = double.tryParse(dealer.longitude ?? '0') ?? 0;
+
+    final bool locationNotAvailable = latitude == 0 && longitude == 0;
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
       decoration: BoxDecoration(
@@ -435,7 +672,7 @@ class _DealerListItem extends StatelessWidget {
                               dealer.outletName.isEmpty
                                   ? 'Unknown Dealer'
                                   : dealer.outletName,
-                              maxLines: 1,
+                              maxLines: 2,
                               overflow: TextOverflow.ellipsis,
                               style: const TextStyle(
                                 fontSize: 14,
@@ -560,15 +797,39 @@ class _DealerListItem extends StatelessWidget {
             padding: const EdgeInsets.fromLTRB(8, 0, 8, 9),
             child: Row(
               children: [
-                // PIN
-                //  Text( dealer.outletId),
-                _CircleActionButton(
-                  icon: Icons.push_pin,
-                  onTap: () {
-                    context.push('/dealerpin', extra: dealer.outletId);
-                    print("dealerId33${dealer.outletId}");
-                  },
-                ),
+                if ((double.tryParse(dealer.latitude ?? '0') ?? 0) == 0 &&
+                    (double.tryParse(dealer.longitude ?? '0') ?? 0) == 0)
+                  _CircleActionButton(
+                    icon: Icons.location_on,
+                    onTap: () {
+                      onLocationTap();
+                      // debugPrint('===================================');
+                      // debugPrint('DEALER LOCATION NOT AVAILABLE');
+                      // debugPrint('Dealer ID: ${dealer.outletId}');
+                      // debugPrint('Latitude: ${dealer.latitude}');
+                      // debugPrint('Longitude: ${dealer.longitude}');
+                      // debugPrint('===================================');
+
+                      // context.push('/dealerpin', extra: dealer.outletId);
+                    },
+                  )
+                // ============================================================
+                // LATITUDE & LONGITUDE ARE AVAILABLE
+                // ============================================================
+                else
+                  _CircleActionButton(
+                    icon: Icons.push_pin,
+                    onTap: () {
+                      debugPrint('===================================');
+                      debugPrint('DEALER LOCATION AVAILABLE');
+                      debugPrint('Dealer ID: ${dealer.outletId}');
+                      debugPrint('Latitude: ${dealer.latitude}');
+                      debugPrint('Longitude: ${dealer.longitude}');
+                      debugPrint('===================================');
+
+                      context.push('/dealerpin', extra: dealer.outletId);
+                    },
+                  ),
 
                 const SizedBox(width: 6),
 

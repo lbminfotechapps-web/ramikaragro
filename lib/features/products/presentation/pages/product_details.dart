@@ -4,13 +4,13 @@ import 'package:solufine/core/secure_storage/secure_storage.dart';
 import 'package:solufine/core/theme/app_colors.dart';
 import 'package:solufine/core/utility/widgets/custom_appbar.dart';
 
-
 import 'package:solufine/features/products/domain/entity/fertilizer_product_entity.dart';
 
 import 'package:flutter/material.dart';
 
 import 'package:flutter_screenutil_plus/flutter_screenutil_plus.dart';
 import 'package:go_router/go_router.dart';
+import 'package:webview_flutter/webview_flutter.dart';
 
 // IMPORTANT:
 // Use the file where your existing global `sl = GetIt.instance` is defined.
@@ -23,11 +23,7 @@ class ProductDetails extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (product == null) {
-      return const Scaffold(
-        body: Center(
-          child: Text('Product Not Found'),
-        ),
-      );
+      return const Scaffold(body: Center(child: Text('Product Not Found')));
     }
 
     return Scaffold(
@@ -131,14 +127,7 @@ class ProductDetails extends StatelessWidget {
             if (product!.productContents.isNotEmpty)
               _buildSection(
                 title: 'Description',
-                child: Text(
-                  _removeHtml(product!.productContents),
-                  style: TextStyle(
-                    fontSize: 14.sp,
-                    height: 1.6,
-                    color: Colors.grey.shade700,
-                  ),
-                ),
+                child: _buildHtmlContent(product!.productContents),
               ),
 
             // ========================================================
@@ -163,21 +152,13 @@ class ProductDetails extends StatelessWidget {
             if (product!.productContents.isNotEmpty)
               _buildSection(
                 title: 'Product Contents',
-                child: Text(
-                  _removeHtml(product!.productContents),
-                  style: TextStyle(
-                    fontSize: 14.sp,
-                    height: 1.6,
-                    color: Colors.grey.shade700,
-                  ),
-                ),
+                child: _buildHtmlContent(product!.productContents),
               ),
 
             // ========================================================
             // DISEASE IMAGE
             // ========================================================
-            if (product!.diseasePath.isNotEmpty)
-              _buildDiseaseImage(),
+            if (product!.diseasePath.isNotEmpty) _buildDiseaseImage(),
           ],
         ),
       ),
@@ -194,14 +175,12 @@ class ProductDetails extends StatelessWidget {
     // if (userData == null) {
     //   if (!context.mounted) return;
 
-    //   ScaffoldMessenger.of(context).showSnackBar(
-    //     const SnackBar(
-    //       content: Text(
-    //         'User information not found. Please login again.',
-    //       ),
-    //       behavior: SnackBarBehavior.floating,
-    //     ),
-    //   );
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('User information not found. Please login again.'),
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
 
     //   return;
     // }
@@ -211,14 +190,12 @@ class ProductDetails extends StatelessWidget {
     // if (userId.isEmpty) {
     //   if (!context.mounted) return;
 
-    //   ScaffoldMessenger.of(context).showSnackBar(
-    //     const SnackBar(
-    //       content: Text(
-    //         'User ID not found. Please login again.',
-    //       ),
-    //       behavior: SnackBarBehavior.floating,
-    //     ),
-    //   );
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('User ID not found. Please login again.'),
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
 
     //   return;
     // }
@@ -238,21 +215,81 @@ class ProductDetails extends StatelessWidget {
     //     ),
     //   ),
     // );
-  context.push('/productEnquiry', extra: {
-    'productId': product!.productId.toString(),
-    'productName': product!.productName.toString(),
-  },);
+    context.push(
+      '/productEnquiry',
+      extra: {
+        'productId': product!.productId.toString(),
+        'productName': product!.productName.toString(),
+      },
+    );
+  }
 
+  Widget _buildHtmlContent(String htmlContent) {
+    final controller = WebViewController()
+      ..setJavaScriptMode(JavaScriptMode.unrestricted)
+      ..setBackgroundColor(Colors.transparent)
+      ..loadHtmlString('''
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+
+<meta name="viewport"
+      content="width=device-width, initial-scale=1.0">
+
+<style>
+  body {
+    font-family: Arial, sans-serif;
+    font-size: 14px;
+    line-height: 1.6;
+    color: #424242;
+    margin: 0;
+    padding: 0;
+    background: transparent;
+  }
+
+  ul {
+    padding-left: 22px;
+  }
+
+  li {
+    margin-bottom: 6px;
+  }
+
+  p {
+    margin-top: 6px;
+    margin-bottom: 8px;
+  }
+
+  h2, h3, h4 {
+    margin-top: 10px;
+    margin-bottom: 8px;
+  }
+
+  img {
+    max-width: 100%;
+    height: auto;
+  }
+</style>
+
+</head>
+
+<body>
+
+${htmlContent.replaceAll('*_*', '<hr>')}
+
+</body>
+</html>
+''');
+
+    return SizedBox(height: 1000, child: WebViewWidget(controller: controller));
   }
 
   // ==============================================================
   // SHOW ZOOM IMAGE
   // ==============================================================
 
-  void _showZoomImage(
-    BuildContext context,
-    String imageUrl,
-  ) {
+  void _showZoomImage(BuildContext context, String imageUrl) {
     showDialog(
       context: context,
       barrierColor: Colors.black,
@@ -330,10 +367,7 @@ class ProductDetails extends StatelessWidget {
 
     return GestureDetector(
       onTap: () {
-        _showZoomImage(
-          context,
-          imageUrl,
-        );
+        _showZoomImage(context, imageUrl);
       },
       child: Container(
         height: 260,
@@ -370,11 +404,7 @@ class ProductDetails extends StatelessWidget {
                   color: Colors.black.withOpacity(0.55),
                   shape: BoxShape.circle,
                 ),
-                child: const Icon(
-                  Icons.zoom_in,
-                  color: Colors.white,
-                  size: 22,
-                ),
+                child: const Icon(Icons.zoom_in, color: Colors.white, size: 22),
               ),
             ),
           ],
@@ -387,10 +417,7 @@ class ProductDetails extends StatelessWidget {
   // SECTION
   // ==============================================================
 
-  Widget _buildSection({
-    required String title,
-    required Widget child,
-  }) {
+  Widget _buildSection({required String title, required Widget child}) {
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
       padding: const EdgeInsets.all(16),
@@ -482,11 +509,7 @@ class ProductDetails extends StatelessWidget {
         borderRadius: BorderRadius.circular(20),
       ),
       child: const Center(
-        child: Icon(
-          Icons.inventory_2_rounded,
-          size: 80,
-          color: Colors.grey,
-        ),
+        child: Icon(Icons.inventory_2_rounded, size: 80, color: Colors.grey),
       ),
     );
   }

@@ -1,8 +1,13 @@
+// This is my updated code on date  : 24-09-2026
 import 'dart:io';
 
+import 'package:solufine/core/di/auth_di.dart';
+import 'package:solufine/core/location_tracking/app_database.dart';
+import 'package:solufine/core/location_tracking/location_repository.dart';
 import 'package:solufine/core/router/app_router.dart';
 import 'package:solufine/core/secure_storage/secure_storage.dart';
 import 'package:solufine/core/utility/appdialog.dart';
+import 'package:solufine/core/utility/cameracapturepage.dart';
 import 'package:solufine/core/utility/widgets/custom_appbar.dart';
 import 'package:solufine/core/utility/widgets/custom_loader.dart';
 import 'package:solufine/features/farmer/famerfollowup/data/model/followuplist_model.dart';
@@ -16,6 +21,8 @@ import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:solufine/features/home/presentation/quick_aceess_bloc/quick_access_event.dart';
+import 'package:solufine/features/home/presentation/quick_aceess_bloc/quick_acess_bloc.dart';
 
 class FamerFollowupPage extends StatefulWidget {
   final String farmerId;
@@ -37,6 +44,7 @@ class _FamerFollowupPageState extends State<FamerFollowupPage> {
 
   String? selectedFollowUpType;
   String? imagePath;
+  bool _isCameraImage = false;
   String? userId;
 
   double? latitude;
@@ -279,22 +287,54 @@ class _FamerFollowupPageState extends State<FamerFollowupPage> {
 
   Future<void> _captureImage() async {
     try {
-      final XFile? image = await _imagePicker.pickImage(
-        source: ImageSource.camera,
-        imageQuality: 80,
-      );
+      debugPrint('OPENING INTERNAL CAMERA');
 
-      if (image != null && mounted) {
-        setState(() {
-          imagePath = image.path;
-        });
+      final String? capturedImagePath = await Navigator.of(context)
+          .push<String>(
+            MaterialPageRoute(builder: (_) => const CameraCapturePage()),
+          );
+
+      if (capturedImagePath == null || capturedImagePath.isEmpty) {
+        return;
       }
-    } catch (e) {
+
+      final newFile = File(capturedImagePath);
+
+      if (!await newFile.exists()) {
+        _showMessage('Captured image not found');
+        return;
+      }
+
+      // Delete previously captured image
+      if (imagePath != null &&
+          imagePath!.isNotEmpty &&
+          imagePath != capturedImagePath) {
+        try {
+          final oldFile = File(imagePath!);
+
+          if (await oldFile.exists()) {
+            await oldFile.delete();
+            debugPrint('OLD IMAGE DELETED: $imagePath');
+          }
+        } catch (e) {
+          debugPrint('OLD IMAGE DELETE ERROR: $e');
+        }
+      }
+
+      if (!mounted) return;
+
+      setState(() {
+        imagePath = capturedImagePath;
+      });
+
+      debugPrint('NEW IMAGE: $imagePath');
+    } catch (e, stackTrace) {
       debugPrint('CAMERA ERROR: $e');
+      debugPrint('$stackTrace');
 
-      if (mounted) {
-        _showMessage('Unable to capture image');
-      }
+      if (!mounted) return;
+
+      _showMessage('Unable to capture image');
     }
   }
 
@@ -576,6 +616,77 @@ class _FamerFollowupPageState extends State<FamerFollowupPage> {
       );
   }
 
+  Future<String> _getStoredLocations() async {
+    try {
+      final int? parsedUserId = int.tryParse(userId.toString());
+
+      if (parsedUserId == null) {
+        debugPrint('LOCATION: Invalid userId = $userId');
+        return '[]';
+      }
+
+      final LocationRepository repository = sl<LocationRepository>();
+
+      final List<LocationHistoryData> locations = await repository
+          .getAllLocations(parsedUserId);
+
+      debugPrint('========================================');
+      debugPrint('DEALER VISIT - STORED LOCATIONS');
+      debugPrint('TOTAL LOCATIONS: ${locations.length}');
+      debugPrint('========================================');
+
+      for (final location in locations) {
+        debugPrint(
+          'ID: ${location.id} | '
+          'Lat: ${location.latitude} | '
+          'Lng: ${location.longitude} | '
+          'Time: ${location.capturedAt} | '
+          'Accuracy: ${location.accuracy} | '
+          'Provider: ${location.provider} | '
+          'Address: ${location.geoAddress} | '
+          'Distance: ${location.distance}',
+        );
+      }
+
+      // ============================================================
+      // CREATE DATA FOR STORE LOCATION API
+      // ============================================================
+
+      final List<Map<String, dynamic>> locationList = locations.map((location) {
+        return {
+          'latitude': location.latitude,
+          'longitude': location.longitude,
+          'time': location.capturedAt,
+          'accuracy': location.accuracy,
+          'provider': location.provider,
+          'address': location.geoAddress,
+          'distance': location.distance,
+        };
+      }).toList();
+
+      // ============================================================
+      // JSON ARRAY -> STRING
+      // ============================================================
+
+      final String strAllLocations = jsonEncode(locationList);
+
+      debugPrint('========================================');
+      debugPrint('STR ALL LOCATIONS');
+      debugPrint('TOTAL: ${locations.length}');
+      debugPrint(strAllLocations);
+      debugPrint('========================================');
+
+      return strAllLocations;
+    } catch (e, stackTrace) {
+      debugPrint('========================================');
+      debugPrint('GET STORED LOCATIONS ERROR');
+      debugPrint('$e');
+      debugPrint('$stackTrace');
+      debugPrint('========================================');
+
+      return '[]';
+    }
+  }
   // ==========================================================
   // BUILD
   // ==========================================================
@@ -583,12 +694,30 @@ class _FamerFollowupPageState extends State<FamerFollowupPage> {
   @override
   Widget build(BuildContext context) {
     return BlocListener<FamerfollowupBloc, FamerfollowupState>(
-      listener: (context, state) {
+      listener: (context, state) async {
         // ----------------------------------------------------
         // SUCCESS
         // ----------------------------------------------------
 
         if (state.status == FamerfollowupStatus.farmerFollowUpSuccess) {
+          debugPrint('DAILY TRAN ID FROM STATE: ${state.dailyTranId}');
+
+          final String strAllLocations = await _getStoredLocations();
+          debugPrint('========================================');
+          debugPrint('CALLING STORE TRACK LOCATION API');
+          debugPrint('USER ID: $userId');
+          debugPrint('DAILY TRAN ID: ${state.dailyTranId}');
+          debugPrint('STR ALL LOCATIONS: $strAllLocations');
+          debugPrint('========================================');
+
+          context.read<QuickAcessBloc>().add(
+            StoreTrackLocation(
+              userId.toString(),
+              state.dailyTranId!,
+              strAllLocations,
+            ),
+          );
+
           AppDialog.show(
             context: context,
             type: DialogType.success,
@@ -622,7 +751,7 @@ class _FamerFollowupPageState extends State<FamerFollowupPage> {
           showBackButton: true,
           onBackTap: () => Navigator.pop(context),
         ),
-      
+
         body: SafeArea(
           child: Form(
             key: _formKey,
@@ -1016,11 +1145,7 @@ class _FamerFollowupPageState extends State<FamerFollowupPage> {
 
                 _imageActionButton(
                   icon: Icons.delete_outline_rounded,
-                  onTap: () {
-                    setState(() {
-                      imagePath = null;
-                    });
-                  },
+                  onTap: _deleteSelectedImage,
                 ),
               ],
             ),
@@ -1307,6 +1432,56 @@ class _FamerFollowupPageState extends State<FamerFollowupPage> {
         borderSide: const BorderSide(color: Colors.redAccent, width: 1.5),
       ),
     );
+  }
+
+  Future<void> _deleteSelectedImage() async {
+    final String? path = imagePath;
+
+    if (path == null || path.trim().isEmpty) {
+      return;
+    }
+
+    try {
+      final File file = File(path);
+
+      if (await file.exists()) {
+        await file.delete();
+        debugPrint('IMAGE DELETED: $path');
+      }
+    } catch (e) {
+      debugPrint('IMAGE DELETE ERROR: $e');
+    }
+
+    if (!mounted) return;
+
+    setState(() {
+      imagePath = null;
+    });
+  }
+
+  Future<void> _clearCapturedImage() async {
+    final String? path = imagePath;
+
+    if (path == null || path.trim().isEmpty) {
+      return;
+    }
+
+    try {
+      final File file = File(path);
+
+      if (await file.exists()) {
+        await file.delete();
+        debugPrint('TEMP IMAGE DELETED AFTER SUCCESS: $path');
+      }
+    } catch (e) {
+      debugPrint('TEMP IMAGE DELETE ERROR: $e');
+    }
+
+    if (!mounted) return;
+
+    setState(() {
+      imagePath = null;
+    });
   }
 }
 

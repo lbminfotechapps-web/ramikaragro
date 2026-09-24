@@ -978,8 +978,7 @@ class _OrderHistoryPageState extends State<OrderHistoryPage> {
               ),
               child: Column(
                 children: [
-                //  _infoRow('SR No', order.empId),
-
+                  //  _infoRow('SR No', order.empId),
                   _infoRow('Employee', order.admName),
 
                   _infoRow('Dealer', order.outletName),
@@ -1027,53 +1026,53 @@ class _OrderHistoryPageState extends State<OrderHistoryPage> {
             // =================================================
             // APPROVE / CANCEL
             // =================================================
-            if (canShowApproveCancel) ...[
-              SizedBox(height: 8.h),
+            // if (canShowApproveCancel) ...[
+            //   SizedBox(height: 8.h),
 
-              Row(
-                children: [
-                  Expanded(
-                    child: ElevatedButton.icon(
-                      onPressed: () {
-                        _approveOrder(order.orderId);
-                      },
-                      icon: const Icon(Icons.check_rounded),
-                      label: const Text('Approve'),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.green,
-                        foregroundColor: Colors.white,
-                        elevation: 2,
-                        padding: EdgeInsets.symmetric(vertical: 11.h),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10.r),
-                        ),
-                      ),
-                    ),
-                  ),
+            //   Row(
+            //     children: [
+            //       Expanded(
+            //         child: ElevatedButton.icon(
+            //           onPressed: () {
+            //             _approveOrder(order.orderId);
+            //           },
+            //           icon: const Icon(Icons.check_rounded),
+            //           label: const Text('Approve'),
+            //           style: ElevatedButton.styleFrom(
+            //             backgroundColor: Colors.green,
+            //             foregroundColor: Colors.white,
+            //             elevation: 2,
+            //             padding: EdgeInsets.symmetric(vertical: 11.h),
+            //             shape: RoundedRectangleBorder(
+            //               borderRadius: BorderRadius.circular(10.r),
+            //             ),
+            //           ),
+            //         ),
+            //       ),
 
-                  SizedBox(width: 10.w),
+            //       SizedBox(width: 10.w),
 
-                  Expanded(
-                    child: ElevatedButton.icon(
-                      onPressed: () {
-                        _cancelOrder(order.orderId);
-                      },
-                      icon: const Icon(Icons.close_rounded),
-                      label: const Text('Cancel'),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.red,
-                        foregroundColor: Colors.white,
-                        elevation: 0,
-                        padding: EdgeInsets.symmetric(vertical: 11.h),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10.r),
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ],
+            //       Expanded(
+            //         child: ElevatedButton.icon(
+            //           onPressed: () {
+            //             _cancelOrder(order.orderId);
+            //           },
+            //           icon: const Icon(Icons.close_rounded),
+            //           label: const Text('Cancel'),
+            //           style: ElevatedButton.styleFrom(
+            //             backgroundColor: Colors.red,
+            //             foregroundColor: Colors.white,
+            //             elevation: 0,
+            //             padding: EdgeInsets.symmetric(vertical: 11.h),
+            //             shape: RoundedRectangleBorder(
+            //               borderRadius: BorderRadius.circular(10.r),
+            //             ),
+            //           ),
+            //         ),
+            //       ),
+            //     ],
+            //   ),
+            // ],
           ],
         ),
       ),

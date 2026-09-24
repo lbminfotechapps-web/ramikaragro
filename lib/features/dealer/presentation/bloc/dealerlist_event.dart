@@ -1,8 +1,13 @@
-import 'dart:ffi';
-
 import 'package:equatable/equatable.dart';
 
-class DealerListEvent extends Equatable {
+abstract class DealerEevent extends Equatable {
+  const DealerEevent();
+
+  @override
+  List<Object?> get props => [];
+}
+
+class DealerListEvent extends DealerEevent {
   final String user_id;
   final String latitude;
   final String longitude;
@@ -18,11 +23,63 @@ class DealerListEvent extends Equatable {
   });
 
   @override
-  List<Object> get props => [
-        user_id,
-        latitude,
-        longitude,
-        searchText,
-        type
-      ];
+  List<Object> get props => [user_id, latitude, longitude, searchText, type];
+}
+
+class AddDealerLocation extends DealerEevent {
+  final String dealerId;
+  final String userId;
+  final String locationHistoryString;
+
+  final String latitude;
+  final String longitude;
+
+  final String networkLatitude;
+  final String networkLongitude;
+
+  final String gpsLatitude;
+  final String gpsLongitude;
+
+  final String geoAddress;
+
+  final String mobileInfo;
+  final String mobileImei;
+
+  final String networkInfo;
+  final String batteryInfo;
+
+  const AddDealerLocation({
+    required this.dealerId,
+    required this.userId,
+    required this.locationHistoryString,
+    required this.latitude,
+    required this.longitude,
+    required this.networkLatitude,
+    required this.networkLongitude,
+    required this.gpsLatitude,
+    required this.gpsLongitude,
+    required this.geoAddress,
+    this.mobileInfo = '',
+    this.mobileImei = '',
+    required this.networkInfo,
+    required this.batteryInfo,
+  });
+
+  @override
+  List<Object?> get props => [
+    dealerId,
+    userId,
+    locationHistoryString,
+    latitude,
+    longitude,
+    networkLatitude,
+    networkLongitude,
+    gpsLatitude,
+    gpsLongitude,
+    geoAddress,
+    mobileInfo,
+    mobileImei,
+    networkInfo,
+    batteryInfo,
+  ];
 }
