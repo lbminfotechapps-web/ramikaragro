@@ -401,6 +401,76 @@ class StateBloc extends Bloc<StatesEvent, StatsState> {
       final bool exists =
           await originalFile.exists();
 
+<<<<<<< HEAD
+      debugPrint('==========================================');
+      debugPrint('FARMER IMAGE CHECK');
+      debugPrint('EVENT IMAGE PATH: ${event.image}');
+      debugPrint('==========================================');
+
+      if (event.image.trim().isNotEmpty) {
+        final originalFile = File(event.image.trim());
+
+        final bool exists = await originalFile.exists();
+
+        debugPrint('ORIGINAL IMAGE EXISTS: $exists');
+
+        if (exists) {
+          debugPrint('ORIGINAL IMAGE PATH: ${originalFile.path}');
+
+          debugPrint(
+            'ORIGINAL IMAGE SIZE: '
+            '${await originalFile.length()} bytes',
+          );
+
+          // ========================================================
+          // COMPRESS IMAGE
+          // ========================================================
+
+          final compressedFile = await ImageCompression.compressImage(
+            originalFile,
+            maxWidth: 450,
+            maxHeight: 450,
+            quality: 45,
+          );
+
+          // ========================================================
+          // Use compressed image if compression succeeds.
+          // Otherwise use original image.
+          // ========================================================
+
+          if (compressedFile != null && await compressedFile.exists()) {
+            farmerImageFile = compressedFile;
+
+            debugPrint(' USING COMPRESSED IMAGE');
+
+            debugPrint(
+              'COMPRESSED PATH: '
+              '${farmerImageFile.path}',
+            );
+
+            debugPrint(
+              'COMPRESSED SIZE: '
+              '${await farmerImageFile.length()} bytes',
+            );
+          } else {
+            farmerImageFile = originalFile;
+
+            debugPrint(
+              ' COMPRESSION FAILED - '
+              'USING ORIGINAL IMAGE',
+            );
+
+            debugPrint(
+              'IMAGE PATH: '
+              '${farmerImageFile.path}',
+            );
+          }
+        } else {
+          debugPrint(' FARMER IMAGE FILE DOES NOT EXIST');
+        }
+      } else {
+        debugPrint(' FARMER IMAGE NOT SELECTED');
+=======
       debugPrint(
         'ORIGINAL IMAGE EXISTS: $exists',
       );
@@ -468,6 +538,7 @@ class StateBloc extends Bloc<StatesEvent, StatsState> {
         debugPrint(
           ' FARMER IMAGE FILE DOES NOT EXIST',
         );
+>>>>>>> origin/main
       }
     } else {
       debugPrint(
@@ -475,6 +546,145 @@ class StateBloc extends Bloc<StatesEvent, StatsState> {
       );
     }
 
+<<<<<<< HEAD
+      // ============================================================
+      // 2. NORMAL REQUEST DATA
+      // ============================================================
+      //
+      // IMPORTANT:
+      // selfie_capture_image is NOT added here.
+      //
+      // It will be added by Datasource as MultipartFile.
+      //
+      // ============================================================
+
+      final jsonData = <String, dynamic>{
+        'fld_farmer_name': event.fldFarmerName,
+
+        'fld_address': event.fldAddress,
+
+        'user_id': event.userId,
+
+        'fld_category_id': event.fldCategoryId,
+
+        'state': event.state,
+
+        'fld_demo_type_id': event.fldDemoTypeId,
+
+        'district': event.district,
+
+        'taluka': event.taluka,
+
+        'status_of_farmer': event.statusOfFarmer,
+
+        'campaign_radio': event.campaignRadio,
+
+        'fld_mobile_no': event.fldMobileNo,
+
+        'fld_mobile_no2': event.fldMobileNo2,
+
+        'fld_total_acre': event.fldTotalAcre,
+
+        'fld_email_id': event.fldEmailId,
+
+        'fld_tractor_mode': event.fldTractorMode,
+
+        'fld_village': event.fldVillage,
+
+        'selectedProductId': event.selectedProductId,
+
+        'selectedCropId': event.selectedCropId,
+
+        'selectedAcers': event.selectedAcers,
+
+        'selectedSowingDates': event.selectedSowingDates,
+
+        'selectedIrrigationId': event.selectedIrrigationId,
+
+        'selectedCattleId': event.selectedCattleId,
+
+        'selectedCattleCount': event.selectedCattleCount,
+
+        'latitude': event.latitude,
+
+        'longitude': event.longitude,
+
+        'networkLatitude': event.networkLatitude,
+
+        'networkLongitude': event.networkLongitude,
+
+        'gpsLatitude': event.gpsLatitude,
+
+        'gpsLongitude': event.gpsLongitude,
+
+        'differenceByAndroid': event.differenceByAndroid,
+
+        'contactPersonName': event.contactPersonName,
+
+        'meetingLocation': event.meetingLocation,
+
+        'marketNearby': event.marketNearby,
+
+        'aadhaarNo': event.aadhaarNo,
+
+        'remark': event.remark,
+
+        'geoAddress': event.geoAddress,
+
+        'strNetworkInfo': event.strNetworkInfo,
+
+        'currentProductUsed': event.currentProductUsed,
+
+        'strBatteryInfo': event.strBatteryInfo,
+
+        'activityId': event.activityId,
+      };
+
+      // ============================================================
+      // 3. PRINT NORMAL FORM DATA
+      // ============================================================
+
+      debugPrint('');
+      debugPrint('==========================================');
+      debugPrint('FARMER NORMAL REQUEST DATA');
+      debugPrint('==========================================');
+
+      jsonData.forEach((key, value) {
+        debugPrint('$key: $value');
+      });
+
+      // ============================================================
+      // 4. PRINT IMAGE INFORMATION
+      // ============================================================
+
+      debugPrint('==========================================');
+      debugPrint('IMAGE TO REPOSITORY');
+      debugPrint('==========================================');
+
+      if (farmerImageFile != null) {
+        debugPrint(' IMAGE AVAILABLE');
+
+        debugPrint('PATH: ${farmerImageFile.path}');
+
+        debugPrint(
+          'EXISTS: '
+          '${await farmerImageFile.exists()}',
+        );
+
+        debugPrint(
+          'SIZE: '
+          '${await farmerImageFile.length()} bytes',
+        );
+      } else {
+        debugPrint(' IMAGE FILE IS NULL');
+      }
+
+      debugPrint('==========================================');
+
+      final response = await repositoryProvider.saveFarmerDetails(
+        jsonData,
+        farmerImageFile,
+=======
     // ============================================================
     // 2. NORMAL REQUEST DATA
     // ============================================================
@@ -663,6 +873,7 @@ class StateBloc extends Bloc<StatesEvent, StatsState> {
       debugPrint(
         'SIZE: '
         '${await farmerImageFile.length()} bytes',
+>>>>>>> origin/main
       );
     } else {
       debugPrint(
@@ -670,6 +881,44 @@ class StateBloc extends Bloc<StatesEvent, StatsState> {
       );
     }
 
+<<<<<<< HEAD
+      debugPrint('==========================================');
+
+      debugPrint('FARMER DETAILS RESPONSE: $response');
+
+      debugPrint('==========================================');
+
+      // ============================================================
+      // 6. HANDLE RESPONSE
+      // ============================================================
+
+      if (response['status'] == true) {
+        emit(
+          state.copyWith(
+            status: StatesStatus.farmerRegiSuccess,
+            errorMessage: response['message'],
+          ),
+        );
+      } else {
+        emit(
+          state.copyWith(
+            status: StatesStatus.failed,
+            errorMessage: response['message'],
+          ),
+        );
+      }
+    } catch (error, stackTrace) {
+      debugPrint('==========================================');
+
+      debugPrint(' FARMER DETAILS ERROR');
+
+      debugPrint('ERROR: $error');
+
+      debugPrint('STACK TRACE: $stackTrace');
+
+      debugPrint('==========================================');
+
+=======
     debugPrint(
       '==========================================',
     );
@@ -699,6 +948,7 @@ class StateBloc extends Bloc<StatesEvent, StatsState> {
     // ============================================================
 
     if (response['status'] == true) {
+>>>>>>> origin/main
       emit(
         state.copyWith(
           status:

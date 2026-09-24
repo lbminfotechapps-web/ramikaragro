@@ -9,6 +9,7 @@ import 'package:solufine/core/secure_storage/secure_storage.dart';
 import 'package:solufine/core/theme/app_colors.dart';
 import 'package:solufine/core/utility/app_image_picker.dart';
 import 'package:solufine/core/utility/appdialog.dart';
+import 'package:solufine/core/utility/cameracapturepage.dart';
 import 'package:solufine/core/utility/data_list.dart';
 import 'package:solufine/core/utility/device_info_util.dart';
 import 'package:solufine/core/utility/location_util.dart';
@@ -237,24 +238,108 @@ class _FarmerregistrationPageState extends State<FarmerregistrationPage> {
 
   Future<void> _captureImage() async {
     try {
-      final File? image = await AppImagePicker.instance.pickFromCamera();
+      debugPrint('================================');
+      debugPrint('OPENING INTERNAL CAMERA');
 
-      if (image == null) {
+      // Open your custom/internal camera screen
+      final String? capturedImagePath = await Navigator.of(context)
+          .push<String>(
+            MaterialPageRoute(builder: (_) => const CameraCapturePage()),
+          );
+
+      // User pressed back / cancelled
+      if (capturedImagePath == null || capturedImagePath.trim().isEmpty) {
+        debugPrint('CAMERA CANCELLED');
         return;
       }
 
+      final File newFile = File(capturedImagePath);
+
+      // Check captured file exists
+      if (!await newFile.exists()) {
+        debugPrint('CAPTURED IMAGE NOT FOUND: $capturedImagePath');
+
+        if (!mounted) return;
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Captured image not found')),
+        );
+
+        return;
+      }
+
+      debugPrint('NEW IMAGE PATH: $capturedImagePath');
+      debugPrint('NEW IMAGE SIZE: ${await newFile.length()} bytes');
+
+      // ============================================
+      // SAVE OLD IMAGE
+      // ============================================
+
+      final File? oldImage = _uploadedImage;
+
       if (!mounted) return;
 
+      // ============================================
+      // SET NEW IMAGE
+      // ============================================
+
       setState(() {
-        _uploadedImage = image;
+        _uploadedImage = newFile;
       });
-    } catch (e) {
+
+      // ============================================
+      // DELETE OLD IMAGE FROM CACHE
+      // ============================================
+
+      if (oldImage != null && oldImage.path != capturedImagePath) {
+        await _deleteTempFile(oldImage);
+      }
+
+      debugPrint('CAMERA IMAGE SET SUCCESSFULLY');
+      debugPrint('IMAGE PATH: ${_uploadedImage?.path}');
+      debugPrint('================================');
+    } catch (e, stackTrace) {
+      debugPrint('CAMERA ERROR: $e');
+      debugPrint('$stackTrace');
+
       if (!mounted) return;
 
       ScaffoldMessenger.of(
         context,
-      ).showSnackBar(SnackBar(content: Text('Failed to capture image')));
+      ).showSnackBar(const SnackBar(content: Text('Unable to capture image')));
     }
+  }
+
+  Future<void> _deleteTempFile(File? file) async {
+    if (file == null) return;
+
+    try {
+      if (await file.exists()) {
+        final String path = file.path;
+
+        await file.delete();
+
+        debugPrint('TEMP IMAGE DELETED: $path');
+      }
+    } catch (e) {
+      debugPrint('TEMP IMAGE DELETE ERROR: $e');
+    }
+  }
+
+  Future<void> _removeUploadedImage() async {
+    final File? image = _uploadedImage;
+
+    if (image == null) return;
+
+    // Clear UI first
+    if (mounted) {
+      setState(() {
+        _uploadedImage = null;
+      });
+    }
+
+    // Delete actual temporary file
+    await _deleteTempFile(image);
   }
 
   Future<void> _showCropDetailsDialog(
@@ -419,7 +504,7 @@ class _FarmerregistrationPageState extends State<FarmerregistrationPage> {
       }
 
       final selectedProductId = _selectedProductIds.join(',');
-
+      print("Imagepath $_uploadedImage");
       context.read<StateBloc>().add(
         FarmerSubmitDetailsEvent(
           fldFarmerName: farmerNameController.text.trim(),
@@ -543,6 +628,13 @@ class _FarmerregistrationPageState extends State<FarmerregistrationPage> {
     currentProductUsedController.dispose();
     remarkController.dispose();
 
+    final File? imageToDelete = _uploadedImage;
+    _uploadedImage = null;
+
+    if (imageToDelete != null) {
+      _deleteTempFile(imageToDelete);
+    }
+
     super.dispose();
   }
 
@@ -647,6 +739,7 @@ class _FarmerregistrationPageState extends State<FarmerregistrationPage> {
         listener: (context, state) async {
           if (!isLoading || !_submissionSent) return;
           if (state.status == StatesStatus.farmerRegiSuccess) {
+            final File? imageToDelete = _uploadedImage;
             setState(() {
               isLoading = false;
               _submissionSent = false;
@@ -1103,134 +1196,6 @@ class _FarmerregistrationPageState extends State<FarmerregistrationPage> {
                       },
                     ),
 
-                    // FormField<bool>(
-                    //   initialValue: _selectedProductIds.isNotEmpty,
-                    //   validator: (_) {
-                    //     if (_selectedProductIds.isEmpty) {
-                    //       return 'Please select a suggested product';
-                    //     }
-
-                    //     return null;
-                    //   },
-                    //   builder: (field) {
-                    //     return Column(
-                    //       crossAxisAlignment: CrossAxisAlignment.start,
-                    //       children: [
-                    //         InkWell(
-                    //           onTap: productDetailData.isEmpty
-                    //               ? null
-                    //               : () async {
-                    //                   final result =
-                    //                       await showDialog<List<String>>(
-                    //                         context: context,
-                    //                         barrierDismissible: false,
-                    //                         builder: (dialogContext) {
-                    //                           return ProductSelectionDialog(
-                    //                             productList: productDetailData,
-                    //                             selectedProductIds:
-                    //                                 _selectedProductIds,
-                    //                           );
-                    //                         },
-                    //                       );
-
-                    //                   if (result != null && mounted) {
-                    //                     setState(() {
-                    //                       _selectedProductIds
-                    //                         ..clear()
-                    //                         ..addAll(result);
-                    //                     });
-
-                    //                     debugPrint(
-                    //                       'Selected Product IDs: '
-                    //                       '${_selectedProductIds.join(',')}',
-                    //                     );
-
-                    //                     debugPrint(
-                    //                       'Selected Product IDs List: '
-                    //                       '$_selectedProductIds',
-                    //                     );
-                    //                   }
-                    //                 },
-                    //           child: Container(
-                    //             width: double.infinity,
-                    //             padding: EdgeInsets.symmetric(
-                    //               horizontal: 14.w,
-                    //               vertical: 15.h,
-                    //             ),
-                    //             decoration: BoxDecoration(
-                    //               color: productDetailData.isEmpty
-                    //                   ? Colors.grey.shade100
-                    //                   : Colors.white,
-                    //               borderRadius: BorderRadius.circular(22.r),
-                    //               boxShadow: productDetailData.isNotEmpty
-                    //                   ? [
-                    //                       BoxShadow(
-                    //                         color: Colors.black.withValues(
-                    //                           alpha: 0.08,
-                    //                         ),
-                    //                         blurRadius: 8,
-                    //                         offset: const Offset(0, 2),
-                    //                       ),
-                    //                     ]
-                    //                   : [],
-                    //             ),
-                    //             child: Row(
-                    //               children: [
-                    //                 Icon(
-                    //                   Icons.inventory_2_outlined,
-                    //                   color: productDetailData.isEmpty
-                    //                       ? Colors.grey
-                    //                       : const Color(0xFF087C3A),
-                    //                 ),
-
-                    //                 SizedBox(width: 12.w),
-
-                    //                 Expanded(
-                    //                   child: _selectedProductIds.isEmpty
-                    //                       ? Text(
-                    //                           'Select Suggested Product',
-                    //                           style: TextStyle(
-                    //                             fontSize: 14.sp,
-                    //                             color: Colors.grey.shade500,
-                    //                           ),
-                    //                         )
-                    //                       : Text(
-                    //                           _selectedProductNames,
-                    //                           maxLines: 2,
-                    //                           overflow: TextOverflow.ellipsis,
-                    //                           style: TextStyle(
-                    //                             fontSize: 14.sp,
-                    //                             color: Colors.black87,
-                    //                             fontWeight: FontWeight.w500,
-                    //                           ),
-                    //                         ),
-                    //                 ),
-
-                    //                 Icon(
-                    //                   Icons.keyboard_arrow_down,
-                    //                   color: productDetailData.isEmpty
-                    //                       ? Colors.grey
-                    //                       : Colors.grey.shade600,
-                    //                 ),
-                    //               ],
-                    //             ),
-                    //           ),
-                    //         ),
-                    //         if (field.hasError)
-                    //           Padding(
-                    //             padding: EdgeInsets.only(left: 16.w, top: 4.h),
-                    //             child: Text(
-                    //               field.errorText!,
-                    //               style: TextStyle(
-                    //                 color: Colors.red,
-                    //                 fontSize: 12.sp,
-                    //               ),
-                    //             ),
-                    //           ),
-                    //       ],
-                    //     );
-                    //   },
-                    // ),
                     SizedBox(height: 10.h),
 
                     const Text(
@@ -1445,7 +1410,6 @@ class _FarmerregistrationPageState extends State<FarmerregistrationPage> {
 
           SizedBox(height: 12.h),
 
-          // Image capture area
           InkWell(
             onTap: _captureImage,
             borderRadius: BorderRadius.circular(16.r),
@@ -1476,14 +1440,70 @@ class _FarmerregistrationPageState extends State<FarmerregistrationPage> {
                         ),
                       ],
                     )
-                  : ClipRRect(
-                      borderRadius: BorderRadius.circular(16.r),
-                      child: Image.file(
-                        _uploadedImage!,
-                        width: double.infinity,
-                        height: double.infinity,
-                        fit: BoxFit.cover,
-                      ),
+                  : Stack(
+                      fit: StackFit.expand,
+                      children: [
+                        // ============================
+                        // CAPTURED IMAGE
+                        // ============================
+                        ClipRRect(
+                          borderRadius: BorderRadius.circular(16.r),
+                          child: Image.file(
+                            _uploadedImage!,
+                            width: double.infinity,
+                            height: double.infinity,
+                            fit: BoxFit.cover,
+                          ),
+                        ),
+
+                        // ============================
+                        // RETAKE BUTTON
+                        // ============================
+                        Positioned(
+                          top: 12.h,
+                          left: 12.w,
+                          child: Material(
+                            color: Colors.black.withOpacity(0.65),
+                            borderRadius: BorderRadius.circular(10.r),
+                            child: InkWell(
+                              onTap: _captureImage,
+                              borderRadius: BorderRadius.circular(10.r),
+                              child: Padding(
+                                padding: EdgeInsets.all(9.r),
+                                child: Icon(
+                                  Icons.refresh_rounded,
+                                  color: Colors.white,
+                                  size: 22.sp,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+
+                        // ============================
+                        // DELETE BUTTON
+                        // ============================
+                        Positioned(
+                          top: 12.h,
+                          right: 12.w,
+                          child: Material(
+                            color: Colors.black.withOpacity(0.65),
+                            borderRadius: BorderRadius.circular(10.r),
+                            child: InkWell(
+                              onTap: _removeUploadedImage,
+                              borderRadius: BorderRadius.circular(10.r),
+                              child: Padding(
+                                padding: EdgeInsets.all(9.r),
+                                child: Icon(
+                                  Icons.delete_outline_rounded,
+                                  color: Colors.white,
+                                  size: 22.sp,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
             ),
           ),
