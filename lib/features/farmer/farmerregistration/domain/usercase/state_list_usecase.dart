@@ -35,7 +35,6 @@
 //   }
 // }
 
-
 import 'dart:io';
 
 import 'package:solufine/features/farmer/farmerregistration/domain/entity/district_entity.dart';
@@ -46,20 +45,14 @@ import 'package:solufine/features/farmer/farmerregistration/domain/repository/fa
 class StateListUsecase {
   final FarmerregistrationRepository farmerregistrationRepository;
 
-  StateListUsecase(
-    this.farmerregistrationRepository,
-  );
+  StateListUsecase(this.farmerregistrationRepository);
 
   // ============================================================
   // GET STATE
   // ============================================================
 
-  Future<List<StateEntity>> getState(
-    String userId,
-  ) async {
-    return farmerregistrationRepository.getStates(
-      userId,
-    );
+  Future<List<StateEntity>> getState(String userId) async {
+    return farmerregistrationRepository.getStates(userId);
   }
 
   // ============================================================
@@ -70,10 +63,7 @@ class StateListUsecase {
     String userId,
     String stateId,
   ) async {
-    return farmerregistrationRepository.getDistrict(
-      userId,
-      stateId,
-    );
+    return farmerregistrationRepository.getDistrict(userId, stateId);
   }
 
   // ============================================================
@@ -84,27 +74,20 @@ class StateListUsecase {
     return farmerregistrationRepository.getFarmerDropData();
   }
 
-
-
   Future<Map<String, dynamic>> saveFarmerDetails(
     Map<String, dynamic> jsonData,
     File? image,
   ) async {
-    return farmerregistrationRepository.saveFarmerDetails(
-      jsonData,
-      image,
-    );
+    return farmerregistrationRepository.saveFarmerDetails(jsonData, image);
   }
 
   // ============================================================
-  // UPDATE FARMER DETAILS
+  // UPDATE FARMER DETAILSs
   // ============================================================
 
   Future<Map<String, dynamic>> updateFarmerDetails(
     Map<String, dynamic> jsonData,
   ) async {
-    return farmerregistrationRepository.updateFarmerDetails(
-      jsonData,
-    );
+    return farmerregistrationRepository.updateFarmerDetails(jsonData);
   }
 }

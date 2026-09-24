@@ -1,3 +1,5 @@
+<<<<<<< HEAD
+=======
 // import 'package:solufine/features/farmer/farmerregistration/data/model/baseresponse_model.dart';
 // import 'package:solufine/features/farmer/farmerregistration/domain/entity/district_entity.dart';
 // import 'package:solufine/features/farmer/farmerregistration/domain/entity/farmer_details_entity.dart';
@@ -22,6 +24,7 @@
 // }
 
 
+>>>>>>> origin/main
 import 'dart:io';
 
 import 'package:solufine/features/farmer/farmerregistration/data/model/baseresponse_model.dart';
@@ -45,6 +48,11 @@ abstract class FarmerregistrationRepository {
 
   Future<FarmerDetailsEntity> getFarmerDropData();
 
+<<<<<<< HEAD
+  Future<Map<String, dynamic>> saveFarmerDetails(
+    Map<String, dynamic> jsonData,
+    File? images,
+=======
   // ============================================================
   // CHANGED HERE
   // Fields + actual image file
@@ -53,6 +61,7 @@ abstract class FarmerregistrationRepository {
   Future<Map<String, dynamic>> saveFarmerDetails(
     Map<String, dynamic> jsonData,
     File? image,
+>>>>>>> origin/main
   );
 
   Future<Map<String, dynamic>> updateFarmerDetails(

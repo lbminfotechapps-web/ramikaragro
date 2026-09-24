@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:solufine/core/router/app_router.dart';
 import 'package:solufine/core/secure_storage/secure_storage.dart';
 import 'package:solufine/core/utility/appdialog.dart';
+import 'package:solufine/core/utility/cameracapturepage.dart';
 import 'package:solufine/core/utility/widgets/custom_appbar.dart';
 import 'package:solufine/core/utility/widgets/custom_loader.dart';
 import 'package:solufine/features/farmer/famerfollowup/data/model/followuplist_model.dart';
@@ -37,6 +38,7 @@ class _FamerFollowupPageState extends State<FamerFollowupPage> {
 
   String? selectedFollowUpType;
   String? imagePath;
+  bool _isCameraImage = false;
   String? userId;
 
   double? latitude;
@@ -279,22 +281,54 @@ class _FamerFollowupPageState extends State<FamerFollowupPage> {
 
   Future<void> _captureImage() async {
     try {
-      final XFile? image = await _imagePicker.pickImage(
-        source: ImageSource.camera,
-        imageQuality: 80,
-      );
+      debugPrint('OPENING INTERNAL CAMERA');
 
-      if (image != null && mounted) {
-        setState(() {
-          imagePath = image.path;
-        });
+      final String? capturedImagePath = await Navigator.of(context)
+          .push<String>(
+            MaterialPageRoute(builder: (_) => const CameraCapturePage()),
+          );
+
+      if (capturedImagePath == null || capturedImagePath.isEmpty) {
+        return;
       }
-    } catch (e) {
+
+      final newFile = File(capturedImagePath);
+
+      if (!await newFile.exists()) {
+        _showMessage('Captured image not found');
+        return;
+      }
+
+      // Delete previously captured image
+      if (imagePath != null &&
+          imagePath!.isNotEmpty &&
+          imagePath != capturedImagePath) {
+        try {
+          final oldFile = File(imagePath!);
+
+          if (await oldFile.exists()) {
+            await oldFile.delete();
+            debugPrint('OLD IMAGE DELETED: $imagePath');
+          }
+        } catch (e) {
+          debugPrint('OLD IMAGE DELETE ERROR: $e');
+        }
+      }
+
+      if (!mounted) return;
+
+      setState(() {
+        imagePath = capturedImagePath;
+      });
+
+      debugPrint('NEW IMAGE: $imagePath');
+    } catch (e, stackTrace) {
       debugPrint('CAMERA ERROR: $e');
+      debugPrint('$stackTrace');
 
-      if (mounted) {
-        _showMessage('Unable to capture image');
-      }
+      if (!mounted) return;
+
+      _showMessage('Unable to capture image');
     }
   }
 
@@ -589,6 +623,7 @@ class _FamerFollowupPageState extends State<FamerFollowupPage> {
         // ----------------------------------------------------
 
         if (state.status == FamerfollowupStatus.farmerFollowUpSuccess) {
+          _clearCapturedImage();
           AppDialog.show(
             context: context,
             type: DialogType.success,
@@ -1016,11 +1051,7 @@ class _FamerFollowupPageState extends State<FamerFollowupPage> {
 
                 _imageActionButton(
                   icon: Icons.delete_outline_rounded,
-                  onTap: () {
-                    setState(() {
-                      imagePath = null;
-                    });
-                  },
+                  onTap: _deleteSelectedImage,
                 ),
               ],
             ),
@@ -1307,6 +1338,56 @@ class _FamerFollowupPageState extends State<FamerFollowupPage> {
         borderSide: const BorderSide(color: Colors.redAccent, width: 1.5),
       ),
     );
+  }
+
+  Future<void> _deleteSelectedImage() async {
+    final String? path = imagePath;
+
+    if (path == null || path.trim().isEmpty) {
+      return;
+    }
+
+    try {
+      final File file = File(path);
+
+      if (await file.exists()) {
+        await file.delete();
+        debugPrint('IMAGE DELETED: $path');
+      }
+    } catch (e) {
+      debugPrint('IMAGE DELETE ERROR: $e');
+    }
+
+    if (!mounted) return;
+
+    setState(() {
+      imagePath = null;
+    });
+  }
+
+  Future<void> _clearCapturedImage() async {
+    final String? path = imagePath;
+
+    if (path == null || path.trim().isEmpty) {
+      return;
+    }
+
+    try {
+      final File file = File(path);
+
+      if (await file.exists()) {
+        await file.delete();
+        debugPrint('TEMP IMAGE DELETED AFTER SUCCESS: $path');
+      }
+    } catch (e) {
+      debugPrint('TEMP IMAGE DELETE ERROR: $e');
+    }
+
+    if (!mounted) return;
+
+    setState(() {
+      imagePath = null;
+    });
   }
 }
 
