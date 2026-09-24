@@ -9,6 +9,7 @@ import 'package:solufine/core/secure_storage/secure_storage.dart';
 import 'package:solufine/core/theme/app_colors.dart';
 import 'package:solufine/core/utility/app_image_picker.dart';
 import 'package:solufine/core/utility/appdialog.dart';
+import 'package:solufine/core/utility/cameracapturepage.dart';
 import 'package:solufine/core/utility/data_list.dart';
 import 'package:solufine/core/utility/device_info_util.dart';
 import 'package:solufine/core/utility/location_util.dart';
@@ -427,23 +428,83 @@ class _DealerFollowupAddState extends State<DealerFollowupAdd> {
 
   Future<void> _captureImage() async {
     try {
-      final File? image = await AppImagePicker.instance.pickFromCamera();
+      debugPrint('================================');
+      debugPrint('OPENING INTERNAL CAMERA');
 
-      if (image == null) {
+      final String? capturedImagePath = await Navigator.of(context)
+          .push<String>(
+            MaterialPageRoute(builder: (_) => const CameraCapturePage()),
+          );
+
+      // Camera cancelled
+      if (capturedImagePath == null || capturedImagePath.trim().isEmpty) {
+        debugPrint('CAMERA CANCELLED');
         return;
       }
 
+      final File newFile = File(capturedImagePath);
+
+      // Check file
+      if (!await newFile.exists()) {
+        debugPrint('CAPTURED IMAGE NOT FOUND: $capturedImagePath');
+
+        if (!mounted) return;
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Captured image not found')),
+        );
+
+        return;
+      }
+
+      debugPrint('NEW IMAGE PATH: $capturedImagePath');
+      debugPrint('NEW IMAGE SIZE: ${await newFile.length()} bytes');
+
+      // ============================================
+      // OLD IMAGE
+      // ============================================
+
+      final File? oldImage = _uploadedImage;
+
       if (!mounted) return;
 
+      // ============================================
+      // SET NEW IMAGE
+      // ============================================
+
       setState(() {
-        _uploadedImage = image;
+        _uploadedImage = newFile;
       });
-    } catch (e) {
+
+      // ============================================
+      // DELETE PREVIOUS CAMERA IMAGE
+      // ============================================
+
+      if (oldImage != null && oldImage.path != capturedImagePath) {
+        try {
+          if (await oldImage.exists()) {
+            final String oldPath = oldImage.path;
+
+            await oldImage.delete();
+
+            debugPrint('OLD CAMERA IMAGE DELETED: $oldPath');
+          }
+        } catch (e) {
+          debugPrint('OLD IMAGE DELETE ERROR: $e');
+        }
+      }
+
+      debugPrint('CURRENT IMAGE: ${_uploadedImage?.path}');
+      debugPrint('================================');
+    } catch (e, stackTrace) {
+      debugPrint('CAMERA ERROR: $e');
+      debugPrint('$stackTrace');
+
       if (!mounted) return;
 
       ScaffoldMessenger.of(
         context,
-      ).showSnackBar(SnackBar(content: Text('Failed to capture image')));
+      ).showSnackBar(const SnackBar(content: Text('Unable to capture image')));
     }
   }
 
@@ -626,6 +687,7 @@ class _DealerFollowupAddState extends State<DealerFollowupAdd> {
         listener: (context, state) async {
           if (!isLoading || !_submissionSent) return;
           if (state.addLeaveStatus == AddDealerVisitStatus.dealerAddedSuccess) {
+            _clearCapturedImage();
             setState(() {
               isLoading = false;
               _submissionSent = false;
@@ -1303,19 +1365,99 @@ class _DealerFollowupAddState extends State<DealerFollowupAdd> {
                         ),
                       ],
                     )
-                  : ClipRRect(
-                      borderRadius: BorderRadius.circular(16.r),
-                      child: Image.file(
-                        _uploadedImage!,
-                        width: double.infinity,
-                        height: double.infinity,
-                        fit: BoxFit.cover,
-                      ),
+                  : Stack(
+                      fit: StackFit.expand,
+                      children: [
+                        // Captured image
+                        ClipRRect(
+                          borderRadius: BorderRadius.circular(16.r),
+                          child: Image.file(
+                            _uploadedImage!,
+                            width: double.infinity,
+                            height: double.infinity,
+                            fit: BoxFit.cover,
+                          ),
+                        ),
+
+                        // Delete button
+                        Positioned(
+                          top: 10.h,
+                          right: 10.w,
+                          child: GestureDetector(
+                            onTap: () async {
+                              await _deleteCurrentImage();
+                            },
+                            child: Container(
+                              width: 40.w,
+                              height: 40.w,
+                              decoration: BoxDecoration(
+                                color: Colors.black.withValues(alpha: 0.65),
+                                shape: BoxShape.circle,
+                              ),
+                              child: Icon(
+                                Icons.delete_outline,
+                                color: Colors.white,
+                                size: 22.sp,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
             ),
           ),
         ],
       ),
     );
+  }
+
+  Future<void> _deleteCurrentImage() async {
+    final File? image = _uploadedImage;
+
+    if (image == null) return;
+
+    try {
+      if (await image.exists()) {
+        final String path = image.path;
+
+        await image.delete();
+
+        debugPrint('TEMP IMAGE DELETED: $path');
+      }
+    } catch (e) {
+      debugPrint('TEMP IMAGE DELETE ERROR: $e');
+    }
+
+    if (mounted) {
+      setState(() {
+        _uploadedImage = null;
+      });
+    }
+  }
+
+  Future<void> _clearCapturedImage() async {
+    final File? image = _uploadedImage;
+
+    if (image == null) {
+      return;
+    }
+
+    try {
+      if (await image.exists()) {
+        final String path = image.path;
+
+        await image.delete();
+
+        debugPrint('TEMP IMAGE DELETED AFTER SUCCESS: $path');
+      }
+    } catch (e) {
+      debugPrint('TEMP IMAGE DELETE ERROR: $e');
+    }
+
+    if (!mounted) return;
+
+    setState(() {
+      _uploadedImage = null;
+    });
   }
 }

@@ -10,9 +10,9 @@ class AssignEmployeeModel extends AssignEmployee {
     Map<String, dynamic> json,
   ) {
     return AssignEmployeeModel(
-      fldId: json['fldId'],
+      fldId: json['fld_id']?.toString() ?? '',
       fldAdmName:
-          json['fldAdmName']?.toString() ?? '',
+          json['fld_adm_name']?.toString() ?? '',
     );
   }
 }

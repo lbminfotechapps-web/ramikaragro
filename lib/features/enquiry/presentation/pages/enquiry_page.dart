@@ -93,20 +93,20 @@ class _EnquiryPageState extends State<EnquiryPage> {
         'STORED USER ID = $storedUserId',
       );
 
-      if (storedUserId.isEmpty) {
-        debugPrint(
-          'ERROR: USER ID IS EMPTY',
-        );
+      // if (storedUserId.isEmpty) {
+      //   debugPrint(
+      //     'ERROR: USER ID IS EMPTY',
+      //   );
 
-        if (mounted) {
-          _showMessage(
-            'User ID not found. Please login again.',
-            isError: true,
-          );
-        }
+      //   if (mounted) {
+      //     _showMessage(
+      //       'User ID not found. Please login again.',
+      //       isError: true,
+      //     );
+      //   }
 
-        return;
-      }
+      //   return;
+      // }
 
       if (!mounted) return;
 
@@ -492,7 +492,7 @@ Widget build(BuildContext context) {
               _nameController,
           hintText:
               'Enter your name',
-          labelText: 'Name',
+          labelText: 'Name *',
           prefixIcon:
               Icons.person_outline_rounded,
           suffixIcon: null,
@@ -510,7 +510,7 @@ Widget build(BuildContext context) {
           hintText:
               'Enter 10 digit mobile number',
           labelText:
-              'Mobile Number',
+              'Mobile Number *',
           prefixIcon:
               Icons.phone_outlined,
           suffixIcon: null,
@@ -585,7 +585,7 @@ Widget build(BuildContext context) {
                   _villageController,
               hintText:
                   'Enter village name',
-              labelText: 'Village',
+              labelText: 'Village *',
               prefixIcon: Icons
                   .holiday_village_outlined,
               suffixIcon: null,
@@ -602,7 +602,7 @@ Widget build(BuildContext context) {
                   _addressController,
               hintText:
                   'Enter complete address',
-              labelText: 'Address',
+              labelText: 'Address *',
               prefixIcon: Icons
                   .location_on_outlined,
               suffixIcon: null,
@@ -681,7 +681,7 @@ Widget build(BuildContext context) {
         decoration:
             _dropdownDecoration(
           icon: Icons.map_outlined,
-          label: 'State',
+          label: 'State *',
           hint: isLoading
               ? 'Loading states...'
               : states.isEmpty
@@ -814,7 +814,7 @@ Widget build(BuildContext context) {
             _dropdownDecoration(
           icon:
               Icons.location_city_outlined,
-          label: 'District',
+          label: 'District *',
           hint: selectedStateId == null
               ? 'Select state first'
               : isLoading
@@ -946,7 +946,7 @@ Widget build(BuildContext context) {
             _dropdownDecoration(
           icon: Icons
               .account_balance_outlined,
-          label: 'Taluka',
+          label: 'Taluka *',
           hint: selectedDistrictId == null
               ? 'Select district first'
               : isLoading
@@ -1036,7 +1036,7 @@ Widget build(BuildContext context) {
       hintText:
           'Write your enquiry here...',
       labelText:
-          'Message / Remark',
+          'Message / Remark *',
       prefixIcon:
           Icons.chat_bubble_outline_rounded,
       suffixIcon: null,
@@ -1322,12 +1322,12 @@ Widget build(BuildContext context) {
     // USER ID
     // ----------------------------------------------------------
 
-    if (userId.trim().isEmpty) {
-      _showErrorSnackBar(
-        'User ID not found. Please login again.',
-      );
-      return;
-    }
+    // if (userId.trim().isEmpty) {
+    //   _showErrorSnackBar(
+    //     'User ID not found. Please login again.',
+    //   );
+    //   return;
+    // }
 
     // ----------------------------------------------------------
     // STATE

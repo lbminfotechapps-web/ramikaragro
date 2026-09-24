@@ -1947,7 +1947,7 @@ class _PlaceOrderViewState extends State<_PlaceOrderView> {
             ),
           ),
           backgroundColor:
-              AppColors.primary,
+              AppColors.error,
           behavior:
               SnackBarBehavior.floating,
           margin:

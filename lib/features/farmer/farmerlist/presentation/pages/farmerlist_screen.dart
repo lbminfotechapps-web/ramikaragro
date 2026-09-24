@@ -430,8 +430,8 @@ class _FarmerListItem extends StatelessWidget {
                 ClipRRect(
                   borderRadius: BorderRadius.circular(35),
                   child: SizedBox(
-                    width: 54,
-                    height: 54,
+                    width: 50,
+                    height: 50,
                     child: Container(
                       color: primaryColor.withOpacity(0.1),
                       child: Icon(
@@ -454,10 +454,10 @@ class _FarmerListItem extends StatelessWidget {
                           Expanded(
                             child: Text(
                               farmer.farmerName,
-                              maxLines: 1,
+                              maxLines: 2,
                               overflow: TextOverflow.ellipsis,
                               style: const TextStyle(
-                                fontSize: 16,
+                                fontSize: 14.5,
                                 fontWeight: FontWeight.bold,
                                 color: Colors.black87,
                               ),
