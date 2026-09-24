@@ -337,7 +337,9 @@ Future<List<DealerFollowupListModel>> getFollowupList(String outlet_id) async {
     // }
 
 
-    Future<Map<String, dynamic>> addDealerFollowUp(
+
+
+  Future<Map<String, dynamic>> addDealerFollowUp(
   Map<String, dynamic> jsonData,
   File? image,
 ) async {
@@ -669,9 +671,6 @@ Future<List<DealerFollowupListModel>> getFollowupList(String outlet_id) async {
     rethrow;
   }
 }
-
-
-
 
 
     Future<Map<String, dynamic>> updateDealer(
