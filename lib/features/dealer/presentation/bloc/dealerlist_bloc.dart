@@ -133,9 +133,7 @@ class DealerListBloc extends Bloc<DealerEevent, DealerListState> {
     debugPrint('ADD DEALER LOCATION STATUS: LOADING');
 
     try {
-      // ============================================================
-      // 3. CREATE REQUEST JSON
-      // ============================================================
+
 
       final Map<String, dynamic> jsonData = <String, dynamic>{
         'dealerId': event.dealerId,
