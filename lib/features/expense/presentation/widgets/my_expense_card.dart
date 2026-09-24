@@ -6,10 +6,7 @@ import '../../domain/entities/my_expense_entity.dart';
 class MyExpenseCard extends StatefulWidget {
   final MyExpenseEntity expense;
 
-  const MyExpenseCard({
-    super.key,
-    required this.expense,
-  });
+  const MyExpenseCard({super.key, required this.expense});
 
   @override
   State<MyExpenseCard> createState() => _MyExpenseCardState();
@@ -33,9 +30,7 @@ class _MyExpenseCardState extends State<MyExpenseCard> {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(22),
-        border: Border.all(
-          color: const Color(0xFFE3EAE5),
-        ),
+        border: Border.all(color: const Color(0xFFE3EAE5)),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withOpacity(0.035),
@@ -49,7 +44,6 @@ class _MyExpenseCardState extends State<MyExpenseCard> {
           // ============================================================
           // MAIN CARD
           // ============================================================
-
           Padding(
             padding: const EdgeInsets.all(16),
             child: Column(
@@ -57,7 +51,6 @@ class _MyExpenseCardState extends State<MyExpenseCard> {
                 // ======================================================
                 // HEADER
                 // ======================================================
-
                 Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -66,10 +59,7 @@ class _MyExpenseCardState extends State<MyExpenseCard> {
                       height: 52,
                       decoration: BoxDecoration(
                         gradient: const LinearGradient(
-                          colors: [
-                            Color(0xFFE8F5ED),
-                            Color(0xFFD8EEE0),
-                          ],
+                          colors: [Color(0xFFE8F5ED), Color(0xFFD8EEE0)],
                         ),
                         borderRadius: BorderRadius.circular(17),
                       ),
@@ -121,7 +111,6 @@ class _MyExpenseCardState extends State<MyExpenseCard> {
                 // ======================================================
                 // TOTAL EXPENSE
                 // ======================================================
-
                 Container(
                   width: double.infinity,
                   padding: const EdgeInsets.symmetric(
@@ -178,7 +167,6 @@ class _MyExpenseCardState extends State<MyExpenseCard> {
                 // ======================================================
                 // VISITED PLACE + TRAVEL MODE
                 // ======================================================
-
                 Row(
                   children: [
                     Expanded(
@@ -204,7 +192,6 @@ class _MyExpenseCardState extends State<MyExpenseCard> {
                 // ======================================================
                 // REPORTING STATUS
                 // ======================================================
-
                 if (expense.reportingStatus.trim().isNotEmpty) ...[
                   const SizedBox(height: 10),
 
@@ -212,16 +199,13 @@ class _MyExpenseCardState extends State<MyExpenseCard> {
                     title: 'REPORTING STATUS',
                     value: expense.reportingStatus,
                     icon: Icons.supervisor_account_rounded,
-                    color: _getStatusColor(
-                      expense.reportingStatus,
-                    ),
+                    color: _getStatusColor(expense.reportingStatus),
                   ),
                 ],
 
                 // ======================================================
                 // ADMIN STATUS
                 // ======================================================
-
                 if (expense.adminStatus.trim().isNotEmpty) ...[
                   const SizedBox(height: 10),
 
@@ -229,22 +213,17 @@ class _MyExpenseCardState extends State<MyExpenseCard> {
                     title: 'ADMIN STATUS',
                     value: expense.adminStatus,
                     icon: Icons.admin_panel_settings_outlined,
-                    color: _getStatusColor(
-                      expense.adminStatus,
-                    ),
+                    color: _getStatusColor(expense.adminStatus),
                   ),
                 ],
 
                 // ======================================================
                 // REMARK
                 // ======================================================
-
                 if (expense.remark.trim().isNotEmpty) ...[
                   const SizedBox(height: 10),
 
-                  _buildRemarkBox(
-                    expense.remark,
-                  ),
+                  _buildRemarkBox(expense.remark),
                 ],
 
                 const SizedBox(height: 14),
@@ -252,7 +231,6 @@ class _MyExpenseCardState extends State<MyExpenseCard> {
                 // ======================================================
                 // VIEW DETAILS BUTTON
                 // ======================================================
-
                 Material(
                   color: Colors.transparent,
                   child: InkWell(
@@ -263,18 +241,14 @@ class _MyExpenseCardState extends State<MyExpenseCard> {
                       });
                     },
                     child: AnimatedContainer(
-                      duration: const Duration(
-                        milliseconds: 250,
-                      ),
+                      duration: const Duration(milliseconds: 250),
                       width: double.infinity,
                       padding: const EdgeInsets.symmetric(
                         horizontal: 14,
                         vertical: 12,
                       ),
                       decoration: BoxDecoration(
-                        color: showDetails
-                            ? primaryGreen
-                            : lightGreen,
+                        color: showDetails ? primaryGreen : lightGreen,
                         borderRadius: BorderRadius.circular(15),
                       ),
                       child: Row(
@@ -284,9 +258,7 @@ class _MyExpenseCardState extends State<MyExpenseCard> {
                                 ? Icons.keyboard_arrow_up_rounded
                                 : Icons.keyboard_arrow_down_rounded,
                             size: 21,
-                            color: showDetails
-                                ? Colors.white
-                                : primaryGreen,
+                            color: showDetails ? Colors.white : primaryGreen,
                           ),
 
                           const SizedBox(width: 7),
@@ -298,9 +270,7 @@ class _MyExpenseCardState extends State<MyExpenseCard> {
                             style: TextStyle(
                               fontSize: 11,
                               fontWeight: FontWeight.w800,
-                              color: showDetails
-                                  ? Colors.white
-                                  : primaryGreen,
+                              color: showDetails ? Colors.white : primaryGreen,
                             ),
                           ),
 
@@ -322,9 +292,7 @@ class _MyExpenseCardState extends State<MyExpenseCard> {
                               style: TextStyle(
                                 fontSize: 10,
                                 fontWeight: FontWeight.w900,
-                                color: showDetails
-                                    ? Colors.white
-                                    : mediumGreen,
+                                color: showDetails ? Colors.white : mediumGreen,
                               ),
                             ),
                           ),
@@ -340,7 +308,6 @@ class _MyExpenseCardState extends State<MyExpenseCard> {
           // ============================================================
           // EXPENSE DETAILS
           // ============================================================
-
           AnimatedCrossFade(
             duration: const Duration(milliseconds: 250),
             crossFadeState: showDetails
@@ -360,14 +327,9 @@ class _MyExpenseCardState extends State<MyExpenseCard> {
 
   Widget _statusBadge(bool approved) {
     return Container(
-      padding: const EdgeInsets.symmetric(
-        horizontal: 10,
-        vertical: 7,
-      ),
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
       decoration: BoxDecoration(
-        color: approved
-            ? const Color(0xFFE8F5E9)
-            : const Color(0xFFFFF4E5),
+        color: approved ? const Color(0xFFE8F5E9) : const Color(0xFFFFF4E5),
         borderRadius: BorderRadius.circular(12),
       ),
       child: Row(
@@ -453,88 +415,73 @@ class _MyExpenseCardState extends State<MyExpenseCard> {
         return 'Rejected';
 
       default:
-        return status.trim().isEmpty
-            ? '-'
-            : status.trim();
+        return status.trim().isEmpty ? '-' : status.trim();
     }
   }
 
-
-
-   Widget _buildStatusBox({
-  required String title,
-  required String value,
-  required IconData icon,
-  required Color color,
-}) {
-  return Container(
-    width: double.infinity,
-    padding: const EdgeInsets.symmetric(
-      horizontal: 11,
-      vertical: 9,
-    ),
-    decoration: BoxDecoration(
-      color: color.withOpacity(0.055),
-      borderRadius: BorderRadius.circular(13),
-      border: Border.all(
-        color: color.withOpacity(0.13),
+  Widget _buildStatusBox({
+    required String title,
+    required String value,
+    required IconData icon,
+    required Color color,
+  }) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(horizontal: 11, vertical: 9),
+      decoration: BoxDecoration(
+        color: color.withOpacity(0.055),
+        borderRadius: BorderRadius.circular(13),
+        border: Border.all(color: color.withOpacity(0.13)),
       ),
-    ),
-    child: Row(
-      children: [
-        Container(
-          width: 34,
-          height: 34,
-          decoration: BoxDecoration(
-            color: color.withOpacity(0.10),
-            shape: BoxShape.circle,
+      child: Row(
+        children: [
+          Container(
+            width: 34,
+            height: 34,
+            decoration: BoxDecoration(
+              color: color.withOpacity(0.10),
+              shape: BoxShape.circle,
+            ),
+            child: Icon(icon, size: 17, color: color),
           ),
-          child: Icon(
-            icon,
-            size: 17,
-            color: color,
-          ),
-        ),
 
-        const SizedBox(width: 10),
+          const SizedBox(width: 10),
 
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                title,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: TextStyle(
-                  fontSize: 8,
-                  letterSpacing: 0.5,
-                  color: color,
-                  fontWeight: FontWeight.w900,
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  title,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    fontSize: 8,
+                    letterSpacing: 0.5,
+                    color: color,
+                    fontWeight: FontWeight.w900,
+                  ),
                 ),
-              ),
 
-              const SizedBox(height: 3),
+                const SizedBox(height: 3),
 
-              Text(
-                _statusDisplayText(value),
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: TextStyle(
-                  fontSize: 11,
-                  color: color,
-                  fontWeight: FontWeight.w900,
+                Text(
+                  _statusDisplayText(value),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    fontSize: 11,
+                    color: color,
+                    fontWeight: FontWeight.w900,
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
-        ),
-      ],
-    ),
-  );
-}
-
-
+        ],
+      ),
+    );
+  }
 
   // ==================================================================
   // REMARK BOX
@@ -543,16 +490,11 @@ class _MyExpenseCardState extends State<MyExpenseCard> {
   Widget _buildRemarkBox(String remark) {
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.symmetric(
-        horizontal: 11,
-        vertical: 9,
-      ),
+      padding: const EdgeInsets.symmetric(horizontal: 11, vertical: 9),
       decoration: BoxDecoration(
         color: const Color(0xFFF3F7FF),
         borderRadius: BorderRadius.circular(13),
-        border: Border.all(
-          color: const Color(0xFFDCE7FA),
-        ),
+        border: Border.all(color: const Color(0xFFDCE7FA)),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -620,9 +562,7 @@ class _MyExpenseCardState extends State<MyExpenseCard> {
       decoration: BoxDecoration(
         color: const Color(0xFFFAFCFA),
         borderRadius: BorderRadius.circular(15),
-        border: Border.all(
-          color: const Color(0xFFEDF1EE),
-        ),
+        border: Border.all(color: const Color(0xFFEDF1EE)),
       ),
       child: Row(
         children: [
@@ -633,11 +573,7 @@ class _MyExpenseCardState extends State<MyExpenseCard> {
               color: lightGreen,
               borderRadius: BorderRadius.circular(10),
             ),
-            child: Icon(
-              icon,
-              size: 16,
-              color: mediumGreen,
-            ),
+            child: Icon(icon, size: 16, color: mediumGreen),
           ),
 
           const SizedBox(width: 8),
@@ -684,12 +620,7 @@ class _MyExpenseCardState extends State<MyExpenseCard> {
   Widget _buildDetails(MyExpenseEntity expense) {
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.fromLTRB(
-        16,
-        0,
-        16,
-        16,
-      ),
+      padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
       decoration: const BoxDecoration(
         color: Color(0xFFF7FAF8),
         borderRadius: BorderRadius.only(
@@ -699,10 +630,7 @@ class _MyExpenseCardState extends State<MyExpenseCard> {
       ),
       child: Column(
         children: [
-          const Divider(
-            height: 1,
-            color: Color(0xFFE3EAE5),
-          ),
+          const Divider(height: 1, color: Color(0xFFE3EAE5)),
 
           const SizedBox(height: 14),
 
@@ -721,16 +649,14 @@ class _MyExpenseCardState extends State<MyExpenseCard> {
 
           const SizedBox(height: 10),
 
-          ...expense.details.map(
-            (detail) {
-              return _detailItem(
-                context: context,
-                name: detail.expName,
-                amount: detail.amount,
-                image: detail.expenseImage,
-              );
-            },
-          ),
+          ...expense.details.map((detail) {
+            return _detailItem(
+              context: context,
+              name: detail.expName,
+              amount: detail.amount,
+              image: detail.expenseImage,
+            );
+          }),
         ],
       ),
     );
@@ -756,8 +682,7 @@ class _MyExpenseCardState extends State<MyExpenseCard> {
       icon = Icons.route_outlined;
     } else if (lowerName.contains('mobile')) {
       icon = Icons.phone_android_outlined;
-    } else if (lowerName.contains('hotel') ||
-        lowerName.contains('lodge')) {
+    } else if (lowerName.contains('hotel') || lowerName.contains('lodge')) {
       icon = Icons.hotel_outlined;
     } else if (lowerName.contains('car')) {
       icon = Icons.directions_car_outlined;
@@ -775,16 +700,13 @@ class _MyExpenseCardState extends State<MyExpenseCard> {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(14),
-        border: Border.all(
-          color: const Color(0xFFE6ECE8),
-        ),
+        border: Border.all(color: const Color(0xFFE6ECE8)),
       ),
       child: Column(
         children: [
           // ============================================================
           // EXPENSE NAME + AMOUNT
           // ============================================================
-
           Row(
             children: [
               Container(
@@ -794,11 +716,7 @@ class _MyExpenseCardState extends State<MyExpenseCard> {
                   color: lightGreen,
                   borderRadius: BorderRadius.circular(11),
                 ),
-                child: Icon(
-                  icon,
-                  size: 18,
-                  color: mediumGreen,
-                ),
+                child: Icon(icon, size: 18, color: mediumGreen),
               ),
 
               const SizedBox(width: 10),
@@ -828,17 +746,12 @@ class _MyExpenseCardState extends State<MyExpenseCard> {
           // ============================================================
           // IMAGE
           // ============================================================
-
           if (hasImage) ...[
             const SizedBox(height: 10),
 
             GestureDetector(
               onTap: () {
-                _showExpenseImage(
-                  context,
-                  image,
-                  name,
-                );
+                _showExpenseImage(context, image, name);
               },
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(12),
@@ -851,11 +764,7 @@ class _MyExpenseCardState extends State<MyExpenseCard> {
                       fit: BoxFit.cover,
 
                       // Loading
-                      loadingBuilder: (
-                        context,
-                        child,
-                        loadingProgress,
-                      ) {
+                      loadingBuilder: (context, child, loadingProgress) {
                         if (loadingProgress == null) {
                           return child;
                         }
@@ -865,20 +774,15 @@ class _MyExpenseCardState extends State<MyExpenseCard> {
                           height: 180,
                           decoration: BoxDecoration(
                             color: const Color(0xFFF1F5F2),
-                            borderRadius:
-                                BorderRadius.circular(12),
+                            borderRadius: BorderRadius.circular(12),
                           ),
                           child: Center(
                             child: CircularProgressIndicator(
                               strokeWidth: 2.5,
                               color: mediumGreen,
-                              value: loadingProgress
-                                          .expectedTotalBytes !=
-                                      null
-                                  ? loadingProgress
-                                          .cumulativeBytesLoaded /
-                                      loadingProgress
-                                          .expectedTotalBytes!
+                              value: loadingProgress.expectedTotalBytes != null
+                                  ? loadingProgress.cumulativeBytesLoaded /
+                                        loadingProgress.expectedTotalBytes!
                                   : null,
                             ),
                           ),
@@ -886,22 +790,16 @@ class _MyExpenseCardState extends State<MyExpenseCard> {
                       },
 
                       // Error
-                      errorBuilder: (
-                        context,
-                        error,
-                        stackTrace,
-                      ) {
+                      errorBuilder: (context, error, stackTrace) {
                         return Container(
                           width: double.infinity,
                           height: 180,
                           decoration: BoxDecoration(
                             color: const Color(0xFFFFF5F5),
-                            borderRadius:
-                                BorderRadius.circular(12),
+                            borderRadius: BorderRadius.circular(12),
                           ),
                           child: Column(
-                            mainAxisAlignment:
-                                MainAxisAlignment.center,
+                            mainAxisAlignment: MainAxisAlignment.center,
                             children: [
                               const Icon(
                                 Icons.broken_image_outlined,
@@ -923,16 +821,14 @@ class _MyExpenseCardState extends State<MyExpenseCard> {
                               const SizedBox(height: 4),
 
                               Padding(
-                                padding:
-                                    const EdgeInsets.symmetric(
+                                padding: const EdgeInsets.symmetric(
                                   horizontal: 16,
                                 ),
                                 child: Text(
                                   image,
                                   maxLines: 2,
                                   textAlign: TextAlign.center,
-                                  overflow:
-                                      TextOverflow.ellipsis,
+                                  overflow: TextOverflow.ellipsis,
                                   style: const TextStyle(
                                     fontSize: 9,
                                     color: Color(0xFF8A938D),
@@ -948,7 +844,6 @@ class _MyExpenseCardState extends State<MyExpenseCard> {
                     // ==================================================
                     // VIEW IMAGE OVERLAY
                     // ==================================================
-
                     Positioned(
                       right: 10,
                       bottom: 10,
@@ -958,10 +853,8 @@ class _MyExpenseCardState extends State<MyExpenseCard> {
                           vertical: 7,
                         ),
                         decoration: BoxDecoration(
-                          color:
-                              Colors.black.withOpacity(0.65),
-                          borderRadius:
-                              BorderRadius.circular(20),
+                          color: Colors.black.withOpacity(0.65),
+                          borderRadius: BorderRadius.circular(20),
                         ),
                         child: const Row(
                           mainAxisSize: MainAxisSize.min,
@@ -1003,8 +896,7 @@ class _MyExpenseCardState extends State<MyExpenseCard> {
     String imageName,
     String expenseName,
   ) {
-    final imageUrl =
-        '${ApiClient.imageExpensetUrl}$imageName';
+    final imageUrl = '${ApiClient.imageExpensetUrl}$imageName';
 
     showDialog(
       context: context,
@@ -1025,21 +917,13 @@ class _MyExpenseCardState extends State<MyExpenseCard> {
                 // ======================================================
                 // HEADER
                 // ======================================================
-
                 Padding(
-                  padding: const EdgeInsets.fromLTRB(
-                    16,
-                    14,
-                    10,
-                    10,
-                  ),
+                  padding: const EdgeInsets.fromLTRB(16, 14, 10, 10),
                   child: Row(
                     children: [
                       Expanded(
                         child: Text(
-                          expenseName.isEmpty
-                              ? 'Expense Image'
-                              : expenseName,
+                          expenseName.isEmpty ? 'Expense Image' : expenseName,
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                           style: const TextStyle(
@@ -1066,7 +950,6 @@ class _MyExpenseCardState extends State<MyExpenseCard> {
                 // ======================================================
                 // IMAGE
                 // ======================================================
-
                 Flexible(
                   child: InteractiveViewer(
                     minScale: 0.8,
@@ -1075,11 +958,7 @@ class _MyExpenseCardState extends State<MyExpenseCard> {
                       imageUrl,
                       fit: BoxFit.contain,
 
-                      loadingBuilder: (
-                        context,
-                        child,
-                        loadingProgress,
-                      ) {
+                      loadingBuilder: (context, child, loadingProgress) {
                         if (loadingProgress == null) {
                           return child;
                         }
@@ -1094,17 +973,12 @@ class _MyExpenseCardState extends State<MyExpenseCard> {
                         );
                       },
 
-                      errorBuilder: (
-                        context,
-                        error,
-                        stackTrace,
-                      ) {
+                      errorBuilder: (context, error, stackTrace) {
                         return const SizedBox(
                           height: 350,
                           child: Center(
                             child: Column(
-                              mainAxisAlignment:
-                                  MainAxisAlignment.center,
+                              mainAxisAlignment: MainAxisAlignment.center,
                               children: [
                                 Icon(
                                   Icons.broken_image_outlined,
@@ -1135,23 +1009,14 @@ class _MyExpenseCardState extends State<MyExpenseCard> {
                 // ======================================================
                 // IMAGE NAME
                 // ======================================================
-
                 Padding(
-                  padding: const EdgeInsets.fromLTRB(
-                    16,
-                    0,
-                    16,
-                    16,
-                  ),
+                  padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
                   child: Text(
                     imageName,
                     maxLines: 2,
                     textAlign: TextAlign.center,
                     overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(
-                      color: Colors.white54,
-                      fontSize: 10,
-                    ),
+                    style: const TextStyle(color: Colors.white54, fontSize: 10),
                   ),
                 ),
               ],

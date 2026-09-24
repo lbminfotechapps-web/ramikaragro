@@ -786,7 +786,7 @@ class _AddDealerVisitPageState extends State<AddDealerVisitPage> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   const Text(
-                    'Dealer Visitfvsfr',
+                    'Dealer Visit',
                     style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
                   ),
 

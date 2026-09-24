@@ -63,6 +63,19 @@ class _AddExpensePageState extends State<AddExpensePage> {
   double enteredKM = 0;
   final Map<String, TextEditingController> _expenseAmountControllers = {};
 
+  bool _isTravelExpense(ExpenseParameterEntity expense) {
+    final name = expense.fldExpName.trim().toLowerCase();
+    return RegExp(
+      r'\b(travel|traveling|travelling|travaling|traving)\b',
+    ).hasMatch(name);
+  }
+
+  double _expenseAmount(ExpenseParameterEntity expense) {
+    return _isTravelExpense(expense)
+        ? double.tryParse(amountController.text) ?? 0
+        : expense.amount;
+  }
+
   TextEditingController _getExpenseAmountController(
     ExpenseParameterEntity expense,
   ) {
@@ -329,7 +342,7 @@ class _AddExpensePageState extends State<AddExpensePage> {
         appBar: CustomAppBar(
           title: 'Add Expesne',
           showBackButton: true,
-    onBackTap: () => context.go(AppRouter.home),
+          onBackTap: () => context.go(AppRouter.home),
           // onBackTap: () => Navigator.pop(context),
         ),
         backgroundColor: Colors.grey.shade100,
@@ -451,7 +464,7 @@ class _AddExpensePageState extends State<AddExpensePage> {
 
           buildField('Total KM', totalKm, readOnly: true),
 
-          buildField('Amount', amountController, readOnly: true),
+          buildField('Traveling Amount', amountController, readOnly: true),
 
           const SizedBox(height: 12),
 
@@ -460,7 +473,10 @@ class _AddExpensePageState extends State<AddExpensePage> {
               Expanded(
                 child: DropdownButtonFormField<String>(
                   value: daType,
-                  hint:  Text('Select DA Type',style: TextStyle(fontSize: 14.sp),),
+                  hint: Text(
+                    'Select DA Type',
+                    style: TextStyle(fontSize: 14.sp),
+                  ),
                   decoration: InputDecoration(
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
@@ -641,21 +657,25 @@ class _AddExpensePageState extends State<AddExpensePage> {
                           final item = currentState.expenses[index];
 
                           // Get permanent controller for this expense
-                          final amountController = _getExpenseAmountController(
-                            item,
-                          );
+                          final isTravelExpense = _isTravelExpense(item);
+                          final expenseAmountController = isTravelExpense
+                              ? amountController
+                              : _getExpenseAmountController(item);
 
                           // Keep controller value synchronized
                           // ONLY when field is not focused.
-                          if (!amountController.selection.isValid ||
-                              !amountController.selection.isDirectional) {
+                          if (!isTravelExpense &&
+                              (!expenseAmountController.selection.isValid ||
+                                  !expenseAmountController
+                                      .selection
+                                      .isDirectional)) {
                             final expectedText = item.amount > 0
                                 ? item.amount.toString()
                                 : '';
 
-                            if (amountController.text != expectedText &&
-                                !amountController.selection.isValid) {
-                              amountController.text = expectedText;
+                            if (expenseAmountController.text != expectedText &&
+                                !expenseAmountController.selection.isValid) {
+                              expenseAmountController.text = expectedText;
                             }
                           }
 
@@ -674,7 +694,7 @@ class _AddExpensePageState extends State<AddExpensePage> {
                                 // IMAGE / CAMERA
                                 // ==========================================
                                 GestureDetector(
-                                  onTap: () async {
+                                  onTap: isTravelExpense ? null : () async {
                                     // Hide keyboard before opening camera
                                     FocusScope.of(sheetContext).unfocus();
 
@@ -721,7 +741,7 @@ class _AddExpensePageState extends State<AddExpensePage> {
                                       context.read<ExpenseBloc>().add(
                                         UpdateExpenseParameterEvent(
                                           index: index,
-                                          amount: latestExpense.amount,
+                                          amount: _expenseAmount(latestExpense),
                                           image: file,
                                         ),
                                       );
@@ -755,8 +775,8 @@ class _AddExpensePageState extends State<AddExpensePage> {
                                             : _buildExpenseImage(item),
                                       ),
 
-                                      // Camera icon
-                                      Positioned(
+                                      // Camera is available for editable expenses only.
+                                      if (!isTravelExpense) Positioned(
                                         right: 3,
                                         bottom: 3,
                                         child: Container(
@@ -799,7 +819,8 @@ class _AddExpensePageState extends State<AddExpensePage> {
                                       TextFormField(
                                         // IMPORTANT:
                                         // No ValueKey based on amount.
-                                        controller: amountController,
+                                        controller: expenseAmountController,
+                                        readOnly: isTravelExpense,
                                         keyboardType:
                                             const TextInputType.numberWithOptions(
                                               decimal: true,
@@ -911,11 +932,12 @@ class _AddExpensePageState extends State<AddExpensePage> {
                         // VALIDATION
                         // ========================================
                         for (final expense in currentState.expenses) {
-                          final hasAmount = expense.amount > 0;
+                          final hasAmount = _expenseAmount(expense) > 0;
                           final hasImage = expense.imageFile != null;
 
                           // Amount entered but image missing
-                          if (hasAmount && !hasImage) {
+                          if (!_isTravelExpense(expense) &&
+                              hasAmount && !hasImage) {
                             Fluttertoast.showToast(
                               msg:
                                   'Please capture image for ${expense.fldExpName}',
@@ -927,7 +949,8 @@ class _AddExpensePageState extends State<AddExpensePage> {
                           }
 
                           // Image selected but amount missing
-                          if (hasImage && !hasAmount) {
+                          if (!_isTravelExpense(expense) &&
+                              hasImage && !hasAmount) {
                             Fluttertoast.showToast(
                               msg:
                                   'Please enter amount for ${expense.fldExpName}',
@@ -938,7 +961,10 @@ class _AddExpensePageState extends State<AddExpensePage> {
                             return;
                           }
 
-                          tempTotal += expense.amount;
+                          // Travel is already included by calculateKM.
+                          if (!_isTravelExpense(expense)) {
+                            tempTotal += expense.amount;
+                          }
                         }
 
                         // ========================================
@@ -996,7 +1022,7 @@ class _AddExpensePageState extends State<AddExpensePage> {
         return {
           'fld_exp_id': e.fldExpId,
           'fld_exp_name': e.fldExpName,
-          'Amount': e.amount,
+          'Amount': _expenseAmount(e),
           'fldImageName': e.imageFile != null
               ? base64Encode(e.imageFile!.readAsBytesSync())
               : '',
