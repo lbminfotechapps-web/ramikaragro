@@ -1,5 +1,9 @@
+import 'dart:convert';
 import 'dart:io';
 
+import 'package:solufine/core/di/auth_di.dart';
+import 'package:solufine/core/location_tracking/app_database.dart';
+import 'package:solufine/core/location_tracking/location_repository.dart';
 import 'package:solufine/core/router/app_router.dart';
 import 'package:solufine/core/secure_storage/secure_storage.dart';
 import 'package:solufine/core/theme/app_colors.dart';
@@ -25,6 +29,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil_plus/flutter_screenutil_plus.dart';
 import 'package:go_router/go_router.dart';
+import 'package:solufine/features/home/presentation/quick_aceess_bloc/quick_access_event.dart';
+import 'package:solufine/features/home/presentation/quick_aceess_bloc/quick_acess_bloc.dart';
 
 class FarmerregistrationPage extends StatefulWidget {
   const FarmerregistrationPage({super.key});
@@ -65,7 +71,7 @@ class _FarmerregistrationPageState extends State<FarmerregistrationPage> {
   File? _uploadedImage;
   final List<String> _selectedProductIds = [];
   final List<SelectedCropDetail> _selectedCropDetails = [];
-
+  String? userId;
   String selectedSowingDates = '';
   String selectedAcers = '';
   String selectedIrrigationId = '';
@@ -76,13 +82,12 @@ class _FarmerregistrationPageState extends State<FarmerregistrationPage> {
   @override
   void initState() {
     super.initState();
+    // getUserId();
     _loadStates();
     getGeoAddress();
 
     context.read<StateBloc>().add(FarmerDropEvent());
   }
-
-  
 
   Future<void> getGeoAddress() async {
     final position = await LocationUtil.instance.getCurrentLocation();
@@ -100,17 +105,29 @@ class _FarmerregistrationPageState extends State<FarmerregistrationPage> {
   }
 
   Future<void> getUserId() async {
-    final userData = await SecureStorage.instance.getUserData();
+    try {
+      final userData = await SecureStorage.instance.getUserData();
 
-    final userId = userData?['user_id']?.toString();
+      debugPrint('USER DATA: $userData');
 
-    if (!mounted || userId == null || userId.isEmpty) {
-      return;
+      if (!mounted) return;
+
+      setState(() {
+        userId = userData?['user_id']?.toString();
+      });
+
+      debugPrint('LOGGED IN USER ID: $userId');
+    } catch (e) {
+      debugPrint('GET USER DATA ERROR: $e');
+
+      if (!mounted) return;
+
+      setState(() {
+        userId = null;
+      });
     }
 
-    debugPrint('USER ID: $userId');
-
-    context.read<StateBloc>().add(StateListEvent(userId: userId));
+    context.read<StateBloc>().add(StateListEvent(userId: userId.toString()));
   }
 
   Future<void> _loadStates() async {
@@ -393,9 +410,9 @@ class _FarmerregistrationPageState extends State<FarmerregistrationPage> {
       //   );
       // }
 
-      final userData = await SecureStorage.instance.getUserData();
+      // final userData = await SecureStorage.instance.getUserData();
 
-      final userId = int.tryParse(userData?['user_id']?.toString() ?? '');
+      // final userId = int.tryParse(userData?['user_id']?.toString() ?? '');
 
       if (userId == null) {
         throw Exception('User ID not found');
@@ -414,7 +431,6 @@ class _FarmerregistrationPageState extends State<FarmerregistrationPage> {
           fldCategoryId: '',
 
           state: _selectedStateId ?? '0',
-
 
           district: _selectedDistrictId ?? '0',
 
@@ -491,7 +507,8 @@ class _FarmerregistrationPageState extends State<FarmerregistrationPage> {
 
           activityId: '2',
 
-          image: _uploadedImage?.path ?? '', fldDemoTypeId: '',
+          image: _uploadedImage?.path ?? '',
+          fldDemoTypeId: '',
         ),
       );
 
@@ -513,7 +530,6 @@ class _FarmerregistrationPageState extends State<FarmerregistrationPage> {
       );
     }
   }
- 
 
   @override
   void dispose() {
@@ -528,6 +544,78 @@ class _FarmerregistrationPageState extends State<FarmerregistrationPage> {
     remarkController.dispose();
 
     super.dispose();
+  }
+
+  Future<String> _getStoredLocations() async {
+    try {
+      final int? parsedUserId = int.tryParse(userId.toString());
+
+      if (parsedUserId == null) {
+        debugPrint('LOCATION: Invalid userId = $userId');
+        return '[]';
+      }
+
+      final LocationRepository repository = sl<LocationRepository>();
+
+      final List<LocationHistoryData> locations = await repository
+          .getAllLocations(parsedUserId);
+
+      debugPrint('========================================');
+      debugPrint('DEALER VISIT - STORED LOCATIONS');
+      debugPrint('TOTAL LOCATIONS: ${locations.length}');
+      debugPrint('========================================');
+
+      for (final location in locations) {
+        debugPrint(
+          'ID: ${location.id} | '
+          'Lat: ${location.latitude} | '
+          'Lng: ${location.longitude} | '
+          'Time: ${location.capturedAt} | '
+          'Accuracy: ${location.accuracy} | '
+          'Provider: ${location.provider} | '
+          'Address: ${location.geoAddress} | '
+          'Distance: ${location.distance}',
+        );
+      }
+
+      // ============================================================
+      // CREATE DATA FOR STORE LOCATION API
+      // ============================================================
+
+      final List<Map<String, dynamic>> locationList = locations.map((location) {
+        return {
+          'latitude': location.latitude,
+          'longitude': location.longitude,
+          'time': location.capturedAt,
+          'accuracy': location.accuracy,
+          'provider': location.provider,
+          'address': location.geoAddress,
+          'distance': location.distance,
+        };
+      }).toList();
+
+      // ============================================================
+      // JSON ARRAY -> STRING
+      // ============================================================
+
+      final String strAllLocations = jsonEncode(locationList);
+
+      debugPrint('========================================');
+      debugPrint('STR ALL LOCATIONS');
+      debugPrint('TOTAL: ${locations.length}');
+      debugPrint(strAllLocations);
+      debugPrint('========================================');
+
+      return strAllLocations;
+    } catch (e, stackTrace) {
+      debugPrint('========================================');
+      debugPrint('GET STORED LOCATIONS ERROR');
+      debugPrint('$e');
+      debugPrint('$stackTrace');
+      debugPrint('========================================');
+
+      return '[]';
+    }
   }
 
   @override
@@ -556,13 +644,28 @@ class _FarmerregistrationPageState extends State<FarmerregistrationPage> {
       ),
 
       body: BlocConsumer<StateBloc, StatsState>(
-        listener: (context, state) {
+        listener: (context, state) async {
           if (!isLoading || !_submissionSent) return;
           if (state.status == StatesStatus.farmerRegiSuccess) {
             setState(() {
               isLoading = false;
               _submissionSent = false;
             });
+
+            // debugPrint('DAILY TRAN ID FROM STATE: ${state.dailyTranId}');
+
+            final String strAllLocations = await _getStoredLocations();
+
+            debugPrint('========================================');
+            debugPrint('CALLING STORE TRACK LOCATION API');
+            debugPrint('USER ID: $userId');
+
+            debugPrint('STR ALL LOCATIONS: $strAllLocations');
+            debugPrint('========================================');
+
+            context.read<QuickAcessBloc>().add(
+              StoreTrackLocation(userId.toString(), '', strAllLocations),
+            );
 
             AppDialog.show(
               context: context,
@@ -686,14 +789,13 @@ class _FarmerregistrationPageState extends State<FarmerregistrationPage> {
                       labelText: 'Address',
                       prefixIcon: Icons.location_on_outlined,
                       maxLines: 3,
-                       validator: (value) {
+                      validator: (value) {
                         if (value == null || value.trim().isEmpty) {
                           return 'Please enter address';
                         }
 
                         return null;
                       },
-                      
                     ),
 
                     SizedBox(height: 10.h),

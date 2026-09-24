@@ -25,7 +25,7 @@ class HomeShellState extends State<HomeShell> {
   // VARIABLES
   // ============================================================
 
-  int _lastActiveIndex = -1;
+  GoRouterDelegate? _routerDelegate;
 
   int _userId = 0;
   String _username = 'user';
@@ -58,7 +58,7 @@ class HomeShellState extends State<HomeShell> {
   static const _tabs = [
     (path: AppRouter.home, icon: Icons.home, label: 'Home'),
     (path: AppRouter.reports, icon: Icons.report, label: 'Follow up'),
-    (path: AppRouter.visits, icon: Icons.location_city, label: 'Visits'),
+    // (path: AppRouter.visits, icon: Icons.location_city, label: 'Visits'),
     (path: AppRouter.products, icon: Icons.storage, label: 'Products'),
   ];
 
@@ -85,6 +85,24 @@ class HomeShellState extends State<HomeShell> {
     });
   }
 
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final delegate = GoRouter.of(context).routerDelegate;
+    if (identical(_routerDelegate, delegate)) return;
+
+    _routerDelegate?.removeListener(_checkHomeNavigation);
+    _routerDelegate = delegate;
+    _lastLocation = delegate.state.uri.path;
+    delegate.addListener(_checkHomeNavigation);
+  }
+
+  @override
+  void dispose() {
+    _routerDelegate?.removeListener(_checkHomeNavigation);
+    super.dispose();
+  }
+
   // ============================================================
   // PUBLIC REFRESH METHOD
   // ============================================================
@@ -108,9 +126,13 @@ class HomeShellState extends State<HomeShell> {
     // GET CURRENT GO ROUTER LOCATION
     // ----------------------------------------------------------
 
-    final uri = GoRouterState.of(context).uri;
+    final delegate = _routerDelegate;
+    if (!mounted || delegate == null || delegate.currentConfiguration.isEmpty) {
+      return;
+    }
 
-    final location = uri.path;
+    // The top route includes pushed screens above the bottom navigation.
+    final location = delegate.state.uri.path;
 
     // ----------------------------------------------------------
     // SAME ROUTE
@@ -181,7 +203,11 @@ class HomeShellState extends State<HomeShell> {
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       _homeRefreshScheduled = false;
 
-      if (!mounted) return;
+      if (!mounted ||
+          (_lastLocation != AppRouter.home &&
+              _lastLocation != '${AppRouter.home}/')) {
+        return;
+      }
 
       debugPrint('======================================');
       debugPrint('HOME BECAME ACTIVE');
@@ -379,22 +405,6 @@ class HomeShellState extends State<HomeShell> {
     debugPrint('======================================');
 
     // ----------------------------------------------------------
-    // KEEP YOUR EXISTING WORKING HOME REFRESH
-    //
-    // You already confirmed this works correctly when:
-    //
-    // Follow Up -> Home
-    // Visits    -> Home
-    // Products  -> Home
-    // ----------------------------------------------------------
-
-    if (index == 0 && currentIndex != 0) {
-      _scheduleHomeRefresh(reason: 'BOTTOM NAVIGATION -> HOME');
-    }
-
-    _lastActiveIndex = index;
-
-    // ----------------------------------------------------------
     // CHANGE TAB
     // ----------------------------------------------------------
 
@@ -424,10 +434,6 @@ class HomeShellState extends State<HomeShell> {
 
     if (currentIndex != 0) {
       widget.navigationShell.goBranch(0, initialLocation: true);
-
-      _lastActiveIndex = 0;
-
-      _scheduleHomeRefresh(reason: 'SYSTEM BACK -> HOME');
 
       return;
     }
@@ -492,26 +498,6 @@ class HomeShellState extends State<HomeShell> {
   @override
   Widget build(BuildContext context) {
     // ==========================================================
-    // IMPORTANT
-    //
-    // Detect:
-    //
-    // Punch Screen
-    // Farmer Screen
-    // Dealer Screen
-    // Expense Screen
-    // Profile Screen
-    // Any other screen
-    //
-    //             ↓
-    //
-    //            HOME
-    //
-    // ==========================================================
-
-    _checkHomeNavigation();
-
-    // ==========================================================
     // WAIT FOR USER DATA
     // ==========================================================
 
@@ -564,6 +550,7 @@ class HomeShellState extends State<HomeShell> {
     );
   }
 }
+
 /*
 class HomeShell extends StatefulWidget {
   const HomeShell({super.key, required this.navigationShell});

@@ -16,6 +16,8 @@ import 'package:solufine/core/utility/widgets/custom_button.dart';
 import 'package:solufine/core/utility/widgets/custom_textformfield.dart';
 import 'package:solufine/features/home/doman/home_entity/punch_stat_entity.dart';
 import 'package:solufine/features/home/doman/home_entity/vehicle_type_entity.dart';
+import 'package:solufine/features/home/presentation/home_bloc/home_bloc.dart';
+import 'package:solufine/features/home/presentation/home_bloc/home_event.dart';
 import 'package:solufine/features/home/presentation/quick_aceess_bloc/quick_acess_bloc.dart';
 import 'package:solufine/features/home/presentation/quick_aceess_bloc/quick_access_event.dart';
 import 'package:solufine/features/home/presentation/quick_aceess_bloc/quick_access_state.dart';

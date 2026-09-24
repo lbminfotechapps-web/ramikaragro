@@ -9,4 +9,10 @@ abstract class DealerListRepository {
     String limit,
     String searchKey,
   );
+
+
+   Future<Map<String, dynamic>> addDealerLocation(
+    Map<String, dynamic> jsonData,
+  );
+
 }

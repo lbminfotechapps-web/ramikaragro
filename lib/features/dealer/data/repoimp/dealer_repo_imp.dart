@@ -1,4 +1,3 @@
-
 import 'package:solufine/features/dealer/data/datasource/dealer_datasource.dart';
 import 'package:solufine/features/dealer/data/models/DealerListModel.dart';
 import 'package:solufine/features/dealer/domain/repository/dealer_repo.dart';
@@ -14,7 +13,7 @@ class DealerListRepositoryImpl implements DealerListRepository {
     String lattitude,
     String logitude,
     String searchKey,
-    String type
+    String type,
   ) async {
     try {
       print('');
@@ -63,5 +62,12 @@ class DealerListRepositoryImpl implements DealerListRepository {
 
       throw Exception('Failed to fetch dealer list: $e');
     }
+  }
+
+  @override
+  Future<Map<String, dynamic>> addDealerLocation(
+    Map<String, dynamic> jsonData,
+  ) async {
+    return await dealerListDatasource.addDealerLocation(jsonData);
   }
 }
