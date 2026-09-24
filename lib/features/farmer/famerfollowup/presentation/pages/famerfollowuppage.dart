@@ -1,3 +1,4 @@
+// This is my updated code on date  : 24-09-2026
 import 'dart:io';
 
 import 'package:solufine/core/router/app_router.dart';
@@ -657,7 +658,49 @@ class _FamerFollowupPageState extends State<FamerFollowupPage> {
           showBackButton: true,
           onBackTap: () => Navigator.pop(context),
         ),
-      
+        // appBar: AppBar(
+        //   elevation: 0,
+        //   backgroundColor: Colors.white,
+        //   surfaceTintColor: Colors.white,
+
+        //   leading: IconButton(
+        //     icon: const Icon(
+        //       Icons.arrow_back_ios_new_rounded,
+        //       size: 20,
+        //       color: Color(0xFF172B24),
+        //     ),
+        //     onPressed: () => Navigator.pop(context),
+        //   ),
+
+        //   title: const Column(
+        //     crossAxisAlignment: CrossAxisAlignment.start,
+        //     children: [
+        //       Text(
+        //         'Follow-up',
+        //         style: TextStyle(
+        //           color: Color(0xFF172B24),
+        //           fontSize: 19,
+        //           fontWeight: FontWeight.w700,
+        //         ),
+        //       ),
+
+        //       SizedBox(height: 2),
+
+        //       Text(
+        //         'Add farmer follow-up',
+        //         style: TextStyle(
+        //           color: Color(0xFF7A8983),
+        //           fontSize: 12,
+        //           fontWeight: FontWeight.w400,
+        //         ),
+        //       ),
+        //     ],
+        //   ),
+        // ),
+
+        // ====================================================
+        // BODY
+        // ====================================================
         body: SafeArea(
           child: Form(
             key: _formKey,

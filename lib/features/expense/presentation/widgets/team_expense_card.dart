@@ -48,9 +48,7 @@ class TeamExpenseCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(18),
-        border: Border.all(
-          color: borderColor,
-        ),
+        border: Border.all(color: borderColor),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withOpacity(0.035),
@@ -66,7 +64,6 @@ class TeamExpenseCard extends StatelessWidget {
             // ============================================================
             // HEADER
             // ============================================================
-
             Row(
               children: [
                 // Employee icon
@@ -146,12 +143,8 @@ class TeamExpenseCard extends StatelessWidget {
             // ============================================================
             // TOTAL EXPENSE
             // ============================================================
-
             Container(
-              padding: const EdgeInsets.symmetric(
-                horizontal: 11,
-                vertical: 10,
-              ),
+              padding: const EdgeInsets.symmetric(horizontal: 11, vertical: 10),
               decoration: BoxDecoration(
                 color: background,
                 borderRadius: BorderRadius.circular(14),
@@ -216,7 +209,6 @@ class TeamExpenseCard extends StatelessWidget {
             // ============================================================
             // BASIC INFORMATION
             // ============================================================
-
             _infoRow(
               Icons.location_on_outlined,
               'Visited Place',
@@ -237,45 +229,29 @@ class TeamExpenseCard extends StatelessWidget {
               ),
 
             if (expense.remark.trim().isNotEmpty)
-              _infoRow(
-                Icons.comment_outlined,
-                'Remark',
-                expense.remark,
-              ),
+              _infoRow(Icons.comment_outlined, 'Remark', expense.remark),
 
             const SizedBox(height: 6),
 
-            const Divider(
-              height: 1,
-              color: Color(0xFFE8EDE9),
-            ),
+            const Divider(height: 1, color: Color(0xFFE8EDE9)),
 
             const SizedBox(height: 8),
 
             // ============================================================
             // APPROVED AMOUNT
             // ============================================================
-
-            _amountItem(
-              'Approved Amount',
-              expense.approveAmount,
-            ),
+            _amountItem('Approved Amount', expense.approveAmount),
 
             const SizedBox(height: 7),
 
             // ============================================================
             // REPORTING STATUS
             // ============================================================
-
-            _statusItem(
-              'Reporting Status',
-              expense.reportingStatus,
-            ),
+            _statusItem('Reporting Status', expense.reportingStatus),
 
             // ============================================================
             // ADMIN STATUS
             // ============================================================
-
             if (expense.adminStatus.trim().isNotEmpty) ...[
               const SizedBox(height: 8),
               _adminStatus(
@@ -288,7 +264,6 @@ class TeamExpenseCard extends StatelessWidget {
             // ============================================================
             // ACTION BUTTONS
             // ============================================================
-
             if (expense.details.isNotEmpty || isPending) ...[
               const SizedBox(height: 9),
 
@@ -303,10 +278,7 @@ class TeamExpenseCard extends StatelessWidget {
                         color: mediumGreen,
                         borderColor: const Color(0xFFBFD5C7),
                         onPressed: () {
-                          _showExpenseDetails(
-                            context,
-                            expense,
-                          );
+                          _showExpenseDetails(context, expense);
                         },
                       ),
                     ),
@@ -322,16 +294,12 @@ class TeamExpenseCard extends StatelessWidget {
                         label: 'Approve',
                         backgroundColor: mediumGreen,
                         onPressed: () {
-                          _showApproveDialog(
-                            context,
-                            expense,
-                          );
+                          _showApproveDialog(context, expense);
                         },
                       ),
                     ),
 
-                  if (isPending)
-                    const SizedBox(width: 6),
+                  if (isPending) const SizedBox(width: 6),
 
                   // Reject
                   if (isPending)
@@ -342,10 +310,7 @@ class TeamExpenseCard extends StatelessWidget {
                         color: const Color(0xFFD32F2F),
                         borderColor: const Color(0xFFE5BABA),
                         onPressed: () {
-                          _showRejectDialog(
-                            context,
-                            expense,
-                          );
+                          _showRejectDialog(context, expense);
                         },
                       ),
                     ),
@@ -390,10 +355,7 @@ class TeamExpenseCard extends StatelessWidget {
     }
 
     return Container(
-      padding: const EdgeInsets.symmetric(
-        horizontal: 8,
-        vertical: 6,
-      ),
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
       decoration: BoxDecoration(
         color: backgroundColor,
         borderRadius: BorderRadius.circular(10),
@@ -401,11 +363,7 @@ class TeamExpenseCard extends StatelessWidget {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(
-            icon,
-            size: 11,
-            color: textColor,
-          ),
+          Icon(icon, size: 11, color: textColor),
           const SizedBox(width: 4),
           Text(
             text,
@@ -424,24 +382,15 @@ class TeamExpenseCard extends StatelessWidget {
   // INFO ROW
   // ============================================================
 
-  Widget _infoRow(
-    IconData icon,
-    String title,
-    String value,
-  ) {
-    final String displayValue =
-        value.trim().isEmpty ? '-' : value.trim();
+  Widget _infoRow(IconData icon, String title, String value) {
+    final String displayValue = value.trim().isEmpty ? '-' : value.trim();
 
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 3),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(
-            icon,
-            size: 15,
-            color: mediumGreen,
-          ),
+          Icon(icon, size: 15, color: mediumGreen),
 
           const SizedBox(width: 7),
 
@@ -478,22 +427,14 @@ class TeamExpenseCard extends StatelessWidget {
   // AMOUNT ITEM
   // ============================================================
 
-  Widget _amountItem(
-    String title,
-    double amount,
-  ) {
+  Widget _amountItem(String title, double amount) {
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.symmetric(
-        horizontal: 10,
-        vertical: 8,
-      ),
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
       decoration: BoxDecoration(
         color: const Color(0xFFFAFCFA),
         borderRadius: BorderRadius.circular(11),
-        border: Border.all(
-          color: const Color(0xFFE6ECE8),
-        ),
+        border: Border.all(color: const Color(0xFFE6ECE8)),
       ),
       child: Row(
         children: [
@@ -524,22 +465,14 @@ class TeamExpenseCard extends StatelessWidget {
   // STATUS ITEM
   // ============================================================
 
-  Widget _statusItem(
-    String title,
-    String value,
-  ) {
+  Widget _statusItem(String title, String value) {
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.symmetric(
-        horizontal: 10,
-        vertical: 8,
-      ),
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
       decoration: BoxDecoration(
         color: const Color(0xFFFAFCFA),
         borderRadius: BorderRadius.circular(11),
-        border: Border.all(
-          color: const Color(0xFFE6ECE8),
-        ),
+        border: Border.all(color: const Color(0xFFE6ECE8)),
       ),
       child: Row(
         children: [
@@ -600,21 +533,14 @@ class TeamExpenseCard extends StatelessWidget {
 
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.symmetric(
-        horizontal: 10,
-        vertical: 8,
-      ),
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
       decoration: BoxDecoration(
         color: background,
         borderRadius: BorderRadius.circular(11),
       ),
       child: Row(
         children: [
-          Icon(
-            icon,
-            size: 16,
-            color: color,
-          ),
+          Icon(icon, size: 16, color: color),
           const SizedBox(width: 7),
           Expanded(
             child: Text(
@@ -647,24 +573,16 @@ class TeamExpenseCard extends StatelessWidget {
       height: 38,
       child: ElevatedButton.icon(
         onPressed: onPressed,
-        icon: Icon(
-          icon,
-          size: 15,
-        ),
+        icon: Icon(icon, size: 15),
         label: Text(
           label,
-          style: const TextStyle(
-            fontSize: 10,
-            fontWeight: FontWeight.w800,
-          ),
+          style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w800),
         ),
         style: ElevatedButton.styleFrom(
           backgroundColor: backgroundColor,
           foregroundColor: Colors.white,
           elevation: 0,
-          padding: const EdgeInsets.symmetric(
-            horizontal: 5,
-          ),
+          padding: const EdgeInsets.symmetric(horizontal: 5),
           tapTargetSize: MaterialTapTargetSize.shrinkWrap,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(11),
@@ -689,25 +607,15 @@ class TeamExpenseCard extends StatelessWidget {
       height: 38,
       child: OutlinedButton.icon(
         onPressed: onPressed,
-        icon: Icon(
-          icon,
-          size: 15,
-        ),
+        icon: Icon(icon, size: 15),
         label: Text(
           label,
-          style: const TextStyle(
-            fontSize: 10,
-            fontWeight: FontWeight.w800,
-          ),
+          style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w800),
         ),
         style: OutlinedButton.styleFrom(
           foregroundColor: color,
-          side: BorderSide(
-            color: borderColor,
-          ),
-          padding: const EdgeInsets.symmetric(
-            horizontal: 5,
-          ),
+          side: BorderSide(color: borderColor),
+          padding: const EdgeInsets.symmetric(horizontal: 5),
           tapTargetSize: MaterialTapTargetSize.shrinkWrap,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(11),
@@ -721,10 +629,7 @@ class TeamExpenseCard extends StatelessWidget {
   // APPROVE CONFIRMATION
   // ============================================================
 
-  void _showApproveDialog(
-    BuildContext context,
-    TeamExpenseEntity expense,
-  ) {
+  void _showApproveDialog(BuildContext context, TeamExpenseEntity expense) {
     showDialog(
       context: context,
       builder: (dialogContext) {
@@ -732,24 +637,9 @@ class TeamExpenseCard extends StatelessWidget {
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(20),
           ),
-          titlePadding: const EdgeInsets.fromLTRB(
-            20,
-            20,
-            20,
-            5,
-          ),
-          contentPadding: const EdgeInsets.fromLTRB(
-            20,
-            8,
-            20,
-            8,
-          ),
-          actionsPadding: const EdgeInsets.fromLTRB(
-            12,
-            4,
-            12,
-            12,
-          ),
+          titlePadding: const EdgeInsets.fromLTRB(20, 20, 20, 5),
+          contentPadding: const EdgeInsets.fromLTRB(20, 8, 20, 8),
+          actionsPadding: const EdgeInsets.fromLTRB(12, 4, 12, 12),
           title: const Row(
             children: [
               Icon(
@@ -760,20 +650,14 @@ class TeamExpenseCard extends StatelessWidget {
               SizedBox(width: 9),
               Text(
                 'Approve Expense',
-                style: TextStyle(
-                  fontSize: 17,
-                  fontWeight: FontWeight.w900,
-                ),
+                style: TextStyle(fontSize: 17, fontWeight: FontWeight.w900),
               ),
             ],
           ),
           content: Text(
-            'Approve expense #${expense.expenseId} '
-            'for ₹${expense.dailyTotal.toStringAsFixed(2)}?',
-            style: const TextStyle(
-              fontSize: 13,
-              color: Color(0xFF68736C),
-            ),
+            'Approve expense '
+            'of ₹${expense.dailyTotal.toStringAsFixed(2)}?',
+            style: const TextStyle(fontSize: 13, color: Color(0xFF68736C)),
           ),
           actions: [
             TextButton(
@@ -782,20 +666,14 @@ class TeamExpenseCard extends StatelessWidget {
               },
               child: const Text(
                 'Cancel',
-                style: TextStyle(
-                  color: Color(0xFF68736C),
-                ),
+                style: TextStyle(color: Color(0xFF68736C)),
               ),
             ),
             ElevatedButton(
               onPressed: () {
                 Navigator.pop(dialogContext);
 
-                _updateExpense(
-                  context,
-                  expense,
-                  '1',
-                );
+                _updateExpense(context, expense, '1');
               },
               style: ElevatedButton.styleFrom(
                 backgroundColor: mediumGreen,
@@ -807,9 +685,7 @@ class TeamExpenseCard extends StatelessWidget {
               ),
               child: const Text(
                 'Approve',
-                style: TextStyle(
-                  fontWeight: FontWeight.w800,
-                ),
+                style: TextStyle(fontWeight: FontWeight.w800),
               ),
             ),
           ],
@@ -822,10 +698,7 @@ class TeamExpenseCard extends StatelessWidget {
   // REJECT CONFIRMATION
   // ============================================================
 
-  void _showRejectDialog(
-    BuildContext context,
-    TeamExpenseEntity expense,
-  ) {
+  void _showRejectDialog(BuildContext context, TeamExpenseEntity expense) {
     showDialog(
       context: context,
       builder: (dialogContext) {
@@ -833,48 +706,23 @@ class TeamExpenseCard extends StatelessWidget {
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(20),
           ),
-          titlePadding: const EdgeInsets.fromLTRB(
-            20,
-            20,
-            20,
-            5,
-          ),
-          contentPadding: const EdgeInsets.fromLTRB(
-            20,
-            8,
-            20,
-            8,
-          ),
-          actionsPadding: const EdgeInsets.fromLTRB(
-            12,
-            4,
-            12,
-            12,
-          ),
+          titlePadding: const EdgeInsets.fromLTRB(20, 20, 20, 5),
+          contentPadding: const EdgeInsets.fromLTRB(20, 8, 20, 8),
+          actionsPadding: const EdgeInsets.fromLTRB(12, 4, 12, 12),
           title: const Row(
             children: [
-              Icon(
-                Icons.cancel_outlined,
-                color: Color(0xFFD32F2F),
-                size: 25,
-              ),
+              Icon(Icons.cancel_outlined, color: Color(0xFFD32F2F), size: 25),
               SizedBox(width: 9),
               Text(
                 'Reject Expense',
-                style: TextStyle(
-                  fontSize: 17,
-                  fontWeight: FontWeight.w900,
-                ),
+                style: TextStyle(fontSize: 17, fontWeight: FontWeight.w900),
               ),
             ],
           ),
           content: Text(
-            'Reject expense #${expense.expenseId} '
-            'for ₹${expense.dailyTotal.toStringAsFixed(2)}?',
-            style: const TextStyle(
-              fontSize: 13,
-              color: Color(0xFF68736C),
-            ),
+            'Reject expense '
+            'of ₹${expense.dailyTotal.toStringAsFixed(2)}?',
+            style: const TextStyle(fontSize: 13, color: Color(0xFF68736C)),
           ),
           actions: [
             TextButton(
@@ -883,20 +731,14 @@ class TeamExpenseCard extends StatelessWidget {
               },
               child: const Text(
                 'Cancel',
-                style: TextStyle(
-                  color: Color(0xFF68736C),
-                ),
+                style: TextStyle(color: Color(0xFF68736C)),
               ),
             ),
             ElevatedButton(
               onPressed: () {
                 Navigator.pop(dialogContext);
 
-                _updateExpense(
-                  context,
-                  expense,
-                  '2',
-                );
+                _updateExpense(context, expense, '2');
               },
               style: ElevatedButton.styleFrom(
                 backgroundColor: const Color(0xFFD32F2F),
@@ -908,9 +750,7 @@ class TeamExpenseCard extends StatelessWidget {
               ),
               child: const Text(
                 'Reject',
-                style: TextStyle(
-                  fontWeight: FontWeight.w800,
-                ),
+                style: TextStyle(fontWeight: FontWeight.w800),
               ),
             ),
           ],
@@ -940,38 +780,31 @@ class TeamExpenseCard extends StatelessWidget {
       'remark': expense.remark,
     });
 
-    debugPrint(
-      '==========================================',
-    );
+    debugPrint('==========================================');
     debugPrint('UPDATE EXPENSE');
     debugPrint('User ID: $userId');
     debugPrint('Expense ID: ${expense.expenseId}');
     debugPrint('Status: $status');
     debugPrint('Expense JSON: $expenseJson');
     debugPrint('Remark: ${expense.remark}');
-    debugPrint(
-      '==========================================',
-    );
+    debugPrint('==========================================');
 
     context.read<TeamExpenseBloc>().add(
-          UpdateTeamExpenseEvent(
-            userId: userId,
-            expenseId: expense.expenseId,
-            status: status,
-            expenseJson: expenseJson,
-            remark: expense.remark,
-          ),
-        );
+      UpdateTeamExpenseEvent(
+        userId: userId,
+        expenseId: expense.expenseId,
+        status: status,
+        expenseJson: expenseJson,
+        remark: expense.remark,
+      ),
+    );
   }
 
   // ============================================================
   // EXPENSE DETAILS BOTTOM SHEET
   // ============================================================
 
-  void _showExpenseDetails(
-    BuildContext context,
-    TeamExpenseEntity expense,
-  ) {
+  void _showExpenseDetails(BuildContext context, TeamExpenseEntity expense) {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -979,14 +812,11 @@ class TeamExpenseCard extends StatelessWidget {
       builder: (context) {
         return Container(
           constraints: BoxConstraints(
-            maxHeight:
-                MediaQuery.of(context).size.height * 0.85,
+            maxHeight: MediaQuery.of(context).size.height * 0.85,
           ),
           decoration: const BoxDecoration(
             color: Colors.white,
-            borderRadius: BorderRadius.vertical(
-              top: Radius.circular(26),
-            ),
+            borderRadius: BorderRadius.vertical(top: Radius.circular(26)),
           ),
           child: Column(
             children: [
@@ -1003,12 +833,7 @@ class TeamExpenseCard extends StatelessWidget {
 
               // Bottom sheet header
               Padding(
-                padding: const EdgeInsets.fromLTRB(
-                  18,
-                  14,
-                  12,
-                  10,
-                ),
+                padding: const EdgeInsets.fromLTRB(18, 14, 12, 10),
                 child: Row(
                   children: [
                     Container(
@@ -1042,10 +867,7 @@ class TeamExpenseCard extends StatelessWidget {
                       onPressed: () {
                         Navigator.pop(context);
                       },
-                      icon: const Icon(
-                        Icons.close_rounded,
-                        size: 21,
-                      ),
+                      icon: const Icon(Icons.close_rounded, size: 21),
                     ),
                   ],
                 ),
@@ -1069,33 +891,21 @@ class TeamExpenseCard extends StatelessWidget {
                     : ListView.separated(
                         padding: const EdgeInsets.all(14),
                         itemCount: expense.details.length,
-                        separatorBuilder: (_, __) =>
-                            const SizedBox(height: 8),
+                        separatorBuilder: (_, __) => const SizedBox(height: 8),
                         itemBuilder: (context, index) {
-                          final detail =
-                              expense.details[index];
+                          final detail = expense.details[index];
 
-                          return _detailCard(
-                            context,
-                            detail,
-                          );
+                          return _detailCard(context, detail);
                         },
                       ),
               ),
 
               // Total
               Container(
-                padding: const EdgeInsets.fromLTRB(
-                  18,
-                  11,
-                  18,
-                  18,
-                ),
+                padding: const EdgeInsets.fromLTRB(18, 11, 18, 18),
                 decoration: const BoxDecoration(
                   color: background,
-                  borderRadius: BorderRadius.vertical(
-                    top: Radius.circular(16),
-                  ),
+                  borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
                 ),
                 child: Row(
                   children: [
@@ -1131,10 +941,7 @@ class TeamExpenseCard extends StatelessWidget {
   // DETAIL CARD
   // ============================================================
 
-  Widget _detailCard(
-    BuildContext context,
-    TeamExpenseDetailEntity detail,
-  ) {
+  Widget _detailCard(BuildContext context, TeamExpenseDetailEntity detail) {
     final String imageName = detail.expenseImage.trim();
 
     final bool hasImage = imageName.isNotEmpty;
@@ -1142,42 +949,31 @@ class TeamExpenseCard extends StatelessWidget {
     String imageUrl = '';
 
     if (hasImage) {
-      if (imageName.startsWith('http://') ||
-          imageName.startsWith('https://')) {
+      if (imageName.startsWith('http://') || imageName.startsWith('https://')) {
         imageUrl = imageName;
       } else {
-        imageUrl =
-            '${ApiClient.imageExpensetUrl}$imageName';
+        imageUrl = '${ApiClient.imageExpensetUrl}$imageName';
       }
     }
 
-    debugPrint(
-      'Expense Name: ${detail.expenseName}',
-    );
+    debugPrint('Expense Name: ${detail.expenseName}');
 
-    debugPrint(
-      'Expense Image: $imageName',
-    );
+    debugPrint('Expense Image: $imageName');
 
-    debugPrint(
-      'Expense Image URL: $imageUrl',
-    );
+    debugPrint('Expense Image URL: $imageUrl');
 
     return Container(
       padding: const EdgeInsets.all(11),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(15),
-        border: Border.all(
-          color: borderColor,
-        ),
+        border: Border.all(color: borderColor),
       ),
       child: Column(
         children: [
           // Detail header
           Row(
-            crossAxisAlignment:
-                CrossAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Container(
                 width: 38,
@@ -1187,9 +983,7 @@ class TeamExpenseCard extends StatelessWidget {
                   borderRadius: BorderRadius.circular(11),
                 ),
                 child: Icon(
-                  hasImage
-                      ? Icons.image_outlined
-                      : Icons.receipt_outlined,
+                  hasImage ? Icons.image_outlined : Icons.receipt_outlined,
                   color: mediumGreen,
                   size: 19,
                 ),
@@ -1199,8 +993,7 @@ class TeamExpenseCard extends StatelessWidget {
 
               Expanded(
                 child: Column(
-                  crossAxisAlignment:
-                      CrossAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
                       detail.expenseName,
@@ -1213,18 +1006,13 @@ class TeamExpenseCard extends StatelessWidget {
                       ),
                     ),
 
-                    if (detail.expenseRemark
-                        .trim()
-                        .isNotEmpty) ...[
+                    if (detail.expenseRemark.trim().isNotEmpty) ...[
                       const SizedBox(height: 3),
                       Text(
                         detail.expenseRemark,
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
-                        style: const TextStyle(
-                          fontSize: 9,
-                          color: textGrey,
-                        ),
+                        style: const TextStyle(fontSize: 9, color: textGrey),
                       ),
                     ],
                   ],
@@ -1250,11 +1038,7 @@ class TeamExpenseCard extends StatelessWidget {
 
             GestureDetector(
               onTap: () {
-                _showFullImage(
-                  context,
-                  imageUrl,
-                  detail.expenseName,
-                );
+                _showFullImage(context, imageUrl, detail.expenseName);
               },
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(12),
@@ -1265,11 +1049,7 @@ class TeamExpenseCard extends StatelessWidget {
                   child: Image.network(
                     imageUrl,
                     fit: BoxFit.cover,
-                    loadingBuilder: (
-                      context,
-                      child,
-                      loadingProgress,
-                    ) {
+                    loadingBuilder: (context, child, loadingProgress) {
                       if (loadingProgress == null) {
                         return child;
                       }
@@ -1281,18 +1061,10 @@ class TeamExpenseCard extends StatelessWidget {
                         ),
                       );
                     },
-                    errorBuilder: (
-                      context,
-                      error,
-                      stackTrace,
-                    ) {
-                      debugPrint(
-                        'IMAGE LOAD ERROR: $error',
-                      );
+                    errorBuilder: (context, error, stackTrace) {
+                      debugPrint('IMAGE LOAD ERROR: $error');
 
-                      debugPrint(
-                        'FAILED IMAGE URL: $imageUrl',
-                      );
+                      debugPrint('FAILED IMAGE URL: $imageUrl');
 
                       return const Center(
                         child: Column(
@@ -1325,11 +1097,7 @@ class TeamExpenseCard extends StatelessWidget {
 
             Row(
               children: [
-                const Icon(
-                  Icons.image_outlined,
-                  size: 12,
-                  color: mediumGreen,
-                ),
+                const Icon(Icons.image_outlined, size: 12, color: mediumGreen),
 
                 const SizedBox(width: 4),
 
@@ -1338,10 +1106,7 @@ class TeamExpenseCard extends StatelessWidget {
                     imageName,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(
-                      fontSize: 8,
-                      color: textGrey,
-                    ),
+                    style: const TextStyle(fontSize: 8, color: textGrey),
                   ),
                 ),
 
@@ -1367,11 +1132,7 @@ class TeamExpenseCard extends StatelessWidget {
   // FULL IMAGE
   // ============================================================
 
-  void _showFullImage(
-    BuildContext context,
-    String imageUrl,
-    String title,
-  ) {
+  void _showFullImage(BuildContext context, String imageUrl, String title) {
     showDialog(
       context: context,
       barrierColor: Colors.black87,
@@ -1384,9 +1145,7 @@ class TeamExpenseCard extends StatelessWidget {
               Container(
                 width: double.infinity,
                 constraints: BoxConstraints(
-                  maxHeight:
-                      MediaQuery.of(context).size.height *
-                          0.85,
+                  maxHeight: MediaQuery.of(context).size.height * 0.85,
                 ),
                 decoration: BoxDecoration(
                   color: Colors.black,
@@ -1400,11 +1159,7 @@ class TeamExpenseCard extends StatelessWidget {
                     child: Image.network(
                       imageUrl,
                       fit: BoxFit.contain,
-                      errorBuilder: (
-                        context,
-                        error,
-                        stackTrace,
-                      ) {
+                      errorBuilder: (context, error, stackTrace) {
                         return const SizedBox(
                           height: 300,
                           child: Center(
@@ -1434,10 +1189,7 @@ class TeamExpenseCard extends StatelessWidget {
                     onPressed: () {
                       Navigator.pop(context);
                     },
-                    icon: const Icon(
-                      Icons.close_rounded,
-                      color: Colors.white,
-                    ),
+                    icon: const Icon(Icons.close_rounded, color: Colors.white),
                   ),
                 ),
               ),

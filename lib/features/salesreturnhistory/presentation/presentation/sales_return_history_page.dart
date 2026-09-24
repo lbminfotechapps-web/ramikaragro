@@ -418,15 +418,8 @@ class _SalesReturnHistoryPageState extends State<SalesReturnHistoryPage> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               _detailRow('Product Name', detail.fldProductName),
-                              _detailRow(
-                                'Product Quantity',
-                                '${detail.fldProductQty} ${detail.fldUnit}'
-                                    .trim(),
-                              ),
-                              _detailRow(
-                                'Quantity in Packet',
-                                detail.fldQtyInPkt,
-                              ),
+
+                              _detailRow('No Of Case : ', detail.fldQtyInPkt),
                             ],
                           ),
                         ),

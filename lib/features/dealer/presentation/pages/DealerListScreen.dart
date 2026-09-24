@@ -435,7 +435,7 @@ class _DealerListItem extends StatelessWidget {
                               dealer.outletName.isEmpty
                                   ? 'Unknown Dealer'
                                   : dealer.outletName,
-                              maxLines: 1,
+                              maxLines: 2,
                               overflow: TextOverflow.ellipsis,
                               style: const TextStyle(
                                 fontSize: 14,

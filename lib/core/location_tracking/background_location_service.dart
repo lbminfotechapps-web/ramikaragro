@@ -47,17 +47,16 @@ class BackgroundLocationService {
     );
   }
 
-
   static Future<void> checkServiceStatus() async {
-  final service = FlutterBackgroundService();
+    final service = FlutterBackgroundService();
 
-  final bool isRunning = await service.isRunning();
+    final bool isRunning = await service.isRunning();
 
-  debugPrint('========================================');
-  debugPrint('BACKGROUND SERVICE STATUS');
-  debugPrint('IS RUNNING: $isRunning');
-  debugPrint('========================================');
-}
+    debugPrint('========================================');
+    debugPrint('BACKGROUND SERVICE STATUS');
+    debugPrint('IS RUNNING: $isRunning');
+    debugPrint('========================================');
+  }
 
   static Future<void> start({required int userId}) async {
     final service = FlutterBackgroundService();

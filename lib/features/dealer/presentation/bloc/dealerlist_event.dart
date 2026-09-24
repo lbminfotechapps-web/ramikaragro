@@ -18,11 +18,5 @@ class DealerListEvent extends Equatable {
   });
 
   @override
-  List<Object> get props => [
-        user_id,
-        latitude,
-        longitude,
-        searchText,
-        type
-      ];
+  List<Object> get props => [user_id, latitude, longitude, searchText, type];
 }
