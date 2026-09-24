@@ -1,7 +1,7 @@
-
-
+import 'package:solufine/core/utility/app_toast.dart';
 import 'package:solufine/features/farmer/farmerregistration/domain/entity/crop_entity.dart';
-import 'package:solufine/features/farmer/farmerregistration/domain/entity/irrigation_entity.dart' show IrrigationEntity;
+import 'package:solufine/features/farmer/farmerregistration/domain/entity/irrigation_entity.dart'
+    show IrrigationEntity;
 import 'package:solufine/features/farmer/farmerregistration/domain/entity/selected_crop_detail.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil_plus/flutter_screenutil_plus.dart';
@@ -19,12 +19,10 @@ class CropDetailsDialog extends StatefulWidget {
   });
 
   @override
-  State<CropDetailsDialog> createState() =>
-      _CropDetailsDialogState();
+  State<CropDetailsDialog> createState() => _CropDetailsDialogState();
 }
 
-class _CropDetailsDialogState
-    extends State<CropDetailsDialog> {
+class _CropDetailsDialogState extends State<CropDetailsDialog> {
   final Map<String, bool> _selected = {};
 
   final Map<String, TextEditingController> _acreControllers = {};
@@ -39,22 +37,18 @@ class _CropDetailsDialogState
 
     for (final crop in widget.cropList) {
       final existing = widget.existingSelections
-          .where(
-            (item) => item.cropId == crop.fldCropId,
-          )
+          .where((item) => item.cropId == crop.fldCropId)
           .firstOrNull;
 
       _selected[crop.fldCropId] = existing != null;
 
-      _acreControllers[crop.fldCropId] =
-          TextEditingController(
+      _acreControllers[crop.fldCropId] = TextEditingController(
         text: existing?.acre ?? '',
       );
 
       _dates[crop.fldCropId] = existing?.date;
 
-      _irrigationIds[crop.fldCropId] =
-          existing?.irrigationId;
+      _irrigationIds[crop.fldCropId] = existing?.irrigationId;
     }
   }
 
@@ -70,17 +64,10 @@ class _CropDetailsDialogState
   @override
   Widget build(BuildContext context) {
     return Dialog(
-      insetPadding: EdgeInsets.symmetric(
-        horizontal: 12.w,
-        vertical: 20.h,
-      ),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(20.r),
-      ),
+      insetPadding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 20.h),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20.r)),
       child: ConstrainedBox(
-        constraints: BoxConstraints(
-          maxHeight: 0.90.sh,
-        ),
+        constraints: BoxConstraints(maxHeight: 0.90.sh),
         child: Column(
           children: [
             _buildHeader(),
@@ -89,8 +76,7 @@ class _CropDetailsDialogState
               child: ListView.separated(
                 padding: EdgeInsets.all(12.w),
                 itemCount: widget.cropList.length,
-                separatorBuilder: (_, __) =>
-                    SizedBox(height: 10.h),
+                separatorBuilder: (_, __) => SizedBox(height: 10.h),
                 itemBuilder: (context, index) {
                   final crop = widget.cropList[index];
 
@@ -109,23 +95,14 @@ class _CropDetailsDialogState
   Widget _buildHeader() {
     return Container(
       width: double.infinity,
-      padding: EdgeInsets.symmetric(
-        horizontal: 18.w,
-        vertical: 16.h,
-      ),
+      padding: EdgeInsets.symmetric(horizontal: 18.w, vertical: 16.h),
       decoration: BoxDecoration(
         color: const Color(0xFF087C3A),
-        borderRadius: BorderRadius.vertical(
-          top: Radius.circular(20.r),
-        ),
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20.r)),
       ),
       child: Row(
         children: [
-          Icon(
-            Icons.grass,
-            color: Colors.white,
-            size: 25.sp,
-          ),
+          Icon(Icons.grass, color: Colors.white, size: 25.sp),
           SizedBox(width: 10.w),
           Expanded(
             child: Text(
@@ -141,10 +118,7 @@ class _CropDetailsDialogState
             onPressed: () {
               Navigator.pop(context);
             },
-            icon: const Icon(
-              Icons.close,
-              color: Colors.white,
-            ),
+            icon: const Icon(Icons.close, color: Colors.white),
           ),
         ],
       ),
@@ -158,14 +132,10 @@ class _CropDetailsDialogState
     return Container(
       padding: EdgeInsets.all(12.w),
       decoration: BoxDecoration(
-        color: isSelected
-            ? const Color(0xFFE8F5E9)
-            : Colors.white,
+        color: isSelected ? const Color(0xFFE8F5E9) : Colors.white,
         borderRadius: BorderRadius.circular(16.r),
         border: Border.all(
-          color: isSelected
-              ? const Color(0xFF087C3A)
-              : Colors.grey.shade300,
+          color: isSelected ? const Color(0xFF087C3A) : Colors.grey.shade300,
         ),
         boxShadow: [
           BoxShadow(
@@ -239,44 +209,29 @@ class _CropDetailsDialogState
         }
       },
       child: Container(
-        padding: EdgeInsets.symmetric(
-          horizontal: 14.w,
-          vertical: 14.h,
-        ),
+        padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 14.h),
         decoration: BoxDecoration(
-          border: Border.all(
-            color: Colors.grey.shade300,
-          ),
+          border: Border.all(color: Colors.grey.shade300),
           borderRadius: BorderRadius.circular(10.r),
           color: Colors.white,
         ),
         child: Row(
           children: [
-            const Icon(
-              Icons.calendar_month_outlined,
-              color: Color(0xFF087C3A),
-            ),
+            const Icon(Icons.calendar_month_outlined, color: Color(0xFF087C3A)),
 
             SizedBox(width: 10.w),
 
             Expanded(
               child: Text(
-                date == null
-                    ? 'Select Date'
-                    : _formatDate(date),
+                date == null ? 'Select Date' : _formatDate(date),
                 style: TextStyle(
                   fontSize: 14.sp,
-                  color: date == null
-                      ? Colors.grey.shade500
-                      : Colors.black87,
+                  color: date == null ? Colors.grey.shade500 : Colors.black87,
                 ),
               ),
             ),
 
-            const Icon(
-              Icons.keyboard_arrow_down,
-              color: Colors.grey,
-            ),
+            const Icon(Icons.keyboard_arrow_down, color: Colors.grey),
           ],
         ),
       ),
@@ -286,31 +241,18 @@ class _CropDetailsDialogState
   Widget _buildAcreField(CropEntity crop) {
     return TextFormField(
       controller: _acreControllers[crop.fldCropId],
-      keyboardType:
-          const TextInputType.numberWithOptions(
-        decimal: true,
-      ),
+      keyboardType: const TextInputType.numberWithOptions(decimal: true),
       decoration: InputDecoration(
         hintText: 'Enter Acre',
-        prefixIcon: const Icon(
-          Icons.square_foot,
-          color: Color(0xFF087C3A),
-        ),
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(10.r),
-        ),
+        prefixIcon: const Icon(Icons.square_foot, color: Color(0xFF087C3A)),
+        border: OutlineInputBorder(borderRadius: BorderRadius.circular(10.r)),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(10.r),
-          borderSide: BorderSide(
-            color: Colors.grey.shade300,
-          ),
+          borderSide: BorderSide(color: Colors.grey.shade300),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(10.r),
-          borderSide: const BorderSide(
-            color: Color(0xFF087C3A),
-            width: 1.5,
-          ),
+          borderSide: const BorderSide(color: Color(0xFF087C3A), width: 1.5),
         ),
       ),
     );
@@ -326,29 +268,20 @@ class _CropDetailsDialogState
           Icons.water_drop_outlined,
           color: Color(0xFF087C3A),
         ),
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(10.r),
-        ),
+        border: OutlineInputBorder(borderRadius: BorderRadius.circular(10.r)),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(10.r),
-          borderSide: BorderSide(
-            color: Colors.grey.shade300,
-          ),
+          borderSide: BorderSide(color: Colors.grey.shade300),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(10.r),
-          borderSide: const BorderSide(
-            color: Color(0xFF087C3A),
-            width: 1.5,
-          ),
+          borderSide: const BorderSide(color: Color(0xFF087C3A), width: 1.5),
         ),
       ),
       items: widget.irrigationList.map((irrigation) {
         return DropdownMenuItem<String>(
           value: irrigation.fldId,
-          child: Text(
-            irrigation.fldIrrigationName,
-          ),
+          child: Text(irrigation.fldIrrigationName),
         );
       }).toList(),
       onChanged: (value) {
@@ -370,13 +303,8 @@ class _CropDetailsDialogState
                 Navigator.pop(context);
               },
               style: OutlinedButton.styleFrom(
-                minimumSize: Size(
-                  double.infinity,
-                  48.h,
-                ),
-                side: const BorderSide(
-                  color: Color(0xFF087C3A),
-                ),
+                minimumSize: Size(double.infinity, 48.h),
+                side: const BorderSide(color: Color(0xFF087C3A)),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12.r),
                 ),
@@ -397,12 +325,8 @@ class _CropDetailsDialogState
             child: ElevatedButton(
               onPressed: _addSelectedCrops,
               style: ElevatedButton.styleFrom(
-                minimumSize: Size(
-                  double.infinity,
-                  48.h,
-                ),
-                backgroundColor:
-                    const Color(0xFF087C3A),
+                minimumSize: Size(double.infinity, 48.h),
+                backgroundColor: const Color(0xFF087C3A),
                 foregroundColor: Colors.white,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12.r),
@@ -410,9 +334,7 @@ class _CropDetailsDialogState
               ),
               child: const Text(
                 'Add',
-                style: TextStyle(
-                  fontWeight: FontWeight.w600,
-                ),
+                style: TextStyle(fontWeight: FontWeight.w600),
               ),
             ),
           ),
@@ -423,9 +345,7 @@ class _CropDetailsDialogState
 
   void _addSelectedCrops() {
     final selectedCrops = widget.cropList
-        .where(
-          (crop) => _selected[crop.fldCropId] == true,
-        )
+        .where((crop) => _selected[crop.fldCropId] == true)
         .toList();
 
     if (selectedCrops.isEmpty) {
@@ -440,44 +360,31 @@ class _CropDetailsDialogState
 
       final date = _dates[cropId];
 
-      final acre =
-          _acreControllers[cropId]?.text.trim() ?? '';
+      final acre = _acreControllers[cropId]?.text.trim() ?? '';
 
-      final irrigationId =
-          _irrigationIds[cropId];
+      final irrigationId = _irrigationIds[cropId];
 
       if (date == null) {
-        _showError(
-          'Please select date for ${crop.fldCropName}',
-        );
+        _showError('Please select date for ${crop.fldCropName}');
         return;
       }
 
       if (acre.isEmpty) {
-        _showError(
-          'Please enter acre for ${crop.fldCropName}',
-        );
+        _showError('Please enter acre for ${crop.fldCropName}');
         return;
       }
 
-      if (irrigationId == null ||
-          irrigationId.isEmpty) {
-        _showError(
-          'Please select irrigation for ${crop.fldCropName}',
-        );
+      if (irrigationId == null || irrigationId.isEmpty) {
+        _showError('Please select irrigation for ${crop.fldCropName}');
         return;
       }
 
       final irrigation = widget.irrigationList
-          .where(
-            (item) => item.fldId == irrigationId,
-          )
+          .where((item) => item.fldId == irrigationId)
           .firstOrNull;
 
       if (irrigation == null) {
-        _showError(
-          'Please select irrigation for ${crop.fldCropName}',
-        );
+        _showError('Please select irrigation for ${crop.fldCropName}');
         return;
       }
 
@@ -488,8 +395,7 @@ class _CropDetailsDialogState
           date: date,
           acre: acre,
           irrigationId: irrigation.fldId,
-          irrigationName:
-              irrigation.fldIrrigationName,
+          irrigationName: irrigation.fldIrrigationName,
         ),
       );
     }
@@ -498,12 +404,13 @@ class _CropDetailsDialogState
   }
 
   void _showError(String message) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(message),
-        backgroundColor: Colors.red,
-      ),
-    );
+    AppToast.error(message);
+    // ScaffoldMessenger.of(context).showSnackBar(
+    //   SnackBar(
+    //     content: Text(message),
+    //     backgroundColor: Colors.red,
+    //   ),
+    // );
   }
 
   String _formatDate(DateTime date) {

@@ -209,26 +209,6 @@ class RemoveProductEvent extends PlaceOrderEvent {
 // SUBMIT ORDER
 // ============================================================
 
-// class SubmitPlaceOrderEvent extends PlaceOrderEvent {
-//   final int userId;
-//   final dynamic dealer;
-//   final dynamic godown;
-//   final List<Map<String, dynamic>> products;
-//   final String remark;
-//   final List<String> imagePaths;
-//   final Uint8List? signatureBytes;
-//    final Uint8List? signatureBytes;
-
-//   const SubmitPlaceOrderEvent({
-//     required this.userId,
-//     required this.dealer,
-//     required this.godown,
-//     required this.products,
-//     required this.remark,
-//     required this.imagePaths,
-//    // required this.signatureBytes,
-//     required String signaturePath,
-//   });
 
 
 

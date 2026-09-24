@@ -118,131 +118,121 @@ class HomeDatasource {
     return HomeVisitModel.fromJson(jsonData);
   }
 
-Future<InpunchPendingResponseModel> getInpunchPending(
-  String userId,
-) async {
-  try {
-    print('========================================');
-    print('GET INPUNCH PENDING API');
-    print('user_id: $userId');
-    print('========================================');
+  Future<InpunchPendingResponseModel> getInpunchPending(String userId) async {
+    try {
+      print('========================================');
+      print('GET INPUNCH PENDING API');
+      print('user_id: $userId');
+      print('========================================');
 
-    final response = await dioClient.client.post(
-      ApiClient.getInpunchPending,
-      data: FormData.fromMap({
-        'user_id': userId,
-      }),
-    );
-
-    print('STATUS CODE: ${response.statusCode}');
-    print('RAW RESPONSE TYPE: ${response.data.runtimeType}');
-    print('RAW RESPONSE: ${response.data}');
-
-    dynamic data = response.data;
-
-    // --------------------------------------------------
-    // DECODE STRING RESPONSE
-    // --------------------------------------------------
-    if (data is String) {
-      print('Response is String. Decoding JSON...');
-
-      data = jsonDecode(data.trim());
-
-      print('DECODED DATA: $data');
-    }
-
-    // --------------------------------------------------
-    // VALIDATE RESPONSE
-    // --------------------------------------------------
-    if (data is! Map) {
-      throw Exception(
-        'Invalid response format: ${data.runtimeType}',
+      final response = await dioClient.client.post(
+        ApiClient.getInpunchPending,
+        data: FormData.fromMap({'user_id': userId}),
       );
-    }
 
-    final json = Map<String, dynamic>.from(data);
+      print('STATUS CODE: ${response.statusCode}');
+      print('RAW RESPONSE TYPE: ${response.data.runtimeType}');
+      print('RAW RESPONSE: ${response.data}');
 
-    print('STATUS: ${json['status']}');
-    print('MESSAGE: ${json['message']}');
-    print(
-      'TOTAL RECURSIVE EMPLOYEE: '
-      '${json['total_recursive_employee']}',
-    );
-    print(
-      'PENDING INPUNCH COUNT: '
-      '${json['pending_inpunch_count']}',
-    );
-    print('INPUNCH TIME: ${json['inpunch_time']}');
-    print('ADDRESS: ${json['address']}');
+      dynamic data = response.data;
 
-    final result = json['result'];
+      // --------------------------------------------------
+      // DECODE STRING RESPONSE
+      // --------------------------------------------------
+      if (data is String) {
+        print('Response is String. Decoding JSON...');
 
-    print('RESULT TYPE: ${result.runtimeType}');
-    print(
-      'RESULT LENGTH: '
-      '${result is List ? result.length : 'Not List'}',
-    );
-    print('RESULT: $result');
+        data = jsonDecode(data.trim());
 
-    // --------------------------------------------------
-    // HANDLE RESULT
-    // --------------------------------------------------
-    if (result != null && result is! List) {
-      throw Exception(
-        'Invalid result format: ${result.runtimeType}',
+        print('DECODED DATA: $data');
+      }
+
+      // --------------------------------------------------
+      // VALIDATE RESPONSE
+      // --------------------------------------------------
+      if (data is! Map) {
+        throw Exception('Invalid response format: ${data.runtimeType}');
+      }
+
+      final json = Map<String, dynamic>.from(data);
+
+      print('STATUS: ${json['status']}');
+      print('MESSAGE: ${json['message']}');
+      print(
+        'TOTAL RECURSIVE EMPLOYEE: '
+        '${json['total_recursive_employee']}',
       );
+      print(
+        'PENDING INPUNCH COUNT: '
+        '${json['pending_inpunch_count']}',
+      );
+      print('INPUNCH TIME: ${json['inpunch_time']}');
+      print('ADDRESS: ${json['address']}');
+
+      final result = json['result'];
+
+      print('RESULT TYPE: ${result.runtimeType}');
+      print(
+        'RESULT LENGTH: '
+        '${result is List ? result.length : 'Not List'}',
+      );
+      print('RESULT: $result');
+
+      // --------------------------------------------------
+      // HANDLE RESULT
+      // --------------------------------------------------
+      if (result != null && result is! List) {
+        throw Exception('Invalid result format: ${result.runtimeType}');
+      }
+
+      // --------------------------------------------------
+      // EMPTY RESULT
+      // --------------------------------------------------
+      if (result is List && result.isEmpty) {
+        print('No pending punch records');
+      }
+
+      // --------------------------------------------------
+      // CREATE FULL RESPONSE MODEL
+      // --------------------------------------------------
+      final model = InpunchPendingResponseModel.fromJson(json);
+
+      print('========================================');
+      print('INPUNCH PENDING RESPONSE');
+      print('STATUS: ${model.status}');
+      print('MESSAGE: ${model.message}');
+      print(
+        'TOTAL RECURSIVE EMPLOYEE: '
+        '${model.totalRecursiveEmployee}',
+      );
+      print(
+        'PENDING INPUNCH COUNT: '
+        '${model.pendingInpunchCount}',
+      );
+      print('INPUNCH TIME: ${model.inpunchTime}');
+      print('ADDRESS: ${model.address}');
+      print('RESULT COUNT: ${model.result.length}');
+      print('========================================');
+
+      for (final item in model.result) {
+        print('----------------------------------------');
+        print('NAME: ${item.fldAdmName}');
+        print('REPORTING PERSON: ${item.fldReportingPerson}');
+        print('MOBILE: ${item.fldMobileNo}');
+      }
+
+      return model;
+    } on DioException catch (e) {
+      print('DIO ERROR: ${e.message}');
+      print('DIO RESPONSE: ${e.response?.data}');
+      print('DIO STATUS: ${e.response?.statusCode}');
+
+      throw Exception(e.message ?? 'Network error');
+    } catch (e, stackTrace) {
+      print('ERROR: $e');
+      print('STACK TRACE: $stackTrace');
+
+      rethrow;
     }
-
-    // --------------------------------------------------
-    // EMPTY RESULT
-    // --------------------------------------------------
-    if (result is List && result.isEmpty) {
-      print('No pending punch records');
-    }
-
-    // --------------------------------------------------
-    // CREATE FULL RESPONSE MODEL
-    // --------------------------------------------------
-    final model = InpunchPendingResponseModel.fromJson(json);
-
-    print('========================================');
-    print('INPUNCH PENDING RESPONSE');
-    print('STATUS: ${model.status}');
-    print('MESSAGE: ${model.message}');
-    print(
-      'TOTAL RECURSIVE EMPLOYEE: '
-      '${model.totalRecursiveEmployee}',
-    );
-    print(
-      'PENDING INPUNCH COUNT: '
-      '${model.pendingInpunchCount}',
-    );
-    print('INPUNCH TIME: ${model.inpunchTime}');
-    print('ADDRESS: ${model.address}');
-    print('RESULT COUNT: ${model.result.length}');
-    print('========================================');
-
-    for (final item in model.result) {
-      print('----------------------------------------');
-      print('NAME: ${item.fldAdmName}');
-      print('REPORTING PERSON: ${item.fldReportingPerson}');
-      print('MOBILE: ${item.fldMobileNo}');
-    }
-
-    return model;
-  } on DioException catch (e) {
-    print('DIO ERROR: ${e.message}');
-    print('DIO RESPONSE: ${e.response?.data}');
-    print('DIO STATUS: ${e.response?.statusCode}');
-
-    throw Exception(
-      e.message ?? 'Network error',
-    );
-  } catch (e, stackTrace) {
-    print('ERROR: $e');
-    print('STACK TRACE: $stackTrace');
-
-    rethrow;
   }
-}
 }

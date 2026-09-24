@@ -35,4 +35,14 @@ class GetPunchStatusUsecase {
       throw Exception('Failed to save punch details: $e');
     }
   }
+
+  Future<Map<String, dynamic>> storeLocationData(
+    Map<String, dynamic> jsonData,
+  ) async {
+    try {
+      return await qickAccessRepo.storeLocationData(jsonData);
+    } catch (e) {
+      throw Exception('Failed to save track location: $e');
+    }
+  }
 }

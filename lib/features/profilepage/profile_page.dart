@@ -17,6 +17,9 @@ class ProfilePage extends StatefulWidget {
 class _ProfilePageState extends State<ProfilePage> {
   final FlutterSecureStorage _storage = const FlutterSecureStorage();
 
+  bool _districtExpanded = false;
+bool _talukaExpanded = false;
+
   bool _isLoading = true;
 
   String _name = '';
@@ -172,7 +175,7 @@ class _ProfilePageState extends State<ProfilePage> {
               ),
             )
           : RefreshIndicator(
-              color: AppColors.darkPrimaryColor,
+              color: AppColors.accentGreen,
               onRefresh: _loadProfile,
               child: SingleChildScrollView(
                 physics: const AlwaysScrollableScrollPhysics(),
@@ -218,9 +221,9 @@ class _ProfilePageState extends State<ProfilePage> {
             height: 88.w,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
-              color: AppColors.darkPrimaryColor.withOpacity(0.10),
+              color: AppColors.accentGreen.withOpacity(0.10),
               border: Border.all(
-                color: AppColors.darkPrimaryColor.withOpacity(0.20),
+                color: AppColors.accentGreen.withOpacity(0.20),
                 width: 2,
               ),
             ),
@@ -230,7 +233,7 @@ class _ProfilePageState extends State<ProfilePage> {
                 style: TextStyle(
                   fontSize: 28.sp,
                   fontWeight: FontWeight.w900,
-                  color: AppColors.darkPrimaryColor,
+                  color: AppColors.accentGreen,
                 ),
               ),
             ),
@@ -279,78 +282,133 @@ class _ProfilePageState extends State<ProfilePage> {
   // DETAILS CARD
   // ============================================================
 
-  Widget _buildDetailsCard() {
-    return Container(
-      width: double.infinity,
-      padding: EdgeInsets.all(16.w),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(20.r),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.04),
-            blurRadius: 14,
-            offset: const Offset(0, 5),
+Widget _buildDetailsCard() {
+  return Container(
+    width: double.infinity,
+    padding: EdgeInsets.all(16.w),
+    decoration: BoxDecoration(
+      color: Colors.white,
+      borderRadius: BorderRadius.circular(20.r),
+      boxShadow: [
+        BoxShadow(
+          color: Colors.black.withOpacity(0.04),
+          blurRadius: 14,
+          offset: const Offset(0, 5),
+        ),
+      ],
+    ),
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'Personal Information',
+          style: TextStyle(
+            fontSize: 15.sp,
+            fontWeight: FontWeight.w800,
+            color: const Color(0xFF26332C),
           ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            'Personal Information',
-            style: TextStyle(
-              fontSize: 15.sp,
-              fontWeight: FontWeight.w800,
-              color: const Color(0xFF26332C),
-            ),
-          ),
+        ),
 
-          SizedBox(height: 12.h),
+        SizedBox(height: 12.h),
 
-          _profileItem(Icons.person_outline_rounded, 'Full Name', _name),
+        _profileItem(
+          Icons.person_outline_rounded,
+          'Full Name',
+          _name,
+        ),
 
-          _divider(),
+        _divider(),
 
-          _profileItem(Icons.phone_outlined, 'Mobile Number', _mobile),
+        _profileItem(
+          Icons.phone_outlined,
+          'Mobile Number',
+          _mobile,
+        ),
 
-          _divider(),
+        _divider(),
 
-          _profileItem(Icons.email_outlined, 'Email Address', _email),
+        _profileItem(
+          Icons.email_outlined,
+          'Email Address',
+          _email,
+        ),
 
-          _divider(),
+        _divider(),
 
-          _profileItem(Icons.map_outlined, 'State', _state),
+        _profileItem(
+          Icons.map_outlined,
+          'State',
+          _state,
+        ),
 
-          _divider(),
+        _divider(),
 
-          _profileItem(Icons.location_city_outlined, 'District', _district),
+        _profileItem(
+          Icons.location_city_outlined,
+          'District',
+          _district,
+          expandable: true,
+          isExpanded: _districtExpanded,
+          onTap: () {
+            setState(() {
+              _districtExpanded = !_districtExpanded;
+            });
+          },
+        ),
 
-          _divider(),
+        _divider(),
 
-          _profileItem(Icons.place_outlined, 'Taluka', _taluka),
-        ],
-      ),
-    );
-  }
+        _profileItem(
+          Icons.place_outlined,
+          'Taluka',
+          _taluka,
+          expandable: true,
+          isExpanded: _talukaExpanded,
+          onTap: () {
+            setState(() {
+              _talukaExpanded = !_talukaExpanded;
+            });
+          },
+        ),
+      ],
+    ),
+  );
+}
 
   // ============================================================
   // PROFILE ITEM
   // ============================================================
 
-  Widget _profileItem(IconData icon, String title, String value) {
-    return Padding(
+Widget _profileItem(
+  IconData icon,
+  String title,
+  String value, {
+  bool expandable = false,
+  bool isExpanded = false,
+  VoidCallback? onTap,
+}) {
+  final bool hasValue = value.trim().isNotEmpty;
+
+  return InkWell(
+    onTap: expandable && hasValue ? onTap : null,
+    borderRadius: BorderRadius.circular(12.r),
+    child: Padding(
       padding: EdgeInsets.symmetric(vertical: 10.h),
       child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Container(
             width: 42.w,
             height: 42.w,
             decoration: BoxDecoration(
-              color: AppColors.darkPrimaryColor.withOpacity(0.08),
+              color: AppColors.accentGreen.withOpacity(0.08),
               borderRadius: BorderRadius.circular(12.r),
             ),
-            child: Icon(icon, color: AppColors.darkPrimaryColor, size: 20.sp),
+            child: Icon(
+              icon,
+              color: AppColors.accentGreen,
+              size: 20.sp,
+            ),
           ),
 
           SizedBox(width: 12.w),
@@ -370,23 +428,56 @@ class _ProfilePageState extends State<ProfilePage> {
 
                 SizedBox(height: 3.h),
 
-                Text(
-                  value.isEmpty ? 'Not available' : value,
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                  style: TextStyle(
-                    fontSize: 13.sp,
-                    color: const Color(0xFF26332C),
-                    fontWeight: FontWeight.w700,
+                AnimatedSize(
+                  duration: const Duration(milliseconds: 200),
+                  curve: Curves.easeInOut,
+                  child: Text(
+                    hasValue ? value : 'Not available',
+                    maxLines: expandable
+                        ? (isExpanded ? 4 : 2)
+                        : 2,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                      fontSize: 13.sp,
+                      color: const Color(0xFF26332C),
+                      fontWeight: FontWeight.w700,
+                    ),
                   ),
                 ),
+
+                if (expandable && hasValue)
+                  Padding(
+                    padding: EdgeInsets.only(top: 3.h),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          isExpanded ? 'Show less' : 'Show more',
+                          style: TextStyle(
+                            fontSize: 9.sp,
+                            color: AppColors.accentGreen,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                        SizedBox(width: 2.w),
+                        Icon(
+                          isExpanded
+                              ? Icons.keyboard_arrow_up_rounded
+                              : Icons.keyboard_arrow_down_rounded,
+                          size: 15.sp,
+                          color: AppColors.accentGreen,
+                        ),
+                      ],
+                    ),
+                  ),
               ],
             ),
           ),
         ],
       ),
-    );
-  }
+    ),
+  );
+}
 
   Widget _divider() {
     return Divider(height: 1, thickness: 0.7, color: Colors.grey.shade200);

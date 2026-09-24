@@ -1,4 +1,3 @@
-
 import 'dart:convert';
 
 import 'package:solufine/core/api_constant/api_client.dart';
@@ -11,19 +10,26 @@ import '../bloc/team_expense_event.dart';
 
 class TeamExpenseCard extends StatelessWidget {
   final TeamExpenseEntity expense;
-
-  // ADDED: userId required for approve/reject API
   final int userId;
 
   const TeamExpenseCard({
     super.key,
     required this.expense,
-    required this.userId, // ADDED
+    required this.userId,
   });
+
+  // ============================================================
+  // COLORS
+  // ============================================================
 
   static const Color primaryGreen = Color(0xFF1B4332);
   static const Color mediumGreen = Color(0xFF2D6A4F);
   static const Color lightGreen = Color(0xFFE8F5ED);
+
+  static const Color background = Color(0xFFF6F9F7);
+  static const Color borderColor = Color(0xFFE3EAE5);
+  static const Color textDark = Color(0xFF18231C);
+  static const Color textGrey = Color(0xFF7A857E);
 
   @override
   Widget build(BuildContext context) {
@@ -33,140 +39,100 @@ class TeamExpenseCard extends StatelessWidget {
     final bool isApproved = status == '1';
     final bool isRejected = status == '2';
 
+    final String employeeName = expense.expenseBy.trim().isNotEmpty
+        ? expense.expenseBy.trim()
+        : 'Employee #${expense.createdBy}';
+
     return Container(
-      margin: const EdgeInsets.only(bottom: 12),
+      margin: const EdgeInsets.only(bottom: 10),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(18),
         border: Border.all(
-          color: const Color(0xFFE3EAE5),
+          color: borderColor,
         ),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withOpacity(0.035),
-            blurRadius: 14,
+            blurRadius: 12,
             offset: const Offset(0, 4),
           ),
         ],
       ),
       child: Padding(
-        padding: const EdgeInsets.all(14),
+        padding: const EdgeInsets.all(12),
         child: Column(
           children: [
-            // ------------------------------------------------------------
+            // ============================================================
             // HEADER
-            // ------------------------------------------------------------
+            // ============================================================
+
             Row(
               children: [
+                // Employee icon
                 Container(
-                  width: 44,
-                  height: 44,
+                  width: 42,
+                  height: 42,
                   decoration: BoxDecoration(
                     color: lightGreen,
-                    borderRadius: BorderRadius.circular(14),
+                    borderRadius: BorderRadius.circular(13),
                   ),
                   child: const Icon(
                     Icons.person_rounded,
                     color: mediumGreen,
-                    size: 22,
+                    size: 21,
                   ),
                 ),
 
                 const SizedBox(width: 10),
 
+                // Employee name + date
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        expense.expenseBy.isNotEmpty
-                            ? expense.expenseBy
-                            : 'Employee #${expense.createdBy}',
+                        employeeName,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                         style: const TextStyle(
                           fontSize: 14,
                           fontWeight: FontWeight.w800,
-                          color: Color(0xFF18231C),
+                          color: textDark,
                         ),
                       ),
 
-                      const SizedBox(height: 3),
+                      const SizedBox(height: 4),
 
                       Row(
                         children: [
                           const Icon(
                             Icons.calendar_today_outlined,
                             size: 11,
-                            color: Color(0xFF7A857E),
+                            color: textGrey,
                           ),
-
                           const SizedBox(width: 4),
-
-                          Text(
-                            expense.expenseDate,
-                            style: const TextStyle(
-                              fontSize: 10,
-                              color: Color(0xFF7A857E),
+                          Expanded(
+                            child: Text(
+                              expense.expenseDate,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: const TextStyle(
+                                fontSize: 10,
+                                color: textGrey,
+                                fontWeight: FontWeight.w600,
+                              ),
                             ),
                           ),
-
-                          const SizedBox(width: 8),
-
-                        
-                        ]
-                      ),
-                    ],
-                  ),
-                ),
-
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        expense.expenseBy.isNotEmpty
-                            ? expense.expenseBy
-                            : 'Employee #${expense.createdBy}',
-                        maxLines: 2,
-                        softWrap: true,
-                        overflow: TextOverflow.visible,
-                        style: const TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w800,
-                          color: Color(0xFF18231C),
-                        ),
-                      ),
-
-                      const SizedBox(height: 3),
-
-                      Row(
-                        children: [
-                          const Icon(
-                            Icons.calendar_today_outlined,
-                            size: 11,
-                            color: Color(0xFF7A857E),
-                          ),
-
-                          const SizedBox(width: 4),
-
-                          Text(
-                            expense.expenseDate,
-                            style: const TextStyle(
-                              fontSize: 10,
-                              color: Color(0xFF7A857E),
-                            ),
-                          ),
-
-                          const SizedBox(width: 8),
                         ],
                       ),
                     ],
                   ),
                 ),
-                
+
                 const SizedBox(width: 8),
 
+                // Status
                 _statusBadge(
                   isPending: isPending,
                   isApproved: isApproved,
@@ -175,37 +141,38 @@ class TeamExpenseCard extends StatelessWidget {
               ],
             ),
 
-            const SizedBox(height: 12),
+            const SizedBox(height: 10),
 
-            // ------------------------------------------------------------
+            // ============================================================
             // TOTAL EXPENSE
-            // ------------------------------------------------------------
+            // ============================================================
+
             Container(
               padding: const EdgeInsets.symmetric(
-                horizontal: 13,
-                vertical: 11,
+                horizontal: 11,
+                vertical: 10,
               ),
               decoration: BoxDecoration(
-                color: const Color(0xFFF6F9F7),
-                borderRadius: BorderRadius.circular(15),
+                color: background,
+                borderRadius: BorderRadius.circular(14),
               ),
               child: Row(
                 children: [
                   Container(
-                    width: 38,
-                    height: 38,
+                    width: 36,
+                    height: 36,
                     decoration: BoxDecoration(
                       color: lightGreen,
-                      borderRadius: BorderRadius.circular(11),
+                      borderRadius: BorderRadius.circular(10),
                     ),
                     child: const Icon(
                       Icons.account_balance_wallet_rounded,
                       color: mediumGreen,
-                      size: 20,
+                      size: 19,
                     ),
                   ),
 
-                  const SizedBox(width: 10),
+                  const SizedBox(width: 9),
 
                   const Expanded(
                     child: Column(
@@ -215,7 +182,7 @@ class TeamExpenseCard extends StatelessWidget {
                           'TOTAL EXPENSE',
                           style: TextStyle(
                             fontSize: 8,
-                            letterSpacing: 0.7,
+                            letterSpacing: 0.6,
                             color: Color(0xFF8A938D),
                             fontWeight: FontWeight.w800,
                           ),
@@ -224,7 +191,7 @@ class TeamExpenseCard extends StatelessWidget {
                         Text(
                           'Daily total',
                           style: TextStyle(
-                            fontSize: 10,
+                            fontSize: 9.5,
                             color: Color(0xFF69756E),
                           ),
                         ),
@@ -235,7 +202,7 @@ class TeamExpenseCard extends StatelessWidget {
                   Text(
                     '₹ ${expense.dailyTotal.toStringAsFixed(2)}',
                     style: const TextStyle(
-                      fontSize: 19,
+                      fontSize: 18,
                       fontWeight: FontWeight.w900,
                       color: primaryGreen,
                     ),
@@ -244,11 +211,12 @@ class TeamExpenseCard extends StatelessWidget {
               ),
             ),
 
-            const SizedBox(height: 9),
+            const SizedBox(height: 8),
 
-            // ------------------------------------------------------------
+            // ============================================================
             // BASIC INFORMATION
-            // ------------------------------------------------------------
+            // ============================================================
+
             _infoRow(
               Icons.location_on_outlined,
               'Visited Place',
@@ -275,186 +243,124 @@ class TeamExpenseCard extends StatelessWidget {
                 expense.remark,
               ),
 
-            const SizedBox(height: 7),
+            const SizedBox(height: 6),
 
             const Divider(
               height: 1,
               color: Color(0xFFE8EDE9),
             ),
 
-            const SizedBox(height: 9),
+            const SizedBox(height: 8),
 
-            // ------------------------------------------------------------
-            // APPROVED + REPORTING
-            // ------------------------------------------------------------
-            // Row(
-            //   children: [
-            //     Expanded(
-            //       child: _amountItem(
-            //         'Approved',
-            //         expense.approveAmount,
-            //       ),
-            //     ),
+            // ============================================================
+            // APPROVED AMOUNT
+            // ============================================================
 
-            //     const SizedBox(width: 8),
-
-            //     Expanded(
-            //       child: _statusItem(
-            //         'Reporting',
-            //         expense.reportingStatus,
-            //       ),
-            //     ),
-            //   ],
-            // ),
-
-
-             Column(
-              children: [
-                _amountItem(
-                  'Approved',
-                  expense.approveAmount,
-                ),
-                const SizedBox(height: 8),
-                _statusItem(
-                  'Reporting',
-                  expense.reportingStatus,
-                ),
-              ],
+            _amountItem(
+              'Approved Amount',
+              expense.approveAmount,
             ),
 
+            const SizedBox(height: 7),
 
-            // ------------------------------------------------------------
+            // ============================================================
+            // REPORTING STATUS
+            // ============================================================
+
+            _statusItem(
+              'Reporting Status',
+              expense.reportingStatus,
+            ),
+
+            // ============================================================
             // ADMIN STATUS
-            // ------------------------------------------------------------
+            // ============================================================
+
             if (expense.adminStatus.trim().isNotEmpty) ...[
-              const SizedBox(height: 9),
-
-              Container(
-                width: double.infinity,
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 11,
-                  vertical: 9,
-                ),
-                decoration: BoxDecoration(
-                  color: isApproved
-                      ? const Color(0xFFE8F5E9)
-                      : isRejected
-                          ? const Color(0xFFFFEBEE)
-                          : const Color(0xFFFFF7E8),
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Row(
-                  children: [
-                    Icon(
-                      isApproved
-                          ? Icons.check_circle_outline_rounded
-                          : isRejected
-                              ? Icons.cancel_outlined
-                              : Icons.pending_outlined,
-                      size: 17,
-                      color: isApproved
-                          ? Colors.green.shade700
-                          : isRejected
-                              ? Colors.red.shade700
-                              : Colors.orange.shade800,
-                    ),
-
-                    const SizedBox(width: 7),
-
-                    Expanded(
-                      child: Text(
-                        expense.adminStatus,
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
-                        style: TextStyle(
-                          fontSize: 10,
-                          fontWeight: FontWeight.w800,
-                          color: isApproved
-                              ? Colors.green.shade700
-                              : isRejected
-                                  ? Colors.red.shade700
-                                  : Colors.orange.shade800,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
+              const SizedBox(height: 8),
+              _adminStatus(
+                isApproved: isApproved,
+                isRejected: isRejected,
+                status: expense.adminStatus,
               ),
             ],
 
-            // ------------------------------------------------------------
+            // ============================================================
             // ACTION BUTTONS
-            // ------------------------------------------------------------
-            const SizedBox(height: 10),
+            // ============================================================
 
-            Row(
-              children: [
-                // DETAILS
-                if (expense.details.isNotEmpty)
-                  Expanded(
-                    child: _compactOutlineButton(
-                      icon: Icons.receipt_long_outlined,
-                      label: 'Details',
-                      color: mediumGreen,
-                      borderColor: const Color(0xFFBFD5C7),
-                      onPressed: () {
-                        _showExpenseDetails(
-                          context,
-                          expense,
-                        );
-                      },
+            if (expense.details.isNotEmpty || isPending) ...[
+              const SizedBox(height: 9),
+
+              Row(
+                children: [
+                  // Details
+                  if (expense.details.isNotEmpty)
+                    Expanded(
+                      child: _compactOutlineButton(
+                        icon: Icons.receipt_long_outlined,
+                        label: 'Details',
+                        color: mediumGreen,
+                        borderColor: const Color(0xFFBFD5C7),
+                        onPressed: () {
+                          _showExpenseDetails(
+                            context,
+                            expense,
+                          );
+                        },
+                      ),
                     ),
-                  ),
 
-                if (expense.details.isNotEmpty && isPending)
-                  const SizedBox(width: 7),
+                  if (expense.details.isNotEmpty && isPending)
+                    const SizedBox(width: 6),
 
-                // APPROVE
-                if (isPending)
-                  Expanded(
-                    child: _compactButton(
-                      icon: Icons.check_rounded,
-                      label: 'Approve',
-                      backgroundColor: mediumGreen,
-                      onPressed: () {
-                        _showApproveDialog(
-                          context,
-                          expense,
-                        );
-                      },
+                  // Approve
+                  if (isPending)
+                    Expanded(
+                      child: _compactButton(
+                        icon: Icons.check_rounded,
+                        label: 'Approve',
+                        backgroundColor: mediumGreen,
+                        onPressed: () {
+                          _showApproveDialog(
+                            context,
+                            expense,
+                          );
+                        },
+                      ),
                     ),
-                  ),
 
-                if (isPending)
-                  const SizedBox(width: 7),
+                  if (isPending)
+                    const SizedBox(width: 6),
 
-                // REJECT
-                if (isPending)
-                  Expanded(
-                    child: _compactOutlineButton(
-                      icon: Icons.close_rounded,
-                      label: 'Reject',
-                      color: const Color(0xFFD32F2F),
-                      borderColor: const Color(0xFFE5BABA),
-                      onPressed: () {
-                        _showRejectDialog(
-                          context,
-                          expense,
-                        );
-                      },
+                  // Reject
+                  if (isPending)
+                    Expanded(
+                      child: _compactOutlineButton(
+                        icon: Icons.close_rounded,
+                        label: 'Reject',
+                        color: const Color(0xFFD32F2F),
+                        borderColor: const Color(0xFFE5BABA),
+                        onPressed: () {
+                          _showRejectDialog(
+                            context,
+                            expense,
+                          );
+                        },
+                      ),
                     ),
-                  ),
-              ],
-            ),
+                ],
+              ),
+            ],
           ],
         ),
       ),
     );
   }
 
-  // ===========================================================================
+  // ============================================================
   // STATUS BADGE
-  // ===========================================================================
+  // ============================================================
 
   Widget _statusBadge({
     required bool isPending,
@@ -514,15 +420,18 @@ class TeamExpenseCard extends StatelessWidget {
     );
   }
 
-  // ===========================================================================
+  // ============================================================
   // INFO ROW
-  // ===========================================================================
+  // ============================================================
 
   Widget _infoRow(
     IconData icon,
     String title,
     String value,
   ) {
+    final String displayValue =
+        value.trim().isEmpty ? '-' : value.trim();
+
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 3),
       child: Row(
@@ -530,7 +439,7 @@ class TeamExpenseCard extends StatelessWidget {
         children: [
           Icon(
             icon,
-            size: 16,
+            size: 15,
             color: mediumGreen,
           ),
 
@@ -549,7 +458,7 @@ class TeamExpenseCard extends StatelessWidget {
 
           Expanded(
             child: Text(
-              value.trim().isEmpty ? '-' : value,
+              displayValue,
               textAlign: TextAlign.end,
               maxLines: 2,
               overflow: TextOverflow.ellipsis,
@@ -565,22 +474,23 @@ class TeamExpenseCard extends StatelessWidget {
     );
   }
 
-  // ===========================================================================
+  // ============================================================
   // AMOUNT ITEM
-  // ===========================================================================
+  // ============================================================
 
   Widget _amountItem(
     String title,
     double amount,
   ) {
     return Container(
+      width: double.infinity,
       padding: const EdgeInsets.symmetric(
-        horizontal: 9,
+        horizontal: 10,
         vertical: 8,
       ),
       decoration: BoxDecoration(
         color: const Color(0xFFFAFCFA),
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(11),
         border: Border.all(
           color: const Color(0xFFE6ECE8),
         ),
@@ -597,7 +507,6 @@ class TeamExpenseCard extends StatelessWidget {
               ),
             ),
           ),
-
           Text(
             '₹ ${amount.toStringAsFixed(2)}',
             style: const TextStyle(
@@ -611,22 +520,23 @@ class TeamExpenseCard extends StatelessWidget {
     );
   }
 
-  // ===========================================================================
+  // ============================================================
   // STATUS ITEM
-  // ===========================================================================
+  // ============================================================
 
   Widget _statusItem(
     String title,
     String value,
   ) {
     return Container(
+      width: double.infinity,
       padding: const EdgeInsets.symmetric(
-        horizontal: 9,
+        horizontal: 10,
         vertical: 8,
       ),
       decoration: BoxDecoration(
         color: const Color(0xFFFAFCFA),
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(11),
         border: Border.all(
           color: const Color(0xFFE6ECE8),
         ),
@@ -643,10 +553,9 @@ class TeamExpenseCard extends StatelessWidget {
               ),
             ),
           ),
-
           Flexible(
             child: Text(
-              value.trim().isEmpty ? '-' : value,
+              value.trim().isEmpty ? '-' : value.trim(),
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
               textAlign: TextAlign.end,
@@ -662,9 +571,71 @@ class TeamExpenseCard extends StatelessWidget {
     );
   }
 
-  // ===========================================================================
+  // ============================================================
+  // ADMIN STATUS
+  // ============================================================
+
+  Widget _adminStatus({
+    required bool isApproved,
+    required bool isRejected,
+    required String status,
+  }) {
+    final Color color;
+    final Color background;
+    final IconData icon;
+
+    if (isApproved) {
+      color = Colors.green.shade700;
+      background = const Color(0xFFE8F5E9);
+      icon = Icons.check_circle_outline_rounded;
+    } else if (isRejected) {
+      color = Colors.red.shade700;
+      background = const Color(0xFFFFEBEE);
+      icon = Icons.cancel_outlined;
+    } else {
+      color = Colors.orange.shade800;
+      background = const Color(0xFFFFF7E8);
+      icon = Icons.pending_outlined;
+    }
+
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(
+        horizontal: 10,
+        vertical: 8,
+      ),
+      decoration: BoxDecoration(
+        color: background,
+        borderRadius: BorderRadius.circular(11),
+      ),
+      child: Row(
+        children: [
+          Icon(
+            icon,
+            size: 16,
+            color: color,
+          ),
+          const SizedBox(width: 7),
+          Expanded(
+            child: Text(
+              status,
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+              style: TextStyle(
+                fontSize: 10,
+                fontWeight: FontWeight.w800,
+                color: color,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // ============================================================
   // COMPACT FILLED BUTTON
-  // ===========================================================================
+  // ============================================================
 
   Widget _compactButton({
     required IconData icon,
@@ -678,7 +649,7 @@ class TeamExpenseCard extends StatelessWidget {
         onPressed: onPressed,
         icon: Icon(
           icon,
-          size: 16,
+          size: 15,
         ),
         label: Text(
           label,
@@ -692,8 +663,9 @@ class TeamExpenseCard extends StatelessWidget {
           foregroundColor: Colors.white,
           elevation: 0,
           padding: const EdgeInsets.symmetric(
-            horizontal: 6,
+            horizontal: 5,
           ),
+          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(11),
           ),
@@ -702,9 +674,9 @@ class TeamExpenseCard extends StatelessWidget {
     );
   }
 
-  // ===========================================================================
+  // ============================================================
   // COMPACT OUTLINE BUTTON
-  // ===========================================================================
+  // ============================================================
 
   Widget _compactOutlineButton({
     required IconData icon,
@@ -719,7 +691,7 @@ class TeamExpenseCard extends StatelessWidget {
         onPressed: onPressed,
         icon: Icon(
           icon,
-          size: 16,
+          size: 15,
         ),
         label: Text(
           label,
@@ -734,8 +706,9 @@ class TeamExpenseCard extends StatelessWidget {
             color: borderColor,
           ),
           padding: const EdgeInsets.symmetric(
-            horizontal: 6,
+            horizontal: 5,
           ),
+          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(11),
           ),
@@ -744,9 +717,9 @@ class TeamExpenseCard extends StatelessWidget {
     );
   }
 
-  // ===========================================================================
+  // ============================================================
   // APPROVE CONFIRMATION
-  // ===========================================================================
+  // ============================================================
 
   void _showApproveDialog(
     BuildContext context,
@@ -781,7 +754,7 @@ class TeamExpenseCard extends StatelessWidget {
             children: [
               Icon(
                 Icons.check_circle_outline_rounded,
-                color: Color(0xFF2D6A4F),
+                color: mediumGreen,
                 size: 25,
               ),
               SizedBox(width: 9),
@@ -814,7 +787,6 @@ class TeamExpenseCard extends StatelessWidget {
                 ),
               ),
             ),
-
             ElevatedButton(
               onPressed: () {
                 Navigator.pop(dialogContext);
@@ -846,9 +818,9 @@ class TeamExpenseCard extends StatelessWidget {
     );
   }
 
-  // ===========================================================================
+  // ============================================================
   // REJECT CONFIRMATION
-  // ===========================================================================
+  // ============================================================
 
   void _showRejectDialog(
     BuildContext context,
@@ -916,7 +888,6 @@ class TeamExpenseCard extends StatelessWidget {
                 ),
               ),
             ),
-
             ElevatedButton(
               onPressed: () {
                 Navigator.pop(dialogContext);
@@ -948,65 +919,54 @@ class TeamExpenseCard extends StatelessWidget {
     );
   }
 
-  // ===========================================================================
+  // ============================================================
   // UPDATE EXPENSE
-  // ===========================================================================
-void _updateExpense(
-  BuildContext context,
-  TeamExpenseEntity expense,
-  String status,
-) {
-  final String expenseJson = jsonEncode({
-    'expenseId': expense.expenseId,
-    'expenseBy': expense.expenseBy,
-    'expenseDate': expense.expenseDate,
-    'visitedPlace': expense.visitedPlace,
-    'travellingMode': expense.travellingMode,
-    'dailyTotal': expense.dailyTotal,
-    'daExpenses': expense.daExpenses,
-    'approveAmount': expense.approveAmount,
-    'remark': expense.remark,
-  });
+  // ============================================================
 
-  debugPrint(
-    '==========================================',
-  );
-  debugPrint(
-    'UPDATE EXPENSE',
-  );
-  debugPrint(
-    'User ID: $userId',
-  );
-  debugPrint(
-    'Expense ID: ${expense.expenseId}',
-  );
-  debugPrint(
-    'Status: $status',
-  );
-  debugPrint(
-    'Expense JSON: $expenseJson',
-  );
-  debugPrint(
-    'Remark: ${expense.remark}',
-  );
-  debugPrint(
-    '==========================================',
-  );
+  void _updateExpense(
+    BuildContext context,
+    TeamExpenseEntity expense,
+    String status,
+  ) {
+    final String expenseJson = jsonEncode({
+      'expenseId': expense.expenseId,
+      'expenseBy': expense.expenseBy,
+      'expenseDate': expense.expenseDate,
+      'visitedPlace': expense.visitedPlace,
+      'travellingMode': expense.travellingMode,
+      'dailyTotal': expense.dailyTotal,
+      'daExpenses': expense.daExpenses,
+      'approveAmount': expense.approveAmount,
+      'remark': expense.remark,
+    });
 
-  context.read<TeamExpenseBloc>().add(
-        UpdateTeamExpenseEvent(
-          userId: userId,
-          expenseId: expense.expenseId,
-          status: status,
-          expenseJson: expenseJson,
-          remark: expense.remark,
-        ),
-      );
-}
+    debugPrint(
+      '==========================================',
+    );
+    debugPrint('UPDATE EXPENSE');
+    debugPrint('User ID: $userId');
+    debugPrint('Expense ID: ${expense.expenseId}');
+    debugPrint('Status: $status');
+    debugPrint('Expense JSON: $expenseJson');
+    debugPrint('Remark: ${expense.remark}');
+    debugPrint(
+      '==========================================',
+    );
 
-  // ===========================================================================
+    context.read<TeamExpenseBloc>().add(
+          UpdateTeamExpenseEvent(
+            userId: userId,
+            expenseId: expense.expenseId,
+            status: status,
+            expenseJson: expenseJson,
+            remark: expense.remark,
+          ),
+        );
+  }
+
+  // ============================================================
   // EXPENSE DETAILS BOTTOM SHEET
-  // ===========================================================================
+  // ============================================================
 
   void _showExpenseDetails(
     BuildContext context,
@@ -1036,15 +996,16 @@ void _updateExpense(
                 width: 40,
                 height: 4,
                 decoration: BoxDecoration(
-                  color: const Color(0xFFD5DDD8),
+                  color: Color(0xFFD5DDD8),
                   borderRadius: BorderRadius.circular(10),
                 ),
               ),
 
+              // Bottom sheet header
               Padding(
                 padding: const EdgeInsets.fromLTRB(
                   18,
-                  15,
+                  14,
                   12,
                   10,
                 ),
@@ -1066,22 +1027,14 @@ void _updateExpense(
 
                     const SizedBox(width: 10),
 
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment:
-                            CrossAxisAlignment.start,
-                        children: [
-                          const Text(
-                            'Expense Details',
-                            style: TextStyle(
-                              fontSize: 17,
-                              fontWeight: FontWeight.w900,
-                              color: Color(0xFF18231C),
-                            ),
-                          ),
-                          const SizedBox(height: 2),
-                        
-                        ],
+                    const Expanded(
+                      child: Text(
+                        'Expense Details',
+                        style: TextStyle(
+                          fontSize: 17,
+                          fontWeight: FontWeight.w900,
+                          color: textDark,
+                        ),
                       ),
                     ),
 
@@ -1098,37 +1051,48 @@ void _updateExpense(
                 ),
               ),
 
-              const Divider(
-                height: 1,
-              ),
+              const Divider(height: 1),
 
+              // Detail list
               Expanded(
-                child: ListView.separated(
-                  padding: const EdgeInsets.all(14),
-                  itemCount: expense.details.length,
-                  separatorBuilder: (_, __) =>
-                      const SizedBox(height: 8),
-                  itemBuilder: (context, index) {
-                    final detail =
-                        expense.details[index];
+                child: expense.details.isEmpty
+                    ? const Center(
+                        child: Text(
+                          'No expense details available',
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: textGrey,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      )
+                    : ListView.separated(
+                        padding: const EdgeInsets.all(14),
+                        itemCount: expense.details.length,
+                        separatorBuilder: (_, __) =>
+                            const SizedBox(height: 8),
+                        itemBuilder: (context, index) {
+                          final detail =
+                              expense.details[index];
 
-                    return _detailCard(
-                      context,
-                      detail,
-                    );
-                  },
-                ),
+                          return _detailCard(
+                            context,
+                            detail,
+                          );
+                        },
+                      ),
               ),
 
+              // Total
               Container(
                 padding: const EdgeInsets.fromLTRB(
                   18,
-                  12,
+                  11,
                   18,
                   18,
                 ),
                 decoration: const BoxDecoration(
-                  color: Color(0xFFF6F9F7),
+                  color: background,
                   borderRadius: BorderRadius.vertical(
                     top: Radius.circular(16),
                   ),
@@ -1145,7 +1109,6 @@ void _updateExpense(
                         ),
                       ),
                     ),
-
                     Text(
                       '₹ ${expense.dailyTotal.toStringAsFixed(2)}',
                       style: const TextStyle(
@@ -1164,16 +1127,15 @@ void _updateExpense(
     );
   }
 
-  // ===========================================================================
+  // ============================================================
   // DETAIL CARD
-  // ===========================================================================
+  // ============================================================
 
   Widget _detailCard(
     BuildContext context,
     TeamExpenseDetailEntity detail,
   ) {
-    final String imageName =
-        detail.expenseImage.trim();
+    final String imageName = detail.expenseImage.trim();
 
     final bool hasImage = imageName.isNotEmpty;
 
@@ -1207,11 +1169,12 @@ void _updateExpense(
         color: Colors.white,
         borderRadius: BorderRadius.circular(15),
         border: Border.all(
-          color: const Color(0xFFE3EAE5),
+          color: borderColor,
         ),
       ),
       child: Column(
         children: [
+          // Detail header
           Row(
             crossAxisAlignment:
                 CrossAxisAlignment.start,
@@ -1260,7 +1223,7 @@ void _updateExpense(
                         overflow: TextOverflow.ellipsis,
                         style: const TextStyle(
                           fontSize: 9,
-                          color: Color(0xFF7A857E),
+                          color: textGrey,
                         ),
                       ),
                     ],
@@ -1281,6 +1244,7 @@ void _updateExpense(
             ],
           ),
 
+          // Image
           if (hasImage) ...[
             const SizedBox(height: 10),
 
@@ -1376,7 +1340,7 @@ void _updateExpense(
                     overflow: TextOverflow.ellipsis,
                     style: const TextStyle(
                       fontSize: 8,
-                      color: Color(0xFF7A857E),
+                      color: textGrey,
                     ),
                   ),
                 ),
@@ -1399,9 +1363,9 @@ void _updateExpense(
     );
   }
 
-  // ===========================================================================
+  // ============================================================
   // FULL IMAGE
-  // ===========================================================================
+  // ============================================================
 
   void _showFullImage(
     BuildContext context,
@@ -1421,7 +1385,8 @@ void _updateExpense(
                 width: double.infinity,
                 constraints: BoxConstraints(
                   maxHeight:
-                      MediaQuery.of(context).size.height * 0.85,
+                      MediaQuery.of(context).size.height *
+                          0.85,
                 ),
                 decoration: BoxDecoration(
                   color: Colors.black,
@@ -1456,6 +1421,7 @@ void _updateExpense(
                 ),
               ),
 
+              // Close
               Positioned(
                 top: 7,
                 right: 7,
@@ -1476,6 +1442,7 @@ void _updateExpense(
                 ),
               ),
 
+              // Title
               Positioned(
                 left: 14,
                 right: 14,
@@ -1509,4 +1476,3 @@ void _updateExpense(
     );
   }
 }
-

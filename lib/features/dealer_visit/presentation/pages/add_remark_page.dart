@@ -1,4 +1,7 @@
+import 'dart:convert';
 import 'dart:io';
+import 'package:solufine/core/location_tracking/app_database.dart';
+import 'package:solufine/core/location_tracking/location_repository.dart';
 import 'package:solufine/core/utility/appdialog.dart';
 import 'package:solufine/core/utility/device_info_util.dart';
 import 'package:solufine/core/utility/location_util.dart';
@@ -12,14 +15,12 @@ import 'package:intl/intl.dart';
 import 'package:solufine/core/di/leave_list_di.dart';
 import 'package:solufine/core/router/app_router.dart';
 import 'package:solufine/core/secure_storage/secure_storage.dart';
+import 'package:solufine/features/home/presentation/quick_aceess_bloc/quick_access_event.dart';
+import 'package:solufine/features/home/presentation/quick_aceess_bloc/quick_acess_bloc.dart';
 
 import '../bloc/add_dealer_visit_bloc.dart';
 import '../bloc/add_dealer_visit_event.dart';
 import '../bloc/add_dealer_visit_state.dart';
-
-import 'package:battery_plus/battery_plus.dart';
-import 'package:connectivity_plus/connectivity_plus.dart';
-import 'package:geolocator/geolocator.dart';
 
 class AddDealerVisitPage extends StatefulWidget {
   final String dealerId;
@@ -53,7 +54,7 @@ class _AddDealerVisitPageState extends State<AddDealerVisitPage> {
   // ============================================================
   // CONTROLLERS
   // ============================================================
-
+  final ImagePicker _imagePicker = ImagePicker();
   final TextEditingController remarkController = TextEditingController();
 
   // ============================================================
@@ -61,15 +62,14 @@ class _AddDealerVisitPageState extends State<AddDealerVisitPage> {
   // ============================================================
 
   DateTime? nextFollowUpDate;
-
+  String? imagePath;
   String selectedFollowUpType = 'Select Follow Up Type';
 
   String? selectedPurposeId;
-  File? dealerImage;
 
   late AddDealerVisitBlock dealerVisitBloc;
 
-  final ImagePicker _imagePicker = ImagePicker();
+  // final ImagePicker _imagePicker = ImagePicker();
 
   // ============================================================
   // API PARAMETERS
@@ -152,9 +152,26 @@ class _AddDealerVisitPageState extends State<AddDealerVisitPage> {
 
     if (!mounted || userId == null) return;
   }
+
   // ============================================================
   // INITIAL DATA
   // ============================================================
+  void _showMessage(String message) {
+    if (!mounted) return;
+
+    ScaffoldMessenger.of(context)
+      ..hideCurrentSnackBar()
+      ..showSnackBar(
+        SnackBar(
+          content: Text(message),
+          behavior: SnackBarBehavior.floating,
+          margin: const EdgeInsets.all(16),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+        ),
+      );
+  }
 
   Future<void> _loadDeviceData() async {
     try {
@@ -284,6 +301,78 @@ class _AddDealerVisitPageState extends State<AddDealerVisitPage> {
   // DISPOSE
   // ============================================================
 
+  Future<String> _getStoredLocations() async {
+    try {
+      final int? parsedUserId = int.tryParse(userId);
+
+      if (parsedUserId == null) {
+        debugPrint('LOCATION: Invalid userId = $userId');
+        return '[]';
+      }
+
+      final LocationRepository repository = sl<LocationRepository>();
+
+      final List<LocationHistoryData> locations = await repository
+          .getAllLocations(parsedUserId);
+
+      debugPrint('========================================');
+      debugPrint('DEALER VISIT - STORED LOCATIONS');
+      debugPrint('TOTAL LOCATIONS: ${locations.length}');
+      debugPrint('========================================');
+
+      for (final location in locations) {
+        debugPrint(
+          'ID: ${location.id} | '
+          'Lat: ${location.latitude} | '
+          'Lng: ${location.longitude} | '
+          'Time: ${location.capturedAt} | '
+          'Accuracy: ${location.accuracy} | '
+          'Provider: ${location.provider} | '
+          'Address: ${location.geoAddress} | '
+          'Distance: ${location.distance}',
+        );
+      }
+
+      // ============================================================
+      // CREATE DATA FOR STORE LOCATION API
+      // ============================================================
+
+      final List<Map<String, dynamic>> locationList = locations.map((location) {
+        return {
+          'latitude': location.latitude,
+          'longitude': location.longitude,
+          'time': location.capturedAt,
+          'accuracy': location.accuracy,
+          'provider': location.provider,
+          'address': location.geoAddress,
+          'distance': location.distance,
+        };
+      }).toList();
+
+      // ============================================================
+      // JSON ARRAY -> STRING
+      // ============================================================
+
+      final String strAllLocations = jsonEncode(locationList);
+
+      debugPrint('========================================');
+      debugPrint('STR ALL LOCATIONS');
+      debugPrint('TOTAL: ${locations.length}');
+      debugPrint(strAllLocations);
+      debugPrint('========================================');
+
+      return strAllLocations;
+    } catch (e, stackTrace) {
+      debugPrint('========================================');
+      debugPrint('GET STORED LOCATIONS ERROR');
+      debugPrint('$e');
+      debugPrint('$stackTrace');
+      debugPrint('========================================');
+
+      return '[]';
+    }
+  }
+
   @override
   void dispose() {
     remarkController.dispose();
@@ -335,24 +424,24 @@ class _AddDealerVisitPageState extends State<AddDealerVisitPage> {
   // IMAGE
   // ============================================================
 
-  Future<void> _takeDealerImage() async {
-    try {
-      final XFile? image = await _imagePicker.pickImage(
-        source: ImageSource.camera,
-        imageQuality: 70,
-        maxWidth: 1200,
-        maxHeight: 1200,
-      );
+  // Future<void> _takeDealerImage() async {
+  //   try {
+  //     final XFile? image = await _imagePicker.pickImage(
+  //       source: ImageSource.camera,
+  //       imageQuality: 70,
+  //       maxWidth: 1200,
+  //       maxHeight: 1200,
+  //     );
 
-      if (image == null) return;
+  //     if (image == null) return;
 
-      setState(() {
-        dealerImage = File(image.path);
-      });
-    } catch (e) {
-      _showError('Unable to open camera');
-    }
-  }
+  //     setState(() {
+  //       dealerImage = File(image.path);
+  //     });
+  //   } catch (e) {
+  //     _showError('Unable to open camera');
+  //   }
+  // }
 
   // ============================================================
   // SUBMIT
@@ -411,7 +500,7 @@ class _AddDealerVisitPageState extends State<AddDealerVisitPage> {
     // ==========================================================
     // 5. IMAGE VALIDATION
     // ==========================================================
-    if (dealerImage == null) {
+    if (imagePath == null) {
       _showError('Please upload image');
       return;
     }
@@ -484,7 +573,7 @@ class _AddDealerVisitPageState extends State<AddDealerVisitPage> {
     debugPrint('------------------------------------------');
 
     debugPrint('activityId       : $activityId');
-    debugPrint('dealerImage      : ${dealerImage!.path}');
+    debugPrint('dealerImage      : ${imagePath}');
 
     debugPrint('==========================================');
 
@@ -526,7 +615,7 @@ class _AddDealerVisitPageState extends State<AddDealerVisitPage> {
         // IMPORTANT:
         // If your event has dealerImage, pass it here:
         //
-        // dealerImage: dealerImage!,
+        imagePath: imagePath,
       ),
     );
   }
@@ -583,18 +672,30 @@ class _AddDealerVisitPageState extends State<AddDealerVisitPage> {
       value: dealerVisitBloc,
 
       child: BlocConsumer<AddDealerVisitBlock, AddDealerVisitState>(
-        listener: (context, state) {
+        listener: (context, state) async {
           // ======================================================
           // SUCCESS
           // ======================================================
 
           if (state.addLeaveStatus == AddDealerVisitStatus.dealerAddedSuccess) {
-            // final puposeData=state.purpose;
+            debugPrint('DAILY TRAN ID FROM STATE: ${state.dailyTranId}');
+
+            final String strAllLocations = await _getStoredLocations();
+            debugPrint('========================================');
+            debugPrint('CALLING STORE TRACK LOCATION API');
+            debugPrint('USER ID: $userId');
+            debugPrint('DAILY TRAN ID: ${state.dailyTranId}');
+            debugPrint('STR ALL LOCATIONS: $strAllLocations');
+            debugPrint('========================================');
+
+            context.read<QuickAcessBloc>().add(
+              StoreTrackLocation(userId, state.dailyTranId!, strAllLocations),
+            );
 
             AppDialog.show(
               context: context,
               type: DialogType.success,
-              title: 'Punch In Successful',
+              title: 'Successful',
               message: 'Dealer Visit successfully.',
               buttonText: 'OK',
               onButtonPressed: () {
@@ -685,7 +786,7 @@ class _AddDealerVisitPageState extends State<AddDealerVisitPage> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   const Text(
-                    'Dealer Visit',
+                    'Dealer Visitfvsfr',
                     style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
                   ),
 
@@ -789,8 +890,8 @@ class _AddDealerVisitPageState extends State<AddDealerVisitPage> {
 
                           // ======================================
                           // DEALER IMAGE
-                          // ======================================
-                          _buildImageSection(),
+                          // ======================================t
+                          _buildImagePicker(),
 
                           const SizedBox(height: 5),
                         ],
@@ -1353,111 +1454,361 @@ class _AddDealerVisitPageState extends State<AddDealerVisitPage> {
   // ============================================================
   // IMAGE SECTION
   // ============================================================
+  Widget _buildImagePicker() {
+    if (imagePath != null) {
+      return Stack(
+        children: [
+          ClipRRect(
+            borderRadius: BorderRadius.circular(20),
+            child: Image.file(
+              File(imagePath!),
+              width: double.infinity,
+              height: 210,
+              fit: BoxFit.cover,
+            ),
+          ),
 
-  Widget _buildImageSection() {
+          Positioned(
+            top: 12,
+            right: 12,
+            child: Row(
+              children: [
+                _imageActionButton(
+                  icon: Icons.refresh_rounded,
+                  onTap: _showImageOptions,
+                ),
+
+                const SizedBox(width: 8),
+
+                _imageActionButton(
+                  icon: Icons.delete_outline_rounded,
+                  onTap: () {
+                    setState(() {
+                      imagePath = null;
+                    });
+                  },
+                ),
+              ],
+            ),
+          ),
+        ],
+      );
+    }
+
     return InkWell(
-      onTap: _takeDealerImage,
-
-      borderRadius: BorderRadius.circular(11),
-
+      onTap: _showImageOptions,
+      borderRadius: BorderRadius.circular(20),
       child: Container(
         width: double.infinity,
-
-        height: dealerImage == null ? 55 : 100,
-
+        height: 170,
         decoration: BoxDecoration(
-          color: lightGreen,
-
-          borderRadius: BorderRadius.circular(11),
-
-          border: Border.all(color: primaryGreen.withOpacity(.12)),
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(color: const Color(0xFFD8E5E0), width: 1.2),
         ),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Container(
+              height: 54,
+              width: 54,
+              decoration: BoxDecoration(
+                color: const Color(0xFFE8F5F0),
+                borderRadius: BorderRadius.circular(17),
+              ),
+              child: const Icon(
+                Icons.add_a_photo_rounded,
+                color: Color(0xFF087F5B),
+                size: 27,
+              ),
+            ),
 
-        child: dealerImage == null
-            ? Row(
-                children: [
-                  const SizedBox(width: 12),
+            const SizedBox(height: 12),
 
-                  const Icon(
-                    Icons.camera_alt_rounded,
-                    color: primaryGreen,
-                    size: 19,
+            const Text(
+              'Add Image',
+              style: TextStyle(
+                color: Color(0xFF172B24),
+                fontSize: 14.5,
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+
+            const SizedBox(height: 4),
+
+            const Text(
+              'Camera or gallery',
+              style: TextStyle(color: Color(0xFF8A9792), fontSize: 12),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _imageActionButton({
+    required IconData icon,
+    required VoidCallback onTap,
+  }) {
+    return Material(
+      color: Colors.black.withOpacity(.60),
+      borderRadius: BorderRadius.circular(12),
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(12),
+        child: Padding(
+          padding: const EdgeInsets.all(9),
+          child: Icon(icon, color: Colors.white, size: 21),
+        ),
+      ),
+    );
+  }
+
+  void _showImageOptions() {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      builder: (context) {
+        return Container(
+          padding: const EdgeInsets.fromLTRB(20, 20, 20, 30),
+          decoration: const BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
+          ),
+          child: SafeArea(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Container(
+                  width: 40,
+                  height: 4,
+                  decoration: BoxDecoration(
+                    color: Colors.grey.shade300,
+                    borderRadius: BorderRadius.circular(20),
                   ),
+                ),
 
-                  const SizedBox(width: 9),
+                const SizedBox(height: 20),
 
-                  const Expanded(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-
-                      crossAxisAlignment: CrossAxisAlignment.start,
-
-                      children: [
-                        Text(
-                          'IMAGE OF DEALER *',
-
-                          style: TextStyle(
-                            fontSize: 9,
-                            fontWeight: FontWeight.w800,
-                            letterSpacing: .5,
-                            color: primaryGreen,
-                          ),
-                        ),
-
-                        SizedBox(height: 2),
-
-                        Text(
-                          'Tap to capture dealer image',
-
-                          style: TextStyle(fontSize: 10, color: Colors.black54),
-                        ),
-                      ],
-                    ),
+                const Align(
+                  alignment: Alignment.centerLeft,
+                  child: Text(
+                    'Add Follow-up Image',
+                    style: TextStyle(fontSize: 19, fontWeight: FontWeight.w700),
                   ),
+                ),
 
-                  const Icon(
-                    Icons.arrow_forward_ios_rounded,
-                    size: 14,
-                    color: primaryGreen,
-                  ),
+                const SizedBox(height: 18),
 
-                  const SizedBox(width: 12),
-                ],
-              )
-            : ClipRRect(
-                borderRadius: BorderRadius.circular(10),
-
-                child: Stack(
-                  fit: StackFit.expand,
-
+                Row(
                   children: [
-                    Image.file(dealerImage!, fit: BoxFit.cover),
+                    Expanded(
+                      child: _imageOption(
+                        icon: Icons.camera_alt_rounded,
+                        title: 'Camera',
+                        onTap: () {
+                          Navigator.pop(context);
+                          _captureImage();
+                        },
+                      ),
+                    ),
 
-                    Positioned(
-                      right: 8,
-                      top: 8,
+                    const SizedBox(width: 12),
 
-                      child: Container(
-                        padding: const EdgeInsets.all(7),
-
-                        decoration: const BoxDecoration(
-                          color: Colors.black54,
-                          shape: BoxShape.circle,
-                        ),
-
-                        child: const Icon(
-                          Icons.camera_alt_rounded,
-                          size: 16,
-                          color: Colors.white,
-                        ),
+                    Expanded(
+                      child: _imageOption(
+                        icon: Icons.photo_library_rounded,
+                        title: 'Gallery',
+                        onTap: () {
+                          Navigator.pop(context);
+                          _pickFromGallery();
+                        },
                       ),
                     ),
                   ],
                 ),
-              ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Future<void> _captureImage() async {
+    try {
+      final XFile? image = await _imagePicker.pickImage(
+        source: ImageSource.camera,
+        imageQuality: 80,
+      );
+
+      if (image != null && mounted) {
+        setState(() {
+          imagePath = image.path;
+        });
+      }
+    } catch (e) {
+      debugPrint('CAMERA ERROR: $e');
+
+      if (mounted) {
+        _showMessage('Unable to capture image');
+      }
+    }
+  }
+
+  Future<void> _pickFromGallery() async {
+    try {
+      final XFile? image = await _imagePicker.pickImage(
+        source: ImageSource.gallery,
+        imageQuality: 80,
+      );
+
+      if (image != null && mounted) {
+        setState(() {
+          imagePath = image.path;
+        });
+      }
+    } catch (e) {
+      debugPrint('GALLERY ERROR: $e');
+
+      if (mounted) {
+        _showMessage('Unable to select image');
+      }
+    }
+  }
+
+  Widget _imageOption({
+    required IconData icon,
+    required String title,
+    required VoidCallback onTap,
+  }) {
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(18),
+      child: Container(
+        padding: const EdgeInsets.symmetric(vertical: 20),
+        decoration: BoxDecoration(
+          color: const Color(0xFFF3F8F6),
+          borderRadius: BorderRadius.circular(18),
+          border: Border.all(color: const Color(0xFFDCEBE5)),
+        ),
+        child: Column(
+          children: [
+            Icon(icon, size: 30, color: const Color(0xFF087F5B)),
+
+            const SizedBox(height: 8),
+
+            Text(title, style: const TextStyle(fontWeight: FontWeight.w600)),
+          ],
+        ),
       ),
     );
   }
+
+  // Widget _buildImageSection() {
+  //   return InkWell(
+  //     onTap: _takeDealerImage,
+
+  //     borderRadius: BorderRadius.circular(11),
+
+  //     child: Container(
+  //       width: double.infinity,
+
+  //       height: dealerImage == null ? 55 : 100,
+
+  //       decoration: BoxDecoration(
+  //         color: lightGreen,
+
+  //         borderRadius: BorderRadius.circular(11),
+
+  //         border: Border.all(color: primaryGreen.withOpacity(.12)),
+  //       ),
+
+  //       child: dealerImage == null
+  //           ? Row(
+  //               children: [
+  //                 const SizedBox(width: 12),
+
+  //                 const Icon(
+  //                   Icons.camera_alt_rounded,
+  //                   color: primaryGreen,
+  //                   size: 19,
+  //                 ),
+
+  //                 const SizedBox(width: 9),
+
+  //                 const Expanded(
+  //                   child: Column(
+  //                     mainAxisAlignment: MainAxisAlignment.center,
+
+  //                     crossAxisAlignment: CrossAxisAlignment.start,
+
+  //                     children: [
+  //                       Text(
+  //                         'IMAGE OF DEALER *',
+
+  //                         style: TextStyle(
+  //                           fontSize: 9,
+  //                           fontWeight: FontWeight.w800,
+  //                           letterSpacing: .5,
+  //                           color: primaryGreen,
+  //                         ),
+  //                       ),
+
+  //                       SizedBox(height: 2),
+
+  //                       Text(
+  //                         'Tap to capture dealer image',
+
+  //                         style: TextStyle(fontSize: 10, color: Colors.black54),
+  //                       ),
+  //                     ],
+  //                   ),
+  //                 ),
+
+  //                 const Icon(
+  //                   Icons.arrow_forward_ios_rounded,
+  //                   size: 14,
+  //                   color: primaryGreen,
+  //                 ),
+
+  //                 const SizedBox(width: 12),
+  //               ],
+  //             )
+  //           : ClipRRect(
+  //               borderRadius: BorderRadius.circular(10),
+
+  //               child: Stack(
+  //                 fit: StackFit.expand,
+
+  //                 children: [
+  //                   Image.file(dealerImage!, fit: BoxFit.cover),
+
+  //                   Positioned(
+  //                     right: 8,
+  //                     top: 8,
+
+  //                     child: Container(
+  //                       padding: const EdgeInsets.all(7),
+
+  //                       decoration: const BoxDecoration(
+  //                         color: Colors.black54,
+  //                         shape: BoxShape.circle,
+  //                       ),
+
+  //                       child: const Icon(
+  //                         Icons.camera_alt_rounded,
+  //                         size: 16,
+  //                         color: Colors.white,
+  //                       ),
+  //                     ),
+  //                   ),
+  //                 ],
+  //               ),
+  //             ),
+  //     ),
+  //   );
+  // }
 
   // ============================================================
   // SUBMIT BUTTON

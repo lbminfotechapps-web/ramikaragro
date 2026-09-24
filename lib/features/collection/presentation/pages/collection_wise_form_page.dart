@@ -306,15 +306,7 @@ class _CollectionWiseFormPageState extends State<CollectionWiseFormPage> {
       return false;
     }
 
-    // ----------------------------------------------------------
-    // PAYMENT MODE
-    // ----------------------------------------------------------
-
-    if (paymentMode == null || paymentMode!.trim().isEmpty) {
-      _showMessage('Please select payment mode');
-
-      return false;
-    }
+  
 
     // ----------------------------------------------------------
     // AMOUNT
@@ -322,6 +314,17 @@ class _CollectionWiseFormPageState extends State<CollectionWiseFormPage> {
 
     if (amountController.text.trim().isEmpty) {
       _showMessage('Please enter amount');
+
+      return false;
+    }
+
+
+      // ----------------------------------------------------------
+    // PAYMENT MODE
+    // ----------------------------------------------------------
+
+    if (paymentMode == null || paymentMode!.trim().isEmpty) {
+      _showMessage('Please select payment mode');
 
       return false;
     }
@@ -823,7 +826,7 @@ class _CollectionWiseFormPageState extends State<CollectionWiseFormPage> {
         children: [
           _sectionHeader(
             icon: Icons.storefront_rounded,
-            title: 'Dealer',
+            title: 'Dealer ',
             subtitle: 'Select dealer for this collection',
           ),
 
@@ -874,7 +877,7 @@ class _CollectionWiseFormPageState extends State<CollectionWiseFormPage> {
 
                       children: [
                         Text(
-                          dealerName.isEmpty ? 'Select dealer' : dealerName,
+                          dealerName.isEmpty ? 'Select dealer *' : dealerName,
 
                           maxLines: 1,
 
@@ -893,16 +896,16 @@ class _CollectionWiseFormPageState extends State<CollectionWiseFormPage> {
 
                         const SizedBox(height: 3),
 
-                        Text(
-                          dealerName.isEmpty
-                              ? 'Tap to search dealer'
-                              : 'Dealer ID: $dealerId',
+                        // Text(
+                        //   dealerName.isEmpty
+                        //       ? 'Tap to search dealer'
+                        //       : 'Dealer ID: $dealerId',
 
-                          style: const TextStyle(
-                            fontSize: 11,
-                            color: Colors.black45,
-                          ),
-                        ),
+                        //   style: const TextStyle(
+                        //     fontSize: 11,
+                        //     color: Colors.black45,
+                        //   ),
+                        // ),
                       ],
                     ),
                   ),
@@ -1171,7 +1174,7 @@ class _CollectionWiseFormPageState extends State<CollectionWiseFormPage> {
 
           controller: rtgsController,
 
-          label: 'RTGS Number',
+          label: 'RTGS Number *',
 
           hint: 'Enter RTGS transaction number',
 
@@ -1184,7 +1187,7 @@ class _CollectionWiseFormPageState extends State<CollectionWiseFormPage> {
 
           controller: neftController,
 
-          label: 'NEFT Number',
+          label: 'NEFT Number *',
 
           hint: 'Enter NEFT transaction number',
 

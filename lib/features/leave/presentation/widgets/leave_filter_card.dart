@@ -42,7 +42,7 @@ class LeaveFilterCard extends StatelessWidget {
             Row(
               children: [
                 LeaveDateSelector(
-                  label: "From Date",
+                  label: "From Date *",
                   date: fromDate,
                   onTap: onFromDateTap,
                 ),
@@ -50,7 +50,7 @@ class LeaveFilterCard extends StatelessWidget {
                 const SizedBox(width: 10),
 
                 LeaveDateSelector(
-                  label: "To Date",
+                  label: "To Date *",
                   date: toDate,
                   onTap: onToDateTap,
                 ),

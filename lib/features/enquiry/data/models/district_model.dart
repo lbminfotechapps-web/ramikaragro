@@ -6,56 +6,40 @@ class DistrictModel extends DistrictEntity {
     required super.name,
   });
 
-  factory DistrictModel.fromJson(dynamic json) {
-    if (json is! Map) {
-      return const DistrictModel(
-        id: '',
-        name: '',
-      );
-    }
-
-    final id = _readValue(
-      json,
-      [
+  factory DistrictModel.fromJson(Map<String, dynamic> json) {
+    return DistrictModel(
+      id: _getString(json, [
+        'fld_id',
         'id',
         'district_id',
         'districtId',
-        'fld_id',
+        'dist_id',
+        'distId',
         'fld_district_id',
-        'value',
-      ],
-    );
-
-    final name = _readValue(
-      json,
-      [
+        'fld_dist_id',
+      ]),
+      name: _getString(json, [
+        'fld_name',
         'name',
         'district_name',
         'districtName',
-        'fld_name',
+        'dist_name',
+        'distName',
         'fld_district_name',
-        'label',
-        'text',
-      ],
-    );
-
-    return DistrictModel(
-      id: id,
-      name: name,
+        'fld_dist_name',
+      ]),
     );
   }
 
-  static String _readValue(
-    Map json,
+  static String _getString(
+    Map<String, dynamic> json,
     List<String> keys,
   ) {
     for (final key in keys) {
-      if (json.containsKey(key) && json[key] != null) {
-        final value = json[key].toString().trim();
+      final value = json[key];
 
-        if (value.isNotEmpty) {
-          return value;
-        }
+      if (value != null && value.toString().trim().isNotEmpty) {
+        return value.toString().trim();
       }
     }
 

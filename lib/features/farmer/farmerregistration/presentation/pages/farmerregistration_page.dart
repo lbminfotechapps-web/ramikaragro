@@ -482,8 +482,6 @@ class _FarmerregistrationPageState extends State<FarmerregistrationPage> {
 
           state: _selectedStateId ?? '0',
 
-          fldDemoTypeId: '',
-
           district: _selectedDistrictId ?? '0',
 
           taluka: _selectedTalukaId ?? '0',
@@ -560,6 +558,7 @@ class _FarmerregistrationPageState extends State<FarmerregistrationPage> {
           activityId: '2',
 
           image: _uploadedImage?.path ?? '',
+          fldDemoTypeId: '',
         ),
       );
 
@@ -1269,7 +1268,7 @@ class _FarmerregistrationPageState extends State<FarmerregistrationPage> {
 
                   Expanded(
                     child: Text(
-                      'Upload Photo',
+                      'Upload Photo *',
                       style: TextStyle(
                         fontSize: 16.sp,
                         fontWeight: FontWeight.w600,

@@ -39,7 +39,7 @@ class DealerSearchField extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'Dealer',
+              'Dealer *',
               style: TextStyle(
                 fontSize: 13.sp,
                 fontWeight: FontWeight.w700,

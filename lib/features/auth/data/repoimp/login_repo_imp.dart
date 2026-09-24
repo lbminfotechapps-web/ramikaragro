@@ -15,12 +15,16 @@ class LoginRepoImp implements LoginRepository {
     String username,
     String password,
     String fcmToken,
+     String mobileInfo,
+    String macAddress,
   ) async {
     try {
       final response = await authDatasource.loginUser(
         username,
         password,
         fcmToken,
+        mobileInfo,
+        macAddress
       );
 
       await secureStorage.saveUserData({

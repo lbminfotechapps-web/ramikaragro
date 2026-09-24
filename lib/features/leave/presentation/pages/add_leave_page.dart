@@ -611,7 +611,7 @@ class _AddLeavePageState extends State<AddLeavePage> {
       children: [
         Expanded(
           child: _dateCard(
-            title: "FROM",
+            title: "FROM *",
             date: fromDate,
             icon: Icons.login_rounded,
             onTap: _selectFromDate,
@@ -622,7 +622,7 @@ class _AddLeavePageState extends State<AddLeavePage> {
 
         Expanded(
           child: _dateCard(
-            title: "TO",
+            title: "TO *",
             date: toDate,
             icon: Icons.logout_rounded,
             onTap: _selectToDate,
@@ -727,7 +727,7 @@ class _AddLeavePageState extends State<AddLeavePage> {
       children: [
         Expanded(
           child: _leaveTypeDropdown(
-            label: "START DAY",
+            label: "START DAY *",
             value: startLeaveType,
             enabled: true,
             onChanged: _onStartLeaveTypeChanged,
@@ -738,7 +738,7 @@ class _AddLeavePageState extends State<AddLeavePage> {
 
         Expanded(
           child: _leaveTypeDropdown(
-            label: "END DAY",
+            label: "END DAY *",
             value: endLeaveType,
             // Disable End Day for same date.
             enabled: !sameDate,
@@ -890,64 +890,13 @@ class _AddLeavePageState extends State<AddLeavePage> {
   // REASON FIELD
   // ============================================================
 
-  // Widget _buildReasonField() {
-  //   return Container(
-  //     decoration: BoxDecoration(
-  //       color: Colors.white,
-  //       borderRadius: BorderRadius.circular(12),
-  //       border: Border.all(
-  //         color: Colors.grey.shade200,
-  //       ),
-  //     ),
-  //     child: TextField(
-  //       controller: reasonController,
-  //       maxLines: 3,
-  //       textCapitalization:
-  //           TextCapitalization.sentences,
-  //       style: const TextStyle(
-  //         fontSize: 13,
-  //       ),
-  //       decoration: InputDecoration(
-  //         hintText:
-  //             "Enter reason for leave...",
-  //         hintStyle: TextStyle(
-  //           color: Colors.grey.shade400,
-  //           fontSize: 12,
-  //         ),
-  //         prefixIcon: const Padding(
-  //           padding: EdgeInsets.only(
-  //             left: 12,
-  //             right: 4,
-  //             top: 10,
-  //           ),
-  //           child: Icon(
-  //             Icons.edit_note_rounded,
-  //             color: primaryGreen,
-  //             size: 20,
-  //           ),
-  //         ),
-  //         prefixIconConstraints:
-  //             const BoxConstraints(
-  //           minWidth: 40,
-  //         ),
-  //         border: InputBorder.none,
-  //         contentPadding:
-  //             const EdgeInsets.fromLTRB(
-  //           4,
-  //           10,
-  //           10,
-  //           10,
-  //         ),
-  //       ),
-  //     ),
-  //   );
-  // }
+
 
   Widget _buildReasonField() {
     return CustomTextFormField(
       controller: reasonController,
       hintText: 'Enter reason for leave...',
-      labelText: 'Reason for Leave',
+      labelText: 'Reason for Leave *',
       prefixIcon: Icons.edit_note_rounded,
       maxLines: 3,
       keyboardType: TextInputType.multiline,

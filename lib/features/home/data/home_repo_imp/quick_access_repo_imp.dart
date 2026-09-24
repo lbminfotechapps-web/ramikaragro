@@ -22,4 +22,11 @@ class QuickAccessRepoImp implements QickAccessRepo {
   Future<Map<String, dynamic>> savePunchDetails(Map<String, dynamic> jsonData) {
     return quickAccessDatasource.savePunchDetails(jsonData);
   }
+
+  @override
+  Future<Map<String, dynamic>> storeLocationData(
+    Map<String, dynamic> jsonData,
+  ) {
+    return quickAccessDatasource.storeLocationData(jsonData);
+  }
 }

@@ -25,12 +25,13 @@ class _SplashScreenState extends State<SplashScreen> {
     await authProvider.checkLoginStatus();
 
     if (!mounted) return;
+    context.go('/home');
 
-    if (authProvider.isLoggedIn) {
-      context.go('/home');
-    } else {
-      context.go('/login');
-    }
+    // if (authProvider.isLoggedIn) {
+    //   context.go('/home');
+    // } else {
+    //   context.go('/login');
+    // }
   }
 
   @override

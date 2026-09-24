@@ -4,6 +4,7 @@ abstract class DispatchListEntity {
   final String dispatchOrderId;
   final String orderId;
   final String orderNo;
+  final String dispatchNo;
   final String lrNo;
   final String transportationName;
   final String orderDate;
@@ -19,6 +20,7 @@ abstract class DispatchListEntity {
     required this.dispatchOrderId,
     required this.orderId,
     required this.orderNo,
+    required this.dispatchNo,
     required this.lrNo,
     required this.transportationName,
     required this.orderDate,

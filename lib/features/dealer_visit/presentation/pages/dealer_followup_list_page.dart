@@ -370,15 +370,15 @@ class _DealerFollowupListPageState extends State<DealerFollowupListPage> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      'Follow-up $index',
+                    // Text(
+                    //   'Follow-up $index',
 
-                      style: const TextStyle(
-                        color: Color(0xFF1B4332),
-                        fontSize: 16,
-                        fontWeight: FontWeight.w700,
-                      ),
-                    ),
+                    //   style: const TextStyle(
+                    //     color: Color(0xFF1B4332),
+                    //     fontSize: 16,
+                    //     fontWeight: FontWeight.w700,
+                    //   ),
+                    // ),
 
                     const SizedBox(height: 4),
 

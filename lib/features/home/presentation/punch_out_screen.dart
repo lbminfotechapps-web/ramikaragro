@@ -318,7 +318,7 @@ class _PunchOutScreenState extends State<PunchOutScreen> {
                 message: 'Your punch out has been submitted successfully.',
                 buttonText: 'OK',
                 onButtonPressed: () {
-                  context.go('${AppRouter.home}?refresh=true');
+                  context.go('${AppRouter.addExpense}?refresh=true');
                   // context.go(AppRouter.home);
                 },
               );
@@ -421,6 +421,7 @@ class _PunchOutScreenState extends State<PunchOutScreen> {
 
                           return null;
                         },
+                        
                         builder: (field) {
                           return Column(
                             crossAxisAlignment: CrossAxisAlignment.start,

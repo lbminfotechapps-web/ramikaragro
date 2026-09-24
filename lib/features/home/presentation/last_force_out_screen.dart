@@ -47,13 +47,37 @@ class _LastForceOutScreenState extends State<LastForceOutScreen> {
   void initState() {
     super.initState();
 
-    dateController.text = widget.punchStat?.date ?? '';
-    lastTimeController.text = widget.punchStat?.time ?? '';
+    // dateController.text = widget.punchStat?.date ?? '';
+    // lastTimeController.text = widget.punchStat?.time ?? '';
 
+    // openingKmController.text = widget.punchStat?.startingKm.trim() ?? '';
+    // dateController.text = widget.punchStat?.date.trim() ?? '';
+
+    dateController.text = _formatDate(widget.punchStat?.date.trim() ?? '');
+
+    lastTimeController.text = widget.punchStat?.time.trim() ?? '';
     openingKmController.text = widget.punchStat?.startingKm.trim() ?? '';
-    dateController.text = widget.punchStat?.date.trim() ?? '';
   }
 
+  String _formatDate(String value) {
+    if (value.trim().isEmpty) {
+      return '';
+    }
+
+    final date = DateTime.tryParse(value.trim());
+
+    if (date != null) {
+      return DateFormat('dd-MM-yyyy').format(date);
+    }
+
+    try {
+      final parsedDate = DateFormat('dd-MM-yyyy').parseStrict(value.trim());
+
+      return DateFormat('dd-MM-yyyy').format(parsedDate);
+    } catch (_) {
+      return value;
+    }
+  }
   // ------------------------------------------------------------
   // TIME PICKER
   // ------------------------------------------------------------
@@ -263,7 +287,7 @@ class _LastForceOutScreenState extends State<LastForceOutScreen> {
                 message: 'Your Last punch has been submitted successfully.',
                 buttonText: 'OK',
                 onButtonPressed: () {
-                  context.go(AppRouter.home);
+                  context.go(AppRouter.addExpense);
                 },
               );
             }
@@ -342,36 +366,74 @@ class _LastForceOutScreenState extends State<LastForceOutScreen> {
                     // ------------------------------------------------
                     // OPENING / CLOSING KM
                     // ------------------------------------------------
-                    Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Expanded(
-                          child: _kmField(
-                            controller: openingKmController,
-                            hintText: 'Opening KM',
-                            enabled: false,
-                            validator: (_) => null,
-                          ),
-                        ),
+                  Column(
+  crossAxisAlignment: CrossAxisAlignment.start,
+  children: [
+    Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Expanded(
+          child: _kmField(
+            controller: openingKmController,
+            hintText: 'Opening KM',
+            enabled: false,
+            validator: (_) => null,
+          ),
+        ),
 
-                        SizedBox(width: 12.w),
+        SizedBox(width: 12.w),
 
-                        Expanded(
-                          child: _kmField(
-                            controller: closingKmController,
-                            hintText: 'Closing KM*',
-                            enabled: true,
-                            validator: (value) =>
-                                _validateKm(value, 'Closing KM'),
-                            onChanged: (value) {
-                              // Validate immediately while typing
-                              _formKey.currentState?.validate();
-                            },
-                          ),
-                        ),
-                      ],
-                    ),
+        Expanded(
+          child: _kmField(
+            controller: closingKmController,
+            hintText: 'Closing KM*',
+            enabled: true,
 
+            // Don't show TextFormField's default error
+            validator: (value) {
+              final error = _validateKm(value, 'Closing KM');
+
+              WidgetsBinding.instance.addPostFrameCallback((_) {
+                if (mounted && closingKmError != error) {
+                  setState(() {
+                    closingKmError = error;
+                  });
+                }
+              });
+
+              // Return null so TextFormField doesn't display error
+              return null;
+            },
+
+            onChanged: (value) {
+              setState(() {
+                closingKmError =
+                    _validateKm(value, 'Closing KM');
+              });
+            },
+          ),
+        ),
+      ],
+    ),
+
+    // Error gets full row width
+    if (closingKmError != null) ...[
+      SizedBox(height: 5.h),
+      Padding(
+        padding: EdgeInsets.only(
+          left: MediaQuery.of(context).size.width / 2,
+        ),
+        child: Text(
+          closingKmError!,
+          style: TextStyle(
+            color: Colors.red,
+            fontSize: 11.sp,
+          ),
+        ),
+      ),
+    ],
+  ],
+),
                     SizedBox(height: 14.h),
 
                     // ------------------------------------------------
@@ -425,25 +487,12 @@ class _LastForceOutScreenState extends State<LastForceOutScreen> {
       return 'Last time is not available';
     }
 
-    // Compare only hours and minutes.
-    //
-    // Example:
-    // Last Time = 02:00 AM
-    // New Time  = 01:00 PM
-    //
-    // 13:00 > 02:00 => VALID
-    //
-    // Last Time = 02:00 AM
-    // New Time  = 01:00 AM
-    //
-    // 01:00 < 02:00 => INVALID
-
     final lastMinutes = lastTime.hour * 60 + lastTime.minute;
 
     final newMinutes = newTime.hour * 60 + newTime.minute;
 
     if (newMinutes < lastMinutes) {
-      return 'New time cannot be less than last time';
+      return 'Out-Punch time can not be less than last Activity time';
     }
 
     return null;
@@ -491,17 +540,16 @@ class _LastForceOutScreenState extends State<LastForceOutScreen> {
     return null;
   }
 
+  String? closingKmError;
   String? _validateKm(String? value, String fieldName) {
     final text = value?.trim() ?? '';
 
-    // Empty field
     if (text.isEmpty) {
       return 'Please enter $fieldName';
     }
 
     final km = double.tryParse(text);
 
-    // Invalid number
     if (km == null) {
       return 'Please enter a valid $fieldName';
     }
@@ -509,7 +557,6 @@ class _LastForceOutScreenState extends State<LastForceOutScreen> {
     final openingText = openingKmController.text.trim();
     final openingKm = double.tryParse(openingText);
 
-    // Compare only when opening KM is available
     if (openingKm != null && km < openingKm) {
       return 'Closing KM cannot be less than Opening KM';
     }

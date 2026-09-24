@@ -6,56 +6,37 @@ class TalukaModel extends TalukaEntity {
     required super.name,
   });
 
-  factory TalukaModel.fromJson(dynamic json) {
-    if (json is! Map) {
-      return const TalukaModel(
-        talukaId: '',
-        name: '',
-      );
-    }
-
-    final id = _readValue(
-      json,
-      [
+  factory TalukaModel.fromJson(Map<String, dynamic> json) {
+    return TalukaModel(
+      talukaId: _getString(json, [
         'talukaId',
         'taluka_id',
+        'talukaid',
+        'fld_taluka_id',
+        'fld_talukaid',
         'id',
         'fld_id',
-        'fld_taluka_id',
-        'value',
-      ],
-    );
-
-    final name = _readValue(
-      json,
-      [
+      ]),
+      name: _getString(json, [
         'name',
         'taluka_name',
         'talukaName',
-        'fld_name',
         'fld_taluka_name',
-        'label',
-        'text',
-      ],
-    );
-
-    return TalukaModel(
-      talukaId: id,
-      name: name,
+        'fld_talukaname',
+        'fld_name',
+      ]),
     );
   }
 
-  static String _readValue(
-    Map json,
+  static String _getString(
+    Map<String, dynamic> json,
     List<String> keys,
   ) {
     for (final key in keys) {
-      if (json.containsKey(key) && json[key] != null) {
-        final value = json[key].toString().trim();
+      final value = json[key];
 
-        if (value.isNotEmpty) {
-          return value;
-        }
+      if (value != null && value.toString().trim().isNotEmpty) {
+        return value.toString().trim();
       }
     }
 

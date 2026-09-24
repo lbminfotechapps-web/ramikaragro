@@ -2,6 +2,8 @@ import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
 
+import 'package:geolocator/geolocator.dart';
+import 'package:solufine/core/location_tracking/background_location_service.dart';
 import 'package:solufine/core/theme/app_colors.dart';
 import 'package:solufine/core/secure_storage/secure_storage.dart';
 import 'package:solufine/core/utility/app_image_picker.dart';
@@ -62,7 +64,13 @@ class _PunchScreenState extends State<PunchScreen> {
 
   String? selectedVehicleId;
 
-  // bool get isPunchOut => widget.punchStat?.inOutStatus == '1';
+  String latitude = '';
+  String longitude = '';
+  String address = '';
+
+  Position? _punchInPosition;
+  String _punchInAddress = '';
+  int? _punchInUserId;
 
   @override
   @override
@@ -147,6 +155,7 @@ class _PunchScreenState extends State<PunchScreen> {
     }
 
     debugPrint('User ID: $userId');
+    _punchInUserId = userId;
 
     final vehicleTypeId = selectedVehicleId;
 
@@ -187,26 +196,32 @@ class _PunchScreenState extends State<PunchScreen> {
       // ============================================
       // LOCATION
       // ============================================
+
       final position = await LocationUtil.instance.getCurrentLocation();
 
-      String latitude = '';
-      String longitude = '';
-      String address = '';
-
       if (position != null) {
+        _punchInPosition = position;
+
         latitude = position.latitude.toString();
         longitude = position.longitude.toString();
 
         debugPrint('Latitude: $latitude');
         debugPrint('Longitude: $longitude');
+        debugPrint('Accuracy: ${position.accuracy}');
+        // debugPrint('Provider: ${position.provider}');
 
         address = await LocationUtil.instance.getAddress(
           position.latitude,
           position.longitude,
         );
 
+        _punchInAddress = address;
+
         debugPrint('Geo Address: $address');
       } else {
+        _punchInPosition = null;
+        _punchInAddress = '';
+
         debugPrint('Location: NOT AVAILABLE');
       }
 
@@ -404,15 +419,67 @@ class _PunchScreenState extends State<PunchScreen> {
 
       body: SafeArea(
         child: BlocConsumer<QuickAcessBloc, QuickAccessState>(
-          listener: (context, state) {
+          listener: (context, state) async {
             if (!isLoading || !_submissionSent) return;
 
-            if (state.quickAccessStatus == QuickAccessStatus.punchStatusSuccess) {
+            if (state.quickAccessStatus ==
+                QuickAccessStatus.punchStatusSuccess) {
+              debugPrint('========================================');
+              debugPrint('PUNCH API SUCCESS');
+              debugPrint('NOW SAVING LOCATION TO LOCAL DB');
+              debugPrint('========================================');
+
+              if (_punchInUserId != null && _punchInPosition != null) {
+                context.read<QuickAcessBloc>().add(
+                  SavePunchInLocationEvent(
+                    userId: _punchInUserId!,
+                    latitude: _punchInPosition!.latitude.toString(),
+                    longitude: _punchInPosition!.longitude.toString(),
+                    geoAddress: _punchInAddress,
+                    capturedAt: DateTime.now().millisecondsSinceEpoch,
+                    accuracy: _punchInPosition!.accuracy,
+                    provider: 'gps',
+                  ),
+                );
+
+                await BackgroundLocationService.start(userId: _punchInUserId!);
+
+                debugPrint('SavePunchInLocationEvent DISPATCHED');
+              } else {
+                debugPrint('PUNCH SUCCESS BUT LOCATION DATA NOT AVAILABLE');
+              }
+
               setState(() {
                 isLoading = false;
                 _submissionSent = false;
               });
 
+              AppDialog.show(
+                context: context,
+                type: DialogType.success,
+                title: 'Punch In Successful',
+                message: 'Your punch in has been submitted successfully.',
+                buttonText: 'OK',
+                onButtonPressed: () {
+                  Navigator.pop(context, true);
+                  // context.go(AppRouter.home);
+                },
+              );
+            }
+          },
+
+          /*
+          listener: (context, state) {
+            if (!isLoading || !_submissionSent) return;
+
+            if (state.quickAccessStatus ==
+                QuickAccessStatus.punchStatusSuccess) {
+              setState(() {
+                isLoading = false;
+                _submissionSent = false;
+              });
+
+       
               AppDialog.show(
                 context: context,
                 type: DialogType.success,
@@ -438,6 +505,8 @@ class _PunchScreenState extends State<PunchScreen> {
               );
             }
           },
+
+          */
           builder: (context, vehicleState) {
             final selectedVehicle = _selectedVehicle(vehicleState);
 
@@ -454,7 +523,6 @@ class _PunchScreenState extends State<PunchScreen> {
                           _vehicleDropdown(vehicleState),
                           SizedBox(height: 12.h),
 
-                      
                           if (selectedVehicle?.openingClosingKm != '0') ...[
                             _kmField(
                               controller: openingKmController,
@@ -465,7 +533,7 @@ class _PunchScreenState extends State<PunchScreen> {
                             ),
                             SizedBox(height: 14.h),
                           ],
- 
+
                           _textField(
                             controller: routeController,
                             hintText: 'Enter Route*',
@@ -485,7 +553,7 @@ class _PunchScreenState extends State<PunchScreen> {
                           _textField(
                             controller: remarkController,
                             hintText: 'Enter Remark',
-                          
+
                             icon: Icons.note_add_outlined,
                             maxLines: 1,
                           ),
@@ -680,22 +748,22 @@ class _PunchScreenState extends State<PunchScreen> {
     );
   }
 
-Widget _kmField({
-  required TextEditingController controller,
-  required String hintText,
-  required bool enabled,
-  required String? Function(String?) validator,
-}) {
-  return CustomTextFormField(
-    controller: controller,
-    hintText: hintText,
-    labelText: hintText,
-    prefixIcon: Icons.speed_outlined,
-    keyboardType: TextInputType.number,
-    enabled: enabled,
-    validator: enabled ? validator : null,
-  );
-}
+  Widget _kmField({
+    required TextEditingController controller,
+    required String hintText,
+    required bool enabled,
+    required String? Function(String?) validator,
+  }) {
+    return CustomTextFormField(
+      controller: controller,
+      hintText: hintText,
+      labelText: hintText,
+      prefixIcon: Icons.speed_outlined,
+      keyboardType: TextInputType.number,
+      enabled: enabled,
+      validator: enabled ? validator : null,
+    );
+  }
 
   String? _validateKm(String? value, String fieldName) {
     final text = value?.trim() ?? '';
@@ -736,22 +804,23 @@ Widget _kmField({
   //   return null;
   // }
 
-Widget _textField({
-  required TextEditingController controller,
-  required String hintText,
-  required IconData icon,
-  String? Function(String?)? validator,
-  int maxLines = 1,
-}) {
-  return CustomTextFormField(
-    controller: controller,
-    hintText: hintText,
-    labelText: hintText,
-    prefixIcon: icon,
-    maxLines: maxLines,
-    validator: validator,
-  );
-}
+  Widget _textField({
+    required TextEditingController controller,
+    required String hintText,
+    required IconData icon,
+    String? Function(String?)? validator,
+    int maxLines = 1,
+  }) {
+    return CustomTextFormField(
+      controller: controller,
+      hintText: hintText,
+      labelText: hintText,
+      prefixIcon: icon,
+      maxLines: maxLines,
+      validator: validator,
+    );
+  }
+
   Widget _uploadPhotoCard() {
     return Container(
       padding: EdgeInsets.fromLTRB(16.w, 6.h, 16.w, 16.h),

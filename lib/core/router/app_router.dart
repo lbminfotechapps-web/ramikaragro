@@ -55,6 +55,7 @@ import 'package:solufine/features/reports/presentation/pages/visit_summary_page.
 import 'package:solufine/features/reports/presentation/bloc/employee_output_bloc.dart';
 import 'package:solufine/features/reports/presentation/bloc/visit_report_bloc.dart';
 import 'package:solufine/features/sales_targrt_achievement/presentation/pages/sales_wise_target_page.dart';
+import 'package:solufine/features/salesreturn/presentation/pages/sales_return_page.dart';
 import 'package:solufine/features/salesreturnhistory/presentation/presentation/sales_return_history_page.dart';
 import 'package:solufine/features/scheme/presentation/pages/schemescreen.dart';
 import 'package:solufine/features/splash/splash_screen.dart';
@@ -109,6 +110,7 @@ class AppRouter {
   static const String teamExpenseList = '/teamExpenseList';
   static const String salesTargetAndAchievement = '/salesTargetAndAchievement';
   static const String placeOrder = '/placeOrder';
+  static const String salesReturn = '/salesReturn';
 
   static const String orderHistoy = '/orderHistoy';
   static const String dispatchHistoy = '/dispatchHistoy';
@@ -252,6 +254,15 @@ class AppRouter {
         },
       ),
 
+
+      GoRoute(
+        path: teamExpenseList,
+        name: 'teamExpenseList',
+        builder: (context, state) {
+          return const TeamExpensePage();
+        },
+      ),
+
       GoRoute(
         path: addCollection,
         name: 'addCollection',
@@ -292,6 +303,16 @@ class AppRouter {
         },
       ),
 
+
+       GoRoute(
+        path: salesReturn,
+        name: 'salesReturn',
+        builder: (context, state) {
+          return const SalesReturnPage();
+        },
+      ),
+
+
       GoRoute(
         path: cropSchedule,
         name: 'cropSchedule',
@@ -308,14 +329,8 @@ class AppRouter {
         },
       ),
 
-      GoRoute(
-        path: teamExpenseList,
-        name: 'teamExpenseList',
-        builder: (context, state) {
-          return const TeamExpensePage();
-        },
-      ),
 
+      
       GoRoute(
         path: farmers,
         name: 'farmers',
@@ -349,9 +364,13 @@ class AppRouter {
           debugPrint('PRODUCT NAME    : $productName');
           debugPrint('========================================');
 
-          return EnquiryPage(productId: productId, productName: productName);
+          return EnquiryPage(
+            productId: productId,
+            productName: productName,
+          );
         },
       ),
+  
 
 
       GoRoute(

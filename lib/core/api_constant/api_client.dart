@@ -46,6 +46,8 @@ class ApiClient {
       "/getTalukaWiseOutletForOrderNew";
   static const String getCategoryproductDetails =
       "/get_category_product_details";
+
+  static const String getProductName = "/get_product_name";
   static const String getCollectionList = "/getCollectionList";
   static const String getCollectionWiseTarget = '/getCollectionWiseTarget';
 
@@ -71,11 +73,11 @@ class ApiClient {
   static const String getOrderHistory = '/getOrderList';
 
   static const String getGodown = "/get_godown";
-
   static const String getCategory = "/getCategory";
-
   static const String getCatgoryProducts = "/getCatgoryProducts";
   static const String placeOrder = "/placeOrder";
+  static const String submitSalesReturnRequest = "/submitSalesReturnRequest";
+
   static const String getProductDetailRatesKvat = "/getProductDetailRatesKvat";
   static const String getEmployeeStatus = '/getEmployeeStatus';
 
@@ -100,4 +102,5 @@ class ApiClient {
   static const String upcomingNextFollowup = "/upcoming_next_followup";
 
   static const String submitEnquiryDetails = '/submit_enquiry_details';
+  static const String trackLocationStore = '/addLocation';
 }

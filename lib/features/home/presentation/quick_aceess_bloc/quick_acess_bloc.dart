@@ -1,5 +1,7 @@
 import 'dart:async';
+import 'dart:math' as math;
 
+import 'package:solufine/core/location_tracking/location_repository.dart';
 import 'package:solufine/features/home/doman/home_usecases/get_punch_status_usecase.dart';
 import 'package:solufine/features/home/doman/home_entity/vehicle_type_entity.dart';
 import 'package:solufine/features/home/presentation/quick_aceess_bloc/quick_access_event.dart';
@@ -10,11 +12,18 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 class QuickAcessBloc extends Bloc<QuickAccessEvent, QuickAccessState> {
   final GetPunchStatusUsecase getPunchStatusUsecase;
 
-  QuickAcessBloc(this.getPunchStatusUsecase) : super(const QuickAccessState()) {
+  final LocationRepository repository;
+
+  QuickAcessBloc(this.getPunchStatusUsecase, this.repository)
+    : super(const QuickAccessState()) {
     on<PunchStatEvent>(_onGetPunchStatus);
+    on<SavePunchInLocationEvent>(_onSavePunchInLocation);
     on<VehicleTypeEvent>(_onGetVehicleType);
     on<PunchInOutDetailsAddEvent>(_onPunchInOutAddDetails);
     on<ShareLocationEvent>(_onShareLocationAdd);
+
+    on<SaveNextLocationEvent>(_onSaveNextLocation);
+    on<StoreTrackLocation>(_onStoretrackLocation);
   }
   String? punchStatus;
   Future<void> _onGetPunchStatus(
@@ -173,6 +182,9 @@ class QuickAcessBloc extends Bloc<QuickAccessEvent, QuickAccessState> {
         } else {
           debugPrint('startingKmImage: NOT PROVIDED');
         }
+        debugPrint('PUNCH IN API SUCCESS');
+        debugPrint('Saving Punch In location locally');
+        debugPrint('========================================');
       }
       // ============================================================
       // NORMAL OUT PUNCH
@@ -304,6 +316,185 @@ class QuickAcessBloc extends Bloc<QuickAccessEvent, QuickAccessState> {
     }
   }
 
+  Future<void> _onSavePunchInLocation(
+    SavePunchInLocationEvent event,
+    Emitter<QuickAccessState> emit,
+  ) async {
+    try {
+      debugPrint('========================================');
+      debugPrint('LOCATION TRACKING');
+      debugPrint('Saving Punch In location');
+      debugPrint('User ID: ${event.userId}');
+      debugPrint('Latitude: ${event.latitude}');
+      debugPrint('Longitude: ${event.longitude}');
+      debugPrint('Address: ${event.geoAddress}');
+      debugPrint('Accuracy: ${event.accuracy}');
+      debugPrint('Provider: ${event.provider}');
+      debugPrint('Timestamp: ${event.capturedAt}');
+      debugPrint('========================================');
+
+      await repository.saveLocation(
+        userId: event.userId,
+        latitude: event.latitude,
+        longitude: event.longitude,
+        geoAddress: event.geoAddress,
+        capturedAt: event.capturedAt,
+        accuracy: event.accuracy,
+        provider: event.provider,
+        distance: 0.0,
+      );
+
+      debugPrint('LOCATION TRACKING: Punch In location saved');
+
+      // TEMPORARY VERIFICATION
+      final savedLocations = await repository.getAllLocations(event.userId);
+
+      debugPrint('========================================');
+      debugPrint('SAVED LOCATION RECORDS');
+      debugPrint('Total records: ${savedLocations.length}');
+
+      for (final location in savedLocations) {
+        debugPrint(
+          'ID: ${location.id} | '
+          'UserId: ${location.userId} | '
+          'Lat: ${location.latitude} | '
+          'Lng: ${location.longitude} | '
+          'Address: ${location.geoAddress} | '
+          'Time: ${location.capturedAt} | '
+          'Accuracy: ${location.accuracy} | '
+          'Provider: ${location.provider} | '
+          'Distance: ${location.distance}',
+        );
+      }
+
+      debugPrint('========================================');
+
+      emit(
+        state.copyWith(
+          quickAccessStatus: QuickAccessStatus.locationTrackingSucess,
+          errorMessage: null,
+        ),
+      );
+    } catch (error, stackTrace) {
+      debugPrint('LOCATION TRACKING ERROR: $error');
+      debugPrint('STACK TRACE: $stackTrace');
+
+      emit(
+        state.copyWith(
+          quickAccessStatus: QuickAccessStatus.failure,
+          errorMessage: error.toString(),
+        ),
+      );
+    }
+  }
+
+  Future<void> _onSaveNextLocation(
+    SaveNextLocationEvent event,
+    Emitter<QuickAccessState> emit,
+  ) async {
+    try {
+      debugPrint('========================================');
+      debugPrint('NEXT LOCATION TRACKING');
+      debugPrint('Saving next location');
+      debugPrint('User ID: ${event.userId}');
+      debugPrint('Latitude: ${event.latitude}');
+      debugPrint('Longitude: ${event.longitude}');
+      debugPrint('Address: ${event.geoAddress}');
+      debugPrint('Accuracy: ${event.accuracy}');
+      debugPrint('Provider: ${event.provider}');
+      debugPrint('Timestamp: ${event.capturedAt}');
+      debugPrint('========================================');
+
+      final previousLocation = await repository.getLastLocation(event.userId);
+
+      double distance = 0.0;
+
+      if (previousLocation != null) {
+        final previousLatitude = double.tryParse(previousLocation.latitude);
+
+        final previousLongitude = double.tryParse(previousLocation.longitude);
+
+        final currentLatitude = double.tryParse(event.latitude);
+
+        final currentLongitude = double.tryParse(event.longitude);
+
+        if (previousLatitude != null &&
+            previousLongitude != null &&
+            currentLatitude != null &&
+            currentLongitude != null) {
+          distance = _calculateDistanceInMeters(
+            previousLatitude,
+            previousLongitude,
+            currentLatitude,
+            currentLongitude,
+          );
+        }
+      }
+
+      debugPrint(
+        'Distance from previous location: '
+        '${distance.toStringAsFixed(2)} meters',
+      );
+
+      await repository.saveLocation(
+        userId: event.userId,
+        latitude: event.latitude,
+        longitude: event.longitude,
+        geoAddress: event.geoAddress,
+        capturedAt: event.capturedAt,
+        accuracy: event.accuracy,
+        provider: event.provider,
+        distance: distance,
+      );
+
+      debugPrint('NEXT LOCATION SAVED SUCCESSFULLY');
+
+      emit(
+        state.copyWith(
+          quickAccessStatus: QuickAccessStatus.locationTrackingSucess,
+          errorMessage: null,
+        ),
+      );
+    } catch (error, stackTrace) {
+      debugPrint('NEXT LOCATION ERROR: $error');
+      debugPrint('STACK TRACE: $stackTrace');
+
+      emit(
+        state.copyWith(
+          quickAccessStatus: QuickAccessStatus.failure,
+          errorMessage: error.toString(),
+        ),
+      );
+    }
+  }
+
+  double _calculateDistanceInMeters(
+    double latitude1,
+    double longitude1,
+    double latitude2,
+    double longitude2,
+  ) {
+    const earthRadius = 6371000.0;
+
+    final lat1 = latitude1 * math.pi / 180;
+    final lat2 = latitude2 * math.pi / 180;
+
+    final deltaLat = (latitude2 - latitude1) * math.pi / 180;
+
+    final deltaLongitude = (longitude2 - longitude1) * math.pi / 180;
+
+    final a =
+        math.sin(deltaLat / 2) * math.sin(deltaLat / 2) +
+        math.cos(lat1) *
+            math.cos(lat2) *
+            math.sin(deltaLongitude / 2) *
+            math.sin(deltaLongitude / 2);
+
+    final c = 2 * math.atan2(math.sqrt(a), math.sqrt(1 - a));
+
+    return earthRadius * c;
+  }
+
   FutureOr<void> _onShareLocationAdd(
     ShareLocationEvent event,
     Emitter<QuickAccessState> emit,
@@ -376,6 +567,121 @@ class QuickAcessBloc extends Bloc<QuickAccessEvent, QuickAccessState> {
     } catch (e, stackTrace) {
       debugPrint('========================================');
       debugPrint('SHARE LOCATION ERROR');
+      debugPrint('$e');
+      debugPrint('STACK TRACE: $stackTrace');
+      debugPrint('========================================');
+
+      emit(
+        state.copyWith(
+          quickAccessStatus: QuickAccessStatus.failure,
+          errorMessage: e.toString(),
+        ),
+      );
+    }
+  }
+
+  FutureOr<void> _onStoretrackLocation(
+    StoreTrackLocation event,
+    Emitter<QuickAccessState> emit,
+  ) async {
+    emit(
+      state.copyWith(
+        quickAccessStatus: QuickAccessStatus.loading,
+        errorMessage: null,
+      ),
+    );
+
+    try {
+      final Map<String, dynamic> jsonData = <String, dynamic>{
+        'userId': event.userId,
+        'dailyTranId': event.dailyTranId,
+        'strAllLocations': event.strAllLocations,
+      };
+
+      debugPrint('========================================');
+      debugPrint('STORE LOCATION REQUEST');
+      debugPrint('========================================');
+
+      jsonData.forEach((key, value) {
+        debugPrint('$key : $value');
+      });
+
+      debugPrint('========================================');
+
+      final result = await getPunchStatusUsecase.storeLocationData(jsonData);
+
+      debugPrint('========================================');
+      debugPrint('STORE LOCATION RESPONSE');
+      debugPrint('========================================');
+      debugPrint('Status: ${result}');
+
+      debugPrint('========================================');
+
+      if (result['status'] == true) {
+        debugPrint('========================================');
+        debugPrint('STORE LOCATION API SUCCESS');
+        debugPrint('Now cleaning local location records...');
+        debugPrint('========================================');
+
+        final int? parsedUserId = int.tryParse(event.userId);
+
+        if (parsedUserId != null) {
+          // --------------------------------------------------------
+          // DELETE EVERYTHING EXCEPT LATEST LOCATION
+          // --------------------------------------------------------
+
+          final int deletedCount = await repository.deleteAllExceptLastLocation(
+            parsedUserId,
+          );
+
+          debugPrint('========================================');
+          debugPrint('LOCATION CLEANUP SUCCESS');
+          debugPrint('DELETED RECORDS: $deletedCount');
+          debugPrint('LAST LOCATION KEPT');
+          debugPrint('========================================');
+
+          // --------------------------------------------------------
+          // TEMPORARY VERIFICATION
+          // --------------------------------------------------------
+
+          final remainingLocations = await repository.getAllLocations(
+            parsedUserId,
+          );
+
+          debugPrint('========================================');
+          debugPrint('REMAINING LOCATION RECORDS');
+          debugPrint('TOTAL: ${remainingLocations.length}');
+
+          for (final location in remainingLocations) {
+            debugPrint(
+              'ID: ${location.id} | '
+              'Lat: ${location.latitude} | '
+              'Lng: ${location.longitude} | '
+              'Time: ${location.capturedAt} | '
+              'Accuracy: ${location.accuracy} | '
+              'Provider: ${location.provider} | '
+              'Address: ${location.geoAddress} | '
+              'Distance: ${location.distance}',
+            );
+          }
+
+          debugPrint('========================================');
+        } else {
+          debugPrint('LOCATION CLEANUP: Invalid userId ${event.userId}');
+        }
+
+        emit(
+          state.copyWith(
+            quickAccessStatus: QuickAccessStatus.locationAddedSucces,
+            errorMessage: null,
+          ),
+        );
+      } else {
+        emit(state.copyWith(quickAccessStatus: QuickAccessStatus.failure));
+      }
+    } catch (e, stackTrace) {
+      debugPrint('========================================');
+      debugPrint('STORE LOCATION ERROR');
       debugPrint('$e');
       debugPrint('STACK TRACE: $stackTrace');
       debugPrint('========================================');
