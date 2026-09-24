@@ -1,11 +1,13 @@
 import 'package:solufine/features/dealer/data/models/DealerListModel.dart';
-import 'package:solufine/features/farmer/farmerlist/data/model/farmerlist_model.dart';
+
 
 enum DealerListStatus {
   initial,
   loading,
   success,
   failure,
+  addDealerloading,
+  addDealerLocationSuccess
 }
 
 class DealerListState {

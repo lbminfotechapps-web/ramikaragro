@@ -1,18 +1,15 @@
 import 'dart:convert';
 
+import 'package:flutter/material.dart';
 import 'package:solufine/core/api_constant/api_client.dart';
 import 'package:solufine/core/api_constant/dio_client.dart';
 import 'package:solufine/features/dealer/data/models/DealerListModel.dart';
 import 'package:dio/dio.dart';
 
-
-
 class DealerListDataSource {
   final DioClient dioClient;
 
-  DealerListDataSource({
-    required this.dioClient,
-  });
+  DealerListDataSource({required this.dioClient});
 
   Future<List<DealerListModel>> fetchDealerList(
     String userId,
@@ -101,17 +98,13 @@ class DealerListDataSource {
         } catch (e) {
           print('JSON DECODE ERROR: $e');
 
-          throw const FormatException(
-            'Invalid JSON response from dealer API',
-          );
+          throw const FormatException('Invalid JSON response from dealer API');
         }
       }
 
       // Response must be Map
       if (responseData is! Map<String, dynamic>) {
-        print(
-          'INVALID RESPONSE TYPE: ${responseData.runtimeType}',
-        );
+        print('INVALID RESPONSE TYPE: ${responseData.runtimeType}');
 
         throw FormatException(
           'Dealer API response must be a JSON object. '
@@ -214,20 +207,18 @@ class DealerListDataSource {
             print('DISTANCE    : ${dealer.outletDistance}');
           } else if (item is Map) {
             // Handles Map<dynamic, dynamic>
-            final Map<String, dynamic> dealerJson =
-                Map<String, dynamic>.from(item);
+            final Map<String, dynamic> dealerJson = Map<String, dynamic>.from(
+              item,
+            );
 
-            final dealer =
-                DealerListModel.fromJson(dealerJson);
+            final dealer = DealerListModel.fromJson(dealerJson);
 
             dealers.add(dealer);
 
             print('DEALER ID   : ${dealer.outletId}');
             print('DEALER NAME : ${dealer.outletName}');
           } else {
-            print(
-              'SKIPPED INVALID DEALER TYPE: ${item.runtimeType}',
-            );
+            print('SKIPPED INVALID DEALER TYPE: ${item.runtimeType}');
           }
         } catch (e, stackTrace) {
           print('');
@@ -256,11 +247,9 @@ class DealerListDataSource {
 
       return dealers;
     }
-
     // ==================================================
     // DIO ERROR
     // ==================================================
-
     on DioException catch (e, stackTrace) {
       print('');
       print('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!');
@@ -324,31 +313,25 @@ class DealerListDataSource {
 
       if (serverData is Map) {
         if (serverData['message'] != null) {
-          errorMessage =
-              serverData['message'].toString();
+          errorMessage = serverData['message'].toString();
         }
 
         if (serverData['error'] != null) {
-          errorMessage =
-              serverData['error'].toString();
+          errorMessage = serverData['error'].toString();
         }
 
         if (serverData['msg'] != null) {
-          errorMessage =
-              serverData['msg'].toString();
+          errorMessage = serverData['msg'].toString();
         }
-      } else if (serverData is String &&
-          serverData.trim().isNotEmpty) {
+      } else if (serverData is String && serverData.trim().isNotEmpty) {
         errorMessage = serverData;
       }
 
       throw Exception(errorMessage);
     }
-
     // ==================================================
     // FORMAT ERROR
     // ==================================================
-
     on FormatException catch (e, stackTrace) {
       print('');
       print('============================================');
@@ -360,15 +343,11 @@ class DealerListDataSource {
 
       print('============================================');
 
-      throw Exception(
-        'Invalid dealer API response: ${e.message}',
-      );
+      throw Exception('Invalid dealer API response: ${e.message}');
     }
-
     // ==================================================
     // OTHER ERROR
     // ==================================================
-
     catch (e, stackTrace) {
       print('');
       print('============================================');
@@ -380,6 +359,118 @@ class DealerListDataSource {
       print('STACK     : $stackTrace');
 
       print('============================================');
+
+      rethrow;
+    }
+  }
+
+  Future<Map<String, dynamic>> addDealerLocation(
+    Map<String, dynamic> jsonData,
+  ) async {
+    try {
+      // ============================================================
+      // PRINT REQUEST
+      // ============================================================
+
+      debugPrint('==========================================');
+      debugPrint('ADD DEALER LOCATION REQUEST');
+      debugPrint('==========================================');
+
+      jsonData.forEach((key, value) {
+        debugPrint('$key : $value');
+      });
+
+      debugPrint('==========================================');
+
+      // ============================================================
+      // DIRECTLY CONVERT jsonData TO FORM DATA
+      // ============================================================
+
+      final FormData formData = FormData.fromMap(jsonData);
+
+      // ============================================================
+      // API CALL
+      // ============================================================
+
+      final response = await dioClient.client.post(
+        ApiClient.addDealerLocation,
+        data: formData,
+      );
+
+      // ============================================================
+      // RESPONSE
+      // ============================================================
+
+      debugPrint('==========================================');
+      debugPrint('ADD DEALER LOCATION RESPONSE');
+      debugPrint('==========================================');
+
+      debugPrint('STATUS CODE: ${response.statusCode}');
+      debugPrint('RESPONSE: ${response.data}');
+
+      debugPrint('==========================================');
+
+      dynamic data = response.data;
+
+      // ============================================================
+      // IF RESPONSE COMES AS STRING
+      // ============================================================
+
+      if (data is String) {
+        try {
+          data = jsonDecode(data);
+        } on FormatException {
+          throw const FormatException(
+            'Invalid JSON response from Add Dealer Location API',
+          );
+        }
+      }
+
+      // ============================================================
+      // CHECK RESPONSE TYPE
+      // ============================================================
+
+      if (data is! Map) {
+        throw const FormatException(
+          'Add Dealer Location API response is not a JSON object',
+        );
+      }
+
+      // ============================================================
+      // RETURN RESPONSE
+      // ============================================================
+
+      final Map<String, dynamic> result = Map<String, dynamic>.from(data);
+
+      debugPrint('==========================================');
+      debugPrint('PARSED RESPONSE');
+      debugPrint('status  : ${result['status']}');
+      debugPrint('message : ${result['message']}');
+      debugPrint('result  : ${result['result']}');
+      debugPrint('==========================================');
+
+      return result;
+    } on DioException catch (e) {
+      debugPrint('==========================================');
+      debugPrint('ADD DEALER LOCATION DIO ERROR');
+      debugPrint('==========================================');
+
+      debugPrint('MESSAGE: ${e.message}');
+      debugPrint('STATUS CODE: ${e.response?.statusCode}');
+      debugPrint('RESPONSE: ${e.response?.data}');
+
+      debugPrint('==========================================');
+
+      rethrow;
+    } catch (e, stackTrace) {
+      debugPrint('==========================================');
+      debugPrint('ADD DEALER LOCATION ERROR');
+      debugPrint('==========================================');
+
+      debugPrint('ERROR: $e');
+      debugPrint('STACK TRACE: $stackTrace');
+
+      debugPrint('==========================================');
 
       rethrow;
     }

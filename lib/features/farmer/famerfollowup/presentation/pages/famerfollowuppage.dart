@@ -1,6 +1,9 @@
 // This is my updated code on date  : 24-09-2026
 import 'dart:io';
 
+import 'package:solufine/core/di/auth_di.dart';
+import 'package:solufine/core/location_tracking/app_database.dart';
+import 'package:solufine/core/location_tracking/location_repository.dart';
 import 'package:solufine/core/router/app_router.dart';
 import 'package:solufine/core/secure_storage/secure_storage.dart';
 import 'package:solufine/core/utility/appdialog.dart';
@@ -18,6 +21,8 @@ import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:solufine/features/home/presentation/quick_aceess_bloc/quick_access_event.dart';
+import 'package:solufine/features/home/presentation/quick_aceess_bloc/quick_acess_bloc.dart';
 
 class FamerFollowupPage extends StatefulWidget {
   final String farmerId;
@@ -611,6 +616,77 @@ class _FamerFollowupPageState extends State<FamerFollowupPage> {
       );
   }
 
+  Future<String> _getStoredLocations() async {
+    try {
+      final int? parsedUserId = int.tryParse(userId.toString());
+
+      if (parsedUserId == null) {
+        debugPrint('LOCATION: Invalid userId = $userId');
+        return '[]';
+      }
+
+      final LocationRepository repository = sl<LocationRepository>();
+
+      final List<LocationHistoryData> locations = await repository
+          .getAllLocations(parsedUserId);
+
+      debugPrint('========================================');
+      debugPrint('DEALER VISIT - STORED LOCATIONS');
+      debugPrint('TOTAL LOCATIONS: ${locations.length}');
+      debugPrint('========================================');
+
+      for (final location in locations) {
+        debugPrint(
+          'ID: ${location.id} | '
+          'Lat: ${location.latitude} | '
+          'Lng: ${location.longitude} | '
+          'Time: ${location.capturedAt} | '
+          'Accuracy: ${location.accuracy} | '
+          'Provider: ${location.provider} | '
+          'Address: ${location.geoAddress} | '
+          'Distance: ${location.distance}',
+        );
+      }
+
+      // ============================================================
+      // CREATE DATA FOR STORE LOCATION API
+      // ============================================================
+
+      final List<Map<String, dynamic>> locationList = locations.map((location) {
+        return {
+          'latitude': location.latitude,
+          'longitude': location.longitude,
+          'time': location.capturedAt,
+          'accuracy': location.accuracy,
+          'provider': location.provider,
+          'address': location.geoAddress,
+          'distance': location.distance,
+        };
+      }).toList();
+
+      // ============================================================
+      // JSON ARRAY -> STRING
+      // ============================================================
+
+      final String strAllLocations = jsonEncode(locationList);
+
+      debugPrint('========================================');
+      debugPrint('STR ALL LOCATIONS');
+      debugPrint('TOTAL: ${locations.length}');
+      debugPrint(strAllLocations);
+      debugPrint('========================================');
+
+      return strAllLocations;
+    } catch (e, stackTrace) {
+      debugPrint('========================================');
+      debugPrint('GET STORED LOCATIONS ERROR');
+      debugPrint('$e');
+      debugPrint('$stackTrace');
+      debugPrint('========================================');
+
+      return '[]';
+    }
+  }
   // ==========================================================
   // BUILD
   // ==========================================================
@@ -618,13 +694,30 @@ class _FamerFollowupPageState extends State<FamerFollowupPage> {
   @override
   Widget build(BuildContext context) {
     return BlocListener<FamerfollowupBloc, FamerfollowupState>(
-      listener: (context, state) {
+      listener: (context, state) async {
         // ----------------------------------------------------
         // SUCCESS
         // ----------------------------------------------------
 
         if (state.status == FamerfollowupStatus.farmerFollowUpSuccess) {
-          _clearCapturedImage();
+          debugPrint('DAILY TRAN ID FROM STATE: ${state.dailyTranId}');
+
+          final String strAllLocations = await _getStoredLocations();
+          debugPrint('========================================');
+          debugPrint('CALLING STORE TRACK LOCATION API');
+          debugPrint('USER ID: $userId');
+          debugPrint('DAILY TRAN ID: ${state.dailyTranId}');
+          debugPrint('STR ALL LOCATIONS: $strAllLocations');
+          debugPrint('========================================');
+
+          context.read<QuickAcessBloc>().add(
+            StoreTrackLocation(
+              userId.toString(),
+              state.dailyTranId!,
+              strAllLocations,
+            ),
+          );
+
           AppDialog.show(
             context: context,
             type: DialogType.success,
@@ -658,49 +751,7 @@ class _FamerFollowupPageState extends State<FamerFollowupPage> {
           showBackButton: true,
           onBackTap: () => Navigator.pop(context),
         ),
-        // appBar: AppBar(
-        //   elevation: 0,
-        //   backgroundColor: Colors.white,
-        //   surfaceTintColor: Colors.white,
 
-        //   leading: IconButton(
-        //     icon: const Icon(
-        //       Icons.arrow_back_ios_new_rounded,
-        //       size: 20,
-        //       color: Color(0xFF172B24),
-        //     ),
-        //     onPressed: () => Navigator.pop(context),
-        //   ),
-
-        //   title: const Column(
-        //     crossAxisAlignment: CrossAxisAlignment.start,
-        //     children: [
-        //       Text(
-        //         'Follow-up',
-        //         style: TextStyle(
-        //           color: Color(0xFF172B24),
-        //           fontSize: 19,
-        //           fontWeight: FontWeight.w700,
-        //         ),
-        //       ),
-
-        //       SizedBox(height: 2),
-
-        //       Text(
-        //         'Add farmer follow-up',
-        //         style: TextStyle(
-        //           color: Color(0xFF7A8983),
-        //           fontSize: 12,
-        //           fontWeight: FontWeight.w400,
-        //         ),
-        //       ),
-        //     ],
-        //   ),
-        // ),
-
-        // ====================================================
-        // BODY
-        // ====================================================
         body: SafeArea(
           child: Form(
             key: _formKey,
