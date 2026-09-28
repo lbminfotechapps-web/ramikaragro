@@ -14,7 +14,7 @@ import 'package:solufine/features/salesreturn/domain/entities/product_rate_entit
 class OrderPreviewSheet extends StatelessWidget {
   final DealerEntity dealer;
   final GodownEntity godown;
-  final CategoryEntity category;
+ // final CategoryEntity category;
   final List<ProductEntity> products;
 
   final Map<String, Map<String, int>> packingQuantities;
@@ -30,7 +30,7 @@ class OrderPreviewSheet extends StatelessWidget {
     super.key,
     required this.dealer,
     required this.godown,
-    required this.category,
+   // required this.category,
     required this.products,
     required this.packingQuantities,
     required this.selectedRates,
@@ -753,19 +753,19 @@ class OrderPreviewSheet extends StatelessWidget {
                           5.r,
                         ),
                       ),
-                      child: Text(
-                        category.name,
-                        maxLines: 1,
-                        overflow:
-                            TextOverflow.ellipsis,
-                        style: TextStyle(
-                          fontSize: 8.5.sp,
-                          fontWeight:
-                              FontWeight.w700,
-                          color:
-                              AppColors.primary,
-                        ),
-                      ),
+                      // child: Text(
+                      //   category.name,
+                      //   maxLines: 1,
+                      //   overflow:
+                      //       TextOverflow.ellipsis,
+                      //   style: TextStyle(
+                      //     fontSize: 8.5.sp,
+                      //     fontWeight:
+                      //         FontWeight.w700,
+                      //     color:
+                      //         AppColors.primary,
+                      //   ),
+                      // ),
                     ),
                   ],
                 ),

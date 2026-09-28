@@ -45,11 +45,13 @@ class PlaceOrderPage extends StatefulWidget {
 class _PlaceOrderPageState extends State<PlaceOrderPage> {
   int? userId;
   bool isLoadingUser = true;
-
   @override
   void initState() {
     super.initState();
     _loadUser();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+    });
   }
 
   Future<void> _loadUser() async {
@@ -68,9 +70,7 @@ class _PlaceOrderPageState extends State<PlaceOrderPage> {
         return;
       }
 
-      final id = int.tryParse(
-        userData['user_id']?.toString() ?? '',
-      );
+      final id = int.tryParse(userData['user_id']?.toString() ?? '');
 
       if (!mounted) return;
 
@@ -96,9 +96,7 @@ class _PlaceOrderPageState extends State<PlaceOrderPage> {
       return const Scaffold(
         backgroundColor: AppColors.background,
         body: Center(
-          child: CircularProgressIndicator(
-            color: AppColors.primary,
-          ),
+          child: CircularProgressIndicator(color: AppColors.primary),
         ),
       );
     }
@@ -151,16 +149,9 @@ class _PlaceOrderPageState extends State<PlaceOrderPage> {
 
     return BlocProvider(
       create: (_) {
-        return sl<PlaceOrderBloc>()
-          ..add(
-            LoadPlaceOrderEvent(
-              userId: userId!,
-            ),
-          );
+        return sl<PlaceOrderBloc>()..add(LoadPlaceOrderEvent(userId: userId!));
       },
-      child: _PlaceOrderView(
-        userId: userId!,
-      ),
+      child: _PlaceOrderView(userId: userId!),
     );
   }
 }
@@ -172,9 +163,7 @@ class _PlaceOrderPageState extends State<PlaceOrderPage> {
 class _PlaceOrderView extends StatefulWidget {
   final int userId;
 
-  const _PlaceOrderView({
-    required this.userId,
-  });
+  const _PlaceOrderView({required this.userId});
 
   @override
   State<_PlaceOrderView> createState() => _PlaceOrderViewState();
@@ -185,14 +174,15 @@ class _PlaceOrderViewState extends State<_PlaceOrderView> {
   // CONTROLLERS
   // ===========================================================================
 
-  final TextEditingController dealerController =
-      TextEditingController();
+  final TextEditingController dealerController = TextEditingController();
 
-  final TextEditingController remarkController =
-      TextEditingController();
+  final TextEditingController remarkController = TextEditingController();
 
-  final SignatureController signatureController =
-      SignatureController(
+  final TextEditingController productSearchController = TextEditingController();
+
+  String productSearchText = '';
+
+  final SignatureController signatureController = SignatureController(
     penStrokeWidth: 2,
     penColor: Colors.black,
   );
@@ -217,13 +207,19 @@ class _PlaceOrderViewState extends State<_PlaceOrderView> {
   // ALL PRODUCTS FROM SELECTED CATEGORIES
   // ===========================================================================
 
-  /// Products loaded for all selected categories.
-  ///
-  /// Your Bloc currently replaces state.products whenever
-  /// GetProductsEvent is called.
+
   ///
   /// Therefore we keep our own accumulated list here.
   final List<ProductEntity> allCategoryProducts = [];
+
+  void _loadAllProducts() {
+    debugPrint('========================================');
+    debugPrint('LOAD ALL PRODUCTS');
+    debugPrint('CATEGORY ID = EMPTY');
+    debugPrint('========================================');
+
+    context.read<PlaceOrderBloc>().add(const GetProductsEvent(categoryId: ''));
+  }
 
   // ===========================================================================
   // PRODUCT -> SELECTED RATES
@@ -251,6 +247,7 @@ class _PlaceOrderViewState extends State<_PlaceOrderView> {
   void dispose() {
     dealerController.dispose();
     remarkController.dispose();
+    productSearchController.dispose();
     signatureController.dispose();
 
     super.dispose();
@@ -268,20 +265,14 @@ class _PlaceOrderViewState extends State<_PlaceOrderView> {
       final String productId = product.id.toString();
 
       final Map<String, int> packingQuantities =
-          currentState.packingQuantities[productId] ??
-              <String, int>{};
+          currentState.packingQuantities[productId] ?? <String, int>{};
 
-      final bool hasQuantity =
-          packingQuantities.values.any(
+      final bool hasQuantity = packingQuantities.values.any(
         (quantity) => quantity > 0,
       );
 
       if (hasQuantity) {
-        bloc.add(
-          RemoveProductEvent(
-            productId: product.id,
-          ),
-        );
+        bloc.add(RemoveProductEvent(productId: product.id));
       }
     }
 
@@ -321,6 +312,21 @@ class _PlaceOrderViewState extends State<_PlaceOrderView> {
     }
   }
 
+  List<ProductEntity> _getFilteredProducts() {
+    final String search = productSearchText.trim().toLowerCase();
+
+    // No search text means show all products.
+    if (search.isEmpty) {
+      return allCategoryProducts;
+    }
+
+    return allCategoryProducts.where((product) {
+      final String productName = product.name.trim().toLowerCase();
+
+      return productName.contains(search);
+    }).toList();
+  }
+
   // ===========================================================================
   // SEARCH DEALER
   // ===========================================================================
@@ -333,16 +339,9 @@ class _PlaceOrderViewState extends State<_PlaceOrderView> {
     }
 
     context.read<PlaceOrderBloc>().add(
-          SearchDealerEvent(
-            userId: widget.userId,
-            searchText: searchText,
-          ),
-        );
+      SearchDealerEvent(userId: widget.userId, searchText: searchText),
+    );
   }
-
-  // ===========================================================================
-  // SELECT DEALER
-  // ===========================================================================
 
   void _selectDealer(DealerEntity dealer) {
     _clearAllSelectedProducts();
@@ -350,18 +349,14 @@ class _PlaceOrderViewState extends State<_PlaceOrderView> {
     setState(() {
       selectedDealer = dealer;
       dealerController.text = dealer.name;
-
       selectedCategories.clear();
     });
 
-    debugPrint(
-      'Dealer selected: ${dealer.id} - ${dealer.name}',
-    );
-  }
+    debugPrint('Dealer selected: ${dealer.id} - ${dealer.name}');
 
-  // ===========================================================================
-  // CLEAR DEALER
-  // ===========================================================================
+    // Reload all products because clear function removes them.
+    _loadAllProducts();
+  }
 
   void _clearDealer() {
     _clearAllSelectedProducts();
@@ -371,6 +366,8 @@ class _PlaceOrderViewState extends State<_PlaceOrderView> {
       dealerController.clear();
       selectedCategories.clear();
     });
+
+    _loadAllProducts();
   }
 
   // ===========================================================================
@@ -382,9 +379,7 @@ class _PlaceOrderViewState extends State<_PlaceOrderView> {
       selectedGodown = godown;
     });
 
-    debugPrint(
-      'Godown selected: ${godown.id} - ${godown.name}',
-    );
+    debugPrint('Godown selected: ${godown.id} - ${godown.name}');
   }
 
   // ===========================================================================
@@ -405,9 +400,7 @@ class _PlaceOrderViewState extends State<_PlaceOrderView> {
     );
 
     if (alreadySelected) {
-      _showMessage(
-        '${category.name} is already selected',
-      );
+      _showMessage('${category.name} is already selected');
       return;
     }
 
@@ -423,9 +416,7 @@ class _PlaceOrderViewState extends State<_PlaceOrderView> {
     debugPrint('CATEGORY SELECTED');
     debugPrint('Category ID   : ${category.id}');
     debugPrint('Category Name : ${category.name}');
-    debugPrint(
-      'Total Categories: ${selectedCategories.length}',
-    );
+    debugPrint('Total Categories: ${selectedCategories.length}');
     debugPrint('========================================');
 
     // -------------------------------------------------------------------------
@@ -433,10 +424,8 @@ class _PlaceOrderViewState extends State<_PlaceOrderView> {
     // -------------------------------------------------------------------------
 
     context.read<PlaceOrderBloc>().add(
-          GetProductsEvent(
-            categoryId: category.id,
-          ),
-        );
+      GetProductsEvent(categoryId: category.id),
+    );
   }
 
   // ===========================================================================
@@ -446,25 +435,11 @@ class _PlaceOrderViewState extends State<_PlaceOrderView> {
   void _removeCategory(CategoryEntity category) {
     final String categoryId = category.id;
 
-    debugPrint(
-      'Removing category: $categoryId - ${category.name}',
-    );
+    debugPrint('Removing category: $categoryId - ${category.name}');
 
     setState(() {
-      selectedCategories.removeWhere(
-        (element) => element.id == categoryId,
-      );
+      selectedCategories.removeWhere((element) => element.id == categoryId);
     });
-
-    // -------------------------------------------------------------------------
-    // IMPORTANT
-    //
-    // If your ProductEntity has categoryId, use it here to remove only
-    // products belonging to this category.
-    //
-    // For now, because your current ProductEntity code was not provided,
-    // we keep products already loaded.
-    // -------------------------------------------------------------------------
   }
 
   // ===========================================================================
@@ -483,9 +458,7 @@ class _PlaceOrderViewState extends State<_PlaceOrderView> {
       decoration: BoxDecoration(
         color: AppColors.lightGreen,
         borderRadius: BorderRadius.circular(12.r),
-        border: Border.all(
-          color: AppColors.primary.withOpacity(0.15),
-        ),
+        border: Border.all(color: AppColors.primary.withOpacity(0.15)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -512,64 +485,172 @@ class _PlaceOrderViewState extends State<_PlaceOrderView> {
           Wrap(
             spacing: 7.w,
             runSpacing: 7.h,
-            children: selectedCategories.map(
-              (category) {
-                return Container(
-                  padding: EdgeInsets.only(
-                    left: 10.w,
-                    right: 5.w,
-                    top: 5.h,
-                    bottom: 5.h,
+            children: selectedCategories.map((category) {
+              return Container(
+                padding: EdgeInsets.only(
+                  left: 10.w,
+                  right: 5.w,
+                  top: 5.h,
+                  bottom: 5.h,
+                ),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(20.r),
+                  border: Border.all(
+                    color: AppColors.primary.withOpacity(0.25),
                   ),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(20.r),
-                    border: Border.all(
-                      color: AppColors.primary.withOpacity(0.25),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(
+                      Icons.category_rounded,
+                      size: 14.sp,
+                      color: AppColors.primary,
                     ),
-                  ),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Icon(
-                        Icons.category_rounded,
-                        size: 14.sp,
-                        color: AppColors.primary,
+                    SizedBox(width: 5.w),
+                    Text(
+                      category.name,
+                      style: TextStyle(
+                        fontSize: 11.sp,
+                        fontWeight: FontWeight.w700,
+                        color: AppColors.textPrimary,
                       ),
-                      SizedBox(width: 5.w),
-                      Text(
-                        category.name,
-                        style: TextStyle(
-                          fontSize: 11.sp,
-                          fontWeight: FontWeight.w700,
-                          color: AppColors.textPrimary,
+                    ),
+                    SizedBox(width: 3.w),
+                    InkWell(
+                      borderRadius: BorderRadius.circular(20.r),
+                      onTap: () {
+                        _removeCategory(category);
+                      },
+                      child: Padding(
+                        padding: EdgeInsets.all(3.w),
+                        child: Icon(
+                          Icons.close_rounded,
+                          size: 14.sp,
+                          color: AppColors.primary,
                         ),
                       ),
-                      SizedBox(width: 3.w),
-                      InkWell(
-                        borderRadius: BorderRadius.circular(20.r),
-                        onTap: () {
-                          _removeCategory(category);
-                        },
-                        child: Padding(
-                          padding: EdgeInsets.all(3.w),
-                          child: Icon(
-                            Icons.close_rounded,
-                            size: 14.sp,
-                            color: AppColors.primary,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                );
-              },
-            ).toList(),
+                    ),
+                  ],
+                ),
+              );
+            }).toList(),
           ),
         ],
       ),
     );
   }
+
+  Widget _buildProductSearchField() {
+    return TextField(
+      controller: productSearchController,
+
+      onChanged: (value) {
+        setState(() {
+          productSearchText = value;
+        });
+      },
+
+      decoration: InputDecoration(
+        hintText: 'Search product...',
+
+        prefixIcon: const Icon(Icons.search_rounded),
+
+        suffixIcon: productSearchText.isNotEmpty
+            ? IconButton(
+                onPressed: () {
+                  productSearchController.clear();
+
+                  setState(() {
+                    productSearchText = '';
+                  });
+                },
+                icon: const Icon(Icons.close_rounded),
+              )
+            : null,
+
+        filled: true,
+        fillColor: Colors.white,
+
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12.r),
+          borderSide: BorderSide.none,
+        ),
+
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12.r),
+          borderSide: BorderSide(color: AppColors.border),
+        ),
+
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12.r),
+          borderSide: BorderSide(color: AppColors.primary, width: 1.4),
+        ),
+
+        contentPadding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 12.h),
+      ),
+    );
+  }
+
+  Widget _buildFixedBottomButtons(
+  PlaceOrderState state,
+) {
+  return SafeArea(
+    top: false,
+    child: Container(
+      width: double.infinity,
+
+      padding: EdgeInsets.fromLTRB(
+        10.w,
+        9.h,
+        10.w,
+        9.h,
+      ),
+
+      decoration: BoxDecoration(
+        color: Colors.white,
+
+        border: Border(
+          top: BorderSide(
+            color: AppColors.border,
+            width: 1,
+          ),
+        ),
+
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.06),
+            blurRadius: 12,
+            offset: const Offset(0, -3),
+          ),
+        ],
+      ),
+
+      child: Row(
+        children: [
+          // =====================================================
+          // ADD DETAILS
+          // =====================================================
+
+          Expanded(
+            child: _buildAddDetailsButton(),
+          ),
+
+          SizedBox(width: 8.w),
+
+          // =====================================================
+          // PREVIEW
+          // =====================================================
+
+          Expanded(
+            child: _buildPreviewButton(state),
+          ),
+        ],
+      ),
+    ),
+  );
+}
 
   // ===========================================================================
   // CLEAR SIGNATURE
@@ -593,54 +674,696 @@ class _PlaceOrderViewState extends State<_PlaceOrderView> {
     });
   }
 
+
+
+Future<void> _openAddDetailsDialog() async {
+  await showDialog(
+    context: context,
+    barrierDismissible: false,
+    builder: (dialogContext) {
+      return Dialog(
+        backgroundColor: Colors.transparent,
+        insetPadding: EdgeInsets.symmetric(
+          horizontal: 14.w,
+          vertical: 20.h,
+        ),
+        child: StatefulBuilder(
+          builder: (context, dialogSetState) {
+            final bool hasImage =
+                imagePath != null && imagePath!.trim().isNotEmpty;
+
+            final bool hasSignature =
+                signatureBytes != null && signatureBytes!.isNotEmpty;
+
+            return Container(
+              width: double.infinity,
+              constraints: BoxConstraints(
+                maxHeight: MediaQuery.of(context).size.height * 0.88,
+              ),
+              decoration: BoxDecoration(
+                color: AppColors.background,
+                borderRadius: BorderRadius.circular(20.r),
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  // =====================================================
+                  // HEADER
+                  // =====================================================
+                  Container(
+                    padding: EdgeInsets.symmetric(
+                      horizontal: 15.w,
+                      vertical: 13.h,
+                    ),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.vertical(
+                        top: Radius.circular(20.r),
+                      ),
+                      border: Border(
+                        bottom: BorderSide(
+                          color: AppColors.border,
+                        ),
+                      ),
+                    ),
+                    child: Row(
+                      children: [
+                        Container(
+                          width: 38.w,
+                          height: 38.w,
+                          decoration: BoxDecoration(
+                            color: AppColors.lightGreen,
+                            borderRadius: BorderRadius.circular(11.r),
+                          ),
+                          child: Icon(
+                            Icons.edit_note_rounded,
+                            color: AppColors.primary,
+                            size: 21.sp,
+                          ),
+                        ),
+
+                        SizedBox(width: 10.w),
+
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'Add Order Details',
+                                style: TextStyle(
+                                  fontSize: 16.sp,
+                                  fontWeight: FontWeight.w800,
+                                  color: AppColors.textPrimary,
+                                ),
+                              ),
+                              SizedBox(height: 2.h),
+                              Text(
+                                'Add photo, signature and remark',
+                                style: TextStyle(
+                                  fontSize: 10.5.sp,
+                                  fontWeight: FontWeight.w500,
+                                  color: AppColors.textSecondary,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+
+                        InkWell(
+                          onTap: () {
+                            Navigator.pop(dialogContext);
+                          },
+                          borderRadius: BorderRadius.circular(30.r),
+                          child: Container(
+                            width: 34.w,
+                            height: 34.w,
+                            decoration: BoxDecoration(
+                              color: Colors.grey.shade100,
+                              shape: BoxShape.circle,
+                            ),
+                            child: Icon(
+                              Icons.close_rounded,
+                              size: 20.sp,
+                              color: AppColors.textPrimary,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+
+                  // =====================================================
+                  // SCROLLABLE CONTENT
+                  // =====================================================
+                  Flexible(
+                    child: SingleChildScrollView(
+                      physics: const BouncingScrollPhysics(),
+                      padding: EdgeInsets.all(12.w),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          // =============================================
+                          // PROGRESS / STATUS
+                          // =============================================
+                          Container(
+                            width: double.infinity,
+                            padding: EdgeInsets.symmetric(
+                              horizontal: 11.w,
+                              vertical: 9.h,
+                            ),
+                            decoration: BoxDecoration(
+                              color: AppColors.lightGreen.withOpacity(0.45),
+                              borderRadius: BorderRadius.circular(12.r),
+                              border: Border.all(
+                                color: AppColors.primary.withOpacity(0.12),
+                              ),
+                            ),
+                            child: Row(
+                              children: [
+                                _buildDetailStatus(
+                                  icon: Icons.photo_camera_rounded,
+                                  title: 'Photo',
+                                  completed: hasImage,
+                                ),
+
+                                Container(
+                                  height: 26.h,
+                                  width: 1,
+                                  color: AppColors.border,
+                                ),
+
+                                _buildDetailStatus(
+                                  icon: Icons.draw_rounded,
+                                  title: 'Signature',
+                                  completed: hasSignature,
+                                ),
+
+                                Container(
+                                  height: 26.h,
+                                  width: 1,
+                                  color: AppColors.border,
+                                ),
+
+                                _buildDetailStatus(
+                                  icon: Icons.notes_rounded,
+                                  title: 'Remark',
+                                  completed:
+                                      remarkController.text.trim().isNotEmpty,
+                                ),
+                              ],
+                            ),
+                          ),
+
+                          SizedBox(height: 11.h),
+
+                          // =============================================
+                          // PHOTO
+                          // =============================================
+                          ImagePickerSection(
+                            imagePath: imagePath,
+                            onChanged: (path) {
+                              imagePath = path;
+
+                              setState(() {});
+
+                              dialogSetState(() {});
+                            },
+                          ),
+
+                          SizedBox(height: 10.h),
+
+                          // =============================================
+                          // SIGNATURE
+                          // =============================================
+                          SignatureSection(
+                            controller: signatureController,
+                            onClear: () {
+                              signatureController.clear();
+
+                              signatureBytes = null;
+
+                              setState(() {});
+
+                              dialogSetState(() {});
+                            },
+                            onSignatureChanged: (bytes) {
+                              signatureBytes = bytes;
+
+                              setState(() {});
+
+                              dialogSetState(() {});
+                            },
+                          ),
+
+                          SizedBox(height: 10.h),
+
+                          // =============================================
+                          // REMARK
+                          // =============================================
+                          Container(
+                            padding: EdgeInsets.all(10.w),
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(14.r),
+                              border: Border.all(
+                                color: AppColors.border,
+                              ),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black.withOpacity(0.025),
+                                  blurRadius: 6,
+                                  offset: const Offset(0, 2),
+                                ),
+                              ],
+                            ),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Row(
+                                  children: [
+                                    Container(
+                                      width: 32.w,
+                                      height: 32.w,
+                                      decoration: BoxDecoration(
+                                        color: AppColors.lightGreen,
+                                        borderRadius:
+                                            BorderRadius.circular(9.r),
+                                      ),
+                                      child: Icon(
+                                        Icons.notes_rounded,
+                                        color: AppColors.primary,
+                                        size: 17.sp,
+                                      ),
+                                    ),
+
+                                    SizedBox(width: 8.w),
+
+                                    Text(
+                                      'Remark',
+                                      style: TextStyle(
+                                        fontSize: 11.5.sp,
+                                        fontWeight: FontWeight.w800,
+                                        color: AppColors.textPrimary,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+
+                                SizedBox(height: 8.h),
+
+                                TextField(
+                                  controller: remarkController,
+                                  maxLines: 3,
+                                  minLines: 3,
+                                  onChanged: (_) {
+                                    dialogSetState(() {});
+                                  },
+                                  style: TextStyle(
+                                    fontSize: 12.sp,
+                                    fontWeight: FontWeight.w500,
+                                    color: AppColors.textPrimary,
+                                  ),
+                                  decoration: InputDecoration(
+                                    hintText:
+                                        'Enter additional order remark...',
+                                    hintStyle: TextStyle(
+                                      fontSize: 11.sp,
+                                      color: AppColors.textSecondary,
+                                    ),
+                                    filled: true,
+                                    fillColor:
+                                        const Color(0xFFFAFCFA),
+                                    contentPadding:
+                                        EdgeInsets.symmetric(
+                                      horizontal: 12.w,
+                                      vertical: 11.h,
+                                    ),
+                                    border: OutlineInputBorder(
+                                      borderRadius:
+                                          BorderRadius.circular(11.r),
+                                      borderSide: BorderSide(
+                                        color: AppColors.border,
+                                      ),
+                                    ),
+                                    enabledBorder: OutlineInputBorder(
+                                      borderRadius:
+                                          BorderRadius.circular(11.r),
+                                      borderSide: BorderSide(
+                                        color: AppColors.border,
+                                      ),
+                                    ),
+                                    focusedBorder: OutlineInputBorder(
+                                      borderRadius:
+                                          BorderRadius.circular(11.r),
+                                      borderSide: const BorderSide(
+                                        color: AppColors.primary,
+                                        width: 1.3,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+
+                          SizedBox(height: 5.h),
+                        ],
+                      ),
+                    ),
+                  ),
+
+                  // =====================================================
+                  // BOTTOM BUTTON
+                  // =====================================================
+                  Container(
+                    padding: EdgeInsets.fromLTRB(
+                      12.w,
+                      10.h,
+                      12.w,
+                      12.h,
+                    ),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.vertical(
+                        bottom: Radius.circular(20.r),
+                      ),
+                      border: Border(
+                        top: BorderSide(
+                          color: AppColors.border,
+                        ),
+                      ),
+                    ),
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: SizedBox(
+                            height: 45.h,
+                            child: OutlinedButton(
+                              onPressed: () {
+                                Navigator.pop(dialogContext);
+                              },
+                              style: OutlinedButton.styleFrom(
+                                side: BorderSide(
+                                  color: AppColors.border,
+                                ),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius:
+                                      BorderRadius.circular(11.r),
+                                ),
+                              ),
+                              child: Text(
+                                'Cancel',
+                                style: TextStyle(
+                                  fontSize: 12.sp,
+                                  fontWeight: FontWeight.w700,
+                                  color: AppColors.textSecondary,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+
+                        SizedBox(width: 9.w),
+
+                        Expanded(
+                          child: SizedBox(
+                            height: 45.h,
+                            child: ElevatedButton.icon(
+
+
+                              // onPressed: () {
+                              //   if (imagePath == null ||
+                              //       imagePath!.trim().isEmpty) {
+                              //     _showMessage(
+                              //       'Please add details',
+                              //     );
+                              //     return;
+                              //   }
+
+                              //   if (signatureBytes == null ||
+                              //       signatureBytes!.isEmpty) {
+                              //     _showMessage(
+                              //       'Please add dealer signature',
+                              //     );
+                              //     return;
+                              //   }
+
+                              //   setState(() {});
+
+                              //   Navigator.pop(dialogContext);
+                              // },
+
+
+                              onPressed: () {
+                                  // ============================================================
+                                  // IMAGE VALIDATION
+                                  // ============================================================
+
+                                  if (imagePath == null || imagePath!.trim().isEmpty) {
+                                    _showMessage('Please add order photo');
+                                    return;
+                                  }
+
+                                  // ============================================================
+                                  // SIGNATURE VALIDATION
+                                  // ============================================================
+
+                                  if (signatureBytes == null || signatureBytes!.isEmpty) {
+                                    _showMessage('Please add dealer signature');
+                                    return;
+                                  }
+
+                                  // ============================================================
+                                  // ALL VALID
+                                  // ============================================================
+
+                                  setState(() {});
+
+                                  Navigator.pop(dialogContext);
+                                },
+
+
+                              icon: Icon(
+                                Icons.check_circle_rounded,
+                                size: 18.sp,
+                              ),
+                              label: Text(
+                                'Save Details',
+                                style: TextStyle(
+                                  fontSize: 12.sp,
+                                  fontWeight: FontWeight.w800,
+                                ),
+                              ),
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: AppColors.primary,
+                                foregroundColor: Colors.white,
+                                elevation: 0,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius:
+                                      BorderRadius.circular(11.r),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            );
+          },
+        ),
+      );
+    },
+  );
+}
+
+Widget _buildDetailStatus({
+  required IconData icon,
+  required String title,
+  required bool completed,
+}) {
+  return Expanded(
+    child: Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Container(
+          width: 27.w,
+          height: 27.w,
+          decoration: BoxDecoration(
+            color: completed
+                ? AppColors.primary
+                : Colors.white,
+            shape: BoxShape.circle,
+            border: Border.all(
+              color: completed
+                  ? AppColors.primary
+                  : AppColors.border,
+            ),
+          ),
+          child: Icon(
+            completed ? Icons.check_rounded : icon,
+            size: 14.sp,
+            color: completed
+                ? Colors.white
+                : AppColors.textSecondary,
+          ),
+        ),
+
+        SizedBox(height: 3.h),
+
+        Text(
+          title,
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+          style: TextStyle(
+            fontSize: 9.sp,
+            fontWeight: FontWeight.w700,
+            color: completed
+                ? AppColors.primary
+                : AppColors.textSecondary,
+          ),
+        ),
+      ],
+    ),
+  );
+}
+
+Widget _buildAddDetailsButton() {
+  final bool hasImage =
+      imagePath != null && imagePath!.trim().isNotEmpty;
+
+  final bool hasSignature =
+      signatureBytes != null && signatureBytes!.isNotEmpty;
+
+  final bool detailsAdded = hasImage && hasSignature;
+
+  return SizedBox(
+    height: 48.h,
+    child: OutlinedButton(
+      onPressed: _openAddDetailsDialog,
+      style: OutlinedButton.styleFrom(
+        backgroundColor: detailsAdded
+            ? AppColors.lightGreen
+            : Colors.white,
+        foregroundColor: AppColors.primary,
+        side: BorderSide(
+          color: detailsAdded
+              ? AppColors.primary.withOpacity(0.45)
+              : AppColors.border,
+          width: 1.1,
+        ),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12.r),
+        ),
+        padding: EdgeInsets.symmetric(
+          horizontal: 10.w,
+        ),
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(
+            detailsAdded
+                ? Icons.check_circle_rounded
+                : Icons.add_circle_outline_rounded,
+            size: 18.sp,
+          ),
+
+          SizedBox(width: 6.w),
+
+          Flexible(
+            child: Text(
+              detailsAdded
+                  ? 'Edit Details'
+                  : 'Add Details',
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: TextStyle(
+                fontSize: 12.sp,
+                fontWeight: FontWeight.w800,
+              ),
+            ),
+          ),
+        ],
+      ),
+    ),
+  );
+}
+
+Widget _buildPreviewButton(PlaceOrderState state) {
+  final bool isSubmitting =
+      state.status == PlaceOrderStatus.submitting;
+
+  return SizedBox(
+    height: 48.h,
+    child: ElevatedButton(
+      onPressed: isSubmitting
+          ? null
+          : () {
+              _submit(state);
+            },
+      style: ElevatedButton.styleFrom(
+        backgroundColor: AppColors.primary,
+        foregroundColor: Colors.white,
+        disabledBackgroundColor:
+            AppColors.primary.withOpacity(0.55),
+        elevation: 0,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12.r),
+        ),
+        padding: EdgeInsets.symmetric(
+          horizontal: 10.w,
+        ),
+      ),
+      child: isSubmitting
+          ? SizedBox(
+              width: 19.w,
+              height: 19.w,
+              child: const CircularProgressIndicator(
+                strokeWidth: 2,
+                color: Colors.white,
+              ),
+            )
+          : Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(
+                  Icons.visibility_rounded,
+                  size: 18.sp,
+                ),
+
+                SizedBox(width: 6.w),
+
+                Text(
+                  'Preview',
+                  style: TextStyle(
+                    fontSize: 12.sp,
+                    fontWeight: FontWeight.w800,
+                  ),
+                ),
+              ],
+            ),
+    ),
+  );
+}
+
+
   // ===========================================================================
   // SAVE DIGITAL SIGNATURE
   // ===========================================================================
 
   Future<String?> _saveSignatureToFile() async {
     if (signatureBytes == null || signatureBytes!.isEmpty) {
-      debugPrint(
-        'Digital signature bytes are empty',
-      );
+      debugPrint('Digital signature bytes are empty');
       return null;
     }
 
     try {
-      final Directory tempDirectory =
-          await getTemporaryDirectory();
+      final Directory tempDirectory = await getTemporaryDirectory();
 
       final String fileName =
           'Signature_${DateTime.now().millisecondsSinceEpoch}.png';
 
-      final String filePath =
-          '${tempDirectory.path}/$fileName';
+      final String filePath = '${tempDirectory.path}/$fileName';
 
       final File signatureFile = File(filePath);
 
-      await signatureFile.writeAsBytes(
-        signatureBytes!,
-        flush: true,
-      );
+      await signatureFile.writeAsBytes(signatureBytes!, flush: true);
 
-      final bool exists =
-          await signatureFile.exists();
+      final bool exists = await signatureFile.exists();
 
       if (!exists) {
-        debugPrint(
-          'Digital signature file was not created',
-        );
+        debugPrint('Digital signature file was not created');
         return null;
       }
 
-      debugPrint(
-        'Digital signature saved: ${signatureFile.path}',
-      );
+      debugPrint('Digital signature saved: ${signatureFile.path}');
 
       return signatureFile.path;
     } catch (e, stackTrace) {
-      debugPrint(
-        'Save digital signature error: $e',
-      );
+      debugPrint('Save digital signature error: $e');
 
       debugPrint('$stackTrace');
 
@@ -652,36 +1375,29 @@ class _PlaceOrderViewState extends State<_PlaceOrderView> {
   // OPEN MULTI PRODUCT RATE SELECTOR
   // ===========================================================================
 
-  Future<void> _openMultiProductSelector({
-    String? initialProductId,
-  }) async {
+  Future<void> _openMultiProductSelector({String? initialProductId}) async {
     if (selectedDealer == null) {
-      _showMessage(
-        'Please select dealer first',
-      );
+      _showMessage('Please select dealer first');
       return;
     }
 
-    if (selectedCategories.isEmpty) {
-      _showMessage(
-        'Please select at least one category',
-      );
-      return;
-    }
+    // if (selectedCategories.isEmpty) {
+    //   _showMessage(
+    //     'Please select at least one category',
+    //   );
+    //   return;
+    // }
 
     if (isOpeningRateSelector) {
       return;
     }
 
-    final List<ProductEntity> currentProducts =
-        List<ProductEntity>.from(
+    final List<ProductEntity> currentProducts = List<ProductEntity>.from(
       allCategoryProducts,
     );
 
     if (currentProducts.isEmpty) {
-      _showMessage(
-        'No products available',
-      );
+      _showMessage('No products available');
       return;
     }
 
@@ -690,62 +1406,43 @@ class _PlaceOrderViewState extends State<_PlaceOrderView> {
     });
 
     try {
-      final getRatesUseCase =
-          GetProductDetailRatesUseCase(
+      final getRatesUseCase = GetProductDetailRatesUseCase(
         repository: sl<ProductRateRepository>(),
       );
 
-      final bloc =
-          context.read<PlaceOrderBloc>();
+      final bloc = context.read<PlaceOrderBloc>();
 
       final currentState = bloc.state;
 
-      final MultiProductRateSelectionResult?
-          result =
-          await showModalBottomSheet<
-              MultiProductRateSelectionResult>(
-        context: context,
-        isScrollControlled: true,
-        backgroundColor: Colors.transparent,
-        barrierColor:
-            Colors.black.withOpacity(0.45),
-        builder: (bottomSheetContext) {
-          return MultiProductRateBottomSheet(
-            products: currentProducts,
-            dealerId:
-                selectedDealer!.id.toString(),
-            existingRates: {
-              for (final entry
-                  in selectedRates.entries)
-                entry.key:
-                    List<ProductRateEntity>.from(
-                  entry.value,
-                ),
+      final MultiProductRateSelectionResult? result =
+          await showModalBottomSheet<MultiProductRateSelectionResult>(
+            context: context,
+            isScrollControlled: true,
+            backgroundColor: Colors.transparent,
+            barrierColor: Colors.black.withOpacity(0.45),
+            builder: (bottomSheetContext) {
+              return MultiProductRateBottomSheet(
+                products: currentProducts,
+                dealerId: selectedDealer!.id.toString(),
+                existingRates: {
+                  for (final entry in selectedRates.entries)
+                    entry.key: List<ProductRateEntity>.from(entry.value),
+                },
+                existingPackingQuantities: {
+                  for (final entry in currentState.packingQuantities.entries)
+                    entry.key: Map<String, int>.from(entry.value),
+                },
+                initialProductId: initialProductId,
+                getRatesUseCase: getRatesUseCase,
+              );
             },
-            existingPackingQuantities: {
-              for (final entry in currentState
-                  .packingQuantities.entries)
-                entry.key:
-                    Map<String, int>.from(
-                  entry.value,
-                ),
-            },
-            initialProductId:
-                initialProductId,
-            getRatesUseCase:
-                getRatesUseCase,
           );
-        },
-      );
 
       if (result == null) {
         return;
       }
 
-      await _processSelectedRates(
-        result: result,
-        products: currentProducts,
-      );
+      await _processSelectedRates(result: result, products: currentProducts);
     } finally {
       if (mounted) {
         setState(() {
@@ -763,32 +1460,26 @@ class _PlaceOrderViewState extends State<_PlaceOrderView> {
     required MultiProductRateSelectionResult result,
     required List<ProductEntity> products,
   }) async {
-    final bloc =
-        context.read<PlaceOrderBloc>();
+    final bloc = context.read<PlaceOrderBloc>();
 
-    final Map<String, List<ProductRateEntity>>
-        returnedRates =
+    final Map<String, List<ProductRateEntity>> returnedRates =
         result.selectedRates;
 
-    final Map<String, Map<String, int>>
-        returnedPackingQuantities =
+    final Map<String, Map<String, int>> returnedPackingQuantities =
         result.packingQuantities;
 
     // -------------------------------------------------------------------------
     // UPDATE PACKING QUANTITIES
     // -------------------------------------------------------------------------
 
-    for (final entry
-        in returnedPackingQuantities.entries) {
+    for (final entry in returnedPackingQuantities.entries) {
       final String productId = entry.key;
 
-      for (final quantityEntry
-          in entry.value.entries) {
+      for (final quantityEntry in entry.value.entries) {
         bloc.add(
           SetPackingQuantityEvent(
             productId: productId,
-            productDetailsId:
-                quantityEntry.key,
+            productDetailsId: quantityEntry.key,
             quantity: quantityEntry.value,
           ),
         );
@@ -799,59 +1490,43 @@ class _PlaceOrderViewState extends State<_PlaceOrderView> {
     // SAVE RATES
     // -------------------------------------------------------------------------
 
-    for (final entry
-        in returnedRates.entries) {
+    for (final entry in returnedRates.entries) {
       final String productId = entry.key;
 
-      final List<ProductRateEntity> rates =
-          entry.value;
+      final List<ProductRateEntity> rates = entry.value;
 
       ProductEntity? product;
 
       try {
         product = products.firstWhere(
-          (element) =>
-              element.id.toString() ==
-              productId,
+          (element) => element.id.toString() == productId,
         );
       } catch (_) {
         product = null;
       }
 
       if (product == null) {
-        debugPrint(
-          'Product not found for ID: $productId',
-        );
+        debugPrint('Product not found for ID: $productId');
         continue;
       }
 
       if (rates.isEmpty) {
         selectedRates.remove(productId);
 
-        bloc.add(
-          RemoveProductEvent(
-            productId: product.id,
-          ),
-        );
+        bloc.add(RemoveProductEvent(productId: product.id));
 
         continue;
       }
 
-      selectedRates[productId] =
-          List<ProductRateEntity>.from(rates);
+      selectedRates[productId] = List<ProductRateEntity>.from(rates);
 
-      final Map<String, int>
-          productPackingQuantities =
-          returnedPackingQuantities[
-                  productId] ??
-              <String, int>{};
+      final Map<String, int> productPackingQuantities =
+          returnedPackingQuantities[productId] ?? <String, int>{};
 
       for (final rate in rates) {
-        final String detailsId =
-            rate.productDetailsId.toString();
+        final String detailsId = rate.productDetailsId.toString();
 
-        if (!productPackingQuantities
-            .containsKey(detailsId)) {
+        if (!productPackingQuantities.containsKey(detailsId)) {
           bloc.add(
             SetPackingQuantityEvent(
               productId: productId,
@@ -862,25 +1537,16 @@ class _PlaceOrderViewState extends State<_PlaceOrderView> {
         }
       }
 
-      final bool hasQuantity =
-          rates.any((rate) {
-        final String detailsId =
-            rate.productDetailsId.toString();
+      final bool hasQuantity = rates.any((rate) {
+        final String detailsId = rate.productDetailsId.toString();
 
-        final int quantity =
-            productPackingQuantities[
-                    detailsId] ??
-                1;
+        final int quantity = productPackingQuantities[detailsId] ?? 1;
 
         return quantity > 0;
       });
 
       if (hasQuantity) {
-        bloc.add(
-          AddProductEvent(
-            product: product,
-          ),
-        );
+        bloc.add(AddProductEvent(product: product));
       }
     }
 
@@ -897,122 +1563,161 @@ class _PlaceOrderViewState extends State<_PlaceOrderView> {
       setState(() {});
     }
 
-    debugPrint(
-      '========================================',
-    );
-    debugPrint(
-      'FINAL SELECTED RATES',
-    );
+    debugPrint('========================================');
+    debugPrint('FINAL SELECTED RATES');
 
-    for (final entry
-        in selectedRates.entries) {
+    for (final entry in selectedRates.entries) {
       debugPrint(
         'Product ${entry.key} -> '
         '${entry.value.length} rate(s)',
       );
     }
 
-    debugPrint(
-      '========================================',
-    );
+    debugPrint('========================================');
   }
 
   // ===========================================================================
   // ADD PRODUCT
   // ===========================================================================
 
-  Future<void> _addProduct(
-    ProductEntity product,
-  ) async {
+  Future<void> _addProduct(ProductEntity product) async {
     if (selectedDealer == null) {
-      _showMessage(
-        'Please select dealer first',
-      );
+      _showMessage('Please select dealer first');
       return;
     }
 
-    await _openMultiProductSelector(
-      initialProductId:
-          product.id.toString(),
-    );
+    await _openMultiProductSelector(initialProductId: product.id.toString());
   }
 
   // ===========================================================================
   // DELETE PRODUCT
   // ===========================================================================
 
-  void _deleteProduct(
-    ProductEntity product,
-  ) {
-    final String productId =
-        product.id.toString();
+  void _deleteProduct(ProductEntity product) {
+    final String productId = product.id.toString();
 
     context.read<PlaceOrderBloc>().add(
-          RemoveProductEvent(
-            productId: product.id,
-          ),
-        );
+      RemoveProductEvent(productId: product.id),
+    );
 
     setState(() {
       selectedRates.remove(productId);
     });
   }
 
+
+  void _deleteProductPacking({
+  required ProductEntity product,
+  required ProductRateEntity rate,
+}) {
+  final String productId =
+      product.id.toString();
+
+  final String productDetailsId =
+      rate.productDetailsId.toString();
+
+  debugPrint(
+    'DELETE PACKING => '
+    'Product: $productId, '
+    'Packing: $productDetailsId',
+  );
+
+  // ============================================================
+  // GET CURRENT RATES OF PRODUCT
+  // ============================================================
+
+  final List<ProductRateEntity> currentRates =
+      List<ProductRateEntity>.from(
+    selectedRates[productId] ??
+        <ProductRateEntity>[],
+  );
+
+  // ============================================================
+  // REMOVE ONLY SELECTED PACKING
+  // ============================================================
+
+  currentRates.removeWhere(
+    (item) =>
+        item.productDetailsId.toString() ==
+        productDetailsId,
+  );
+
+  // ============================================================
+  // SET ITS QUANTITY TO ZERO
+  // ============================================================
+
+  context.read<PlaceOrderBloc>().add(
+        SetPackingQuantityEvent(
+          productId: productId,
+          productDetailsId:
+              productDetailsId,
+          quantity: 0,
+        ),
+      );
+
+  // ============================================================
+  // IF NO PACKING REMAINS
+  // REMOVE COMPLETE PRODUCT
+  // ============================================================
+
+  if (currentRates.isEmpty) {
+    selectedRates.remove(productId);
+
+    context.read<PlaceOrderBloc>().add(
+          RemoveProductEvent(
+            productId: product.id,
+          ),
+        );
+  } else {
+    // SOME PACKINGS STILL REMAIN
+    selectedRates[productId] =
+        currentRates;
+  }
+
+  setState(() {});
+
+  debugPrint(
+    'Remaining packing count: '
+    '${currentRates.length}',
+  );
+}
+
+
   // ===========================================================================
   // GET SELECTED PRODUCTS
   // ===========================================================================
 
-  List<ProductEntity> _getSelectedProducts(
-    PlaceOrderState state,
-  ) {
-    return allCategoryProducts.where(
-      (product) {
-        final String productId =
-            product.id.toString();
+  List<ProductEntity> _getSelectedProducts(PlaceOrderState state) {
+    return allCategoryProducts.where((product) {
+      final String productId = product.id.toString();
 
-        final Map<String, int>
-            productPackingQuantities =
-            state.packingQuantities[
-                    productId] ??
-                <String, int>{};
+      final Map<String, int> productPackingQuantities =
+          state.packingQuantities[productId] ?? <String, int>{};
 
-        final bool hasQuantity =
-            productPackingQuantities.values.any(
-          (quantity) => quantity > 0,
-        );
+      final bool hasQuantity = productPackingQuantities.values.any(
+        (quantity) => quantity > 0,
+      );
 
-        return hasQuantity &&
-            selectedRates.containsKey(
-              productId,
-            ) &&
-            selectedRates[productId]!
-                .isNotEmpty;
-      },
-    ).toList();
+      return hasQuantity &&
+          selectedRates.containsKey(productId) &&
+          selectedRates[productId]!.isNotEmpty;
+    }).toList();
   }
 
   // ===========================================================================
   // SAFE GODOWN VALUE
   // ===========================================================================
 
-  String? _getSafeGodownValue(
-    List<GodownEntity> godowns,
-  ) {
+  String? _getSafeGodownValue(List<GodownEntity> godowns) {
     if (selectedGodown == null) {
       return null;
     }
 
-    final selectedId =
-        selectedGodown!.id;
+    final selectedId = selectedGodown!.id;
 
     final matchingIds = godowns
-        .where(
-          (godown) =>
-              godown.id == selectedId,
-        )
-        .map(
-          (godown) => godown.id,
-        )
+        .where((godown) => godown.id == selectedId)
+        .map((godown) => godown.id)
         .toSet();
 
     if (matchingIds.length != 1) {
@@ -1038,11 +1743,8 @@ class _PlaceOrderViewState extends State<_PlaceOrderView> {
   // UNIQUE GODOWN ITEMS
   // ===========================================================================
 
-  List<DropdownMenuItem<String>> _buildGodownItems(
-    List<GodownEntity> godowns,
-  ) {
-    final Map<String, GodownEntity>
-        uniqueGodowns = {};
+  List<DropdownMenuItem<String>> _buildGodownItems(List<GodownEntity> godowns) {
+    final Map<String, GodownEntity> uniqueGodowns = {};
 
     for (final godown in godowns) {
       final id = godown.id.trim();
@@ -1051,27 +1753,20 @@ class _PlaceOrderViewState extends State<_PlaceOrderView> {
         continue;
       }
 
-      uniqueGodowns.putIfAbsent(
-        id,
-        () => godown,
-      );
+      uniqueGodowns.putIfAbsent(id, () => godown);
     }
 
     return uniqueGodowns.values
         .map(
-          (godown) =>
-              DropdownMenuItem<String>(
+          (godown) => DropdownMenuItem<String>(
             value: godown.id,
             child: Text(
               godown.name,
-              overflow:
-                  TextOverflow.ellipsis,
+              overflow: TextOverflow.ellipsis,
               style: TextStyle(
                 fontSize: 14.sp,
-                fontWeight:
-                    FontWeight.w600,
-                color:
-                    AppColors.textPrimary,
+                fontWeight: FontWeight.w600,
+                color: AppColors.textPrimary,
               ),
             ),
           ),
@@ -1083,12 +1778,10 @@ class _PlaceOrderViewState extends State<_PlaceOrderView> {
   // UNIQUE CATEGORY ITEMS
   // ===========================================================================
 
-  List<DropdownMenuItem<String>>
-      _buildCategoryItems(
+  List<DropdownMenuItem<String>> _buildCategoryItems(
     List<CategoryEntity> categories,
   ) {
-    final Map<String, CategoryEntity>
-        uniqueCategories = {};
+    final Map<String, CategoryEntity> uniqueCategories = {};
 
     for (final category in categories) {
       final id = category.id.trim();
@@ -1097,27 +1790,20 @@ class _PlaceOrderViewState extends State<_PlaceOrderView> {
         continue;
       }
 
-      uniqueCategories.putIfAbsent(
-        id,
-        () => category,
-      );
+      uniqueCategories.putIfAbsent(id, () => category);
     }
 
     return uniqueCategories.values
         .map(
-          (category) =>
-              DropdownMenuItem<String>(
+          (category) => DropdownMenuItem<String>(
             value: category.id,
             child: Text(
               category.name,
-              overflow:
-                  TextOverflow.ellipsis,
+              overflow: TextOverflow.ellipsis,
               style: TextStyle(
                 fontSize: 14.sp,
-                fontWeight:
-                    FontWeight.w600,
-                color:
-                    AppColors.textPrimary,
+                fontWeight: FontWeight.w600,
+                color: AppColors.textPrimary,
               ),
             ),
           ),
@@ -1125,18 +1811,15 @@ class _PlaceOrderViewState extends State<_PlaceOrderView> {
         .toList();
   }
 
-
-    // ===========================================================================
+  // ===========================================================================
   // CONFIRM ORDER
   // ===========================================================================
 
   Future<void> _confirmAndSubmitOrder({
-    required List<Map<String, dynamic>>
-        selectedProductPayload,
+    required List<Map<String, dynamic>> selectedProductPayload,
     required List<String> selectedImages,
   }) async {
-    final bool? confirmed =
-        await showDialog<bool>(
+    final bool? confirmed = await showDialog<bool>(
       context: context,
       barrierDismissible: false,
       builder: (dialogContext) {
@@ -1145,24 +1828,9 @@ class _PlaceOrderViewState extends State<_PlaceOrderView> {
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(18.r),
           ),
-          titlePadding: EdgeInsets.fromLTRB(
-            20.w,
-            20.h,
-            20.w,
-            8.h,
-          ),
-          contentPadding: EdgeInsets.fromLTRB(
-            20.w,
-            8.h,
-            20.w,
-            10.h,
-          ),
-          actionsPadding: EdgeInsets.fromLTRB(
-            16.w,
-            0,
-            16.w,
-            14.h,
-          ),
+          titlePadding: EdgeInsets.fromLTRB(20.w, 20.h, 20.w, 8.h),
+          contentPadding: EdgeInsets.fromLTRB(20.w, 8.h, 20.w, 10.h),
+          actionsPadding: EdgeInsets.fromLTRB(16.w, 0, 16.w, 14.h),
           title: Row(
             children: [
               Container(
@@ -1193,8 +1861,7 @@ class _PlaceOrderViewState extends State<_PlaceOrderView> {
           ),
           content: Column(
             mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment:
-                CrossAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
                 'Are you sure you want to submit this order?',
@@ -1211,11 +1878,8 @@ class _PlaceOrderViewState extends State<_PlaceOrderView> {
                 padding: EdgeInsets.all(12.w),
                 decoration: BoxDecoration(
                   color: AppColors.background,
-                  borderRadius:
-                      BorderRadius.circular(12.r),
-                  border: Border.all(
-                    color: AppColors.border,
-                  ),
+                  borderRadius: BorderRadius.circular(12.r),
+                  border: Border.all(color: AppColors.border),
                 ),
                 child: Column(
                   children: [
@@ -1231,14 +1895,11 @@ class _PlaceOrderViewState extends State<_PlaceOrderView> {
                           child: Text(
                             selectedDealer?.name ?? '',
                             maxLines: 1,
-                            overflow:
-                                TextOverflow.ellipsis,
+                            overflow: TextOverflow.ellipsis,
                             style: TextStyle(
                               fontSize: 13.sp,
-                              fontWeight:
-                                  FontWeight.w700,
-                              color:
-                                  AppColors.textPrimary,
+                              fontWeight: FontWeight.w700,
+                              color: AppColors.textPrimary,
                             ),
                           ),
                         ),
@@ -1257,14 +1918,11 @@ class _PlaceOrderViewState extends State<_PlaceOrderView> {
                           child: Text(
                             selectedGodown?.name ?? '',
                             maxLines: 1,
-                            overflow:
-                                TextOverflow.ellipsis,
+                            overflow: TextOverflow.ellipsis,
                             style: TextStyle(
                               fontSize: 13.sp,
-                              fontWeight:
-                                  FontWeight.w700,
-                              color:
-                                  AppColors.textPrimary,
+                              fontWeight: FontWeight.w700,
+                              color: AppColors.textPrimary,
                             ),
                           ),
                         ),
@@ -1284,10 +1942,8 @@ class _PlaceOrderViewState extends State<_PlaceOrderView> {
                             '${selectedProductPayload.length} rate line${selectedProductPayload.length == 1 ? '' : 's'}',
                             style: TextStyle(
                               fontSize: 13.sp,
-                              fontWeight:
-                                  FontWeight.w700,
-                              color:
-                                  AppColors.textPrimary,
+                              fontWeight: FontWeight.w700,
+                              color: AppColors.textPrimary,
                             ),
                           ),
                         ),
@@ -1309,10 +1965,8 @@ class _PlaceOrderViewState extends State<_PlaceOrderView> {
                                 : 'No order photo',
                             style: TextStyle(
                               fontSize: 13.sp,
-                              fontWeight:
-                                  FontWeight.w700,
-                              color:
-                                  AppColors.textPrimary,
+                              fontWeight: FontWeight.w700,
+                              color: AppColors.textPrimary,
                             ),
                           ),
                         ),
@@ -1329,17 +1983,13 @@ class _PlaceOrderViewState extends State<_PlaceOrderView> {
                         SizedBox(width: 8.w),
                         Expanded(
                           child: Text(
-                            signatureBytes != null &&
-                                    signatureBytes!
-                                        .isNotEmpty
+                            signatureBytes != null && signatureBytes!.isNotEmpty
                                 ? 'Dealer signature added'
                                 : 'Signature not added',
                             style: TextStyle(
                               fontSize: 13.sp,
-                              fontWeight:
-                                  FontWeight.w700,
-                              color:
-                                  AppColors.textPrimary,
+                              fontWeight: FontWeight.w700,
+                              color: AppColors.textPrimary,
                             ),
                           ),
                         ),
@@ -1355,16 +2005,12 @@ class _PlaceOrderViewState extends State<_PlaceOrderView> {
               height: 44.h,
               child: OutlinedButton(
                 onPressed: () {
-                  Navigator.of(dialogContext)
-                      .pop(false);
+                  Navigator.of(dialogContext).pop(false);
                 },
                 style: OutlinedButton.styleFrom(
-                  side: const BorderSide(
-                    color: AppColors.border,
-                  ),
+                  side: const BorderSide(color: AppColors.border),
                   shape: RoundedRectangleBorder(
-                    borderRadius:
-                        BorderRadius.circular(11.r),
+                    borderRadius: BorderRadius.circular(11.r),
                   ),
                 ),
                 child: Text(
@@ -1382,17 +2028,14 @@ class _PlaceOrderViewState extends State<_PlaceOrderView> {
               height: 44.h,
               child: ElevatedButton(
                 onPressed: () {
-                  Navigator.of(dialogContext)
-                      .pop(true);
+                  Navigator.of(dialogContext).pop(true);
                 },
                 style: ElevatedButton.styleFrom(
-                  backgroundColor:
-                      AppColors.primary,
+                  backgroundColor: AppColors.primary,
                   foregroundColor: Colors.white,
                   elevation: 0,
                   shape: RoundedRectangleBorder(
-                    borderRadius:
-                        BorderRadius.circular(11.r),
+                    borderRadius: BorderRadius.circular(11.r),
                   ),
                 ),
                 child: Text(
@@ -1417,18 +2060,14 @@ class _PlaceOrderViewState extends State<_PlaceOrderView> {
     // SAVE SIGNATURE BEFORE BLOC
     // =========================================================================
 
-    final String? savedSignaturePath =
-        await _saveSignatureToFile();
+    final String? savedSignaturePath = await _saveSignatureToFile();
 
     if (!mounted) {
       return;
     }
 
-    if (savedSignaturePath == null ||
-        savedSignaturePath.isEmpty) {
-      _showMessage(
-        'Unable to save digital signature',
-      );
+    if (savedSignaturePath == null || savedSignaturePath.isEmpty) {
+      _showMessage('Unable to save digital signature');
       return;
     }
 
@@ -1444,11 +2083,8 @@ class _PlaceOrderViewState extends State<_PlaceOrderView> {
       '${selectedProductPayload.length}',
     );
 
-    for (final product
-        in selectedProductPayload) {
-      debugPrint(
-        'SUBMIT DATA: $product',
-      );
+    for (final product in selectedProductPayload) {
+      debugPrint('SUBMIT DATA: $product');
     }
 
     debugPrint(
@@ -1473,37 +2109,29 @@ class _PlaceOrderViewState extends State<_PlaceOrderView> {
     // =========================================================================
 
     context.read<PlaceOrderBloc>().add(
-          SubmitPlaceOrderEvent(
-            userId: widget.userId,
-            dealer: selectedDealer!,
-            godown: selectedGodown!,
-            products: selectedProductPayload,
-            remark: remarkController.text.trim(),
-            imagePaths: selectedImages,
-            signaturePath: savedSignaturePath,
-          ),
-        );
+      SubmitPlaceOrderEvent(
+        userId: widget.userId,
+        dealer: selectedDealer!,
+        godown: selectedGodown!,
+        products: selectedProductPayload,
+        remark: remarkController.text.trim(),
+        imagePaths: selectedImages,
+        signaturePath: savedSignaturePath,
+      ),
+    );
   }
-
-
-
-
 
   // ===========================================================================
   // SUBMIT / PREVIEW
   // ===========================================================================
 
-  Future<void> _submit(
-    PlaceOrderState state,
-  ) async {
+  Future<void> _submit(PlaceOrderState state) async {
     // -------------------------------------------------------------------------
     // DEALER
     // -------------------------------------------------------------------------
 
     if (selectedDealer == null) {
-      _showMessage(
-        'Please select dealer',
-      );
+      _showMessage('Please select dealer');
       return;
     }
 
@@ -1512,20 +2140,7 @@ class _PlaceOrderViewState extends State<_PlaceOrderView> {
     // -------------------------------------------------------------------------
 
     if (selectedGodown == null) {
-      _showMessage(
-        'Please select godown',
-      );
-      return;
-    }
-
-    // -------------------------------------------------------------------------
-    // CATEGORIES
-    // -------------------------------------------------------------------------
-
-    if (selectedCategories.isEmpty) {
-      _showMessage(
-        'Please select at least one category',
-      );
+      _showMessage('Please select godown');
       return;
     }
 
@@ -1533,13 +2148,10 @@ class _PlaceOrderViewState extends State<_PlaceOrderView> {
     // PRODUCTS
     // -------------------------------------------------------------------------
 
-    final selectedProducts =
-        _getSelectedProducts(state);
+    final List<ProductEntity> selectedProducts = _getSelectedProducts(state);
 
     if (selectedProducts.isEmpty) {
-      _showMessage(
-        'Please add at least one product',
-      );
+      _showMessage('Please add at least one product');
       return;
     }
 
@@ -1547,19 +2159,14 @@ class _PlaceOrderViewState extends State<_PlaceOrderView> {
     // RATE VALIDATION
     // -------------------------------------------------------------------------
 
-    for (final product
-        in selectedProducts) {
-      final String productId =
-          product.id.toString();
+    for (final product in selectedProducts) {
+      final String productId = product.id.toString();
 
-      if (!selectedRates.containsKey(
-            productId,
-          ) ||
-          selectedRates[productId]!
-              .isEmpty) {
-        _showMessage(
-          'Please select rate for ${product.name}',
-        );
+      final List<ProductRateEntity> productRates =
+          selectedRates[productId] ?? <ProductRateEntity>[];
+
+      if (productRates.isEmpty) {
+        _showMessage('Please select rate for ${product.name}');
         return;
       }
     }
@@ -1568,11 +2175,9 @@ class _PlaceOrderViewState extends State<_PlaceOrderView> {
     // IMAGE
     // -------------------------------------------------------------------------
 
-    if (imagePath == null ||
-        imagePath!.trim().isEmpty) {
-      _showMessage(
-        'Please add order photo',
-      );
+    if (imagePath == null || imagePath!.trim().isEmpty) {
+      //_showMessage('Please add order photo');
+      _showMessage('Please add details');
       return;
     }
 
@@ -1580,11 +2185,8 @@ class _PlaceOrderViewState extends State<_PlaceOrderView> {
     // SIGNATURE
     // -------------------------------------------------------------------------
 
-    if (signatureBytes == null ||
-        signatureBytes!.isEmpty) {
-      _showMessage(
-        'Please add dealer signature',
-      );
+    if (signatureBytes == null || signatureBytes!.isEmpty) {
+      _showMessage('Please add dealer signature');
       return;
     }
 
@@ -1592,124 +2194,91 @@ class _PlaceOrderViewState extends State<_PlaceOrderView> {
     // BUILD PRODUCT PAYLOAD
     // -------------------------------------------------------------------------
 
-    final List<Map<String, dynamic>>
-        selectedProductPayload = [];
+    final List<Map<String, dynamic>> selectedProductPayload = [];
 
-    for (final product
-        in selectedProducts) {
-      final String productId =
-          product.id.toString();
+    for (final product in selectedProducts) {
+      final String productId = product.id.toString();
 
-      final List<ProductRateEntity>
-          rates =
-          selectedRates[productId] ??
-              <ProductRateEntity>[];
+      final List<ProductRateEntity> rates =
+          selectedRates[productId] ?? <ProductRateEntity>[];
 
-      final Map<String, int>
-          productPackingQuantities =
-          state.packingQuantities[
-                  productId] ??
-              <String, int>{};
+      final Map<String, int> productPackingQuantities =
+          state.packingQuantities[productId] ?? <String, int>{};
 
-      for (final selectedRate
-          in rates) {
-        final String productDetailsId =
-            selectedRate
-                .productDetailsId
-                .toString();
+      for (final selectedRate in rates) {
+        final String productDetailsId = selectedRate.productDetailsId
+            .toString();
 
-        final int quantity =
-            productPackingQuantities[
-                    productDetailsId] ??
-                1;
+        final int quantity = productPackingQuantities[productDetailsId] ?? 1;
 
-        final Map<String, dynamic>
-            payload = {
+        // Skip zero quantity lines if any exist.
+        if (quantity <= 0) {
+          continue;
+        }
+
+        final Map<String, dynamic> payload = {
           'productId': product.id,
-          'productDetailsId':
-              selectedRate
-                  .productDetailsId,
+          'productDetailsId': selectedRate.productDetailsId,
           'quantity': quantity,
-          'price':
-              selectedRate.rateWithGst,
-          'packing':
-              selectedRate.packing,
-          'unit':
-              selectedRate.unit,
-          'unitsPerCase':
-              selectedRate.unitsPerCase,
-          'gstPercentage':
-              selectedRate.gstPercentage,
-          'basicRate':
-              selectedRate.basicRate,
-          'mrp':
-              selectedRate.mrp,
+          'price': selectedRate.rateWithGst,
+          'packing': selectedRate.packing,
+          'unit': selectedRate.unit,
+          'unitsPerCase': selectedRate.unitsPerCase,
+          'gstPercentage': selectedRate.gstPercentage,
+          'basicRate': selectedRate.basicRate,
+          'mrp': selectedRate.mrp,
         };
 
-        selectedProductPayload.add(
-          payload,
-        );
+        selectedProductPayload.add(payload);
       }
     }
 
+    // -------------------------------------------------------------------------
+    // FINAL PRODUCT PAYLOAD VALIDATION
+    // -------------------------------------------------------------------------
+
     if (selectedProductPayload.isEmpty) {
-      _showMessage(
-        'Please select at least one product rate',
-      );
+      _showMessage('Please select at least one product rate');
       return;
     }
+
+    // -------------------------------------------------------------------------
+    // OPTIONAL CATEGORY
+    // -------------------------------------------------------------------------
+
+    final CategoryEntity? previewCategory = selectedCategories.isNotEmpty
+        ? selectedCategories.first
+        : null;
 
     // -------------------------------------------------------------------------
     // DEBUG
     // -------------------------------------------------------------------------
 
-    debugPrint(
-      '========================================',
-    );
+    debugPrint('========================================');
 
-    debugPrint(
-      'PLACE ORDER',
-    );
+    debugPrint('PLACE ORDER');
 
-    debugPrint(
-      'Dealer ID: ${selectedDealer!.id}',
-    );
+    debugPrint('Dealer ID: ${selectedDealer!.id}');
 
-    debugPrint(
-      'Godown ID: ${selectedGodown!.id}',
-    );
+    debugPrint('Godown ID: ${selectedGodown!.id}');
 
-    debugPrint(
-      'SELECTED CATEGORIES:',
-    );
+    debugPrint('Category Count: ${selectedCategories.length}');
 
-    for (final category
-        in selectedCategories) {
-      debugPrint(
-        'Category ID: ${category.id}',
-      );
-      debugPrint(
-        'Category Name: ${category.name}',
-      );
+    if (selectedCategories.isEmpty) {
+      debugPrint('No category selected');
+    } else {
+      for (final category in selectedCategories) {
+        debugPrint('Category ID: ${category.id}');
+
+        debugPrint('Category Name: ${category.name}');
+      }
     }
 
-    debugPrint(
-      'Category Count: '
-      '${selectedCategories.length}',
-    );
+    debugPrint('Products: ${selectedProducts.length}');
 
-    debugPrint(
-      'Products: ${selectedProducts.length}',
-    );
+    debugPrint('Rate Lines: ${selectedProductPayload.length}');
 
-    debugPrint(
-      'Rate Lines: '
-      '${selectedProductPayload.length}',
-    );
-
-    debugPrint(
-      '========================================',
-    );
+    debugPrint('========================================');
 
     // -------------------------------------------------------------------------
     // PREVIEW
@@ -1718,56 +2287,38 @@ class _PlaceOrderViewState extends State<_PlaceOrderView> {
     await showModalBottomSheet(
       context: context,
       isScrollControlled: true,
-      backgroundColor:
-          Colors.transparent,
-      barrierColor:
-          Colors.black.withOpacity(0.45),
+      backgroundColor: Colors.transparent,
+      barrierColor: Colors.black.withOpacity(0.45),
+
       builder: (previewContext) {
         return OrderPreviewSheet(
           dealer: selectedDealer!,
           godown: selectedGodown!,
 
-          // IMPORTANT:
-          // Your OrderPreviewSheet must be changed from:
-          //
-          // category: selectedCategory!,
-          //
-          // to:
-          //
-          // categories: selectedCategories,
-          //
-          // See explanation below.
-          //
-          // TEMPORARY current parameter:
-          category: selectedCategories.first,
-
+          // CATEGORY IS OPTIONAL
+          // category: previewCategory,
           products: selectedProducts,
-          selectedRates: selectedRates,
-          packingQuantities:
-              state.packingQuantities,
-          imagePath: imagePath,
-          signatureBytes:
-              signatureBytes,
-          remark:
-              remarkController.text.trim(),
-          onConfirm: () {
-            Navigator.pop(
-              previewContext,
-            );
 
-            final List<String>
-                selectedImages =
-                imagePath == null
-                    ? <String>[]
-                    : <String>[
-                        imagePath!
-                      ];
+          selectedRates: selectedRates,
+
+          packingQuantities: state.packingQuantities,
+
+          imagePath: imagePath,
+
+          signatureBytes: signatureBytes,
+
+          remark: remarkController.text.trim(),
+
+          onConfirm: () {
+            Navigator.pop(previewContext);
+
+            final List<String> selectedImages = imagePath == null
+                ? <String>[]
+                : <String>[imagePath!];
 
             _confirmAndSubmitOrder(
-              selectedProductPayload:
-                  selectedProductPayload,
-              selectedImages:
-                  selectedImages,
+              selectedProductPayload: selectedProductPayload,
+              selectedImages: selectedImages,
             );
           },
         );
@@ -1779,59 +2330,38 @@ class _PlaceOrderViewState extends State<_PlaceOrderView> {
   // SUCCESS DIALOG
   // ===========================================================================
 
-  Future<void>
-      _showOrderSuccessDialog() async {
-    if (!mounted ||
-        isShowingSuccessDialog) {
+  Future<void> _showOrderSuccessDialog() async {
+    if (!mounted || isShowingSuccessDialog) {
       return;
     }
 
     isShowingSuccessDialog = true;
 
-    final bool? goHome =
-        await showDialog<bool>(
+    final bool? goHome = await showDialog<bool>(
       context: context,
       barrierDismissible: false,
       builder: (dialogContext) {
         return AlertDialog(
           backgroundColor: Colors.white,
-          shape:
-              RoundedRectangleBorder(
-            borderRadius:
-                BorderRadius.circular(
-              20.r,
-            ),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20.r),
           ),
-          contentPadding:
-              EdgeInsets.fromLTRB(
-            24.w,
-            28.h,
-            24.w,
-            20.h,
-          ),
+          contentPadding: EdgeInsets.fromLTRB(24.w, 28.h, 24.w, 20.h),
           content: Column(
-            mainAxisSize:
-                MainAxisSize.min,
+            mainAxisSize: MainAxisSize.min,
             children: [
               Container(
                 width: 76.w,
                 height: 76.w,
-                decoration:
-                    const BoxDecoration(
-                  color:
-                      AppColors.lightGreen,
-                  shape:
-                      BoxShape.circle,
+                decoration: const BoxDecoration(
+                  color: AppColors.lightGreen,
+                  shape: BoxShape.circle,
                 ),
                 child: Container(
-                  margin:
-                      EdgeInsets.all(9.w),
-                  decoration:
-                      const BoxDecoration(
-                    color:
-                        AppColors.primary,
-                    shape:
-                        BoxShape.circle,
+                  margin: EdgeInsets.all(9.w),
+                  decoration: const BoxDecoration(
+                    color: AppColors.primary,
+                    shape: BoxShape.circle,
                   ),
                   child: Icon(
                     Icons.check_rounded,
@@ -1843,65 +2373,45 @@ class _PlaceOrderViewState extends State<_PlaceOrderView> {
               SizedBox(height: 20.h),
               Text(
                 'Order Placed Successfully',
-                textAlign:
-                    TextAlign.center,
+                textAlign: TextAlign.center,
                 style: TextStyle(
                   fontSize: 19.sp,
-                  fontWeight:
-                      FontWeight.w800,
-                  color:
-                      AppColors.textPrimary,
+                  fontWeight: FontWeight.w800,
+                  color: AppColors.textPrimary,
                 ),
               ),
               SizedBox(height: 10.h),
               Text(
                 'Your order has been submitted successfully.',
-                textAlign:
-                    TextAlign.center,
+                textAlign: TextAlign.center,
                 style: TextStyle(
                   fontSize: 13.sp,
                   height: 1.45,
-                  fontWeight:
-                      FontWeight.w500,
-                  color:
-                      AppColors.textSecondary,
+                  fontWeight: FontWeight.w500,
+                  color: AppColors.textSecondary,
                 ),
               ),
               SizedBox(height: 24.h),
               SizedBox(
-                width:
-                    double.infinity,
+                width: double.infinity,
                 height: 48.h,
-                child:
-                    ElevatedButton(
+                child: ElevatedButton(
                   onPressed: () {
-                    Navigator.of(
-                      dialogContext,
-                    ).pop(true);
+                    Navigator.of(dialogContext).pop(true);
                   },
-                  style:
-                      ElevatedButton
-                          .styleFrom(
-                    backgroundColor:
-                        AppColors.primary,
-                    foregroundColor:
-                        Colors.white,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppColors.primary,
+                    foregroundColor: Colors.white,
                     elevation: 0,
-                    shape:
-                        RoundedRectangleBorder(
-                      borderRadius:
-                          BorderRadius
-                              .circular(
-                        14.r,
-                      ),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(14.r),
                     ),
                   ),
                   child: Text(
                     'OK',
                     style: TextStyle(
                       fontSize: 14.sp,
-                      fontWeight:
-                          FontWeight.w800,
+                      fontWeight: FontWeight.w800,
                     ),
                   ),
                 ),
@@ -1914,11 +2424,8 @@ class _PlaceOrderViewState extends State<_PlaceOrderView> {
 
     isShowingSuccessDialog = false;
 
-    if (goHome == true &&
-        mounted) {
-      context.go(
-        AppRouter.home,
-      );
+    if (goHome == true && mounted) {
+      context.go(AppRouter.home);
     }
   }
 
@@ -1926,9 +2433,7 @@ class _PlaceOrderViewState extends State<_PlaceOrderView> {
   // MESSAGE
   // ===========================================================================
 
-  void _showMessage(
-    String message,
-  ) {
+  void _showMessage(String message) {
     if (!mounted) {
       return;
     }
@@ -1939,25 +2444,16 @@ class _PlaceOrderViewState extends State<_PlaceOrderView> {
         SnackBar(
           content: Text(
             message,
-            style:
-                const TextStyle(
+            style: const TextStyle(
               color: Colors.white,
-              fontWeight:
-                  FontWeight.w600,
+              fontWeight: FontWeight.w600,
             ),
           ),
-          backgroundColor:
-              AppColors.error,
-          behavior:
-              SnackBarBehavior.floating,
-          margin:
-              EdgeInsets.all(12.w),
-          shape:
-              RoundedRectangleBorder(
-            borderRadius:
-                BorderRadius.circular(
-              14.r,
-            ),
+          backgroundColor: AppColors.error,
+          behavior: SnackBarBehavior.floating,
+          margin: EdgeInsets.all(12.w),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(14.r),
           ),
         ),
       );
@@ -1967,538 +2463,430 @@ class _PlaceOrderViewState extends State<_PlaceOrderView> {
   // BUILD
   // ===========================================================================
 
-  @override
-  Widget build(
-    BuildContext context,
-  ) {
-    return Scaffold(
-      backgroundColor:
-          AppColors.background,
+   @override
+  Widget build(BuildContext context) {
+  return Scaffold(
+    backgroundColor: AppColors.background,
 
-      appBar: CustomAppBar(
-        title: 'Place Order',
-        showBackButton: true,
-        onBackTap: () =>
-            Navigator.pop(context),
-      ),
+    // ============================================================
+    // APP BAR
+    // ============================================================
+    appBar: CustomAppBar(
+      title: 'Place Order',
+      showBackButton: true,
+      onBackTap: () => Navigator.pop(context),
+    ),
 
-      body: BlocConsumer<
-          PlaceOrderBloc,
-          PlaceOrderState>(
-        listener:
-            (context, state) {
-          // ---------------------------------------------------------------
-          // IMPORTANT:
-          // Every time the Bloc gets products, merge them into our local
-          // multi-category product list.
-          // ---------------------------------------------------------------
+    // ============================================================
+    // BODY
+    // ============================================================
+    body: BlocConsumer<PlaceOrderBloc, PlaceOrderState>(
+      listener: (context, state) {
+        // =========================================================
+        // MERGE PRODUCTS
+        // =========================================================
 
-          if (state.products
-              .isNotEmpty) {
-            _mergeCurrentProducts(
-              state.products,
-            );
-          }
+        if (state.products.isNotEmpty) {
+          _mergeCurrentProducts(state.products);
+        }
 
-          if (state.status ==
-              PlaceOrderStatus
-                  .success) {
-            _showOrderSuccessDialog();
-            return;
-          }
+        // =========================================================
+        // SUCCESS
+        // =========================================================
 
-          if (state.status ==
-              PlaceOrderStatus
-                  .failure) {
-            _showMessage(
-              state.errorMessage
-                      .isEmpty
-                  ? 'Something went wrong'
-                  : state.errorMessage,
-            );
-          }
-        },
+        if (state.status == PlaceOrderStatus.success) {
+          _showOrderSuccessDialog();
+          return;
+        }
 
-        builder:
-            (context, state) {
-          if (state.status ==
-                  PlaceOrderStatus
-                      .loading &&
-              state.dealers.isEmpty &&
-              state.godowns.isEmpty &&
-              state.categories.isEmpty) {
-            return const Center(
-              child:
-                  CircularProgressIndicator(
-                color:
-                    AppColors.primary,
-              ),
-            );
-          }
+        // =========================================================
+        // FAILURE
+        // =========================================================
 
-          final safeGodownValue =
-              _getSafeGodownValue(
-            state.godowns,
+        if (state.status == PlaceOrderStatus.failure) {
+          _showMessage(
+            state.errorMessage.isEmpty
+                ? 'Something went wrong'
+                : state.errorMessage,
           );
+        }
+      },
 
-          return SafeArea(
-            child:
-                SingleChildScrollView(
-              physics:
-                  const BouncingScrollPhysics(),
-              padding:
-                  EdgeInsets.fromLTRB(
-                14.w,
-                10.h,
-                14.w,
-                18.h,
-              ),
-              child: Column(
-                crossAxisAlignment:
-                    CrossAxisAlignment
-                        .start,
-                children: [
-                  // =========================================================
-                  // HEADER
-                  // =========================================================
+      builder: (context, state) {
+        // =========================================================
+        // INITIAL LOADING
+        // =========================================================
 
-                  _buildOrderHeader(),
+        if (state.status == PlaceOrderStatus.loading &&
+            state.dealers.isEmpty &&
+            state.godowns.isEmpty &&
+            state.categories.isEmpty) {
+          return const Center(
+            child: CircularProgressIndicator(
+              color: AppColors.primary,
+            ),
+          );
+        }
 
-                  SizedBox(
-                    height: 12.h,
+        final String? safeGodownValue =
+            _getSafeGodownValue(state.godowns);
+
+        final List<ProductEntity> filteredProducts =
+            _getFilteredProducts();
+
+        final bool hasSelectedProducts =
+            _getSelectedProducts(state).isNotEmpty;
+
+        return SafeArea(
+          bottom: false,
+          child: SingleChildScrollView(
+            physics: const BouncingScrollPhysics(),
+
+            // IMPORTANT:
+            // bottom padding gives space above fixed buttons
+            padding: EdgeInsets.fromLTRB(
+              10.w,
+              7.h,
+              10.w,
+              18.h,
+            ),
+
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // =================================================
+                // DEALER
+                // =================================================
+
+                DealerSearchField(
+                  controller: dealerController,
+                  dealers: state.dealers,
+                  selectedDealer: selectedDealer,
+                  onChanged: _searchDealer,
+                  onDealerSelected: _selectDealer,
+                  onClearSelected: _clearDealer,
+                ),
+
+                SizedBox(height: 2.h),
+
+                // =================================================
+                // GODOWN
+                // =================================================
+
+                ModernDropdown<String>(
+                  label: 'Godown *',
+                  hint: 'Select godown',
+                  icon: Icons.warehouse_rounded,
+                  value: safeGodownValue,
+
+                  items: _buildGodownItems(
+                    state.godowns,
                   ),
 
-                  // =========================================================
-                  // DEALER
-                  // =========================================================
+                  onChanged: (value) {
+                    if (value == null) {
+                      return;
+                    }
 
-                  DealerSearchField(
-                    controller:
-                        dealerController,
-                    dealers:
-                        state.dealers,
-                    selectedDealer:
-                        selectedDealer,
-                    onChanged:
-                        _searchDealer,
-                    onDealerSelected:
-                        _selectDealer,
-                    onClearSelected:
-                        _clearDealer,
-                  ),
+                    final matches = state.godowns
+                        .where(
+                          (element) =>
+                              element.id == value,
+                        )
+                        .toList();
 
-                  SizedBox(
-                    height: 12.h,
-                  ),
-
-                  // =========================================================
-                  // GODOWN
-                  // =========================================================
-
-                  ModernDropdown<String>(
-                    label:
-                        'Godown *',
-                    hint:
-                        'Select godown',
-                    icon: Icons
-                        .warehouse_rounded,
-                    value:
-                        safeGodownValue,
-                    items:
-                        _buildGodownItems(
-                      state.godowns,
-                    ),
-                    onChanged:
-                        (value) {
-                      if (value ==
-                          null) {
-                        return;
-                      }
-
-                      final matches =
-                          state.godowns
-                              .where(
-                        (element) =>
-                            element.id ==
-                            value,
-                      )
-                              .toList();
-
-                      if (matches.length !=
-                          1) {
-                        _showMessage(
-                          'Invalid godown selection',
-                        );
-                        return;
-                      }
-
-                      _selectGodown(
-                        matches.first,
+                    if (matches.length != 1) {
+                      _showMessage(
+                        'Invalid godown selection',
                       );
-                    },
-                  ),
+                      return;
+                    }
 
-                  SizedBox(
-                    height: 12.h,
-                  ),
+                    _selectGodown(matches.first);
+                  },
+                ),
 
-                  // =========================================================
-                  // CATEGORY
-                  // =========================================================
+                // =================================================
+                // CATEGORY
+                // =================================================
 
-                  ModernDropdown<String>(
-                    label:
-                        'Category *',
-                    hint:
-                        selectedCategories
-                                .isEmpty
-                            ? 'Select product category'
-                            : 'Select another category',
-                    icon: Icons
-                        .category_rounded,
-
-                    // IMPORTANT:
-                    // Always null because dropdown is used to ADD another
-                    // category.
-                    value:
-                        _getCategoryDropdownValue(),
-
-                    items:
-                        _buildCategoryItems(
-                      state.categories,
-                    ),
-
-                    onChanged:
-                        (value) {
-                      if (value ==
-                          null) {
-                        return;
-                      }
-
-                      final matches =
-                          state.categories
-                              .where(
-                        (element) =>
-                            element.id ==
-                            value,
-                      )
-                              .toList();
-
-                      if (matches.length !=
-                          1) {
-                        _showMessage(
-                          'Invalid category selection',
-                        );
-                        return;
-                      }
-
-                      _selectCategory(
-                        matches.first,
-                      );
-                    },
-                  ),
-
-                  // =========================================================
-                  // SELECTED CATEGORY CHIPS
-                  // =========================================================
-
+                if (selectedCategories.isNotEmpty) ...[
+                  SizedBox(height: 6.h),
                   _buildSelectedCategoryChips(),
+                ],
 
-                  // =========================================================
-                  // PRODUCTS
-                  // =========================================================
+                SizedBox(height: 10.h),
 
-                  if (selectedCategories
-                      .isNotEmpty) ...[
-                    SizedBox(
-                      height: 16.h,
-                    ),
+                // =================================================
+                // PRODUCT SECTION
+                // =================================================
 
-                    Row(
-                      children: [
-                        Expanded(
-                          child:
-                              _sectionTitle(
-                            title:
-                                'Products',
-                            subtitle:
-                                'Products from all selected categories',
-                            icon: Icons
-                                .inventory_2_rounded,
-                          ),
-                        ),
+                Container(
+                  padding: EdgeInsets.all(12.w),
+                  color: Colors.white,
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      // =============================================
+                      // PRODUCT HEADER
+                      // =============================================
 
-                        SizedBox(
-                          width: 6.w,
-                        ),
+                      Row(
+                        children: [
+                          Expanded(
+                            child: _sectionTitle(
+                              title: 'Products',
 
-                        InkWell(
-                          borderRadius:
-                              BorderRadius
-                                  .circular(
-                            10.r,
-                          ),
-                          onTap:
-                              allCategoryProducts
-                                          .isEmpty ||
-                                      isOpeningRateSelector
-                                  ? null
-                                  : () =>
-                                      _openMultiProductSelector(),
-                          child:
-                              Container(
-                            padding:
-                                EdgeInsets
-                                    .symmetric(
-                              horizontal:
-                                  10.w,
-                              vertical:
-                                  8.h,
+                              subtitle:
+                                  selectedCategories.isEmpty
+                                  ? '${allCategoryProducts.length} products'
+                                  : '${allCategoryProducts.length} products • '
+                                        '${selectedCategories.length} categories',
+
+                              icon:
+                                  Icons.inventory_2_rounded,
                             ),
-                            decoration:
-                                BoxDecoration(
-                              color: allCategoryProducts
-                                          .isEmpty ||
-                                      isOpeningRateSelector
-                                  ? Colors
-                                      .grey
-                                  : AppColors
-                                      .primary,
-                              borderRadius:
-                                  BorderRadius
-                                      .circular(
-                                10.r,
-                              ),
-                            ),
-                            child:
-                                isOpeningRateSelector
-                                    ? SizedBox(
-                                        width:
-                                            18.sp,
-                                        height:
-                                            18.sp,
-                                        child:
-                                            const CircularProgressIndicator(
-                                          strokeWidth:
-                                              2,
-                                          color:
-                                              Colors.white,
-                                        ),
-                                      )
-                                    : Icon(
-                                        Icons
-                                            .library_add_check_rounded,
-                                        color:
-                                            Colors.white,
-                                        size:
-                                            18.sp,
-                                      ),
                           ),
-                        ),
-                      ],
-                    ),
 
-                    SizedBox(
-                      height: 8.h,
-                    ),
+                          SizedBox(width: 5.w),
 
-                    _buildSelectedProductSummary(
-                      state,
-                    ),
+                          // =========================================
+                          // ADD MULTIPLE PRODUCTS
+                          // =========================================
 
-                    if (_getSelectedProducts(
-                      state,
-                    ).isNotEmpty)
-                      SizedBox(
-                        height: 8.h,
+                          // Material(
+                          //   color:
+                          //       allCategoryProducts
+                          //               .isEmpty ||
+                          //           isOpeningRateSelector
+                          //       ? Colors.grey.shade400
+                          //       : AppColors.primary,
+
+                          //   borderRadius:
+                          //       BorderRadius.circular(
+                          //         8.r,
+                          //       ),
+
+                          //   child: InkWell(
+                          //     onTap:
+                          //         allCategoryProducts
+                          //                 .isEmpty ||
+                          //             isOpeningRateSelector
+                          //         ? null
+                          //         : () {
+                          //             _openMultiProductSelector();
+                          //           },
+
+                          //     borderRadius:
+                          //         BorderRadius.circular(
+                          //           8.r,
+                          //         ),
+
+                          //     child: SizedBox(
+                          //       width: 36.w,
+                          //       height: 34.h,
+
+                          //       child: Center(
+                          //         child:
+                          //             isOpeningRateSelector
+                          //             ? SizedBox(
+                          //                 width: 15.w,
+                          //                 height: 15.w,
+
+                          //                 child:
+                          //                     const CircularProgressIndicator(
+                          //                       strokeWidth:
+                          //                           2,
+                          //                       color:
+                          //                           Colors.white,
+                          //                     ),
+                          //               )
+                          //             : Icon(
+                          //                 Icons
+                          //                     .playlist_add_rounded,
+                          //                 size: 19.sp,
+                          //                 color:
+                          //                     Colors.white,
+                          //               ),
+                          //       ),
+                          //     ),
+                          //   ),
+                          // ),
+                        ],
                       ),
 
-                    if (state.status ==
-                            PlaceOrderStatus
-                                .loading &&
-                        allCategoryProducts
-                            .isEmpty)
-                      _buildProductLoading()
-                    else if (allCategoryProducts
-                        .isEmpty)
-                      _emptyBox(
-                        icon: Icons
-                            .inventory_2_outlined,
-                        text:
-                            'No products found',
-                      )
-                    else
-                      ...allCategoryProducts.map(
-                        (product) {
-                          final String
-                              productId =
-                              product.id
-                                  .toString();
+                      SizedBox(height: 7.h),
 
-                          final List<
-                                  ProductRateEntity>
-                              productRates =
-                              selectedRates[
-                                      productId] ??
-                                  <ProductRateEntity>[];
+                      // =============================================
+                      // SEARCH
+                      // =============================================
 
-                          return Padding(
-                            padding:
-                                EdgeInsets
-                                    .only(
-                              bottom: 8.h,
-                            ),
-                            child:
-                                ProductCard(
-                              product:
-                                  product,
+                      _buildProductSearchField(),
+
+                      // =============================================
+                      // SELECTED SUMMARY
+                      // =============================================
+
+                      if (hasSelectedProducts) ...[
+                        SizedBox(height: 6.h),
+
+                        _buildSelectedProductSummary(
+                          state,
+                        ),
+                      ],
+
+                      SizedBox(height: 7.h),
+
+                      // =============================================
+                      // PRODUCT LIST
+                      // =============================================
+
+                      if (state.status ==
+                              PlaceOrderStatus.loading &&
+                          allCategoryProducts.isEmpty)
+                        _buildProductLoading()
+
+                      else if (allCategoryProducts.isEmpty)
+                        _emptyBox(
+                          icon:
+                              Icons.inventory_2_outlined,
+                          text: 'No products found',
+                        )
+
+                      else if (filteredProducts.isEmpty)
+                        _emptyBox(
+                          icon: Icons.search_off_rounded,
+                          text:
+                              'No matching products found',
+                        )
+
+                      else
+                        ...filteredProducts.map(
+                          (product) {
+                            final String productId =
+                                product.id.toString();
+
+                            final List<
+                              ProductRateEntity
+                            >
+                            productRates =
+                                selectedRates[productId] ??
+                                <ProductRateEntity>[];
+
+                            return ProductCard(
+                              product: product,
+
                               selectedRates:
                                   productRates,
+
                               packingQuantities:
-                                  state.packingQuantities[
-                                          productId] ??
-                                      <String,
-                                          int>{},
-                              onAdd:
-                                  () async {
+                                  state.packingQuantities[productId] ??
+                                  <String, int>{},
+
+                              onAdd: () async {
                                 await _addProduct(
                                   product,
                                 );
                               },
-                              onAddMore:
-                                  () async {
+
+                              onAddMore: () async {
                                 await _openMultiProductSelector(
                                   initialProductId:
                                       productId,
                                 );
                               },
-                              onIncrease:
-                                  (rate) {
+
+                              onIncrease: (rate) {
                                 context
                                     .read<
-                                        PlaceOrderBloc>()
+                                      PlaceOrderBloc
+                                    >()
                                     .add(
                                       IncreasePackingQuantityEvent(
                                         productId:
-                                            product.id.toString(),
+                                            product.id
+                                                .toString(),
+
                                         productDetailsId:
-                                            rate.productDetailsId.toString(),
+                                            rate
+                                                .productDetailsId
+                                                .toString(),
                                       ),
                                     );
                               },
-                              onDecrease:
-                                  (rate) {
+
+                              onDecrease: (rate) {
                                 context
                                     .read<
-                                        PlaceOrderBloc>()
+                                      PlaceOrderBloc
+                                    >()
                                     .add(
                                       DecreasePackingQuantityEvent(
                                         productId:
-                                            product.id.toString(),
+                                            product.id
+                                                .toString(),
+
                                         productDetailsId:
-                                            rate.productDetailsId.toString(),
+                                            rate
+                                                .productDetailsId
+                                                .toString(),
                                       ),
                                     );
                               },
-                              onDelete:
-                                  () {
+
+                                // ===========================================================
+                                // NEW - DELETE PARTICULAR PACKING
+                                // ===========================================================
+
+                                onDeletePacking: (rate) {
+                                  _deleteProductPacking(
+                                    product: product,
+                                    rate: rate,
+                                  );
+                                },
+
+
+                              onDelete: () {
                                 _deleteProduct(
                                   product,
                                 );
                               },
-                            ),
-                          );
-                        },
-                      ),
-                  ],
-
-                  // =========================================================
-                  // PHOTO + SIGNATURE
-                  // =========================================================
-
-                  SizedBox(
-                    height: 16.h,
-                  ),
-
-                  Row(
-                    crossAxisAlignment:
-                        CrossAxisAlignment
-                            .start,
-                    children: [
-                      Expanded(
-                        child:
-                            ImagePickerSection(
-                          imagePath:
-                              imagePath,
-                          onChanged:
-                              (path) {
-                            setState(() {
-                              imagePath =
-                                  path;
-                            });
+                            );
                           },
                         ),
-                      ),
-                      SizedBox(
-                        width: 10.w,
-                      ),
-                      Expanded(
-                        child:
-                            SignatureSection(
-                          controller:
-                              signatureController,
-                          onClear:
-                              _clearSignature,
-                          onSignatureChanged:
-                              _onSignatureChanged,
-                        ),
-                      ),
                     ],
                   ),
+                ),
 
-                  // =========================================================
-                  // REMARK
-                  // =========================================================
+                SizedBox(height: 10.h),
 
-                  SizedBox(
-                    height: 14.h,
-                  ),
-
-                  _buildRemarkField(),
-
-                  // =========================================================
-                  // SUBMIT
-                  // =========================================================
-
-                  SizedBox(
-                    height: 18.h,
-                  ),
-
-                  _buildSubmitButton(
-                    state,
-                  ),
-
-                  SizedBox(
-                    height: 6.h,
-                  ),
-                ],
-              ),
+                // DO NOT PUT ADD DETAILS / PREVIEW HERE
+              ],
             ),
-          );
-        },
-      ),
-    );
-  }
+          ),
+        );
+      },
+    ),
+
+    // ============================================================
+    // FIXED BOTTOM BUTTONS
+    // ============================================================
+    bottomNavigationBar:
+        BlocBuilder<PlaceOrderBloc, PlaceOrderState>(
+      builder: (context, state) {
+        return _buildFixedBottomButtons(state);
+      },
+    ),
+  );
+}
+
 
   // ===========================================================================
   // SELECTED PRODUCT SUMMARY
   // ===========================================================================
 
-  Widget _buildSelectedProductSummary(
-    PlaceOrderState state,
-  ) {
-    final selectedProducts =
-        _getSelectedProducts(state);
+  Widget _buildSelectedProductSummary(PlaceOrderState state) {
+    final selectedProducts = _getSelectedProducts(state);
 
     if (selectedProducts.isEmpty) {
       return const SizedBox.shrink();
@@ -2507,119 +2895,75 @@ class _PlaceOrderViewState extends State<_PlaceOrderView> {
     int totalQuantity = 0;
     double totalAmount = 0.0;
 
-    for (final product
-        in selectedProducts) {
-      final String productId =
-          product.id.toString();
+    for (final product in selectedProducts) {
+      final String productId = product.id.toString();
 
-      final List<ProductRateEntity>
-          rates =
-          selectedRates[productId] ??
-              <ProductRateEntity>[];
+      final List<ProductRateEntity> rates =
+          selectedRates[productId] ?? <ProductRateEntity>[];
 
-      final Map<String, int>
-          productPackingQuantities =
-          state.packingQuantities[
-                  productId] ??
-              <String, int>{};
+      final Map<String, int> productPackingQuantities =
+          state.packingQuantities[productId] ?? <String, int>{};
 
       for (final rate in rates) {
-        final String detailsId =
-            rate.productDetailsId
-                .toString();
+        final String detailsId = rate.productDetailsId.toString();
 
-        final int quantity =
-            productPackingQuantities[
-                    detailsId] ??
-                1;
+        final int quantity = productPackingQuantities[detailsId] ?? 1;
 
-        totalQuantity +=
-            quantity;
+        totalQuantity += quantity;
 
         final double rateValue =
-            double.tryParse(
-                  rate.rateWithGst
-                      .toString(),
-                ) ??
-                0.0;
+            double.tryParse(rate.rateWithGst.toString()) ?? 0.0;
 
-        totalAmount +=
-            rateValue * quantity;
+        totalAmount += rateValue * quantity;
       }
     }
 
     return Container(
       width: double.infinity,
-      padding:
-          EdgeInsets.symmetric(
-        horizontal: 11.w,
-        vertical: 9.h,
-      ),
-      decoration:
-          BoxDecoration(
-        color:
-            AppColors.lightGreen,
-        borderRadius:
-            BorderRadius.circular(
-          13.r,
-        ),
-        border: Border.all(
-          color: AppColors.primary
-              .withOpacity(0.12),
-        ),
+      padding: EdgeInsets.symmetric(horizontal: 11.w, vertical: 9.h),
+      decoration: BoxDecoration(
+        color: AppColors.lightGreen,
+        borderRadius: BorderRadius.circular(13.r),
+        border: Border.all(color: AppColors.primary.withOpacity(0.12)),
       ),
       child: Row(
         children: [
           Container(
             width: 34.w,
             height: 34.w,
-            decoration:
-                const BoxDecoration(
-              color:
-                  AppColors.primary,
-              shape:
-                  BoxShape.circle,
+            decoration: const BoxDecoration(
+              color: AppColors.primary,
+              shape: BoxShape.circle,
             ),
             child: Icon(
-              Icons
-                  .shopping_cart_rounded,
+              Icons.shopping_cart_rounded,
               color: Colors.white,
               size: 17.sp,
             ),
           ),
-          SizedBox(
-            width: 8.w,
-          ),
+          SizedBox(width: 8.w),
           Expanded(
             child: Column(
-              crossAxisAlignment:
-                  CrossAxisAlignment
-                      .start,
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
                   '${selectedProducts.length} '
                   'product${selectedProducts.length == 1 ? '' : 's'} selected',
                   style: TextStyle(
                     fontSize: 12.sp,
-                    fontWeight:
-                        FontWeight.w800,
-                    color:
-                        AppColors.textPrimary,
+                    fontWeight: FontWeight.w800,
+                    color: AppColors.textPrimary,
                   ),
                 ),
-                SizedBox(
-                  height: 1.h,
-                ),
+                SizedBox(height: 1.h),
                 Text(
                   '${selectedCategories.length} '
                   'categor${selectedCategories.length == 1 ? 'y' : 'ies'} • '
                   'Total quantity: $totalQuantity',
                   style: TextStyle(
                     fontSize: 10.sp,
-                    fontWeight:
-                        FontWeight.w600,
-                    color:
-                        AppColors.textSecondary,
+                    fontWeight: FontWeight.w600,
+                    color: AppColors.textSecondary,
                   ),
                 ),
               ],
@@ -2629,10 +2973,8 @@ class _PlaceOrderViewState extends State<_PlaceOrderView> {
             '₹${totalAmount.toStringAsFixed(2)}',
             style: TextStyle(
               fontSize: 13.sp,
-              fontWeight:
-                  FontWeight.w900,
-              color:
-                  AppColors.primary,
+              fontWeight: FontWeight.w900,
+              color: AppColors.primary,
             ),
           ),
         ],
@@ -2647,86 +2989,54 @@ class _PlaceOrderViewState extends State<_PlaceOrderView> {
   Widget _buildOrderHeader() {
     return Container(
       width: double.infinity,
-      padding:
-          EdgeInsets.all(14.w),
-      decoration:
-          BoxDecoration(
-        color:
-            AppColors.primary,
-        borderRadius:
-            BorderRadius.circular(
-          17.r,
-        ),
+      padding: EdgeInsets.all(14.w),
+      decoration: BoxDecoration(
+        color: AppColors.primary,
+        borderRadius: BorderRadius.circular(17.r),
         boxShadow: [
           BoxShadow(
-            color: AppColors.primary
-                .withOpacity(0.16),
+            color: AppColors.primary.withOpacity(0.16),
             blurRadius: 14,
-            offset:
-                const Offset(0, 6),
+            offset: const Offset(0, 6),
           ),
         ],
       ),
+
       child: Row(
         children: [
           Container(
             width: 46.w,
             height: 46.w,
-            decoration:
-                BoxDecoration(
-              color:
-                  Colors.white.withOpacity(
-                0.16,
-              ),
-              borderRadius:
-                  BorderRadius.circular(
-                13.r,
-              ),
+            decoration: BoxDecoration(
+              color: Colors.white.withOpacity(0.16),
+              borderRadius: BorderRadius.circular(13.r),
             ),
             child: Icon(
-              Icons
-                  .shopping_cart_checkout_rounded,
-              color:
-                  Colors.white,
+              Icons.shopping_cart_checkout_rounded,
+              color: Colors.white,
               size: 24.sp,
             ),
           ),
-          SizedBox(
-            width: 10.w,
-          ),
+          SizedBox(width: 10.w),
           Expanded(
             child: Column(
-              crossAxisAlignment:
-                  CrossAxisAlignment
-                      .start,
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
                   'Create New Order',
-                  style:
-                      TextStyle(
-                    color:
-                        Colors.white,
-                    fontSize:
-                        16.sp,
-                    fontWeight:
-                        FontWeight.w800,
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 16.sp,
+                    fontWeight: FontWeight.w800,
                   ),
                 ),
-                SizedBox(
-                  height: 2.h,
-                ),
+                SizedBox(height: 2.h),
                 Text(
                   'Select dealer, products and order details',
-                  style:
-                      TextStyle(
-                    color: Colors.white
-                        .withOpacity(
-                      0.82,
-                    ),
-                    fontSize:
-                        11.sp,
-                    fontWeight:
-                        FontWeight.w500,
+                  style: TextStyle(
+                    color: Colors.white.withOpacity(0.82),
+                    fontSize: 11.sp,
+                    fontWeight: FontWeight.w500,
                   ),
                 ),
               ],
@@ -2751,60 +3061,34 @@ class _PlaceOrderViewState extends State<_PlaceOrderView> {
         Container(
           width: 36.w,
           height: 36.w,
-          decoration:
-              BoxDecoration(
-            color:
-                AppColors.lightGreen,
-            borderRadius:
-                BorderRadius.circular(
-              11.r,
-            ),
+          decoration: BoxDecoration(
+            color: AppColors.lightGreen,
+            borderRadius: BorderRadius.circular(11.r),
           ),
-          child: Icon(
-            icon,
-            size: 18.sp,
-            color:
-                AppColors.primary,
-          ),
+          child: Icon(icon, size: 18.sp, color: AppColors.primary),
         ),
-        SizedBox(
-          width: 9.w,
-        ),
+        SizedBox(width: 9.w),
         Expanded(
           child: Column(
-            crossAxisAlignment:
-                CrossAxisAlignment
-                    .start,
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
                 title,
-                style:
-                    TextStyle(
-                  fontSize:
-                      14.sp,
-                  fontWeight:
-                      FontWeight.w800,
-                  color:
-                      AppColors.textPrimary,
+                style: TextStyle(
+                  fontSize: 14.sp,
+                  fontWeight: FontWeight.w800,
+                  color: AppColors.textPrimary,
                 ),
               ),
-              SizedBox(
-                height: 1.h,
-              ),
+              SizedBox(height: 1.h),
               Text(
                 subtitle,
                 maxLines: 1,
-                overflow:
-                    TextOverflow
-                        .ellipsis,
-                style:
-                    TextStyle(
-                  fontSize:
-                      10.5.sp,
-                  fontWeight:
-                      FontWeight.w500,
-                  color:
-                      AppColors.textSecondary,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(
+                  fontSize: 10.5.sp,
+                  fontWeight: FontWeight.w500,
+                  color: AppColors.textSecondary,
                 ),
               ),
             ],
@@ -2821,40 +3105,22 @@ class _PlaceOrderViewState extends State<_PlaceOrderView> {
   Widget _buildProductLoading() {
     return Container(
       width: double.infinity,
-      padding:
-          EdgeInsets.symmetric(
-        vertical: 24.h,
-      ),
-      decoration:
-          BoxDecoration(
+      padding: EdgeInsets.symmetric(vertical: 24.h),
+      decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius:
-            BorderRadius.circular(
-          15.r,
-        ),
-        border: Border.all(
-          color:
-              AppColors.border,
-        ),
+        borderRadius: BorderRadius.circular(15.r),
+        border: Border.all(color: AppColors.border),
       ),
       child: Column(
         children: [
-          const CircularProgressIndicator(
-            color:
-                AppColors.primary,
-          ),
-          SizedBox(
-            height: 8.h,
-          ),
+          const CircularProgressIndicator(color: AppColors.primary),
+          SizedBox(height: 8.h),
           Text(
             'Loading products...',
-            style:
-                TextStyle(
+            style: TextStyle(
               fontSize: 12.sp,
-              fontWeight:
-                  FontWeight.w600,
-              color:
-                  AppColors.textSecondary,
+              fontWeight: FontWeight.w600,
+              color: AppColors.textSecondary,
             ),
           ),
         ],
@@ -2866,62 +3132,32 @@ class _PlaceOrderViewState extends State<_PlaceOrderView> {
   // EMPTY
   // ===========================================================================
 
-  Widget _emptyBox({
-    required String text,
-    required IconData icon,
-  }) {
+  Widget _emptyBox({required String text, required IconData icon}) {
     return Container(
       width: double.infinity,
-      padding:
-          EdgeInsets.symmetric(
-        vertical: 24.h,
-        horizontal: 18.w,
-      ),
-      decoration:
-          BoxDecoration(
+      padding: EdgeInsets.symmetric(vertical: 24.h, horizontal: 18.w),
+      decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius:
-            BorderRadius.circular(
-          15.r,
-        ),
-        border: Border.all(
-          color:
-              AppColors.border,
-        ),
+        borderRadius: BorderRadius.circular(15.r),
+        border: Border.all(color: AppColors.border),
       ),
       child: Column(
         children: [
           Container(
-            padding:
-                EdgeInsets.all(
-              11.w,
+            padding: EdgeInsets.all(11.w),
+            decoration: const BoxDecoration(
+              color: AppColors.lightGreen,
+              shape: BoxShape.circle,
             ),
-            decoration:
-                const BoxDecoration(
-              color:
-                  AppColors.lightGreen,
-              shape:
-                  BoxShape.circle,
-            ),
-            child: Icon(
-              icon,
-              size: 25.sp,
-              color:
-                  AppColors.primary,
-            ),
+            child: Icon(icon, size: 25.sp, color: AppColors.primary),
           ),
-          SizedBox(
-            height: 8.h,
-          ),
+          SizedBox(height: 8.h),
           Text(
             text,
-            style:
-                TextStyle(
+            style: TextStyle(
               fontSize: 12.sp,
-              fontWeight:
-                  FontWeight.w600,
-              color:
-                  AppColors.textSecondary,
+              fontWeight: FontWeight.w600,
+              color: AppColors.textSecondary,
             ),
           ),
         ],
@@ -2935,18 +3171,13 @@ class _PlaceOrderViewState extends State<_PlaceOrderView> {
 
   Widget _buildRemarkField() {
     return CustomTextFormField(
-      controller:
-          remarkController,
-      hintText:
-          'Enter order remark...',
-      prefixIcon:
-          Icons.edit_note_rounded,
+      controller: remarkController,
+      hintText: 'Enter order remark...',
+      prefixIcon: Icons.edit_note_rounded,
       suffixIcon: null,
       maxLines: 2,
-      keyboardType:
-          TextInputType.multiline,
-      labelText:
-          'Enter order remark',
+      keyboardType: TextInputType.multiline,
+      labelText: 'Enter order remark',
     );
   }
 
@@ -2954,86 +3185,50 @@ class _PlaceOrderViewState extends State<_PlaceOrderView> {
   // SUBMIT BUTTON
   // ===========================================================================
 
-  Widget _buildSubmitButton(
-    PlaceOrderState state,
-  ) {
-    final bool isSubmitting =
-        state.status ==
-            PlaceOrderStatus
-                .submitting;
+  Widget _buildSubmitButton(PlaceOrderState state) {
+    final bool isSubmitting = state.status == PlaceOrderStatus.submitting;
 
     return SizedBox(
       width: double.infinity,
       height: 52.h,
-      child:
-          ElevatedButton(
-        onPressed: isSubmitting
-            ? null
-            : () => _submit(
-                  state,
-                ),
-        style:
-            ElevatedButton.styleFrom(
-          backgroundColor:
-              AppColors.primary,
-          foregroundColor:
-              Colors.white,
-          disabledBackgroundColor:
-              AppColors.primary
-                  .withOpacity(
-            0.55,
-          ),
+      child: ElevatedButton(
+        onPressed: isSubmitting ? null : () => _submit(state),
+        style: ElevatedButton.styleFrom(
+          backgroundColor: AppColors.primary,
+          foregroundColor: Colors.white,
+          disabledBackgroundColor: AppColors.primary.withOpacity(0.55),
           elevation: 2,
-          shape:
-              RoundedRectangleBorder(
-            borderRadius:
-                BorderRadius.circular(
-              15.r,
-            ),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(15.r),
           ),
         ),
-        child:
-            isSubmitting
-                ? SizedBox(
-                    width: 23.w,
-                    height: 23.w,
-                    child:
-                        const CircularProgressIndicator(
-                      strokeWidth:
-                          2.5,
-                      color:
-                          Colors.white,
-                    ),
-                  )
-                : Row(
-                    mainAxisAlignment:
-                        MainAxisAlignment
-                            .center,
-                    children: [
-                      Icon(
-                        Icons
-                            .shopping_cart_checkout_rounded,
-                        size:
-                            19.sp,
-                        color:
-                            Colors.white,
-                      ),
-                      SizedBox(
-                        width: 8.w,
-                      ),
-                      Text(
-                        'Preview Order',
-                        style:
-                            TextStyle(
-                          fontSize:
-                              14.sp,
-                          fontWeight:
-                              FontWeight
-                                  .w800,
-                        ),
-                      ),
-                    ],
+        child: isSubmitting
+            ? SizedBox(
+                width: 23.w,
+                height: 23.w,
+                child: const CircularProgressIndicator(
+                  strokeWidth: 2.5,
+                  color: Colors.white,
+                ),
+              )
+            : Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(
+                    Icons.shopping_cart_checkout_rounded,
+                    size: 19.sp,
+                    color: Colors.white,
                   ),
+                  SizedBox(width: 8.w),
+                  Text(
+                    'Preview Order',
+                    style: TextStyle(
+                      fontSize: 14.sp,
+                      fontWeight: FontWeight.w800,
+                    ),
+                  ),
+                ],
+              ),
       ),
     );
   }
