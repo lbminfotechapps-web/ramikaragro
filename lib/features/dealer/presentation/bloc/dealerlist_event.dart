@@ -14,16 +14,27 @@ class DealerListEvent extends DealerEevent {
   final String searchText;
   final String type;
 
+  // CHANGE THIS
+  final int startLimit;
+
   const DealerListEvent({
     required this.user_id,
     required this.latitude,
     required this.longitude,
     required this.searchText,
     required this.type,
+    required this.startLimit,
   });
 
   @override
-  List<Object> get props => [user_id, latitude, longitude, searchText, type];
+  List<Object> get props => [
+    user_id,
+    latitude,
+    longitude,
+    searchText,
+    type,
+    startLimit,
+  ];
 }
 
 class AddDealerLocation extends DealerEevent {
@@ -82,4 +93,46 @@ class AddDealerLocation extends DealerEevent {
     networkInfo,
     batteryInfo,
   ];
+}
+
+class DealerProductListEvent extends DealerEevent {
+  final String dealerId;
+
+  const DealerProductListEvent({required this.dealerId});
+
+  @override
+  List<Object> get props => [dealerId];
+}
+
+class AddDealerStock extends DealerEevent {
+  final String dealerId;
+  final String userId;
+  final String geoAddress;
+
+  /// Local dealer image file path.
+  final String dealerImage;
+
+  final String jsonData;
+
+  /// Local signature PNG file path.
+  final String digitalSignature;
+
+  const AddDealerStock({
+    required this.dealerId,
+    required this.userId,
+    required this.geoAddress,
+    required this.dealerImage,
+    required this.jsonData,
+    required this.digitalSignature,
+  });
+
+  @override
+  List<Object?> get props => [
+        dealerId,
+        userId,
+        geoAddress,
+        dealerImage,
+        jsonData,
+        digitalSignature,
+      ];
 }

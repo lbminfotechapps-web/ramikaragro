@@ -420,6 +420,7 @@ class _SalesReturnHistoryPageState extends State<SalesReturnHistoryPage> {
                               _detailRow('Product Name', detail.fldProductName),
 
                               _detailRow('No Of Case : ', detail.fldQtyInPkt),
+                              //  _detailRow('Return Qt : ', detail.),w
                             ],
                           ),
                         ),

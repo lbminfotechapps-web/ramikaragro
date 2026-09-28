@@ -931,7 +931,7 @@ String _formatDate(DateTime date) {
 
             Row(
               children: [
-                Expanded(
+                Expanded( 
                   child: _compactDetail(
                     title: 'Reporting',
                     value:
@@ -1193,7 +1193,7 @@ String _formatDate(DateTime date) {
 
                 Text(
                   value,
-                  maxLines: 1,
+                  maxLines: 2,
                   overflow: TextOverflow.ellipsis,
                   style: const TextStyle(
                     color: textDark,

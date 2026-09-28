@@ -7,6 +7,7 @@ import 'package:solufine/features/collection/presentation/pages/collection_wise_
 import 'package:solufine/features/collection/presentation/pages/dealer_wise_target_page.dart';
 import 'package:solufine/features/dealer/data/models/DealerListModel.dart';
 import 'package:solufine/features/dealer/presentation/pages/DealerListScreen.dart';
+import 'package:solufine/features/dealer/presentation/pages/dealerStocks.dart';
 import 'package:solufine/features/dealer_visit/presentation/pages/dealer_followup_list_page.dart';
 import 'package:solufine/features/dealer_visit/presentation/pages/dealer_followup_add.dart';
 import 'package:solufine/features/dealer_visit/presentation/pages/edit_update_dealer.dart';
@@ -122,6 +123,7 @@ class AppRouter {
   static const String dealerUpdate = '/dealerUpdate';
   static const String profile = '/profile';
   static const String productEnquiry = '/productEnquiry';
+   static const String addStock = '/addStock';
 
   static final GoRouter router = GoRouter(
     initialLocation: splash,
@@ -150,6 +152,15 @@ class AppRouter {
           return const ProfilePage();
         },
       ),
+
+      GoRoute(
+        path: addStock,
+        name: 'addStock',
+        builder: (context, state) {
+          return const Dealerstocks();
+        },
+      ),
+
 
       GoRoute(
         path: noVisitDealer,

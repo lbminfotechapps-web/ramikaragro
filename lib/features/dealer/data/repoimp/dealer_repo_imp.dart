@@ -1,5 +1,8 @@
+import 'dart:io';
+
 import 'package:solufine/features/dealer/data/datasource/dealer_datasource.dart';
 import 'package:solufine/features/dealer/data/models/DealerListModel.dart';
+import 'package:solufine/features/dealer/data/models/dealer_products.dart';
 import 'package:solufine/features/dealer/domain/repository/dealer_repo.dart';
 
 class DealerListRepositoryImpl implements DealerListRepository {
@@ -14,6 +17,7 @@ class DealerListRepositoryImpl implements DealerListRepository {
     String logitude,
     String searchKey,
     String type,
+    int startLimit,
   ) async {
     try {
       print('');
@@ -32,6 +36,7 @@ class DealerListRepositoryImpl implements DealerListRepository {
         lattitude,
         logitude,
         searchKey,
+        startLimit,
         type,
       );
 
@@ -70,4 +75,24 @@ class DealerListRepositoryImpl implements DealerListRepository {
   ) async {
     return await dealerListDatasource.addDealerLocation(jsonData);
   }
+
+  @override
+  Future<List<DealerStockProductModel>> getDealerProduct(
+    String dealerId,
+  ) async {
+    return await dealerListDatasource.fetchDealerProductList(dealerId);
+  }
+
+@override
+Future<Map<String, dynamic>> addDealerStock(
+  Map<String, dynamic> jsonData,
+  File? dealerImage,
+  File? digitalSignature,
+) async {
+  return await dealerListDatasource.addDealerStock(
+    jsonData,
+    dealerImage,
+    digitalSignature,
+  );
+}
 }
