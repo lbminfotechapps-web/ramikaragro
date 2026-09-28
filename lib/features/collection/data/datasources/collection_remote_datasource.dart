@@ -209,10 +209,10 @@ class CollectionRemoteDataSourceImpl
       final response =
           await dioClient.client.post(
         ApiClient.getTalukaWiseOutletForOrderNew,
-        data: {
+        data: FormData.fromMap({
           'userId': userId,
           'searchText': searchText,
-        },
+        }),
       );
 
       print('DEALER STATUS: ${response.statusCode}');

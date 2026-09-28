@@ -1,10 +1,13 @@
 import 'dart:convert';
+import 'dart:io';
+import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:solufine/core/api_constant/api_client.dart';
 import 'package:solufine/core/api_constant/dio_client.dart';
 import 'package:solufine/features/dealer/data/models/DealerListModel.dart';
 import 'package:dio/dio.dart';
+import 'package:solufine/features/dealer/data/models/dealer_products.dart';
 
 class DealerListDataSource {
   final DioClient dioClient;
@@ -16,6 +19,7 @@ class DealerListDataSource {
     String latitude,
     String longitude,
     String searchText,
+    int startLimit,
     String type,
   ) async {
     try {
@@ -31,6 +35,7 @@ class DealerListDataSource {
       print('LATITUDE     : $latitude');
       print('LONGITUDE    : $longitude');
       print('SEARCH TEXT  : "$searchText"');
+      print('LIMIT  : "$startLimit"');
       print('TYPE         : "$type"');
 
       // --------------------------------------------------
@@ -42,6 +47,7 @@ class DealerListDataSource {
         'latitude': latitude,
         'longitude': longitude,
         'searchText': searchText,
+        'startLimit': startLimit,
         'type': type,
       };
 
@@ -468,6 +474,492 @@ class DealerListDataSource {
       debugPrint('==========================================');
 
       debugPrint('ERROR: $e');
+      debugPrint('STACK TRACE: $stackTrace');
+
+      debugPrint('==========================================');
+
+      rethrow;
+    }
+  }
+
+  Future<List<DealerStockProductModel>> fetchDealerProductList(
+    String dealerId,
+  ) async {
+    try {
+      print('');
+      print('============================================');
+      print('        PRODUCT API REQUEST START');
+      print('============================================');
+
+      print('URL: ${ApiClient.getProductDetail}');
+      print('METHOD: POST');
+
+      print('DEALER ID      : $dealerId');
+
+      // --------------------------------------------------
+      // REQUEST BODY
+      // --------------------------------------------------
+
+      final requestData = {'dealerId': dealerId};
+
+      print('');
+      print('REQUEST DATA:');
+      print(jsonEncode(requestData));
+
+      print('');
+      print('============================================');
+      print('        CALLING API');
+      print('============================================');
+
+      // --------------------------------------------------
+      // API CALL
+      // --------------------------------------------------
+
+      final response = await dioClient.client.post(
+        ApiClient.getProductDetail,
+        data: requestData,
+        options: Options(
+          contentType: Headers.formUrlEncodedContentType,
+          responseType: ResponseType.json,
+        ),
+      );
+
+      // --------------------------------------------------
+      // RESPONSE DEBUG
+      // --------------------------------------------------
+
+      print('');
+      print('============================================');
+      print('        DEALER API RESPONSE');
+      print('============================================');
+
+      print('STATUS CODE : ${response.statusCode}');
+      print('STATUS MSG  : ${response.statusMessage}');
+      print('DATA TYPE   : ${response.data.runtimeType}');
+      print('DATA        : ${response.data}');
+
+      print('============================================');
+
+      // --------------------------------------------------
+      // RESPONSE PARSING
+      // --------------------------------------------------
+
+      dynamic responseData = response.data;
+
+      // Sometimes PHP APIs return JSON as String
+      if (responseData is String) {
+        print('Response is String. Decoding JSON...');
+
+        try {
+          responseData = jsonDecode(responseData);
+        } catch (e) {
+          print('JSON DECODE ERROR: $e');
+
+          throw const FormatException('Invalid JSON response from dealer API');
+        }
+      }
+
+      // Response must be Map
+      if (responseData is! Map<String, dynamic>) {
+        print('INVALID RESPONSE TYPE: ${responseData.runtimeType}');
+
+        throw FormatException(
+          'Dealer API response must be a JSON object. '
+          'Received: ${responseData.runtimeType}',
+        );
+      }
+
+      final Map<String, dynamic> data = responseData;
+
+      // --------------------------------------------------
+      // API STATUS
+      // --------------------------------------------------
+
+      final apiStatus = data['status'];
+      final message = data['message'];
+
+      print('');
+      print('API STATUS  : $apiStatus');
+      print('API MESSAGE : $message');
+
+      // --------------------------------------------------
+      // API FAILURE
+      // --------------------------------------------------
+
+      if (apiStatus != true) {
+        throw Exception(
+          message?.toString().isNotEmpty == true
+              ? message.toString()
+              : 'Failed to fetch product list',
+        );
+      }
+
+      // --------------------------------------------------
+      // RESULT
+      // --------------------------------------------------
+
+      final result = data['result'];
+
+      print('');
+      print('============================================');
+      print('        DEALER RESULT');
+      print('============================================');
+
+      print('RESULT TYPE : ${result.runtimeType}');
+      print('RESULT      : $result');
+
+      if (result == null) {
+        print('RESULT IS NULL');
+
+        return [];
+      }
+
+      if (result is! List) {
+        throw FormatException(
+          'Dealer API result must be a List. '
+          'Received: ${result.runtimeType}',
+        );
+      }
+
+      print('TOTAL RECORDS: ${result.length}');
+
+      // --------------------------------------------------
+      // NO DEALERS
+      // --------------------------------------------------
+
+      if (result.isEmpty) {
+        print('');
+        print('NO PRODUCT FOUND');
+        print('============================================');
+
+        return [];
+      }
+
+      // --------------------------------------------------
+      // PARSE DEALERS
+      // --------------------------------------------------
+
+      final List<DealerStockProductModel> products = [];
+
+      for (int i = 0; i < result.length; i++) {
+        try {
+          final item = result[i];
+
+          print('');
+          print('--------------------------------------------');
+          print('PARSING PRODUCT ${i + 1}');
+          print('--------------------------------------------');
+
+          print('RAW DATA: $item');
+
+          if (item is Map<String, dynamic>) {
+            final product = DealerStockProductModel.fromJson(item);
+
+            products.add(product);
+
+            print('PRODUCT ID   : ${product.productId}');
+            print('PRODUCT NAME : ${product.productName}');
+            print('PRODUCT UNITPERCASE      : ${product.unitsPerCase}');
+          } else if (item is Map) {
+            // Handles Map<dynamic, dynamic>
+            final Map<String, dynamic> dealerJson = Map<String, dynamic>.from(
+              item,
+            );
+
+            final product = DealerStockProductModel.fromJson(dealerJson);
+
+            products.add(product);
+
+            print('PRODUCT ID   : ${product.productId}');
+            print('PRODUCT NAME : ${product.productName}');
+          } else {
+            print('SKIPPED INVALID PRODUCT TYPE: ${item.runtimeType}');
+          }
+        } catch (e, stackTrace) {
+          print('');
+          print('PRODUCT PARSING ERROR');
+          print('INDEX: $i');
+          print('ERROR: $e');
+          print('STACK: $stackTrace');
+
+          // Continue parsing other dealers
+        }
+      }
+
+      // --------------------------------------------------
+      // COMPLETE
+      // --------------------------------------------------
+
+      print('');
+      print('============================================');
+      print('      PRODUCT DATASOURCE COMPLETE');
+      print('============================================');
+
+      print('TOTAL API RECORDS    : ${result.length}');
+      print('TOTAL PARSED DEALERS : ${products.length}');
+
+      print('============================================');
+
+      return products;
+    }
+    // ==================================================
+    // DIO ERROR
+    // ==================================================
+    on DioException catch (e, stackTrace) {
+      print('');
+      print('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!');
+      print('          DEALER API DIO ERROR');
+      print('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!');
+
+      print('');
+      print('REQUEST URL:');
+      print(e.requestOptions.uri);
+
+      print('');
+      print('REQUEST METHOD:');
+      print(e.requestOptions.method);
+
+      print('');
+      print('REQUEST HEADERS:');
+      print(e.requestOptions.headers);
+
+      print('');
+      print('REQUEST DATA:');
+      print(e.requestOptions.data);
+
+      print('');
+      print('ERROR TYPE:');
+      print(e.type);
+
+      print('');
+      print('STATUS CODE:');
+      print(e.response?.statusCode);
+
+      print('');
+      print('STATUS MESSAGE:');
+      print(e.response?.statusMessage);
+
+      print('');
+      print('SERVER RESPONSE TYPE:');
+      print(e.response?.data.runtimeType);
+
+      print('');
+      print('SERVER RESPONSE DATA:');
+      print(e.response?.data);
+
+      print('');
+      print('DIO MESSAGE:');
+      print(e.message);
+
+      print('');
+      print('STACK TRACE:');
+      print(stackTrace);
+
+      print('');
+      print('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!');
+
+      // --------------------------------------------------
+      // Get useful backend message
+      // --------------------------------------------------
+
+      String errorMessage = 'Failed to fetch dealer list';
+
+      final serverData = e.response?.data;
+
+      if (serverData is Map) {
+        if (serverData['message'] != null) {
+          errorMessage = serverData['message'].toString();
+        }
+
+        if (serverData['error'] != null) {
+          errorMessage = serverData['error'].toString();
+        }
+
+        if (serverData['msg'] != null) {
+          errorMessage = serverData['msg'].toString();
+        }
+      } else if (serverData is String && serverData.trim().isNotEmpty) {
+        errorMessage = serverData;
+      }
+
+      throw Exception(errorMessage);
+    }
+    // ==================================================
+    // FORMAT ERROR
+    // ==================================================
+    on FormatException catch (e, stackTrace) {
+      print('');
+      print('============================================');
+      print('        DEALER FORMAT ERROR');
+      print('============================================');
+
+      print('ERROR: $e');
+      print('STACK TRACE: $stackTrace');
+
+      print('============================================');
+
+      throw Exception('Invalid dealer API response: ${e.message}');
+    }
+    // ==================================================
+    // OTHER ERROR
+    // ==================================================
+    catch (e, stackTrace) {
+      print('');
+      print('============================================');
+      print('        DEALER DATASOURCE ERROR');
+      print('============================================');
+
+      print('ERROR TYPE: ${e.runtimeType}');
+      print('ERROR     : $e');
+      print('STACK     : $stackTrace');
+
+      print('============================================');
+
+      rethrow;
+    }
+  }
+
+  Future<Map<String, dynamic>> addDealerStock(
+    Map<String, dynamic> jsonData,
+    File? dealerImage,
+    File? digitalSignature,
+  ) async {
+    try {
+      debugPrint('');
+      debugPrint('==========================================');
+      debugPrint('ADD DEALER STOCK DATASOURCE');
+      debugPrint('==========================================');
+
+      final FormData formData = FormData.fromMap(jsonData);
+
+      // ============================================================
+      // DEALER IMAGE
+      // ============================================================
+
+      if (dealerImage != null && await dealerImage.exists()) {
+        formData.files.add(
+          MapEntry(
+            'dealerImage',
+            await MultipartFile.fromFile(
+              dealerImage.path,
+              filename: dealerImage.path.split(Platform.pathSeparator).last,
+            ),
+          ),
+        );
+
+        debugPrint('DEALER IMAGE ADDED');
+      }
+
+      // ============================================================
+      // DIGITAL SIGNATURE
+      // ============================================================
+
+      if (digitalSignature != null && await digitalSignature.exists()) {
+        formData.files.add(
+          MapEntry(
+            'digitalSignature',
+            await MultipartFile.fromFile(
+              digitalSignature.path,
+              filename: digitalSignature.path
+                  .split(Platform.pathSeparator)
+                  .last,
+            ),
+          ),
+        );
+
+        debugPrint('DIGITAL SIGNATURE ADDED');
+      }
+
+      // ============================================================
+      // PRINT NORMAL FIELDS
+      // ============================================================
+
+      debugPrint('');
+      debugPrint('==========================================');
+      debugPrint('FINAL FORM DATA FIELDS');
+      debugPrint('==========================================');
+
+      for (final field in formData.fields) {
+        debugPrint('${field.key} : ${field.value}');
+      }
+
+      // ============================================================
+      // PRINT FILES
+      // ============================================================
+
+      debugPrint('');
+      debugPrint('==========================================');
+      debugPrint('FINAL FORM DATA FILES');
+      debugPrint('==========================================');
+
+      for (final file in formData.files) {
+        debugPrint('${file.key} : ${file.value.filename}');
+      }
+
+      debugPrint('==========================================');
+
+      // ============================================================
+      // API CALL
+      // ============================================================
+
+      final response = await dioClient.client.post(
+        ApiClient.addStock,
+        data: formData,
+      );
+
+      debugPrint('');
+      debugPrint('==========================================');
+      debugPrint('ADD DEALER STOCK RESPONSE');
+      debugPrint('==========================================');
+
+      debugPrint('STATUS CODE: ${response.statusCode}');
+
+      debugPrint('RESPONSE: ${response.data}');
+
+      debugPrint('==========================================');
+
+      dynamic data = response.data;
+
+      if (data is String) {
+        try {
+          data = jsonDecode(data);
+        } on FormatException {
+          throw const FormatException(
+            'Invalid JSON response from Add Dealer Stock API',
+          );
+        }
+      }
+
+      if (data is! Map) {
+        throw const FormatException(
+          'Add Dealer Stock API response is not a JSON object',
+        );
+      }
+
+      return Map<String, dynamic>.from(data);
+    } on DioException catch (e) {
+      debugPrint('');
+      debugPrint('==========================================');
+      debugPrint('ADD DEALER STOCK DIO ERROR');
+      debugPrint('==========================================');
+
+      debugPrint('MESSAGE: ${e.message}');
+
+      debugPrint('STATUS CODE: ${e.response?.statusCode}');
+
+      debugPrint('RESPONSE: ${e.response?.data}');
+
+      debugPrint('==========================================');
+
+      rethrow;
+    } catch (e, stackTrace) {
+      debugPrint('');
+      debugPrint('==========================================');
+      debugPrint('ADD DEALER STOCK ERROR');
+      debugPrint('==========================================');
+
+      debugPrint('ERROR: $e');
+
       debugPrint('STACK TRACE: $stackTrace');
 
       debugPrint('==========================================');

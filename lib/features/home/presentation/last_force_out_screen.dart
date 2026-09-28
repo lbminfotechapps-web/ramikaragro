@@ -145,6 +145,25 @@ class _LastForceOutScreenState extends State<LastForceOutScreen> {
       _submissionSent = true;
     });
 
+
+String apiDate = '';
+try {
+  final displayDate = DateFormat(
+    'dd-MM-yyyy',
+  ).parseStrict(dateController.text.trim());
+
+  apiDate = DateFormat(
+    'yyyy-MM-dd',
+  ).format(displayDate);
+} catch (e) {
+  apiDate = dateController.text.trim();
+}
+
+debugPrint('DISPLAY DATE : ${dateController.text}');
+debugPrint('API DATE     : $apiDate');
+
+
+
     try {
       // ----------------------------------------------------------
       // DEVICE INFORMATION
@@ -212,12 +231,12 @@ class _LastForceOutScreenState extends State<LastForceOutScreen> {
           route: '',
 
           // LAST FORCE OUT
-          activityId: '26',
+          activityId: '26', 
 
           isForceOutPunch: true,
 
           // IMPORTANT
-          date: dateController.text.trim(),
+          date: apiDate,
           newTime: newTimeController.text.trim(),
         ),
       );
@@ -324,9 +343,7 @@ class _LastForceOutScreenState extends State<LastForceOutScreen> {
                   crossAxisAlignment: CrossAxisAlignment.stretch,
 
                   children: [
-                    // ------------------------------------------------
-                    // DATE
-                    // ------------------------------------------------
+                    Text(widget.punchStat!.date),
                     _textField(
                       controller: dateController,
                       hintText: 'Date',
@@ -366,74 +383,81 @@ class _LastForceOutScreenState extends State<LastForceOutScreen> {
                     // ------------------------------------------------
                     // OPENING / CLOSING KM
                     // ------------------------------------------------
-                  Column(
-  crossAxisAlignment: CrossAxisAlignment.start,
-  children: [
-    Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Expanded(
-          child: _kmField(
-            controller: openingKmController,
-            hintText: 'Opening KM',
-            enabled: false,
-            validator: (_) => null,
-          ),
-        ),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Expanded(
+                              child: _kmField(
+                                controller: openingKmController,
+                                hintText: 'Opening KM',
+                                enabled: false,
+                                validator: (_) => null,
+                              ),
+                            ),
 
-        SizedBox(width: 12.w),
+                            SizedBox(width: 12.w),
 
-        Expanded(
-          child: _kmField(
-            controller: closingKmController,
-            hintText: 'Closing KM*',
-            enabled: true,
+                            Expanded(
+                              child: _kmField(
+                                controller: closingKmController,
+                                hintText: 'Closing KM*',
+                                enabled: true,
 
-            // Don't show TextFormField's default error
-            validator: (value) {
-              final error = _validateKm(value, 'Closing KM');
+                                // Don't show TextFormField's default error
+                                validator: (value) {
+                                  final error = _validateKm(
+                                    value,
+                                    'Closing KM',
+                                  );
 
-              WidgetsBinding.instance.addPostFrameCallback((_) {
-                if (mounted && closingKmError != error) {
-                  setState(() {
-                    closingKmError = error;
-                  });
-                }
-              });
+                                  WidgetsBinding.instance.addPostFrameCallback((
+                                    _,
+                                  ) {
+                                    if (mounted && closingKmError != error) {
+                                      setState(() {
+                                        closingKmError = error;
+                                      });
+                                    }
+                                  });
 
-              // Return null so TextFormField doesn't display error
-              return null;
-            },
+                                  // Return null so TextFormField doesn't display error
+                                  return null;
+                                },
 
-            onChanged: (value) {
-              setState(() {
-                closingKmError =
-                    _validateKm(value, 'Closing KM');
-              });
-            },
-          ),
-        ),
-      ],
-    ),
+                                onChanged: (value) {
+                                  setState(() {
+                                    closingKmError = _validateKm(
+                                      value,
+                                      'Closing KM',
+                                    );
+                                  });
+                                },
+                              ),
+                            ),
+                          ],
+                        ),
 
-    // Error gets full row width
-    if (closingKmError != null) ...[
-      SizedBox(height: 5.h),
-      Padding(
-        padding: EdgeInsets.only(
-          left: MediaQuery.of(context).size.width / 2,
-        ),
-        child: Text(
-          closingKmError!,
-          style: TextStyle(
-            color: Colors.red,
-            fontSize: 11.sp,
-          ),
-        ),
-      ),
-    ],
-  ],
-),
+                        // Error gets full row width
+                        if (closingKmError != null) ...[
+                          SizedBox(height: 5.h),
+                          Padding(
+                            padding: EdgeInsets.only(
+                              left: MediaQuery.of(context).size.width / 2,
+                            ),
+                            child: Text(
+                              closingKmError!,
+                              style: TextStyle(
+                                color: Colors.red,
+                                fontSize: 11.sp,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ],
+                    ),
                     SizedBox(height: 14.h),
 
                     // ------------------------------------------------

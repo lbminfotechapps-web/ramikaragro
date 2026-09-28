@@ -17,6 +17,7 @@ class SalesReturnHistoryModel extends SalesReturnHistoryEntity {
     required super.fldDeliveryWithinDate,
     required super.fldGodownName,
     required super.salesReturnDetails,
+    required super.employeeName,
   });
 
   factory SalesReturnHistoryModel.fromJson(Map<String, dynamic> json) {
@@ -46,6 +47,7 @@ class SalesReturnHistoryModel extends SalesReturnHistoryEntity {
       fldDeliveryWithinDate: json['fld_delivery_within_date']?.toString() ?? '',
       fldGodownName: json['fld_godown_name']?.toString() ?? '',
       salesReturnDetails: details,
+      employeeName: json['fld_adm_name']?.toString() ?? '',
     );
   }
 }

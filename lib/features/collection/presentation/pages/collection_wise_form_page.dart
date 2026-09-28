@@ -906,85 +906,6 @@ class _CollectionWiseFormPageState extends State<CollectionWiseFormPage> {
     );
   }
 
-  // ============================================================
-  // HEADER
-  // ============================================================
-
-  Widget _buildHeader() {
-    return SliverAppBar(
-      expandedHeight: 120,
-
-      pinned: true,
-
-      elevation: 0,
-
-      backgroundColor: const Color(0xFF166534),
-
-      flexibleSpace: FlexibleSpaceBar(
-        background: Container(
-          decoration: const BoxDecoration(
-            color: const Color(0xFF287A4B),
-            // gradient: LinearGradient(
-            //   begin: Alignment.topLeft,
-            //   end: Alignment.bottomRight,
-            //   colors: [Color(0xFF14532D), Color(0xFF166534), Color(0xFF22C55E)],
-            // ),
-          ),
-
-          child: SafeArea(
-            child: Padding(
-              padding: const EdgeInsets.fromLTRB(18, 70, 18, 14),
-
-              child: Align(
-                alignment: Alignment.bottomLeft,
-
-                child: Row(
-                  children: [
-                    Container(
-                      height: 46,
-                      width: 46,
-
-                      child: const Icon(
-                        Icons.account_balance_wallet_rounded,
-                        color: Colors.white,
-                        size: 25,
-                      ),
-                    ),
-
-                    const SizedBox(width: 12),
-
-                    const Expanded(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.end,
-
-                        crossAxisAlignment: CrossAxisAlignment.start,
-
-                        children: [
-                          Text(
-                            'Record Collection',
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 20,
-                              fontWeight: FontWeight.w800,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
-  // ============================================================
-  // DEALER CARD
-  // ============================================================
-
   Widget _buildDealerCard() {
     return _buildCard(
       child: Column(
@@ -1063,16 +984,7 @@ class _CollectionWiseFormPageState extends State<CollectionWiseFormPage> {
 
                         const SizedBox(height: 3),
 
-                        // Text(
-                        //   dealerName.isEmpty
-                        //       ? 'Tap to search dealer'
-                        //       : 'Dealer ID: $dealerId',
-
-                        //   style: const TextStyle(
-                        //     fontSize: 11,
-                        //     color: Colors.black45,
-                        //   ),
-                        // ),
+                     
                       ],
                     ),
                   ),

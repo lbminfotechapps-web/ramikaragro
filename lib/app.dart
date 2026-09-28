@@ -1,4 +1,3 @@
-
 // import 'package:flutter/material.dart';
 // import 'package:flutter_bloc/flutter_bloc.dart';
 // import 'package:solufine/core/di/auth_di.dart';
@@ -91,7 +90,6 @@
 //   }
 // }
 
-
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:solufine/core/di/auth_di.dart';
@@ -119,6 +117,7 @@ import 'package:solufine/features/home/presentation/home_bloc/home_bloc.dart';
 import 'package:solufine/features/home/presentation/quick_aceess_bloc/quick_acess_bloc.dart';
 import 'package:solufine/features/leave/presentation/bloc/top_ten_dealer_bloc.dart';
 import 'package:solufine/features/orderhistory/presentation/bloc/order_history_bloc.dart';
+import 'package:solufine/features/place_order/presentation/bloc/place_order_bloc.dart';
 import 'package:solufine/features/products/presentation/bloc/product_bloc.dart';
 import 'package:solufine/features/reports/presentation/bloc/employee_activity_bloc.dart';
 import 'package:solufine/features/reports/presentation/bloc/not_visited_dealer_bloc.dart';
@@ -145,19 +144,11 @@ class _MyAppState extends State<MyApp> {
   void initState() {
     super.initState();
 
-    NotificationNavigationService.instance.setRouter(
-      AppRouter.router,
-    );
+    NotificationNavigationService.instance.setRouter(AppRouter.router);
 
-    debugPrint(
-      '==========================================',
-    );
-    debugPrint(
-      '🔔 NOTIFICATION ROUTER REGISTERED',
-    );
-    debugPrint(
-      '==========================================',
-    );
+    debugPrint('==========================================');
+    debugPrint('🔔 NOTIFICATION ROUTER REGISTERED');
+    debugPrint('==========================================');
   }
 
   // ============================================================
@@ -172,109 +163,71 @@ class _MyAppState extends State<MyApp> {
         // YOUR EXISTING PROVIDERS
         // NOTHING REMOVED
         // ======================================================
-
-        BlocProvider<QuickAcessBloc>(
-          create: (_) => sl<QuickAcessBloc>(),
-        ),
+        BlocProvider<QuickAcessBloc>(create: (_) => sl<QuickAcessBloc>()),
 
         BlocProvider<EmployeeActivityBloc>(
           create: (_) => sl<EmployeeActivityBloc>(),
         ),
 
-        BlocProvider<AuthBloc>(
-          create: (_) => sl<AuthBloc>(),
-        ),
+        BlocProvider<PlaceOrderBloc>(create: (_) => sl<PlaceOrderBloc>()),
+
+        BlocProvider<AuthBloc>(create: (_) => sl<AuthBloc>()),
 
         BlocProvider<NotVisitedDealerBloc>(
           create: (_) => sl<NotVisitedDealerBloc>(),
         ),
 
-        BlocProvider<AuthBloc>(
-          create: (_) => sl<AuthBloc>(),
-        ),
+        BlocProvider<AuthBloc>(create: (_) => sl<AuthBloc>()),
 
-        BlocProvider<FarmerListBloc>(
-          create: (_) => sl<FarmerListBloc>(),
-        ),
+        BlocProvider<FarmerListBloc>(create: (_) => sl<FarmerListBloc>()),
 
-        BlocProvider<DealerListBloc>(
-          create: (_) => sl<DealerListBloc>(),
-        ),
+        BlocProvider<DealerListBloc>(create: (_) => sl<DealerListBloc>()),
 
-        BlocProvider<EnquiryBloc>(
-          create: (_) => sl<EnquiryBloc>(),
-        ),
+        BlocProvider<EnquiryBloc>(create: (_) => sl<EnquiryBloc>()),
 
-        BlocProvider<FollowupBloc>(
-          create: (_) => sl<FollowupBloc>(),
-        ),
+        BlocProvider<FollowupBloc>(create: (_) => sl<FollowupBloc>()),
 
         BlocProvider<NotVisitedDealerBloc>(
           create: (_) => sl<NotVisitedDealerBloc>(),
         ),
 
-        BlocProvider<DealerTargetBloc>(
-          create: (_) => sl<DealerTargetBloc>(),
-        ),
+        BlocProvider<DealerTargetBloc>(create: (_) => sl<DealerTargetBloc>()),
 
-        BlocProvider<TopTenDealerBloc>(
-          create: (_) => sl<TopTenDealerBloc>(),
-        ),
+        BlocProvider<TopTenDealerBloc>(create: (_) => sl<TopTenDealerBloc>()),
 
-        BlocProvider<FarmerListBloc>(
-          create: (_) => sl<FarmerListBloc>(),
-        ),
+        BlocProvider<FarmerListBloc>(create: (_) => sl<FarmerListBloc>()),
 
-        BlocProvider<FamerfollowupBloc>(
-          create: (_) => sl<FamerfollowupBloc>(),
-        ),
+        BlocProvider<FamerfollowupBloc>(create: (_) => sl<FamerfollowupBloc>()),
 
-        BlocProvider<StateBloc>(
-          create: (_) => sl<StateBloc>(),
-        ),
+        BlocProvider<StateBloc>(create: (_) => sl<StateBloc>()),
 
-        BlocProvider<HomeBloc>(
-          create: (_) => sl<HomeBloc>(),
-        ),
+        BlocProvider<HomeBloc>(create: (_) => sl<HomeBloc>()),
 
-        BlocProvider<GalleryBloc>(
-          create: (_) => sl<GalleryBloc>(),
-        ),
+        BlocProvider<GalleryBloc>(create: (_) => sl<GalleryBloc>()),
 
-        BlocProvider<SchemeBloc>(
-          create: (_) => sl<SchemeBloc>(),
-        ),
+        BlocProvider<SchemeBloc>(create: (_) => sl<SchemeBloc>()),
 
-        BlocProvider<ProductBloc>(
-          create: (_) => sl<ProductBloc>(),
-        ),
+        BlocProvider<ProductBloc>(create: (_) => sl<ProductBloc>()),
 
-        BlocProvider<OrderHistoryBloc>(
-          create: (_) => sl<OrderHistoryBloc>(),
-        ),
+        BlocProvider<OrderHistoryBloc>(create: (_) => sl<OrderHistoryBloc>()),
 
         BlocProvider<AddDealerVisitBlock>(
           create: (_) => sl<AddDealerVisitBlock>(),
         ),
 
-        BlocProvider<DispatchBloc>(
-          create: (_) => sl<DispatchBloc>(),
-        ),
+        BlocProvider<DispatchBloc>(create: (_) => sl<DispatchBloc>()),
 
         BlocProvider<SalesReturnHistoryBloc>(
           create: (_) => sl<SalesReturnHistoryBloc>(),
         ),
 
-        BlocProvider<ExpenseBloc>(
-          create: (_) => sl<ExpenseBloc>(),
-        ),
+        BlocProvider<ExpenseBloc>(create: (_) => sl<ExpenseBloc>()),
       ],
 
       // ========================================================
       // YOUR EXISTING MATERIAL APP
       // NOTHING CHANGED
       // ========================================================
-
       child: MaterialApp.router(
         title: 'Flutter Demo',
         theme: AppColor.getLightTheme(),

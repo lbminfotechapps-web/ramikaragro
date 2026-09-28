@@ -137,6 +137,7 @@ class _DealerListScreenState extends State<DealerListScreen> {
         longitude: longitude,
         searchText: searchKey,
         type: 'Dealer',
+        startLimit: 0,
       ),
     );
   }
@@ -894,19 +895,6 @@ class _DealerListItem extends StatelessWidget {
 
     return dateTime;
   }
-
-  void _callDealer(DealerListModel dealer) {
-    final mobile = dealer.outletPersonMobile ?? dealer.outletMobile ?? '';
-
-    if (mobile.isEmpty) {
-      debugPrint('Dealer mobile number not available');
-      return;
-    }
-
-    debugPrint('Calling dealer: $mobile');
-
-    // Add url_launcher here if required.
-  }
 }
 
 // =================================================================
@@ -998,43 +986,6 @@ class _CircleActionButton extends StatelessWidget {
           border: Border.all(color: Colors.grey.shade300),
         ),
         child: Icon(icon, size: 17, color: const Color(0xFF087A2F)),
-      ),
-    );
-  }
-}
-
-// =================================================================
-// DETAIL ROW
-// =================================================================
-
-class _DetailRow extends StatelessWidget {
-  final String label;
-  final String value;
-
-  const _DetailRow({required this.label, required this.value});
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 10),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          SizedBox(
-            width: 80,
-            child: Text(
-              label,
-              style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
-            ),
-          ),
-
-          Expanded(
-            child: Text(
-              value.isEmpty ? '--' : value,
-              style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w500),
-            ),
-          ),
-        ],
       ),
     );
   }
