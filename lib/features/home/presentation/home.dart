@@ -515,8 +515,12 @@ class _HomeState extends State<Home> {
           // USER NAME
           // ============================================================
           userName: _userId != null && _userId != '0' && _showUserInfo
-              ? _username
+              ? '$_username ($_userId)'
               : null,
+
+          // userName: _userId != null && _userId != '0' && _showUserInfo
+          //     ? _username
+          //     : null,
 
           // ============================================================
           // APP NAME
@@ -537,7 +541,6 @@ class _HomeState extends State<Home> {
           child: SingleChildScrollView(
             child: Column(
               children: [
-            
                 // ========================================================
                 // USER DATA STILL LOADING
                 // ========================================================
@@ -554,7 +557,7 @@ class _HomeState extends State<Home> {
                 // SHOW ONLY QUICK ACCESS
                 // ========================================================
                 else if (_userId == '0') ...[
-                      SizedBox(height: 10,),
+                  SizedBox(height: 10),
                   BlocBuilder<HomeBloc, HomeState>(
                     builder: (context, homeState) {
                       if (homeState.status == HomeStatus.loading &&

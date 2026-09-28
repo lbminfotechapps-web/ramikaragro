@@ -1,4 +1,6 @@
-import 'package:solufine/features/auth/domain/entity/login_entity.dart';
+import 'dart:io';
+
+import 'package:solufine/features/dealer/data/models/dealer_products.dart';
 import 'package:solufine/features/dealer/data/models/DealerListModel.dart';
 
 abstract class DealerListRepository {
@@ -6,13 +8,18 @@ abstract class DealerListRepository {
     String user_id,
     String lattitude,
     String logitude,
-    String limit,
     String searchKey,
+    String type,
+    int startLimit,
   );
 
+  Future<List<DealerStockProductModel>> getDealerProduct(String dealerId);
 
-   Future<Map<String, dynamic>> addDealerLocation(
-    Map<String, dynamic> jsonData,
-  );
+  Future<Map<String, dynamic>> addDealerLocation(Map<String, dynamic> jsonData);
 
+ Future<Map<String, dynamic>> addDealerStock(
+  Map<String, dynamic> jsonData,
+  File? dealerImage,
+  File? digitalSignature,
+);
 }

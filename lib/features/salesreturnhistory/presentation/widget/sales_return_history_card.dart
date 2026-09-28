@@ -153,7 +153,10 @@ class SalesReturnHistoryCard extends StatelessWidget {
             SizedBox(height: 6.h),
 
             // RETURNED BY
-            _infoRow(title: 'Returned By', value: item.fldOutletName ?? ''),
+            // _infoRow(title: 'Returned By', value: item. ?? ''),
+            _infoRow(title: 'Dealer Name', value: item.fldOutletName ?? ''),
+
+            _infoRow(title: 'Employee Name', value: item.employeeName),
 
             // SALES RETURN NO
             _infoRow(title: 'Sales Return No', value: item.fldSalesReturnNo),

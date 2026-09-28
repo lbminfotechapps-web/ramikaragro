@@ -105,4 +105,7 @@ class ApiClient {
   static const String trackLocationStore = '/addLocation';
 
   static const String addDealerLocation = '/addExistingDealerLocation';
+
+  static const String getProductDetail = '/getProductDetail';
+  static const String addStock = '/addStock';
 }

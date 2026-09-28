@@ -13,6 +13,7 @@ class SalesReturnHistoryEntity {
   final String fldUnitName;
   final String fldDeliveryWithinDate;
   final String fldGodownName;
+  final String employeeName;
 
   final List<SalesReturnHistoryDetailEntity> salesReturnDetails;
 
@@ -30,5 +31,6 @@ class SalesReturnHistoryEntity {
     required this.fldDeliveryWithinDate,
     required this.fldGodownName,
     required this.salesReturnDetails,
+    required this.employeeName,
   });
 }
