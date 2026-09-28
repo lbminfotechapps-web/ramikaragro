@@ -22,7 +22,8 @@ class DealerSearchField extends StatelessWidget {
     this.onClearSelected,
   });
 
-  @override
+ 
+ @override
   Widget build(BuildContext context) {
     return ValueListenableBuilder<TextEditingValue>(
       valueListenable: controller,
@@ -75,6 +76,8 @@ class DealerSearchField extends StatelessWidget {
                         onPressed: () {
                           controller.clear();
                           onChanged('');
+                          // Clear selected item also
+                          onClearSelected?.call();
                         },
                         icon: Icon(
                           Icons.close_rounded,
@@ -84,6 +87,8 @@ class DealerSearchField extends StatelessWidget {
                       )
                     : null,
                 filled: true,
+
+
                 fillColor: Colors.white,
                 contentPadding: EdgeInsets.symmetric(
                   horizontal: 14.w,
@@ -227,77 +232,6 @@ class DealerSearchField extends StatelessWidget {
             if (selectedDealer != null) ...[
               SizedBox(height: 10.h),
 
-              Container(
-                width: double.infinity,
-                padding: EdgeInsets.all(13.w),
-                decoration: BoxDecoration(
-                  color: AppColors.lightGreen,
-                  borderRadius: BorderRadius.circular(16.r),
-                  border: Border.all(
-                    color: AppColors.primary.withOpacity(0.18),
-                  ),
-                ),
-                child: Row(
-                  children: [
-                    Container(
-                      width: 44.w,
-                      height: 44.w,
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius:
-                            BorderRadius.circular(13.r),
-                      ),
-                      child: Icon(
-                        Icons.storefront_rounded,
-                        color: AppColors.primary,
-                        size: 21.sp,
-                      ),
-                    ),
-
-                    SizedBox(width: 11.w),
-
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment:
-                            CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            'Selected Dealer',
-                            style: TextStyle(
-                              fontSize: 10.5.sp,
-                              color: AppColors.textSecondary,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-
-                          SizedBox(height: 2.h),
-
-                          Text(
-                            selectedDealer!.name,
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            style: TextStyle(
-                              fontSize: 14.sp,
-                              fontWeight: FontWeight.w800,
-                              color: AppColors.textPrimary,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-
-                    if (onClearSelected != null)
-                      IconButton(
-                        onPressed: onClearSelected,
-                        icon: Icon(
-                          Icons.edit_rounded,
-                          color: AppColors.primary,
-                          size: 20.sp,
-                        ),
-                      ),
-                  ],
-                ),
-              ),
             ],
           ],
         );

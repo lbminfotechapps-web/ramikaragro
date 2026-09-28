@@ -8,9 +8,6 @@ import 'package:solufine/core/secure_storage/secure_storage.dart';
 import 'package:solufine/core/theme/app_colors.dart';
 import 'package:solufine/core/utility/widgets/custom_appbar.dart';
 import 'package:solufine/core/utility/widgets/custom_textformfield.dart';
-
-
-
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil_plus/flutter_screenutil_plus.dart';
@@ -190,19 +187,21 @@ class _SalesReturnView extends StatefulWidget {
   State<_SalesReturnView> createState() => _SalesReurnViewState();
 }
 
+
 class _SalesReurnViewState extends State<_SalesReturnView> {
   // ===========================================================================
   // CONTROLLERS
   // ===========================================================================
 
-  final TextEditingController dealerController =
-      TextEditingController();
+  final TextEditingController dealerController = TextEditingController();
 
-  final TextEditingController remarkController =
-      TextEditingController();
+  final TextEditingController remarkController = TextEditingController();
 
-  final SignatureController signatureController =
-      SignatureController(
+  final TextEditingController productSearchController = TextEditingController();
+
+  String productSearchText = '';
+
+  final SignatureController signatureController = SignatureController(
     penStrokeWidth: 2,
     penColor: Colors.black,
   );
@@ -215,11 +214,31 @@ class _SalesReurnViewState extends State<_SalesReturnView> {
 
   GodownEntity? selectedGodown;
 
-  CategoryEntity? selectedCategory;
+  /// IMPORTANT:
+  /// Multiple categories are now supported.
+  final List<CategoryEntity> selectedCategories = [];
 
   String? imagePath;
 
   Uint8List? signatureBytes;
+
+  // ===========================================================================
+  // ALL PRODUCTS FROM SELECTED CATEGORIES
+  // ===========================================================================
+
+
+  ///
+  /// Therefore we keep our own accumulated list here.
+  final List<ProductEntity> allCategoryProducts = [];
+
+  void _loadAllProducts() {
+    debugPrint('========================================');
+    debugPrint('LOAD ALL PRODUCTS');
+    debugPrint('CATEGORY ID = EMPTY');
+    debugPrint('========================================');
+
+    context.read<SalesReturnBloc>().add(const GetProductsEvent(categoryId: ''));
+  }
 
   // ===========================================================================
   // PRODUCT -> SELECTED RATES
@@ -247,46 +266,84 @@ class _SalesReurnViewState extends State<_SalesReturnView> {
   void dispose() {
     dealerController.dispose();
     remarkController.dispose();
+    productSearchController.dispose();
     signatureController.dispose();
 
     super.dispose();
   }
 
   // ===========================================================================
-  // CLEAR ALL SELECTED PRODUCTS
+  // CLEAR PRODUCTS
   // ===========================================================================
 
   void _clearAllSelectedProducts() {
     final bloc = context.read<SalesReturnBloc>();
     final currentState = bloc.state;
 
-    for (final product in currentState.products) {
+    for (final product in allCategoryProducts) {
       final String productId = product.id.toString();
 
       final Map<String, int> packingQuantities =
-          currentState.packingQuantities[productId] ??
-              <String, int>{};
+          currentState.packingQuantities[productId] ?? <String, int>{};
 
       final bool hasQuantity = packingQuantities.values.any(
         (quantity) => quantity > 0,
       );
 
       if (hasQuantity) {
-        bloc.add(
-          RemoveProductEvent(
-            productId: product.id,
-          ),
-        );
+        bloc.add(RemoveProductEvent(productId: product.id));
       }
     }
 
     if (mounted) {
       setState(() {
         selectedRates.clear();
+        allCategoryProducts.clear();
       });
     } else {
       selectedRates.clear();
+      allCategoryProducts.clear();
     }
+  }
+
+  // ===========================================================================
+  // ADD PRODUCTS FROM CURRENT BLOC STATE
+  // ===========================================================================
+
+  void _mergeCurrentProducts(List<ProductEntity> products) {
+    bool changed = false;
+
+    for (final product in products) {
+      final String productId = product.id.toString();
+
+      final bool alreadyExists = allCategoryProducts.any(
+        (element) => element.id.toString() == productId,
+      );
+
+      if (!alreadyExists) {
+        allCategoryProducts.add(product);
+        changed = true;
+      }
+    }
+
+    if (changed && mounted) {
+      setState(() {});
+    }
+  }
+
+  List<ProductEntity> _getFilteredProducts() {
+    final String search = productSearchText.trim().toLowerCase();
+
+    // No search text means show all products.
+    if (search.isEmpty) {
+      return allCategoryProducts;
+    }
+
+    return allCategoryProducts.where((product) {
+      final String productName = product.name.trim().toLowerCase();
+
+      return productName.contains(search);
+    }).toList();
   }
 
   // ===========================================================================
@@ -301,16 +358,9 @@ class _SalesReurnViewState extends State<_SalesReturnView> {
     }
 
     context.read<SalesReturnBloc>().add(
-          SearchDealerEvent(
-            userId: widget.userId,
-            searchText: searchText,
-          ),
-        );
+      SearchDealerEvent(userId: widget.userId, searchText: searchText),
+    );
   }
-
-  // ===========================================================================
-  // SELECT DEALER
-  // ===========================================================================
 
   void _selectDealer(DealerEntity dealer) {
     _clearAllSelectedProducts();
@@ -318,16 +368,14 @@ class _SalesReurnViewState extends State<_SalesReturnView> {
     setState(() {
       selectedDealer = dealer;
       dealerController.text = dealer.name;
+      selectedCategories.clear();
     });
 
-    debugPrint(
-      'Dealer selected: ${dealer.id} - ${dealer.name}',
-    );
-  }
+    debugPrint('Dealer selected: ${dealer.id} - ${dealer.name}');
 
-  // ===========================================================================
-  // CLEAR DEALER
-  // ===========================================================================
+    // Reload all products because clear function removes them.
+    _loadAllProducts();
+  }
 
   void _clearDealer() {
     _clearAllSelectedProducts();
@@ -335,7 +383,10 @@ class _SalesReurnViewState extends State<_SalesReturnView> {
     setState(() {
       selectedDealer = null;
       dealerController.clear();
+      selectedCategories.clear();
     });
+
+    _loadAllProducts();
   }
 
   // ===========================================================================
@@ -347,9 +398,7 @@ class _SalesReurnViewState extends State<_SalesReturnView> {
       selectedGodown = godown;
     });
 
-    debugPrint(
-      'Godown selected: ${godown.id} - ${godown.name}',
-    );
+    debugPrint('Godown selected: ${godown.id} - ${godown.name}');
   }
 
   // ===========================================================================
@@ -361,22 +410,266 @@ class _SalesReurnViewState extends State<_SalesReturnView> {
       return;
     }
 
+    // -------------------------------------------------------------------------
+    // DUPLICATE CHECK
+    // -------------------------------------------------------------------------
+
+    final bool alreadySelected = selectedCategories.any(
+      (element) => element.id == category.id,
+    );
+
+    if (alreadySelected) {
+      _showMessage('${category.name} is already selected');
+      return;
+    }
+
+    // -------------------------------------------------------------------------
+    // ADD CATEGORY
+    // -------------------------------------------------------------------------
+
     setState(() {
-      selectedCategory = category;
+      selectedCategories.add(category);
     });
 
-    context.read<SalesReturnBloc>().add(
-          GetProductsEvent(
-            categoryId: category.id,
-          ),
-        );
+    debugPrint('========================================');
+    debugPrint('CATEGORY SELECTED');
+    debugPrint('Category ID   : ${category.id}');
+    debugPrint('Category Name : ${category.name}');
+    debugPrint('Total Categories: ${selectedCategories.length}');
+    debugPrint('========================================');
 
-    debugPrint(
-      'Category selected: ${category.id} - ${category.name}',
+    // -------------------------------------------------------------------------
+    // LOAD PRODUCTS
+    // -------------------------------------------------------------------------
+
+    context.read<SalesReturnBloc>().add(
+      GetProductsEvent(categoryId: category.id),
     );
   }
 
+  // ===========================================================================
+  // REMOVE CATEGORY
+  // ===========================================================================
 
+  void _removeCategory(CategoryEntity category) {
+    final String categoryId = category.id;
+
+    debugPrint('Removing category: $categoryId - ${category.name}');
+
+    setState(() {
+      selectedCategories.removeWhere((element) => element.id == categoryId);
+    });
+  }
+
+  // ===========================================================================
+  // CATEGORY CHIPS
+  // ===========================================================================
+
+  Widget _buildSelectedCategoryChips() {
+    if (selectedCategories.isEmpty) {
+      return const SizedBox.shrink();
+    }
+
+    return Container(
+      width: double.infinity,
+      margin: EdgeInsets.only(top: 8.h),
+      padding: EdgeInsets.all(10.w),
+      decoration: BoxDecoration(
+        color: AppColors.lightGreen,
+        borderRadius: BorderRadius.circular(12.r),
+        border: Border.all(color: AppColors.primary.withOpacity(0.15)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(
+                Icons.check_circle_rounded,
+                size: 16.sp,
+                color: AppColors.primary,
+              ),
+              SizedBox(width: 6.w),
+              Text(
+                'Selected Categories',
+                style: TextStyle(
+                  fontSize: 11.sp,
+                  fontWeight: FontWeight.w800,
+                  color: AppColors.textPrimary,
+                ),
+              ),
+            ],
+          ),
+          SizedBox(height: 8.h),
+          Wrap(
+            spacing: 7.w,
+            runSpacing: 7.h,
+            children: selectedCategories.map((category) {
+              return Container(
+                padding: EdgeInsets.only(
+                  left: 10.w,
+                  right: 5.w,
+                  top: 5.h,
+                  bottom: 5.h,
+                ),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(20.r),
+                  border: Border.all(
+                    color: AppColors.primary.withOpacity(0.25),
+                  ),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(
+                      Icons.category_rounded,
+                      size: 14.sp,
+                      color: AppColors.primary,
+                    ),
+                    SizedBox(width: 5.w),
+                    Text(
+                      category.name,
+                      style: TextStyle(
+                        fontSize: 11.sp,
+                        fontWeight: FontWeight.w700,
+                        color: AppColors.textPrimary,
+                      ),
+                    ),
+                    SizedBox(width: 3.w),
+                    InkWell(
+                      borderRadius: BorderRadius.circular(20.r),
+                      onTap: () {
+                        _removeCategory(category);
+                      },
+                      child: Padding(
+                        padding: EdgeInsets.all(3.w),
+                        child: Icon(
+                          Icons.close_rounded,
+                          size: 14.sp,
+                          color: AppColors.primary,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              );
+            }).toList(),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildProductSearchField() {
+    return TextField(
+      controller: productSearchController,
+
+      onChanged: (value) {
+        setState(() {
+          productSearchText = value;
+        });
+      },
+
+      decoration: InputDecoration(
+        hintText: 'Search product...',
+
+        prefixIcon: const Icon(Icons.search_rounded),
+
+        suffixIcon: productSearchText.isNotEmpty
+            ? IconButton(
+                onPressed: () {
+                  productSearchController.clear();
+
+                  setState(() {
+                    productSearchText = '';
+                  });
+                },
+                icon: const Icon(Icons.close_rounded),
+              )
+            : null,
+
+        filled: true,
+        fillColor: Colors.white,
+
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12.r),
+          borderSide: BorderSide.none,
+        ),
+
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12.r),
+          borderSide: BorderSide(color: AppColors.border),
+        ),
+
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12.r),
+          borderSide: BorderSide(color: AppColors.primary, width: 1.4),
+        ),
+
+        contentPadding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 12.h),
+      ),
+    );
+  }
+
+  Widget _buildFixedBottomButtons(
+  SalesReturnState state,
+) {
+  return SafeArea(
+    top: false,
+    child: Container(
+      width: double.infinity,
+
+      padding: EdgeInsets.fromLTRB(
+        10.w,
+        9.h,
+        10.w,
+        9.h,
+      ),
+
+      decoration: BoxDecoration(
+        color: Colors.white,
+
+        border: Border(
+          top: BorderSide(
+            color: AppColors.border,
+            width: 1,
+          ),
+        ),
+
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.06),
+            blurRadius: 12,
+            offset: const Offset(0, -3),
+          ),
+        ],
+      ),
+
+      child: Row(
+        children: [
+          // =====================================================
+          // ADD DETAILS
+          // =====================================================
+
+          Expanded(
+            child: _buildAddDetailsButton(),
+          ),
+
+          SizedBox(width: 8.w),
+
+          // =====================================================
+          // PREVIEW
+          // =====================================================
+
+          Expanded(
+            child: _buildPreviewButton(state),
+          ),
+        ],
+      ),
+    ),
+  );
+}
 
   // ===========================================================================
   // CLEAR SIGNATURE
@@ -400,8 +693,664 @@ class _SalesReurnViewState extends State<_SalesReturnView> {
     });
   }
 
+
+
+Future<void> _openAddDetailsDialog() async {
+  await showDialog(
+    context: context,
+    barrierDismissible: false,
+    builder: (dialogContext) {
+      return Dialog(
+        backgroundColor: Colors.transparent,
+        insetPadding: EdgeInsets.symmetric(
+          horizontal: 14.w,
+          vertical: 20.h,
+        ),
+        child: StatefulBuilder(
+          builder: (context, dialogSetState) {
+            final bool hasImage =
+                imagePath != null && imagePath!.trim().isNotEmpty;
+
+            final bool hasSignature =
+                signatureBytes != null && signatureBytes!.isNotEmpty;
+
+            return Container(
+              width: double.infinity,
+              constraints: BoxConstraints(
+                maxHeight: MediaQuery.of(context).size.height * 0.88,
+              ),
+              decoration: BoxDecoration(
+                color: AppColors.background,
+                borderRadius: BorderRadius.circular(20.r),
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  // =====================================================
+                  // HEADER
+                  // =====================================================
+                  Container(
+                    padding: EdgeInsets.symmetric(
+                      horizontal: 15.w,
+                      vertical: 13.h,
+                    ),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.vertical(
+                        top: Radius.circular(20.r),
+                      ),
+                      border: Border(
+                        bottom: BorderSide(
+                          color: AppColors.border,
+                        ),
+                      ),
+                    ),
+                    child: Row(
+                      children: [
+                        Container(
+                          width: 38.w,
+                          height: 38.w,
+                          decoration: BoxDecoration(
+                            color: AppColors.lightGreen,
+                            borderRadius: BorderRadius.circular(11.r),
+                          ),
+                          child: Icon(
+                            Icons.edit_note_rounded,
+                            color: AppColors.primary,
+                            size: 21.sp,
+                          ),
+                        ),
+
+                        SizedBox(width: 10.w),
+
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'Add Order Details',
+                                style: TextStyle(
+                                  fontSize: 16.sp,
+                                  fontWeight: FontWeight.w800,
+                                  color: AppColors.textPrimary,
+                                ),
+                              ),
+                              SizedBox(height: 2.h),
+                              Text(
+                                'Add photo, signature and remark',
+                                style: TextStyle(
+                                  fontSize: 10.5.sp,
+                                  fontWeight: FontWeight.w500,
+                                  color: AppColors.textSecondary,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+
+                        InkWell(
+                          onTap: () {
+                            Navigator.pop(dialogContext);
+                          },
+                          borderRadius: BorderRadius.circular(30.r),
+                          child: Container(
+                            width: 34.w,
+                            height: 34.w,
+                            decoration: BoxDecoration(
+                              color: Colors.grey.shade100,
+                              shape: BoxShape.circle,
+                            ),
+                            child: Icon(
+                              Icons.close_rounded,
+                              size: 20.sp,
+                              color: AppColors.textPrimary,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+
+                  // =====================================================
+                  // SCROLLABLE CONTENT
+                  // =====================================================
+                  Flexible(
+                    child: SingleChildScrollView(
+                      physics: const BouncingScrollPhysics(),
+                      padding: EdgeInsets.all(12.w),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          // =============================================
+                          // PROGRESS / STATUS
+                          // =============================================
+                          Container(
+                            width: double.infinity,
+                            padding: EdgeInsets.symmetric(
+                              horizontal: 11.w,
+                              vertical: 9.h,
+                            ),
+                            decoration: BoxDecoration(
+                              color: AppColors.lightGreen.withOpacity(0.45),
+                              borderRadius: BorderRadius.circular(12.r),
+                              border: Border.all(
+                                color: AppColors.primary.withOpacity(0.12),
+                              ),
+                            ),
+                            child: Row(
+                              children: [
+                                _buildDetailStatus(
+                                  icon: Icons.photo_camera_rounded,
+                                  title: 'Photo',
+                                  completed: hasImage,
+                                ),
+
+                                Container(
+                                  height: 26.h,
+                                  width: 1,
+                                  color: AppColors.border,
+                                ),
+
+                                _buildDetailStatus(
+                                  icon: Icons.draw_rounded,
+                                  title: 'Signature',
+                                  completed: hasSignature,
+                                ),
+
+                                Container(
+                                  height: 26.h,
+                                  width: 1,
+                                  color: AppColors.border,
+                                ),
+
+                                _buildDetailStatus(
+                                  icon: Icons.notes_rounded,
+                                  title: 'Remark',
+                                  completed:
+                                      remarkController.text.trim().isNotEmpty,
+                                ),
+                              ],
+                            ),
+                          ),
+
+                          SizedBox(height: 11.h),
+
+                          // =============================================
+                          // PHOTO
+                          // =============================================
+                          ImagePickerSection(
+                            imagePath: imagePath,
+                            onChanged: (path) {
+                              imagePath = path;
+
+                              setState(() {});
+
+                              dialogSetState(() {});
+                            },
+                          ),
+
+                          SizedBox(height: 10.h),
+
+                          // =============================================
+                          // SIGNATURE
+                          // =============================================
+                          SignatureSection(
+                            controller: signatureController,
+                            onClear: () {
+                              signatureController.clear();
+
+                              signatureBytes = null;
+
+                              setState(() {});
+
+                              dialogSetState(() {});
+                            },
+                            onSignatureChanged: (bytes) {
+                              signatureBytes = bytes;
+
+                              setState(() {});
+
+                              dialogSetState(() {});
+                            },
+                          ),
+
+                          SizedBox(height: 10.h),
+
+                          // =============================================
+                          // REMARK
+                          // =============================================
+                          Container(
+                            padding: EdgeInsets.all(10.w),
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(14.r),
+                              border: Border.all(
+                                color: AppColors.border,
+                              ),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black.withOpacity(0.025),
+                                  blurRadius: 6,
+                                  offset: const Offset(0, 2),
+                                ),
+                              ],
+                            ),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Row(
+                                  children: [
+                                    Container(
+                                      width: 32.w,
+                                      height: 32.w,
+                                      decoration: BoxDecoration(
+                                        color: AppColors.lightGreen,
+                                        borderRadius:
+                                            BorderRadius.circular(9.r),
+                                      ),
+                                      child: Icon(
+                                        Icons.notes_rounded,
+                                        color: AppColors.primary,
+                                        size: 17.sp,
+                                      ),
+                                    ),
+
+                                    SizedBox(width: 8.w),
+
+                                    Text(
+                                      'Remark',
+                                      style: TextStyle(
+                                        fontSize: 11.5.sp,
+                                        fontWeight: FontWeight.w800,
+                                        color: AppColors.textPrimary,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+
+                                SizedBox(height: 8.h),
+
+                                TextField(
+                                  controller: remarkController,
+                                  maxLines: 3,
+                                  minLines: 3,
+                                  onChanged: (_) {
+                                    dialogSetState(() {});
+                                  },
+                                  style: TextStyle(
+                                    fontSize: 12.sp,
+                                    fontWeight: FontWeight.w500,
+                                    color: AppColors.textPrimary,
+                                  ),
+                                  decoration: InputDecoration(
+                                    hintText:
+                                        'Enter additional order remark...',
+                                    hintStyle: TextStyle(
+                                      fontSize: 11.sp,
+                                      color: AppColors.textSecondary,
+                                    ),
+                                    filled: true,
+                                    fillColor:
+                                        const Color(0xFFFAFCFA),
+                                    contentPadding:
+                                        EdgeInsets.symmetric(
+                                      horizontal: 12.w,
+                                      vertical: 11.h,
+                                    ),
+                                    border: OutlineInputBorder(
+                                      borderRadius:
+                                          BorderRadius.circular(11.r),
+                                      borderSide: BorderSide(
+                                        color: AppColors.border,
+                                      ),
+                                    ),
+                                    enabledBorder: OutlineInputBorder(
+                                      borderRadius:
+                                          BorderRadius.circular(11.r),
+                                      borderSide: BorderSide(
+                                        color: AppColors.border,
+                                      ),
+                                    ),
+                                    focusedBorder: OutlineInputBorder(
+                                      borderRadius:
+                                          BorderRadius.circular(11.r),
+                                      borderSide: const BorderSide(
+                                        color: AppColors.primary,
+                                        width: 1.3,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+
+                          SizedBox(height: 5.h),
+                        ],
+                      ),
+                    ),
+                  ),
+
+                  // =====================================================
+                  // BOTTOM BUTTON
+                  // =====================================================
+                  Container(
+                    padding: EdgeInsets.fromLTRB(
+                      12.w,
+                      10.h,
+                      12.w,
+                      12.h,
+                    ),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.vertical(
+                        bottom: Radius.circular(20.r),
+                      ),
+                      border: Border(
+                        top: BorderSide(
+                          color: AppColors.border,
+                        ),
+                      ),
+                    ),
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: SizedBox(
+                            height: 45.h,
+                            child: OutlinedButton(
+                              onPressed: () {
+                                Navigator.pop(dialogContext);
+                              },
+                              style: OutlinedButton.styleFrom(
+                                side: BorderSide(
+                                  color: AppColors.border,
+                                ),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius:
+                                      BorderRadius.circular(11.r),
+                                ),
+                              ),
+                              child: Text(
+                                'Cancel',
+                                style: TextStyle(
+                                  fontSize: 12.sp,
+                                  fontWeight: FontWeight.w700,
+                                  color: AppColors.textSecondary,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+
+                        SizedBox(width: 9.w),
+
+                        Expanded(
+                          child: SizedBox(
+                            height: 45.h,
+                            child: ElevatedButton.icon(
+
+
+                              // onPressed: () {
+                              //   if (imagePath == null ||
+                              //       imagePath!.trim().isEmpty) {
+                              //     _showMessage(
+                              //       'Please add details',
+                              //     );
+                              //     return;
+                              //   }
+
+                              //   if (signatureBytes == null ||
+                              //       signatureBytes!.isEmpty) {
+                              //     _showMessage(
+                              //       'Please add dealer signature',
+                              //     );
+                              //     return;
+                              //   }
+
+                              //   setState(() {});
+
+                              //   Navigator.pop(dialogContext);
+                              // },
+
+
+                              onPressed: () {
+                                  // ============================================================
+                                  // IMAGE VALIDATION
+                                  // ============================================================
+
+                                  if (imagePath == null || imagePath!.trim().isEmpty) {
+                                    _showMessage('Please add order photo');
+                                    return;
+                                  }
+
+                                  // ============================================================
+                                  // SIGNATURE VALIDATION
+                                  // ============================================================
+
+                                  if (signatureBytes == null || signatureBytes!.isEmpty) {
+                                    _showMessage('Please add dealer signature');
+                                    return;
+                                  }
+
+                                  // ============================================================
+                                  // ALL VALID
+                                  // ============================================================
+
+                                  setState(() {});
+
+                                  Navigator.pop(dialogContext);
+                                },
+
+
+                              icon: Icon(
+                                Icons.check_circle_rounded,
+                                size: 18.sp,
+                              ),
+                              label: Text(
+                                'Save Details',
+                                style: TextStyle(
+                                  fontSize: 12.sp,
+                                  fontWeight: FontWeight.w800,
+                                ),
+                              ),
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: AppColors.primary,
+                                foregroundColor: Colors.white,
+                                elevation: 0,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius:
+                                      BorderRadius.circular(11.r),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            );
+          },
+        ),
+      );
+    },
+  );
+}
+
+Widget _buildDetailStatus({
+  required IconData icon,
+  required String title,
+  required bool completed,
+}) {
+  return Expanded(
+    child: Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Container(
+          width: 27.w,
+          height: 27.w,
+          decoration: BoxDecoration(
+            color: completed
+                ? AppColors.primary
+                : Colors.white,
+            shape: BoxShape.circle,
+            border: Border.all(
+              color: completed
+                  ? AppColors.primary
+                  : AppColors.border,
+            ),
+          ),
+          child: Icon(
+            completed ? Icons.check_rounded : icon,
+            size: 14.sp,
+            color: completed
+                ? Colors.white
+                : AppColors.textSecondary,
+          ),
+        ),
+
+        SizedBox(height: 3.h),
+
+        Text(
+          title,
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+          style: TextStyle(
+            fontSize: 9.sp,
+            fontWeight: FontWeight.w700,
+            color: completed
+                ? AppColors.primary
+                : AppColors.textSecondary,
+          ),
+        ),
+      ],
+    ),
+  );
+}
+
+Widget _buildAddDetailsButton() {
+  final bool hasImage =
+      imagePath != null && imagePath!.trim().isNotEmpty;
+
+  final bool hasSignature =
+      signatureBytes != null && signatureBytes!.isNotEmpty;
+
+  final bool detailsAdded = hasImage && hasSignature;
+
+  return SizedBox(
+    height: 48.h,
+    child: OutlinedButton(
+      onPressed: _openAddDetailsDialog,
+      style: OutlinedButton.styleFrom(
+        backgroundColor: detailsAdded
+            ? AppColors.lightGreen
+            : Colors.white,
+        foregroundColor: AppColors.primary,
+        side: BorderSide(
+          color: detailsAdded
+              ? AppColors.primary.withOpacity(0.45)
+              : AppColors.border,
+          width: 1.1,
+        ),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12.r),
+        ),
+        padding: EdgeInsets.symmetric(
+          horizontal: 10.w,
+        ),
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(
+            detailsAdded
+                ? Icons.check_circle_rounded
+                : Icons.add_circle_outline_rounded,
+            size: 18.sp,
+          ),
+
+          SizedBox(width: 6.w),
+
+          Flexible(
+            child: Text(
+              detailsAdded
+                  ? 'Edit Details'
+                  : 'Add Details',
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: TextStyle(
+                fontSize: 12.sp,
+                fontWeight: FontWeight.w800,
+              ),
+            ),
+          ),
+        ],
+      ),
+    ),
+  );
+}
+
+Widget _buildPreviewButton(SalesReturnState state) {
+  final bool isSubmitting =
+      state.status == SalesReturnStatus.submitting;
+
+  return SizedBox(
+    height: 48.h,
+    child: ElevatedButton(
+      onPressed: isSubmitting
+          ? null
+          : () {
+              _submit(state);
+            },
+      style: ElevatedButton.styleFrom(
+        backgroundColor: AppColors.primary,
+        foregroundColor: Colors.white,
+        disabledBackgroundColor:
+            AppColors.primary.withOpacity(0.55),
+        elevation: 0,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12.r),
+        ),
+        padding: EdgeInsets.symmetric(
+          horizontal: 10.w,
+        ),
+      ),
+      child: isSubmitting
+          ? SizedBox(
+              width: 19.w,
+              height: 19.w,
+              child: const CircularProgressIndicator(
+                strokeWidth: 2,
+                color: Colors.white,
+              ),
+            )
+          : Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(
+                  Icons.visibility_rounded,
+                  size: 18.sp,
+                ),
+
+                SizedBox(width: 6.w),
+
+                Text(
+                  'Preview',
+                  style: TextStyle(
+                    fontSize: 12.sp,
+                    fontWeight: FontWeight.w800,
+                  ),
+                ),
+              ],
+            ),
+    ),
+  );
+}
+
+
   // ===========================================================================
-  // SAVE DIGITAL SIGNATURE TO FILE
+  // SAVE DIGITAL SIGNATURE
   // ===========================================================================
 
   Future<String?> _saveSignatureToFile() async {
@@ -411,45 +1360,29 @@ class _SalesReurnViewState extends State<_SalesReturnView> {
     }
 
     try {
-      final Directory tempDirectory =
-          await getTemporaryDirectory();
+      final Directory tempDirectory = await getTemporaryDirectory();
 
       final String fileName =
           'Signature_${DateTime.now().millisecondsSinceEpoch}.png';
 
-      final String filePath =
-          '${tempDirectory.path}/$fileName';
+      final String filePath = '${tempDirectory.path}/$fileName';
 
       final File signatureFile = File(filePath);
 
-      await signatureFile.writeAsBytes(
-        signatureBytes!,
-        flush: true,
-      );
+      await signatureFile.writeAsBytes(signatureBytes!, flush: true);
 
       final bool exists = await signatureFile.exists();
 
       if (!exists) {
-        debugPrint(
-          'Digital signature file was not created',
-        );
+        debugPrint('Digital signature file was not created');
         return null;
       }
 
-      final int fileSize = await signatureFile.length();
-
-      debugPrint('========================================');
-      debugPrint('DIGITAL SIGNATURE FILE');
-      debugPrint('File name: $fileName');
-      debugPrint('File path: ${signatureFile.path}');
-      debugPrint('File size: $fileSize bytes');
-      debugPrint('========================================');
+      debugPrint('Digital signature saved: ${signatureFile.path}');
 
       return signatureFile.path;
     } catch (e, stackTrace) {
-      debugPrint(
-        'Save digital signature error: $e',
-      );
+      debugPrint('Save digital signature error: $e');
 
       debugPrint('$stackTrace');
 
@@ -461,22 +1394,28 @@ class _SalesReurnViewState extends State<_SalesReturnView> {
   // OPEN MULTI PRODUCT RATE SELECTOR
   // ===========================================================================
 
-  Future<void> _openMultiProductSelector({
-    String? initialProductId,
-  }) async {
+  Future<void> _openMultiProductSelector({String? initialProductId}) async {
     if (selectedDealer == null) {
       _showMessage('Please select dealer first');
       return;
     }
 
+    // if (selectedCategories.isEmpty) {
+    //   _showMessage(
+    //     'Please select at least one category',
+    //   );
+    //   return;
+    // }
+
     if (isOpeningRateSelector) {
       return;
     }
 
-    final bloc = context.read<SalesReturnBloc>();
-    final currentState = bloc.state;
+    final List<ProductEntity> currentProducts = List<ProductEntity>.from(
+      allCategoryProducts,
+    );
 
-    if (currentState.products.isEmpty) {
+    if (currentProducts.isEmpty) {
       _showMessage('No products available');
       return;
     }
@@ -486,51 +1425,43 @@ class _SalesReurnViewState extends State<_SalesReturnView> {
     });
 
     try {
-      final getRatesUseCase =
-          GetProductDetailRatesUseCase(
+      final getRatesUseCase = GetProductDetailRatesUseCase(
         repository: sl<ProductRateRepository>(),
       );
 
+      final bloc = context.read<SalesReturnBloc>();
+
+      final currentState = bloc.state;
+
       final MultiProductRateSelectionResult? result =
-          await showModalBottomSheet<
-              MultiProductRateSelectionResult>(
-        context: context,
-        isScrollControlled: true,
-        backgroundColor: Colors.transparent,
-        barrierColor: Colors.black.withOpacity(0.45),
-        builder: (bottomSheetContext) {
-          return MultiProductRateBottomSheet(
-            products: currentState.products,
-            dealerId: selectedDealer!.id.toString(),
-            existingRates: {
-              for (final entry in selectedRates.entries)
-                entry.key:
-                    List<ProductRateEntity>.from(
-                  entry.value,
-                ),
+          await showModalBottomSheet<MultiProductRateSelectionResult>(
+            context: context,
+            isScrollControlled: true,
+            backgroundColor: Colors.transparent,
+            barrierColor: Colors.black.withOpacity(0.45),
+            builder: (bottomSheetContext) {
+              return MultiProductRateBottomSheet(
+                products: currentProducts,
+                dealerId: selectedDealer!.id.toString(),
+                existingRates: {
+                  for (final entry in selectedRates.entries)
+                    entry.key: List<ProductRateEntity>.from(entry.value),
+                },
+                existingPackingQuantities: {
+                  for (final entry in currentState.packingQuantities.entries)
+                    entry.key: Map<String, int>.from(entry.value),
+                },
+                initialProductId: initialProductId,
+                getRatesUseCase: getRatesUseCase,
+              );
             },
-            existingPackingQuantities: {
-              for (final entry
-                  in currentState.packingQuantities.entries)
-                entry.key:
-                    Map<String, int>.from(
-                  entry.value,
-                ),
-            },
-            initialProductId: initialProductId,
-            getRatesUseCase: getRatesUseCase,
           );
-        },
-      );
 
       if (result == null) {
         return;
       }
 
-      await _processSelectedRates(
-        result: result,
-        products: currentState.products,
-      );
+      await _processSelectedRates(result: result, products: currentProducts);
     } finally {
       if (mounted) {
         setState(() {
@@ -553,48 +1484,17 @@ class _SalesReurnViewState extends State<_SalesReturnView> {
     final Map<String, List<ProductRateEntity>> returnedRates =
         result.selectedRates;
 
-    final Map<String, Map<String, int>>
-        returnedPackingQuantities =
+    final Map<String, Map<String, int>> returnedPackingQuantities =
         result.packingQuantities;
 
-    debugPrint('========================================');
-    debugPrint('MULTIPLE PRODUCT RATE RESULT');
-
-    debugPrint(
-      'Returned product count: ${returnedRates.length}',
-    );
-
-    debugPrint(
-      'Returned packing quantity count: '
-      '${returnedPackingQuantities.length}',
-    );
-
-    for (final entry in returnedPackingQuantities.entries) {
-      debugPrint(
-        'Product ${entry.key} packing quantities:',
-      );
-
-      for (final quantityEntry in entry.value.entries) {
-        debugPrint(
-          '  ProductDetailsId: '
-          '${quantityEntry.key} -> '
-          'Quantity: ${quantityEntry.value}',
-        );
-      }
-    }
-
-    // =========================================================================
-    // UPDATE PACKING-WISE QUANTITIES
-    // =========================================================================
+    // -------------------------------------------------------------------------
+    // UPDATE PACKING QUANTITIES
+    // -------------------------------------------------------------------------
 
     for (final entry in returnedPackingQuantities.entries) {
       final String productId = entry.key;
 
-      final Map<String, int> packingQuantities =
-          entry.value;
-
-      for (final quantityEntry
-          in packingQuantities.entries) {
+      for (final quantityEntry in entry.value.entries) {
         bloc.add(
           SetPackingQuantityEvent(
             productId: productId,
@@ -602,79 +1502,50 @@ class _SalesReurnViewState extends State<_SalesReturnView> {
             quantity: quantityEntry.value,
           ),
         );
-
-        debugPrint(
-          'Packing quantity updated: '
-          'product=$productId, '
-          'details=${quantityEntry.key}, '
-          'quantity=${quantityEntry.value}',
-        );
       }
     }
 
-    // =========================================================================
-    // SAVE SELECTED RATES
-    // =========================================================================
+    // -------------------------------------------------------------------------
+    // SAVE RATES
+    // -------------------------------------------------------------------------
 
     for (final entry in returnedRates.entries) {
       final String productId = entry.key;
 
-      final List<ProductRateEntity> rates =
-          entry.value;
+      final List<ProductRateEntity> rates = entry.value;
 
       ProductEntity? product;
 
       try {
         product = products.firstWhere(
-          (element) =>
-              element.id.toString() == productId,
+          (element) => element.id.toString() == productId,
         );
       } catch (_) {
         product = null;
       }
 
       if (product == null) {
-        debugPrint(
-          'Product not found for ID: $productId',
-        );
+        debugPrint('Product not found for ID: $productId');
         continue;
       }
 
       if (rates.isEmpty) {
         selectedRates.remove(productId);
 
-        bloc.add(
-          RemoveProductEvent(
-            productId: product.id,
-          ),
-        );
+        bloc.add(RemoveProductEvent(productId: product.id));
 
         continue;
       }
 
-      selectedRates[productId] =
-          List<ProductRateEntity>.from(rates);
+      selectedRates[productId] = List<ProductRateEntity>.from(rates);
 
-      debugPrint('Product ID: $productId');
-      debugPrint('Product Name: ${product.name}');
-      debugPrint(
-        'Selected Rates: ${rates.length}',
-      );
-
-      final Map<String, int>
-          productPackingQuantities =
-          returnedPackingQuantities[productId] ??
-              <String, int>{};
+      final Map<String, int> productPackingQuantities =
+          returnedPackingQuantities[productId] ?? <String, int>{};
 
       for (final rate in rates) {
-        final String detailsId =
-            rate.productDetailsId.toString();
+        final String detailsId = rate.productDetailsId.toString();
 
-        final int quantity =
-            productPackingQuantities[detailsId] ?? 1;
-
-        if (!productPackingQuantities
-            .containsKey(detailsId)) {
+        if (!productPackingQuantities.containsKey(detailsId)) {
           bloc.add(
             SetPackingQuantityEvent(
               productId: productId,
@@ -683,134 +1554,43 @@ class _SalesReurnViewState extends State<_SalesReturnView> {
             ),
           );
         }
-
-        debugPrint(
-          'Packing: ${rate.packing}',
-        );
-
-        debugPrint(
-          'Rate: ${rate.rateWithGst}',
-        );
-
-        debugPrint(
-          'Product Details ID: '
-          '${rate.productDetailsId}',
-        );
-
-        debugPrint(
-          'Quantity: $quantity',
-        );
-
-        debugPrint(
-          '----------------------------------------',
-        );
       }
 
-      final bool hasQuantity =
-          rates.any((rate) {
-        final String detailsId =
-            rate.productDetailsId.toString();
+      final bool hasQuantity = rates.any((rate) {
+        final String detailsId = rate.productDetailsId.toString();
 
-        final int quantity =
-            productPackingQuantities[detailsId] ?? 1;
+        final int quantity = productPackingQuantities[detailsId] ?? 1;
 
         return quantity > 0;
       });
 
       if (hasQuantity) {
-        bloc.add(
-          AddProductEvent(
-            product: product,
-          ),
-        );
+        bloc.add(AddProductEvent(product: product));
       }
     }
 
-    // =========================================================================
-    // REMOVE PRODUCTS THAT WERE DESELECTED
-    // =========================================================================
-
-    final Set<String> returnedProductIds =
-        returnedRates.keys.toSet();
-
-    final List<String> oldSelectedProductIds =
-        selectedRates.keys.toList();
-
-    for (final productId
-        in oldSelectedProductIds) {
-      if (returnedProductIds.contains(productId)) {
-        continue;
-      }
-
-      ProductEntity? product;
-
-      try {
-        product = products.firstWhere(
-          (element) =>
-              element.id.toString() == productId,
-        );
-      } catch (_) {
-        product = null;
-      }
-
-      selectedRates.remove(productId);
-
-      if (product != null) {
-        bloc.add(
-          RemoveProductEvent(
-            productId: product.id,
-          ),
-        );
-
-        debugPrint(
-          'Removed product: ${product.name}',
-        );
-      }
-    }
+    // -------------------------------------------------------------------------
+    // IMPORTANT:
+    //
+    // Do NOT remove products based only on returnedRates here.
+    //
+    // The selector can be opened while products from multiple categories
+    // are already selected.
+    // -------------------------------------------------------------------------
 
     if (mounted) {
       setState(() {});
     }
 
-    // =========================================================================
-    // FINAL DEBUG
-    // =========================================================================
-
     debugPrint('========================================');
     debugPrint('FINAL SELECTED RATES');
 
-    int totalRates = 0;
-
     for (final entry in selectedRates.entries) {
-      totalRates += entry.value.length;
-
       debugPrint(
         'Product ${entry.key} -> '
         '${entry.value.length} rate(s)',
       );
-
-      for (final rate in entry.value) {
-        final String productDetailsId =
-            rate.productDetailsId.toString();
-
-        final int quantity =
-            returnedPackingQuantities[
-                    entry.key]?[productDetailsId] ??
-                1;
-
-        debugPrint(
-          '  ${rate.productName} -> '
-          'Rate ${rate.rateWithGst} -> '
-          'Packing ${rate.packing} -> '
-          'Details $productDetailsId -> '
-          'Quantity $quantity',
-        );
-      }
     }
-
-    debugPrint(
-      'Total selected rates: $totalRates',
-    );
 
     debugPrint('========================================');
   }
@@ -819,21 +1599,13 @@ class _SalesReurnViewState extends State<_SalesReturnView> {
   // ADD PRODUCT
   // ===========================================================================
 
-  Future<void> _addProduct(
-    ProductEntity product,
-  ) async {
+  Future<void> _addProduct(ProductEntity product) async {
     if (selectedDealer == null) {
       _showMessage('Please select dealer first');
       return;
     }
 
-    await _openMultiProductSelector(
-      initialProductId: product.id.toString(),
-    );
-
-    debugPrint(
-      'Add clicked for product: ${product.id}',
-    );
+    await _openMultiProductSelector(initialProductId: product.id.toString());
   }
 
   // ===========================================================================
@@ -841,38 +1613,107 @@ class _SalesReurnViewState extends State<_SalesReturnView> {
   // ===========================================================================
 
   void _deleteProduct(ProductEntity product) {
-    final String productId =
-        product.id.toString();
+    final String productId = product.id.toString();
 
     context.read<SalesReturnBloc>().add(
-          RemoveProductEvent(
-            productId: product.id,
-          ),
-        );
+      RemoveProductEvent(productId: product.id),
+    );
 
     setState(() {
       selectedRates.remove(productId);
     });
   }
 
+
+  void _deleteProductPacking({
+  required ProductEntity product,
+  required ProductRateEntity rate,
+}) {
+  final String productId =
+      product.id.toString();
+
+  final String productDetailsId =
+      rate.productDetailsId.toString();
+
+  debugPrint(
+    'DELETE PACKING => '
+    'Product: $productId, '
+    'Packing: $productDetailsId',
+  );
+
+  // ============================================================
+  // GET CURRENT RATES OF PRODUCT
+  // ============================================================
+
+  final List<ProductRateEntity> currentRates =
+      List<ProductRateEntity>.from(
+    selectedRates[productId] ??
+        <ProductRateEntity>[],
+  );
+
+  // ============================================================
+  // REMOVE ONLY SELECTED PACKING
+  // ============================================================
+
+  currentRates.removeWhere(
+    (item) =>
+        item.productDetailsId.toString() ==
+        productDetailsId,
+  );
+
+  // ============================================================
+  // SET ITS QUANTITY TO ZERO
+  // ============================================================
+
+  context.read<SalesReturnBloc>().add(
+        SetPackingQuantityEvent(
+          productId: productId,
+          productDetailsId:
+              productDetailsId,
+          quantity: 0,
+        ),
+      );
+
+  // ============================================================
+  // IF NO PACKING REMAINS
+  // REMOVE COMPLETE PRODUCT
+  // ============================================================
+
+  if (currentRates.isEmpty) {
+    selectedRates.remove(productId);
+
+    context.read<SalesReturnBloc>().add(
+          RemoveProductEvent(
+            productId: product.id,
+          ),
+        );
+  } else {
+    // SOME PACKINGS STILL REMAIN
+    selectedRates[productId] =
+        currentRates;
+  }
+
+  setState(() {});
+
+  debugPrint(
+    'Remaining packing count: '
+    '${currentRates.length}',
+  );
+}
+
+
   // ===========================================================================
   // GET SELECTED PRODUCTS
   // ===========================================================================
 
-  List<ProductEntity> _getSelectedProducts(
-    SalesReturnState state,
-  ) {
-    return state.products.where((product) {
-      final String productId =
-          product.id.toString();
+  List<ProductEntity> _getSelectedProducts(SalesReturnState state) {
+    return allCategoryProducts.where((product) {
+      final String productId = product.id.toString();
 
-      final Map<String, int>
-          productPackingQuantities =
-          state.packingQuantities[productId] ??
-              <String, int>{};
+      final Map<String, int> productPackingQuantities =
+          state.packingQuantities[productId] ?? <String, int>{};
 
-      final bool hasQuantity =
-          productPackingQuantities.values.any(
+      final bool hasQuantity = productPackingQuantities.values.any(
         (quantity) => quantity > 0,
       );
 
@@ -886,9 +1727,7 @@ class _SalesReurnViewState extends State<_SalesReturnView> {
   // SAFE GODOWN VALUE
   // ===========================================================================
 
-  String? _getSafeGodownValue(
-    List<GodownEntity> godowns,
-  ) {
+  String? _getSafeGodownValue(List<GodownEntity> godowns) {
     if (selectedGodown == null) {
       return null;
     }
@@ -896,12 +1735,8 @@ class _SalesReurnViewState extends State<_SalesReturnView> {
     final selectedId = selectedGodown!.id;
 
     final matchingIds = godowns
-        .where(
-          (godown) => godown.id == selectedId,
-        )
-        .map(
-          (godown) => godown.id,
-        )
+        .where((godown) => godown.id == selectedId)
+        .map((godown) => godown.id)
         .toSet();
 
     if (matchingIds.length != 1) {
@@ -912,43 +1747,23 @@ class _SalesReurnViewState extends State<_SalesReturnView> {
   }
 
   // ===========================================================================
-  // SAFE CATEGORY VALUE
+  // CATEGORY DROPDOWN VALUE
   // ===========================================================================
 
-  String? _getSafeCategoryValue(
-    List<CategoryEntity> categories,
-  ) {
-    if (selectedCategory == null) {
-      return null;
-    }
-
-    final selectedId = selectedCategory!.id;
-
-    final matchingIds = categories
-        .where(
-          (category) => category.id == selectedId,
-        )
-        .map(
-          (category) => category.id,
-        )
-        .toSet();
-
-    if (matchingIds.length != 1) {
-      return null;
-    }
-
-    return selectedId;
+  /// A normal DropdownButton cannot contain multiple values.
+  ///
+  /// Therefore this dropdown always has value = null after selecting a
+  /// category. This allows the user to select another category.
+  String? _getCategoryDropdownValue() {
+    return null;
   }
 
   // ===========================================================================
   // UNIQUE GODOWN ITEMS
   // ===========================================================================
 
-  List<DropdownMenuItem<String>> _buildGodownItems(
-    List<GodownEntity> godowns,
-  ) {
-    final Map<String, GodownEntity> uniqueGodowns =
-        {};
+  List<DropdownMenuItem<String>> _buildGodownItems(List<GodownEntity> godowns) {
+    final Map<String, GodownEntity> uniqueGodowns = {};
 
     for (final godown in godowns) {
       final id = godown.id.trim();
@@ -957,10 +1772,7 @@ class _SalesReurnViewState extends State<_SalesReturnView> {
         continue;
       }
 
-      uniqueGodowns.putIfAbsent(
-        id,
-        () => godown,
-      );
+      uniqueGodowns.putIfAbsent(id, () => godown);
     }
 
     return uniqueGodowns.values
@@ -988,8 +1800,7 @@ class _SalesReurnViewState extends State<_SalesReturnView> {
   List<DropdownMenuItem<String>> _buildCategoryItems(
     List<CategoryEntity> categories,
   ) {
-    final Map<String, CategoryEntity>
-        uniqueCategories = {};
+    final Map<String, CategoryEntity> uniqueCategories = {};
 
     for (final category in categories) {
       final id = category.id.trim();
@@ -998,10 +1809,7 @@ class _SalesReurnViewState extends State<_SalesReturnView> {
         continue;
       }
 
-      uniqueCategories.putIfAbsent(
-        id,
-        () => category,
-      );
+      uniqueCategories.putIfAbsent(id, () => category);
     }
 
     return uniqueCategories.values
@@ -1027,12 +1835,10 @@ class _SalesReurnViewState extends State<_SalesReturnView> {
   // ===========================================================================
 
   Future<void> _confirmAndSubmitOrder({
-    required List<Map<String, dynamic>>
-        selectedProductPayload,
+    required List<Map<String, dynamic>> selectedProductPayload,
     required List<String> selectedImages,
   }) async {
-    final bool? confirmed =
-        await showDialog<bool>(
+    final bool? confirmed = await showDialog<bool>(
       context: context,
       barrierDismissible: false,
       builder: (dialogContext) {
@@ -1041,24 +1847,9 @@ class _SalesReurnViewState extends State<_SalesReturnView> {
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(18.r),
           ),
-          titlePadding: EdgeInsets.fromLTRB(
-            20.w,
-            20.h,
-            20.w,
-            8.h,
-          ),
-          contentPadding: EdgeInsets.fromLTRB(
-            20.w,
-            8.h,
-            20.w,
-            10.h,
-          ),
-          actionsPadding: EdgeInsets.fromLTRB(
-            16.w,
-            0,
-            16.w,
-            14.h,
-          ),
+          titlePadding: EdgeInsets.fromLTRB(20.w, 20.h, 20.w, 8.h),
+          contentPadding: EdgeInsets.fromLTRB(20.w, 8.h, 20.w, 10.h),
+          actionsPadding: EdgeInsets.fromLTRB(16.w, 0, 16.w, 14.h),
           title: Row(
             children: [
               Container(
@@ -1089,8 +1880,7 @@ class _SalesReurnViewState extends State<_SalesReturnView> {
           ),
           content: Column(
             mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment:
-                CrossAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
                 'Are you sure you want to submit this order?',
@@ -1107,11 +1897,8 @@ class _SalesReurnViewState extends State<_SalesReturnView> {
                 padding: EdgeInsets.all(12.w),
                 decoration: BoxDecoration(
                   color: AppColors.background,
-                  borderRadius:
-                      BorderRadius.circular(12.r),
-                  border: Border.all(
-                    color: AppColors.border,
-                  ),
+                  borderRadius: BorderRadius.circular(12.r),
+                  border: Border.all(color: AppColors.border),
                 ),
                 child: Column(
                   children: [
@@ -1127,14 +1914,11 @@ class _SalesReurnViewState extends State<_SalesReturnView> {
                           child: Text(
                             selectedDealer?.name ?? '',
                             maxLines: 1,
-                            overflow:
-                                TextOverflow.ellipsis,
+                            overflow: TextOverflow.ellipsis,
                             style: TextStyle(
                               fontSize: 13.sp,
-                              fontWeight:
-                                  FontWeight.w700,
-                              color:
-                                  AppColors.textPrimary,
+                              fontWeight: FontWeight.w700,
+                              color: AppColors.textPrimary,
                             ),
                           ),
                         ),
@@ -1153,14 +1937,11 @@ class _SalesReurnViewState extends State<_SalesReturnView> {
                           child: Text(
                             selectedGodown?.name ?? '',
                             maxLines: 1,
-                            overflow:
-                                TextOverflow.ellipsis,
+                            overflow: TextOverflow.ellipsis,
                             style: TextStyle(
                               fontSize: 13.sp,
-                              fontWeight:
-                                  FontWeight.w700,
-                              color:
-                                  AppColors.textPrimary,
+                              fontWeight: FontWeight.w700,
+                              color: AppColors.textPrimary,
                             ),
                           ),
                         ),
@@ -1180,10 +1961,8 @@ class _SalesReurnViewState extends State<_SalesReturnView> {
                             '${selectedProductPayload.length} rate line${selectedProductPayload.length == 1 ? '' : 's'}',
                             style: TextStyle(
                               fontSize: 13.sp,
-                              fontWeight:
-                                  FontWeight.w700,
-                              color:
-                                  AppColors.textPrimary,
+                              fontWeight: FontWeight.w700,
+                              color: AppColors.textPrimary,
                             ),
                           ),
                         ),
@@ -1205,10 +1984,8 @@ class _SalesReurnViewState extends State<_SalesReturnView> {
                                 : 'No order photo',
                             style: TextStyle(
                               fontSize: 13.sp,
-                              fontWeight:
-                                  FontWeight.w700,
-                              color:
-                                  AppColors.textPrimary,
+                              fontWeight: FontWeight.w700,
+                              color: AppColors.textPrimary,
                             ),
                           ),
                         ),
@@ -1225,17 +2002,13 @@ class _SalesReurnViewState extends State<_SalesReturnView> {
                         SizedBox(width: 8.w),
                         Expanded(
                           child: Text(
-                            signatureBytes != null &&
-                                    signatureBytes!
-                                        .isNotEmpty
+                            signatureBytes != null && signatureBytes!.isNotEmpty
                                 ? 'Dealer signature added'
                                 : 'Signature not added',
                             style: TextStyle(
                               fontSize: 13.sp,
-                              fontWeight:
-                                  FontWeight.w700,
-                              color:
-                                  AppColors.textPrimary,
+                              fontWeight: FontWeight.w700,
+                              color: AppColors.textPrimary,
                             ),
                           ),
                         ),
@@ -1251,16 +2024,12 @@ class _SalesReurnViewState extends State<_SalesReturnView> {
               height: 44.h,
               child: OutlinedButton(
                 onPressed: () {
-                  Navigator.of(dialogContext)
-                      .pop(false);
+                  Navigator.of(dialogContext).pop(false);
                 },
                 style: OutlinedButton.styleFrom(
-                  side: const BorderSide(
-                    color: AppColors.border,
-                  ),
+                  side: const BorderSide(color: AppColors.border),
                   shape: RoundedRectangleBorder(
-                    borderRadius:
-                        BorderRadius.circular(11.r),
+                    borderRadius: BorderRadius.circular(11.r),
                   ),
                 ),
                 child: Text(
@@ -1278,17 +2047,14 @@ class _SalesReurnViewState extends State<_SalesReturnView> {
               height: 44.h,
               child: ElevatedButton(
                 onPressed: () {
-                  Navigator.of(dialogContext)
-                      .pop(true);
+                  Navigator.of(dialogContext).pop(true);
                 },
                 style: ElevatedButton.styleFrom(
-                  backgroundColor:
-                      AppColors.primary,
+                  backgroundColor: AppColors.primary,
                   foregroundColor: Colors.white,
                   elevation: 0,
                   shape: RoundedRectangleBorder(
-                    borderRadius:
-                        BorderRadius.circular(11.r),
+                    borderRadius: BorderRadius.circular(11.r),
                   ),
                 ),
                 child: Text(
@@ -1313,18 +2079,14 @@ class _SalesReurnViewState extends State<_SalesReturnView> {
     // SAVE SIGNATURE BEFORE BLOC
     // =========================================================================
 
-    final String? savedSignaturePath =
-        await _saveSignatureToFile();
+    final String? savedSignaturePath = await _saveSignatureToFile();
 
     if (!mounted) {
       return;
     }
 
-    if (savedSignaturePath == null ||
-        savedSignaturePath.isEmpty) {
-      _showMessage(
-        'Unable to save digital signature',
-      );
+    if (savedSignaturePath == null || savedSignaturePath.isEmpty) {
+      _showMessage('Unable to save digital signature');
       return;
     }
 
@@ -1340,11 +2102,8 @@ class _SalesReurnViewState extends State<_SalesReturnView> {
       '${selectedProductPayload.length}',
     );
 
-    for (final product
-        in selectedProductPayload) {
-      debugPrint(
-        'SUBMIT DATA: $product',
-      );
+    for (final product in selectedProductPayload) {
+      debugPrint('SUBMIT DATA: $product');
     }
 
     debugPrint(
@@ -1369,247 +2128,215 @@ class _SalesReurnViewState extends State<_SalesReturnView> {
     // =========================================================================
 
     context.read<SalesReturnBloc>().add(
-          SubmitSalesReturnEvent(
-            userId: widget.userId,
-            dealer: selectedDealer!,
-            godown: selectedGodown!,
-            products: selectedProductPayload,
-            remark: remarkController.text.trim(),
-            imagePaths: selectedImages,
-            signaturePath: savedSignaturePath,
-          ),
-        );
+      SubmitSalesReturnEvent(
+        userId: widget.userId,
+        dealer: selectedDealer!,
+        godown: selectedGodown!,
+        products: selectedProductPayload,
+        remark: remarkController.text.trim(),
+        imagePaths: selectedImages,
+        signaturePath: savedSignaturePath,
+      ),
+    );
   }
 
   // ===========================================================================
-  // SUBMIT
+  // SUBMIT / PREVIEW
   // ===========================================================================
 
-  Future<void> _submit(
-    SalesReturnState state,
-  ) async {
-    // =========================================================================
+  Future<void> _submit(SalesReturnState state) async {
+    // -------------------------------------------------------------------------
     // DEALER
-    // =========================================================================
+    // -------------------------------------------------------------------------
 
     if (selectedDealer == null) {
       _showMessage('Please select dealer');
       return;
     }
 
-    // =========================================================================
+    // -------------------------------------------------------------------------
     // GODOWN
-    // =========================================================================
+    // -------------------------------------------------------------------------
 
     if (selectedGodown == null) {
       _showMessage('Please select godown');
       return;
     }
 
-    // =========================================================================
-    // CATEGORY
-    // =========================================================================
-
-    if (selectedCategory == null) {
-      _showMessage('Please select category');
-      return;
-    }
-
-    // =========================================================================
+    // -------------------------------------------------------------------------
     // PRODUCTS
-    // =========================================================================
+    // -------------------------------------------------------------------------
 
-    final selectedProducts =
-        _getSelectedProducts(state);
+    final List<ProductEntity> selectedProducts = _getSelectedProducts(state);
 
     if (selectedProducts.isEmpty) {
-      _showMessage(
-        'Please add at least one product',
-      );
+      _showMessage('Please add at least one product');
       return;
     }
 
-    // =========================================================================
+    // -------------------------------------------------------------------------
     // RATE VALIDATION
-    // =========================================================================
+    // -------------------------------------------------------------------------
 
     for (final product in selectedProducts) {
-      final String productId =
-          product.id.toString();
+      final String productId = product.id.toString();
 
-      if (!selectedRates.containsKey(productId) ||
-          selectedRates[productId]!.isEmpty) {
-        _showMessage(
-          'Please select rate for ${product.name}',
-        );
+      final List<ProductRateEntity> productRates =
+          selectedRates[productId] ?? <ProductRateEntity>[];
+
+      if (productRates.isEmpty) {
+        _showMessage('Please select rate for ${product.name}');
         return;
       }
     }
 
-    // =========================================================================
+    // -------------------------------------------------------------------------
     // IMAGE
-    // =========================================================================
+    // -------------------------------------------------------------------------
 
-    if (imagePath == null ||
-        imagePath!.trim().isEmpty) {
-      _showMessage('Please add order photo');
+    if (imagePath == null || imagePath!.trim().isEmpty) {
+      //_showMessage('Please add order photo');
+      _showMessage('Please add details');
       return;
     }
 
-    // =========================================================================
+    // -------------------------------------------------------------------------
     // SIGNATURE
-    // =========================================================================
+    // -------------------------------------------------------------------------
 
-    if (signatureBytes == null ||
-        signatureBytes!.isEmpty) {
-      _showMessage(
-        'Please add dealer signature',
-      );
+    if (signatureBytes == null || signatureBytes!.isEmpty) {
+      _showMessage('Please add dealer signature');
       return;
     }
 
-    // =========================================================================
-    // BUILD PACKING-WISE PAYLOAD
-    // =========================================================================
+    // -------------------------------------------------------------------------
+    // BUILD PRODUCT PAYLOAD
+    // -------------------------------------------------------------------------
 
-    final List<Map<String, dynamic>>
-        selectedProductPayload = [];
+    final List<Map<String, dynamic>> selectedProductPayload = [];
 
     for (final product in selectedProducts) {
-      final String productId =
-          product.id.toString();
+      final String productId = product.id.toString();
 
       final List<ProductRateEntity> rates =
-          selectedRates[productId] ??
-              <ProductRateEntity>[];
+          selectedRates[productId] ?? <ProductRateEntity>[];
 
-      final Map<String, int>
-          productPackingQuantities =
-          state.packingQuantities[productId] ??
-              <String, int>{};
+      final Map<String, int> productPackingQuantities =
+          state.packingQuantities[productId] ?? <String, int>{};
 
       for (final selectedRate in rates) {
-        final String productDetailsId =
-            selectedRate.productDetailsId.toString();
+        final String productDetailsId = selectedRate.productDetailsId
+            .toString();
 
-        final int quantity =
-            productPackingQuantities[
-                    productDetailsId] ??
-                1;
+        final int quantity = productPackingQuantities[productDetailsId] ?? 1;
+
+        // Skip zero quantity lines if any exist.
+        if (quantity <= 0) {
+          continue;
+        }
 
         final Map<String, dynamic> payload = {
           'productId': product.id,
-          'productDetailsId':
-              selectedRate.productDetailsId,
+          'productDetailsId': selectedRate.productDetailsId,
           'quantity': quantity,
           'price': selectedRate.rateWithGst,
           'packing': selectedRate.packing,
           'unit': selectedRate.unit,
-          'unitsPerCase':
-              selectedRate.unitsPerCase,
-          'gstPercentage':
-              selectedRate.gstPercentage,
-          'basicRate':
-              selectedRate.basicRate,
+          'unitsPerCase': selectedRate.unitsPerCase,
+          'gstPercentage': selectedRate.gstPercentage,
+          'basicRate': selectedRate.basicRate,
           'mrp': selectedRate.mrp,
         };
 
-        selectedProductPayload.add(
-          payload,
-        );
-
-        debugPrint(
-          'PAYLOAD -> '
-          'product=$productId '
-          'details=$productDetailsId '
-          'packing=${selectedRate.packing} '
-          'quantity=$quantity',
-        );
+        selectedProductPayload.add(payload);
       }
     }
 
-    // =========================================================================
-    // SAFETY
-    // =========================================================================
+    // -------------------------------------------------------------------------
+    // FINAL PRODUCT PAYLOAD VALIDATION
+    // -------------------------------------------------------------------------
 
     if (selectedProductPayload.isEmpty) {
-      _showMessage(
-        'Please select at least one product rate',
-      );
+      _showMessage('Please select at least one product rate');
       return;
     }
 
-    // =========================================================================
+    // -------------------------------------------------------------------------
+    // OPTIONAL CATEGORY
+    // -------------------------------------------------------------------------
+
+    final CategoryEntity? previewCategory = selectedCategories.isNotEmpty
+        ? selectedCategories.first
+        : null;
+
+    // -------------------------------------------------------------------------
     // DEBUG
-    // =========================================================================
+    // -------------------------------------------------------------------------
 
     debugPrint('========================================');
-    debugPrint(
-      'Sales Return PACKING-WISE PAYLOAD',
-    );
 
-    debugPrint(
-      'Dealer ID   : ${selectedDealer!.id}',
-    );
+    debugPrint('PLACE ORDER');
 
-    debugPrint(
-      'Godown ID   : ${selectedGodown!.id}',
-    );
+    debugPrint('Dealer ID: ${selectedDealer!.id}');
 
-    debugPrint(
-      'Category ID : ${selectedCategory!.id}',
-    );
+    debugPrint('Godown ID: ${selectedGodown!.id}');
 
-    debugPrint(
-      'Products    : ${selectedProducts.length}',
-    );
+    debugPrint('Category Count: ${selectedCategories.length}');
 
-    debugPrint(
-      'Rate Lines  : '
-      '${selectedProductPayload.length}',
-    );
+    if (selectedCategories.isEmpty) {
+      debugPrint('No category selected');
+    } else {
+      for (final category in selectedCategories) {
+        debugPrint('Category ID: ${category.id}');
 
-    for (final product
-        in selectedProductPayload) {
-      debugPrint(
-        'FINAL PRODUCT PAYLOAD: $product',
-      );
+        debugPrint('Category Name: ${category.name}');
+      }
     }
 
+    debugPrint('Products: ${selectedProducts.length}');
+
+    debugPrint('Rate Lines: ${selectedProductPayload.length}');
+
     debugPrint('========================================');
 
-    // =========================================================================
+    // -------------------------------------------------------------------------
     // PREVIEW
-    // =========================================================================
+    // -------------------------------------------------------------------------
 
     await showModalBottomSheet(
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
       barrierColor: Colors.black.withOpacity(0.45),
+
       builder: (previewContext) {
         return OrderPreviewSheet(
           dealer: selectedDealer!,
           godown: selectedGodown!,
-          category: selectedCategory!,
+
+          // CATEGORY IS OPTIONAL
+          // category: previewCategory,
           products: selectedProducts,
+
           selectedRates: selectedRates,
-          packingQuantities:
-              state.packingQuantities,
+
+          packingQuantities: state.packingQuantities,
+
           imagePath: imagePath,
+
           signatureBytes: signatureBytes,
+
           remark: remarkController.text.trim(),
+
           onConfirm: () {
             Navigator.pop(previewContext);
 
-            final List<String> selectedImages =
-                imagePath == null
-                    ? <String>[]
-                    : <String>[imagePath!];
+            final List<String> selectedImages = imagePath == null
+                ? <String>[]
+                : <String>[imagePath!];
 
             _confirmAndSubmitOrder(
-              selectedProductPayload:
-                  selectedProductPayload,
+              selectedProductPayload: selectedProductPayload,
               selectedImages: selectedImages,
             );
           },
@@ -1629,38 +2356,29 @@ class _SalesReurnViewState extends State<_SalesReturnView> {
 
     isShowingSuccessDialog = true;
 
-    final bool? goHome =
-        await showDialog<bool>(
+    final bool? goHome = await showDialog<bool>(
       context: context,
       barrierDismissible: false,
       builder: (dialogContext) {
         return AlertDialog(
           backgroundColor: Colors.white,
           shape: RoundedRectangleBorder(
-            borderRadius:
-                BorderRadius.circular(20.r),
+            borderRadius: BorderRadius.circular(20.r),
           ),
-          contentPadding: EdgeInsets.fromLTRB(
-            24.w,
-            28.h,
-            24.w,
-            20.h,
-          ),
+          contentPadding: EdgeInsets.fromLTRB(24.w, 28.h, 24.w, 20.h),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
               Container(
                 width: 76.w,
                 height: 76.w,
-                decoration:
-                    const BoxDecoration(
+                decoration: const BoxDecoration(
                   color: AppColors.lightGreen,
                   shape: BoxShape.circle,
                 ),
                 child: Container(
                   margin: EdgeInsets.all(9.w),
-                  decoration:
-                      const BoxDecoration(
+                  decoration: const BoxDecoration(
                     color: AppColors.primary,
                     shape: BoxShape.circle,
                   ),
@@ -1673,25 +2391,23 @@ class _SalesReurnViewState extends State<_SalesReturnView> {
               ),
               SizedBox(height: 20.h),
               Text(
-                'Sales Return Placed Successfully',
+                'Sales Return Successfully',
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   fontSize: 19.sp,
                   fontWeight: FontWeight.w800,
-                  color:
-                      AppColors.textPrimary,
+                  color: AppColors.textPrimary,
                 ),
               ),
               SizedBox(height: 10.h),
               Text(
-                'Your order has been submitted successfully.',
+                'Your sales return has been submitted successfully.',
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   fontSize: 13.sp,
                   height: 1.45,
                   fontWeight: FontWeight.w500,
-                  color:
-                      AppColors.textSecondary,
+                  color: AppColors.textSecondary,
                 ),
               ),
               SizedBox(height: 24.h),
@@ -1700,31 +2416,21 @@ class _SalesReurnViewState extends State<_SalesReturnView> {
                 height: 48.h,
                 child: ElevatedButton(
                   onPressed: () {
-                    Navigator.of(
-                      dialogContext,
-                    ).pop(true);
+                    Navigator.of(dialogContext).pop(true);
                   },
-                  style:
-                      ElevatedButton.styleFrom(
-                    backgroundColor:
-                        AppColors.primary,
-                    foregroundColor:
-                        Colors.white,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppColors.primary,
+                    foregroundColor: Colors.white,
                     elevation: 0,
-                    shape:
-                        RoundedRectangleBorder(
-                      borderRadius:
-                          BorderRadius.circular(
-                        14.r,
-                      ),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(14.r),
                     ),
                   ),
                   child: Text(
                     'OK',
                     style: TextStyle(
                       fontSize: 14.sp,
-                      fontWeight:
-                          FontWeight.w800,
+                      fontWeight: FontWeight.w800,
                     ),
                   ),
                 ),
@@ -1763,12 +2469,10 @@ class _SalesReurnViewState extends State<_SalesReturnView> {
             ),
           ),
           backgroundColor: AppColors.error,
-          behavior:
-              SnackBarBehavior.floating,
+          behavior: SnackBarBehavior.floating,
           margin: EdgeInsets.all(12.w),
           shape: RoundedRectangleBorder(
-            borderRadius:
-                BorderRadius.circular(14.r),
+            borderRadius: BorderRadius.circular(14.r),
           ),
         ),
       );
@@ -1778,447 +2482,432 @@ class _SalesReurnViewState extends State<_SalesReturnView> {
   // BUILD
   // ===========================================================================
 
-  @override
+   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: AppColors.background,
+  return Scaffold(
+    backgroundColor: AppColors.background,
 
-      appBar: CustomAppBar(
-        title: 'Sales Return',
-       
-        showBackButton: true,
-        onBackTap: () =>
-            Navigator.pop(context),
-      ),
+    // ============================================================
+    // APP BAR
+    // ============================================================
+    appBar: CustomAppBar(
+      title: 'Sales Return',
+      showBackButton: true,
+      onBackTap: () => Navigator.pop(context),
+    ),
 
-      body: BlocConsumer<SalesReturnBloc,
-          SalesReturnState>(
-        listener: (context, state) {
-          if (state.status ==
-              SalesReturnStatus.success) {
-            _showOrderSuccessDialog();
-            return;
-          }
+    // ============================================================
+    // BODY
+    // ============================================================
+    body: BlocConsumer<SalesReturnBloc, SalesReturnState>(
+      listener: (context, state) {
+        // =========================================================
+        // MERGE PRODUCTS
+        // =========================================================
 
-          if (state.status ==
-              SalesReturnStatus.failure) {
-            _showMessage(
-              state.errorMessage.isEmpty
-                  ? 'Something went wrong'
-                  : state.errorMessage,
-            );
-          }
-        },
+        if (state.products.isNotEmpty) {
+          _mergeCurrentProducts(state.products);
+        }
 
-        builder: (context, state) {
-          if (state.status ==
-                  SalesReturnStatus.loading &&
-              state.dealers.isEmpty &&
-              state.godowns.isEmpty &&
-              state.categories.isEmpty) {
-            return const Center(
-              child: CircularProgressIndicator(
-                color: AppColors.primary,
-              ),
-            );
-          }
+        // =========================================================
+        // SUCCESS
+        // =========================================================
 
-          final safeGodownValue =
-              _getSafeGodownValue(
-            state.godowns,
+        if (state.status == SalesReturnStatus.success) {
+          _showOrderSuccessDialog();
+          return;
+        }
+
+        // =========================================================
+        // FAILURE
+        // =========================================================
+
+        if (state.status == SalesReturnStatus.failure) {
+          _showMessage(
+            state.errorMessage.isEmpty
+                ? 'Something went wrong'
+                : state.errorMessage,
           );
+        }
+      },
 
-          final safeCategoryValue =
-              _getSafeCategoryValue(
-            state.categories,
+      builder: (context, state) {
+        // =========================================================
+        // INITIAL LOADING
+        // =========================================================
+
+        if (state.status == SalesReturnStatus.loading &&
+            state.dealers.isEmpty &&
+            state.godowns.isEmpty &&
+            state.categories.isEmpty) {
+          return const Center(
+            child: CircularProgressIndicator(
+              color: AppColors.primary,
+            ),
           );
+        }
 
-          return SafeArea(
-            child: SingleChildScrollView(
-              physics:
-                  const BouncingScrollPhysics(),
+        final String? safeGodownValue =
+            _getSafeGodownValue(state.godowns);
 
-              // ===============================================================
-              // COMPACT PAGE PADDING
-              // ===============================================================
+        final List<ProductEntity> filteredProducts =
+            _getFilteredProducts();
 
-              padding: EdgeInsets.fromLTRB(
-                14.w,
-                10.h,
-                14.w,
-                18.h,
-              ),
+        final bool hasSelectedProducts =
+            _getSelectedProducts(state).isNotEmpty;
 
-              child: Column(
-                crossAxisAlignment:
-                    CrossAxisAlignment.start,
-                children: [
-                  // =============================================================
-                  // HEADER
-                  // =============================================================
+        return SafeArea(
+          bottom: false,
+          child: SingleChildScrollView(
+            physics: const BouncingScrollPhysics(),
 
-                  _buildOrderHeader(),
+            // IMPORTANT:
+            // bottom padding gives space above fixed buttons
+            padding: EdgeInsets.fromLTRB(
+              10.w,
+              7.h,
+              10.w,
+              18.h,
+            ),
 
-                  SizedBox(height: 12.h),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // =================================================
+                // DEALER
+                // =================================================
 
-                  // =============================================================
-                  // DEALER
-                  // =============================================================
+                DealerSearchField(
+                  controller: dealerController,
+                  dealers: state.dealers,
+                  selectedDealer: selectedDealer,
+                  onChanged: _searchDealer,
+                  onDealerSelected: _selectDealer,
+                  onClearSelected: _clearDealer,
+                ),
 
-                  DealerSearchField(
-                    controller:
-                        dealerController,
-                    dealers: state.dealers,
-                    selectedDealer:
-                        selectedDealer,
-                    onChanged:
-                        _searchDealer,
-                    onDealerSelected:
-                        _selectDealer,
-                    onClearSelected:
-                        _clearDealer,
+                SizedBox(height: 2.h),
+
+                // =================================================
+                // GODOWN
+                // =================================================
+
+                ModernDropdown<String>(
+                  label: 'Godown *',
+                  hint: 'Select godown',
+                  icon: Icons.warehouse_rounded,
+                  value: safeGodownValue,
+
+                  items: _buildGodownItems(
+                    state.godowns,
                   ),
 
-                  SizedBox(height: 12.h),
+                  onChanged: (value) {
+                    if (value == null) {
+                      return;
+                    }
 
-                  // =============================================================
-                  // GODOWN
-                  // FULL WIDTH
-                  // =============================================================
+                    final matches = state.godowns
+                        .where(
+                          (element) =>
+                              element.id == value,
+                        )
+                        .toList();
 
-                  ModernDropdown<String>(
-                    label: 'Godown *',
-                    hint: 'Select godown',
-                    icon:
-                        Icons.warehouse_rounded,
-                    value:
-                        safeGodownValue,
-                    items:
-                        _buildGodownItems(
-                      state.godowns,
-                    ),
-                    onChanged: (value) {
-                      if (value == null) {
-                        return;
-                      }
-
-                      final matches =
-                          state.godowns
-                              .where(
-                                (element) =>
-                                    element.id ==
-                                    value,
-                              )
-                              .toList();
-
-                      if (matches.length != 1) {
-                        _showMessage(
-                          'Invalid godown selection',
-                        );
-                        return;
-                      }
-
-                      _selectGodown(
-                        matches.first,
+                    if (matches.length != 1) {
+                      _showMessage(
+                        'Invalid godown selection',
                       );
-                    },
-                  ),
+                      return;
+                    }
 
-                  SizedBox(height: 12.h),
+                    _selectGodown(matches.first);
+                  },
+                ),
 
-                  // =============================================================
-                  // CATEGORY
-                  // FULL WIDTH
-                  // =============================================================
+                // =================================================
+                // CATEGORY
+                // =================================================
 
-                  ModernDropdown<String>(
-                    label: 'Category *',
-                    hint:
-                        'Select product category',
-                    icon:
-                        Icons.category_rounded,
-                    value:
-                        safeCategoryValue,
-                    items:
-                        _buildCategoryItems(
-                      state.categories,
-                    ),
-                    onChanged: (value) {
-                      if (value == null) {
-                        return;
-                      }
+                if (selectedCategories.isNotEmpty) ...[
+                  SizedBox(height: 6.h),
+                  _buildSelectedCategoryChips(),
+                ],
 
-                      final matches =
-                          state.categories
-                              .where(
-                                (element) =>
-                                    element.id ==
-                                    value,
-                              )
-                              .toList();
+                SizedBox(height: 10.h),
 
-                      if (matches.length != 1) {
-                        _showMessage(
-                          'Invalid category selection',
-                        );
-                        return;
-                      }
+                // =================================================
+                // PRODUCT SECTION
+                // =================================================
 
-                      _selectCategory(
-                        matches.first,
-                      );
-                    },
-                  ),
+                Container(
+                  padding: EdgeInsets.all(12.w),
+                  color: Colors.white,
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      // =============================================
+                      // PRODUCT HEADER
+                      // =============================================
 
-                  // =============================================================
-                  // PRODUCTS
-                  // =============================================================
+                      Row(
+                        children: [
+                          Expanded(
+                            child: _sectionTitle(
+                              title: 'Products',
 
-                  if (selectedCategory != null) ...[
-                    SizedBox(height: 16.h),
+                              subtitle:
+                                  selectedCategories.isEmpty
+                                  ? '${allCategoryProducts.length} products'
+                                  : '${allCategoryProducts.length} products • '
+                                        '${selectedCategories.length} categories',
 
-                    Row(
-                      children: [
-                        Expanded(
-                          child: _sectionTitle(
-                            title: 'Products',
-                            subtitle:
-                                'Select multiple products in one order',
-                            icon: Icons
-                                .inventory_2_rounded,
-                          ),
-                        ),
-
-                        SizedBox(width: 6.w),
-
-                        InkWell(
-                          borderRadius:
-                              BorderRadius.circular(
-                            10.r,
-                          ),
-                          onTap: state.products
-                                      .isEmpty ||
-                                  isOpeningRateSelector
-                              ? null
-                              : () =>
-                                  _openMultiProductSelector(),
-                          child: Container(
-                            padding:
-                                EdgeInsets.symmetric(
-                              horizontal: 10.w,
-                              vertical: 8.h,
+                              icon:
+                                  Icons.inventory_2_rounded,
                             ),
-                            decoration:
-                                BoxDecoration(
-                              color: state.products
-                                          .isEmpty ||
-                                      isOpeningRateSelector
-                                  ? Colors.grey
-                                  : AppColors
-                                      .primary,
-                              borderRadius:
-                                  BorderRadius
-                                      .circular(
-                                10.r,
-                              ),
-                            ),
-                            child:
-                                isOpeningRateSelector
-                                    ? SizedBox(
-                                        width: 18.sp,
-                                        height: 18.sp,
-                                        child:
-                                            const CircularProgressIndicator(
-                                          strokeWidth:
-                                              2,
-                                          color: Colors
-                                              .white,
-                                        ),
-                                      )
-                                    : Icon(
-                                        Icons
-                                            .library_add_check_rounded,
-                                        color: Colors
-                                            .white,
-                                        size: 18.sp,
-                                      ),
                           ),
+
+                          SizedBox(width: 5.w),
+
+                          // =========================================
+                          // ADD MULTIPLE PRODUCTS
+                          // =========================================
+
+                          // Material(
+                          //   color:
+                          //       allCategoryProducts
+                          //               .isEmpty ||
+                          //           isOpeningRateSelector
+                          //       ? Colors.grey.shade400
+                          //       : AppColors.primary,
+
+                          //   borderRadius:
+                          //       BorderRadius.circular(
+                          //         8.r,
+                          //       ),
+
+                          //   child: InkWell(
+                          //     onTap:
+                          //         allCategoryProducts
+                          //                 .isEmpty ||
+                          //             isOpeningRateSelector
+                          //         ? null
+                          //         : () {
+                          //             _openMultiProductSelector();
+                          //           },
+
+                          //     borderRadius:
+                          //         BorderRadius.circular(
+                          //           8.r,
+                          //         ),
+
+                          //     child: SizedBox(
+                          //       width: 36.w,
+                          //       height: 34.h,
+
+                          //       child: Center(
+                          //         child:
+                          //             isOpeningRateSelector
+                          //             ? SizedBox(
+                          //                 width: 15.w,
+                          //                 height: 15.w,
+
+                          //                 child:
+                          //                     const CircularProgressIndicator(
+                          //                       strokeWidth:
+                          //                           2,
+                          //                       color:
+                          //                           Colors.white,
+                          //                     ),
+                          //               )
+                          //             : Icon(
+                          //                 Icons
+                          //                     .playlist_add_rounded,
+                          //                 size: 19.sp,
+                          //                 color:
+                          //                     Colors.white,
+                          //               ),
+                          //       ),
+                          //     ),
+                          //   ),
+                          // ),
+
+
+                        ],
+                      ),
+
+                      SizedBox(height: 7.h),
+
+                      // =============================================
+                      // SEARCH
+                      // =============================================
+
+                      _buildProductSearchField(),
+
+                      // =============================================
+                      // SELECTED SUMMARY
+                      // =============================================
+
+                      if (hasSelectedProducts) ...[
+                        SizedBox(height: 6.h),
+
+                        _buildSelectedProductSummary(
+                          state,
                         ),
                       ],
-                    ),
 
-                    SizedBox(height: 8.h),
+                      SizedBox(height: 7.h),
 
-                    _buildSelectedProductSummary(
-                      state,
-                    ),
+                      // =============================================
+                      // PRODUCT LIST
+                      // =============================================
 
-                    if (_getSelectedProducts(
-                      state,
-                    ).isNotEmpty)
-                      SizedBox(height: 8.h),
+                      if (state.status ==
+                              SalesReturnStatus.loading &&
+                          allCategoryProducts.isEmpty)
+                        _buildProductLoading()
 
-                    if (state.status ==
-                            SalesReturnStatus.loading &&
-                        state.products.isEmpty)
-                      _buildProductLoading()
-                    else if (state.products.isEmpty)
-                      _emptyBox(
-                        icon: Icons
-                            .inventory_2_outlined,
-                        text:
-                            'No products found',
-                      )
-                    else
-                      ...state.products.map(
-                        (product) {
-                          final String productId =
-                              product.id.toString();
+                      else if (allCategoryProducts.isEmpty)
+                        _emptyBox(
+                          icon:
+                              Icons.inventory_2_outlined,
+                          text: 'No products found',
+                        )
 
-                          final List<
-                                  ProductRateEntity>
-                              productRates =
-                              selectedRates[
-                                      productId] ??
-                                  <ProductRateEntity>[];
+                      else if (filteredProducts.isEmpty)
+                        _emptyBox(
+                          icon: Icons.search_off_rounded,
+                          text:
+                              'No matching products found',
+                        )
 
-                          return Padding(
-                            padding:
-                                EdgeInsets.only(
-                              bottom: 8.h,
-                            ),
-                            child: ProductCard(
+                      else
+                        ...filteredProducts.map(
+                          (product) {
+                            final String productId =
+                                product.id.toString();
+
+                            final List<
+                              ProductRateEntity
+                            >
+                            productRates =
+                                selectedRates[productId] ??
+                                <ProductRateEntity>[];
+
+                            return ProductCard(
                               product: product,
+
                               selectedRates:
                                   productRates,
+
                               packingQuantities:
-                                  state.packingQuantities[
-                                          productId] ??
-                                      <String, int>{},
+                                  state.packingQuantities[productId] ??
+                                  <String, int>{},
+
                               onAdd: () async {
                                 await _addProduct(
                                   product,
                                 );
                               },
+
                               onAddMore: () async {
                                 await _openMultiProductSelector(
                                   initialProductId:
                                       productId,
                                 );
                               },
+
                               onIncrease: (rate) {
                                 context
                                     .read<
-                                        SalesReturnBloc>()
+                                      SalesReturnBloc
+                                    >()
                                     .add(
                                       IncreasePackingQuantityEvent(
                                         productId:
                                             product.id
                                                 .toString(),
+
                                         productDetailsId:
-                                            rate.productDetailsId
+                                            rate
+                                                .productDetailsId
                                                 .toString(),
                                       ),
                                     );
                               },
+
                               onDecrease: (rate) {
                                 context
                                     .read<
-                                        SalesReturnBloc>()
+                                      SalesReturnBloc
+                                    >()
                                     .add(
                                       DecreasePackingQuantityEvent(
                                         productId:
                                             product.id
                                                 .toString(),
+
                                         productDetailsId:
-                                            rate.productDetailsId
+                                            rate
+                                                .productDetailsId
                                                 .toString(),
                                       ),
                                     );
                               },
+
+                                // ===========================================================
+                                // NEW - DELETE PARTICULAR PACKING
+                                // ===========================================================
+
+                                onDeletePacking: (rate) {
+                                  _deleteProductPacking(
+                                    product: product,
+                                    rate: rate,
+                                  );
+                                },
+
+
                               onDelete: () {
                                 _deleteProduct(
                                   product,
                                 );
                               },
-                            ),
-                          );
-                        },
-                      ),
-                  ],
-
-                  // =============================================================
-                  // PHOTO + SIGNATURE
-                  // HORIZONTAL ROW
-                  // =============================================================
-
-                  SizedBox(height: 16.h),
-
-                  Row(
-                    crossAxisAlignment:
-                        CrossAxisAlignment.start,
-                    children: [
-                      Expanded(
-                        child: ImagePickerSection(
-                          imagePath: imagePath,
-                          onChanged: (path) {
-                            setState(() {
-                              imagePath = path;
-                            });
+                            );
                           },
                         ),
-                      ),
-
-                      SizedBox(width: 10.w),
-
-                      Expanded(
-                        child: SignatureSection(
-                          controller:
-                              signatureController,
-                          onClear:
-                              _clearSignature,
-                          onSignatureChanged:
-                              _onSignatureChanged,
-                        ),
-                      ),
                     ],
                   ),
+                ),
 
-                  // =============================================================
-                  // REMARK
-                  // =============================================================
+                SizedBox(height: 10.h),
 
-                  SizedBox(height: 14.h),
-
-                  _buildRemarkField(),
-
-                  // =============================================================
-                  // SUBMIT
-                  // =============================================================
-
-                  SizedBox(height: 18.h),
-
-                  _buildSubmitButton(state),
-
-                  SizedBox(height: 6.h),
-                ],
-              ),
+                // DO NOT PUT ADD DETAILS / PREVIEW HERE
+              ],
             ),
-          );
-        },
-      ),
-    );
-  }
+          ),
+        );
+      },
+    ),
+
+    // ============================================================
+    // FIXED BOTTOM BUTTONS
+    // ============================================================
+    bottomNavigationBar:
+        BlocBuilder<SalesReturnBloc, SalesReturnState>(
+      builder: (context, state) {
+        return _buildFixedBottomButtons(state);
+      },
+    ),
+  );
+}
+
 
   // ===========================================================================
   // SELECTED PRODUCT SUMMARY
   // ===========================================================================
 
-  Widget _buildSelectedProductSummary(
-    SalesReturnState state,
-  ) {
-    final selectedProducts =
-        _getSelectedProducts(state);
+  Widget _buildSelectedProductSummary(SalesReturnState state) {
+    final selectedProducts = _getSelectedProducts(state);
 
     if (selectedProducts.isEmpty) {
       return const SizedBox.shrink();
@@ -2227,67 +2916,43 @@ class _SalesReurnViewState extends State<_SalesReturnView> {
     int totalQuantity = 0;
     double totalAmount = 0.0;
 
-    for (final product
-        in selectedProducts) {
-      final String productId =
-          product.id.toString();
+    for (final product in selectedProducts) {
+      final String productId = product.id.toString();
 
       final List<ProductRateEntity> rates =
-          selectedRates[productId] ??
-              <ProductRateEntity>[];
+          selectedRates[productId] ?? <ProductRateEntity>[];
 
-      final Map<String, int>
-          productPackingQuantities =
-          state.packingQuantities[productId] ??
-              <String, int>{};
+      final Map<String, int> productPackingQuantities =
+          state.packingQuantities[productId] ?? <String, int>{};
 
       for (final rate in rates) {
-        final String productDetailsId =
-            rate.productDetailsId.toString();
+        final String detailsId = rate.productDetailsId.toString();
 
-        final int quantity =
-            productPackingQuantities[
-                    productDetailsId] ??
-                1;
+        final int quantity = productPackingQuantities[detailsId] ?? 1;
 
         totalQuantity += quantity;
 
         final double rateValue =
-            double.tryParse(
-                  rate.rateWithGst.toString(),
-                ) ??
-                0.0;
+            double.tryParse(rate.rateWithGst.toString()) ?? 0.0;
 
-        totalAmount +=
-            rateValue * quantity;
+        totalAmount += rateValue * quantity;
       }
     }
 
     return Container(
       width: double.infinity,
-
-      padding: EdgeInsets.symmetric(
-        horizontal: 11.w,
-        vertical: 9.h,
-      ),
-
+      padding: EdgeInsets.symmetric(horizontal: 11.w, vertical: 9.h),
       decoration: BoxDecoration(
         color: AppColors.lightGreen,
-        borderRadius:
-            BorderRadius.circular(13.r),
-        border: Border.all(
-          color: AppColors.primary
-              .withOpacity(0.12),
-        ),
+        borderRadius: BorderRadius.circular(13.r),
+        border: Border.all(color: AppColors.primary.withOpacity(0.12)),
       ),
-
       child: Row(
         children: [
           Container(
             width: 34.w,
             height: 34.w,
-            decoration:
-                const BoxDecoration(
+            decoration: const BoxDecoration(
               color: AppColors.primary,
               shape: BoxShape.circle,
             ),
@@ -2297,49 +2962,39 @@ class _SalesReurnViewState extends State<_SalesReturnView> {
               size: 17.sp,
             ),
           ),
-
           SizedBox(width: 8.w),
-
           Expanded(
             child: Column(
-              crossAxisAlignment:
-                  CrossAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
                   '${selectedProducts.length} '
                   'product${selectedProducts.length == 1 ? '' : 's'} selected',
                   style: TextStyle(
                     fontSize: 12.sp,
-                    fontWeight:
-                        FontWeight.w800,
-                    color:
-                        AppColors.textPrimary,
+                    fontWeight: FontWeight.w800,
+                    color: AppColors.textPrimary,
                   ),
                 ),
-
                 SizedBox(height: 1.h),
-
                 Text(
-                  'Total quantity: '
-                  '$totalQuantity',
+                  '${selectedCategories.length} '
+                  'categor${selectedCategories.length == 1 ? 'y' : 'ies'} • '
+                  'Total quantity: $totalQuantity',
                   style: TextStyle(
                     fontSize: 10.sp,
-                    fontWeight:
-                        FontWeight.w600,
-                    color:
-                        AppColors.textSecondary,
+                    fontWeight: FontWeight.w600,
+                    color: AppColors.textSecondary,
                   ),
                 ),
               ],
             ),
           ),
-
           Text(
             '₹${totalAmount.toStringAsFixed(2)}',
             style: TextStyle(
               fontSize: 13.sp,
-              fontWeight:
-                  FontWeight.w900,
+              fontWeight: FontWeight.w900,
               color: AppColors.primary,
             ),
           ),
@@ -2355,17 +3010,13 @@ class _SalesReurnViewState extends State<_SalesReturnView> {
   Widget _buildOrderHeader() {
     return Container(
       width: double.infinity,
-
       padding: EdgeInsets.all(14.w),
-
       decoration: BoxDecoration(
         color: AppColors.primary,
-        borderRadius:
-            BorderRadius.circular(17.r),
+        borderRadius: BorderRadius.circular(17.r),
         boxShadow: [
           BoxShadow(
-            color: AppColors.primary
-                .withOpacity(0.16),
+            color: AppColors.primary.withOpacity(0.16),
             blurRadius: 14,
             offset: const Offset(0, 6),
           ),
@@ -2378,48 +3029,35 @@ class _SalesReurnViewState extends State<_SalesReturnView> {
             width: 46.w,
             height: 46.w,
             decoration: BoxDecoration(
-              color:
-                  Colors.white.withOpacity(
-                0.16,
-              ),
-              borderRadius:
-                  BorderRadius.circular(13.r),
+              color: Colors.white.withOpacity(0.16),
+              borderRadius: BorderRadius.circular(13.r),
             ),
             child: Icon(
-              Icons
-                  .shopping_cart_checkout_rounded,
+              Icons.shopping_cart_checkout_rounded,
               color: Colors.white,
               size: 24.sp,
             ),
           ),
-
           SizedBox(width: 10.w),
-
           Expanded(
             child: Column(
-              crossAxisAlignment:
-                  CrossAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Sales Return Order',
+                  'Create New Order',
                   style: TextStyle(
                     color: Colors.white,
                     fontSize: 16.sp,
-                    fontWeight:
-                        FontWeight.w800,
+                    fontWeight: FontWeight.w800,
                   ),
                 ),
-
                 SizedBox(height: 2.h),
-
                 Text(
                   'Select dealer, products and order details',
                   style: TextStyle(
-                    color: Colors.white
-                        .withOpacity(0.82),
+                    color: Colors.white.withOpacity(0.82),
                     fontSize: 11.sp,
-                    fontWeight:
-                        FontWeight.w500,
+                    fontWeight: FontWeight.w500,
                   ),
                 ),
               ],
@@ -2446,47 +3084,32 @@ class _SalesReurnViewState extends State<_SalesReturnView> {
           height: 36.w,
           decoration: BoxDecoration(
             color: AppColors.lightGreen,
-            borderRadius:
-                BorderRadius.circular(11.r),
+            borderRadius: BorderRadius.circular(11.r),
           ),
-          child: Icon(
-            icon,
-            size: 18.sp,
-            color: AppColors.primary,
-          ),
+          child: Icon(icon, size: 18.sp, color: AppColors.primary),
         ),
-
         SizedBox(width: 9.w),
-
         Expanded(
           child: Column(
-            crossAxisAlignment:
-                CrossAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
                 title,
                 style: TextStyle(
                   fontSize: 14.sp,
-                  fontWeight:
-                      FontWeight.w800,
-                  color:
-                      AppColors.textPrimary,
+                  fontWeight: FontWeight.w800,
+                  color: AppColors.textPrimary,
                 ),
               ),
-
               SizedBox(height: 1.h),
-
               Text(
                 subtitle,
                 maxLines: 1,
-                overflow:
-                    TextOverflow.ellipsis,
+                overflow: TextOverflow.ellipsis,
                 style: TextStyle(
                   fontSize: 10.5.sp,
-                  fontWeight:
-                      FontWeight.w500,
-                  color:
-                      AppColors.textSecondary,
+                  fontWeight: FontWeight.w500,
+                  color: AppColors.textSecondary,
                 ),
               ),
             ],
@@ -2503,35 +3126,22 @@ class _SalesReurnViewState extends State<_SalesReturnView> {
   Widget _buildProductLoading() {
     return Container(
       width: double.infinity,
-
-      padding:
-          EdgeInsets.symmetric(vertical: 24.h),
-
+      padding: EdgeInsets.symmetric(vertical: 24.h),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius:
-            BorderRadius.circular(15.r),
-        border: Border.all(
-          color: AppColors.border,
-        ),
+        borderRadius: BorderRadius.circular(15.r),
+        border: Border.all(color: AppColors.border),
       ),
-
       child: Column(
         children: [
-          const CircularProgressIndicator(
-            color: AppColors.primary,
-          ),
-
+          const CircularProgressIndicator(color: AppColors.primary),
           SizedBox(height: 8.h),
-
           Text(
             'Loading products...',
             style: TextStyle(
               fontSize: 12.sp,
-              fontWeight:
-                  FontWeight.w600,
-              color:
-                  AppColors.textSecondary,
+              fontWeight: FontWeight.w600,
+              color: AppColors.textSecondary,
             ),
           ),
         ],
@@ -2543,53 +3153,32 @@ class _SalesReurnViewState extends State<_SalesReturnView> {
   // EMPTY
   // ===========================================================================
 
-  Widget _emptyBox({
-    required String text,
-    required IconData icon,
-  }) {
+  Widget _emptyBox({required String text, required IconData icon}) {
     return Container(
       width: double.infinity,
-
-      padding: EdgeInsets.symmetric(
-        vertical: 24.h,
-        horizontal: 18.w,
-      ),
-
+      padding: EdgeInsets.symmetric(vertical: 24.h, horizontal: 18.w),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius:
-            BorderRadius.circular(15.r),
-        border: Border.all(
-          color: AppColors.border,
-        ),
+        borderRadius: BorderRadius.circular(15.r),
+        border: Border.all(color: AppColors.border),
       ),
-
       child: Column(
         children: [
           Container(
             padding: EdgeInsets.all(11.w),
-            decoration:
-                const BoxDecoration(
+            decoration: const BoxDecoration(
               color: AppColors.lightGreen,
               shape: BoxShape.circle,
             ),
-            child: Icon(
-              icon,
-              size: 25.sp,
-              color: AppColors.primary,
-            ),
+            child: Icon(icon, size: 25.sp, color: AppColors.primary),
           ),
-
           SizedBox(height: 8.h),
-
           Text(
             text,
             style: TextStyle(
               fontSize: 12.sp,
-              fontWeight:
-                  FontWeight.w600,
-              color:
-                  AppColors.textSecondary,
+              fontWeight: FontWeight.w600,
+              color: AppColors.textSecondary,
             ),
           ),
         ],
@@ -2608,8 +3197,7 @@ class _SalesReurnViewState extends State<_SalesReturnView> {
       prefixIcon: Icons.edit_note_rounded,
       suffixIcon: null,
       maxLines: 2,
-      keyboardType:
-          TextInputType.multiline,
+      keyboardType: TextInputType.multiline,
       labelText: 'Enter order remark',
     );
   }
@@ -2618,68 +3206,46 @@ class _SalesReurnViewState extends State<_SalesReturnView> {
   // SUBMIT BUTTON
   // ===========================================================================
 
-  Widget _buildSubmitButton(
-    SalesReturnState state,
-  ) {
-    final bool isSubmitting =
-        state.status ==
-            SalesReturnStatus.submitting;
+  Widget _buildSubmitButton(SalesReturnState state) {
+    final bool isSubmitting = state.status == SalesReturnStatus.submitting;
 
     return SizedBox(
       width: double.infinity,
       height: 52.h,
-
       child: ElevatedButton(
-        onPressed: isSubmitting
-            ? null
-            : () => _submit(state),
-
-        style:
-            ElevatedButton.styleFrom(
-          backgroundColor:
-              AppColors.primary,
+        onPressed: isSubmitting ? null : () => _submit(state),
+        style: ElevatedButton.styleFrom(
+          backgroundColor: AppColors.primary,
           foregroundColor: Colors.white,
-          disabledBackgroundColor:
-              AppColors.primary
-                  .withOpacity(0.55),
+          disabledBackgroundColor: AppColors.primary.withOpacity(0.55),
           elevation: 2,
-
-          shape:
-              RoundedRectangleBorder(
-            borderRadius:
-                BorderRadius.circular(15.r),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(15.r),
           ),
         ),
-
         child: isSubmitting
             ? SizedBox(
                 width: 23.w,
                 height: 23.w,
-                child:
-                    const CircularProgressIndicator(
+                child: const CircularProgressIndicator(
                   strokeWidth: 2.5,
                   color: Colors.white,
                 ),
               )
             : Row(
-                mainAxisAlignment:
-                    MainAxisAlignment.center,
+                mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Icon(
-                    Icons
-                        .shopping_cart_checkout_rounded,
+                    Icons.shopping_cart_checkout_rounded,
                     size: 19.sp,
                     color: Colors.white,
                   ),
-
                   SizedBox(width: 8.w),
-
                   Text(
                     'Preview Order',
                     style: TextStyle(
                       fontSize: 14.sp,
-                      fontWeight:
-                          FontWeight.w800,
+                      fontWeight: FontWeight.w800,
                     ),
                   ),
                 ],
@@ -2688,3 +3254,4 @@ class _SalesReurnViewState extends State<_SalesReturnView> {
     );
   }
 }
+

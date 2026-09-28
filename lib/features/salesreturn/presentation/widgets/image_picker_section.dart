@@ -4,6 +4,7 @@ import 'package:solufine/core/theme/app_colors.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil_plus/flutter_screenutil_plus.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:solufine/core/utility/image_compression.dart';
 
 class ImagePickerSection extends StatelessWidget {
   final String? imagePath;
@@ -107,18 +108,96 @@ class ImagePickerSection extends StatelessWidget {
       return;
     }
 
-    // ------------------------------------------------------
-    // PICK IMAGE
-    // ------------------------------------------------------
+  // ------------------------------------------------------
+  // PICK IMAGE
+  // ------------------------------------------------------
 
-    final XFile? image = await picker.pickImage(
-      source: source,
-      imageQuality: 80,
+  final XFile? image = await picker.pickImage(
+    source: source,
+    imageQuality: 100,
+  );
+
+  if (image == null) {
+    debugPrint('IMAGE NOT SELECTED');
+    return;
+  }
+
+  // ========================================================
+  // ORIGINAL IMAGE
+  // ========================================================
+
+  final File originalFile = File(image.path);
+
+  if (!await originalFile.exists()) {
+    debugPrint('IMAGE FILE DOES NOT EXIST');
+    return;
+  }
+
+  debugPrint('========================================');
+
+  debugPrint(
+    'ORIGINAL PATH: ${originalFile.path}',
+  );
+
+  debugPrint(
+    'ORIGINAL SIZE: '
+    '${(await originalFile.length() / 1024).toStringAsFixed(2)} KB',
+  );
+
+  // ========================================================
+  // COMPRESS IMAGE
+  // ========================================================
+
+  final File? compressedFile =
+      await ImageCompression.compressImage(
+    originalFile,
+    maxWidth: 450,
+    maxHeight: 450,
+    quality: 45,
+  );
+
+  // ========================================================
+  // USE COMPRESSED IMAGE IF SUCCESS
+  // ========================================================
+
+  if (compressedFile != null &&
+      await compressedFile.exists()) {
+    debugPrint('USING COMPRESSED IMAGE');
+
+    debugPrint(
+      'COMPRESSED PATH: '
+      '${compressedFile.path}',
     );
 
-    if (image != null) {
-      onChanged(image.path);
-    }
+    debugPrint(
+      'COMPRESSED SIZE: '
+      '${(await compressedFile.length() / 1024).toStringAsFixed(2)} KB',
+    );
+
+    // This path goes into:
+    // imagePath = path;
+    onChanged(compressedFile.path);
+  } else {
+    // ========================================================
+    // FALLBACK ORIGINAL IMAGE
+    // ========================================================
+
+    debugPrint(
+      'COMPRESSION FAILED - USING ORIGINAL IMAGE',
+    );
+
+    debugPrint(
+      'ORIGINAL PATH: '
+      '${originalFile.path}',
+    );
+
+    onChanged(originalFile.path);
+  }
+
+
+
+
+
   }
 
   @override

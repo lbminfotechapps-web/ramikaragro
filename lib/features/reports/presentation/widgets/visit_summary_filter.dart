@@ -108,7 +108,8 @@ class VisitSummaryFilter extends StatelessWidget {
                         SizedBox(height: 1),
 
                         Text(
-                          'Select employee, date and visit status',
+                         // 'Select employee, date and visit status',
+                          'Select date and visit status',
                           style: TextStyle(
                             fontSize: 10.5,
                             color: Color(0xFF7A837E),

@@ -45,11 +45,13 @@ class PlaceOrderPage extends StatefulWidget {
 class _PlaceOrderPageState extends State<PlaceOrderPage> {
   int? userId;
   bool isLoadingUser = true;
-
   @override
   void initState() {
     super.initState();
     _loadUser();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+    });
   }
 
   Future<void> _loadUser() async {
@@ -176,6 +178,10 @@ class _PlaceOrderViewState extends State<_PlaceOrderView> {
 
   final TextEditingController remarkController = TextEditingController();
 
+  final TextEditingController productSearchController = TextEditingController();
+
+  String productSearchText = '';
+
   final SignatureController signatureController = SignatureController(
     penStrokeWidth: 2,
     penColor: Colors.black,
@@ -201,13 +207,19 @@ class _PlaceOrderViewState extends State<_PlaceOrderView> {
   // ALL PRODUCTS FROM SELECTED CATEGORIES
   // ===========================================================================
 
-  /// Products loaded for all selected categories.
-  ///
-  /// Your Bloc currently replaces state.products whenever
-  /// GetProductsEvent is called.
+
   ///
   /// Therefore we keep our own accumulated list here.
   final List<ProductEntity> allCategoryProducts = [];
+
+  void _loadAllProducts() {
+    debugPrint('========================================');
+    debugPrint('LOAD ALL PRODUCTS');
+    debugPrint('CATEGORY ID = EMPTY');
+    debugPrint('========================================');
+
+    context.read<PlaceOrderBloc>().add(const GetProductsEvent(categoryId: ''));
+  }
 
   // ===========================================================================
   // PRODUCT -> SELECTED RATES
@@ -235,6 +247,7 @@ class _PlaceOrderViewState extends State<_PlaceOrderView> {
   void dispose() {
     dealerController.dispose();
     remarkController.dispose();
+    productSearchController.dispose();
     signatureController.dispose();
 
     super.dispose();
@@ -299,6 +312,21 @@ class _PlaceOrderViewState extends State<_PlaceOrderView> {
     }
   }
 
+  List<ProductEntity> _getFilteredProducts() {
+    final String search = productSearchText.trim().toLowerCase();
+
+    // No search text means show all products.
+    if (search.isEmpty) {
+      return allCategoryProducts;
+    }
+
+    return allCategoryProducts.where((product) {
+      final String productName = product.name.trim().toLowerCase();
+
+      return productName.contains(search);
+    }).toList();
+  }
+
   // ===========================================================================
   // SEARCH DEALER
   // ===========================================================================
@@ -315,26 +343,20 @@ class _PlaceOrderViewState extends State<_PlaceOrderView> {
     );
   }
 
-  // ===========================================================================
-  // SELECT DEALER
-  // ===========================================================================
-
   void _selectDealer(DealerEntity dealer) {
     _clearAllSelectedProducts();
 
     setState(() {
       selectedDealer = dealer;
       dealerController.text = dealer.name;
-
       selectedCategories.clear();
     });
 
     debugPrint('Dealer selected: ${dealer.id} - ${dealer.name}');
-  }
 
-  // ===========================================================================
-  // CLEAR DEALER
-  // ===========================================================================
+    // Reload all products because clear function removes them.
+    _loadAllProducts();
+  }
 
   void _clearDealer() {
     _clearAllSelectedProducts();
@@ -344,6 +366,8 @@ class _PlaceOrderViewState extends State<_PlaceOrderView> {
       dealerController.clear();
       selectedCategories.clear();
     });
+
+    _loadAllProducts();
   }
 
   // ===========================================================================
@@ -416,16 +440,6 @@ class _PlaceOrderViewState extends State<_PlaceOrderView> {
     setState(() {
       selectedCategories.removeWhere((element) => element.id == categoryId);
     });
-
-    // -------------------------------------------------------------------------
-    // IMPORTANT
-    //
-    // If your ProductEntity has categoryId, use it here to remove only
-    // products belonging to this category.
-    //
-    // For now, because your current ProductEntity code was not provided,
-    // we keep products already loaded.
-    // -------------------------------------------------------------------------
   }
 
   // ===========================================================================
@@ -528,6 +542,116 @@ class _PlaceOrderViewState extends State<_PlaceOrderView> {
     );
   }
 
+  Widget _buildProductSearchField() {
+    return TextField(
+      controller: productSearchController,
+
+      onChanged: (value) {
+        setState(() {
+          productSearchText = value;
+        });
+      },
+
+      decoration: InputDecoration(
+        hintText: 'Search product...',
+
+        prefixIcon: const Icon(Icons.search_rounded),
+
+        suffixIcon: productSearchText.isNotEmpty
+            ? IconButton(
+                onPressed: () {
+                  productSearchController.clear();
+
+                  setState(() {
+                    productSearchText = '';
+                  });
+                },
+                icon: const Icon(Icons.close_rounded),
+              )
+            : null,
+
+        filled: true,
+        fillColor: Colors.white,
+
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12.r),
+          borderSide: BorderSide.none,
+        ),
+
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12.r),
+          borderSide: BorderSide(color: AppColors.border),
+        ),
+
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12.r),
+          borderSide: BorderSide(color: AppColors.primary, width: 1.4),
+        ),
+
+        contentPadding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 12.h),
+      ),
+    );
+  }
+
+  Widget _buildFixedBottomButtons(
+  PlaceOrderState state,
+) {
+  return SafeArea(
+    top: false,
+    child: Container(
+      width: double.infinity,
+
+      padding: EdgeInsets.fromLTRB(
+        10.w,
+        9.h,
+        10.w,
+        9.h,
+      ),
+
+      decoration: BoxDecoration(
+        color: Colors.white,
+
+        border: Border(
+          top: BorderSide(
+            color: AppColors.border,
+            width: 1,
+          ),
+        ),
+
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.06),
+            blurRadius: 12,
+            offset: const Offset(0, -3),
+          ),
+        ],
+      ),
+
+      child: Row(
+        children: [
+          // =====================================================
+          // ADD DETAILS
+          // =====================================================
+
+          Expanded(
+            child: _buildAddDetailsButton(),
+          ),
+
+          SizedBox(width: 8.w),
+
+          // =====================================================
+          // PREVIEW
+          // =====================================================
+
+          Expanded(
+            child: _buildPreviewButton(state),
+          ),
+        ],
+      ),
+    ),
+  );
+}
+
   // ===========================================================================
   // CLEAR SIGNATURE
   // ===========================================================================
@@ -549,6 +673,662 @@ class _PlaceOrderViewState extends State<_PlaceOrderView> {
       signatureBytes = bytes;
     });
   }
+
+
+
+Future<void> _openAddDetailsDialog() async {
+  await showDialog(
+    context: context,
+    barrierDismissible: false,
+    builder: (dialogContext) {
+      return Dialog(
+        backgroundColor: Colors.transparent,
+        insetPadding: EdgeInsets.symmetric(
+          horizontal: 14.w,
+          vertical: 20.h,
+        ),
+        child: StatefulBuilder(
+          builder: (context, dialogSetState) {
+            final bool hasImage =
+                imagePath != null && imagePath!.trim().isNotEmpty;
+
+            final bool hasSignature =
+                signatureBytes != null && signatureBytes!.isNotEmpty;
+
+            return Container(
+              width: double.infinity,
+              constraints: BoxConstraints(
+                maxHeight: MediaQuery.of(context).size.height * 0.88,
+              ),
+              decoration: BoxDecoration(
+                color: AppColors.background,
+                borderRadius: BorderRadius.circular(20.r),
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  // =====================================================
+                  // HEADER
+                  // =====================================================
+                  Container(
+                    padding: EdgeInsets.symmetric(
+                      horizontal: 15.w,
+                      vertical: 13.h,
+                    ),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.vertical(
+                        top: Radius.circular(20.r),
+                      ),
+                      border: Border(
+                        bottom: BorderSide(
+                          color: AppColors.border,
+                        ),
+                      ),
+                    ),
+                    child: Row(
+                      children: [
+                        Container(
+                          width: 38.w,
+                          height: 38.w,
+                          decoration: BoxDecoration(
+                            color: AppColors.lightGreen,
+                            borderRadius: BorderRadius.circular(11.r),
+                          ),
+                          child: Icon(
+                            Icons.edit_note_rounded,
+                            color: AppColors.primary,
+                            size: 21.sp,
+                          ),
+                        ),
+
+                        SizedBox(width: 10.w),
+
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'Add Order Details',
+                                style: TextStyle(
+                                  fontSize: 16.sp,
+                                  fontWeight: FontWeight.w800,
+                                  color: AppColors.textPrimary,
+                                ),
+                              ),
+                              SizedBox(height: 2.h),
+                              Text(
+                                'Add photo, signature and remark',
+                                style: TextStyle(
+                                  fontSize: 10.5.sp,
+                                  fontWeight: FontWeight.w500,
+                                  color: AppColors.textSecondary,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+
+                        InkWell(
+                          onTap: () {
+                            Navigator.pop(dialogContext);
+                          },
+                          borderRadius: BorderRadius.circular(30.r),
+                          child: Container(
+                            width: 34.w,
+                            height: 34.w,
+                            decoration: BoxDecoration(
+                              color: Colors.grey.shade100,
+                              shape: BoxShape.circle,
+                            ),
+                            child: Icon(
+                              Icons.close_rounded,
+                              size: 20.sp,
+                              color: AppColors.textPrimary,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+
+                  // =====================================================
+                  // SCROLLABLE CONTENT
+                  // =====================================================
+                  Flexible(
+                    child: SingleChildScrollView(
+                      physics: const BouncingScrollPhysics(),
+                      padding: EdgeInsets.all(12.w),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          // =============================================
+                          // PROGRESS / STATUS
+                          // =============================================
+                          Container(
+                            width: double.infinity,
+                            padding: EdgeInsets.symmetric(
+                              horizontal: 11.w,
+                              vertical: 9.h,
+                            ),
+                            decoration: BoxDecoration(
+                              color: AppColors.lightGreen.withOpacity(0.45),
+                              borderRadius: BorderRadius.circular(12.r),
+                              border: Border.all(
+                                color: AppColors.primary.withOpacity(0.12),
+                              ),
+                            ),
+                            child: Row(
+                              children: [
+                                _buildDetailStatus(
+                                  icon: Icons.photo_camera_rounded,
+                                  title: 'Photo',
+                                  completed: hasImage,
+                                ),
+
+                                Container(
+                                  height: 26.h,
+                                  width: 1,
+                                  color: AppColors.border,
+                                ),
+
+                                _buildDetailStatus(
+                                  icon: Icons.draw_rounded,
+                                  title: 'Signature',
+                                  completed: hasSignature,
+                                ),
+
+                                Container(
+                                  height: 26.h,
+                                  width: 1,
+                                  color: AppColors.border,
+                                ),
+
+                                _buildDetailStatus(
+                                  icon: Icons.notes_rounded,
+                                  title: 'Remark',
+                                  completed:
+                                      remarkController.text.trim().isNotEmpty,
+                                ),
+                              ],
+                            ),
+                          ),
+
+                          SizedBox(height: 11.h),
+
+                          // =============================================
+                          // PHOTO
+                          // =============================================
+                          ImagePickerSection(
+                            imagePath: imagePath,
+                            onChanged: (path) {
+                              imagePath = path;
+
+                              setState(() {});
+
+                              dialogSetState(() {});
+                            },
+                          ),
+
+                          SizedBox(height: 10.h),
+
+                          // =============================================
+                          // SIGNATURE
+                          // =============================================
+                          SignatureSection(
+                            controller: signatureController,
+                            onClear: () {
+                              signatureController.clear();
+
+                              signatureBytes = null;
+
+                              setState(() {});
+
+                              dialogSetState(() {});
+                            },
+                            onSignatureChanged: (bytes) {
+                              signatureBytes = bytes;
+
+                              setState(() {});
+
+                              dialogSetState(() {});
+                            },
+                          ),
+
+                          SizedBox(height: 10.h),
+
+                          // =============================================
+                          // REMARK
+                          // =============================================
+                          Container(
+                            padding: EdgeInsets.all(10.w),
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(14.r),
+                              border: Border.all(
+                                color: AppColors.border,
+                              ),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black.withOpacity(0.025),
+                                  blurRadius: 6,
+                                  offset: const Offset(0, 2),
+                                ),
+                              ],
+                            ),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Row(
+                                  children: [
+                                    Container(
+                                      width: 32.w,
+                                      height: 32.w,
+                                      decoration: BoxDecoration(
+                                        color: AppColors.lightGreen,
+                                        borderRadius:
+                                            BorderRadius.circular(9.r),
+                                      ),
+                                      child: Icon(
+                                        Icons.notes_rounded,
+                                        color: AppColors.primary,
+                                        size: 17.sp,
+                                      ),
+                                    ),
+
+                                    SizedBox(width: 8.w),
+
+                                    Text(
+                                      'Remark',
+                                      style: TextStyle(
+                                        fontSize: 11.5.sp,
+                                        fontWeight: FontWeight.w800,
+                                        color: AppColors.textPrimary,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+
+                                SizedBox(height: 8.h),
+
+                                TextField(
+                                  controller: remarkController,
+                                  maxLines: 3,
+                                  minLines: 3,
+                                  onChanged: (_) {
+                                    dialogSetState(() {});
+                                  },
+                                  style: TextStyle(
+                                    fontSize: 12.sp,
+                                    fontWeight: FontWeight.w500,
+                                    color: AppColors.textPrimary,
+                                  ),
+                                  decoration: InputDecoration(
+                                    hintText:
+                                        'Enter additional order remark...',
+                                    hintStyle: TextStyle(
+                                      fontSize: 11.sp,
+                                      color: AppColors.textSecondary,
+                                    ),
+                                    filled: true,
+                                    fillColor:
+                                        const Color(0xFFFAFCFA),
+                                    contentPadding:
+                                        EdgeInsets.symmetric(
+                                      horizontal: 12.w,
+                                      vertical: 11.h,
+                                    ),
+                                    border: OutlineInputBorder(
+                                      borderRadius:
+                                          BorderRadius.circular(11.r),
+                                      borderSide: BorderSide(
+                                        color: AppColors.border,
+                                      ),
+                                    ),
+                                    enabledBorder: OutlineInputBorder(
+                                      borderRadius:
+                                          BorderRadius.circular(11.r),
+                                      borderSide: BorderSide(
+                                        color: AppColors.border,
+                                      ),
+                                    ),
+                                    focusedBorder: OutlineInputBorder(
+                                      borderRadius:
+                                          BorderRadius.circular(11.r),
+                                      borderSide: const BorderSide(
+                                        color: AppColors.primary,
+                                        width: 1.3,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+
+                          SizedBox(height: 5.h),
+                        ],
+                      ),
+                    ),
+                  ),
+
+                  // =====================================================
+                  // BOTTOM BUTTON
+                  // =====================================================
+                  Container(
+                    padding: EdgeInsets.fromLTRB(
+                      12.w,
+                      10.h,
+                      12.w,
+                      12.h,
+                    ),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.vertical(
+                        bottom: Radius.circular(20.r),
+                      ),
+                      border: Border(
+                        top: BorderSide(
+                          color: AppColors.border,
+                        ),
+                      ),
+                    ),
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: SizedBox(
+                            height: 45.h,
+                            child: OutlinedButton(
+                              onPressed: () {
+                                Navigator.pop(dialogContext);
+                              },
+                              style: OutlinedButton.styleFrom(
+                                side: BorderSide(
+                                  color: AppColors.border,
+                                ),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius:
+                                      BorderRadius.circular(11.r),
+                                ),
+                              ),
+                              child: Text(
+                                'Cancel',
+                                style: TextStyle(
+                                  fontSize: 12.sp,
+                                  fontWeight: FontWeight.w700,
+                                  color: AppColors.textSecondary,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+
+                        SizedBox(width: 9.w),
+
+                        Expanded(
+                          child: SizedBox(
+                            height: 45.h,
+                            child: ElevatedButton.icon(
+
+
+                              // onPressed: () {
+                              //   if (imagePath == null ||
+                              //       imagePath!.trim().isEmpty) {
+                              //     _showMessage(
+                              //       'Please add details',
+                              //     );
+                              //     return;
+                              //   }
+
+                              //   if (signatureBytes == null ||
+                              //       signatureBytes!.isEmpty) {
+                              //     _showMessage(
+                              //       'Please add dealer signature',
+                              //     );
+                              //     return;
+                              //   }
+
+                              //   setState(() {});
+
+                              //   Navigator.pop(dialogContext);
+                              // },
+
+
+                              onPressed: () {
+                                  // ============================================================
+                                  // IMAGE VALIDATION
+                                  // ============================================================
+
+                                  if (imagePath == null || imagePath!.trim().isEmpty) {
+                                    _showMessage('Please add order photo');
+                                    return;
+                                  }
+
+                                  // ============================================================
+                                  // SIGNATURE VALIDATION
+                                  // ============================================================
+
+                                  if (signatureBytes == null || signatureBytes!.isEmpty) {
+                                    _showMessage('Please add dealer signature');
+                                    return;
+                                  }
+
+                                  // ============================================================
+                                  // ALL VALID
+                                  // ============================================================
+
+                                  setState(() {});
+
+                                  Navigator.pop(dialogContext);
+                                },
+
+
+                              icon: Icon(
+                                Icons.check_circle_rounded,
+                                size: 18.sp,
+                              ),
+                              label: Text(
+                                'Save Details',
+                                style: TextStyle(
+                                  fontSize: 12.sp,
+                                  fontWeight: FontWeight.w800,
+                                ),
+                              ),
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: AppColors.primary,
+                                foregroundColor: Colors.white,
+                                elevation: 0,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius:
+                                      BorderRadius.circular(11.r),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            );
+          },
+        ),
+      );
+    },
+  );
+}
+
+Widget _buildDetailStatus({
+  required IconData icon,
+  required String title,
+  required bool completed,
+}) {
+  return Expanded(
+    child: Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Container(
+          width: 27.w,
+          height: 27.w,
+          decoration: BoxDecoration(
+            color: completed
+                ? AppColors.primary
+                : Colors.white,
+            shape: BoxShape.circle,
+            border: Border.all(
+              color: completed
+                  ? AppColors.primary
+                  : AppColors.border,
+            ),
+          ),
+          child: Icon(
+            completed ? Icons.check_rounded : icon,
+            size: 14.sp,
+            color: completed
+                ? Colors.white
+                : AppColors.textSecondary,
+          ),
+        ),
+
+        SizedBox(height: 3.h),
+
+        Text(
+          title,
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+          style: TextStyle(
+            fontSize: 9.sp,
+            fontWeight: FontWeight.w700,
+            color: completed
+                ? AppColors.primary
+                : AppColors.textSecondary,
+          ),
+        ),
+      ],
+    ),
+  );
+}
+
+Widget _buildAddDetailsButton() {
+  final bool hasImage =
+      imagePath != null && imagePath!.trim().isNotEmpty;
+
+  final bool hasSignature =
+      signatureBytes != null && signatureBytes!.isNotEmpty;
+
+  final bool detailsAdded = hasImage && hasSignature;
+
+  return SizedBox(
+    height: 48.h,
+    child: OutlinedButton(
+      onPressed: _openAddDetailsDialog,
+      style: OutlinedButton.styleFrom(
+        backgroundColor: detailsAdded
+            ? AppColors.lightGreen
+            : Colors.white,
+        foregroundColor: AppColors.primary,
+        side: BorderSide(
+          color: detailsAdded
+              ? AppColors.primary.withOpacity(0.45)
+              : AppColors.border,
+          width: 1.1,
+        ),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12.r),
+        ),
+        padding: EdgeInsets.symmetric(
+          horizontal: 10.w,
+        ),
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(
+            detailsAdded
+                ? Icons.check_circle_rounded
+                : Icons.add_circle_outline_rounded,
+            size: 18.sp,
+          ),
+
+          SizedBox(width: 6.w),
+
+          Flexible(
+            child: Text(
+              detailsAdded
+                  ? 'Edit Details'
+                  : 'Add Details',
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: TextStyle(
+                fontSize: 12.sp,
+                fontWeight: FontWeight.w800,
+              ),
+            ),
+          ),
+        ],
+      ),
+    ),
+  );
+}
+
+Widget _buildPreviewButton(PlaceOrderState state) {
+  final bool isSubmitting =
+      state.status == PlaceOrderStatus.submitting;
+
+  return SizedBox(
+    height: 48.h,
+    child: ElevatedButton(
+      onPressed: isSubmitting
+          ? null
+          : () {
+              _submit(state);
+            },
+      style: ElevatedButton.styleFrom(
+        backgroundColor: AppColors.primary,
+        foregroundColor: Colors.white,
+        disabledBackgroundColor:
+            AppColors.primary.withOpacity(0.55),
+        elevation: 0,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12.r),
+        ),
+        padding: EdgeInsets.symmetric(
+          horizontal: 10.w,
+        ),
+      ),
+      child: isSubmitting
+          ? SizedBox(
+              width: 19.w,
+              height: 19.w,
+              child: const CircularProgressIndicator(
+                strokeWidth: 2,
+                color: Colors.white,
+              ),
+            )
+          : Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(
+                  Icons.visibility_rounded,
+                  size: 18.sp,
+                ),
+
+                SizedBox(width: 6.w),
+
+                Text(
+                  'Preview',
+                  style: TextStyle(
+                    fontSize: 12.sp,
+                    fontWeight: FontWeight.w800,
+                  ),
+                ),
+              ],
+            ),
+    ),
+  );
+}
+
 
   // ===========================================================================
   // SAVE DIGITAL SIGNATURE
@@ -601,10 +1381,12 @@ class _PlaceOrderViewState extends State<_PlaceOrderView> {
       return;
     }
 
-    if (selectedCategories.isEmpty) {
-      _showMessage('Please select at least one category');
-      return;
-    }
+    // if (selectedCategories.isEmpty) {
+    //   _showMessage(
+    //     'Please select at least one category',
+    //   );
+    //   return;
+    // }
 
     if (isOpeningRateSelector) {
       return;
@@ -822,6 +1604,84 @@ class _PlaceOrderViewState extends State<_PlaceOrderView> {
       selectedRates.remove(productId);
     });
   }
+
+
+  void _deleteProductPacking({
+  required ProductEntity product,
+  required ProductRateEntity rate,
+}) {
+  final String productId =
+      product.id.toString();
+
+  final String productDetailsId =
+      rate.productDetailsId.toString();
+
+  debugPrint(
+    'DELETE PACKING => '
+    'Product: $productId, '
+    'Packing: $productDetailsId',
+  );
+
+  // ============================================================
+  // GET CURRENT RATES OF PRODUCT
+  // ============================================================
+
+  final List<ProductRateEntity> currentRates =
+      List<ProductRateEntity>.from(
+    selectedRates[productId] ??
+        <ProductRateEntity>[],
+  );
+
+  // ============================================================
+  // REMOVE ONLY SELECTED PACKING
+  // ============================================================
+
+  currentRates.removeWhere(
+    (item) =>
+        item.productDetailsId.toString() ==
+        productDetailsId,
+  );
+
+  // ============================================================
+  // SET ITS QUANTITY TO ZERO
+  // ============================================================
+
+  context.read<PlaceOrderBloc>().add(
+        SetPackingQuantityEvent(
+          productId: productId,
+          productDetailsId:
+              productDetailsId,
+          quantity: 0,
+        ),
+      );
+
+  // ============================================================
+  // IF NO PACKING REMAINS
+  // REMOVE COMPLETE PRODUCT
+  // ============================================================
+
+  if (currentRates.isEmpty) {
+    selectedRates.remove(productId);
+
+    context.read<PlaceOrderBloc>().add(
+          RemoveProductEvent(
+            productId: product.id,
+          ),
+        );
+  } else {
+    // SOME PACKINGS STILL REMAIN
+    selectedRates[productId] =
+        currentRates;
+  }
+
+  setState(() {});
+
+  debugPrint(
+    'Remaining packing count: '
+    '${currentRates.length}',
+  );
+}
+
 
   // ===========================================================================
   // GET SELECTED PRODUCTS
@@ -1285,19 +2145,10 @@ class _PlaceOrderViewState extends State<_PlaceOrderView> {
     }
 
     // -------------------------------------------------------------------------
-    // CATEGORIES
-    // -------------------------------------------------------------------------
-
-    if (selectedCategories.isEmpty) {
-      _showMessage('Please select at least one category');
-      return;
-    }
-
-    // -------------------------------------------------------------------------
     // PRODUCTS
     // -------------------------------------------------------------------------
 
-    final selectedProducts = _getSelectedProducts(state);
+    final List<ProductEntity> selectedProducts = _getSelectedProducts(state);
 
     if (selectedProducts.isEmpty) {
       _showMessage('Please add at least one product');
@@ -1311,8 +2162,10 @@ class _PlaceOrderViewState extends State<_PlaceOrderView> {
     for (final product in selectedProducts) {
       final String productId = product.id.toString();
 
-      if (!selectedRates.containsKey(productId) ||
-          selectedRates[productId]!.isEmpty) {
+      final List<ProductRateEntity> productRates =
+          selectedRates[productId] ?? <ProductRateEntity>[];
+
+      if (productRates.isEmpty) {
         _showMessage('Please select rate for ${product.name}');
         return;
       }
@@ -1323,7 +2176,8 @@ class _PlaceOrderViewState extends State<_PlaceOrderView> {
     // -------------------------------------------------------------------------
 
     if (imagePath == null || imagePath!.trim().isEmpty) {
-      _showMessage('Please add order photo');
+      //_showMessage('Please add order photo');
+      _showMessage('Please add details');
       return;
     }
 
@@ -1357,6 +2211,11 @@ class _PlaceOrderViewState extends State<_PlaceOrderView> {
 
         final int quantity = productPackingQuantities[productDetailsId] ?? 1;
 
+        // Skip zero quantity lines if any exist.
+        if (quantity <= 0) {
+          continue;
+        }
+
         final Map<String, dynamic> payload = {
           'productId': product.id,
           'productDetailsId': selectedRate.productDetailsId,
@@ -1374,10 +2233,22 @@ class _PlaceOrderViewState extends State<_PlaceOrderView> {
       }
     }
 
+    // -------------------------------------------------------------------------
+    // FINAL PRODUCT PAYLOAD VALIDATION
+    // -------------------------------------------------------------------------
+
     if (selectedProductPayload.isEmpty) {
       _showMessage('Please select at least one product rate');
       return;
     }
+
+    // -------------------------------------------------------------------------
+    // OPTIONAL CATEGORY
+    // -------------------------------------------------------------------------
+
+    final CategoryEntity? previewCategory = selectedCategories.isNotEmpty
+        ? selectedCategories.first
+        : null;
 
     // -------------------------------------------------------------------------
     // DEBUG
@@ -1391,24 +2262,21 @@ class _PlaceOrderViewState extends State<_PlaceOrderView> {
 
     debugPrint('Godown ID: ${selectedGodown!.id}');
 
-    debugPrint('SELECTED CATEGORIES:');
+    debugPrint('Category Count: ${selectedCategories.length}');
 
-    for (final category in selectedCategories) {
-      debugPrint('Category ID: ${category.id}');
-      debugPrint('Category Name: ${category.name}');
+    if (selectedCategories.isEmpty) {
+      debugPrint('No category selected');
+    } else {
+      for (final category in selectedCategories) {
+        debugPrint('Category ID: ${category.id}');
+
+        debugPrint('Category Name: ${category.name}');
+      }
     }
-
-    debugPrint(
-      'Category Count: '
-      '${selectedCategories.length}',
-    );
 
     debugPrint('Products: ${selectedProducts.length}');
 
-    debugPrint(
-      'Rate Lines: '
-      '${selectedProductPayload.length}',
-    );
+    debugPrint('Rate Lines: ${selectedProductPayload.length}');
 
     debugPrint('========================================');
 
@@ -1421,31 +2289,26 @@ class _PlaceOrderViewState extends State<_PlaceOrderView> {
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
       barrierColor: Colors.black.withOpacity(0.45),
+
       builder: (previewContext) {
         return OrderPreviewSheet(
           dealer: selectedDealer!,
           godown: selectedGodown!,
 
-          // IMPORTANT:
-          // Your OrderPreviewSheet must be changed from:
-          //
-          // category: selectedCategory!,
-          //
-          // to:
-          //
-          // categories: selectedCategories,
-          //
-          // See explanation below.
-          //
-          // TEMPORARY current parameter:
-          category: selectedCategories.first,
-
+          // CATEGORY IS OPTIONAL
+          // category: previewCategory,
           products: selectedProducts,
+
           selectedRates: selectedRates,
+
           packingQuantities: state.packingQuantities,
+
           imagePath: imagePath,
+
           signatureBytes: signatureBytes,
+
           remark: remarkController.text.trim(),
+
           onConfirm: () {
             Navigator.pop(previewContext);
 
@@ -1600,325 +2463,423 @@ class _PlaceOrderViewState extends State<_PlaceOrderView> {
   // BUILD
   // ===========================================================================
 
-  @override
+   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: AppColors.background,
+  return Scaffold(
+    backgroundColor: AppColors.background,
 
-      appBar: CustomAppBar(
-        title: 'Place Order',
-        showBackButton: true,
-        onBackTap: () => Navigator.pop(context),
-      ),
+    // ============================================================
+    // APP BAR
+    // ============================================================
+    appBar: CustomAppBar(
+      title: 'Place Order',
+      showBackButton: true,
+      onBackTap: () => Navigator.pop(context),
+    ),
 
-      body: BlocConsumer<PlaceOrderBloc, PlaceOrderState>(
-        listener: (context, state) {
-          // ---------------------------------------------------------------
-          // IMPORTANT:
-          // Every time the Bloc gets products, merge them into our local
-          // multi-category product list.
-          // ---------------------------------------------------------------
+    // ============================================================
+    // BODY
+    // ============================================================
+    body: BlocConsumer<PlaceOrderBloc, PlaceOrderState>(
+      listener: (context, state) {
+        // =========================================================
+        // MERGE PRODUCTS
+        // =========================================================
 
-          if (state.products.isNotEmpty) {
-            _mergeCurrentProducts(state.products);
-          }
+        if (state.products.isNotEmpty) {
+          _mergeCurrentProducts(state.products);
+        }
 
-          if (state.status == PlaceOrderStatus.success) {
-            _showOrderSuccessDialog();
-            return;
-          }
+        // =========================================================
+        // SUCCESS
+        // =========================================================
 
-          if (state.status == PlaceOrderStatus.failure) {
-            _showMessage(
-              state.errorMessage.isEmpty
-                  ? 'Something went wrong'
-                  : state.errorMessage,
-            );
-          }
-        },
+        if (state.status == PlaceOrderStatus.success) {
+          _showOrderSuccessDialog();
+          return;
+        }
 
-        builder: (context, state) {
-          if (state.status == PlaceOrderStatus.loading &&
-              state.dealers.isEmpty &&
-              state.godowns.isEmpty &&
-              state.categories.isEmpty) {
-            return const Center(
-              child: CircularProgressIndicator(color: AppColors.primary),
-            );
-          }
+        // =========================================================
+        // FAILURE
+        // =========================================================
 
-          final safeGodownValue = _getSafeGodownValue(state.godowns);
+        if (state.status == PlaceOrderStatus.failure) {
+          _showMessage(
+            state.errorMessage.isEmpty
+                ? 'Something went wrong'
+                : state.errorMessage,
+          );
+        }
+      },
 
-          return SafeArea(
-            child: SingleChildScrollView(
-              physics: const BouncingScrollPhysics(),
-              padding: EdgeInsets.fromLTRB(14.w, 10.h, 14.w, 18.h),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // =========================================================
-                  // HEADER
-                  // =========================================================
-                  _buildOrderHeader(),
+      builder: (context, state) {
+        // =========================================================
+        // INITIAL LOADING
+        // =========================================================
 
-                  SizedBox(height: 12.h),
-
-                  // =========================================================
-                  // DEALER
-                  // =========================================================
-                  DealerSearchField(
-                    controller: dealerController,
-                    dealers: state.dealers,
-                    selectedDealer: selectedDealer,
-                    onChanged: _searchDealer,
-                    onDealerSelected: _selectDealer,
-                    onClearSelected: _clearDealer,
-                  ),
-
-                  SizedBox(height: 12.h),
-
-                  // =========================================================
-                  // GODOWN
-                  // =========================================================
-                  ModernDropdown<String>(
-                    label: 'Godown *',
-                    hint: 'Select godown',
-                    icon: Icons.warehouse_rounded,
-                    value: safeGodownValue,
-                    items: _buildGodownItems(state.godowns),
-                    onChanged: (value) {
-                      if (value == null) {
-                        return;
-                      }
-
-                      final matches = state.godowns
-                          .where((element) => element.id == value)
-                          .toList();
-
-                      if (matches.length != 1) {
-                        _showMessage('Invalid godown selection');
-                        return;
-                      }
-
-                      _selectGodown(matches.first);
-                    },
-                  ),
-
-                  SizedBox(height: 12.h),
-
-                  // =========================================================
-                  // CATEGORY
-                  // =========================================================
-                  ModernDropdown<String>(
-                    label: 'Category *',
-                    hint: selectedCategories.isEmpty
-                        ? 'Select product category'
-                        : 'Select another category',
-                    icon: Icons.category_rounded,
-
-                    // IMPORTANT:
-                    // Always null because dropdown is used to ADD another
-                    // category.
-                    value: _getCategoryDropdownValue(),
-
-                    items: _buildCategoryItems(state.categories),
-
-                    onChanged: (value) {
-                      if (value == null) {
-                        return;
-                      }
-
-                      final matches = state.categories
-                          .where((element) => element.id == value)
-                          .toList();
-
-                      if (matches.length != 1) {
-                        _showMessage('Invalid category selection');
-                        return;
-                      }
-
-                      _selectCategory(matches.first);
-                    },
-                  ),
-
-                  // =========================================================
-                  // SELECTED CATEGORY CHIPS
-                  // =========================================================
-                  _buildSelectedCategoryChips(),
-
-                  // =========================================================
-                  // PRODUCTS
-                  // =========================================================
-                  if (selectedCategories.isNotEmpty) ...[
-                    SizedBox(height: 16.h),
-
-                    Row(
-                      children: [
-                        Expanded(
-                          child: _sectionTitle(
-                            title: 'Products',
-                            subtitle: 'Products from all selected categories',
-                            icon: Icons.inventory_2_rounded,
-                          ),
-                        ),
-
-                        SizedBox(width: 6.w),
-
-                        InkWell(
-                          borderRadius: BorderRadius.circular(10.r),
-                          onTap:
-                              allCategoryProducts.isEmpty ||
-                                  isOpeningRateSelector
-                              ? null
-                              : () => _openMultiProductSelector(),
-                          child: Container(
-                            padding: EdgeInsets.symmetric(
-                              horizontal: 10.w,
-                              vertical: 8.h,
-                            ),
-                            decoration: BoxDecoration(
-                              color:
-                                  allCategoryProducts.isEmpty ||
-                                      isOpeningRateSelector
-                                  ? Colors.grey
-                                  : AppColors.primary,
-                              borderRadius: BorderRadius.circular(10.r),
-                            ),
-                            child: isOpeningRateSelector
-                                ? SizedBox(
-                                    width: 18.sp,
-                                    height: 18.sp,
-                                    child: const CircularProgressIndicator(
-                                      strokeWidth: 2,
-                                      color: Colors.white,
-                                    ),
-                                  )
-                                : Icon(
-                                    Icons.library_add_check_rounded,
-                                    color: Colors.white,
-                                    size: 18.sp,
-                                  ),
-                          ),
-                        ),
-                      ],
-                    ),
-
-                    SizedBox(height: 8.h),
-
-                    _buildSelectedProductSummary(state),
-
-                    if (_getSelectedProducts(state).isNotEmpty)
-                      SizedBox(height: 8.h),
-
-                    if (state.status == PlaceOrderStatus.loading &&
-                        allCategoryProducts.isEmpty)
-                      _buildProductLoading()
-                    else if (allCategoryProducts.isEmpty)
-                      _emptyBox(
-                        icon: Icons.inventory_2_outlined,
-                        text: 'No products found',
-                      )
-                    else
-                      ...allCategoryProducts.map((product) {
-                        final String productId = product.id.toString();
-
-                        final List<ProductRateEntity> productRates =
-                            selectedRates[productId] ?? <ProductRateEntity>[];
-
-                        return Padding(
-                          padding: EdgeInsets.only(bottom: 8.h),
-                          child: ProductCard(
-                            product: product,
-                            selectedRates: productRates,
-                            packingQuantities:
-                                state.packingQuantities[productId] ??
-                                <String, int>{},
-                            onAdd: () async {
-                              await _addProduct(product);
-                            },
-                            onAddMore: () async {
-                              await _openMultiProductSelector(
-                                initialProductId: productId,
-                              );
-                            },
-                            onIncrease: (rate) {
-                              context.read<PlaceOrderBloc>().add(
-                                IncreasePackingQuantityEvent(
-                                  productId: product.id.toString(),
-                                  productDetailsId: rate.productDetailsId
-                                      .toString(),
-                                ),
-                              );
-                            },
-                            onDecrease: (rate) {
-                              context.read<PlaceOrderBloc>().add(
-                                DecreasePackingQuantityEvent(
-                                  productId: product.id.toString(),
-                                  productDetailsId: rate.productDetailsId
-                                      .toString(),
-                                ),
-                              );
-                            },
-                            onDelete: () {
-                              _deleteProduct(product);
-                            },
-                          ),
-                        );
-                      }),
-                  ],
-
-                  // =========================================================
-                  // PHOTO + SIGNATURE
-                  // =========================================================
-                  SizedBox(height: 16.h),
-
-                  Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Expanded(
-                        child: ImagePickerSection(
-                          imagePath: imagePath,
-                          onChanged: (path) {
-                            setState(() {
-                              imagePath = path;
-                            });
-                          },
-                        ),
-                      ),
-                      SizedBox(width: 10.w),
-                      Expanded(
-                        child: SignatureSection(
-                          controller: signatureController,
-                          onClear: _clearSignature,
-                          onSignatureChanged: _onSignatureChanged,
-                        ),
-                      ),
-                    ],
-                  ),
-
-                  // =========================================================
-                  // REMARK
-                  // =========================================================
-                  SizedBox(height: 14.h),
-
-                  _buildRemarkField(),
-
-                  // =========================================================
-                  // SUBMIT
-                  // =========================================================
-                  SizedBox(height: 18.h),
-
-                  _buildSubmitButton(state),
-
-                  SizedBox(height: 6.h),
-                ],
-              ),
+        if (state.status == PlaceOrderStatus.loading &&
+            state.dealers.isEmpty &&
+            state.godowns.isEmpty &&
+            state.categories.isEmpty) {
+          return const Center(
+            child: CircularProgressIndicator(
+              color: AppColors.primary,
             ),
           );
-        },
-      ),
-    );
-  }
+        }
+
+        final String? safeGodownValue =
+            _getSafeGodownValue(state.godowns);
+
+        final List<ProductEntity> filteredProducts =
+            _getFilteredProducts();
+
+        final bool hasSelectedProducts =
+            _getSelectedProducts(state).isNotEmpty;
+
+        return SafeArea(
+          bottom: false,
+          child: SingleChildScrollView(
+            physics: const BouncingScrollPhysics(),
+
+            // IMPORTANT:
+            // bottom padding gives space above fixed buttons
+            padding: EdgeInsets.fromLTRB(
+              10.w,
+              7.h,
+              10.w,
+              18.h,
+            ),
+
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // =================================================
+                // DEALER
+                // =================================================
+
+                DealerSearchField(
+                  controller: dealerController,
+                  dealers: state.dealers,
+                  selectedDealer: selectedDealer,
+                  onChanged: _searchDealer,
+                  onDealerSelected: _selectDealer,
+                  onClearSelected: _clearDealer,
+                ),
+
+                SizedBox(height: 2.h),
+
+                // =================================================
+                // GODOWN
+                // =================================================
+
+                ModernDropdown<String>(
+                  label: 'Godown *',
+                  hint: 'Select godown',
+                  icon: Icons.warehouse_rounded,
+                  value: safeGodownValue,
+
+                  items: _buildGodownItems(
+                    state.godowns,
+                  ),
+
+                  onChanged: (value) {
+                    if (value == null) {
+                      return;
+                    }
+
+                    final matches = state.godowns
+                        .where(
+                          (element) =>
+                              element.id == value,
+                        )
+                        .toList();
+
+                    if (matches.length != 1) {
+                      _showMessage(
+                        'Invalid godown selection',
+                      );
+                      return;
+                    }
+
+                    _selectGodown(matches.first);
+                  },
+                ),
+
+                // =================================================
+                // CATEGORY
+                // =================================================
+
+                if (selectedCategories.isNotEmpty) ...[
+                  SizedBox(height: 6.h),
+                  _buildSelectedCategoryChips(),
+                ],
+
+                SizedBox(height: 10.h),
+
+                // =================================================
+                // PRODUCT SECTION
+                // =================================================
+
+                Container(
+                  padding: EdgeInsets.all(12.w),
+                  color: Colors.white,
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      // =============================================
+                      // PRODUCT HEADER
+                      // =============================================
+
+                      Row(
+                        children: [
+                          Expanded(
+                            child: _sectionTitle(
+                              title: 'Products',
+
+                              subtitle:
+                                  selectedCategories.isEmpty
+                                  ? '${allCategoryProducts.length} products'
+                                  : '${allCategoryProducts.length} products • '
+                                        '${selectedCategories.length} categories',
+
+                              icon:
+                                  Icons.inventory_2_rounded,
+                            ),
+                          ),
+
+                          SizedBox(width: 5.w),
+
+                          // =========================================
+                          // ADD MULTIPLE PRODUCTS
+                          // =========================================
+
+                          // Material(
+                          //   color:
+                          //       allCategoryProducts
+                          //               .isEmpty ||
+                          //           isOpeningRateSelector
+                          //       ? Colors.grey.shade400
+                          //       : AppColors.primary,
+
+                          //   borderRadius:
+                          //       BorderRadius.circular(
+                          //         8.r,
+                          //       ),
+
+                          //   child: InkWell(
+                          //     onTap:
+                          //         allCategoryProducts
+                          //                 .isEmpty ||
+                          //             isOpeningRateSelector
+                          //         ? null
+                          //         : () {
+                          //             _openMultiProductSelector();
+                          //           },
+
+                          //     borderRadius:
+                          //         BorderRadius.circular(
+                          //           8.r,
+                          //         ),
+
+                          //     child: SizedBox(
+                          //       width: 36.w,
+                          //       height: 34.h,
+
+                          //       child: Center(
+                          //         child:
+                          //             isOpeningRateSelector
+                          //             ? SizedBox(
+                          //                 width: 15.w,
+                          //                 height: 15.w,
+
+                          //                 child:
+                          //                     const CircularProgressIndicator(
+                          //                       strokeWidth:
+                          //                           2,
+                          //                       color:
+                          //                           Colors.white,
+                          //                     ),
+                          //               )
+                          //             : Icon(
+                          //                 Icons
+                          //                     .playlist_add_rounded,
+                          //                 size: 19.sp,
+                          //                 color:
+                          //                     Colors.white,
+                          //               ),
+                          //       ),
+                          //     ),
+                          //   ),
+                          // ),
+                        ],
+                      ),
+
+                      SizedBox(height: 7.h),
+
+                      // =============================================
+                      // SEARCH
+                      // =============================================
+
+                      _buildProductSearchField(),
+
+                      // =============================================
+                      // SELECTED SUMMARY
+                      // =============================================
+
+                      if (hasSelectedProducts) ...[
+                        SizedBox(height: 6.h),
+
+                        _buildSelectedProductSummary(
+                          state,
+                        ),
+                      ],
+
+                      SizedBox(height: 7.h),
+
+                      // =============================================
+                      // PRODUCT LIST
+                      // =============================================
+
+                      if (state.status ==
+                              PlaceOrderStatus.loading &&
+                          allCategoryProducts.isEmpty)
+                        _buildProductLoading()
+
+                      else if (allCategoryProducts.isEmpty)
+                        _emptyBox(
+                          icon:
+                              Icons.inventory_2_outlined,
+                          text: 'No products found',
+                        )
+
+                      else if (filteredProducts.isEmpty)
+                        _emptyBox(
+                          icon: Icons.search_off_rounded,
+                          text:
+                              'No matching products found',
+                        )
+
+                      else
+                        ...filteredProducts.map(
+                          (product) {
+                            final String productId =
+                                product.id.toString();
+
+                            final List<
+                              ProductRateEntity
+                            >
+                            productRates =
+                                selectedRates[productId] ??
+                                <ProductRateEntity>[];
+
+                            return ProductCard(
+                              product: product,
+
+                              selectedRates:
+                                  productRates,
+
+                              packingQuantities:
+                                  state.packingQuantities[productId] ??
+                                  <String, int>{},
+
+                              onAdd: () async {
+                                await _addProduct(
+                                  product,
+                                );
+                              },
+
+                              onAddMore: () async {
+                                await _openMultiProductSelector(
+                                  initialProductId:
+                                      productId,
+                                );
+                              },
+
+                              onIncrease: (rate) {
+                                context
+                                    .read<
+                                      PlaceOrderBloc
+                                    >()
+                                    .add(
+                                      IncreasePackingQuantityEvent(
+                                        productId:
+                                            product.id
+                                                .toString(),
+
+                                        productDetailsId:
+                                            rate
+                                                .productDetailsId
+                                                .toString(),
+                                      ),
+                                    );
+                              },
+
+                              onDecrease: (rate) {
+                                context
+                                    .read<
+                                      PlaceOrderBloc
+                                    >()
+                                    .add(
+                                      DecreasePackingQuantityEvent(
+                                        productId:
+                                            product.id
+                                                .toString(),
+
+                                        productDetailsId:
+                                            rate
+                                                .productDetailsId
+                                                .toString(),
+                                      ),
+                                    );
+                              },
+
+                                // ===========================================================
+                                // NEW - DELETE PARTICULAR PACKING
+                                // ===========================================================
+
+                                onDeletePacking: (rate) {
+                                  _deleteProductPacking(
+                                    product: product,
+                                    rate: rate,
+                                  );
+                                },
+
+
+                              onDelete: () {
+                                _deleteProduct(
+                                  product,
+                                );
+                              },
+                            );
+                          },
+                        ),
+                    ],
+                  ),
+                ),
+
+                SizedBox(height: 10.h),
+
+                // DO NOT PUT ADD DETAILS / PREVIEW HERE
+              ],
+            ),
+          ),
+        );
+      },
+    ),
+
+    // ============================================================
+    // FIXED BOTTOM BUTTONS
+    // ============================================================
+    bottomNavigationBar:
+        BlocBuilder<PlaceOrderBloc, PlaceOrderState>(
+      builder: (context, state) {
+        return _buildFixedBottomButtons(state);
+      },
+    ),
+  );
+}
+
 
   // ===========================================================================
   // SELECTED PRODUCT SUMMARY
@@ -2040,6 +3001,7 @@ class _PlaceOrderViewState extends State<_PlaceOrderView> {
           ),
         ],
       ),
+
       child: Row(
         children: [
           Container(

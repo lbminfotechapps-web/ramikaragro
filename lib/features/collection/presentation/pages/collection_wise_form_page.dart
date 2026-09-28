@@ -4,6 +4,7 @@ import 'package:solufine/core/di/collection_di.dart';
 import 'package:solufine/core/router/app_router.dart';
 import 'package:solufine/core/secure_storage/secure_storage.dart';
 import 'package:solufine/core/theme/app_colors.dart';
+import 'package:solufine/core/utility/image_compression.dart';
 import 'package:solufine/core/utility/widgets/custom_appbar.dart';
 import 'package:solufine/features/collection/domain/entities/dealer.dart';
 import 'package:solufine/features/collection/presentation/bloc/collection_bloc.dart';
@@ -209,29 +210,195 @@ class _CollectionWiseFormPageState extends State<CollectionWiseFormPage> {
   // IMAGE PICKER
   // ============================================================
 
-  Future<void> _pickImages() async {
-    try {
-      final files = await imagePicker.pickMultiImage(
-        imageQuality: 80,
-        maxWidth: 1080,
-        maxHeight: 1080,
-      );
+  // Future<void> _pickImages() async {
+  //   try {
+  //     final files = await imagePicker.pickMultiImage(
+  //       imageQuality: 80,
+  //       maxWidth: 1080,
+  //       maxHeight: 1080,
+  //     );
 
-      if (files.isEmpty) {
-        return;
+  //     if (files.isEmpty) {
+  //       return;
+  //     }
+
+  //     setState(() {
+  //       selectedImages = files.map((e) => File(e.path)).toList();
+  //     });
+
+  //     debugPrint('Selected images = ${selectedImages.length}');
+  //   } catch (e) {
+  //     debugPrint('Image picker error: $e');
+
+  //     _showMessage('Unable to select images');
+  //   }
+  // }
+
+
+
+  Future<void> _pickImages() async {
+  try {
+    // ============================================================
+    // PICK MULTIPLE IMAGES
+    // ============================================================
+
+    final files = await imagePicker.pickMultiImage(
+      // Keep picker quality high.
+      // Actual compression will be done below.
+      imageQuality: 100,
+    );
+
+    if (files.isEmpty) {
+      return;
+    }
+
+    // ============================================================
+    // FINAL COMPRESSED IMAGE LIST
+    // ============================================================
+
+    final List<File> compressedImages = [];
+
+    // ============================================================
+    // COMPRESS EACH IMAGE
+    // ============================================================
+
+    for (final pickedImage in files) {
+      final File originalFile = File(pickedImage.path);
+
+      if (!await originalFile.exists()) {
+        debugPrint(
+          'IMAGE FILE DOES NOT EXIST: ${pickedImage.path}',
+        );
+
+        continue;
       }
 
-      setState(() {
-        selectedImages = files.map((e) => File(e.path)).toList();
-      });
+      // ========================================================
+      // ORIGINAL IMAGE INFO
+      // ========================================================
 
-      debugPrint('Selected images = ${selectedImages.length}');
-    } catch (e) {
-      debugPrint('Image picker error: $e');
+      final int originalSize =
+          await originalFile.length();
 
-      _showMessage('Unable to select images');
+      debugPrint('========================================');
+
+      debugPrint(
+        'ORIGINAL PATH: ${originalFile.path}',
+      );
+
+      debugPrint(
+        'ORIGINAL SIZE: '
+        '${(originalSize / 1024).toStringAsFixed(2)} KB',
+      );
+
+      // ========================================================
+      // COMPRESS IMAGE
+      // ========================================================
+
+      final File? compressedFile =
+          await ImageCompression.compressImage(
+        originalFile,
+        maxWidth: 450,
+        maxHeight: 450,
+        quality: 45,
+      );
+
+      // ========================================================
+      // USE COMPRESSED IMAGE
+      // ========================================================
+
+      if (compressedFile != null &&
+          await compressedFile.exists()) {
+        final int compressedSize =
+            await compressedFile.length();
+
+        debugPrint('USING COMPRESSED IMAGE');
+
+        debugPrint(
+          'COMPRESSED PATH: ${compressedFile.path}',
+        );
+
+        debugPrint(
+          'COMPRESSED SIZE: '
+          '${(compressedSize / 1024).toStringAsFixed(2)} KB',
+        );
+
+        compressedImages.add(
+          compressedFile,
+        );
+      } else {
+        // ======================================================
+        // COMPRESSION FAILED -> USE ORIGINAL
+        // ======================================================
+
+        debugPrint(
+          'COMPRESSION FAILED - USING ORIGINAL IMAGE',
+        );
+
+        debugPrint(
+          'ORIGINAL PATH: ${originalFile.path}',
+        );
+
+        compressedImages.add(
+          originalFile,
+        );
+      }
+
+      debugPrint('========================================');
     }
+
+    // ============================================================
+    // UPDATE UI
+    // ============================================================
+
+    if (!mounted) {
+      return;
+    }
+
+    setState(() {
+      selectedImages = compressedImages;
+    });
+
+    debugPrint(
+      'Selected compressed images = '
+      '${selectedImages.length}',
+    );
+
+    // ============================================================
+    // FINAL SIZE DEBUG
+    // ============================================================
+
+    for (int i = 0;
+        i < selectedImages.length;
+        i++) {
+      final File file =
+          selectedImages[i];
+
+      final int bytes =
+          await file.length();
+
+      debugPrint(
+        'Image ${i + 1} => '
+        '${(bytes / 1024).toStringAsFixed(2)} KB',
+      );
+    }
+  } catch (e, stackTrace) {
+    debugPrint(
+      'Image picker/compression error: $e',
+    );
+
+    debugPrint(
+      '$stackTrace',
+    );
+
+    _showMessage(
+      'Unable to select images',
+    );
   }
+}
+
+
+
 
   // ============================================================
   // REMOVE IMAGE

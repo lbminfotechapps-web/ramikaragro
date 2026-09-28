@@ -1,32 +1,37 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_screenutil_plus/flutter_screenutil_plus.dart';
 
 import 'package:solufine/core/theme/app_colors.dart';
 
-import 'package:flutter/material.dart';
-import 'package:flutter_screenutil_plus/flutter_screenutil_plus.dart';
 import 'package:solufine/features/salesreturn/domain/entities/product_entity.dart';
 import 'package:solufine/features/salesreturn/domain/entities/product_rate_entity.dart';
 
 class ProductCard extends StatelessWidget {
   final ProductEntity product;
+
+  /// productDetailsId -> quantity
   final Map<String, int> packingQuantities;
 
-  /// All selected rates / packings for this product.
+  /// Selected packings/rates for this product
   final List<ProductRateEntity> selectedRates;
 
-  /// Opens packing/rate selector.
+  /// Select packing initially
   final VoidCallback onAdd;
 
-  /// Opens selector again.
+  /// Add another packing
   final VoidCallback onAddMore;
 
-  /// Delete complete product.
+  /// Delete complete product
   final VoidCallback onDelete;
 
-  /// Increase quantity of one packing.
+  /// Increase particular packing quantity
   final void Function(ProductRateEntity rate) onIncrease;
 
-  /// Decrease quantity of one packing.
+  /// Decrease particular packing quantity
   final void Function(ProductRateEntity rate) onDecrease;
+
+  /// Delete only one selected packing
+  final void Function(ProductRateEntity rate) onDeletePacking;
 
   const ProductCard({
     super.key,
@@ -38,6 +43,7 @@ class ProductCard extends StatelessWidget {
     required this.onDelete,
     required this.onIncrease,
     required this.onDecrease,
+    required this.onDeletePacking,
   });
 
   @override
@@ -46,78 +52,130 @@ class ProductCard extends StatelessWidget {
 
     return Container(
       width: double.infinity,
-      margin: EdgeInsets.only(bottom: 10.h),
-      padding: EdgeInsets.all(12.w),
+      margin: EdgeInsets.only(
+        bottom: 6.h,
+      ),
+      padding: EdgeInsets.symmetric(
+        horizontal: 9.w,
+        vertical: 8.h,
+      ),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(14.r),
+        borderRadius: BorderRadius.circular(
+          12.r,
+        ),
         border: Border.all(
           color: hasRates
-              ? AppColors.primary.withOpacity(0.25)
+              ? AppColors.primary.withOpacity(0.22)
               : AppColors.border,
         ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.04),
-            blurRadius: 8,
-            offset: const Offset(0, 3),
+            color: Colors.black.withOpacity(0.025),
+            blurRadius: 5,
+            offset: const Offset(
+              0,
+              2,
+            ),
           ),
         ],
       ),
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+        crossAxisAlignment:
+            CrossAxisAlignment.start,
         children: [
-          // ============================================================
+          // =====================================================
           // PRODUCT HEADER
-          // ============================================================
+          // =====================================================
 
           Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
+            crossAxisAlignment:
+                CrossAxisAlignment.center,
             children: [
+              // PRODUCT ICON
               Container(
-                width: 42.w,
-                height: 42.w,
+                width: 34.w,
+                height: 34.w,
                 decoration: BoxDecoration(
                   color: AppColors.lightGreen,
-                  borderRadius: BorderRadius.circular(10.r),
+                  borderRadius:
+                      BorderRadius.circular(
+                    9.r,
+                  ),
                 ),
                 child: Icon(
                   Icons.inventory_2_rounded,
                   color: AppColors.primary,
-                  size: 21.sp,
+                  size: 17.sp,
                 ),
               ),
 
-              SizedBox(width: 10.w),
+              SizedBox(width: 8.w),
+
+              // =================================================
+              // PRODUCT NAME + PACKING COUNT
+              // =================================================
 
               Expanded(
                 child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+                  crossAxisAlignment:
+                      CrossAxisAlignment.start,
                   children: [
                     Text(
                       product.name,
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
+                      maxLines: 1,
+                      overflow:
+                          TextOverflow.ellipsis,
                       style: TextStyle(
-                        fontSize: 13.sp,
-                        fontWeight: FontWeight.w800,
-                        color: AppColors.textPrimary,
+                        fontSize: 12.5.sp,
+                        fontWeight:
+                            FontWeight.w800,
+                        color:
+                            AppColors.textPrimary,
                       ),
                     ),
 
-                    SizedBox(height: 4.h),
+                    SizedBox(height: 2.h),
 
-                    Text(
-                      hasRates
-                          ? '${selectedRates.length} packing${selectedRates.length == 1 ? '' : 's'} selected'
-                          : 'Select packing / rate',
-                      style: TextStyle(
-                        fontSize: 10.sp,
-                        fontWeight: FontWeight.w600,
-                        color: hasRates
-                            ? AppColors.primary
-                            : AppColors.textSecondary,
-                      ),
+                    Row(
+                      children: [
+                        Icon(
+                          hasRates
+                              ? Icons
+                                  .check_circle_rounded
+                              : Icons
+                                  .radio_button_unchecked_rounded,
+                          size: 11.sp,
+                          color: hasRates
+                              ? AppColors.primary
+                              : AppColors
+                                  .textSecondary,
+                        ),
+
+                        SizedBox(width: 3.w),
+
+                        Flexible(
+                          child: Text(
+                            hasRates
+                                ? '${selectedRates.length} packing${selectedRates.length == 1 ? '' : 's'} selected'
+                                : 'Select packing / rate',
+                            maxLines: 1,
+                            overflow:
+                                TextOverflow
+                                    .ellipsis,
+                            style: TextStyle(
+                              fontSize: 9.sp,
+                              fontWeight:
+                                  FontWeight.w600,
+                              color: hasRates
+                                  ? AppColors
+                                      .primary
+                                  : AppColors
+                                      .textSecondary,
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
                   ],
                 ),
@@ -125,295 +183,329 @@ class ProductCard extends StatelessWidget {
 
               SizedBox(width: 5.w),
 
-              // DELETE
-              IconButton(
-                onPressed: onDelete,
-                padding: EdgeInsets.zero,
-                constraints: const BoxConstraints(
-                  minWidth: 32,
-                  minHeight: 32,
-                ),
-                icon: Icon(
-                  Icons.delete_outline_rounded,
-                  color: Colors.redAccent,
-                  size: 20.sp,
-                ),
+              // =================================================
+              // ADD / MORE
+              // =================================================
+
+              _buildCompactActionButton(
+                hasRates: hasRates,
+              ),
+
+              SizedBox(width: 4.w),
+
+              // =================================================
+              // DELETE COMPLETE PRODUCT
+              // =================================================
+
+              _buildDeleteButton(
+                onTap: onDelete,
               ),
             ],
           ),
 
-          // ============================================================
+          // =====================================================
           // SELECTED PACKINGS
-          // ============================================================
+          // =====================================================
 
           if (hasRates) ...[
-            SizedBox(height: 10.h),
+            SizedBox(height: 7.h),
 
             Container(
               width: double.infinity,
               padding: EdgeInsets.symmetric(
-                horizontal: 9.w,
-                vertical: 5.h,
+                horizontal: 7.w,
+                vertical: 2.h,
               ),
               decoration: BoxDecoration(
                 color: AppColors.background,
-                borderRadius: BorderRadius.circular(10.r),
+                borderRadius:
+                    BorderRadius.circular(
+                  9.r,
+                ),
                 border: Border.all(
-                  color: AppColors.border.withOpacity(0.50),
+                  color: AppColors.border
+                      .withOpacity(0.45),
                 ),
               ),
               child: Column(
                 children: [
-                  for (int index = 0;
-                      index < selectedRates.length;
-                      index++) ...[
+                  for (
+                    int index = 0;
+                    index <
+                        selectedRates.length;
+                    index++
+                  ) ...[
                     _buildPackingRow(
                       selectedRates[index],
                     ),
 
-                    if (index < selectedRates.length - 1)
+                    if (index <
+                        selectedRates.length -
+                            1)
                       Divider(
                         height: 1,
-                        color: AppColors.border.withOpacity(0.35),
+                        color: AppColors.border
+                            .withOpacity(
+                              0.35,
+                            ),
                       ),
                   ],
                 ],
               ),
             ),
           ],
-
-          SizedBox(height: 10.h),
-
-          // ============================================================
-          // ADD MORE
-          // ============================================================
-
-          Row(
-            mainAxisAlignment: MainAxisAlignment.end,
-            children: [
-              if (hasRates)
-                _buildAddMoreButton()
-              else
-                _buildAddButton(),
-            ],
-          ),
         ],
       ),
     );
   }
 
-  // ==========================================================================
+  // ===========================================================
   // PACKING ROW
-  // ==========================================================================
+  // ===========================================================
 
   Widget _buildPackingRow(
     ProductRateEntity rate,
   ) {
-    // Quantity is identified by productDetailsId.
     final String productDetailsId =
         rate.productDetailsId.toString();
 
-    // If Bloc has not stored a quantity yet,
-    // default is 1.
     final int quantity =
-        packingQuantities[productDetailsId] ?? 1;
+        packingQuantities[
+                productDetailsId] ??
+            1;
 
     return Padding(
       padding: EdgeInsets.symmetric(
-        vertical: 7.h,
+        vertical: 5.h,
       ),
       child: Row(
+        crossAxisAlignment:
+            CrossAxisAlignment.center,
         children: [
-          // ==============================================================
-          // CHECK ICON
-          // ==============================================================
+          // =====================================================
+          // SELECTED ICON
+          // =====================================================
 
-          Icon(
-            Icons.check_circle_rounded,
-            color: AppColors.primary,
-            size: 15.sp,
+          Container(
+            width: 20.w,
+            height: 20.w,
+            decoration: const BoxDecoration(
+              color: AppColors.lightGreen,
+              shape: BoxShape.circle,
+            ),
+            alignment: Alignment.center,
+            child: Icon(
+              Icons.check_rounded,
+              color: AppColors.primary,
+              size: 12.sp,
+            ),
           ),
 
-          SizedBox(width: 6.w),
+          SizedBox(width: 5.w),
 
-          // ==============================================================
-          // PACKING + UNIT/CASE + RATE
-          // ==============================================================
+          // =====================================================
+          // PACKING INFORMATION
+          // =====================================================
 
           Expanded(
             child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+              crossAxisAlignment:
+                  CrossAxisAlignment.start,
               children: [
-                // --------------------------------------------------------
-                // PACKING
-                // --------------------------------------------------------
-
-                Text(
-                  '${rate.packing} ${rate.unit}',
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: TextStyle(
-                    fontSize: 11.sp,
-                    fontWeight: FontWeight.w700,
-                    color: AppColors.textPrimary,
-                  ),
-                ),
-
-                SizedBox(height: 3.h),
-
-                // --------------------------------------------------------
-                // UNIT PER CASE + RATE
-                // --------------------------------------------------------
+                // PACKING + PRICE
 
                 Row(
                   children: [
-                    // Unit per case
-                    Container(
-                      padding: EdgeInsets.symmetric(
-                        horizontal: 5.w,
-                        vertical: 2.5.h,
-                      ),
-                      decoration: BoxDecoration(
-                        color: AppColors.lightGreen,
-                        borderRadius: BorderRadius.circular(5.r),
-                        border: Border.all(
-                          color: AppColors.primary.withOpacity(0.12),
+                    Flexible(
+                      child: Text(
+                        '${rate.packing} ${rate.unit}',
+                        maxLines: 1,
+                        overflow:
+                            TextOverflow
+                                .ellipsis,
+                        style: TextStyle(
+                          fontSize:
+                              10.5.sp,
+                          fontWeight:
+                              FontWeight
+                                  .w700,
+                          color: AppColors
+                              .textPrimary,
                         ),
-                      ),
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Icon(
-                            Icons.inventory_2_outlined,
-                            size: 9.sp,
-                            color: AppColors.primary,
-                          ),
-                          SizedBox(width: 3.w),
-                          Text(
-                            rate.displayCase,
-                            style: TextStyle(
-                              fontSize: 8.sp,
-                              fontWeight: FontWeight.w800,
-                              color: AppColors.primary,
-                            ),
-                          ),
-                        ],
                       ),
                     ),
 
-                    SizedBox(width: 6.w),
+                    SizedBox(width: 5.w),
 
-                    // Rate
                     Text(
                       '₹${rate.rateWithGst}',
                       style: TextStyle(
                         fontSize: 9.sp,
-                        fontWeight: FontWeight.w700,
-                        color: AppColors.primary,
+                        fontWeight:
+                            FontWeight
+                                .w800,
+                        color:
+                            AppColors.primary,
                       ),
                     ),
                   ],
+                ),
+
+                SizedBox(height: 2.h),
+
+                // CASE INFO
+
+                Container(
+                  padding:
+                      EdgeInsets.symmetric(
+                    horizontal: 5.w,
+                    vertical: 1.5.h,
+                  ),
+                  decoration: BoxDecoration(
+                    color:
+                        AppColors.lightGreen,
+                    borderRadius:
+                        BorderRadius.circular(
+                      5.r,
+                    ),
+                  ),
+                  child: Text(
+                    rate.displayCase,
+                    style: TextStyle(
+                      fontSize: 7.5.sp,
+                      fontWeight:
+                          FontWeight.w700,
+                      color:
+                          AppColors.primary,
+                    ),
+                  ),
                 ),
               ],
             ),
           ),
 
-          SizedBox(width: 8.w),
+          SizedBox(width: 5.w),
 
-          // ==============================================================
-          // QUANTITY CONTROL
-          // ==============================================================
+          // =====================================================
+          // QUANTITY
+          // =====================================================
 
           _buildQuantityControl(
             rate: rate,
             quantity: quantity,
+          ),
+
+          SizedBox(width: 4.w),
+
+          // =====================================================
+          // DELETE PARTICULAR PACKING
+          // =====================================================
+
+          _buildDeletePackingButton(
+            onTap: () {
+              onDeletePacking(rate);
+            },
           ),
         ],
       ),
     );
   }
 
-  // ==========================================================================
+  // ===========================================================
   // QUANTITY CONTROL
-  // ==========================================================================
+  // ===========================================================
 
   Widget _buildQuantityControl({
     required ProductRateEntity rate,
     required int quantity,
   }) {
     return Container(
-      height: 32.h,
+      height: 28.h,
       decoration: BoxDecoration(
         color: AppColors.lightGreen,
-        borderRadius: BorderRadius.circular(8.r),
+        borderRadius:
+            BorderRadius.circular(
+          7.r,
+        ),
         border: Border.all(
-          color: AppColors.primary.withOpacity(0.20),
+          color: AppColors.primary
+              .withOpacity(0.18),
         ),
       ),
       child: Row(
-        mainAxisSize: MainAxisSize.min,
+        mainAxisSize:
+            MainAxisSize.min,
         children: [
-          // ==============================================================
+          // =====================================================
           // MINUS
-          // ==============================================================
+          // =====================================================
 
-          Material(
-            color: Colors.transparent,
-            child: InkWell(
-              onTap: quantity > 1
-                  ? () => onDecrease(rate)
-                  : null,
-              borderRadius: BorderRadius.circular(8.r),
-              child: SizedBox(
-                width: 30.w,
-                height: 32.h,
-                child: Icon(
-                  Icons.remove_rounded,
-                  size: 16.sp,
-                  color: quantity > 1
-                      ? AppColors.primary
-                      : AppColors.border,
-                ),
+          InkWell(
+            onTap: quantity > 1
+                ? () {
+                    onDecrease(rate);
+                  }
+                : null,
+            borderRadius:
+                BorderRadius.circular(
+              7.r,
+            ),
+            child: SizedBox(
+              width: 25.w,
+              height: 28.h,
+              child: Icon(
+                Icons.remove_rounded,
+                size: 13.sp,
+                color: quantity > 1
+                    ? AppColors.primary
+                    : AppColors.border,
               ),
             ),
           ),
 
-          // ==============================================================
+          // =====================================================
           // QUANTITY
-          // ==============================================================
+          // =====================================================
 
           Container(
-            constraints: BoxConstraints(
-              minWidth: 28.w,
+            constraints:
+                BoxConstraints(
+              minWidth: 22.w,
             ),
-            alignment: Alignment.center,
+            alignment:
+                Alignment.center,
             child: Text(
               quantity.toString(),
               style: TextStyle(
-                fontSize: 11.sp,
-                fontWeight: FontWeight.w900,
-                color: AppColors.primary,
+                fontSize: 9.8.sp,
+                fontWeight:
+                    FontWeight.w900,
+                color:
+                    AppColors.primary,
               ),
             ),
           ),
 
-          // ==============================================================
+          // =====================================================
           // PLUS
-          // ==============================================================
+          // =====================================================
 
-          Material(
-            color: Colors.transparent,
-            child: InkWell(
-              onTap: () => onIncrease(rate),
-              borderRadius: BorderRadius.circular(8.r),
-              child: SizedBox(
-                width: 30.w,
-                height: 32.h,
-                child: Icon(
-                  Icons.add_rounded,
-                  size: 16.sp,
-                  color: AppColors.primary,
-                ),
+          InkWell(
+            onTap: () {
+              onIncrease(rate);
+            },
+            borderRadius:
+                BorderRadius.circular(
+              7.r,
+            ),
+            child: SizedBox(
+              width: 25.w,
+              height: 28.h,
+              child: Icon(
+                Icons.add_rounded,
+                size: 13.sp,
+                color:
+                    AppColors.primary,
               ),
             ),
           ),
@@ -422,39 +514,67 @@ class ProductCard extends StatelessWidget {
     );
   }
 
-  // ==========================================================================
-  // ADD BUTTON
-  // ==========================================================================
+  // ===========================================================
+  // ADD / MORE BUTTON
+  // ===========================================================
 
-  Widget _buildAddButton() {
+  Widget _buildCompactActionButton({
+    required bool hasRates,
+  }) {
     return Material(
-      color: AppColors.primary,
-      borderRadius: BorderRadius.circular(8.r),
+      color: hasRates
+          ? AppColors.primary
+              .withOpacity(0.08)
+          : AppColors.primary,
+      borderRadius:
+          BorderRadius.circular(
+        8.r,
+      ),
       child: InkWell(
-        onTap: onAdd,
-        borderRadius: BorderRadius.circular(8.r),
-        child: Padding(
-          padding: EdgeInsets.symmetric(
-            horizontal: 18.w,
-            vertical: 8.h,
+        onTap:
+            hasRates ? onAddMore : onAdd,
+        borderRadius:
+            BorderRadius.circular(
+          8.r,
+        ),
+        child: Container(
+          height: 30.h,
+          padding:
+              EdgeInsets.symmetric(
+            horizontal: 8.w,
           ),
+          alignment:
+              Alignment.center,
           child: Row(
-            mainAxisSize: MainAxisSize.min,
+            mainAxisSize:
+                MainAxisSize.min,
             children: [
               Icon(
-                Icons.add_rounded,
-                color: Colors.white,
-                size: 17.sp,
+                hasRates
+                    ? Icons
+                        .add_circle_outline_rounded
+                    : Icons
+                        .add_rounded,
+                size: 14.sp,
+                color: hasRates
+                    ? AppColors.primary
+                    : Colors.white,
               ),
 
-              SizedBox(width: 4.w),
+              SizedBox(width: 3.w),
 
               Text(
-                'Add',
+                hasRates
+                    ? 'More'
+                    : 'Add',
                 style: TextStyle(
-                  fontSize: 10.sp,
-                  fontWeight: FontWeight.w800,
-                  color: Colors.white,
+                  fontSize: 9.sp,
+                  fontWeight:
+                      FontWeight.w800,
+                  color: hasRates
+                      ? AppColors
+                          .primary
+                      : Colors.white,
                 ),
               ),
             ],
@@ -464,42 +584,70 @@ class ProductCard extends StatelessWidget {
     );
   }
 
-  // ==========================================================================
-  // ADD MORE BUTTON
-  // ==========================================================================
+  // ===========================================================
+  // COMPLETE PRODUCT DELETE BUTTON
+  // ===========================================================
 
-  Widget _buildAddMoreButton() {
+  Widget _buildDeleteButton({
+    required VoidCallback onTap,
+  }) {
     return Material(
-      color: AppColors.primary.withOpacity(0.08),
-      borderRadius: BorderRadius.circular(8.r),
+      color:
+          Colors.red.withOpacity(
+        0.06,
+      ),
+      borderRadius:
+          BorderRadius.circular(
+        8.r,
+      ),
       child: InkWell(
-        onTap: onAddMore,
-        borderRadius: BorderRadius.circular(8.r),
-        child: Padding(
-          padding: EdgeInsets.symmetric(
-            horizontal: 11.w,
-            vertical: 8.h,
+        onTap: onTap,
+        borderRadius:
+            BorderRadius.circular(
+          8.r,
+        ),
+        child: SizedBox(
+          width: 30.w,
+          height: 30.w,
+          child: Icon(
+            Icons.delete_outline_rounded,
+            color: Colors.redAccent,
+            size: 16.sp,
           ),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Icon(
-                Icons.add_circle_outline_rounded,
-                size: 16.sp,
-                color: AppColors.primary,
-              ),
+        ),
+      ),
+    );
+  }
 
-              SizedBox(width: 4.w),
+  // ===========================================================
+  // PARTICULAR PACKING DELETE BUTTON
+  // ===========================================================
 
-              Text(
-                'Add More',
-                style: TextStyle(
-                  fontSize: 10.sp,
-                  fontWeight: FontWeight.w800,
-                  color: AppColors.primary,
-                ),
-              ),
-            ],
+  Widget _buildDeletePackingButton({
+    required VoidCallback onTap,
+  }) {
+    return Material(
+      color:
+          Colors.red.withOpacity(
+        0.07,
+      ),
+      borderRadius:
+          BorderRadius.circular(
+        7.r,
+      ),
+      child: InkWell(
+        onTap: onTap,
+        borderRadius:
+            BorderRadius.circular(
+          7.r,
+        ),
+        child: SizedBox(
+          width: 28.w,
+          height: 28.h,
+          child: Icon(
+            Icons.close_rounded,
+            color: Colors.redAccent,
+            size: 15.sp,
           ),
         ),
       ),
