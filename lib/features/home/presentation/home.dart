@@ -482,15 +482,26 @@ class _HomeState extends State<Home> {
                 ),
                 child: IconButton(
                   padding: EdgeInsets.zero,
-                  icon: const Icon(
-                    Icons.person_2_outlined,
-                    color: AppColors.textColor,
+
+                  // icon: const Icon(
+                  //   Icons.person_2_outlined,
+                  //   color: AppColors.textColor,
+                  // ),
+
+                   icon: Image.asset(
+                  'assets/icons/logo.png',
+                  width: 35,
+                  height: 35,
                   ),
+
+
+
                   onPressed: () {
                     context.push('/profile');
                   },
                 ),
               );
+
             },
           ),
 

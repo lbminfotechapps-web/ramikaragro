@@ -1,6 +1,7 @@
 import 'package:solufine/core/utility/widgets/bottom_navigation.dart';
 import 'package:solufine/core/di/auth_di.dart';
 import 'package:solufine/features/addexpense/presentation/pages/add_expense_page.dart';
+import 'package:solufine/features/assign_target_point_wise/presentation/pages/self_target_page.dart';
 import 'package:solufine/features/auth/presentation/pages/login_screen.dart';
 import 'package:solufine/features/collection/presentation/pages/collection_list_page.dart';
 import 'package:solufine/features/collection/presentation/pages/collection_wise_form_page.dart';
@@ -124,6 +125,8 @@ class AppRouter {
   static const String profile = '/profile';
   static const String productEnquiry = '/productEnquiry';
    static const String addStock = '/addStock';
+
+   static const String selfAssignTargetPointWise = '/selfAssignTargetPointWise';
 
   static final GoRouter router = GoRouter(
     initialLocation: splash,
@@ -281,6 +284,18 @@ class AppRouter {
           return const CollectionWiseFormPage();
         },
       ),
+
+     
+
+       GoRoute(
+        path: selfAssignTargetPointWise,
+        name: 'selfAssignTargetPointWise',
+        builder: (context, state) {
+          return const SelfTargetPage();
+        },
+      ),
+
+
 
       GoRoute(
         path: collectionList,

@@ -533,7 +533,7 @@ class _SalesWiseTargetPageState
           children: [
             Expanded(
               child: _buildStatCard(
-                title: 'Target in Rs.',
+                title: 'Target in Pts.',
                 value:
                     target.totalTarget
                         .toString(),
@@ -552,7 +552,7 @@ class _SalesWiseTargetPageState
 
             Expanded(
               child: _buildStatCard(
-                title: 'Achieved in Rs.',
+                title: 'Achieved in Pts.',
                 value:
                     target.totalAchieved
                         .toString(),
@@ -574,7 +574,7 @@ class _SalesWiseTargetPageState
           children: [
             Expanded(
               child: _buildStatCard(
-                title: 'Pending in Rs.',
+                title: 'Pending in Pts.',
                 value:
                     target.totalPending
                         .toString(),
@@ -603,6 +603,34 @@ class _SalesWiseTargetPageState
             ),
           ],
         ),
+
+
+      
+        const SizedBox(
+          height: 10,
+        ),
+
+         Row(
+          children: [
+           
+            Expanded(
+              child: _buildStatCard(
+                title: 'Achieved in Rs.',
+                value:
+                    target.achievementAmount
+                        .toString(),
+                icon:
+                    Icons
+                        .check_circle_outline,
+                color:
+                    achievedColor,
+              ),
+            ),
+          ],
+        ),
+
+
+
       ],
     );
   }
@@ -965,7 +993,7 @@ class _SalesWiseTargetPageState
                   color:
                       achievedColor,
                   title:
-                      'Sales',
+                      'Sales in Pts',
                   value:
                       '${achievedPercent.toStringAsFixed(0)}%',
                 ),
@@ -977,7 +1005,7 @@ class _SalesWiseTargetPageState
                   color:
                       pendingColor,
                   title:
-                      'Pending Target',
+                      'Pending Target in Pts',
                   value:
                       '${pendingPercent.toStringAsFixed(0)}%',
                 ),

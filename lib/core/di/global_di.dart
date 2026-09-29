@@ -28,6 +28,7 @@ import 'package:solufine/core/di/product_di.dart';
 import 'package:solufine/core/di/sales_return_history_di.dart';
 
 import 'package:solufine/core/di/scheme_di.dart';
+import 'package:solufine/core/di/self_target_di.dart';
 import 'package:solufine/core/di/social_media_di.dart';
 import 'package:solufine/core/di/team_expense_di.dart';
 import 'package:solufine/core/di/team_leave_di.dart';
@@ -72,4 +73,5 @@ Future<void> initGlobalDi() async {
   await initFollowupDi();
   await initEnquiryDi();
   // await initLocationTrackingDi();
+  await initSelfTargetDi();
 }

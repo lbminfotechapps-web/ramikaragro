@@ -1,4 +1,3 @@
-
 import 'package:solufine/features/sales_targrt_achievement/domain/entities/sales_target_entity.dart';
 
 class SalesTargetModel extends SalesTargetEntity {
@@ -7,6 +6,7 @@ class SalesTargetModel extends SalesTargetEntity {
     required super.totalAchieved,
     required super.totalPending,
     required super.percentage,
+    required super.achievementAmount,
   });
 
   factory SalesTargetModel.fromJson(
@@ -15,12 +15,18 @@ class SalesTargetModel extends SalesTargetEntity {
     return SalesTargetModel(
       totalTarget:
           json['total_target']?.toString() ?? '0',
+
       totalAchieved:
           json['total_achieved']?.toString() ?? '0',
+
       totalPending:
           json['total_pending']?.toString() ?? '0',
+
       percentage:
           json['percentage']?.toString() ?? '0',
+
+      achievementAmount:
+          json['achievement_amount']?.toString() ?? '0',
     );
   }
 }
