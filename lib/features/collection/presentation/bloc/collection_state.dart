@@ -1,13 +1,9 @@
 import 'package:solufine/features/collection/data/models/bank_model.dart';
 import 'package:solufine/features/collection/data/models/dealer_model.dart';
 import 'package:equatable/equatable.dart';
+import 'package:solufine/features/collection/domain/entities/collection_type_entity.dart';
 
-enum CollectionStatus {
-  initial,
-  loading,
-  success,
-  failure,
-}
+enum CollectionStatus { initial, loading, success, failure,getCollectionSuccess }
 
 class CollectionState extends Equatable {
   final CollectionStatus status;
@@ -25,6 +21,7 @@ class CollectionState extends Equatable {
   // ==============================
   final List<BankModel> banks;
   final bool bankLoading;
+  final List<CollectionTypeEntity> collectionTypes;
 
   const CollectionState({
     this.status = CollectionStatus.initial,
@@ -38,6 +35,7 @@ class CollectionState extends Equatable {
     // Bank
     this.banks = const [],
     this.bankLoading = false,
+    this.collectionTypes = const [],
   });
 
   CollectionState copyWith({
@@ -50,7 +48,7 @@ class CollectionState extends Equatable {
     bool? dealerLoading,
     String? dealerError,
     bool clearDealerError = false,
-
+    List<CollectionTypeEntity>? collectionTypes,
     // Bank
     List<BankModel>? banks,
     bool? bankLoading,
@@ -58,40 +56,36 @@ class CollectionState extends Equatable {
     return CollectionState(
       status: status ?? this.status,
 
-      message: clearMessage
-          ? null
-          : message ?? this.message,
+      message: clearMessage ? null : message ?? this.message,
 
       // Dealer
       dealers: dealers ?? this.dealers,
 
-      dealerLoading:
-          dealerLoading ?? this.dealerLoading,
+      dealerLoading: dealerLoading ?? this.dealerLoading,
 
-      dealerError: clearDealerError
-          ? null
-          : dealerError ?? this.dealerError,
+      dealerError: clearDealerError ? null : dealerError ?? this.dealerError,
 
       // Bank
       banks: banks ?? this.banks,
 
-      bankLoading:
-          bankLoading ?? this.bankLoading,
+      bankLoading: bankLoading ?? this.bankLoading,
+      collectionTypes: collectionTypes ?? this.collectionTypes,
     );
   }
 
   @override
   List<Object?> get props => [
-        status,
-        message,
+    status,
+    message,
 
-        // Dealer
-        dealers,
-        dealerLoading,
-        dealerError,
+    // Dealer
+    dealers,
+    dealerLoading,
+    dealerError,
 
-        // Bank
-        banks,
-        bankLoading,
-      ];
+    // Bank
+    banks,
+    bankLoading,
+    collectionTypes,
+  ];
 }

@@ -5,6 +5,7 @@ import 'package:solufine/core/api_constant/api_client.dart';
 import 'package:solufine/core/api_constant/dio_client.dart';
 import 'package:dio/dio.dart';
 import 'package:intl/intl.dart';
+import 'package:solufine/features/collection/data/models/collection_type_model.dart';
 
 import '../models/category_model.dart';
 import '../models/dealer_model.dart';
@@ -721,9 +722,30 @@ class PlaceOrderRemoteDataSource {
     }
   }
 
-  // ============================================================
-  // RESPONSE DECODER
-  // ============================================================
+  Future<CollectionTypeResponseModel> getCollectionType() async {
+    try {
+      final response = await dioClient.client.post(ApiClient.getCollectionType);
+
+      final dynamic data = _decodeResponse(response.data);
+
+      if (data is Map<String, dynamic>) {
+        return CollectionTypeResponseModel.fromJson(data);
+      }
+
+      if (data is Map) {
+        return CollectionTypeResponseModel.fromJson(
+          Map<String, dynamic>.from(data),
+        );
+      }
+
+      throw const FormatException(
+        'Collection type response is not a JSON object',
+      );
+    } catch (e) {
+      print('GET COLLECTION TYPE ERROR: $e');
+      rethrow;
+    }
+  }
 
   dynamic _decodeResponse(dynamic responseData) {
     if (responseData == null) {

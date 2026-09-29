@@ -1,18 +1,12 @@
 import 'package:equatable/equatable.dart';
+import 'package:solufine/features/collection/domain/entities/collection_type_entity.dart';
 
 import '../../domain/entities/category_entity.dart';
 import '../../domain/entities/dealer_entity.dart';
 import '../../domain/entities/godown_entity.dart';
 import '../../domain/entities/product_entity.dart';
 
-enum PlaceOrderStatus {
-  initial,
-  loading,
-  loaded,
-  submitting,
-  success,
-  failure,
-}
+enum PlaceOrderStatus { initial, loading, loaded, submitting, success, failure }
 
 class PlaceOrderState extends Equatable {
   // ==========================================================
@@ -28,6 +22,7 @@ class PlaceOrderState extends Equatable {
   final List<DealerEntity> dealers;
   final List<GodownEntity> godowns;
   final List<CategoryEntity> categories;
+  // final List<CollectionTypeEntity> collectionTypes;e
 
   // ==========================================================
   // ALL SELECTED CATEGORY PRODUCTS
@@ -88,6 +83,7 @@ class PlaceOrderState extends Equatable {
     this.quantities = const {},
     this.packingQuantities = const {},
     this.errorMessage = '',
+    // this.collectionTypes = const [],
   });
 
   // ==========================================================
@@ -104,6 +100,7 @@ class PlaceOrderState extends Equatable {
     Map<String, int>? quantities,
     Map<String, Map<String, int>>? packingQuantities,
     String? errorMessage,
+    // List<CollectionTypeEntity>? collectionTypes,
   }) {
     return PlaceOrderState(
       status: status ?? this.status,
@@ -111,13 +108,11 @@ class PlaceOrderState extends Equatable {
       godowns: godowns ?? this.godowns,
       categories: categories ?? this.categories,
       products: products ?? this.products,
-      productsByCategory:
-          productsByCategory ?? this.productsByCategory,
+      productsByCategory: productsByCategory ?? this.productsByCategory,
       quantities: quantities ?? this.quantities,
-      packingQuantities:
-          packingQuantities ?? this.packingQuantities,
-      errorMessage:
-          errorMessage ?? this.errorMessage,
+      packingQuantities: packingQuantities ?? this.packingQuantities,
+      errorMessage: errorMessage ?? this.errorMessage,
+      // collectionTypes: collectionTypes ?? this.collectionTypes,
     );
   }
 
@@ -127,14 +122,15 @@ class PlaceOrderState extends Equatable {
 
   @override
   List<Object?> get props => [
-        status,
-        dealers,
-        godowns,
-        categories,
-        products,
-        productsByCategory,
-        quantities,
-        packingQuantities,
-        errorMessage,
-      ];
+    status,
+    dealers,
+    godowns,
+    categories,
+    products,
+    productsByCategory,
+    quantities,
+    packingQuantities,
+    errorMessage,
+    // collectionTypes
+  ];
 }

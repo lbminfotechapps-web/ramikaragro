@@ -1,4 +1,8 @@
+import 'dart:async';
+
+import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:solufine/features/collection/domain/entities/collection_type_entity.dart';
 import 'package:solufine/features/place_order/domain/entities/product_entity.dart';
 
 import '../../domain/usecases/get_categories_usecase.dart';
@@ -10,8 +14,7 @@ import '../../domain/usecases/submit_order_usecase.dart';
 import 'place_order_event.dart';
 import 'place_order_state.dart';
 
-class PlaceOrderBloc
-    extends Bloc<PlaceOrderEvent, PlaceOrderState> {
+class PlaceOrderBloc extends Bloc<PlaceOrderEvent, PlaceOrderState> {
   final GetDealersUseCase getDealersUseCase;
   final GetGodownsUseCase getGodownsUseCase;
   final GetCategoriesUseCase getCategoriesUseCase;
@@ -29,69 +32,49 @@ class PlaceOrderBloc
     // INITIAL LOAD
     // ==========================================================
 
-    on<LoadPlaceOrderEvent>(
-      _loadPlaceOrder,
-    );
+    on<LoadPlaceOrderEvent>(_loadPlaceOrder);
 
     // ==========================================================
     // DEALER SEARCH
     // ==========================================================
 
-    on<SearchDealerEvent>(
-      _searchDealer,
-    );
+    on<SearchDealerEvent>(_searchDealer);
 
     // ==========================================================
     // CATEGORY PRODUCTS
     // ==========================================================
 
-    on<GetProductsEvent>(
-      _getProducts,
-    );
+    on<GetProductsEvent>(_getProducts);
 
     // ==========================================================
     // PRODUCT LEVEL QUANTITY
     // ==========================================================
 
-    on<AddProductEvent>(
-      _addProduct,
-    );
+    on<AddProductEvent>(_addProduct);
 
-    on<ChangeProductQuantityEvent>(
-      _changeQuantity,
-    );
+    on<ChangeProductQuantityEvent>(_changeQuantity);
 
     // ==========================================================
     // PACKING / RATE LEVEL QUANTITY
     // ==========================================================
 
-    on<IncreasePackingQuantityEvent>(
-      _increasePackingQuantity,
-    );
+    on<IncreasePackingQuantityEvent>(_increasePackingQuantity);
 
-    on<DecreasePackingQuantityEvent>(
-      _decreasePackingQuantity,
-    );
+    on<DecreasePackingQuantityEvent>(_decreasePackingQuantity);
 
-    on<SetPackingQuantityEvent>(
-      _setPackingQuantity,
-    );
+    on<SetPackingQuantityEvent>(_setPackingQuantity);
 
     // ==========================================================
     // REMOVE PRODUCT
     // ==========================================================
 
-    on<RemoveProductEvent>(
-      _removeProduct,
-    );
+    on<RemoveProductEvent>(_removeProduct);
 
     // ==========================================================
     // SUBMIT ORDER
     // ==========================================================
 
-    on<SubmitPlaceOrderEvent>(
-      _submitOrder,
-    );
+    on<SubmitPlaceOrderEvent>(_submitOrder);
   }
 
   // ==========================================================
@@ -102,22 +85,12 @@ class PlaceOrderBloc
     LoadPlaceOrderEvent event,
     Emitter<PlaceOrderState> emit,
   ) async {
-    emit(
-      state.copyWith(
-        status: PlaceOrderStatus.loading,
-        errorMessage: null,
-      ),
-    );
+    emit(state.copyWith(status: PlaceOrderStatus.loading, errorMessage: null));
 
     try {
       final results = await Future.wait([
-        getDealersUseCase(
-          userId: event.userId,
-          searchText: '',
-        ),
-        getGodownsUseCase(
-          userId: event.userId,
-        ),
+        getDealersUseCase(userId: event.userId, searchText: ''),
+        getGodownsUseCase(userId: event.userId),
         getCategoriesUseCase(),
       ]);
 
@@ -175,133 +148,114 @@ class PlaceOrderBloc
   // GET CATEGORY PRODUCTS
   // ==========================================================
 
+  Future<void> _getProducts(
+    GetProductsEvent event,
+    Emitter<PlaceOrderState> emit,
+  ) async {
+    emit(state.copyWith(status: PlaceOrderStatus.loading, errorMessage: ''));
 
-Future<void> _getProducts(
-  GetProductsEvent event,
-  Emitter<PlaceOrderState> emit,
-) async {
-  emit(
-    state.copyWith(
-      status: PlaceOrderStatus.loading,
-      errorMessage: '',
-    ),
-  );
+    try {
+      final products = await getProductsUseCase(
+        categoryId: event.categoryId,
+        searchText: '',
+      );
 
-  try {
-    final products = await getProductsUseCase(
-      categoryId: event.categoryId,
-      searchText: '',
-    );
+      // ========================================================
+      // COPY EXISTING CATEGORY PRODUCTS
+      // ========================================================
 
-    // ========================================================
-    // COPY EXISTING CATEGORY PRODUCTS
-    // ========================================================
+      final Map<String, List<ProductEntity>> updatedProductsByCategory =
+          <String, List<ProductEntity>>{};
 
-    final Map<String, List<ProductEntity>> updatedProductsByCategory =
-        <String, List<ProductEntity>>{};
+      for (final entry in state.productsByCategory.entries) {
+        updatedProductsByCategory[entry.key] = List<ProductEntity>.from(
+          entry.value,
+        );
+      }
 
-    for (final entry in state.productsByCategory.entries) {
-      updatedProductsByCategory[entry.key] =
-          List<ProductEntity>.from(entry.value);
+      // ========================================================
+      // STORE PRODUCTS FOR THIS CATEGORY
+      // ========================================================
+
+      updatedProductsByCategory[event.categoryId] = List<ProductEntity>.from(
+        products,
+      );
+
+      // ========================================================
+      // MERGE PRODUCTS FROM ALL SELECTED CATEGORIES
+      // ========================================================
+
+      final List<ProductEntity> allProducts = <ProductEntity>[];
+
+      for (final categoryProducts in updatedProductsByCategory.values) {
+        allProducts.addAll(categoryProducts);
+      }
+
+      // ========================================================
+      // REMOVE DUPLICATE PRODUCTS
+      // ========================================================
+
+      final Map<String, ProductEntity> uniqueProducts =
+          <String, ProductEntity>{};
+
+      for (final product in allProducts) {
+        final String productId = product.id.toString();
+
+        uniqueProducts[productId] = product;
+      }
+
+      final List<ProductEntity> mergedProducts = uniqueProducts.values.toList();
+
+      // ========================================================
+      // DEBUG
+      // ========================================================
+
+      print('========================================');
+      print('MULTIPLE CATEGORY PRODUCTS');
+      print('Category ID : ${event.categoryId}');
+      print('New Products: ${products.length}');
+      print(
+        'Total Categories Loaded: '
+        '${updatedProductsByCategory.length}',
+      );
+      print(
+        'Total Products: '
+        '${mergedProducts.length}',
+      );
+      print('========================================');
+
+      emit(
+        state.copyWith(
+          status: PlaceOrderStatus.loaded,
+          products: mergedProducts,
+          productsByCategory: updatedProductsByCategory,
+          errorMessage: '',
+        ),
+      );
+    } catch (e) {
+      emit(
+        state.copyWith(
+          status: PlaceOrderStatus.failure,
+          errorMessage: e.toString(),
+        ),
+      );
     }
-
-    // ========================================================
-    // STORE PRODUCTS FOR THIS CATEGORY
-    // ========================================================
-
-    updatedProductsByCategory[event.categoryId] =
-        List<ProductEntity>.from(products);
-
-    // ========================================================
-    // MERGE PRODUCTS FROM ALL SELECTED CATEGORIES
-    // ========================================================
-
-    final List<ProductEntity> allProducts = <ProductEntity>[];
-
-    for (final categoryProducts
-        in updatedProductsByCategory.values) {
-      allProducts.addAll(categoryProducts);
-    }
-
-    // ========================================================
-    // REMOVE DUPLICATE PRODUCTS
-    // ========================================================
-
-    final Map<String, ProductEntity> uniqueProducts =
-        <String, ProductEntity>{};
-
-    for (final product in allProducts) {
-      final String productId = product.id.toString();
-
-      uniqueProducts[productId] = product;
-    }
-
-    final List<ProductEntity> mergedProducts =
-        uniqueProducts.values.toList();
-
-    // ========================================================
-    // DEBUG
-    // ========================================================
-
-    print('========================================');
-    print('MULTIPLE CATEGORY PRODUCTS');
-    print('Category ID : ${event.categoryId}');
-    print('New Products: ${products.length}');
-    print(
-      'Total Categories Loaded: '
-      '${updatedProductsByCategory.length}',
-    );
-    print(
-      'Total Products: '
-      '${mergedProducts.length}',
-    );
-    print('========================================');
-
-    emit(
-      state.copyWith(
-        status: PlaceOrderStatus.loaded,
-        products: mergedProducts,
-        productsByCategory: updatedProductsByCategory,
-        errorMessage: '',
-      ),
-    );
-  } catch (e) {
-    emit(
-      state.copyWith(
-        status: PlaceOrderStatus.failure,
-        errorMessage: e.toString(),
-      ),
-    );
   }
-}
 
   // ==========================================================
   // ADD PRODUCT
   // ==========================================================
 
-  void _addProduct(
-    AddProductEvent event,
-    Emitter<PlaceOrderState> emit,
-  ) {
-    final Map<String, int> quantities =
-        Map<String, int>.from(
-      state.quantities,
-    );
+  void _addProduct(AddProductEvent event, Emitter<PlaceOrderState> emit) {
+    final Map<String, int> quantities = Map<String, int>.from(state.quantities);
 
-    final String productId =
-        event.product.id.toString();
+    final String productId = event.product.id.toString();
 
-    final int currentQuantity =
-        quantities[productId] ?? 0;
+    final int currentQuantity = quantities[productId] ?? 0;
 
-    quantities[productId] =
-        currentQuantity + 1;
+    quantities[productId] = currentQuantity + 1;
 
-    emit(
-      state.copyWith(
-        quantities: quantities,
-      ),
-    );
+    emit(state.copyWith(quantities: quantities));
   }
 
   // ==========================================================
@@ -312,25 +266,15 @@ Future<void> _getProducts(
     ChangeProductQuantityEvent event,
     Emitter<PlaceOrderState> emit,
   ) {
-    final Map<String, int> quantities =
-        Map<String, int>.from(
-      state.quantities,
-    );
+    final Map<String, int> quantities = Map<String, int>.from(state.quantities);
 
     if (event.quantity <= 0) {
-      quantities.remove(
-        event.productId,
-      );
+      quantities.remove(event.productId);
     } else {
-      quantities[event.productId] =
-          event.quantity;
+      quantities[event.productId] = event.quantity;
     }
 
-    emit(
-      state.copyWith(
-        quantities: quantities,
-      ),
-    );
+    emit(state.copyWith(quantities: quantities));
   }
 
   // ==========================================================
@@ -341,53 +285,33 @@ Future<void> _getProducts(
     IncreasePackingQuantityEvent event,
     Emitter<PlaceOrderState> emit,
   ) {
-    final Map<String, Map<String, int>>
-        updatedPackingQuantities = {};
+    final Map<String, Map<String, int>> updatedPackingQuantities = {};
 
-    for (final entry
-        in state.packingQuantities.entries) {
-      updatedPackingQuantities[entry.key] =
-          Map<String, int>.from(
-        entry.value,
-      );
+    for (final entry in state.packingQuantities.entries) {
+      updatedPackingQuantities[entry.key] = Map<String, int>.from(entry.value);
     }
 
-    final String productId =
-        event.productId.toString();
+    final String productId = event.productId.toString();
 
-    final String productDetailsId =
-        event.productDetailsId.toString();
+    final String productDetailsId = event.productDetailsId.toString();
 
-    final Map<String, int> productQuantities =
-        updatedPackingQuantities.putIfAbsent(
-      productId,
-      () => <String, int>{},
-    );
+    final Map<String, int> productQuantities = updatedPackingQuantities
+        .putIfAbsent(productId, () => <String, int>{});
 
-    final int currentQuantity =
-        productQuantities[productDetailsId] ?? 1;
+    final int currentQuantity = productQuantities[productDetailsId] ?? 1;
 
-    final int newQuantity =
-        currentQuantity + 1;
+    final int newQuantity = currentQuantity + 1;
 
-    productQuantities[productDetailsId] =
-        newQuantity;
+    productQuantities[productDetailsId] = newQuantity;
 
     print('========================================');
     print('PACKING QUANTITY INCREASED');
     print('Product ID : $productId');
     print('Details ID : $productDetailsId');
-    print(
-      'Quantity   : $currentQuantity -> $newQuantity',
-    );
+    print('Quantity   : $currentQuantity -> $newQuantity');
     print('========================================');
 
-    emit(
-      state.copyWith(
-        packingQuantities:
-            updatedPackingQuantities,
-      ),
-    );
+    emit(state.copyWith(packingQuantities: updatedPackingQuantities));
   }
 
   // ==========================================================
@@ -398,22 +322,15 @@ Future<void> _getProducts(
     DecreasePackingQuantityEvent event,
     Emitter<PlaceOrderState> emit,
   ) {
-    final Map<String, Map<String, int>>
-        updatedPackingQuantities = {};
+    final Map<String, Map<String, int>> updatedPackingQuantities = {};
 
-    for (final entry
-        in state.packingQuantities.entries) {
-      updatedPackingQuantities[entry.key] =
-          Map<String, int>.from(
-        entry.value,
-      );
+    for (final entry in state.packingQuantities.entries) {
+      updatedPackingQuantities[entry.key] = Map<String, int>.from(entry.value);
     }
 
-    final String productId =
-        event.productId.toString();
+    final String productId = event.productId.toString();
 
-    final String productDetailsId =
-        event.productDetailsId.toString();
+    final String productDetailsId = event.productDetailsId.toString();
 
     final Map<String, int>? productQuantities =
         updatedPackingQuantities[productId];
@@ -422,32 +339,20 @@ Future<void> _getProducts(
       return;
     }
 
-    final int currentQuantity =
-        productQuantities[productDetailsId] ?? 1;
+    final int currentQuantity = productQuantities[productDetailsId] ?? 1;
 
-    final int newQuantity =
-        currentQuantity > 1
-            ? currentQuantity - 1
-            : 1;
+    final int newQuantity = currentQuantity > 1 ? currentQuantity - 1 : 1;
 
-    productQuantities[productDetailsId] =
-        newQuantity;
+    productQuantities[productDetailsId] = newQuantity;
 
     print('========================================');
     print('PACKING QUANTITY DECREASED');
     print('Product ID : $productId');
     print('Details ID : $productDetailsId');
-    print(
-      'Quantity   : $currentQuantity -> $newQuantity',
-    );
+    print('Quantity   : $currentQuantity -> $newQuantity');
     print('========================================');
 
-    emit(
-      state.copyWith(
-        packingQuantities:
-            updatedPackingQuantities,
-      ),
-    );
+    emit(state.copyWith(packingQuantities: updatedPackingQuantities));
   }
 
   // ==========================================================
@@ -458,36 +363,22 @@ Future<void> _getProducts(
     SetPackingQuantityEvent event,
     Emitter<PlaceOrderState> emit,
   ) {
-    final Map<String, Map<String, int>>
-        updatedPackingQuantities = {};
+    final Map<String, Map<String, int>> updatedPackingQuantities = {};
 
-    for (final entry
-        in state.packingQuantities.entries) {
-      updatedPackingQuantities[entry.key] =
-          Map<String, int>.from(
-        entry.value,
-      );
+    for (final entry in state.packingQuantities.entries) {
+      updatedPackingQuantities[entry.key] = Map<String, int>.from(entry.value);
     }
 
-    final String productId =
-        event.productId.toString();
+    final String productId = event.productId.toString();
 
-    final String productDetailsId =
-        event.productDetailsId.toString();
+    final String productDetailsId = event.productDetailsId.toString();
 
-    final Map<String, int> productQuantities =
-        updatedPackingQuantities.putIfAbsent(
-      productId,
-      () => <String, int>{},
-    );
+    final Map<String, int> productQuantities = updatedPackingQuantities
+        .putIfAbsent(productId, () => <String, int>{});
 
-    final int quantity =
-        event.quantity < 1
-            ? 1
-            : event.quantity;
+    final int quantity = event.quantity < 1 ? 1 : event.quantity;
 
-    productQuantities[productDetailsId] =
-        quantity;
+    productQuantities[productDetailsId] = quantity;
 
     print('========================================');
     print('PACKING QUANTITY SET');
@@ -496,40 +387,23 @@ Future<void> _getProducts(
     print('Quantity   : $quantity');
     print('========================================');
 
-    emit(
-      state.copyWith(
-        packingQuantities:
-            updatedPackingQuantities,
-      ),
-    );
+    emit(state.copyWith(packingQuantities: updatedPackingQuantities));
   }
 
   // ==========================================================
   // REMOVE PRODUCT
   // ==========================================================
 
-  void _removeProduct(
-    RemoveProductEvent event,
-    Emitter<PlaceOrderState> emit,
-  ) {
-    final Map<String, int> quantities =
-        Map<String, int>.from(
-      state.quantities,
-    );
+  void _removeProduct(RemoveProductEvent event, Emitter<PlaceOrderState> emit) {
+    final Map<String, int> quantities = Map<String, int>.from(state.quantities);
 
-    final Map<String, Map<String, int>>
-        packingQuantities = {};
+    final Map<String, Map<String, int>> packingQuantities = {};
 
-    for (final entry
-        in state.packingQuantities.entries) {
-      packingQuantities[entry.key] =
-          Map<String, int>.from(
-        entry.value,
-      );
+    for (final entry in state.packingQuantities.entries) {
+      packingQuantities[entry.key] = Map<String, int>.from(entry.value);
     }
 
-    final String productId =
-        event.productId.toString();
+    final String productId = event.productId.toString();
 
     quantities.remove(productId);
 
@@ -543,8 +417,7 @@ Future<void> _getProducts(
     emit(
       state.copyWith(
         quantities: quantities,
-        packingQuantities:
-            packingQuantities,
+        packingQuantities: packingQuantities,
       ),
     );
   }
@@ -591,47 +464,131 @@ Future<void> _getProducts(
   //   }
   // }
 
+  // ==========================================================
+  // SUBMIT ORDER
+  // ==========================================================
 
-// ==========================================================
-// SUBMIT ORDER
-// ==========================================================
-
-Future<void> _submitOrder(
-  SubmitPlaceOrderEvent event,
-  Emitter<PlaceOrderState> emit,
-) async {
-  emit(
-    state.copyWith(
-      status: PlaceOrderStatus.submitting,
-      errorMessage: null,
-    ),
-  );
-
-  try {
-    await submitOrderUseCase(
-      userId: event.userId,
-      dealer: event.dealer,
-      godown: event.godown,
-      products: event.products,
-      remark: event.remark,
-      imagePaths: event.imagePaths,
-      signaturePath: event.signaturePath,
-    );
-
+  Future<void> _submitOrder(
+    SubmitPlaceOrderEvent event,
+    Emitter<PlaceOrderState> emit,
+  ) async {
     emit(
-      state.copyWith(
-        status: PlaceOrderStatus.success,
-        errorMessage: null,
-      ),
+      state.copyWith(status: PlaceOrderStatus.submitting, errorMessage: null),
     );
-  } catch (e) {
-    emit(
-      state.copyWith(
-        status: PlaceOrderStatus.failure,
-        errorMessage: e.toString(),
-      ),
-    );
+
+    try {
+      await submitOrderUseCase(
+        userId: event.userId,
+        dealer: event.dealer,
+        godown: event.godown,
+        products: event.products,
+        remark: event.remark,
+        imagePaths: event.imagePaths,
+        signaturePath: event.signaturePath,
+      );
+
+      emit(
+        state.copyWith(status: PlaceOrderStatus.success, errorMessage: null),
+      );
+    } catch (e) {
+      emit(
+        state.copyWith(
+          status: PlaceOrderStatus.failure,
+          errorMessage: e.toString(),
+        ),
+      );
+    }
   }
-}
 
+  // FutureOr<void> _onGetCollectionType(
+  //   GetCollectionTypeEvent event,
+  //   Emitter<PlaceOrderState> emit,
+  // ) async {
+  //   debugPrint('');
+  //   debugPrint('========================================');
+  //   debugPrint('GET COLLECTION TYPE EVENT');
+  //   debugPrint('========================================');
+
+  //   emit(state.copyWith(status: PlaceOrderStatus.loading, errorMessage: null));
+
+  //   try {
+  //     // ============================================================
+  //     // CALL REPOSITORY
+  //     // ============================================================
+
+  //     final CollectionTypeResponseEntity response = await submitOrderUseCase
+  //         .getCollectionType();
+
+  //     debugPrint('');
+  //     debugPrint('========================================');
+  //     debugPrint('GET COLLECTION TYPE RESPONSE');
+  //     debugPrint('========================================');
+
+  //     debugPrint('STATUS  : ${response.status}');
+
+  //     debugPrint('MESSAGE : ${response.message}');
+
+  //     debugPrint('COUNT   : ${response.result.length}');
+
+  //     for (final item in response.result) {
+  //       debugPrint(
+  //         'ID: ${item.collectionTypeId} '
+  //         '| TYPE: ${item.collectionType}',
+  //       );
+  //     }
+
+  //     debugPrint('========================================');
+
+  //     // ============================================================
+  //     // SUCCESS
+  //     // ============================================================
+
+  //     if (response.status) {
+  //       emit(
+  //         state.copyWith(
+  //           status: PlaceOrderStatus.success,
+
+  //           collectionTypes: response.result,
+
+  //           errorMessage: null,
+  //         ),
+  //       );
+
+  //       return;
+  //     }
+
+  //     // ============================================================
+  //     // API FAILURE
+  //     // ============================================================
+
+  //     emit(
+  //       state.copyWith(
+  //         status: PlaceOrderStatus.failure,
+
+  //         errorMessage: response.message.isNotEmpty
+  //             ? response.message
+  //             : 'Failed to load collection types',
+  //       ),
+  //     );
+  //   } catch (e, stackTrace) {
+  //     debugPrint('');
+  //     debugPrint('========================================');
+  //     debugPrint('GET COLLECTION TYPE ERROR');
+  //     debugPrint('========================================');
+
+  //     debugPrint('ERROR: $e');
+
+  //     debugPrint('STACK TRACE: $stackTrace');
+
+  //     debugPrint('========================================');
+
+  //     emit(
+  //       state.copyWith(
+  //         status: PlaceOrderStatus.failure,
+
+  //         errorMessage: e.toString(),
+  //       ),
+  //     );
+  //   }
+  // }
 }

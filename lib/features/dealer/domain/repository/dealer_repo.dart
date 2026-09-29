@@ -20,6 +20,6 @@ abstract class DealerListRepository {
  Future<Map<String, dynamic>> addDealerStock(
   Map<String, dynamic> jsonData,
   File? dealerImage,
-  File? digitalSignature,
+  String? digitalSignature,
 );
 }

@@ -330,7 +330,6 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
     this.userName,
     this.initials,
 
-    // Login / Logout
     this.showLogin = false,
     this.showLogout = false,
     this.onLoginTap,
