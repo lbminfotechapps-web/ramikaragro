@@ -87,7 +87,10 @@ class ApiClient {
   static const String getSalesTargetDates = '/getSalesTargetDates';
 
   static const String getDealerName = '/getTalukaWiseOutletForOrderNew';
-  static const String getSalesWiseTarget = '/getSalesWiseTarget';
+
+ // static const String getSalesWiseTarget = '/getSalesWiseTarget';
+  static const String getSalesWiseGroupTarget = '/getSalesWiseGroupTarget';
+
   static const String getExpenseParameters = '/getExpenseParameters';
 
   static const String getDAAmount = '/getDAAmount';
@@ -113,4 +116,7 @@ class ApiClient {
 
   static const String get_collection_type = '/get_collection_type';
   static const String addMonthlyCollection = '/add_monthly_collection';
+  static const String getProductGroup ='/get_product_group';
+  static const String add_group_sales_target = '/add_group_sales_target';
+  static const String getCollectionType = '/get_collection_type';
 }

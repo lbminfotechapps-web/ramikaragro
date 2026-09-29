@@ -13,7 +13,7 @@ import 'package:solufine/core/router/app_router.dart';
 import 'package:solufine/core/secure_storage/secure_storage.dart';
 
 import 'package:solufine/core/theme/app_colors.dart';
-import 'package:solufine/core/utility/appdialog.dart';
+
 import 'package:solufine/core/utility/location_util.dart';
 import 'package:solufine/core/utility/widgets/custom_appbar.dart';
 import 'package:solufine/core/utility/widgets/custom_button.dart';
@@ -169,9 +169,278 @@ class _DealerProductPreviewPageState extends State<DealerProductPreviewPage> {
     }
   }
 
-  // ===========================================================================
-  // REMOVE IMAGE
-  // ===========================================================================
+  Future<void> _showSubmitConfirmation() async {
+    if (isLoading) {
+      return;
+    }
+
+    // ============================================================
+    // VALIDATE BEFORE OPENING CONFIRM DIALOG
+    // ============================================================
+
+    final String dealerId = widget.dealer.id.toString().trim();
+
+    if (dealerId.isEmpty) {
+      _showMessage('Dealer ID not found');
+      return;
+    }
+
+    if (userId.trim().isEmpty) {
+      _showMessage('User ID not found');
+      return;
+    }
+
+    if (widget.products.isEmpty) {
+      _showMessage('No selected products found');
+      return;
+    }
+
+    if (dealerImagePath == null || dealerImagePath!.trim().isEmpty) {
+      _showMessage('Please capture dealer image');
+      return;
+    }
+
+    if (signatureController.isEmpty) {
+      _showMessage('Please add dealer signature');
+      return;
+    }
+
+    bool hasQuantity = false;
+
+    for (final product in widget.products) {
+      final int quantity =
+          widget.productQuantities[product.productDetailsId] ?? 0;
+
+      if (quantity > 0) {
+        hasQuantity = true;
+        break;
+      }
+    }
+
+    if (!hasQuantity) {
+      _showMessage('No valid product quantity found');
+      return;
+    }
+
+    // ============================================================
+    // SHOW CONFIRM DIALOG
+    // ============================================================
+
+    final bool? confirmed = await showDialog<bool>(
+      context: context,
+      barrierDismissible: false,
+
+      builder: (dialogContext) {
+        return Dialog(
+          backgroundColor: Colors.transparent,
+
+          insetPadding: EdgeInsets.symmetric(horizontal: 22.w),
+
+          child: Container(
+            padding: EdgeInsets.all(18.w),
+
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(18.r),
+            ),
+
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+
+              children: [
+                Container(
+                  width: 62.w,
+                  height: 62.w,
+                  decoration: const BoxDecoration(
+                    color: AppColors.lightGreen,
+                    shape: BoxShape.circle,
+                  ),
+                  child: Icon(
+                    Icons.shopping_cart_checkout_rounded,
+                    size: 30.sp,
+                    color: AppColors.primary,
+                  ),
+                ),
+
+                SizedBox(height: 14.h),
+
+                Text(
+                  'Confirm Submission',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontSize: 17.sp,
+                    fontWeight: FontWeight.w800,
+                    color: AppColors.textPrimary,
+                  ),
+                ),
+
+                SizedBox(height: 6.h),
+
+                Text(
+                  'Are you sure you want to place this order?',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontSize: 12.sp,
+                    height: 1.4,
+                    color: AppColors.textSecondary,
+                  ),
+                ),
+
+                SizedBox(height: 15.h),
+
+                // ==================================================
+                // ORDER SUMMARY
+                // ==================================================
+                Container(
+                  width: double.infinity,
+
+                  padding: EdgeInsets.all(11.w),
+
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFF6F8F6),
+
+                    borderRadius: BorderRadius.circular(11.r),
+
+                    border: Border.all(color: const Color(0xFFE4E9E5)),
+                  ),
+
+                  child: Column(
+                    children: [
+                      _buildConfirmRow(
+                        icon: Icons.store_rounded,
+                        label: 'Dealer',
+                        value: widget.dealer.name,
+                      ),
+
+                      SizedBox(height: 8.h),
+
+                      _buildConfirmRow(
+                        icon: Icons.inventory_2_rounded,
+                        label: 'Products',
+                        value: '${widget.products.length}',
+                      ),
+
+                      SizedBox(height: 8.h),
+
+                      _buildConfirmRow(
+                        icon: Icons.numbers_rounded,
+                        label: 'Total Qty',
+                        value: '$totalQuantity',
+                      ),
+
+                      SizedBox(height: 8.h),
+
+                      _buildConfirmRow(
+                        icon: Icons.photo_camera_rounded,
+                        label: 'Photo',
+                        value: 'Added',
+                      ),
+
+                      SizedBox(height: 8.h),
+
+                      _buildConfirmRow(
+                        icon: Icons.draw_rounded,
+                        label: 'Signature',
+                        value: 'Added',
+                      ),
+                    ],
+                  ),
+                ),
+
+                SizedBox(height: 18.h),
+
+                Row(
+                  children: [
+                    // CANCEL
+                    Expanded(
+                      child: SizedBox(
+                        height: 43.h,
+
+                        child: OutlinedButton(
+                          onPressed: () {
+                            Navigator.pop(dialogContext, false);
+                          },
+
+                          style: OutlinedButton.styleFrom(
+                            foregroundColor: AppColors.textSecondary,
+
+                            side: const BorderSide(color: Color(0xFFD6DDD8)),
+
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(11.r),
+                            ),
+                          ),
+
+                          child: Text(
+                            'Cancel',
+                            style: TextStyle(
+                              fontSize: 12.sp,
+                              fontWeight: FontWeight.w700,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+
+                    SizedBox(width: 9.w),
+
+                    // PLACE ORDER
+                    Expanded(
+                      child: SizedBox(
+                        height: 43.h,
+
+                        child: ElevatedButton(
+                          onPressed: () {
+                            Navigator.pop(dialogContext, true);
+                          },
+
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: AppColors.primary,
+
+                            foregroundColor: Colors.white,
+
+                            elevation: 0,
+
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(11.r),
+                            ),
+                          ),
+
+                          child: Text(
+                            'Place Order',
+                            style: TextStyle(
+                              fontSize: 12.sp,
+                              fontWeight: FontWeight.w800,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+
+    // ============================================================
+    // CANCEL
+    // ============================================================
+
+    if (confirmed != true) {
+      debugPrint('USER CANCELLED ORDER SUBMISSION');
+
+      return;
+    }
+
+    // ============================================================
+    // PLACE ORDER CLICKED
+    // ============================================================
+
+    await _submitStock();
+  }
 
   void _removeImage() {
     setState(() {
@@ -920,7 +1189,7 @@ class _DealerProductPreviewPageState extends State<DealerProductPreviewPage> {
           child: CustomButton(
             text: 'Submit Stock',
 
-            onPressed: isLoading ? () {} : _submitStock,
+            onPressed: isLoading ? () {} : _showSubmitConfirmation,
 
             isLoading: isLoading,
 
@@ -965,6 +1234,53 @@ class _DealerProductPreviewPageState extends State<DealerProductPreviewPage> {
             overflow: TextOverflow.ellipsis,
             style: TextStyle(
               fontSize: 10.sp,
+              fontWeight: FontWeight.w800,
+              color: AppColors.textPrimary,
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildConfirmRow({
+    required IconData icon,
+    required String label,
+    required String value,
+  }) {
+    return Row(
+      children: [
+        Container(
+          width: 28.w,
+          height: 28.w,
+          decoration: BoxDecoration(
+            color: AppColors.lightGreen,
+            borderRadius: BorderRadius.circular(7.r),
+          ),
+          child: Icon(icon, size: 14.sp, color: AppColors.primary),
+        ),
+
+        SizedBox(width: 8.w),
+
+        Expanded(
+          child: Text(
+            label,
+            style: TextStyle(
+              fontSize: 10.5.sp,
+              fontWeight: FontWeight.w600,
+              color: AppColors.textSecondary,
+            ),
+          ),
+        ),
+
+        Flexible(
+          child: Text(
+            value,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            textAlign: TextAlign.right,
+            style: TextStyle(
+              fontSize: 11.sp,
               fontWeight: FontWeight.w800,
               color: AppColors.textPrimary,
             ),

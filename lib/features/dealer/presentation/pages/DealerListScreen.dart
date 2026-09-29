@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'package:intl/intl.dart';
 
 import 'package:solufine/core/api_constant/api_client.dart';
 import 'package:solufine/core/di/auth_di.dart';
@@ -353,28 +354,25 @@ class _DealerListScreenState extends State<DealerListScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF8FAF8),
+      backgroundColor: AppColors.background,
 
       appBar: CustomAppBar(
-        leading: Container(
-          width: 45,
-          height: 45,
-          decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            border: Border.all(color: AppColors.borderColor),
-          ),
-          child: IconButton(
-            padding: EdgeInsets.zero,
-            icon: const Icon(
-              Icons.person_2_outlined,
-              color: AppColors.textColor,
-            ),
-            onPressed: () {
-              Scaffold.of(context).openDrawer();
-            },
-          ),
-        ),
-        title: 'Dealer List',
+        // leading: Container(
+        //   width: 45,
+        //   height: 45,
+        //   decoration: BoxDecoration(
+        //     shape: BoxShape.circle,
+        //     border: Border.all(color: const Color(0xFF527467)),
+        //   ),
+        //   child: IconButton(
+        //     padding: EdgeInsets.zero,
+        //     icon: const Icon(Icons.person_2_outlined, color: Colors.white),
+        //     onPressed: () {
+        //       Scaffold.of(context).openDrawer();
+        //     },
+        //   ),
+        // ),
+        title: 'Dealers',
 
         showBackButton: false,
         onLogOutTap: () {
@@ -460,23 +458,42 @@ class _DealerListScreenState extends State<DealerListScreen> {
             children: [
               _buildSearchBar(),
 
-              if (dealers.isNotEmpty)
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(16, 3, 16, 4),
-                  child: Row(
-                    children: [
-                      Text(
-                        '${dealers.length} Dealers',
-                        style: TextStyle(
-                          fontSize: 13,
-                          fontWeight: FontWeight.w600,
-                          color: Colors.grey.shade700,
+              Padding(
+                padding: const EdgeInsets.fromLTRB(20, 10, 20, 12),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: Text(
+                        _searchText.isEmpty ? 'Your dealers' : 'Search results',
+                        style: const TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.w700,
+                          letterSpacing: -0.4,
+                          color: Color(0xFF203C32),
                         ),
                       ),
-                    ],
-                  ),
+                    ),
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 10,
+                        vertical: 5,
+                      ),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFE1E9DF),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Text(
+                        '${dealers.length}',
+                        style: const TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w700,
+                          color: Color(0xFF3B5D4A),
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
-
+              ),
               Expanded(
                 child: dealers.isEmpty
                     ? _buildEmptyView()
@@ -486,7 +503,7 @@ class _DealerListScreenState extends State<DealerListScreen> {
                         },
                         child: ListView.builder(
                           physics: const AlwaysScrollableScrollPhysics(),
-                          padding: const EdgeInsets.fromLTRB(12, 6, 12, 20),
+                          padding: const EdgeInsets.fromLTRB(16, 0, 16, 104),
                           itemCount: dealers.length,
                           itemBuilder: (context, index) {
                             final dealer = dealers[index];
@@ -506,66 +523,64 @@ class _DealerListScreenState extends State<DealerListScreen> {
         },
       ),
 
-      floatingActionButton: FloatingActionButton(
-        backgroundColor: AppColors.accentGreen,
+      floatingActionButton: FloatingActionButton.extended(
+        backgroundColor: AppColors.primary,
         foregroundColor: Colors.white,
         elevation: 3,
         onPressed: () {
           context.push('/dealrFollowUpAdd');
         },
-        child: const Icon(Icons.person_add_alt_1),
+        tooltip: 'Add dealer follow-up',
+        icon: const Icon(Icons.add_rounded),
+        label: const Text('Follow-up'),
       ),
     );
   }
 
   Widget _buildSearchBar() {
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(12, 10, 12, 8),
-      child: Row(
-        children: [
-          Expanded(
-            child: Container(
-              height: 46,
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(24),
-                border: Border.all(color: Colors.grey.shade300),
-              ),
-              child: TextField(
-                controller: _searchController,
-                textInputAction: TextInputAction.search,
-                decoration: InputDecoration(
-                  hintText: 'Search by name, mobile...',
-                  hintStyle: TextStyle(
-                    color: Colors.grey.shade500,
-                    fontSize: 13,
-                  ),
-
-                  prefixIcon: Icon(
-                    Icons.search,
-                    size: 20,
-                    color: Colors.grey.shade700,
-                  ),
-
-                  suffixIcon: _searchController.text.isNotEmpty
-                      ? IconButton(
-                          icon: const Icon(Icons.clear, size: 19),
-                          onPressed: () {
-                            _searchController.clear();
-                          },
-                        )
-                      : null,
-
-                  border: InputBorder.none,
-
-                  contentPadding: const EdgeInsets.symmetric(vertical: 13),
-                ),
-              ),
-            ),
+    return Container(
+      padding: const EdgeInsets.fromLTRB(20, 4, 20, 0),
+      decoration: const BoxDecoration(
+        // color: Color(0xFF123D32),
+        borderRadius: BorderRadius.vertical(bottom: Radius.circular(28)),
+      ),
+      child: TextField(
+        controller: _searchController,
+        textInputAction: TextInputAction.search,
+        style: const TextStyle(fontSize: 14, color: AppColors.textDark),
+        decoration: InputDecoration(
+          hintText: 'Search name or mobile number',
+          hintStyle: const TextStyle(color: AppColors.textGrey, fontSize: 14),
+          filled: true,
+          fillColor: Colors.white,
+          prefixIcon: const Icon(
+            Icons.search_rounded,
+            color: AppColors.primaryLight,
           ),
-
-          const SizedBox(width: 8),
-        ],
+          suffixIcon: _searchController.text.isNotEmpty
+              ? IconButton(
+                  tooltip: 'Clear search',
+                  icon: const Icon(Icons.close_rounded, size: 20),
+                  onPressed: _searchController.clear,
+                )
+              : null,
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(16),
+            borderSide: const BorderSide(color: Color(0xFFE0E8E2)),
+          ),
+          enabledBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(16),
+            borderSide: const BorderSide(color: Color(0xFFE0E8E2)),
+          ),
+          focusedBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(16),
+            borderSide: const BorderSide(color: AppColors.primaryLight),
+          ),
+          contentPadding: const EdgeInsets.symmetric(
+            horizontal: 16,
+            vertical: 16,
+          ),
+        ),
       ),
     );
   }
@@ -584,7 +599,7 @@ class _DealerListScreenState extends State<DealerListScreen> {
           const SizedBox(height: 12),
 
           Text(
-            _searchText.isNotEmpty ? 'No dealers found' : 'NO DEALERS FOUND',
+            _searchText.isNotEmpty ? 'No dealers found' : 'No dealers yet',
             style: TextStyle(
               color: Colors.grey.shade600,
               fontSize: 15,
@@ -613,350 +628,285 @@ class _DealerListItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final double latitude = double.tryParse(dealer.latitude ?? '0') ?? 0;
-
-    final double longitude = double.tryParse(dealer.longitude ?? '0') ?? 0;
-
-    final bool locationNotAvailable = latitude == 0 && longitude == 0;
+    final name = dealer.outletName.trim();
+    final mobile = dealer.outletPersonMobile?.trim() ?? '';
+    final person = dealer.outletPerson.trim();
+    final latitude = double.tryParse(dealer.latitude ?? '0') ?? 0;
+    final longitude = double.tryParse(dealer.longitude ?? '0') ?? 0;
+    final locationNotAvailable = latitude == 0 && longitude == 0;
+    final outletDistance = double.tryParse(dealer.outletDistance ?? '');
+    final definedRadius = double.tryParse(dealer.definedRadius ?? '');
+    final showPin =
+        outletDistance != null &&
+        definedRadius != null &&
+        outletDistance < definedRadius;
+    final shape = RoundedRectangleBorder(
+      borderRadius: BorderRadius.circular(10),
+    );
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
+      padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
-        boxShadow: [
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: const Color(0xFFE9EDE9)),
+        boxShadow: const [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 8,
-            offset: const Offset(0, 3),
+            color: Color(0x06123D32),
+            blurRadius: 12,
+            offset: Offset(0, 3),
           ),
         ],
       ),
       child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Padding(
-            padding: const EdgeInsets.fromLTRB(12, 12, 8, 8),
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Container(
-                  height: 50,
-                  width: 50,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: const Color(0xFFE7F2E9),
-                    border: Border.all(color: Colors.grey.shade300),
-                  ),
-                  child: Center(
-                    child: Text(
-                      dealer.outletName.isEmpty
-                          ? '?'
-                          : dealer.outletName[0].toUpperCase(),
-                      style: const TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
-                        color: Color(0xFF087A2F),
-                      ),
+          Row(
+            children: [
+              Container(
+                width: 44,
+                height: 44,
+                padding: const EdgeInsets.all(5),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: const Color(0xFFEAF2EC), width: 3),
+                ),
+                child: Center(
+                  child: Text(
+                    name.isEmpty ? '?' : name.characters.first.toUpperCase(),
+                    style: const TextStyle(
+                      fontSize: 22,
+                      fontWeight: FontWeight.w700,
+                      color: AppColors.primary,
                     ),
                   ),
                 ),
-
-                const SizedBox(width: 10),
-
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        children: [
-                          Expanded(
-                            child: Text(
-                              dealer.outletName.isEmpty
-                                  ? 'Unknown Dealer'
-                                  : dealer.outletName,
-                              maxLines: 2,
-                              overflow: TextOverflow.ellipsis,
-                              style: const TextStyle(
-                                fontSize: 14,
-                                fontWeight: FontWeight.w600,
-                                color: Colors.black87,
-                              ),
-                            ),
-                          ),
-
-                          const SizedBox(width: 6),
-
-                          // ACTIVE
-                          Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 7,
-                              vertical: 3,
-                            ),
-                            decoration: BoxDecoration(
-                              color: const Color(0xFFE8F7EC),
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            child: Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Container(
-                                  height: 6,
-                                  width: 6,
-                                  decoration: const BoxDecoration(
-                                    color: Color(0xFF00B83D),
-                                    shape: BoxShape.circle,
-                                  ),
-                                ),
-
-                                const SizedBox(width: 4),
-
-                                const Text(
-                                  'Active',
-                                  style: TextStyle(
-                                    fontSize: 10,
-                                    fontWeight: FontWeight.w600,
-                                    color: Color(0xFF087A2F),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ],
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      name.isEmpty ? 'Unknown dealer' : name,
+                      style: const TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w700,
+                        color: Color(0xFF18231C),
                       ),
-
-                      const SizedBox(height: 3),
-
-                      // MOBILE
-                      if ((dealer.outletPersonMobile ?? '').isNotEmpty)
+                    ),
+                    // if (person.isNotEmpty) ...[
+                    //   const SizedBox(height: 3),
+                    //   Text(
+                    //     person,
+                    //     style: const TextStyle(
+                    //       fontSize: 11,
+                    //       color: AppColors.textSecondary,
+                    //     ),
+                    //   ),
+                    // ],
+                    const SizedBox(height: 4),
+                    const Row(
+                      children: [
+                        Icon(
+                          Icons.storefront_outlined,
+                          size: 13,
+                          color: AppColors.textSecondary,
+                        ),
+                        SizedBox(width: 4),
                         Text(
-                          dealer.outletPersonMobile!,
+                          'Dealer',
                           style: TextStyle(
                             fontSize: 11,
-                            color: Colors.grey.shade700,
+                            color: AppColors.textSecondary,
                           ),
                         ),
-
-                      const SizedBox(height: 2),
-
-                      // ADDRESS
-                      Text(
-                        dealer.outletAddress.isEmpty
-                            ? 'Address not available'
-                            : dealer.outletAddress,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: TextStyle(
-                          fontSize: 10,
-                          color: Colors.grey.shade600,
-                        ),
-                      ),
-                    ],
-                  ),
+                      ],
+                    ),
+                  ],
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
-
-          Container(
-            margin: const EdgeInsets.symmetric(horizontal: 8),
-            padding: const EdgeInsets.symmetric(vertical: 9, horizontal: 8),
-            decoration: BoxDecoration(
-              color: const Color(0xFFF4F8F4),
-              borderRadius: BorderRadius.circular(10),
-            ),
-            child: Row(
-              children: [
-                // LAST CALL
-                Expanded(
-                  child: _ActivityInfo(
-                    icon: Icons.phone,
-                    iconColor: const Color(0xFF087A2F),
-                    title: 'Last Call',
-                    value: _displayDate(dealer.lastDateTime),
-                    subtitle: '',
-                  ),
-                ),
-
-                Container(height: 38, width: 1, color: Colors.grey.shade300),
-
-                // LAST VISIT
-                Expanded(
-                  child: _ActivityInfo(
-                    icon: Icons.calendar_month,
-                    iconColor: const Color(0xFF087A2F),
-                    title: 'Last Visit',
-                    value: _displayDate(dealer.lastVisitDateTime),
-                    subtitle: '',
-                  ),
-                ),
-              ],
-            ),
+          const Padding(
+            padding: EdgeInsets.symmetric(vertical: 10),
+            child: Divider(height: 1, color: Color(0xFFF0F1EF)),
           ),
-
+          _DealerDetail(
+            icon: Icons.phone_outlined,
+            label: 'Mobile Number',
+            text: mobile.isEmpty ? 'Not available' : mobile,
+          ),
           const SizedBox(height: 8),
-
-          Padding(
-            padding: const EdgeInsets.fromLTRB(8, 0, 8, 9),
-            child: Row(
-              children: [
-                if ((double.tryParse(dealer.latitude ?? '0') ?? 0) == 0 &&
-                    (double.tryParse(dealer.longitude ?? '0') ?? 0) == 0)
-                  _CircleActionButton(
-                    icon: Icons.location_on,
-                    onTap: () {
-                      onLocationTap();
-                      // debugPrint('===================================');
-                      // debugPrint('DEALER LOCATION NOT AVAILABLE');
-                      // debugPrint('Dealer ID: ${dealer.outletId}');
-                      // debugPrint('Latitude: ${dealer.latitude}');
-                      // debugPrint('Longitude: ${dealer.longitude}');
-                      // debugPrint('===================================');
-
-                      // context.push('/dealerpin', extra: dealer.outletId);
-                    },
-                  )
-                // ============================================================
-                // LATITUDE & LONGITUDE ARE AVAILABLE
-                // ============================================================
-                else
-                  _CircleActionButton(
-                    icon: Icons.push_pin,
-                    onTap: () {
-                      debugPrint('===================================');
-                      debugPrint('DEALER LOCATION AVAILABLE');
-                      debugPrint('Dealer ID: ${dealer.outletId}');
-                      debugPrint('Latitude: ${dealer.latitude}');
-                      debugPrint('Longitude: ${dealer.longitude}');
-                      debugPrint('===================================');
-
-                      context.push('/dealerpin', extra: dealer.outletId);
-                    },
-                  ),
-
-                const SizedBox(width: 6),
-
-                // CALL NOW
+          _DealerDetail(
+            icon: Icons.location_on_outlined,
+            label: 'Address',
+            text: dealer.outletAddress.trim().isEmpty
+                ? 'Address not available'
+                : dealer.outletAddress.trim(),
+          ),
+          const SizedBox(height: 10),
+          LayoutBuilder(
+            builder: (context, constraints) {
+              final call = _ActivityInfo(
+                icon: Icons.phone_callback_outlined,
+                title: 'Last Call',
+                dateTime: dealer.lastDateTime,
+              );
+              final visit = _ActivityInfo(
+                icon: Icons.calendar_today_outlined,
+                title: 'Last Visit',
+                dateTime: dealer.lastVisitDateTime,
+              );
+              if (constraints.maxWidth < 240 ||
+                  MediaQuery.textScalerOf(context).scale(11) > 18) {
+                return Column(
+                  children: [call, const SizedBox(height: 6), visit],
+                );
+              }
+              return Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Expanded(child: call),
+                  const SizedBox(width: 8),
+                  Expanded(child: visit),
+                ],
+              );
+            },
+          ),
+          const SizedBox(height: 8),
+          Row(
+            children: [
+              if (locationNotAvailable || showPin)
                 Expanded(
-                  child: SizedBox(
-                    height: 38,
-                    child: ElevatedButton.icon(
-                      onPressed: () {
-                        final mobile = dealer.outletPersonMobile;
-                        print("Mobile No :--- > ${mobile}");
-                        if (mobile != null && mobile.isNotEmpty) {
-                          callFarmer(mobile);
-                          DealerCallEvent(dealer.outletId, mobile);
-                        } else {
-                          debugPrint('Phone number is missing');
-                        }
-                      },
-                      icon: const Icon(Icons.phone, size: 17),
-                      label: const Text(
-                        'Call Now',
-                        style: TextStyle(
-                          fontSize: 12,
-                          fontWeight: FontWeight.w600,
-                        ),
+                  child: OutlinedButton.icon(
+                    onPressed: locationNotAvailable
+                        ? onLocationTap
+                        : () {
+                            context.push('/dealerpin', extra: dealer.outletId);
+                          },
+                    icon: Icon(
+                      locationNotAvailable
+                          ? Icons.add_location_alt_outlined
+                          : Icons.push_pin_outlined,
+                      size: 15,
+                    ),
+                    label: Text(locationNotAvailable ? 'Location' : 'Pin'),
+                    style: OutlinedButton.styleFrom(
+                      foregroundColor: AppColors.primary,
+                      side: const BorderSide(color: AppColors.primary),
+                      minimumSize: const Size(0, 36),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 8,
+                        vertical: 8,
                       ),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFF087A2F),
-                        foregroundColor: Colors.white,
-                        elevation: 0,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(22),
-                        ),
+                      textStyle: const TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w600,
                       ),
+                      shape: shape,
                     ),
                   ),
                 ),
-
-                const SizedBox(width: 6),
-
-                _CircleActionButton(
-                  icon: Icons.edit_outlined,
-                  onTap: () {
-                    context.push('/dealerUpdate', extra: dealer);
-                    //  _showDealerDetails(context, dealer);
-                  },
+              if (locationNotAvailable || showPin) const SizedBox(width: 6),
+              Expanded(
+                child: FilledButton.icon(
+                  onPressed: mobile.isEmpty
+                      ? null
+                      : () {
+                          if (mobile.isNotEmpty) {
+                            callFarmer(mobile);
+                            DealerCallEvent(dealer.outletId, mobile);
+                          } else {
+                            debugPrint('Phone number is missing');
+                          }
+                        },
+                  icon: const Icon(Icons.call_outlined, size: 15),
+                  label: const Text('Call'),
+                  style: FilledButton.styleFrom(
+                    backgroundColor: const Color(0xFF123D32),
+                    foregroundColor: Colors.white,
+                    minimumSize: const Size(0, 36),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 8,
+                      vertical: 8,
+                    ),
+                    textStyle: const TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w600,
+                    ),
+                    shape: shape,
+                  ),
                 ),
-              ],
-            ),
+              ),
+              const SizedBox(width: 6),
+              IconButton.outlined(
+                tooltip: 'Edit dealer',
+                onPressed: () {
+                  context.push('/dealerUpdate', extra: dealer);
+                },
+                icon: const Icon(Icons.edit_outlined, size: 17),
+                style: IconButton.styleFrom(
+                  foregroundColor: AppColors.primary,
+                  side: const BorderSide(color: AppColors.primary),
+                  minimumSize: const Size(38, 36),
+                  shape: shape,
+                ),
+              ),
+            ],
           ),
         ],
       ),
     );
   }
-
-  String _displayDate(String? dateTime) {
-    if (dateTime == null ||
-        dateTime.trim().isEmpty ||
-        dateTime == '0000-00-00') {
-      return '--';
-    }
-
-    return dateTime;
-  }
 }
 
-// =================================================================
-// ACTIVITY INFO
-// =================================================================
-
-class _ActivityInfo extends StatelessWidget {
+class _DealerDetail extends StatelessWidget {
   final IconData icon;
-  final Color iconColor;
-  final String title;
-  final String value;
-  final String subtitle;
-
-  const _ActivityInfo({
+  final String label;
+  final String text;
+  const _DealerDetail({
     required this.icon,
-    required this.iconColor,
-    required this.title,
-    required this.value,
-    required this.subtitle,
+    required this.label,
+    required this.text,
   });
 
   @override
   Widget build(BuildContext context) {
     return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Container(
-          height: 34,
-          width: 34,
-          decoration: const BoxDecoration(
-            color: Color(0xFFE1F2E5),
-            shape: BoxShape.circle,
+          width: 28,
+          height: 28,
+          decoration: BoxDecoration(
+            color: const Color(0xFFEDF5EF),
+            borderRadius: BorderRadius.circular(7),
           ),
-          child: Icon(icon, color: iconColor, size: 18),
+          child: Icon(icon, size: 15, color: AppColors.primary),
         ),
-
-        const SizedBox(width: 7),
-
+        const SizedBox(width: 8),
         Expanded(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                title,
-                style: TextStyle(fontSize: 9, color: Colors.grey.shade700),
-              ),
-
-              const SizedBox(height: 1),
-
-              Text(
-                value,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
+                label,
                 style: const TextStyle(
-                  fontSize: 11,
-                  fontWeight: FontWeight.w600,
-                  color: Colors.black87,
+                  fontSize: 9,
+                  color: AppColors.textSecondary,
                 ),
               ),
-
+              const SizedBox(height: 2),
               Text(
-                subtitle,
-                style: const TextStyle(fontSize: 8, color: Color(0xFF087A2F)),
+                text,
+                style: const TextStyle(
+                  fontSize: 12,
+                  height: 1.25,
+                  fontWeight: FontWeight.w600,
+                  color: Color(0xFF18231C),
+                ),
               ),
             ],
           ),
@@ -966,26 +916,74 @@ class _ActivityInfo extends StatelessWidget {
   }
 }
 
-class _CircleActionButton extends StatelessWidget {
+class _ActivityInfo extends StatelessWidget {
   final IconData icon;
-  final VoidCallback onTap;
-
-  const _CircleActionButton({required this.icon, required this.onTap});
+  final String title;
+  final String? dateTime;
+  const _ActivityInfo({
+    required this.icon,
+    required this.title,
+    required this.dateTime,
+  });
 
   @override
   Widget build(BuildContext context) {
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(20),
-      child: Container(
-        height: 38,
-        width: 38,
-        decoration: BoxDecoration(
-          color: Colors.white,
-          shape: BoxShape.circle,
-          border: Border.all(color: Colors.grey.shade300),
-        ),
-        child: Icon(icon, size: 17, color: const Color(0xFF087A2F)),
+    final raw = dateTime?.trim() ?? '';
+    final missing = raw.isEmpty || raw.startsWith('0000-00-00');
+    final parsed = missing ? null : DateTime.tryParse(raw);
+    final value = missing
+        ? 'Not recorded'
+        : parsed == null
+        ? raw
+        : DateFormat('dd MMM yyyy').format(parsed);
+    final time = parsed != null && raw.contains(RegExp(r'[T ]\d{2}:\d{2}'))
+        ? DateFormat('h:mm a').format(parsed)
+        : null;
+    return Container(
+      width: double.infinity,
+      constraints: const BoxConstraints(minHeight: 46),
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+      decoration: BoxDecoration(
+        color: const Color(0xFFFAFAF9),
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(color: const Color(0xFFEEEEEB)),
+      ),
+      child: Row(
+        children: [
+          Icon(icon, size: 15, color: AppColors.primary),
+          const SizedBox(width: 6),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  title,
+                  style: const TextStyle(
+                    fontSize: 9,
+                    color: AppColors.textSecondary,
+                  ),
+                ),
+                const SizedBox(height: 3),
+                Text(
+                  value,
+                  style: const TextStyle(
+                    fontSize: 10,
+                    fontWeight: FontWeight.w500,
+                    color: AppColors.textDark,
+                  ),
+                ),
+                if (time != null)
+                  Text(
+                    time,
+                    style: const TextStyle(
+                      fontSize: 10,
+                      color: AppColors.textSecondary,
+                    ),
+                  ),
+              ],
+            ),
+          ),
+        ],
       ),
     );
   }

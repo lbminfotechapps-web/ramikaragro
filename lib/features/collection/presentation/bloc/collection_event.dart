@@ -2,8 +2,7 @@ import 'dart:io';
 
 import 'package:equatable/equatable.dart';
 
-abstract class CollectionEvent
-    extends Equatable {
+abstract class CollectionEvent extends Equatable {
   const CollectionEvent();
 
   @override
@@ -14,50 +13,35 @@ abstract class CollectionEvent
 // SEARCH DEALER
 // ============================================================
 
-class SearchDealerEvent
-    extends CollectionEvent {
+class SearchDealerEvent extends CollectionEvent {
   final String userId;
   final String searchText;
 
-  const SearchDealerEvent({
-    required this.userId,
-    required this.searchText,
-  });
+  const SearchDealerEvent({required this.userId, required this.searchText});
 
   @override
-  List<Object?> get props => [
-        userId,
-        searchText,
-      ];
+  List<Object?> get props => [userId, searchText];
 }
 
 // ============================================================
 // BANK DETAILS
 // ============================================================
 
-class GetBankDetailsEvent
-    extends CollectionEvent {
+class GetBankDetailsEvent extends CollectionEvent {
   final String dealerId;
   final String userId;
 
-  const GetBankDetailsEvent({
-    required this.dealerId,
-    required this.userId,
-  });
+  const GetBankDetailsEvent({required this.dealerId, required this.userId});
 
   @override
-  List<Object?> get props => [
-        dealerId,
-        userId,
-      ];
+  List<Object?> get props => [dealerId, userId];
 }
 
 // ============================================================
 // SUBMIT PAYMENT
 // ============================================================
 
-class SubmitPaymentEvent
-    extends CollectionEvent {
+class SubmitPaymentEvent extends CollectionEvent {
   final String dealerId;
   final String paymentMode;
   final String amount;
@@ -72,6 +56,7 @@ class SubmitPaymentEvent
   final String transaction;
   final String userId;
   final List<File> images;
+  final String collectionTypeData;
 
   const SubmitPaymentEvent({
     required this.dealerId,
@@ -88,23 +73,31 @@ class SubmitPaymentEvent
     required this.transaction,
     required this.userId,
     required this.images,
+    required this.collectionTypeData,
   });
 
   @override
   List<Object?> get props => [
-        dealerId,
-        paymentMode,
-        amount,
-        rtgsNo,
-        neftNo,
-        chequeDate,
-        chequeNumber,
-        bankName,
-        depositBankName,
-        depositBranchName,
-        remark,
-        transaction,
-        userId,
-        images,
-      ];
+    dealerId,
+    paymentMode,
+    amount,
+    rtgsNo,
+    neftNo,
+    chequeDate,
+    chequeNumber,
+    bankName,
+    depositBankName,
+    depositBranchName,
+    remark,
+    transaction,
+    userId,
+    images,
+  ];
+}
+
+class GetCollectionTypeEvent extends CollectionEvent {
+  const GetCollectionTypeEvent();
+
+  @override
+  List<Object?> get props => [];
 }

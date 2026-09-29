@@ -1,11 +1,14 @@
+import 'dart:convert';
 import 'dart:io';
 
+import 'package:flutter/services.dart';
 import 'package:solufine/core/di/collection_di.dart';
 import 'package:solufine/core/router/app_router.dart';
 import 'package:solufine/core/secure_storage/secure_storage.dart';
 import 'package:solufine/core/theme/app_colors.dart';
 import 'package:solufine/core/utility/image_compression.dart';
 import 'package:solufine/core/utility/widgets/custom_appbar.dart';
+import 'package:solufine/features/collection/domain/entities/collection_type_entity.dart';
 import 'package:solufine/features/collection/domain/entities/dealer.dart';
 import 'package:solufine/features/collection/presentation/bloc/collection_bloc.dart';
 import 'package:solufine/features/collection/presentation/bloc/collection_event.dart';
@@ -75,6 +78,8 @@ class _CollectionWiseFormPageState extends State<CollectionWiseFormPage> {
   String dealerId = '';
   String dealerName = '';
   String userId = '';
+  String? selectedCollectionTypeId;
+  String? selectedCollectionTypeName;
 
   // ============================================================
   // PAYMENT MODES
@@ -82,9 +87,29 @@ class _CollectionWiseFormPageState extends State<CollectionWiseFormPage> {
 
   final List<String> paymentModes = ['Cash', 'Cheque', 'RTGS', 'NEFT', 'UPI'];
 
-  // ============================================================
-  // INIT
-  // ============================================================
+  final Map<String, TextEditingController> collectionAmountControllers = {};
+
+  TextEditingController _getCollectionAmountController(
+    String collectionTypeId,
+  ) {
+    if (!collectionAmountControllers.containsKey(collectionTypeId)) {
+      collectionAmountControllers[collectionTypeId] = TextEditingController();
+    }
+
+    return collectionAmountControllers[collectionTypeId]!;
+  }
+
+  double get collectionTotalAmount {
+    double total = 0;
+
+    for (final controller in collectionAmountControllers.values) {
+      final double amount = double.tryParse(controller.text.trim()) ?? 0;
+
+      total += amount;
+    }
+
+    return total;
+  }
 
   @override
   void initState() {
@@ -111,10 +136,10 @@ class _CollectionWiseFormPageState extends State<CollectionWiseFormPage> {
         userId = loadedUserId;
       });
 
-      debugPrint('=========================================');
-      debugPrint('COLLECTION USER');
       debugPrint('USER ID = $userId');
-      debugPrint('=========================================');
+
+      // LOAD COLLECTION TYPES
+      bloc.add(const GetCollectionTypeEvent());
     } catch (e) {
       debugPrint('Error loading user: $e');
     }
@@ -143,10 +168,6 @@ class _CollectionWiseFormPageState extends State<CollectionWiseFormPage> {
     super.dispose();
   }
 
-  // ============================================================
-  // PAYMENT MODE CHANGE
-  // ============================================================
-
   void _onPaymentModeChanged(String? mode) {
     if (mode == null) return;
 
@@ -156,10 +177,6 @@ class _CollectionWiseFormPageState extends State<CollectionWiseFormPage> {
       paymentMode = mode;
     });
   }
-
-  // ============================================================
-  // CLEAR PAYMENT FIELDS
-  // ============================================================
 
   void _clearPaymentFields() {
     rtgsController.clear();
@@ -234,171 +251,134 @@ class _CollectionWiseFormPageState extends State<CollectionWiseFormPage> {
   //   }
   // }
 
-
-
   Future<void> _pickImages() async {
-  try {
-    // ============================================================
-    // PICK MULTIPLE IMAGES
-    // ============================================================
+    try {
+      final files = await imagePicker.pickMultiImage(
+        // Keep picker quality high.
+        // Actual compression will be done below.
+        imageQuality: 100,
+      );
 
-    final files = await imagePicker.pickMultiImage(
-      // Keep picker quality high.
-      // Actual compression will be done below.
-      imageQuality: 100,
-    );
-
-    if (files.isEmpty) {
-      return;
-    }
-
-    // ============================================================
-    // FINAL COMPRESSED IMAGE LIST
-    // ============================================================
-
-    final List<File> compressedImages = [];
-
-    // ============================================================
-    // COMPRESS EACH IMAGE
-    // ============================================================
-
-    for (final pickedImage in files) {
-      final File originalFile = File(pickedImage.path);
-
-      if (!await originalFile.exists()) {
-        debugPrint(
-          'IMAGE FILE DOES NOT EXIST: ${pickedImage.path}',
-        );
-
-        continue;
+      if (files.isEmpty) {
+        return;
       }
 
-      // ========================================================
-      // ORIGINAL IMAGE INFO
-      // ========================================================
+      // ============================================================
+      // FINAL COMPRESSED IMAGE LIST
+      // ============================================================
 
-      final int originalSize =
-          await originalFile.length();
+      final List<File> compressedImages = [];
 
-      debugPrint('========================================');
+      // ============================================================
+      // COMPRESS EACH IMAGE
+      // ============================================================
 
-      debugPrint(
-        'ORIGINAL PATH: ${originalFile.path}',
-      );
+      for (final pickedImage in files) {
+        final File originalFile = File(pickedImage.path);
 
-      debugPrint(
-        'ORIGINAL SIZE: '
-        '${(originalSize / 1024).toStringAsFixed(2)} KB',
-      );
+        if (!await originalFile.exists()) {
+          debugPrint('IMAGE FILE DOES NOT EXIST: ${pickedImage.path}');
 
-      // ========================================================
-      // COMPRESS IMAGE
-      // ========================================================
+          continue;
+        }
 
-      final File? compressedFile =
-          await ImageCompression.compressImage(
-        originalFile,
-        maxWidth: 450,
-        maxHeight: 450,
-        quality: 45,
-      );
+        // ========================================================
+        // ORIGINAL IMAGE INFO
+        // ========================================================
 
-      // ========================================================
-      // USE COMPRESSED IMAGE
-      // ========================================================
+        final int originalSize = await originalFile.length();
 
-      if (compressedFile != null &&
-          await compressedFile.exists()) {
-        final int compressedSize =
-            await compressedFile.length();
+        debugPrint('========================================');
 
-        debugPrint('USING COMPRESSED IMAGE');
+        debugPrint('ORIGINAL PATH: ${originalFile.path}');
 
         debugPrint(
-          'COMPRESSED PATH: ${compressedFile.path}',
+          'ORIGINAL SIZE: '
+          '${(originalSize / 1024).toStringAsFixed(2)} KB',
         );
 
-        debugPrint(
-          'COMPRESSED SIZE: '
-          '${(compressedSize / 1024).toStringAsFixed(2)} KB',
-        );
+        // ========================================================
+        // COMPRESS IMAGE
+        // ========================================================
 
-        compressedImages.add(
-          compressedFile,
-        );
-      } else {
-        // ======================================================
-        // COMPRESSION FAILED -> USE ORIGINAL
-        // ======================================================
-
-        debugPrint(
-          'COMPRESSION FAILED - USING ORIGINAL IMAGE',
-        );
-
-        debugPrint(
-          'ORIGINAL PATH: ${originalFile.path}',
-        );
-
-        compressedImages.add(
+        final File? compressedFile = await ImageCompression.compressImage(
           originalFile,
+          maxWidth: 450,
+          maxHeight: 450,
+          quality: 45,
         );
+
+        // ========================================================
+        // USE COMPRESSED IMAGE
+        // ========================================================
+
+        if (compressedFile != null && await compressedFile.exists()) {
+          final int compressedSize = await compressedFile.length();
+
+          debugPrint('USING COMPRESSED IMAGE');
+
+          debugPrint('COMPRESSED PATH: ${compressedFile.path}');
+
+          debugPrint(
+            'COMPRESSED SIZE: '
+            '${(compressedSize / 1024).toStringAsFixed(2)} KB',
+          );
+
+          compressedImages.add(compressedFile);
+        } else {
+          // ======================================================
+          // COMPRESSION FAILED -> USE ORIGINAL
+          // ======================================================
+
+          debugPrint('COMPRESSION FAILED - USING ORIGINAL IMAGE');
+
+          debugPrint('ORIGINAL PATH: ${originalFile.path}');
+
+          compressedImages.add(originalFile);
+        }
+
+        debugPrint('========================================');
       }
 
-      debugPrint('========================================');
-    }
+      // ============================================================
+      // UPDATE UI
+      // ============================================================
 
-    // ============================================================
-    // UPDATE UI
-    // ============================================================
+      if (!mounted) {
+        return;
+      }
 
-    if (!mounted) {
-      return;
-    }
-
-    setState(() {
-      selectedImages = compressedImages;
-    });
-
-    debugPrint(
-      'Selected compressed images = '
-      '${selectedImages.length}',
-    );
-
-    // ============================================================
-    // FINAL SIZE DEBUG
-    // ============================================================
-
-    for (int i = 0;
-        i < selectedImages.length;
-        i++) {
-      final File file =
-          selectedImages[i];
-
-      final int bytes =
-          await file.length();
+      setState(() {
+        selectedImages = compressedImages;
+      });
 
       debugPrint(
-        'Image ${i + 1} => '
-        '${(bytes / 1024).toStringAsFixed(2)} KB',
+        'Selected compressed images = '
+        '${selectedImages.length}',
       );
+
+      // ============================================================
+      // FINAL SIZE DEBUG
+      // ============================================================
+
+      for (int i = 0; i < selectedImages.length; i++) {
+        final File file = selectedImages[i];
+
+        final int bytes = await file.length();
+
+        debugPrint(
+          'Image ${i + 1} => '
+          '${(bytes / 1024).toStringAsFixed(2)} KB',
+        );
+      }
+    } catch (e, stackTrace) {
+      debugPrint('Image picker/compression error: $e');
+
+      debugPrint('$stackTrace');
+
+      _showMessage('Unable to select images');
     }
-  } catch (e, stackTrace) {
-    debugPrint(
-      'Image picker/compression error: $e',
-    );
-
-    debugPrint(
-      '$stackTrace',
-    );
-
-    _showMessage(
-      'Unable to select images',
-    );
   }
-}
-
-
-
 
   // ============================================================
   // REMOVE IMAGE
@@ -473,11 +453,11 @@ class _CollectionWiseFormPageState extends State<CollectionWiseFormPage> {
       return false;
     }
 
-  
-
-    // ----------------------------------------------------------
-    // AMOUNT
-    // ----------------------------------------------------------
+    // if (selectedCollectionTypeId == null ||
+    //     selectedCollectionTypeId!.trim().isEmpty) {
+    //   _showMessage('Please select collection type');
+    //   return false;
+    // }
 
     if (amountController.text.trim().isEmpty) {
       _showMessage('Please enter amount');
@@ -485,8 +465,7 @@ class _CollectionWiseFormPageState extends State<CollectionWiseFormPage> {
       return false;
     }
 
-
-      // ----------------------------------------------------------
+    // ----------------------------------------------------------
     // PAYMENT MODE
     // ----------------------------------------------------------
 
@@ -594,7 +573,128 @@ class _CollectionWiseFormPageState extends State<CollectionWiseFormPage> {
   // ============================================================
   // SUBMIT
   // ============================================================
+  void _submit(CollectionState state) {
+    // ============================================================
+    // PREVENT DUPLICATE API
+    // ============================================================
 
+    if (bloc.state.status == CollectionStatus.loading) {
+      return;
+    }
+
+    // ============================================================
+    // VALIDATION
+    // ============================================================
+
+    if (!_validateForm()) {
+      return;
+    }
+
+    // ============================================================
+    // COLLECTION TYPE DATA
+    // ============================================================
+
+    final List<Map<String, dynamic>> collectionTypeList = [];
+
+    for (final item in state.collectionTypes) {
+      final TextEditingController? controller =
+          collectionAmountControllers[item.collectionTypeId];
+
+      final String enteredAmount = controller?.text.trim() ?? '';
+
+      final double amount = double.tryParse(enteredAmount) ?? 0;
+
+      collectionTypeList.add({
+        'collectionTypeId': item.collectionTypeId,
+
+        'amount': amount.toStringAsFixed(2),
+      });
+    }
+
+    // ============================================================
+    // FINAL COLLECTION TYPE JSON
+    // ============================================================
+
+    final Map<String, dynamic> collectionTypeMap = {
+      'collectionTypes': collectionTypeList,
+
+      'totalAmount': collectionTotalAmount.toStringAsFixed(2),
+    };
+
+    final String collectionTypeData = jsonEncode(collectionTypeMap);
+
+    // ============================================================
+    // DEBUG
+    // ============================================================
+
+    debugPrint('=========================================');
+
+    debugPrint('SUBMIT COLLECTION');
+
+    debugPrint('=========================================');
+
+    debugPrint('Dealer ID: $dealerId');
+
+    debugPrint('Dealer Name: $dealerName');
+
+    debugPrint('Payment Mode: $paymentMode');
+
+    debugPrint(
+      'Total Amount: '
+      '${collectionTotalAmount.toStringAsFixed(2)}',
+    );
+
+    debugPrint('User ID: $userId');
+
+    debugPrint('Images: ${selectedImages.length}');
+
+    debugPrint(
+      'Collection Type Data: '
+      '$collectionTypeData',
+    );
+
+    debugPrint('=========================================');
+
+    // ============================================================
+    // SUBMIT EVENT
+    // ============================================================
+
+    bloc.add(
+      SubmitPaymentEvent(
+        dealerId: dealerId,
+
+        paymentMode: paymentMode!,
+
+        // If main amount should be total:
+        amount: collectionTotalAmount.toStringAsFixed(2),
+
+        rtgsNo: rtgsController.text.trim(),
+
+        neftNo: neftController.text.trim(),
+
+        chequeDate: chequeDateController.text.trim(),
+
+        chequeNumber: chequeNumberController.text.trim(),
+
+        bankName: bankNameController.text.trim(),
+
+        depositBankName: depositBankNameController.text.trim(),
+
+        depositBranchName: depositBranchController.text.trim(),
+
+        remark: remarkController.text.trim(),
+
+        transaction: upiTransactionController.text.trim(),
+
+        userId: userId,
+
+        images: selectedImages,
+
+        collectionTypeData: collectionTypeData,
+      ),
+    );
+  }
+  /*
   void _submit() {
     // Prevent duplicate API calls
     if (bloc.state.status == CollectionStatus.loading) {
@@ -652,10 +752,11 @@ class _CollectionWiseFormPageState extends State<CollectionWiseFormPage> {
         userId: userId,
 
         images: selectedImages,
+        collectionTypeData: 
       ),
     );
   }
-
+*/
   // ============================================================
   // SUCCESS DIALOG
   // ============================================================
@@ -762,20 +863,12 @@ class _CollectionWiseFormPageState extends State<CollectionWiseFormPage> {
       },
     );
 
-    // ==========================================================
-    // AFTER OK -> GO BACK TO COLLECTION LIST
-    // ==========================================================
-
     if (!mounted) return;
 
     if (context.canPop()) {
       context.pop();
     }
   }
-
-  // ============================================================
-  // MESSAGE
-  // ============================================================
 
   void _showMessage(String message) {
     if (!mounted) return;
@@ -800,21 +893,13 @@ class _CollectionWiseFormPageState extends State<CollectionWiseFormPage> {
     );
   }
 
-  // ============================================================
-  // BUILD
-  // ============================================================
-
   @override
   Widget build(BuildContext context) {
     return BlocProvider.value(
       value: bloc,
 
-      child: BlocListener<CollectionBloc, CollectionState>(
+      child: BlocConsumer<CollectionBloc, CollectionState>(
         listener: (context, state) {
-          // ======================================================
-          // SUCCESS
-          // ======================================================
-
           if (state.status == CollectionStatus.success) {
             _showSuccessDialog(
               state.message ?? 'Collection submitted successfully.',
@@ -823,103 +908,258 @@ class _CollectionWiseFormPageState extends State<CollectionWiseFormPage> {
             return;
           }
 
-          // ======================================================
-          // FAILURE
-          // ======================================================
-
           if (state.status == CollectionStatus.failure) {
             _showMessage(state.message ?? 'Payment submission failed');
           }
         },
 
-        child: Scaffold(
-          backgroundColor: const Color(0xFFF6F8F7),
+        // listener: (context, state) {
+        //   // ======================================================
+        //   // SUCCESS
+        //   // ======================================================
 
-          // ====================================================================
-          // APP BAR
-          // ====================================================================
-          appBar: CustomAppBar(
-            backgroundColor: AppColors.backgroundColor,
-            leading: IconButton(
-              icon: const Icon(
-                Icons.arrow_back_ios_new,
-                size: 19,
-                color: AppColors.darkBackgroundColor,
+        //   if (state.status == CollectionStatus.success) {
+        //     _showSuccessDialog(
+        //       state.message ?? 'Collection submitted successfully.',
+        //     );
+
+        //     return;
+        //   }
+
+        //   // ======================================================
+        //   // FAILURE
+        //   // ======================================================
+
+        //   if (state.status == CollectionStatus.failure) {
+        //     _showMessage(state.message ?? 'Payment submission failed');
+        //   }
+        // },
+        builder: (context, state) {
+          return Scaffold(
+            backgroundColor: const Color(0xFFF6F8F7),
+
+            // ====================================================================
+            // APP BAR
+            // ====================================================================
+            appBar: CustomAppBar(
+              backgroundColor: AppColors.backgroundColor,
+              leading: IconButton(
+                icon: const Icon(
+                  Icons.arrow_back_ios_new,
+                  size: 19,
+                  color: AppColors.darkBackgroundColor,
+                ),
+                onPressed: () {
+                  context.go(AppRouter.home);
+                },
               ),
-              onPressed: () {
-                context.go(AppRouter.home);
-              },
+              title: 'Add Collection',
             ),
-            title: 'Add Collection',
-            // titleStyle: const TextStyle(
-            //   fontSize: 22,
-            //   fontWeight: FontWeight.w600,
-            //   color: AppColors.backgroundColor,
-            // ),
+
+            body: CustomScrollView(
+              slivers: [
+                // ==================================================
+                // HEADER
+                // ==================================================
+                // _buildHeader(),
+
+                // ==================================================
+                // BODY
+                // ==================================================
+                SliverPadding(
+                  padding: const EdgeInsets.fromLTRB(14, 12, 14, 24),
+
+                  sliver: SliverList(
+                    delegate: SliverChildListDelegate([
+                      // DEALER
+                      _buildDealerCard(state.collectionTypes),
+
+                      if (dealerId.trim().isNotEmpty) ...[
+                        const SizedBox(height: 12),
+
+                        if (state.collectionTypes.isNotEmpty) ...[
+                          const Text(
+                            'Collection Type',
+                            style: TextStyle(
+                              fontSize: 13,
+                              fontWeight: FontWeight.w600,
+                              color: Color(0xFF17201B),
+                            ),
+                          ),
+                          const SizedBox(height: 8),
+                        ],
+                        ...state.collectionTypes.map(
+                          (item) => _buildCollectionAmountRow(item: item),
+                        ),
+
+                        const SizedBox(height: 4),
+
+                        // ============================================================
+                        // TOTAL AMOUNT
+                        // ============================================================
+                        Container(
+                          width: double.infinity,
+                          padding: const EdgeInsets.all(12),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFFEAF7EF),
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Row(
+                            children: [
+                              const Expanded(
+                                child: Text(
+                                  'Total Amount',
+                                  style: TextStyle(
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w700,
+                                  ),
+                                ),
+                              ),
+
+                              Text(
+                                '₹ ${collectionTotalAmount.toStringAsFixed(2)}',
+                                style: const TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w800,
+                                  color: Color(0xFF166534),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+
+                      const SizedBox(height: 12),
+
+                      // PAYMENT
+                      _buildPaymentCard(),
+
+                      const SizedBox(height: 12),
+
+                      // REMARK
+                      _buildRemarkCard(),
+
+                      const SizedBox(height: 12),
+
+                      // IMAGES
+                      _buildImageCard(),
+
+                      const SizedBox(height: 18),
+
+                      // SUBMIT
+                      _buildSubmitButton(),
+                    ]),
+                  ),
+                ),
+              ],
+            ),
+          );
+        },
+      ),
+    );
+  }
+
+  Widget _buildCollectionAmountRow({required CollectionTypeEntity item}) {
+    final TextEditingController controller = _getCollectionAmountController(
+      item.collectionTypeId,
+    );
+
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.start,
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Container(
+          margin: const EdgeInsets.only(bottom: 10),
+          padding: const EdgeInsets.all(10),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(color: const Color(0xFFE0E6E2)),
           ),
+          child: Row(
+            children: [
+              Expanded(
+                child: Text(
+                  item.collectionType,
+                  style: const TextStyle(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w700,
+                    color: Color(0xFF17201B),
+                  ),
+                ),
+              ),
 
-         
-          body: CustomScrollView(
-            slivers: [
-              // ==================================================
-              // HEADER
-              // ==================================================
-              // _buildHeader(),
+              const SizedBox(width: 10),
 
-              // ==================================================
-              // BODY
-              // ==================================================
-              SliverPadding(
-                padding: const EdgeInsets.fromLTRB(14, 12, 14, 24),
+              SizedBox(
+                width: 135,
+                child: TextField(
+                  controller: controller,
 
-                sliver: SliverList(
-                  delegate: SliverChildListDelegate([
-                    // DEALER
-                    _buildDealerCard(),
+                  keyboardType: const TextInputType.numberWithOptions(
+                    decimal: true,
+                  ),
 
-                    const SizedBox(height: 12),
+                  inputFormatters: [
+                    FilteringTextInputFormatter.allow(
+                      RegExp(r'^\d*\.?\d{0,2}'),
+                    ),
+                  ],
 
-                    // PAYMENT
-                    _buildPaymentCard(),
+                  onChanged: (_) {
+                    setState(() {});
+                  },
 
-                    const SizedBox(height: 12),
+                  decoration: InputDecoration(
+                    hintText: 'Enter amount',
 
-                    // REMARK
-                    _buildRemarkCard(),
+                    prefixText: '₹ ',
 
-                    const SizedBox(height: 12),
+                    isDense: true,
 
-                    // IMAGES
-                    _buildImageCard(),
+                    filled: true,
 
-                    const SizedBox(height: 18),
+                    fillColor: const Color(0xFFF7F9F7),
 
-                    // SUBMIT
-                    _buildSubmitButton(),
-                  ]),
+                    contentPadding: const EdgeInsets.symmetric(
+                      horizontal: 10,
+                      vertical: 11,
+                    ),
+
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(9),
+                    ),
+                  ),
                 ),
               ),
             ],
           ),
         ),
-      ),
+      ],
     );
   }
 
-  Widget _buildDealerCard() {
+  Widget _buildDealerCard(List<CollectionTypeEntity> collectionTypes) {
+    final bool dealerSelected = dealerId.trim().isNotEmpty;
+
     return _buildCard(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
-
         children: [
+          // =========================================================
+          // HEADER
+          // =========================================================
           _sectionHeader(
             icon: Icons.storefront_rounded,
-            title: 'Dealer ',
+            title: 'Dealer',
             subtitle: 'Select dealer for this collection',
           ),
 
           const SizedBox(height: 12),
 
+          // =========================================================
+          // DEALER SELECTOR
+          // =========================================================
           InkWell(
             onTap: _selectDealer,
 
@@ -982,9 +1222,18 @@ class _CollectionWiseFormPageState extends State<CollectionWiseFormPage> {
                           ),
                         ),
 
-                        const SizedBox(height: 3),
+                        if (dealerSelected) ...[
+                          const SizedBox(height: 3),
 
-                     
+                          Text(
+                            'Dealer ID: $dealerId',
+                            style: const TextStyle(
+                              fontSize: 10,
+                              color: Color(0xFF718078),
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        ],
                       ],
                     ),
                   ),
@@ -1009,10 +1258,379 @@ class _CollectionWiseFormPageState extends State<CollectionWiseFormPage> {
               ),
             ),
           ),
+
+          // // =========================================================
+          // // COLLECTION TYPE
+          // // ONLY SHOW AFTER DEALER SELECTED
+          // // =========================================================
+          // if (dealerSelected) ...[
+          //   const SizedBox(height: 14),
+
+          //   Container(
+          //     width: double.infinity,
+
+          //     padding: const EdgeInsets.all(12),
+
+          //     decoration: BoxDecoration(
+          //       color: const Color(0xFFF8FAF8),
+
+          //       borderRadius: BorderRadius.circular(14),
+
+          //       border: Border.all(color: const Color(0xFFE2E8E5)),
+          //     ),
+
+          //     child: Column(
+          //       crossAxisAlignment: CrossAxisAlignment.start,
+
+          //       children: [
+          //         // ===============================================
+          //         // COLLECTION TYPE HEADER
+          //         // ===============================================
+          //         Row(
+          //           children: [
+          //             Container(
+          //               width: 32,
+          //               height: 32,
+
+          //               decoration: BoxDecoration(
+          //                 color: const Color(0xFFE7F5EC),
+
+          //                 borderRadius: BorderRadius.circular(9),
+          //               ),
+
+          //               child: const Icon(
+          //                 Icons.account_balance_wallet_rounded,
+          //                 size: 17,
+          //                 color: Color(0xFF166534),
+          //               ),
+          //             ),
+
+          //             const SizedBox(width: 8),
+
+          //             const Expanded(
+          //               child: Column(
+          //                 crossAxisAlignment: CrossAxisAlignment.start,
+          //                 children: [
+          //                   Text(
+          //                     'Collection Type *',
+          //                     style: TextStyle(
+          //                       fontSize: 13,
+          //                       fontWeight: FontWeight.w800,
+          //                       color: Color(0xFF17201B),
+          //                     ),
+          //                   ),
+
+          //                   SizedBox(height: 2),
+
+          //                   Text(
+          //                     'Select collection year',
+          //                     style: TextStyle(
+          //                       fontSize: 10,
+          //                       color: Color(0xFF718078),
+          //                     ),
+          //                   ),
+          //                 ],
+          //               ),
+          //             ),
+          //           ],
+          //         ),
+
+          //         const SizedBox(height: 10),
+
+          //         // ===============================================
+          //         // API LOADING / EMPTY / DATA
+          //         // ===============================================
+          //         if (collectionTypes.isEmpty)
+          //           Container(
+          //             width: double.infinity,
+
+          //             padding: const EdgeInsets.symmetric(vertical: 16),
+
+          //             alignment: Alignment.center,
+
+          //             child: const Text(
+          //               'No collection type available',
+          //               style: TextStyle(
+          //                 fontSize: 11,
+          //                 color: Color(0xFF718078),
+          //               ),
+          //             ),
+          //           )
+          //         else
+          //           Wrap(
+          //             spacing: 8,
+          //             runSpacing: 8,
+
+          //             children: collectionTypes.map((
+          //               CollectionTypeEntity item,
+          //             ) {
+          //               final bool isSelected =
+          //                   selectedCollectionTypeId == item.collectionTypeId;
+
+          //               return InkWell(
+          //                 onTap: () {
+          //                   setState(() {
+          //                     selectedCollectionTypeId = item.collectionTypeId;
+
+          //                     selectedCollectionTypeName = item.collectionType;
+          //                   });
+
+          //                   debugPrint(
+          //                     '========================================',
+          //                   );
+
+          //                   debugPrint('COLLECTION TYPE SELECTED');
+
+          //                   debugPrint('ID: ${item.collectionTypeId}');
+
+          //                   debugPrint('TYPE: ${item.collectionType}');
+
+          //                   debugPrint(
+          //                     '========================================',
+          //                   );
+          //                 },
+
+          //                 borderRadius: BorderRadius.circular(10),
+
+          //                 child: AnimatedContainer(
+          //                   duration: const Duration(milliseconds: 180),
+
+          //                   padding: const EdgeInsets.symmetric(
+          //                     horizontal: 12,
+          //                     vertical: 9,
+          //                   ),
+
+          //                   decoration: BoxDecoration(
+          //                     color: isSelected
+          //                         ? const Color(0xFFE7F5EC)
+          //                         : Colors.white,
+
+          //                     borderRadius: BorderRadius.circular(10),
+
+          //                     border: Border.all(
+          //                       color: isSelected
+          //                           ? const Color(0xFF166534)
+          //                           : const Color(0xFFDCE4DF),
+          //                       width: isSelected ? 1.4 : 1,
+          //                     ),
+          //                   ),
+
+          //                   child: Row(
+          //                     mainAxisSize: MainAxisSize.min,
+
+          //                     children: [
+          //                       Container(
+          //                         width: 18,
+          //                         height: 18,
+
+          //                         decoration: BoxDecoration(
+          //                           shape: BoxShape.circle,
+
+          //                           color: isSelected
+          //                               ? const Color(0xFF166534)
+          //                               : Colors.transparent,
+
+          //                           border: Border.all(
+          //                             color: isSelected
+          //                                 ? const Color(0xFF166534)
+          //                                 : const Color(0xFF9AA7A0),
+          //                           ),
+          //                         ),
+
+          //                         child: isSelected
+          //                             ? const Icon(
+          //                                 Icons.check_rounded,
+          //                                 color: Colors.white,
+          //                                 size: 12,
+          //                               )
+          //                             : null,
+          //                       ),
+
+          //                       const SizedBox(width: 7),
+
+          //                       Text(
+          //                         item.collectionType,
+
+          //                         style: TextStyle(
+          //                           fontSize: 11.5,
+
+          //                           fontWeight: isSelected
+          //                               ? FontWeight.w800
+          //                               : FontWeight.w600,
+
+          //                           color: isSelected
+          //                               ? const Color(0xFF166534)
+          //                               : const Color(0xFF37443D),
+          //                         ),
+          //                       ),
+          //                     ],
+          //                   ),
+          //                 ),
+          //               );
+          //             }).toList(),
+          //           ),
+
+          //         // ===============================================
+          //         // SELECTED VALUE
+          //         // ===============================================
+          //         if (selectedCollectionTypeId != null) ...[
+          //           const SizedBox(height: 10),
+
+          //           Container(
+          //             width: double.infinity,
+
+          //             padding: const EdgeInsets.symmetric(
+          //               horizontal: 10,
+          //               vertical: 8,
+          //             ),
+
+          //             decoration: BoxDecoration(
+          //               color: const Color(0xFFEAF7EF),
+
+          //               borderRadius: BorderRadius.circular(9),
+          //             ),
+
+          //             child: Row(
+          //               children: [
+          //                 const Icon(
+          //                   Icons.check_circle_rounded,
+          //                   size: 16,
+          //                   color: Color(0xFF166534),
+          //                 ),
+
+          //                 const SizedBox(width: 6),
+
+          //                 Expanded(
+          //                   child: Text(
+          //                     'Selected: $selectedCollectionTypeName',
+
+          //                     style: const TextStyle(
+          //                       fontSize: 10.5,
+
+          //                       fontWeight: FontWeight.w700,
+
+          //                       color: Color(0xFF166534),
+          //                     ),
+          //                   ),
+          //                 ),
+          //               ],
+          //             ),
+          //           ),
+          //         ],
+          //       ],
+          //     ),
+          //   ),
+          // ],
         ],
       ),
     );
   }
+
+  // Widget _buildDealerCard(List<CollectionTypeEntity> collectionTypes) {
+  //   return _buildCard(
+  //     child: Column(
+  //       crossAxisAlignment: CrossAxisAlignment.start,
+
+  //       children: [
+  //         _sectionHeader(
+  //           icon: Icons.storefront_rounded,
+  //           title: 'Dealer ',
+  //           subtitle: 'Select dealer for this collection',
+  //         ),
+
+  //         const SizedBox(height: 12),
+
+  //         InkWell(
+  //           onTap: _selectDealer,
+
+  //           borderRadius: BorderRadius.circular(14),
+
+  //           child: Container(
+  //             width: double.infinity,
+
+  //             padding: const EdgeInsets.all(13),
+
+  //             decoration: BoxDecoration(
+  //               color: const Color(0xFFF5F7F6),
+
+  //               borderRadius: BorderRadius.circular(14),
+
+  //               border: Border.all(color: const Color(0xFFE2E8E5)),
+  //             ),
+
+  //             child: Row(
+  //               children: [
+  //                 Container(
+  //                   height: 40,
+  //                   width: 40,
+
+  //                   decoration: BoxDecoration(
+  //                     color: const Color(0xFFE7F5EC),
+
+  //                     borderRadius: BorderRadius.circular(12),
+  //                   ),
+
+  //                   child: const Icon(
+  //                     Icons.store_rounded,
+  //                     color: Color(0xFF166534),
+  //                     size: 21,
+  //                   ),
+  //                 ),
+
+  //                 const SizedBox(width: 11),
+
+  //                 Expanded(
+  //                   child: Column(
+  //                     crossAxisAlignment: CrossAxisAlignment.start,
+
+  //                     children: [
+  //                       Text(
+  //                         dealerName.isEmpty ? 'Select dealer *' : dealerName,
+
+  //                         maxLines: 1,
+
+  //                         overflow: TextOverflow.ellipsis,
+
+  //                         style: TextStyle(
+  //                           fontSize: 14,
+
+  //                           fontWeight: FontWeight.w700,
+
+  //                           color: dealerName.isEmpty
+  //                               ? Colors.black54
+  //                               : const Color(0xFF17201B),
+  //                         ),
+  //                       ),
+
+  //                       const SizedBox(height: 3),
+  //                     ],
+  //                   ),
+  //                 ),
+
+  //                 Container(
+  //                   height: 34,
+  //                   width: 34,
+
+  //                   decoration: BoxDecoration(
+  //                     color: const Color(0xFFE7F5EC),
+
+  //                     borderRadius: BorderRadius.circular(10),
+  //                   ),
+
+  //                   child: const Icon(
+  //                     Icons.search_rounded,
+  //                     color: Color(0xFF166534),
+  //                     size: 19,
+  //                   ),
+  //                 ),
+  //               ],
+  //             ),
+  //           ),
+  //         ),
+  //       ],
+  //     ),
+  //   );
+  // }
 
   // ============================================================
   // PAYMENT CARD
@@ -1805,7 +2423,11 @@ class _CollectionWiseFormPageState extends State<CollectionWiseFormPage> {
             height: 52,
 
             child: ElevatedButton(
-              onPressed: loading ? null : _submit,
+              onPressed: loading
+                  ? null
+                  : () {
+                      _submit(state);
+                    },
 
               style: ElevatedButton.styleFrom(
                 backgroundColor: const Color(0xFF166534),

@@ -398,7 +398,7 @@ Future<void> _onAddDealerStock(
 
   try {
     // ============================================================
-    // 1. DEALER IMAGE FILE
+    // 1. DEALER IMAGE
     // ============================================================
 
     File? dealerImageFile;
@@ -410,7 +410,10 @@ Future<void> _onAddDealerStock(
     debugPrint('========================================');
     debugPrint('DEALER IMAGE CHECK');
     debugPrint('========================================');
-    debugPrint('IMAGE PATH: $dealerImagePath');
+
+    debugPrint(
+      'IMAGE PATH: $dealerImagePath',
+    );
 
     if (dealerImagePath.isNotEmpty) {
       final File originalFile =
@@ -424,13 +427,16 @@ Future<void> _onAddDealerStock(
       );
 
       if (exists) {
+        final int originalSize =
+            await originalFile.length();
+
         debugPrint(
           'ORIGINAL IMAGE SIZE: '
-          '${await originalFile.length()} bytes',
+          '$originalSize bytes',
         );
 
         // ========================================================
-        // COMPRESS DEALER IMAGE
+        // COMPRESS IMAGE
         // ========================================================
 
         final File? compressedFile =
@@ -464,69 +470,15 @@ Future<void> _onAddDealerStock(
               originalFile;
 
           debugPrint(
-            'COMPRESSION FAILED - USING ORIGINAL IMAGE',
+            'COMPRESSION FAILED - '
+            'USING ORIGINAL IMAGE',
           );
         }
-      } else {
-        debugPrint(
-          'DEALER IMAGE FILE DOES NOT EXIST',
-        );
       }
-    } else {
-      debugPrint(
-        'DEALER IMAGE PATH IS EMPTY',
-      );
     }
 
     // ============================================================
-    // 2. DIGITAL SIGNATURE FILE
-    // ============================================================
-
-    File? signatureFile;
-
-    final String signaturePath =
-        event.digitalSignature.trim();
-
-    debugPrint('');
-    debugPrint('========================================');
-    debugPrint('DIGITAL SIGNATURE CHECK');
-    debugPrint('========================================');
-    debugPrint(
-      'SIGNATURE PATH: $signaturePath',
-    );
-
-    if (signaturePath.isNotEmpty) {
-      final File file =
-          File(signaturePath);
-
-      final bool exists =
-          await file.exists();
-
-      debugPrint(
-        'SIGNATURE EXISTS: $exists',
-      );
-
-      if (exists) {
-        signatureFile =
-            file;
-
-        debugPrint(
-          'SIGNATURE SIZE: '
-          '${await signatureFile.length()} bytes',
-        );
-      } else {
-        debugPrint(
-          'SIGNATURE FILE DOES NOT EXIST',
-        );
-      }
-    } else {
-      debugPrint(
-        'SIGNATURE PATH IS EMPTY',
-      );
-    }
-
-    // ============================================================
-    // 3. OPTIONAL VALIDATION
+    // 2. VALIDATE DEALER IMAGE
     // ============================================================
 
     if (dealerImageFile == null) {
@@ -542,7 +494,46 @@ Future<void> _onAddDealerStock(
       return;
     }
 
-    if (signatureFile == null) {
+    // ============================================================
+    // 3. DIGITAL SIGNATURE PATH
+    // ============================================================
+
+    final String signaturePath =
+        event.digitalSignature.trim();
+
+    debugPrint('');
+    debugPrint('========================================');
+    debugPrint('DIGITAL SIGNATURE CHECK');
+    debugPrint('========================================');
+
+    debugPrint(
+      'SIGNATURE PATH: $signaturePath',
+    );
+
+    if (signaturePath.isEmpty) {
+      emit(
+        state.copyWith(
+          status:
+              DealerListStatus.failure,
+          errorMessage:
+              'Digital signature path is empty',
+        ),
+      );
+
+      return;
+    }
+
+    final File signatureFile =
+        File(signaturePath);
+
+    final bool signatureExists =
+        await signatureFile.exists();
+
+    debugPrint(
+      'SIGNATURE EXISTS: $signatureExists',
+    );
+
+    if (!signatureExists) {
       emit(
         state.copyWith(
           status:
@@ -555,12 +546,43 @@ Future<void> _onAddDealerStock(
       return;
     }
 
+    final int signatureSize =
+        await signatureFile.length();
+
+    debugPrint(
+      'SIGNATURE SIZE: '
+      '$signatureSize bytes',
+    );
+
+    if (signatureSize <= 0) {
+      emit(
+        state.copyWith(
+          status:
+              DealerListStatus.failure,
+          errorMessage:
+              'Digital signature file is empty',
+        ),
+      );
+
+      return;
+    }
+
+    debugPrint('========================================');
+
     // ============================================================
-    // 4. NORMAL FORM DATA
+    // 4. NORMAL REQUEST DATA
     //
     // IMPORTANT:
-    // DO NOT put dealerImage or digitalSignature here.
-    // Both are multipart files.
+    //
+    // digitalSignature is NOT added here.
+    //
+    // Repository will:
+    //
+    // 1. upload signature
+    // 2. get Signature_xxx.png
+    // 3. add digitalSignature filename
+    // 4. call add stock API
+    //
     // ============================================================
 
     final Map<String, dynamic> jsonData =
@@ -596,12 +618,12 @@ Future<void> _onAddDealerStock(
     );
 
     // ============================================================
-    // 6. PRINT FILE DATA
+    // 6. FILE INFORMATION
     // ============================================================
 
     debugPrint('');
     debugPrint('========================================');
-    debugPrint('FILES TO REPOSITORY');
+    debugPrint('DATA TO REPOSITORY');
     debugPrint('========================================');
 
     debugPrint(
@@ -615,26 +637,28 @@ Future<void> _onAddDealerStock(
     );
 
     debugPrint(
-      'SIGNATURE PATH: '
-      '${signatureFile.path}',
+      'SIGNATURE LOCAL PATH: '
+      '$signaturePath',
     );
 
     debugPrint(
       'SIGNATURE SIZE: '
-      '${await signatureFile.length()} bytes',
+      '$signatureSize bytes',
     );
 
     debugPrint('========================================');
 
     // ============================================================
     // 7. CALL REPOSITORY
+    //
+    // THIRD PARAMETER IS STRING PATH
     // ============================================================
 
     final Map<String, dynamic> response =
         await repository.addDealerStock(
       jsonData,
       dealerImageFile,
-      signatureFile,
+      signaturePath,
     );
 
     // ============================================================
@@ -669,6 +693,10 @@ Future<void> _onAddDealerStock(
     // ============================================================
 
     if (response['status'] == true) {
+      debugPrint(
+        'ADD DEALER STOCK SUCCESS',
+      );
+
       emit(
         state.copyWith(
           status:
@@ -682,7 +710,7 @@ Future<void> _onAddDealerStock(
     }
 
     // ============================================================
-    // 10. API FAILURE
+    // 10. FAILURE
     // ============================================================
 
     final String message =

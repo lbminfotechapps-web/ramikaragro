@@ -189,6 +189,7 @@ class SalesTargetBloc
       print('ACHIEVED: ${result.totalAchieved}');
       print('PENDING: ${result.totalPending}');
       print('PERCENTAGE: ${result.percentage}');
+       print('Achievement Amount: ${result.achievementAmount}');
       print('====================================');
 
       emit(
