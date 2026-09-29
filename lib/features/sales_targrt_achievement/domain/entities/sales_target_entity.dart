@@ -5,12 +5,14 @@ class SalesTargetEntity extends Equatable {
   final String totalAchieved;
   final String totalPending;
   final String percentage;
+  final String achievementAmount;
 
   const SalesTargetEntity({
     required this.totalTarget,
     required this.totalAchieved,
     required this.totalPending,
     required this.percentage,
+    required this.achievementAmount,
   });
 
   @override
@@ -19,5 +21,6 @@ class SalesTargetEntity extends Equatable {
         totalAchieved,
         totalPending,
         percentage,
+        achievementAmount,
       ];
 }
