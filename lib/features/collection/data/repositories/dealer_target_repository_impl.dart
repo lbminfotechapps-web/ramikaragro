@@ -21,10 +21,14 @@ class DealerTargetRepositoryImpl
       getCollectionWiseTarget({
     required String userId,
     required String targetId,
+    required String outletId,
+    required String collectionTypeId,
   }) {
     return remoteDataSource.getCollectionWiseTarget(
       userId: userId,
       targetId: targetId,
+      outletId: outletId,
+      collectionTypeId: collectionTypeId,
     );
   }
 }

@@ -112,6 +112,10 @@ class ApiClient {
   static const String getProductDetail = '/getProductDetail';
   static const String addStock = '/addStock';
 
+  static const String getDealerForSalesTarget = '/getDealerForSalesTarget';
+
+  static const String get_collection_type = '/get_collection_type';
+  static const String addMonthlyCollection = '/add_monthly_collection';
   static const String getProductGroup ='/get_product_group';
   static const String add_group_sales_target = '/add_group_sales_target';
   static const String getCollectionType = '/get_collection_type';

@@ -2,6 +2,7 @@ import 'package:solufine/core/di/auth_di.dart';
 import 'package:solufine/core/di/collection_di.dart';
 import 'package:solufine/core/di/collection_list_di.dart';
 import 'package:solufine/core/di/collection_target_di.dart';
+import 'package:solufine/core/di/collectiontarget_dealerlist_di.dart';
 import 'package:solufine/core/di/crop_schedule_di.dart';
 import 'package:solufine/core/di/dealer_di.dart';
 import 'package:solufine/core/di/dispatch_di.dart';
@@ -72,6 +73,7 @@ Future<void> initGlobalDi() async {
   await initExpenseDi();
   await initFollowupDi();
   await initEnquiryDi();
+  await initDealerDI();
   // await initLocationTrackingDi();
   await initSelfTargetDi();
 }

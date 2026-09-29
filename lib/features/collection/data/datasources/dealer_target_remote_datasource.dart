@@ -14,6 +14,8 @@ abstract class DealerTargetRemoteDataSource {
   Future<CollectionTargetModel?> getCollectionWiseTarget({
     required String userId,
     required String targetId,
+    required String outletId,
+    required String collectionTypeId,
   });
 }
 
@@ -165,6 +167,8 @@ class DealerTargetRemoteDataSourceImpl
       getCollectionWiseTarget({
     required String userId,
     required String targetId,
+    required String outletId,
+    required String collectionTypeId,
   }) async {
     try {
       print('');
@@ -186,6 +190,8 @@ class DealerTargetRemoteDataSourceImpl
       final Map<String, dynamic> requestData = {
         'userId': userId.toString(),
         'targetId': targetId.toString(),
+        'outlet_id': outletId,
+        'collection_type_id': collectionTypeId,
       };
 
       print(
@@ -202,11 +208,13 @@ class DealerTargetRemoteDataSourceImpl
         data: FormData.fromMap({
         'userId': userId.toString(),
         'targetId': targetId.toString(),
+        'outlet_id': outletId,
+        'collection_type_id': collectionTypeId,
       }),
 
 
         options: Options(
-          contentType: Headers.jsonContentType,
+          contentType: Headers.multipartFormDataContentType,
           responseType: ResponseType.plain,
           validateStatus: (status) =>
               status != null && status < 600,

@@ -60,6 +60,7 @@ import 'package:solufine/features/sales_targrt_achievement/presentation/pages/sa
 import 'package:solufine/features/salesreturn/presentation/pages/sales_return_page.dart';
 import 'package:solufine/features/salesreturnhistory/presentation/presentation/sales_return_history_page.dart';
 import 'package:solufine/features/scheme/presentation/pages/schemescreen.dart';
+import 'package:solufine/features/selfcollectionassign/presentation/presentation/assingselfcollectiontarget_page.dart';
 import 'package:solufine/features/splash/splash_screen.dart';
 import 'package:flutter/foundation.dart';
 
@@ -124,7 +125,8 @@ class AppRouter {
   static const String dealerUpdate = '/dealerUpdate';
   static const String profile = '/profile';
   static const String productEnquiry = '/productEnquiry';
-   static const String addStock = '/addStock';
+  static const String addStock = '/addStock';
+  static const String selfcollectionTarget = '/selfcollectionTarget';
 
    static const String selfAssignTargetPointWise = '/selfAssignTargetPointWise';
 
@@ -164,6 +166,13 @@ class AppRouter {
         },
       ),
 
+      GoRoute(
+        path: selfcollectionTarget,
+        name: 'selfcollectionTarget',
+        builder: (context, state) {
+          return const AssignSelfCollectionTargetPage();
+        },
+      ),
 
       GoRoute(
         path: noVisitDealer,
@@ -268,7 +277,6 @@ class AppRouter {
         },
       ),
 
-
       GoRoute(
         path: teamExpenseList,
         name: 'teamExpenseList',
@@ -329,15 +337,13 @@ class AppRouter {
         },
       ),
 
-
-       GoRoute(
+      GoRoute(
         path: salesReturn,
         name: 'salesReturn',
         builder: (context, state) {
           return const SalesReturnPage();
         },
       ),
-
 
       GoRoute(
         path: cropSchedule,
@@ -355,8 +361,6 @@ class AppRouter {
         },
       ),
 
-
-      
       GoRoute(
         path: farmers,
         name: 'farmers',
@@ -371,7 +375,7 @@ class AppRouter {
         },
       ),
 
-  GoRoute(
+      GoRoute(
         path: productEnquiry,
         name: 'productEnquiry',
         builder: (context, state) {
@@ -390,14 +394,9 @@ class AppRouter {
           debugPrint('PRODUCT NAME    : $productName');
           debugPrint('========================================');
 
-          return EnquiryPage(
-            productId: productId,
-            productName: productName,
-          );
+          return EnquiryPage(productId: productId, productName: productName);
         },
       ),
-  
-
 
       GoRoute(
         path: dealerpin,
@@ -568,14 +567,14 @@ class AppRouter {
         },
       ),
 
-        GoRoute(
+      GoRoute(
         path: visits,
         name: 'visits',
         builder: (context, state) {
           return const DealerListScreen();
         },
       ),
-    
+
       GoRoute(
         path: contactUs,
         name: 'contactUs',

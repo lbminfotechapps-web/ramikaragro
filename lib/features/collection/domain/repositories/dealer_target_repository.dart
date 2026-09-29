@@ -7,5 +7,7 @@ abstract class DealerTargetRepository {
   Future<CollectionTargetEntity?> getCollectionWiseTarget({
     required String userId,
     required String targetId,
+    required String outletId,
+    required String collectionTypeId,
   });
 }

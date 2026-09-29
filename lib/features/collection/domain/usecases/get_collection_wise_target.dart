@@ -11,10 +11,14 @@ class GetCollectionWiseTarget {
   Future<CollectionTargetEntity?> call({
     required String userId,
     required String targetId,
+    required String outletId,
+    required String collectionTypeId,
   }) {
     return repository.getCollectionWiseTarget(
       userId: userId,
       targetId: targetId,
+      outletId: outletId,
+      collectionTypeId: collectionTypeId,
     );
   }
 }

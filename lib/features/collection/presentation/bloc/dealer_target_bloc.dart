@@ -8,6 +8,7 @@ import 'dealer_target_state.dart';
 
 class DealerTargetBloc
     extends Bloc<DealerTargetEvent, DealerTargetState> {
+  int _targetRequest = 0;
   final GetTargetDates getTargetDates;
   final GetCollectionWiseTarget getCollectionWiseTarget;
 
@@ -29,6 +30,7 @@ class DealerTargetBloc
   ) async {
     print('====================================');
     print('LOAD TARGET DATES');
+    _targetRequest++;
     print('USER ID: ${event.userId}');
     print('====================================');
 
@@ -85,6 +87,8 @@ class DealerTargetBloc
       await _getTarget(
         userId: event.userId,
         targetId: firstDate.monthlyCollectionId,
+        outletId: event.outletId,
+        collectionTypeId: event.collectionTypeId,
         emit: emit,
       );
     } catch (e) {
@@ -131,6 +135,8 @@ class DealerTargetBloc
     await _getTarget(
       userId: event.userId,
       targetId: event.selectedDate.monthlyCollectionId,
+      outletId: event.outletId,
+      collectionTypeId: event.collectionTypeId,
       emit: emit,
     );
   }
@@ -142,14 +148,26 @@ class DealerTargetBloc
   Future<void> _getTarget({
     required String userId,
     required String targetId,
+    required String outletId,
+    required String collectionTypeId,
     required Emitter<DealerTargetState> emit,
   }) async {
+    final request = ++_targetRequest;
     try {
       print('====================================');
       print('CALLING COLLECTION TARGET API');
       print('USER ID: $userId');
       print('TARGET ID: $targetId');
       print('====================================');
+
+      if (outletId.isEmpty || collectionTypeId.isEmpty) {
+        emit(state.copyWith(
+          targetStatus: CollectionTargetStatus.initial,
+          clearTarget: true,
+          clearMessage: true,
+        ));
+        return;
+      }
 
       if (targetId.isEmpty) {
         emit(
@@ -166,7 +184,11 @@ class DealerTargetBloc
       final result = await getCollectionWiseTarget(
         userId: userId,
         targetId: targetId,
+        outletId: outletId,
+        collectionTypeId: collectionTypeId,
       );
+
+      if (emit.isDone || request != _targetRequest) return;
 
       // No record
       if (result == null) {
@@ -200,6 +222,7 @@ class DealerTargetBloc
         ),
       );
     } catch (e) {
+      if (emit.isDone || request != _targetRequest) return;
       print('TARGET API ERROR: $e');
 
       emit(

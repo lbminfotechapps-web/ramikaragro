@@ -15,14 +15,20 @@ abstract class DealerTargetEvent extends Equatable {
 
 class LoadTargetDatesEvent extends DealerTargetEvent {
   final String userId;
+  final String outletId;
+  final String collectionTypeId;
 
   const LoadTargetDatesEvent({
     required this.userId,
+    this.outletId = '',
+    this.collectionTypeId = '',
   });
 
   @override
   List<Object?> get props => [
         userId,
+        outletId,
+        collectionTypeId,
       ];
 }
 
@@ -33,15 +39,21 @@ class LoadTargetDatesEvent extends DealerTargetEvent {
 class SelectTargetDateEvent extends DealerTargetEvent {
   final TargetDateEntity selectedDate;
   final String userId;
+  final String outletId;
+  final String collectionTypeId;
 
   const SelectTargetDateEvent({
     required this.selectedDate,
     required this.userId,
+    this.outletId = '',
+    this.collectionTypeId = '',
   });
 
   @override
   List<Object?> get props => [
         selectedDate,
         userId,
+        outletId,
+        collectionTypeId,
       ];
 }
