@@ -1,14 +1,14 @@
 import 'dart:io';
 
+import 'package:solufine/features/collection/domain/entities/collection_type_entity.dart';
+
 import '../entities/submit_payment_response.dart';
 import '../repositories/collection_repository.dart';
 
 class SubmitPaymentDetails {
   final CollectionRepository repository;
 
-  SubmitPaymentDetails({
-    required this.repository,
-  });
+  SubmitPaymentDetails({required this.repository});
 
   Future<SubmitPaymentResponse> call({
     required String dealerId,
@@ -25,6 +25,7 @@ class SubmitPaymentDetails {
     required String transaction,
     required String userId,
     required List<File> images,
+    required String collectionTypeData,
   }) {
     return repository.submitPaymentDetails(
       dealerId: dealerId,
@@ -41,6 +42,11 @@ class SubmitPaymentDetails {
       transaction: transaction,
       userId: userId,
       images: images,
+      collectionTypeData: collectionTypeData,
     );
+  }
+
+  Future<CollectionTypeResponseEntity> getCollectionType() {
+    return repository.getCollectionType();
   }
 }

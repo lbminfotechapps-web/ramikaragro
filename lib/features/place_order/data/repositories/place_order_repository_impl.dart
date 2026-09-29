@@ -1,3 +1,5 @@
+import 'package:solufine/features/collection/domain/entities/collection_type_entity.dart';
+
 import '../../domain/entities/category_entity.dart';
 import '../../domain/entities/dealer_entity.dart';
 import '../../domain/entities/godown_entity.dart';
@@ -49,6 +51,12 @@ class PlaceOrderRepositoryImpl implements PlaceOrderRepository {
   Future<List<CategoryEntity>> getCategories() {
     return remoteDataSource.getCategories();
   }
+
+
+  //  @override
+  // Future<CollectionTypeResponseEntity> getCollectionType() {
+  //   return remoteDataSource.getCollectionType();
+  // }
 
   // =========================================================
   // PRODUCTS

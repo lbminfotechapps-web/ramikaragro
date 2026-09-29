@@ -819,150 +819,334 @@ class DealerListDataSource {
     }
   }
 
-  Future<Map<String, dynamic>> addDealerStock(
-    Map<String, dynamic> jsonData,
-    File? dealerImage,
-    File? digitalSignature,
-  ) async {
+ Future<Map<String, dynamic>> addDealerStock(
+  Map<String, dynamic> jsonData,
+  File? dealerImage,
+  String digitalSignature,
+) async {
+  try {
+    final Map<String, dynamic> requestData =
+        Map<String, dynamic>.from(
+      jsonData,
+    );
+
+    // ============================================================
+    // NOW SEND SERVER SIGNATURE FILE NAME AS NORMAL STRING
+    // ============================================================
+
+    requestData['digitalSignature'] =
+        digitalSignature;
+
+    final FormData formData =
+        FormData.fromMap(
+      requestData,
+    );
+
+    // ============================================================
+    // DEALER IMAGE MULTIPART
+    // ============================================================
+
+    if (dealerImage != null &&
+        await dealerImage.exists()) {
+      formData.files.add(
+        MapEntry(
+          'dealerImage',
+          await MultipartFile.fromFile(
+            dealerImage.path,
+            filename:
+                dealerImage.path
+                    .split(
+                      Platform.pathSeparator,
+                    )
+                    .last,
+          ),
+        ),
+      );
+    }
+
+    // ============================================================
+    // DEBUG
+    // ============================================================
+
+    debugPrint('');
+    debugPrint('========================================');
+    debugPrint('ADD DEALER STOCK FINAL REQUEST');
+    debugPrint('========================================');
+
+    for (final field in formData.fields) {
+      debugPrint(
+        '${field.key} : ${field.value}',
+      );
+    }
+
+    for (final file in formData.files) {
+      debugPrint(
+        '${file.key} : ${file.value.filename}',
+      );
+    }
+
+    debugPrint('========================================');
+
+    // ============================================================
+    // API CALL
+    // ============================================================
+
+    final response =
+        await dioClient.client.post(
+      ApiClient.addStock,
+      data: formData,
+    );
+
+    dynamic data = response.data;
+
+    if (data is String) {
+      data = jsonDecode(data);
+    }
+
+    if (data is! Map) {
+      throw const FormatException(
+        'Add Dealer Stock response is invalid',
+      );
+    }
+
+    return Map<String, dynamic>.from(
+      data,
+    );
+  } catch (e, stackTrace) {
+    debugPrint(
+      'ADD DEALER STOCK ERROR: $e',
+    );
+
+    debugPrint(
+      '$stackTrace',
+    );
+
+    rethrow;
+  }
+}
+
+
+   dynamic _decodeResponse(dynamic responseData) {
+    if (responseData == null) {
+      return null;
+    }
+
+    if (responseData is Map || responseData is List) {
+      return responseData;
+    }
+
+    if (responseData is String) {
+      final String value = responseData.trim();
+
+      if (value.isEmpty) {
+        return null;
+      }
+
+      try {
+        return jsonDecode(value);
+      } catch (_) {
+        return value;
+      }
+    }
+
+    return responseData;
+  }
+
+  Future<String> uploadSignature({required String signaturePath}) async {
     try {
-      debugPrint('');
-      debugPrint('==========================================');
-      debugPrint('ADD DEALER STOCK DATASOURCE');
-      debugPrint('==========================================');
-
-      final FormData formData = FormData.fromMap(jsonData);
+      print('');
+      print('========================================');
+      print('UPLOAD SIGNATURE');
+      print('========================================');
 
       // ============================================================
-      // DEALER IMAGE
+      // VALIDATE PATH
       // ============================================================
 
-      if (dealerImage != null && await dealerImage.exists()) {
-        formData.files.add(
-          MapEntry(
-            'dealerImage',
-            await MultipartFile.fromFile(
-              dealerImage.path,
-              filename: dealerImage.path.split(Platform.pathSeparator).last,
-            ),
-          ),
-        );
+      final String cleanPath = signaturePath.trim();
 
-        debugPrint('DEALER IMAGE ADDED');
+      if (cleanPath.isEmpty) {
+        throw Exception('Signature path is empty');
       }
 
       // ============================================================
-      // DIGITAL SIGNATURE
+      // CHECK FILE
       // ============================================================
 
-      if (digitalSignature != null && await digitalSignature.exists()) {
-        formData.files.add(
-          MapEntry(
-            'digitalSignature',
-            await MultipartFile.fromFile(
-              digitalSignature.path,
-              filename: digitalSignature.path
-                  .split(Platform.pathSeparator)
-                  .last,
-            ),
-          ),
-        );
+      final File signatureFile = File(cleanPath);
 
-        debugPrint('DIGITAL SIGNATURE ADDED');
+      if (!await signatureFile.exists()) {
+        throw Exception('Signature file does not exist: $cleanPath');
+      }
+
+      final int signatureSize = await signatureFile.length();
+
+      if (signatureSize <= 0) {
+        throw Exception('Signature file is empty');
       }
 
       // ============================================================
-      // PRINT NORMAL FIELDS
+      // CREATE SERVER FILENAME
       // ============================================================
 
-      debugPrint('');
-      debugPrint('==========================================');
-      debugPrint('FINAL FORM DATA FIELDS');
-      debugPrint('==========================================');
+      final String timestamp = DateTime.now().millisecondsSinceEpoch.toString();
 
-      for (final field in formData.fields) {
-        debugPrint('${field.key} : ${field.value}');
-      }
+      final String fileName = 'Signature_$timestamp.png';
 
       // ============================================================
-      // PRINT FILES
+      // CREATE MULTIPART FILE
       // ============================================================
 
-      debugPrint('');
-      debugPrint('==========================================');
-      debugPrint('FINAL FORM DATA FILES');
-      debugPrint('==========================================');
+      final MultipartFile multipartFile = await MultipartFile.fromFile(
+        signatureFile.path,
+        filename: fileName,
+      );
 
-      for (final file in formData.files) {
-        debugPrint('${file.key} : ${file.value.filename}');
-      }
+      // ============================================================
+      // FORM DATA
+      // ============================================================
 
-      debugPrint('==========================================');
+      final FormData formData = FormData();
+
+      // Android:
+      // addFormDataPart("file", ...)
+      //
+      // Therefore field name MUST be "file"
+
+      formData.files.add(MapEntry('file', multipartFile));
+
+      // ============================================================
+      // DEBUG
+      // ============================================================
+
+      print('API: upload_sign');
+      print('Multipart field: file');
+      print('Local path: ${signatureFile.path}');
+      print('Filename: $fileName');
+      print('File size: $signatureSize bytes');
 
       // ============================================================
       // API CALL
       // ============================================================
 
       final response = await dioClient.client.post(
-        ApiClient.addStock,
+        ApiClient.upload_sign,
         data: formData,
+        options: Options(responseType: ResponseType.plain),
       );
 
-      debugPrint('');
-      debugPrint('==========================================');
-      debugPrint('ADD DEALER STOCK RESPONSE');
-      debugPrint('==========================================');
+      // ============================================================
+      // RESPONSE
+      // ============================================================
 
-      debugPrint('STATUS CODE: ${response.statusCode}');
+      print('');
+      print('========================================');
+      print('UPLOAD SIGNATURE RESPONSE');
+      print('========================================');
 
-      debugPrint('RESPONSE: ${response.data}');
+      print(response.data);
 
-      debugPrint('==========================================');
+      final dynamic decoded = _decodeResponse(response.data);
 
-      dynamic data = response.data;
-
-      if (data is String) {
-        try {
-          data = jsonDecode(data);
-        } on FormatException {
-          throw const FormatException(
-            'Invalid JSON response from Add Dealer Stock API',
-          );
-        }
+      if (decoded is! Map<String, dynamic>) {
+        throw Exception('Invalid upload_sign response');
       }
 
-      if (data is! Map) {
-        throw const FormatException(
-          'Add Dealer Stock API response is not a JSON object',
+      // ============================================================
+      // CHECK STATUS
+      // ============================================================
+
+      final String status = '${decoded['status'] ?? ''}'.toLowerCase();
+
+      print('Upload status: $status');
+
+      if (status != 'success') {
+        throw Exception(
+          decoded['message']?.toString() ?? 'Signature upload failed',
         );
       }
 
-      return Map<String, dynamic>.from(data);
+      // ============================================================
+      // TRY TO GET FILENAME FROM SERVER RESPONSE
+      // ============================================================
+
+      String uploadedFileName = '';
+
+      uploadedFileName = decoded['fileName']?.toString() ?? '';
+
+      if (uploadedFileName.isEmpty) {
+        uploadedFileName = decoded['filename']?.toString() ?? '';
+      }
+
+      if (uploadedFileName.isEmpty) {
+        uploadedFileName = decoded['file']?.toString() ?? '';
+      }
+
+      if (uploadedFileName.isEmpty) {
+        uploadedFileName = decoded['signature']?.toString() ?? '';
+      }
+
+      // ============================================================
+      // IMPORTANT
+      //
+      // Your API currently returns:
+      //
+      // {"status":"success"}
+      //
+      // Therefore there is no filename in response.
+      //
+      // We already know the filename that was uploaded:
+      //
+      // Signature_xxxxxxxxx.png
+      //
+      // So use that filename.
+      // ============================================================
+
+      if (uploadedFileName.isEmpty) {
+        uploadedFileName = fileName;
+      }
+
+      // ============================================================
+      // FINAL VALIDATION
+      // ============================================================
+
+      if (uploadedFileName.trim().isEmpty) {
+        throw Exception(
+          'Signature uploaded successfully, '
+          'but filename could not be determined',
+        );
+      }
+
+      print('');
+      print('========================================');
+      print('SIGNATURE UPLOAD SUCCESS');
+      print('========================================');
+
+      print('Server filename: $uploadedFileName');
+
+      return uploadedFileName;
     } on DioException catch (e) {
-      debugPrint('');
-      debugPrint('==========================================');
-      debugPrint('ADD DEALER STOCK DIO ERROR');
-      debugPrint('==========================================');
+      print('');
+      print('========================================');
+      print('UPLOAD SIGNATURE DIO ERROR');
+      print('========================================');
 
-      debugPrint('MESSAGE: ${e.message}');
+      print('Message: ${e.message}');
 
-      debugPrint('STATUS CODE: ${e.response?.statusCode}');
+      print('Status: ${e.response?.statusCode}');
 
-      debugPrint('RESPONSE: ${e.response?.data}');
+      print('Response: ${e.response?.data}');
 
-      debugPrint('==========================================');
+      throw Exception(
+        e.response?.data?.toString() ?? e.message ?? 'Signature upload failed',
+      );
+    } catch (e) {
+      print('');
+      print('========================================');
+      print('UPLOAD SIGNATURE ERROR');
+      print('========================================');
 
-      rethrow;
-    } catch (e, stackTrace) {
-      debugPrint('');
-      debugPrint('==========================================');
-      debugPrint('ADD DEALER STOCK ERROR');
-      debugPrint('==========================================');
-
-      debugPrint('ERROR: $e');
-
-      debugPrint('STACK TRACE: $stackTrace');
-
-      debugPrint('==========================================');
+      print(e);
 
       rethrow;
     }

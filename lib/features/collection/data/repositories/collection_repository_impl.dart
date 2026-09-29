@@ -2,26 +2,23 @@ import 'dart:io';
 
 import 'package:solufine/features/collection/data/models/bank_model.dart';
 import 'package:solufine/features/collection/data/models/dealer_model.dart';
+import 'package:solufine/features/collection/domain/entities/collection_type_entity.dart';
 
 import '../../domain/entities/submit_payment_response.dart';
 import '../../domain/repositories/collection_repository.dart';
 import '../datasources/collection_remote_datasource.dart';
 
-class CollectionRepositoryImpl
-    implements CollectionRepository {
+class CollectionRepositoryImpl implements CollectionRepository {
   final CollectionRemoteDataSource remoteDataSource;
 
-  CollectionRepositoryImpl({
-    required this.remoteDataSource,
-  });
+  CollectionRepositoryImpl({required this.remoteDataSource});
 
   // ============================================================
   // SUBMIT
   // ============================================================
 
   @override
-  Future<SubmitPaymentResponse>
-      submitPaymentDetails({
+  Future<SubmitPaymentResponse> submitPaymentDetails({
     required String dealerId,
     required String paymentMode,
     required String amount,
@@ -36,6 +33,7 @@ class CollectionRepositoryImpl
     required String transaction,
     required String userId,
     required List<File> images,
+    required String collectionTypeData,
   }) {
     return remoteDataSource.submitPaymentDetails(
       dealerId: dealerId,
@@ -52,6 +50,7 @@ class CollectionRepositoryImpl
       transaction: transaction,
       userId: userId,
       images: images,
+      collectionTypeData: collectionTypeData,
     );
   }
 
@@ -79,9 +78,11 @@ class CollectionRepositoryImpl
     required String dealerId,
     required String userId,
   }) {
-    return remoteDataSource.getBankDetails(
-      dealerId: dealerId,
-      userId: userId,
-    );
+    return remoteDataSource.getBankDetails(dealerId: dealerId, userId: userId);
+  }
+
+  @override
+  Future<CollectionTypeResponseEntity> getCollectionType() {
+    return remoteDataSource.getCollectionType();
   }
 }

@@ -114,4 +114,5 @@ class ApiClient {
 
   static const String getProductGroup ='/get_product_group';
   static const String add_group_sales_target = '/add_group_sales_target';
+  static const String getCollectionType = '/get_collection_type';
 }

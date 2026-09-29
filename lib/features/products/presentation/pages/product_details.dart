@@ -175,12 +175,12 @@ class ProductDetails extends StatelessWidget {
     // if (userData == null) {
     //   if (!context.mounted) return;
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('User information not found. Please login again.'),
-          behavior: SnackBarBehavior.floating,
-        ),
-      );
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('User information not found. Please login again.'),
+        behavior: SnackBarBehavior.floating,
+      ),
+    );
 
     //   return;
     // }
@@ -190,12 +190,12 @@ class ProductDetails extends StatelessWidget {
     // if (userId.isEmpty) {
     //   if (!context.mounted) return;
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('User ID not found. Please login again.'),
-          behavior: SnackBarBehavior.floating,
-        ),
-      );
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('User ID not found. Please login again.'),
+        behavior: SnackBarBehavior.floating,
+      ),
+    );
 
     //   return;
     // }

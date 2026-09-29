@@ -1,5 +1,7 @@
 import 'dart:io';
 
+import 'package:solufine/features/collection/domain/entities/collection_type_entity.dart';
+
 import '../../data/models/bank_model.dart';
 import '../../data/models/dealer_model.dart';
 import '../entities/submit_payment_response.dart';
@@ -9,8 +11,7 @@ abstract class CollectionRepository {
   // SUBMIT
   // ============================================================
 
-  Future<SubmitPaymentResponse>
-      submitPaymentDetails({
+  Future<SubmitPaymentResponse> submitPaymentDetails({
     required String dealerId,
     required String paymentMode,
     required String amount,
@@ -25,6 +26,7 @@ abstract class CollectionRepository {
     required String transaction,
     required String userId,
     required List<File> images,
+    required String collectionTypeData,
   });
 
   // ============================================================
@@ -44,4 +46,6 @@ abstract class CollectionRepository {
     required String dealerId,
     required String userId,
   });
+
+  Future<CollectionTypeResponseEntity> getCollectionType();
 }
