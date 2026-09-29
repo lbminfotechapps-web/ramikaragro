@@ -506,7 +506,7 @@ class _HomeState extends State<Home> {
           showLogout: _userId != null && _userId != '0',
 
           onLoginTap: () {
-            context.go(AppRouter.login);
+            context.push(AppRouter.login);
           },
 
           onLogOutTap: _logout,
@@ -1250,7 +1250,7 @@ class _HomeState extends State<Home> {
                     fontWeight: FontWeight.bold,
                   ),
                 ),
-                Text('Pending Request', style: TextStyle(fontSize: 10.sp)),
+                Text('Pending Punch', style: TextStyle(fontSize: 10.sp)),
               ],
             ),
           ),

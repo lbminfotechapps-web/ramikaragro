@@ -8,14 +8,15 @@ import 'package:solufine/features/collection/data/models/bank_model.dart';
 import 'package:solufine/features/collection/data/models/dealer_model.dart';
 import 'package:solufine/features/collection/data/models/submit_payment_response_model.dart';
 import 'package:dio/dio.dart';
+import 'package:solufine/features/collection/data/models/collection_type_model.dart';
+import 'package:solufine/features/collection/domain/entities/collection_type_entity.dart';
 
 abstract class CollectionRemoteDataSource {
   // ============================================================
   // SUBMIT PAYMENT
   // ============================================================
 
-  Future<SubmitPaymentResponseModel>
-      submitPaymentDetails({
+  Future<SubmitPaymentResponseModel> submitPaymentDetails({
     required String dealerId,
     required String paymentMode,
     required String amount,
@@ -29,6 +30,7 @@ abstract class CollectionRemoteDataSource {
     required String remark,
     required String transaction,
     required String userId,
+     required String collectionTypeData,
     required List<File> images,
   });
 
@@ -41,6 +43,8 @@ abstract class CollectionRemoteDataSource {
     required String searchText,
   });
 
+  Future<CollectionTypeResponseModel> getCollectionType();
+
   // ============================================================
   // BANK DETAILS
   // ============================================================
@@ -51,21 +55,17 @@ abstract class CollectionRemoteDataSource {
   });
 }
 
-class CollectionRemoteDataSourceImpl
-    implements CollectionRemoteDataSource {
+class CollectionRemoteDataSourceImpl implements CollectionRemoteDataSource {
   final DioClient dioClient;
 
-  CollectionRemoteDataSourceImpl({
-    required this.dioClient,
-  });
+  CollectionRemoteDataSourceImpl({required this.dioClient});
 
   // ============================================================
   // SUBMIT PAYMENT
   // ============================================================
 
   @override
-  Future<SubmitPaymentResponseModel>
-      submitPaymentDetails({
+  Future<SubmitPaymentResponseModel> submitPaymentDetails({
     required String dealerId,
     required String paymentMode,
     required String amount,
@@ -80,6 +80,7 @@ class CollectionRemoteDataSourceImpl
     required String transaction,
     required String userId,
     required List<File> images,
+     required String collectionTypeData,
   }) async {
     try {
       final Map<String, dynamic> fields = {
@@ -91,13 +92,12 @@ class CollectionRemoteDataSourceImpl
         'strChequeDate': chequeDate.trim(),
         'strChequeNumber': chequeNumber.trim(),
         'strBankName': bankName.trim(),
-        'strDepositBankName':
-            depositBankName.trim(),
-        'strDepositBrachName':
-            depositBranchName.trim(),
+        'strDepositBankName': depositBankName.trim(),
+        'strDepositBrachName': depositBranchName.trim(),
         'remark': remark.trim(),
         'transcation': transaction.trim(),
         'userId': userId.trim(),
+        'collectionTypeData':collectionTypeData.trim()
       };
 
       final formData = FormData.fromMap(fields);
@@ -112,16 +112,13 @@ class CollectionRemoteDataSourceImpl
             'pictures[]',
             await MultipartFile.fromFile(
               image.path,
-              filename: image.path
-                  .split(Platform.pathSeparator)
-                  .last,
+              filename: image.path.split(Platform.pathSeparator).last,
             ),
           ),
         );
       }
 
-      final response =
-          await dioClient.client.post(
+      final response = await dioClient.client.post(
         ApiClient.submitPaymentDetails,
         data: formData,
         options: Options(
@@ -134,52 +131,36 @@ class CollectionRemoteDataSourceImpl
       );
 
       if (response.statusCode != 200) {
-        throw ServerException(
-          'Server error: ${response.statusCode}',
-        );
+        throw ServerException('Server error: ${response.statusCode}');
       }
 
       dynamic responseData = response.data;
 
-      responseData =
-          _decodeResponse(responseData);
+      responseData = _decodeResponse(responseData);
 
       if (responseData is! Map) {
-        throw ServerException(
-          'Invalid response format',
-        );
+        throw ServerException('Invalid response format');
       }
 
-      final json =
-          Map<String, dynamic>.from(responseData);
+      final json = Map<String, dynamic>.from(responseData);
 
       final success =
           json['status'] == true ||
-          json['status']
-                  ?.toString()
-                  .toLowerCase() ==
-              'true';
+          json['status']?.toString().toLowerCase() == 'true';
 
       if (!success) {
         throw ServerException(
-          json['message']?.toString() ??
-              'Payment submission failed',
+          json['message']?.toString() ?? 'Payment submission failed',
         );
       }
 
-      return SubmitPaymentResponseModel
-          .fromJson(json);
+      return SubmitPaymentResponseModel.fromJson(json);
     } on ServerException {
       rethrow;
     } on DioException catch (e) {
-      throw NetworkException(
-        e.message ??
-            'Network error occurred',
-      );
+      throw NetworkException(e.message ?? 'Network error occurred');
     } catch (e) {
-      throw NetworkException(
-        e.toString(),
-      );
+      throw NetworkException(e.toString());
     }
   }
 
@@ -193,48 +174,32 @@ class CollectionRemoteDataSourceImpl
     required String searchText,
   }) async {
     try {
-      print(
-        '==========================================',
-      );
+      print('==========================================');
       print('SEARCH DEALER API');
-      print(
-        'URL: ${ApiClient.getTalukaWiseOutletForOrderNew}',
-      );
+      print('URL: ${ApiClient.getTalukaWiseOutletForOrderNew}');
       print('userId: $userId');
       print('searchText: $searchText');
-      print(
-        '==========================================',
-      );
+      print('==========================================');
 
-      final response =
-          await dioClient.client.post(
+      final response = await dioClient.client.post(
         ApiClient.getTalukaWiseOutletForOrderNew,
-        data: FormData.fromMap({
-          'userId': userId,
-          'searchText': searchText,
-        }),
+        data: FormData.fromMap({'userId': userId, 'searchText': searchText}),
       );
 
       print('DEALER STATUS: ${response.statusCode}');
       print('DEALER RESPONSE: ${response.data}');
 
       if (response.statusCode != 200) {
-        throw ServerException(
-          'Server error: ${response.statusCode}',
-        );
+        throw ServerException('Server error: ${response.statusCode}');
       }
 
-      dynamic responseData =
-          _decodeResponse(response.data);
+      dynamic responseData = _decodeResponse(response.data);
 
       if (responseData is! Map) {
-        throw ServerException(
-          'Invalid dealer response',
-        );
+        throw ServerException('Invalid dealer response');
       }
 
-      final json =
-          Map<String, dynamic>.from(responseData);
+      final json = Map<String, dynamic>.from(responseData);
 
       final result = json['result'];
 
@@ -248,36 +213,19 @@ class CollectionRemoteDataSourceImpl
 
       return result
           .whereType<Map>()
-          .map(
-            (item) => DealerModel.fromJson(
-              Map<String, dynamic>.from(item),
-            ),
-          )
-          .where(
-            (dealer) =>
-                dealer.id.isNotEmpty ||
-                dealer.name.isNotEmpty,
-          )
+          .map((item) => DealerModel.fromJson(Map<String, dynamic>.from(item)))
+          .where((dealer) => dealer.id.isNotEmpty || dealer.name.isNotEmpty)
           .toList();
     } on ServerException {
       rethrow;
     } on DioException catch (e) {
-      print(
-        'DEALER SEARCH DIO ERROR: ${e.message}',
-      );
+      print('DEALER SEARCH DIO ERROR: ${e.message}');
 
-      throw NetworkException(
-        e.message ??
-            'Unable to search dealers',
-      );
+      throw NetworkException(e.message ?? 'Unable to search dealers');
     } catch (e) {
-      print(
-        'DEALER SEARCH ERROR: $e',
-      );
+      print('DEALER SEARCH ERROR: $e');
 
-      throw NetworkException(
-        e.toString(),
-      );
+      throw NetworkException(e.toString());
     }
   }
 
@@ -291,53 +239,33 @@ class CollectionRemoteDataSourceImpl
     required String userId,
   }) async {
     try {
-      print(
-        '==========================================',
-      );
+      print('==========================================');
       print('GET BANK DETAILS');
-      print(
-        'URL: ${ApiClient.getBankDetails}',
-      );
+      print('URL: ${ApiClient.getBankDetails}');
       print('dealerId: $dealerId');
       print('userId: $userId');
-      print(
-        '==========================================',
-      );
+      print('==========================================');
 
-      final response =
-          await dioClient.client.post(
+      final response = await dioClient.client.post(
         ApiClient.getBankDetails,
-        data: {
-          'dealerId': dealerId,
-          'userId': userId,
-        },
+        data: {'dealerId': dealerId, 'userId': userId},
       );
 
-      print(
-        'BANK STATUS: ${response.statusCode}',
-      );
+      print('BANK STATUS: ${response.statusCode}');
 
-      print(
-        'BANK RESPONSE: ${response.data}',
-      );
+      print('BANK RESPONSE: ${response.data}');
 
       if (response.statusCode != 200) {
-        throw ServerException(
-          'Server error: ${response.statusCode}',
-        );
+        throw ServerException('Server error: ${response.statusCode}');
       }
 
-      dynamic responseData =
-          _decodeResponse(response.data);
+      dynamic responseData = _decodeResponse(response.data);
 
       if (responseData is! Map) {
-        throw ServerException(
-          'Invalid bank response',
-        );
+        throw ServerException('Invalid bank response');
       }
 
-      final json =
-          Map<String, dynamic>.from(responseData);
+      final json = Map<String, dynamic>.from(responseData);
 
       final result = json['result'];
 
@@ -348,34 +276,21 @@ class CollectionRemoteDataSourceImpl
       if (result is List) {
         return result
             .whereType<Map>()
-            .map(
-              (item) => BankModel.fromJson(
-                Map<String, dynamic>.from(item),
-              ),
-            )
+            .map((item) => BankModel.fromJson(Map<String, dynamic>.from(item)))
             .toList();
       }
 
       if (result is Map) {
-        return [
-          BankModel.fromJson(
-            Map<String, dynamic>.from(result),
-          ),
-        ];
+        return [BankModel.fromJson(Map<String, dynamic>.from(result))];
       }
 
       return [];
     } on ServerException {
       rethrow;
     } on DioException catch (e) {
-      throw NetworkException(
-        e.message ??
-            'Unable to load bank details',
-      );
+      throw NetworkException(e.message ?? 'Unable to load bank details');
     } catch (e) {
-      throw NetworkException(
-        e.toString(),
-      );
+      throw NetworkException(e.toString());
     }
   }
 
@@ -391,9 +306,7 @@ class CollectionRemoteDataSourceImpl
     final raw = data.trim();
 
     if (raw.isEmpty) {
-      throw ServerException(
-        'Empty server response',
-      );
+      throw ServerException('Empty server response');
     }
 
     try {
@@ -402,22 +315,42 @@ class CollectionRemoteDataSourceImpl
       final jsonStart = raw.indexOf('{');
 
       if (jsonStart != -1) {
-        return jsonDecode(
-          raw.substring(jsonStart),
-        );
+        return jsonDecode(raw.substring(jsonStart));
       }
 
       final arrayStart = raw.indexOf('[');
 
       if (arrayStart != -1) {
-        return jsonDecode(
-          raw.substring(arrayStart),
+        return jsonDecode(raw.substring(arrayStart));
+      }
+
+      throw ServerException('Invalid server response');
+    }
+  }
+
+  @override
+  Future<CollectionTypeResponseModel> getCollectionType() async {
+    try {
+      final response = await dioClient.client.post(ApiClient.getCollectionType);
+
+      final dynamic data = _decodeResponse(response.data);
+
+      if (data is Map<String, dynamic>) {
+        return CollectionTypeResponseModel.fromJson(data);
+      }
+
+      if (data is Map) {
+        return CollectionTypeResponseModel.fromJson(
+          Map<String, dynamic>.from(data),
         );
       }
 
-      throw ServerException(
-        'Invalid server response',
+      throw const FormatException(
+        'Collection type response is not a JSON object',
       );
+    } catch (e) {
+      print('GET COLLECTION TYPE ERROR: $e');
+      rethrow;
     }
   }
 }

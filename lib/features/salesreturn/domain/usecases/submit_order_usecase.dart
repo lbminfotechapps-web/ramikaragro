@@ -6,9 +6,7 @@ import '../../domain/entities/godown_entity.dart';
 class SubmitOrderUseCase {
   final SalesReturnRepository repository;
 
-  SubmitOrderUseCase({
-    required this.repository,
-  });
+  SubmitOrderUseCase({required this.repository});
 
   Future<void> call({
     required int userId,

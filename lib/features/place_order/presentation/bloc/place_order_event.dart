@@ -18,14 +18,10 @@ abstract class PlaceOrderEvent extends Equatable {
 class LoadPlaceOrderEvent extends PlaceOrderEvent {
   final int userId;
 
-  const LoadPlaceOrderEvent({
-    required this.userId,
-  });
+  const LoadPlaceOrderEvent({required this.userId});
 
   @override
-  List<Object?> get props => [
-        userId,
-      ];
+  List<Object?> get props => [userId];
 }
 
 // ============================================================
@@ -36,16 +32,10 @@ class SearchDealerEvent extends PlaceOrderEvent {
   final int userId;
   final String searchText;
 
-  const SearchDealerEvent({
-    required this.userId,
-    required this.searchText,
-  });
+  const SearchDealerEvent({required this.userId, required this.searchText});
 
   @override
-  List<Object?> get props => [
-        userId,
-        searchText,
-      ];
+  List<Object?> get props => [userId, searchText];
 }
 
 // ============================================================
@@ -55,14 +45,10 @@ class SearchDealerEvent extends PlaceOrderEvent {
 class GetProductsEvent extends PlaceOrderEvent {
   final String categoryId;
 
-  const GetProductsEvent({
-    required this.categoryId,
-  });
+  const GetProductsEvent({required this.categoryId});
 
   @override
-  List<Object?> get props => [
-        categoryId,
-      ];
+  List<Object?> get props => [categoryId];
 }
 
 // ============================================================
@@ -72,14 +58,10 @@ class GetProductsEvent extends PlaceOrderEvent {
 class AddProductEvent extends PlaceOrderEvent {
   final ProductEntity product;
 
-  const AddProductEvent({
-    required this.product,
-  });
+  const AddProductEvent({required this.product});
 
   @override
-  List<Object?> get props => [
-        product,
-      ];
+  List<Object?> get props => [product];
 }
 
 // ============================================================
@@ -100,10 +82,7 @@ class ChangeProductQuantityEvent extends PlaceOrderEvent {
   });
 
   @override
-  List<Object?> get props => [
-        productId,
-        quantity,
-      ];
+  List<Object?> get props => [productId, quantity];
 }
 
 // ============================================================
@@ -130,10 +109,7 @@ class IncreasePackingQuantityEvent extends PlaceOrderEvent {
   });
 
   @override
-  List<Object?> get props => [
-        productId,
-        productDetailsId,
-      ];
+  List<Object?> get props => [productId, productDetailsId];
 }
 
 // ============================================================
@@ -150,10 +126,7 @@ class DecreasePackingQuantityEvent extends PlaceOrderEvent {
   });
 
   @override
-  List<Object?> get props => [
-        productId,
-        productDetailsId,
-      ];
+  List<Object?> get props => [productId, productDetailsId];
 }
 
 // ============================================================
@@ -181,11 +154,7 @@ class SetPackingQuantityEvent extends PlaceOrderEvent {
   });
 
   @override
-  List<Object?> get props => [
-        productId,
-        productDetailsId,
-        quantity,
-      ];
+  List<Object?> get props => [productId, productDetailsId, quantity];
 }
 
 // ============================================================
@@ -195,22 +164,22 @@ class SetPackingQuantityEvent extends PlaceOrderEvent {
 class RemoveProductEvent extends PlaceOrderEvent {
   final String productId;
 
-  const RemoveProductEvent({
-    required this.productId,
-  });
+  const RemoveProductEvent({required this.productId});
 
   @override
-  List<Object?> get props => [
-        productId,
-      ];
+  List<Object?> get props => [productId];
 }
 
 // ============================================================
 // SUBMIT ORDER
 // ============================================================
 
+// class GetCollectionTypeEvent extends PlaceOrderEvent {
+//   const GetCollectionTypeEvent();
 
-
+//   @override
+//   List<Object?> get props => [];
+// }
 
 class SubmitPlaceOrderEvent extends PlaceOrderEvent {
   final int userId;
@@ -231,16 +200,15 @@ class SubmitPlaceOrderEvent extends PlaceOrderEvent {
     required this.signaturePath,
   });
 
-
   @override
   List<Object?> get props => [
-        userId,
-        dealer,
-        godown,
-        products,
-        remark,
-        imagePaths,
-      //  signatureBytes,
-        signaturePath,
-      ];
+    userId,
+    dealer,
+    godown,
+    products,
+    remark,
+    imagePaths,
+    //  signatureBytes,
+    signaturePath,
+  ];
 }

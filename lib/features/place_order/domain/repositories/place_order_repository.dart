@@ -1,3 +1,5 @@
+import 'package:solufine/features/collection/domain/entities/collection_type_entity.dart';
+
 import '../entities/category_entity.dart';
 import '../entities/dealer_entity.dart';
 import '../entities/godown_entity.dart';
@@ -26,6 +28,8 @@ abstract class PlaceOrderRepository {
   // =========================================================
 
   Future<List<CategoryEntity>> getCategories();
+  
+  // Future<CollectionTypeResponseEntity> getCollectionType();
 
   // =========================================================
   // PRODUCTS

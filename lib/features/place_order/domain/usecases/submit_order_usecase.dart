@@ -1,3 +1,5 @@
+import 'package:solufine/features/collection/domain/entities/collection_type_entity.dart';
+
 import '../../domain/entities/dealer_entity.dart';
 import '../../domain/entities/godown_entity.dart';
 import '../../domain/repositories/place_order_repository.dart';
@@ -5,9 +7,7 @@ import '../../domain/repositories/place_order_repository.dart';
 class SubmitOrderUseCase {
   final PlaceOrderRepository repository;
 
-  SubmitOrderUseCase({
-    required this.repository,
-  });
+  SubmitOrderUseCase({required this.repository});
 
   Future<void> call({
     required int userId,
@@ -40,4 +40,8 @@ class SubmitOrderUseCase {
       signatureFileName: signatureFileName,
     );
   }
+
+  // Future<CollectionTypeResponseEntity> getCollectionType() {
+  //   return repository.getCollectionType();
+  // }
 }

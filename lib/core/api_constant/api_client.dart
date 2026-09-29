@@ -108,4 +108,5 @@ class ApiClient {
 
   static const String getProductDetail = '/getProductDetail';
   static const String addStock = '/addStock';
+  static const String getCollectionType = '/get_collection_type';
 }

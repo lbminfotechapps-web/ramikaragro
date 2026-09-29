@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:flutter/material.dart';
 import 'package:solufine/features/dealer/data/datasource/dealer_datasource.dart';
 import 'package:solufine/features/dealer/data/models/DealerListModel.dart';
 import 'package:solufine/features/dealer/data/models/dealer_products.dart';
@@ -87,12 +88,43 @@ class DealerListRepositoryImpl implements DealerListRepository {
 Future<Map<String, dynamic>> addDealerStock(
   Map<String, dynamic> jsonData,
   File? dealerImage,
-  File? digitalSignature,
+  String? digitalSignature,
 ) async {
+  // ============================================================
+  // VALIDATE SIGNATURE PATH
+  // ============================================================
+
+  final String signaturePath =
+      digitalSignature?.trim() ?? '';
+
+  if (signaturePath.isEmpty) {
+    throw Exception(
+      'Digital signature path is empty',
+    );
+  }
+
+  // ============================================================
+  // UPLOAD SIGNATURE FIRST
+  // ============================================================
+
+  final String signatureFileName =
+      await dealerListDatasource.uploadSignature(
+    signaturePath: signaturePath,
+  );
+
+  debugPrint(
+    'UPLOADED SIGNATURE FILE NAME: '
+    '$signatureFileName',
+  );
+
+  // ============================================================
+  // THEN SUBMIT DEALER STOCK
+  // ============================================================
+
   return await dealerListDatasource.addDealerStock(
     jsonData,
     dealerImage,
-    digitalSignature,
+    signatureFileName,
   );
 }
 }

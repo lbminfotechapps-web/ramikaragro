@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'package:intl/intl.dart';
 
 import 'package:solufine/core/api_constant/api_client.dart';
 import 'package:solufine/core/router/app_router.dart';
@@ -159,13 +160,18 @@ class _FarmerlistScreenState extends State<FarmerlistScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final primaryColor = AppColors.gradientStartColor;
+    final primaryColor = AppColors.primary;
 
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: AppColors.background,
 
       appBar: CustomAppBar(
         title: 'Farmer List',
+        titleStyle: const TextStyle(
+          fontSize: 20,
+          fontWeight: FontWeight.w700,
+          color: Color(0xFF20382D),
+        ),
         showBackButton: true,
         onBackTap: () => context.go(AppRouter.home),
       ),
@@ -214,7 +220,7 @@ class _FarmerlistScreenState extends State<FarmerlistScreen> {
           return Column(
             children: [
               Padding(
-                padding: const EdgeInsets.only(left: 16, right: 16),
+                padding: const EdgeInsets.fromLTRB(12, 4, 12, 6),
                 child: Row(
                   children: [
                     SizedBox(height: 14.h),
@@ -222,7 +228,7 @@ class _FarmerlistScreenState extends State<FarmerlistScreen> {
                       child: Container(
                         height: 48,
                         decoration: BoxDecoration(
-                          color: Colors.grey.shade100,
+                          color: Colors.white,
                           borderRadius: BorderRadius.circular(14),
                           border: Border.all(color: Colors.grey.shade200),
                         ),
@@ -304,7 +310,7 @@ class _FarmerlistScreenState extends State<FarmerlistScreen> {
               ),
 
               Padding(
-                padding: const EdgeInsets.fromLTRB(16, 4, 16, 6),
+                padding: const EdgeInsets.fromLTRB(14, 4, 14, 6),
                 child: Row(
                   children: [
                     Icon(
@@ -366,7 +372,7 @@ class _FarmerlistScreenState extends State<FarmerlistScreen> {
                         },
                         child: ListView.builder(
                           physics: const AlwaysScrollableScrollPhysics(),
-                          padding: const EdgeInsets.fromLTRB(16, 8, 16, 90),
+                          padding: const EdgeInsets.fromLTRB(16, 0, 16, 104),
                           itemCount:
                               state.farmerList.length +
                               (_isLoadingMore ? 1 : 0),
@@ -391,14 +397,15 @@ class _FarmerlistScreenState extends State<FarmerlistScreen> {
         },
       ),
 
-      floatingActionButton: FloatingActionButton(
+      floatingActionButton: FloatingActionButton.extended(
         backgroundColor: primaryColor,
         foregroundColor: Colors.white,
         elevation: 3,
         onPressed: () {
           context.push('/farmerregistration');
         },
-        child: const Icon(Icons.person_add_alt_1),
+        icon: const Icon(Icons.add_rounded),
+        label: const Text('Add farmer'),
       ),
     );
   }
@@ -411,345 +418,327 @@ class _FarmerListItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final primaryColor = AppColors.gradientStartColor;
+    final name = farmer.farmerName.trim();
+    final shape = RoundedRectangleBorder(
+      borderRadius: BorderRadius.circular(10),
+    );
+    return Container(
+      margin: const EdgeInsets.only(bottom: 12),
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: const Color(0xFFE9EDE9)),
+        boxShadow: const [
+          BoxShadow(
+            color: Color(0x06123D32),
+            blurRadius: 12,
+            offset: Offset(0, 3),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Container(
+                width: 44,
+                height: 44,
+                padding: const EdgeInsets.all(5),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: const Color(0xFFEAF2EC), width: 3),
+                ),
+                child: Image.asset(
+                  'assets/images/farmer.png',
+                  fit: BoxFit.contain,
+                ),
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      name.isEmpty ? 'Unknown farmer' : name,
+                      style: const TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w700,
+                        color: Color(0xFF18231C),
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    const Row(
+                      children: [
+                        Icon(
+                          Icons.agriculture_outlined,
+                          size: 13,
+                          color: AppColors.textSecondary,
+                        ),
+                        SizedBox(width: 4),
+                        Text(
+                          'Farmer',
+                          style: TextStyle(
+                            fontSize: 11,
+                            color: AppColors.textSecondary,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          const Padding(
+            padding: EdgeInsets.symmetric(vertical: 10),
+            child: Divider(height: 1, color: Color(0xFFF0F1EF)),
+          ),
+          _FarmerDetail(
+            icon: Icons.phone_outlined,
+            label: 'Mobile Number',
+            text: farmer.farmerPhone.isEmpty
+                ? 'Not available'
+                : farmer.farmerPhone,
+          ),
+          const SizedBox(height: 8),
+          _FarmerDetail(
+            icon: Icons.location_on_outlined,
+            label: 'Address',
+            text: farmer.farmerAddress.trim().isEmpty
+                ? 'Address not available'
+                : farmer.farmerAddress.trim(),
+          ),
+          const SizedBox(height: 10),
+          LayoutBuilder(
+            builder: (context, constraints) {
+              final call = _ActivityInfo(
+                icon: Icons.phone_callback_outlined,
+                title: 'Last Call',
+                dateTime: farmer.lastDateTime,
+              );
+              final visit = _ActivityInfo(
+                icon: Icons.calendar_today_outlined,
+                title: 'Last Visit',
+                dateTime: farmer.lastVisitDateTime,
+              );
+              if (constraints.maxWidth < 240 ||
+                  MediaQuery.textScalerOf(context).scale(11) > 18) {
+                return Column(
+                  children: [call, const SizedBox(height: 6), visit],
+                );
+              }
+              return Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Expanded(child: call),
+                  const SizedBox(width: 8),
+                  Expanded(child: visit),
+                ],
+              );
+            },
+          ),
+          const SizedBox(height: 8),
+          Row(
+            children: [
+              Expanded(
+                child: OutlinedButton.icon(
+                  onPressed: () {
+                    context.push('/farmerpin', extra: farmer.farmerId);
+                  },
+                  icon: const Icon(Icons.push_pin_outlined, size: 15),
+                  label: const Text('Pin'),
+                  style: OutlinedButton.styleFrom(
+                    foregroundColor: AppColors.primary,
+                    side: const BorderSide(color: AppColors.primary),
+                    minimumSize: const Size(0, 36),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 8,
+                      vertical: 8,
+                    ),
+                    textStyle: const TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w600,
+                    ),
+                    shape: shape,
+                  ),
+                ),
+              ),
+              const SizedBox(width: 6),
+              Expanded(
+                child: FilledButton.icon(
+                  onPressed: () {
+                    if (farmer.farmerPhone.isNotEmpty) {
+                      callFarmer(farmer.farmerPhone);
+                      FarmerCallEvent(farmer.farmerId, farmer.farmerPhone);
+                    } else {
+                      debugPrint('Phone number is missing');
+                    }
+                  },
+                  icon: const Icon(Icons.call_outlined, size: 15),
+                  label: const Text('Call'),
+                  style: FilledButton.styleFrom(
+                    backgroundColor: const Color(0xFF123D32),
+                    foregroundColor: Colors.white,
+                    minimumSize: const Size(0, 36),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 8,
+                      vertical: 8,
+                    ),
+                    textStyle: const TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w600,
+                    ),
+                    shape: shape,
+                  ),
+                ),
+              ),
+              const SizedBox(width: 6),
+              IconButton.outlined(
+                tooltip: 'Edit farmer',
+                onPressed: () {
+                  context.push('/farmerEdit', extra: farmer);
+                },
+                icon: const Icon(Icons.edit_outlined, size: 17),
+                style: IconButton.styleFrom(
+                  foregroundColor: AppColors.primary,
+                  side: const BorderSide(color: AppColors.primary),
+                  minimumSize: const Size(38, 36),
+                  shape: shape,
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+}
 
-    return Card(
-      color: const Color(0xFFF7FBF7),
-      margin: const EdgeInsets.only(bottom: 14),
-      elevation: 2,
-      shadowColor: Colors.black12,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-      child: Padding(
-        padding: const EdgeInsets.all(14),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
+class _FarmerDetail extends StatelessWidget {
+  final IconData icon;
+  final String label;
+  final String text;
+  const _FarmerDetail({
+    required this.icon,
+    required this.label,
+    required this.text,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Container(
+          width: 28,
+          height: 28,
+          decoration: BoxDecoration(
+            color: const Color(0xFFEDF5EF),
+            borderRadius: BorderRadius.circular(7),
+          ),
+          child: Icon(icon, size: 15, color: AppColors.primary),
+        ),
+        const SizedBox(width: 8),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                label,
+                style: const TextStyle(
+                  fontSize: 9,
+                  color: AppColors.textSecondary,
+                ),
+              ),
+              const SizedBox(height: 2),
+              Text(
+                text,
+                style: const TextStyle(
+                  fontSize: 12,
+                  height: 1.25,
+                  fontWeight: FontWeight.w600,
+                  color: Color(0xFF18231C),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _ActivityInfo extends StatelessWidget {
+  final IconData icon;
+  final String title;
+  final String? dateTime;
+  const _ActivityInfo({
+    required this.icon,
+    required this.title,
+    required this.dateTime,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final raw = dateTime?.trim() ?? '';
+    final missing = raw.isEmpty || raw.startsWith('0000-00-00');
+    final parsed = missing ? null : DateTime.tryParse(raw);
+    final value = missing
+        ? 'Not recorded'
+        : parsed == null
+        ? raw
+        : DateFormat('dd MMM yyyy').format(parsed);
+    final time = parsed != null && raw.contains(RegExp(r'[T ]\d{2}:\d{2}'))
+        ? DateFormat('h:mm a').format(parsed)
+        : null;
+    return Container(
+      width: double.infinity,
+      constraints: const BoxConstraints(minHeight: 46),
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+      decoration: BoxDecoration(
+        color: const Color(0xFFFAFAF9),
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(color: const Color(0xFFEEEEEB)),
+      ),
+      child: Row(
+        children: [
+          Icon(icon, size: 15, color: AppColors.primary),
+          const SizedBox(width: 6),
+          Expanded(
+            child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                ClipRRect(
-                  borderRadius: BorderRadius.circular(35),
-                  child: SizedBox(
-                    width: 50,
-                    height: 50,
-                    child: Container(
-                      color: primaryColor.withOpacity(0.1),
-                      child: Icon(
-                        Icons.agriculture,
-                        color: primaryColor,
-                        size: 28,
-                      ),
+                Text(
+                  title,
+                  style: const TextStyle(
+                    fontSize: 9,
+                    color: AppColors.textSecondary,
+                  ),
+                ),
+                const SizedBox(height: 3),
+                Text(
+                  value,
+                  style: const TextStyle(
+                    fontSize: 10,
+                    fontWeight: FontWeight.w500,
+                    color: AppColors.textDark,
+                  ),
+                ),
+                if (time != null)
+                  Text(
+                    time,
+                    style: const TextStyle(
+                      fontSize: 10,
+                      color: AppColors.textSecondary,
                     ),
                   ),
-                ),
-
-                const SizedBox(width: 12),
-
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        children: [
-                          Expanded(
-                            child: Text(
-                              farmer.farmerName,
-                              maxLines: 2,
-                              overflow: TextOverflow.ellipsis,
-                              style: const TextStyle(
-                                fontSize: 14.5,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.black87,
-                              ),
-                            ),
-                          ),
-                          const SizedBox(width: 8),
-
-                          // STATUS PILL (Top Right)
-                          Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 10,
-                              vertical: 4,
-                            ),
-                            decoration: BoxDecoration(
-                              color: Colors.white,
-                              borderRadius: BorderRadius.circular(20),
-                              border: Border.all(color: Colors.grey.shade200),
-                            ),
-                            child: Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Container(
-                                  width: 7,
-                                  height: 7,
-                                  decoration: const BoxDecoration(
-                                    color: Colors.green,
-                                    shape: BoxShape.circle,
-                                  ),
-                                ),
-                                const SizedBox(width: 5),
-                                const Text(
-                                  "Active",
-                                  style: TextStyle(
-                                    fontSize: 11,
-                                    fontWeight: FontWeight.w600,
-                                    color: Colors.green,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ],
-                      ),
-
-                      const SizedBox(height: 3),
-
-                      // PHONE NUMBER ROW
-                      Row(
-                        children: [
-                          Icon(
-                            Icons.phone_outlined,
-                            size: 13,
-                            color: Colors.green.shade700,
-                          ),
-                          const SizedBox(width: 5),
-                          Text(
-                            farmer.farmerPhone,
-                            style: TextStyle(
-                              fontSize: 13,
-                              fontWeight: FontWeight.w500,
-                              color: Colors.grey.shade700,
-                            ),
-                          ),
-                        ],
-                      ),
-
-                      const SizedBox(height: 3),
-
-                      // ADDRESS
-                      Text(
-                        farmer.farmerAddress,
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
-                        style: TextStyle(
-                          fontSize: 12,
-                          color: Colors.grey.shade600,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
               ],
             ),
-
-            const SizedBox(height: 12),
-            Divider(height: 1, color: Colors.grey.shade300),
-            const SizedBox(height: 12),
-
-            Row(
-              children: [
-                // LAST CALL
-                Expanded(
-                  child: Row(
-                    children: [
-                      Container(
-                        width: 38,
-                        height: 38,
-                        decoration: BoxDecoration(
-                          color: primaryColor.withOpacity(0.12),
-                          shape: BoxShape.circle,
-                        ),
-                        child: Icon(
-                          Icons.phone_callback_outlined,
-                          size: 18,
-                          color: primaryColor,
-                        ),
-                      ),
-                      const SizedBox(width: 10),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              'Last Call',
-                              overflow: TextOverflow.ellipsis,
-                              style: TextStyle(
-                                fontSize: 11,
-                                color: Colors.grey.shade600,
-                              ),
-                            ),
-                            const SizedBox(height: 1),
-                            Text(
-                              farmer.lastDateTime ?? '10 : 30 AM',
-                              maxLines: 2,
-                              overflow: TextOverflow.ellipsis,
-                              style: const TextStyle(
-                                fontSize: 12,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.black87,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-
-                Container(height: 35, width: 1, color: Colors.grey.shade300),
-                const SizedBox(width: 12),
-
-                Expanded(
-                  child: Row(
-                    children: [
-                      Container(
-                        width: 38,
-                        height: 38,
-                        decoration: BoxDecoration(
-                          color: primaryColor.withOpacity(0.12),
-                          shape: BoxShape.circle,
-                        ),
-                        child: Icon(
-                          Icons.calendar_month_outlined,
-                          size: 18,
-                          color: primaryColor,
-                        ),
-                      ),
-                      const SizedBox(width: 10),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              'Last Visit',
-                              overflow: TextOverflow.ellipsis,
-                              style: TextStyle(
-                                fontSize: 11,
-                                color: Colors.grey.shade600,
-                              ),
-                            ),
-                            const SizedBox(height: 1),
-                            Text(
-                              farmer.lastVisitDateTime ?? '11 : 15 AM',
-                              maxLines: 2,
-                              overflow: TextOverflow.ellipsis,
-                              style: const TextStyle(
-                                fontSize: 12,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.black87,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-
-            const SizedBox(height: 16),
-
-            Container(
-              height: 52,
-              padding: const EdgeInsets.symmetric(horizontal: 8),
-              decoration: BoxDecoration(
-                color: primaryColor, // Deep green wrapper container
-                borderRadius: BorderRadius.circular(30),
-              ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  // PIN BUTTON WITH WHITE CIRCLE BACKGROUND
-                  InkWell(
-                    onTap: () {
-                      // print('farmer pin clickkkk');
-                      context.push('/farmerpin', extra: farmer.farmerId);
-                    },
-                    borderRadius: BorderRadius.circular(20),
-                    child: Container(
-                      width: 36,
-                      height: 36,
-                      decoration: const BoxDecoration(
-                        color: Colors.white,
-                        shape: BoxShape.circle,
-                      ),
-                      child: Icon(
-                        Icons.push_pin_outlined,
-                        color: primaryColor,
-                        size: 18,
-                      ),
-                    ),
-                  ),
-
-                  // MAIN CALL NOW BUTTON (White Pill Background)
-                  Expanded(
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 8),
-                      child: SizedBox(
-                        height: 40,
-                        child: ElevatedButton.icon(
-                          onPressed: () {
-                            if (farmer.farmerPhone.isNotEmpty) {
-                              callFarmer(farmer.farmerPhone);
-                              FarmerCallEvent(
-                                farmer.farmerId,
-                                farmer.farmerPhone,
-                              );
-                            } else {
-                              debugPrint('Phone number is missing');
-                            }
-                          },
-                          icon: Icon(
-                            Icons.call_outlined,
-                            size: 16,
-                            color: primaryColor,
-                          ),
-                          label: Text(
-                            'Call Now',
-                            style: TextStyle(
-                              fontSize: 13,
-                              fontWeight: FontWeight.bold,
-                              color: primaryColor,
-                            ),
-                          ),
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.white,
-                            foregroundColor: primaryColor,
-                            elevation: 0,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(20),
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-
-                  InkWell(
-                    onTap: () {
-                      context.push('/farmerEdit', extra: farmer);
-                    },
-                    borderRadius: BorderRadius.circular(20),
-                    child: Container(
-                      width: 36,
-                      height: 36,
-                      decoration: const BoxDecoration(
-                        color: Colors.white,
-                        shape: BoxShape.circle,
-                      ),
-                      child: Icon(
-                        Icons.edit_outlined,
-                        color: primaryColor,
-                        size: 18,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
