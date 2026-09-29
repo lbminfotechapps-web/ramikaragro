@@ -22,7 +22,6 @@ import 'package:flutter_bloc/flutter_bloc.dart' show ReadContext, BlocListener;
 import 'package:flutter_screenutil_plus/flutter_screenutil_plus.dart';
 import 'package:go_router/go_router.dart';
 
-
 class QuickAccessItem {
   final String title;
   final IconData icon;
@@ -559,11 +558,9 @@ class _QuickAccessSectionState extends State<QuickAccessSection> {
       }
     } else if (menu.menuId == '2') {
       context.push('/products');
-    } 
-    else if (menu.menuId == '76') {
+    } else if (menu.menuId == '76') {
       context.push('/addStock');
-    } 
-    else if (menu.menuId == '64') {
+    } else if (menu.menuId == '64') {
       context.push('/topTenDealer');
     } else if (menu.menuId == '56') {
       context.push('/social');
@@ -603,6 +600,8 @@ class _QuickAccessSectionState extends State<QuickAccessSection> {
       context.push('/salesHistoy');
     } else if (menu.menuId == '9') {
       context.push('/addExpense');
+    } else if (menu.menuId == '85') {
+      context.push('/selfcollectionTarget');
     } else if (menu.menuId == '57' ||
         menu.menuId == '63' ||
         menu.menuId == '32') {
