@@ -163,6 +163,10 @@ class _CollectionWiseFormPageState extends State<CollectionWiseFormPage> {
     upiController.dispose();
     upiTransactionController.dispose();
 
+    for (final controller in collectionAmountControllers.values) {
+      controller.dispose();
+    }
+
     bloc.close();
 
     super.dispose();
@@ -210,7 +214,7 @@ class _CollectionWiseFormPageState extends State<CollectionWiseFormPage> {
       },
     );
 
-    if (pickedDate == null) {
+    if (!mounted || pickedDate == null) {
       return;
     }
 
@@ -251,8 +255,14 @@ class _CollectionWiseFormPageState extends State<CollectionWiseFormPage> {
   //   }
   // }
 
+
+
   Future<void> _pickImages() async {
     try {
+      // ============================================================
+      // PICK MULTIPLE IMAGES
+      // ============================================================
+
       final files = await imagePicker.pickMultiImage(
         // Keep picker quality high.
         // Actual compression will be done below.
@@ -453,11 +463,11 @@ class _CollectionWiseFormPageState extends State<CollectionWiseFormPage> {
       return false;
     }
 
-    // if (selectedCollectionTypeId == null ||
-    //     selectedCollectionTypeId!.trim().isEmpty) {
-    //   _showMessage('Please select collection type');
-    //   return false;
-    // }
+  
+
+    // ----------------------------------------------------------
+    // AMOUNT
+    // ----------------------------------------------------------
 
     if (amountController.text.trim().isEmpty) {
       _showMessage('Please enter amount');
@@ -938,30 +948,36 @@ class _CollectionWiseFormPageState extends State<CollectionWiseFormPage> {
           return Scaffold(
             backgroundColor: const Color(0xFFF6F8F7),
 
-            // ====================================================================
-            // APP BAR
-            // ====================================================================
-            appBar: CustomAppBar(
-              backgroundColor: AppColors.backgroundColor,
-              leading: IconButton(
-                icon: const Icon(
-                  Icons.arrow_back_ios_new,
-                  size: 19,
-                  color: AppColors.darkBackgroundColor,
-                ),
-                onPressed: () {
-                  context.go(AppRouter.home);
-                },
+          // ====================================================================
+          // APP BAR
+          // ====================================================================
+          appBar: CustomAppBar(
+            backgroundColor: AppColors.backgroundColor,
+            leading: IconButton(
+              icon: const Icon(
+                Icons.arrow_back_ios_new,
+                size: 19,
+                color: AppColors.darkBackgroundColor,
               ),
-              title: 'Add Collection',
+              onPressed: () {
+                context.go(AppRouter.home);
+              },
             ),
+            title: 'Add Collection',
+            // titleStyle: const TextStyle(
+            //   fontSize: 22,
+            //   fontWeight: FontWeight.w600,
+            //   color: AppColors.backgroundColor,
+            // ),
+          ),
 
-            body: CustomScrollView(
-              slivers: [
-                // ==================================================
-                // HEADER
-                // ==================================================
-                // _buildHeader(),
+         
+          body: CustomScrollView(
+            slivers: [
+              // ==================================================
+              // HEADER
+              // ==================================================
+              // _buildHeader(),
 
                 // ==================================================
                 // BODY
@@ -1140,8 +1156,6 @@ class _CollectionWiseFormPageState extends State<CollectionWiseFormPage> {
   }
 
   Widget _buildDealerCard(List<CollectionTypeEntity> collectionTypes) {
-    final bool dealerSelected = dealerId.trim().isNotEmpty;
-
     return _buildCard(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -1222,18 +1236,9 @@ class _CollectionWiseFormPageState extends State<CollectionWiseFormPage> {
                           ),
                         ),
 
-                        if (dealerSelected) ...[
-                          const SizedBox(height: 3),
+                        const SizedBox(height: 3),
 
-                          Text(
-                            'Dealer ID: $dealerId',
-                            style: const TextStyle(
-                              fontSize: 10,
-                              color: Color(0xFF718078),
-                              fontWeight: FontWeight.w500,
-                            ),
-                          ),
-                        ],
+                     
                       ],
                     ),
                   ),
@@ -1748,7 +1753,7 @@ class _CollectionWiseFormPageState extends State<CollectionWiseFormPage> {
 
   Widget _buildPaymentDropdown() {
     return DropdownButtonFormField<String>(
-      value: paymentMode,
+      initialValue: paymentMode,
 
       isExpanded: true,
 

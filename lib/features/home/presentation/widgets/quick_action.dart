@@ -21,6 +21,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart' show ReadContext, BlocListener;
 import 'package:flutter_screenutil_plus/flutter_screenutil_plus.dart';
 import 'package:go_router/go_router.dart';
+import 'voice_menu_dialog.dart';
 
 class QuickAccessItem {
   final String title;
@@ -58,6 +59,39 @@ class _QuickAccessSectionState extends State<QuickAccessSection> {
   // ============================================================
   final TextEditingController _searchController = TextEditingController();
   String _searchText = '';
+  bool _voiceMenuOpen = false;
+
+  Future<void> _openVoiceMenu() async {
+    if (_voiceMenuOpen) return;
+    _voiceMenuOpen = true;
+    FocusScope.of(context).unfocus();
+    try {
+      final menu = await showDialog<MenuEntity>(
+        context: context,
+        builder: (_) => VoiceMenuDialog(
+          menus: widget.menus.map((menu) {
+            if (menu.menuId != '17') return menu;
+            return MenuEntity(
+              menuId: menu.menuId,
+              menuName: widget.punchStat?.inOutStatus == '0'
+                  ? 'In Punch'
+                  : 'Out Punch',
+              iconImage: menu.iconImage,
+            );
+          }).toList(),
+        ),
+      );
+      if (!mounted || menu == null) return;
+      final currentMenus = widget.menus.where(
+        (item) => item.menuId == menu.menuId,
+      );
+      if (currentMenus.isNotEmpty) {
+        await _onMenuTap(context, currentMenus.first);
+      }
+    } finally {
+      _voiceMenuOpen = false;
+    }
+  }
 
   Future<void> _submitShareLocation({required String remark}) async {
     // final bloc = context.read<QuickAcessBloc>();
@@ -381,15 +415,6 @@ class _QuickAccessSectionState extends State<QuickAccessSection> {
             return;
           }
 
-          debugPrint('DAILY TRAN ID FROM STATE: ${state.dailyTranId}');
-
-          debugPrint('========================================');
-          debugPrint('CALLING STORE TRACK LOCATION API');
-          debugPrint('USER ID: $userId');
-          debugPrint('DAILY TRAN ID: ${state.dailyTranId}');
-          debugPrint('STR ALL LOCATIONS: $strAllLocations');
-          debugPrint('========================================');
-
           context.read<QuickAcessBloc>().add(
             StoreTrackLocation(
               userId.toString(),
@@ -426,56 +451,6 @@ class _QuickAccessSectionState extends State<QuickAccessSection> {
         }
       },
 
-      // child: CustomCard(
-      //   padding: EdgeInsets.all(16.w),
-      //   borderRadius: 24.r,
-      //   child: Column(
-      //     crossAxisAlignment: CrossAxisAlignment.start,
-      //     children: [
-      //       const Text(
-      //         'Quick Access',
-      //         style: TextStyle(fontSize: 20, fontWeight: FontWeight.w700),
-      //       ),
-
-      //       SizedBox(height: 14.h),
-
-      //       LayoutBuilder(
-      //         builder: (context, constraints) {
-      //           final crossAxisCount = constraints.maxWidth < 600 ? 3 : 6;
-
-      //           final visibleMenus = widget.menus
-      //               .take(actualVisibleCount)
-      //               .toList();
-
-      //           return GridView.builder(
-      //             shrinkWrap: true,
-      //             physics: const NeverScrollableScrollPhysics(),
-      //             itemCount: visibleMenus.length + (hasMore ? 1 : 0),
-      //             gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-      //               crossAxisCount: crossAxisCount,
-      //               crossAxisSpacing: 8.w,
-      //               mainAxisSpacing: 8.h,
-      //               childAspectRatio: 0.9,
-      //             ),
-      //             itemBuilder: (context, index) {
-      //               if (index == visibleMenus.length) {
-      //                 return _MoreItem(onTap: _showMore);
-      //               }
-
-      //               final menu = visibleMenus[index];
-
-      //               return QuickAccessMenuItem(
-      //                 menu: menu,
-      //                 punchStat: widget.punchStat,
-      //                 onTap: () => _onMenuTap(context, menu),
-      //               );
-      //             },
-      //           );
-      //         },
-      //       ),
-      //     ],
-      //   ),
-      // ),
       child: CustomCard(
         padding: EdgeInsets.all(16.w),
         borderRadius: 24.r,
@@ -489,7 +464,7 @@ class _QuickAccessSectionState extends State<QuickAccessSection> {
               children: [
                 const Expanded(
                   child: Text(
-                    'Quick Access',
+                    'Menu',
                     style: TextStyle(fontSize: 20, fontWeight: FontWeight.w700),
                   ),
                 ),
@@ -497,7 +472,7 @@ class _QuickAccessSectionState extends State<QuickAccessSection> {
                 SizedBox(width: 10.w),
 
                 SizedBox(
-                  width: 180.w,
+                  width: 170.w,
                   height: 42.h,
                   child: TextField(
                     controller: _searchController,
@@ -552,6 +527,45 @@ class _QuickAccessSectionState extends State<QuickAccessSection> {
                           color: Theme.of(context).primaryColor,
                           width: 1.3,
                         ),
+                      ),
+                    ),
+                  ),
+                ),
+
+                SizedBox(width: 8.w),
+                Tooltip(
+                  message: 'Open a menu with your voice',
+                  child: Container(
+                    width: 36.r,
+                    height: 36.r,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      gradient: const LinearGradient(
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                        colors: [
+                          Color(0xFF49C6FF),
+                          Color(0xFF8260F6),
+                          Color(0xFFF478B8),
+                        ],
+                      ),
+                      boxShadow: [
+                        BoxShadow(
+                          color: const Color(
+                            0xFF8260F6,
+                          ).withValues(alpha: 0.25),
+                          blurRadius: 8.r,
+                          offset: Offset(0, 2.h),
+                        ),
+                      ],
+                    ),
+                    child: IconButton(
+                      onPressed: _openVoiceMenu,
+                      padding: EdgeInsets.zero,
+                      icon: Icon(
+                        Icons.mic_rounded,
+                        color: Colors.white,
+                        size: 22.sp,
                       ),
                     ),
                   ),

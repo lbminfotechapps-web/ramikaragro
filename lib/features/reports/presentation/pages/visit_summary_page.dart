@@ -699,19 +699,7 @@ class _VisitSummaryPageState extends State<VisitSummaryPage> {
                     });
                   },
 
-                  // ============================================
-                  // EMPLOYEE
-                  //
-                  // THIS IS THE FIX.
-                  //
-                  // Do NOT use:
-                  // onEmployeeSelected
-                  // onEmployeeClear
-                  //
-                  // Current VisitSummaryFilter expects:
-                  // onEmployeeChanged
-                  // ============================================
-
+                  
                   onEmployeeChanged:
                       _onEmployeeChanged,
 

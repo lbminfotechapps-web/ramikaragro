@@ -145,10 +145,6 @@ class _MyAppState extends State<MyApp> {
     super.initState();
 
     NotificationNavigationService.instance.setRouter(AppRouter.router);
-
-    debugPrint('==========================================');
-    debugPrint('🔔 NOTIFICATION ROUTER REGISTERED');
-    debugPrint('==========================================');
   }
 
   // ============================================================

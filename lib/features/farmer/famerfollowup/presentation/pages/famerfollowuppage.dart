@@ -40,7 +40,6 @@ class _FamerFollowupPageState extends State<FamerFollowupPage> {
 
   final TextEditingController remarkController = TextEditingController();
 
-
   String? selectedFollowUpType;
   String? imagePath;
   bool _isCameraImage = false;
@@ -617,7 +616,7 @@ class _FamerFollowupPageState extends State<FamerFollowupPage> {
         // APP BAR
         // ====================================================
         appBar: CustomAppBar(
-          title: 'Follow-up',
+          title: 'Farmer Follow-up',
           // subtitle: 'Add farmer follow-up',
           showBackButton: true,
           onBackTap: () => Navigator.pop(context),
