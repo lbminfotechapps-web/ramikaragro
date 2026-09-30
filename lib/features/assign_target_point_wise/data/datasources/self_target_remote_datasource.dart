@@ -17,8 +17,7 @@ abstract class SelfTargetRemoteDataSource {
   // GET PRODUCT GROUPS
   // ============================================================
 
-  Future<List<TargetGroupModel>>
-      getSelfTarget();
+  Future<List<TargetGroupModel>> getSelfTarget();
 
   // ============================================================
   // SUBMIT SELF TARGET
@@ -30,57 +29,47 @@ abstract class SelfTargetRemoteDataSource {
     //required String groupId,
     required String points,
   });
+
+  // Future<List<TargetGroupModel>> getGroupWiseAchivPoint({
+  //   required String userId,
+  //   required String targetId,
+  // });
 }
 
 // ============================================================
 // IMPLEMENTATION
 // ============================================================
 
-class SelfTargetRemoteDataSourceImpl
-    implements SelfTargetRemoteDataSource {
+class SelfTargetRemoteDataSourceImpl implements SelfTargetRemoteDataSource {
   final DioClient dioClient;
 
-  SelfTargetRemoteDataSourceImpl({
-    required this.dioClient,
-  });
+  SelfTargetRemoteDataSourceImpl({required this.dioClient});
 
   // ============================================================
   // GET PRODUCT GROUPS
   // ============================================================
 
   @override
-  Future<List<TargetGroupModel>>
-      getSelfTarget() async {
+  Future<List<TargetGroupModel>> getSelfTarget() async {
     try {
-      debugPrint(
-        '========================================',
-      );
+      debugPrint('========================================');
 
-      debugPrint(
-        'GET PRODUCT GROUP API',
-      );
+      debugPrint('GET PRODUCT GROUP API');
 
       debugPrint(
         '${ApiClient.baseUrl}'
         '${ApiClient.getProductGroup}',
       );
 
-      debugPrint(
-        '========================================',
-      );
+      debugPrint('========================================');
 
-      final Response response =
-          await dioClient.client.get(
+      final Response response = await dioClient.client.get(
         ApiClient.getProductGroup,
       );
 
-      debugPrint(
-        'PRODUCT GROUP RESPONSE:',
-      );
+      debugPrint('PRODUCT GROUP RESPONSE:');
 
-      debugPrint(
-        '${response.data}',
-      );
+      debugPrint('${response.data}');
 
       debugPrint(
         'RESPONSE TYPE = '
@@ -88,37 +77,26 @@ class SelfTargetRemoteDataSourceImpl
       );
 
       if (response.data == null) {
-        throw Exception(
-          'Empty response',
-        );
+        throw Exception('Empty response');
       }
 
       // ========================================================
       // CONVERT RESPONSE
       // ========================================================
 
-      final Map<String, dynamic> data =
-          _convertResponseToMap(
-        response.data,
-      );
+      final Map<String, dynamic> data = _convertResponseToMap(response.data);
 
       // ========================================================
       // STATUS
       // ========================================================
 
-      final bool status =
-          data['status'] == true;
+      final bool status = data['status'] == true;
 
-      final String message =
-          data['message']
-                  ?.toString() ??
-              '';
+      final String message = data['message']?.toString() ?? '';
 
       if (!status) {
         throw Exception(
-          message.isEmpty
-              ? 'Unable to load product groups'
-              : message,
+          message.isEmpty ? 'Unable to load product groups' : message,
         );
       }
 
@@ -126,62 +104,44 @@ class SelfTargetRemoteDataSourceImpl
       // RESULT
       // ========================================================
 
-      final dynamic rawResult =
-          data['result'];
+      final dynamic rawResult = data['result'];
 
       if (rawResult == null) {
         return [];
       }
 
       if (rawResult is! List) {
-        throw Exception(
-          'Invalid product group result',
-        );
+        throw Exception('Invalid product group result');
       }
 
-      final List<TargetGroupModel> groups =
-          rawResult.map(
-        (item) {
-          if (item is! Map) {
-            throw Exception(
-              'Invalid product group item',
-            );
-          }
+      final List<TargetGroupModel> groups = rawResult.map((item) {
+        if (item is! Map) {
+          throw Exception('Invalid product group item');
+        }
 
-          return TargetGroupModel.fromJson(
-            Map<String, dynamic>.from(
-              item,
-            ),
-          );
-        },
-      ).toList();
+        return TargetGroupModel.fromJson(Map<String, dynamic>.from(item));
+      }).toList();
 
       // ========================================================
       // DEBUG
       // ========================================================
 
-      debugPrint(
-        'TOTAL GROUPS = ${groups.length}',
-      );
+      debugPrint('TOTAL GROUPS = ${groups.length}');
 
       for (final group in groups) {
         debugPrint(
           'GROUP => '
           'TYPE: ${group.groupType} | '
-        //  'ID: ${group.productGroupId} | '
+          //  'ID: ${group.productGroupId} | '
           'POINTS: ${group.groupPoints}',
         );
       }
 
-      debugPrint(
-        '========================================',
-      );
+      debugPrint('========================================');
 
       return groups;
     } on DioException catch (e) {
-      debugPrint(
-        'GET PRODUCT GROUP DIO ERROR',
-      );
+      debugPrint('GET PRODUCT GROUP DIO ERROR');
 
       debugPrint(
         'STATUS CODE = '
@@ -193,30 +153,155 @@ class SelfTargetRemoteDataSourceImpl
         '${e.response?.data}',
       );
 
-      throw Exception(
-        _extractError(
-          e.response?.data,
-        ),
-      );
+      throw Exception(_extractError(e.response?.data));
     } catch (e, stackTrace) {
-      debugPrint(
-        'GET PRODUCT GROUP ERROR = $e',
-      );
+      debugPrint('GET PRODUCT GROUP ERROR = $e');
 
-      debugPrint(
-        '$stackTrace',
-      );
+      debugPrint('$stackTrace');
 
-      throw Exception(
-        e
-            .toString()
-            .replaceFirst(
-              'Exception: ',
-              '',
-            ),
-      );
+      throw Exception(e.toString().replaceFirst('Exception: ', ''));
     }
   }
+
+// Future<List<TargetGroupModel>> getGroupWiseAchivPoint({
+//   required String userId,
+//   required String targetId,
+// }) async {
+//   try {
+//     // ========================================================
+//     // REQUEST DATA
+//     // ========================================================
+
+//     final Map<String, dynamic> requestData = {
+//       'userId': userId,
+//       'targetId': targetId,
+//     };
+
+//     debugPrint('========================================');
+//     debugPrint('GROUP WISE ACHIEVEMENT POINTS API');
+
+//     debugPrint(
+//       'URL = '
+//       '${ApiClient.baseUrl}'
+//       '${ApiClient.getGroupWiseAchievementPoint}',
+//     );
+
+//     debugPrint('USER ID = $userId');
+//     debugPrint('TARGET ID = $targetId');
+//     debugPrint('REQUEST = $requestData');
+//     debugPrint('========================================');
+
+//     // ========================================================
+//     // FORM DATA
+//     // ========================================================
+
+//     final FormData formData = FormData.fromMap(requestData);
+
+//     // ========================================================
+//     // POST API
+//     // ========================================================
+
+//     final Response response = await dioClient.client.post(
+//       ApiClient.getGroupWiseAchievementPoint,
+//       data: formData,
+//     );
+
+//     debugPrint('========================================');
+//     debugPrint('GROUP WISE ACHIEVEMENT POINTS RESPONSE');
+//     debugPrint('RESPONSE = ${response.data}');
+//     debugPrint('RESPONSE TYPE = ${response.data.runtimeType}');
+//     debugPrint('========================================');
+
+//     // ========================================================
+//     // CONVERT RESPONSE
+//     // ========================================================
+
+//     final Map<String, dynamic> data =
+//         _convertResponseToMap(response.data);
+
+//     // ========================================================
+//     // STATUS
+//     // ========================================================
+
+//     final bool status =
+//         data['status'] == true ||
+//         data['status']?.toString() == 'true' ||
+//         data['status']?.toString() == '1';
+
+//     final String message =
+//         data['message']?.toString() ?? '';
+
+//     debugPrint('STATUS = $status');
+//     debugPrint('MESSAGE = $message');
+
+//     // ========================================================
+//     // SUCCESS
+//     // ========================================================
+
+//     if (status) {
+//       final dynamic result = data['result'];
+
+//       debugPrint('RESULT = $result');
+//       debugPrint('RESULT TYPE = ${result.runtimeType}');
+
+//       if (result == null) {
+//         return [];
+//       }
+
+//       if (result is List) {
+//         final List<TargetGroupModel> groupList = result
+//             .map(
+//               (item) => TargetGroupModel.fromJson(
+//                 Map<String, dynamic>.from(item),
+//               ),
+//             )
+//             .toList();
+
+//         debugPrint(
+//           'GROUP LIST COUNT = ${groupList.length}',
+//         );
+
+//         return groupList;
+//       }
+
+//       throw Exception(
+//         'Invalid group wise achievement response format',
+//       );
+//     }
+
+//     // ========================================================
+//     // FAILURE
+//     // ========================================================
+
+//     throw Exception(
+//       message.isEmpty
+//           ? 'Unable to get group wise target'
+//           : message,
+//     );
+//   } on DioException catch (e) {
+//     debugPrint('========================================');
+//     debugPrint('DIO ERROR');
+//     debugPrint('STATUS CODE = ${e.response?.statusCode}');
+//     debugPrint('RESPONSE = ${e.response?.data}');
+//     debugPrint('MESSAGE = ${e.message}');
+//     debugPrint('========================================');
+
+//     throw Exception(
+//       _extractError(e.response?.data),
+//     );
+//   } catch (e, stackTrace) {
+//     debugPrint('========================================');
+//     debugPrint(
+//       'GET GROUP WISE ACHIEVEMENT POINT ERROR = $e',
+//     );
+//     debugPrint('$stackTrace');
+//     debugPrint('========================================');
+
+//     throw Exception(
+//       e.toString().replaceFirst('Exception: ', ''),
+//     );
+//   }
+// }
 
   // ============================================================
   // SUBMIT SELF TARGET
@@ -226,7 +311,7 @@ class SelfTargetRemoteDataSourceImpl
   Future<String> submitSelfTarget({
     required String userId,
     required String month,
-   // required String groupId,
+    // required String groupId,
     required String points,
   }) async {
     try {
@@ -237,17 +322,13 @@ class SelfTargetRemoteDataSourceImpl
       final Map<String, dynamic> requestData = {
         'user_id': userId,
         'month': month,
-       // 'group_id': groupId,
+        // 'group_id': groupId,
         'points': points,
       };
 
-      debugPrint(
-        '========================================',
-      );
+      debugPrint('========================================');
 
-      debugPrint(
-        'SELF TARGET SUBMIT API',
-      );
+      debugPrint('SELF TARGET SUBMIT API');
 
       debugPrint(
         'URL = '
@@ -255,126 +336,80 @@ class SelfTargetRemoteDataSourceImpl
         '${ApiClient.add_group_sales_target}',
       );
 
-      debugPrint(
-        'USER ID = $userId',
-      );
+      debugPrint('USER ID = $userId');
 
-      debugPrint(
-        'MONTH = $month',
-      );
+      debugPrint('MONTH = $month');
 
-   
+      debugPrint('POINTS = $points');
 
-      debugPrint(
-        'POINTS = $points',
-      );
+      debugPrint('REQUEST = $requestData');
 
-      debugPrint(
-        'REQUEST = $requestData',
-      );
-
-      debugPrint(
-        '========================================',
-      );
+      debugPrint('========================================');
 
       // ========================================================
       // FORM DATA
       // ========================================================
 
-      final FormData formData =
-          FormData.fromMap(
-        requestData,
-      );
+      final FormData formData = FormData.fromMap(requestData);
 
       // ========================================================
       // POST API
       // ========================================================
 
-      final Response response =
-          await dioClient.client.post(
+      final Response response = await dioClient.client.post(
         ApiClient.add_group_sales_target,
 
-        data:
-            formData,
+        data: formData,
       );
 
-      debugPrint(
-        '========================================',
-      );
+      debugPrint('========================================');
 
-      debugPrint(
-        'SELF TARGET RESPONSE',
-      );
+      debugPrint('SELF TARGET RESPONSE');
 
-      debugPrint(
-        '${response.data}',
-      );
+      debugPrint('${response.data}');
 
       debugPrint(
         'RESPONSE TYPE = '
         '${response.data.runtimeType}',
       );
 
-      debugPrint(
-        '========================================',
-      );
+      debugPrint('========================================');
 
       // ========================================================
       // CONVERT RESPONSE
       // ========================================================
 
-      final Map<String, dynamic> data =
-          _convertResponseToMap(
-        response.data,
-      );
+      final Map<String, dynamic> data = _convertResponseToMap(response.data);
 
       // ========================================================
       // STATUS
       // ========================================================
 
-      final bool status =
-          data['status'] == true;
+      final bool status = data['status'] == true;
 
-      final String message =
-          data['message']
-                  ?.toString() ??
-              '';
+      final String message = data['message']?.toString() ?? '';
 
-      debugPrint(
-        'STATUS = $status',
-      );
+      debugPrint('STATUS = $status');
 
-      debugPrint(
-        'MESSAGE = $message',
-      );
+      debugPrint('MESSAGE = $message');
 
       // ========================================================
       // SUCCESS
       // ========================================================
 
       if (status) {
-        return message.isEmpty
-            ? 'Target submitted successfully'
-            : message;
+        return message.isEmpty ? 'Target submitted successfully' : message;
       }
 
       // ========================================================
       // FAILURE
       // ========================================================
 
-      throw Exception(
-        message.isEmpty
-            ? 'Unable to submit target'
-            : message,
-      );
+      throw Exception(message.isEmpty ? 'Unable to submit target' : message);
     } on DioException catch (e) {
-      debugPrint(
-        '========================================',
-      );
+      debugPrint('========================================');
 
-      debugPrint(
-        'SELF TARGET DIO ERROR',
-      );
+      debugPrint('SELF TARGET DIO ERROR');
 
       debugPrint(
         'STATUS CODE = '
@@ -391,40 +426,19 @@ class SelfTargetRemoteDataSourceImpl
         '${e.message}',
       );
 
-      debugPrint(
-        '========================================',
-      );
+      debugPrint('========================================');
 
-      throw Exception(
-        _extractError(
-          e.response?.data,
-        ),
-      );
+      throw Exception(_extractError(e.response?.data));
     } catch (e, stackTrace) {
-      debugPrint(
-        '========================================',
-      );
+      debugPrint('========================================');
 
-      debugPrint(
-        'SELF TARGET SUBMIT ERROR = $e',
-      );
+      debugPrint('SELF TARGET SUBMIT ERROR = $e');
 
-      debugPrint(
-        '$stackTrace',
-      );
+      debugPrint('$stackTrace');
 
-      debugPrint(
-        '========================================',
-      );
+      debugPrint('========================================');
 
-      throw Exception(
-        e
-            .toString()
-            .replaceFirst(
-              'Exception: ',
-              '',
-            ),
-      );
+      throw Exception(e.toString().replaceFirst('Exception: ', ''));
     }
   }
 
@@ -432,13 +446,9 @@ class SelfTargetRemoteDataSourceImpl
   // CONVERT RESPONSE TO MAP
   // ============================================================
 
-  Map<String, dynamic> _convertResponseToMap(
-    dynamic responseData,
-  ) {
+  Map<String, dynamic> _convertResponseToMap(dynamic responseData) {
     if (responseData == null) {
-      throw Exception(
-        'Empty API response',
-      );
+      throw Exception('Empty API response');
     }
 
     // ==========================================================
@@ -446,38 +456,26 @@ class SelfTargetRemoteDataSourceImpl
     // ==========================================================
 
     if (responseData is String) {
-      final String value =
-          responseData.trim();
+      final String value = responseData.trim();
 
       if (value.isEmpty) {
-        throw Exception(
-          'Empty API response',
-        );
+        throw Exception('Empty API response');
       }
 
       try {
-        final dynamic decoded =
-            jsonDecode(
-          value,
-        );
+        final dynamic decoded = jsonDecode(value);
 
         if (decoded is! Map) {
-          throw Exception(
-            'Invalid API response format',
-          );
+          throw Exception('Invalid API response format');
         }
 
-        return Map<String, dynamic>.from(
-          decoded,
-        );
+        return Map<String, dynamic>.from(decoded);
       } catch (e) {
         if (e is Exception) {
           rethrow;
         }
 
-        throw Exception(
-          'Invalid API response',
-        );
+        throw Exception('Invalid API response');
       }
     }
 
@@ -486,9 +484,7 @@ class SelfTargetRemoteDataSourceImpl
     // ==========================================================
 
     if (responseData is Map) {
-      return Map<String, dynamic>.from(
-        responseData,
-      );
+      return Map<String, dynamic>.from(responseData);
     }
 
     throw Exception(
@@ -501,9 +497,7 @@ class SelfTargetRemoteDataSourceImpl
   // EXTRACT ERROR
   // ============================================================
 
-  String _extractError(
-    dynamic data,
-  ) {
+  String _extractError(dynamic data) {
     if (data == null) {
       return 'Something went wrong';
     }
@@ -513,27 +507,19 @@ class SelfTargetRemoteDataSourceImpl
     // ==========================================================
 
     if (data is Map) {
-      return data['message']
-              ?.toString() ??
-          'Something went wrong';
+      return data['message']?.toString() ?? 'Something went wrong';
     }
 
     // ==========================================================
     // STRING
     // ==========================================================
 
-    if (data is String &&
-        data.trim().isNotEmpty) {
+    if (data is String && data.trim().isNotEmpty) {
       try {
-        final dynamic decoded =
-            jsonDecode(
-          data,
-        );
+        final dynamic decoded = jsonDecode(data);
 
         if (decoded is Map) {
-          return decoded['message']
-                  ?.toString() ??
-              'Something went wrong';
+          return decoded['message']?.toString() ?? 'Something went wrong';
         }
       } catch (_) {
         return data;

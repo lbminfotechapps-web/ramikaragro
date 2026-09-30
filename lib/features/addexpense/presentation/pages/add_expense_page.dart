@@ -9,7 +9,7 @@ import 'package:solufine/core/utility/widgets/custom_appbar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:fluttertoast/fluttertoast.dart';
-import 'package:image_picker/image_picker.dart';
+import 'package:solufine/core/utility/cameracapturepage.dart';
 import 'package:intl/intl.dart';
 
 import '../../../../core/secure_storage/secure_storage.dart';
@@ -48,6 +48,8 @@ class _AddExpensePageState extends State<AddExpensePage> {
   final daAmountController = TextEditingController();
 
   DateTime selectedDate = DateTime.now();
+
+  DialogRoute<void>? _submissionDialog;
 
   String? daType;
   int? userId;
@@ -290,9 +292,10 @@ class _AddExpensePageState extends State<AddExpensePage> {
     TextEditingController controller, {
     bool readOnly = false,
     IconData? icon,
+    double bottomPadding = 12,
   }) {
     return Padding(
-      padding: const EdgeInsets.only(bottom: 12),
+      padding: EdgeInsets.only(bottom: bottomPadding),
       child: TextField(
         controller: controller,
         readOnly: readOnly,
@@ -310,7 +313,15 @@ class _AddExpensePageState extends State<AddExpensePage> {
   @override
   Widget build(BuildContext context) {
     return BlocListener<ExpenseBloc, ExpenseState>(
+      listenWhen: (previous, current) => previous.status != current.status,
       listener: (context, state) {
+        if (state.status != ExpenseStatus.submitting) {
+          final dialog = _submissionDialog;
+          _submissionDialog = null;
+          if (dialog != null && dialog.isActive) {
+            dialog.navigator?.removeRoute(dialog);
+          }
+        }
         if (state.status == ExpenseStatus.error) {
           AppDialog.show(
             context: context,
@@ -325,17 +336,32 @@ class _AddExpensePageState extends State<AddExpensePage> {
             message: state.successMessage ?? 'Expense Submit Successfully',
             type: DialogType.success,
             onOkPressed: () {
-              Navigator.pop(context);
-
-              if (mounted) {
-                Navigator.pop(context); // go back to Main screen
+              if (context.mounted) {
+                context.go(AppRouter.home);
               }
             },
           );
         }
 
         if (state.status == ExpenseStatus.submitting) {
-          AppDialog.showLoading(context);
+          final dialog = DialogRoute<void>(
+            context: context,
+            barrierDismissible: false,
+            builder: (_) => const PopScope(
+              canPop: false,
+              child: AlertDialog(
+                content: Row(
+                  children: [
+                    CircularProgressIndicator(),
+                    SizedBox(width: 20),
+                    Expanded(child: Text('Submitting expense...')),
+                  ],
+                ),
+              ),
+            ),
+          );
+          _submissionDialog = dialog;
+          Navigator.of(context, rootNavigator: true).push(dialog);
         }
       },
       child: Scaffold(
@@ -471,33 +497,42 @@ class _AddExpensePageState extends State<AddExpensePage> {
           Row(
             children: [
               Expanded(
-                child: DropdownButtonFormField<String>(
-                  value: daType,
-                  hint: Text(
-                    'Select DA Type',
-                    style: TextStyle(fontSize: 14.sp),
-                  ),
-                  decoration: InputDecoration(
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
+                child: SizedBox(
+                  height: 56,
+                  child: DropdownButtonFormField<String>(
+                    value: daType,
+                    isExpanded: true,
+                    isDense: true,
+                    hint: Text(
+                      'Select DA Type',
+                      style: TextStyle(fontSize: 14.sp),
                     ),
-                  ),
-                  items: const [
-                    DropdownMenuItem(value: 'DA', child: Text('DA')),
-                    DropdownMenuItem(
-                      value: 'NIGHT',
-                      child: Text('Night Halt DA'),
+                    decoration: InputDecoration(
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
                     ),
-                  ],
-                  onChanged: (value) => selectDaType(value, state),
+                    items: const [
+                      DropdownMenuItem(value: 'DA', child: Text('DA')),
+                      DropdownMenuItem(
+                        value: 'NIGHT',
+                        child: Text('Night Halt DA'),
+                      ),
+                    ],
+                    onChanged: (value) => selectDaType(value, state),
+                  ),
                 ),
               ),
               const SizedBox(width: 10),
               Expanded(
-                child: buildField(
-                  'DA Amount',
-                  daAmountController,
-                  readOnly: true,
+                child: SizedBox(
+                  height: 56,
+                  child: buildField(
+                    'DA Amount',
+                    daAmountController,
+                    readOnly: true,
+                    bottomPadding: 0,
+                  ),
                 ),
               ),
             ],
@@ -602,8 +637,6 @@ class _AddExpensePageState extends State<AddExpensePage> {
   }
 
   void showExpenseSheet(ExpenseState state) {
-    final ImagePicker picker = ImagePicker();
-
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -694,73 +727,91 @@ class _AddExpensePageState extends State<AddExpensePage> {
                                 // IMAGE / CAMERA
                                 // ==========================================
                                 GestureDetector(
-                                  onTap: isTravelExpense ? null : () async {
-                                    // Hide keyboard before opening camera
-                                    FocusScope.of(sheetContext).unfocus();
+                                  onTap: isTravelExpense
+                                      ? null
+                                      : () async {
+                                          // Hide keyboard before opening camera
+                                          FocusScope.of(sheetContext).unfocus();
 
-                                    try {
-                                      final XFile? photo = await picker
-                                          .pickImage(
-                                            source: ImageSource.camera,
-                                            imageQuality: 70,
-                                          );
+                                          try {
+                                            final String? photoPath =
+                                                await Navigator.of(
+                                                  sheetContext,
+                                                  rootNavigator: true,
+                                                ).push<String>(
+                                                  MaterialPageRoute(
+                                                    builder: (_) =>
+                                                        const CameraCapturePage(),
+                                                  ),
+                                                );
 
-                                      if (photo == null) {
-                                        return;
-                                      }
+                                            if (photoPath == null ||
+                                                !mounted ||
+                                                !sheetContext.mounted) {
+                                              return;
+                                            }
 
-                                      final file =
-                                          await ImageCompression.compressImage(
-                                            File(photo.path),
-                                            maxWidth: 400,
-                                            maxHeight: 400,
-                                            quality: 35,
-                                          );
+                                            final file =
+                                                await ImageCompression.compressImage(
+                                                  File(photoPath),
+                                                  maxWidth: 400,
+                                                  maxHeight: 400,
+                                                  quality: 35,
+                                                );
 
-                                      if (file == null) {
-                                        throw Exception(
-                                          'Unable to compress expense image',
-                                        );
-                                      }
+                                            if (file == null) {
+                                              throw Exception(
+                                                'Unable to compress expense image',
+                                              );
+                                            }
 
-                                      // Get latest Bloc state
-                                      final latestState = context
-                                          .read<ExpenseBloc>()
-                                          .state;
+                                            if (!mounted || !sheetContext.mounted) {
+                                              return;
+                                            }
 
-                                      if (index >=
-                                          latestState.expenses.length) {
-                                        return;
-                                      }
+                                            // Get latest Bloc state
+                                            final latestState = context
+                                                .read<ExpenseBloc>()
+                                                .state;
 
-                                      final latestExpense =
-                                          latestState.expenses[index];
+                                            if (index >=
+                                                latestState.expenses.length) {
+                                              return;
+                                            }
 
-                                      // Update only image.
-                                      // Preserve current amount.
-                                      context.read<ExpenseBloc>().add(
-                                        UpdateExpenseParameterEvent(
-                                          index: index,
-                                          amount: _expenseAmount(latestExpense),
-                                          image: file,
-                                        ),
-                                      );
-                                    } catch (e) {
-                                      if (!mounted) return;
+                                            final latestExpense =
+                                                latestState.expenses[index];
 
-                                      ScaffoldMessenger.of(context)
-                                        ..hideCurrentSnackBar()
-                                        ..showSnackBar(
-                                          const SnackBar(
-                                            content: Text(
-                                              'Unable to capture image',
-                                            ),
-                                            duration: Duration(seconds: 3),
-                                            behavior: SnackBarBehavior.floating,
-                                          ),
-                                        );
-                                    }
-                                  },
+                                            // Update only image.
+                                            // Preserve current amount.
+                                            context.read<ExpenseBloc>().add(
+                                              UpdateExpenseParameterEvent(
+                                                index: index,
+                                                amount: _expenseAmount(
+                                                  latestExpense,
+                                                ),
+                                                image: file,
+                                              ),
+                                            );
+                                          } catch (e) {
+                                            if (!mounted) return;
+
+                                            ScaffoldMessenger.of(context)
+                                              ..hideCurrentSnackBar()
+                                              ..showSnackBar(
+                                                const SnackBar(
+                                                  content: Text(
+                                                    'Unable to capture image',
+                                                  ),
+                                                  duration: Duration(
+                                                    seconds: 3,
+                                                  ),
+                                                  behavior:
+                                                      SnackBarBehavior.floating,
+                                                ),
+                                              );
+                                          }
+                                        },
                                   child: Stack(
                                     children: [
                                       ClipRRect(
@@ -776,22 +827,23 @@ class _AddExpensePageState extends State<AddExpensePage> {
                                       ),
 
                                       // Camera is available for editable expenses only.
-                                      if (!isTravelExpense) Positioned(
-                                        right: 3,
-                                        bottom: 3,
-                                        child: Container(
-                                          padding: const EdgeInsets.all(5),
-                                          decoration: const BoxDecoration(
-                                            color: Colors.blue,
-                                            shape: BoxShape.circle,
-                                          ),
-                                          child: const Icon(
-                                            Icons.camera_alt,
-                                            size: 14,
-                                            color: Colors.white,
+                                      if (!isTravelExpense)
+                                        Positioned(
+                                          right: 3,
+                                          bottom: 3,
+                                          child: Container(
+                                            padding: const EdgeInsets.all(5),
+                                            decoration: const BoxDecoration(
+                                              color: Colors.blue,
+                                              shape: BoxShape.circle,
+                                            ),
+                                            child: const Icon(
+                                              Icons.camera_alt,
+                                              size: 14,
+                                              color: Colors.white,
+                                            ),
                                           ),
                                         ),
-                                      ),
                                     ],
                                   ),
                                 ),
@@ -937,7 +989,8 @@ class _AddExpensePageState extends State<AddExpensePage> {
 
                           // Amount entered but image missing
                           if (!_isTravelExpense(expense) &&
-                              hasAmount && !hasImage) {
+                              hasAmount &&
+                              !hasImage) {
                             Fluttertoast.showToast(
                               msg:
                                   'Please capture image for ${expense.fldExpName}',
@@ -950,7 +1003,8 @@ class _AddExpensePageState extends State<AddExpensePage> {
 
                           // Image selected but amount missing
                           if (!_isTravelExpense(expense) &&
-                              hasImage && !hasAmount) {
+                              hasImage &&
+                              !hasAmount) {
                             Fluttertoast.showToast(
                               msg:
                                   'Please enter amount for ${expense.fldExpName}',

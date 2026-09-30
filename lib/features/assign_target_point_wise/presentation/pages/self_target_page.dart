@@ -874,7 +874,7 @@ class _SelfTargetPageState
             appBar:
                 CustomAppBar(
               title:
-                  'Self Assign Target Point Wise',
+                  'efwarfWRG',
 
               showBackButton:
                   true,
@@ -1325,7 +1325,7 @@ class _SelfTargetPageState
 
                 child:
                     Text(
-                  '${_formatPoint(totalPoints)} Pts',
+                  '${_formatPoint(totalPoints)} Amt/Pts',
 
                   style:
                       const TextStyle(
@@ -1998,7 +1998,7 @@ class _SelfTargetPageState
                     '0',
 
                 suffixText:
-                    'Pts',
+                    'Amt/Pts',
 
                 suffixStyle:
                     const TextStyle(

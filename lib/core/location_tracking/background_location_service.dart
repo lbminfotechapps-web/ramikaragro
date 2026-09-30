@@ -121,12 +121,12 @@ class BackgroundLocationService {
       service.stopSelf();
     });
 
-    Timer.periodic(const Duration(minutes: 5), (timer) async {
+    Timer.periodic(const Duration(minutes: 3), (timer) async {
       try {
         debugPrint('========================================');
         debugPrint('BACKGROUND LOCATION');
         debugPrint('CURRENT USER ID: $userId');
-        debugPrint('5 MINUTE INTERVAL TRIGGERED');
+        debugPrint('3 MINUTE INTERVAL TRIGGERED');
         debugPrint('Getting current location...');
         debugPrint('========================================');
 
