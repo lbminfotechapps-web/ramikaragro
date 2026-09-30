@@ -52,10 +52,7 @@ class BackgroundLocationService {
 
     final bool running = await service.isRunning();
 
-    debugPrint('========================================');
-    debugPrint('BACKGROUND SERVICE STATUS');
-    debugPrint('IS RUNNING: $running');
-    debugPrint('========================================');
+
 
     return running;
   }
@@ -65,10 +62,6 @@ class BackgroundLocationService {
 
     final bool isRunning = await service.isRunning();
 
-    debugPrint('========================================');
-    debugPrint('BACKGROUND SERVICE STATUS');
-    debugPrint('IS RUNNING: $isRunning');
-    debugPrint('========================================');
   }
 
   static Future<void> start({required int userId}) async {

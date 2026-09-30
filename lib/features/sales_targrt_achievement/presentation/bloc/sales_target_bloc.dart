@@ -1,12 +1,14 @@
+import 'dart:async';
+
+import 'package:flutter/foundation.dart';
+import 'package:solufine/features/assign_target_point_wise/data/models/target_group_model.dart';
 import 'package:solufine/features/sales_targrt_achievement/domain/usecases/get_sales_wise_target.dart';
 import 'package:solufine/features/sales_targrt_achievement/domain/usecases/get_target_dates.dart';
 import 'package:solufine/features/sales_targrt_achievement/presentation/bloc/sales_target_event.dart';
 import 'package:solufine/features/sales_targrt_achievement/presentation/bloc/sales_target_state.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-
-class SalesTargetBloc
-    extends Bloc<SalesTargetEvent, SalesTargetState> {
+class SalesTargetBloc extends Bloc<SalesTargetEvent, SalesTargetState> {
   final GetTargetDates getTargetDates;
   final GeSalesWiseTarget getSalesWiseTarget;
 
@@ -16,6 +18,7 @@ class SalesTargetBloc
   }) : super(const SalesTargetState()) {
     on<LoadTargetDatesEvent>(_onLoadTargetDates);
     on<SelectTargetDateEvent>(_onSelectTargetDate);
+    on<GetGrouupWiseAchivePointsEvent>(_onGetGroupWiseAchivePoint);
   }
 
   // ============================================================
@@ -189,7 +192,7 @@ class SalesTargetBloc
       print('ACHIEVED: ${result.totalAchieved}');
       print('PENDING: ${result.totalPending}');
       print('PERCENTAGE: ${result.percentage}');
-       print('Achievement Amount: ${result.achievementAmount}');
+      print('Achievement Amount: ${result.achievementAmount}');
       print('====================================');
 
       emit(
@@ -207,6 +210,116 @@ class SalesTargetBloc
           targetStatus: SalesTargetStatus.failure,
           clearTarget: true,
           message: e.toString(),
+        ),
+      );
+    }
+  }
+
+  FutureOr<void> _onGetGroupWiseAchivePoint(
+    GetGrouupWiseAchivePointsEvent event,
+    Emitter<SalesTargetState> emit,
+  ) async {
+    try {
+      debugPrint('====================================');
+      debugPrint('CALLING GROUP WISE ACHIEVEMENT API');
+      debugPrint('USER ID: ${event.userId}');
+      debugPrint('TARGET ID: ${event.targetId}');
+      debugPrint('====================================');
+
+      // ========================================================
+      // VALIDATION
+      // ========================================================
+
+      if (event.userId.isEmpty) {
+        emit(
+          state.copyWith(
+            targetStatus: SalesTargetStatus.failure,
+            argetwisepoint: const [],
+            message: 'User ID is empty',
+          ),
+        );
+
+        return;
+      }
+
+      if (event.targetId.isEmpty) {
+        emit(
+          state.copyWith(
+            targetStatus: SalesTargetStatus.failure,
+            argetwisepoint: const [],
+            message: 'Target ID is empty',
+          ),
+        );
+
+        return;
+      }
+
+      // ========================================================
+      // LOADING
+      // ========================================================
+
+      emit(
+        state.copyWith(
+          targetStatus: SalesTargetStatus.loading,
+          argetwisepoint: const [],
+          clearMessage: true,
+        ),
+      );
+
+      // ========================================================
+      // API CALL
+      // ========================================================
+
+      final List<TargetGroupModel> result = await getSalesWiseTarget
+          .getGroupWiseAchivPoint(
+            userId: event.userId,
+            targetId: event.targetId,
+          );
+
+      debugPrint('====================================');
+      debugPrint('GROUP WISE RESULT COUNT: ${result.length}');
+      debugPrint('GROUP WISE RESULT: $result');
+      debugPrint('====================================');
+
+      // ========================================================
+      // NO RECORD
+      // ========================================================
+
+      if (result.isEmpty) {
+        emit(
+          state.copyWith(
+            targetStatus: SalesTargetStatus.success,
+            argetwisepoint: const [],
+            message: 'NO RECORD FOUND',
+          ),
+        );
+
+        return;
+      }
+
+      // ========================================================
+      // SUCCESS
+      // ========================================================
+
+      emit(
+        state.copyWith(
+          targetStatus: SalesTargetStatus.success,
+          argetwisepoint: result,
+          clearMessage: true,
+        ),
+      );
+    } catch (e, stackTrace) {
+      debugPrint('====================================');
+      debugPrint('GROUP WISE ACHIEVEMENT API ERROR');
+      debugPrint('ERROR: $e');
+      debugPrint('STACK TRACE: $stackTrace');
+      debugPrint('====================================');
+
+      emit(
+        state.copyWith(
+          targetStatus: SalesTargetStatus.failure,
+          argetwisepoint: const [],
+          message: e.toString().replaceFirst('Exception: ', ''),
         ),
       );
     }

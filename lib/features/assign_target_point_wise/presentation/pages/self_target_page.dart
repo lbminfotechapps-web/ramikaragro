@@ -874,7 +874,7 @@ class _SelfTargetPageState
             appBar:
                 CustomAppBar(
               title:
-                  'efwarfWRG',
+                  'Self Assign Target Point Wise',
 
               showBackButton:
                   true,

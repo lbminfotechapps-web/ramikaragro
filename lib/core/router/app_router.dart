@@ -379,10 +379,7 @@ class AppRouter {
         path: productEnquiry,
         name: 'productEnquiry',
         builder: (context, state) {
-          debugPrint('========================================');
-          debugPrint('PRODUCT ENQUIRY ROUTER');
-          debugPrint('state.extra      : ${state.extra}');
-          debugPrint('state.extra type : ${state.extra.runtimeType}');
+
 
           final extra = state.extra as Map<String, dynamic>?;
 
@@ -390,9 +387,7 @@ class AppRouter {
 
           final String productName = extra?['productName']?.toString() ?? '';
 
-          debugPrint('PRODUCT ID      : $productId');
-          debugPrint('PRODUCT NAME    : $productName');
-          debugPrint('========================================');
+
 
           return EnquiryPage(productId: productId, productName: productName);
         },
@@ -595,10 +590,7 @@ class AppRouter {
         path: notification,
         name: 'notification',
         builder: (context, state) {
-          debugPrint('========================================');
-          debugPrint('NOTIFICATION ROUTER');
-          debugPrint('state.extra       : ${state.extra}');
-          debugPrint('state.extra type  : ${state.extra.runtimeType}');
+
 
           final userId = state.extra is String
               ? int.tryParse(state.extra as String) ?? 0
@@ -606,8 +598,7 @@ class AppRouter {
               ? state.extra as int
               : 0;
 
-          debugPrint('FINAL USER ID     : $userId');
-          debugPrint('========================================');
+
 
           return NotificationPage(userId: userId, isLogin: true, userType: '');
         },
