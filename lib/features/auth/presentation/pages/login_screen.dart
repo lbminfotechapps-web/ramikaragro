@@ -1,3 +1,5 @@
+import 'package:solufine/core/di/auth_di.dart';
+import 'package:solufine/core/router/app_router.dart';
 import 'package:solufine/core/theme/app_colors.dart';
 import 'package:solufine/core/utility/app_toast.dart';
 import 'package:solufine/core/utility/widgets/custom_button.dart';
@@ -12,6 +14,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil_plus/flutter_screenutil_plus.dart';
 import 'package:go_router/go_router.dart';
+import 'package:solufine/features/auth/provider/auth_provider.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -42,69 +45,85 @@ class _LoginScreenState extends State<LoginScreen> {
       resizeToAvoidBottomInset: true,
 
       body: BlocConsumer<AuthBloc, AuthState>(
-  listener: (context, state) {
-    if (state.loginStatus == LoginStatus.success) {
-      AppToast.success('Login Successfully');
-      context.go('/home');
-    }
+        listener: (context, state) async {
+          if (state.loginStatus == LoginStatus.success) {
+            debugPrint('======================================');
+            debugPrint('LOGIN SUCCESS');
+            debugPrint('REFRESHING AUTH PROVIDER');
+            debugPrint('======================================');
 
-    if (state.loginStatus == LoginStatus.failure) {
-      AppToast.success(state.errorMessage ?? 'Login failed');
-    }
-  },
+            // IMPORTANT:
+            // Login Bloc has already stored user data in SecureStorage.
+            // Now tell AuthProvider to re-read it.
+            final authProvider = sl<AuthProvider>();
 
-  builder: (context, state) {
-    if (state.loginStatus == LoginStatus.loading) {
-      return const CustomLoader(
-        showMessage: true,
-        message: 'Authentication....',
-      );
-    }
+            await authProvider.checkLoginStatus();
 
-    return SafeArea(
-      bottom: false,
-      child: LayoutBuilder(
-        builder: (context, constraints) {
-          return SingleChildScrollView(
-            keyboardDismissBehavior:
-                ScrollViewKeyboardDismissBehavior.onDrag,
+            if (!context.mounted) return;
 
-            child: ConstrainedBox(
-              constraints: BoxConstraints(
-                minHeight: constraints.maxHeight,
-              ),
+            AppToast.success('Login Successfully');
 
-              child: IntrinsicHeight(
-                child: Column(
-                  children: [
-                    // =========================
-                    // HERO
-                    // =========================
-                    _heroSection(),
+            // Now Home listener will already have received the new auth state.
+            context.go(AppRouter.home);
+          }
 
-                    // =========================
-                    // LOGIN
-                    // =========================
-                    _loginSection(),
+          if (state.loginStatus == LoginStatus.failure) {
+            AppToast.error(state.errorMessage ?? 'Login failed');
+          }
+        },
 
-                    // Push bottom logo down when there is
-                    // extra available screen space.
-                    const Spacer(),
+        builder: (context, state) {
+          if (state.loginStatus == LoginStatus.loading) {
+            return const CustomLoader(
+              showMessage: true,
+              message: 'Authentication....',
+            );
+          }
 
-                    // =========================
-                    // BOTTOM LOGO
-                    // =========================
-                    _bottomLogo(),
-                  ],
-                ),
-              ),
+          return SafeArea(
+            bottom: false,
+            child: LayoutBuilder(
+              builder: (context, constraints) {
+                return SingleChildScrollView(
+                  keyboardDismissBehavior:
+                      ScrollViewKeyboardDismissBehavior.onDrag,
+
+                  child: ConstrainedBox(
+                    constraints: BoxConstraints(
+                      minHeight: constraints.maxHeight,
+                    ),
+
+                    child: IntrinsicHeight(
+                      child: Column(
+                        children: [
+                          // =========================
+                          // HERO
+                          // =========================
+                          _heroSection(),
+
+                          // =========================
+                          // LOGIN
+                          // =========================
+                          _loginSection(),
+
+                          // Push bottom logo down when there is
+                          // extra available screen space.
+                          const Spacer(),
+
+                          // =========================
+                          // BOTTOM LOGO
+                          // =========================
+                          _bottomLogo(),
+                        ],
+                      ),
+                    ),
+                  ),
+                );
+              },
             ),
           );
         },
       ),
-    );
-  },
-),
     );
   }
 
@@ -164,8 +183,6 @@ class _LoginScreenState extends State<LoginScreen> {
       ),
     );
   }
-
- 
 
   // ============================================================
   // LOGIN SECTION
