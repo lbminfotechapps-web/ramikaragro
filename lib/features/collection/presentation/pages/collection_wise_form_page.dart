@@ -163,6 +163,10 @@ class _CollectionWiseFormPageState extends State<CollectionWiseFormPage> {
     upiController.dispose();
     upiTransactionController.dispose();
 
+    for (final controller in collectionAmountControllers.values) {
+      controller.dispose();
+    }
+
     bloc.close();
 
     super.dispose();
@@ -210,7 +214,7 @@ class _CollectionWiseFormPageState extends State<CollectionWiseFormPage> {
       },
     );
 
-    if (pickedDate == null) {
+    if (!mounted || pickedDate == null) {
       return;
     }
 
@@ -254,12 +258,6 @@ class _CollectionWiseFormPageState extends State<CollectionWiseFormPage> {
 
 
   Future<void> _pickImages() async {
-    try {
-      final files = await imagePicker.pickMultiImage(
-        // Keep picker quality high.
-        // Actual compression will be done below.
-        imageQuality: 100,
-      );
     try {
       // ============================================================
       // PICK MULTIPLE IMAGES
@@ -1158,8 +1156,6 @@ class _CollectionWiseFormPageState extends State<CollectionWiseFormPage> {
   }
 
   Widget _buildDealerCard(List<CollectionTypeEntity> collectionTypes) {
-    final bool dealerSelected = dealerId.trim().isNotEmpty;
-
     return _buildCard(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -1757,7 +1753,7 @@ class _CollectionWiseFormPageState extends State<CollectionWiseFormPage> {
 
   Widget _buildPaymentDropdown() {
     return DropdownButtonFormField<String>(
-      value: paymentMode,
+      initialValue: paymentMode,
 
       isExpanded: true,
 

@@ -50,16 +50,14 @@ class QuickAccessSection extends StatefulWidget {
 
 class _QuickAccessSectionState extends State<QuickAccessSection> {
   static const int initialItemCount = 5;
-  static const int loadMoreCount = 6;
   int? userId;
   int visibleItemCount = initialItemCount;
 
-   // ============================================================
+  // ============================================================
   // SEARCH
   // ============================================================
-  final TextEditingController _searchController =TextEditingController();
+  final TextEditingController _searchController = TextEditingController();
   String _searchText = '';
-
 
   Future<void> _submitShareLocation({required String remark}) async {
     // final bloc = context.read<QuickAcessBloc>();
@@ -248,6 +246,12 @@ class _QuickAccessSectionState extends State<QuickAccessSection> {
   }
 
   @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
+
+  @override
   void didUpdateWidget(covariant QuickAccessSection oldWidget) {
     super.didUpdateWidget(oldWidget);
 
@@ -370,6 +374,8 @@ class _QuickAccessSectionState extends State<QuickAccessSection> {
 
           final String strAllLocations = await _getStoredLocations();
 
+          if (!context.mounted) return;
+
           if (strAllLocations == '[]') {
             debugPrint('STORE TRACK LOCATION NOT CALLED: No stored locations');
             return;
@@ -405,7 +411,8 @@ class _QuickAccessSectionState extends State<QuickAccessSection> {
         // ==========================================
         // SHARE LOCATION FAILURE
         // ==========================================
-        if (state.quickAccessStatus == QuickAccessStatus.failure) {
+        if (state.quickAccessStatus == QuickAccessStatus.failure &&
+            context.mounted) {
           ScaffoldMessenger.of(context).hideCurrentSnackBar();
 
           ScaffoldMessenger.of(context).showSnackBar(
@@ -418,8 +425,6 @@ class _QuickAccessSectionState extends State<QuickAccessSection> {
           );
         }
       },
-
-
 
       // child: CustomCard(
       //   padding: EdgeInsets.all(16.w),
@@ -471,273 +476,190 @@ class _QuickAccessSectionState extends State<QuickAccessSection> {
       //     ],
       //   ),
       // ),
-
-
-
-
-  child: CustomCard(
-  padding: EdgeInsets.all(16.w),
-  borderRadius: 24.r,
-  child: Column(
-    crossAxisAlignment: CrossAxisAlignment.start,
-    children: [
-      // =====================================================
-      // TITLE + SEARCH
-      // =====================================================
-
-      Row(
-        children: [
-          const Expanded(
-            child: Text(
-              'Quick Access',
-              style: TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.w700,
-              ),
-            ),
-          ),
-
-          SizedBox(width: 10.w),
-
-          SizedBox(
-            width: 180.w,
-            height: 42.h,
-            child: TextField(
-              controller: _searchController,
-              onChanged: (value) {
-                setState(() {
-                  _searchText =
-                      value.trim().toLowerCase();
-                });
-              },
-              decoration: InputDecoration(
-                hintText: 'Search menu',
-                hintStyle: TextStyle(
-                  fontSize: 12.sp,
-                  color: Colors.grey,
-                ),
-
-                prefixIcon: Icon(
-                  Icons.search_rounded,
-                  size: 20.sp,
-                ),
-
-                suffixIcon:
-                    _searchText.isNotEmpty
-                        ? IconButton(
-                            onPressed: () {
-                              _searchController.clear();
-
-                              setState(() {
-                                _searchText = '';
-                              });
-                            },
-                            icon: Icon(
-                              Icons.close_rounded,
-                              size: 18.sp,
-                            ),
-                          )
-                        : null,
-
-                contentPadding:
-                    EdgeInsets.symmetric(
-                  horizontal: 12.w,
-                  vertical: 8.h,
-                ),
-
-                filled: true,
-                fillColor:
-                    const Color(0xFFF6F7F8),
-
-                border: OutlineInputBorder(
-                  borderRadius:
-                      BorderRadius.circular(14.r),
-                  borderSide: BorderSide.none,
-                ),
-
-                enabledBorder:
-                    OutlineInputBorder(
-                  borderRadius:
-                      BorderRadius.circular(14.r),
-                  borderSide: BorderSide(
-                    color:
-                        const Color(0xFFE5E7EB),
-                    width: 1,
+      child: CustomCard(
+        padding: EdgeInsets.all(16.w),
+        borderRadius: 24.r,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // =====================================================
+            // TITLE + SEARCH
+            // =====================================================
+            Row(
+              children: [
+                const Expanded(
+                  child: Text(
+                    'Quick Access',
+                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.w700),
                   ),
                 ),
 
-                focusedBorder:
-                    OutlineInputBorder(
-                  borderRadius:
-                      BorderRadius.circular(14.r),
-                  borderSide: BorderSide(
-                    color:
-                        Theme.of(context)
-                            .primaryColor,
-                    width: 1.3,
-                  ),
-                ),
-              ),
-            ),
-          ),
-        ],
-      ),
+                SizedBox(width: 10.w),
 
-      SizedBox(height: 14.h),
+                SizedBox(
+                  width: 180.w,
+                  height: 42.h,
+                  child: TextField(
+                    controller: _searchController,
+                    onChanged: (value) {
+                      setState(() {
+                        _searchText = value.trim().toLowerCase();
+                      });
+                    },
+                    decoration: InputDecoration(
+                      hintText: 'Search menu',
+                      hintStyle: TextStyle(fontSize: 12.sp, color: Colors.grey),
 
-      // =====================================================
-      // MENU GRID
-      // =====================================================
+                      prefixIcon: Icon(Icons.search_rounded, size: 20.sp),
 
-      LayoutBuilder(
-        builder: (
-          context,
-          constraints,
-        ) {
-          final crossAxisCount =
-              constraints.maxWidth < 600
-                  ? 3
-                  : 6;
+                      suffixIcon: _searchText.isNotEmpty
+                          ? IconButton(
+                              onPressed: () {
+                                _searchController.clear();
 
-          // ===============================================
-          // SEARCH FILTER
-          // ===============================================
+                                setState(() {
+                                  _searchText = '';
+                                });
+                              },
+                              icon: Icon(Icons.close_rounded, size: 18.sp),
+                            )
+                          : null,
 
-          final filteredMenus =
-              widget.menus.where(
-            (menu) {
-              if (_searchText.isEmpty) {
-                return true;
-              }
+                      contentPadding: EdgeInsets.symmetric(
+                        horizontal: 12.w,
+                        vertical: 8.h,
+                      ),
 
-              final menuName =
-                  menu.menuName
-                      .toString()
-                      .toLowerCase();
+                      filled: true,
+                      fillColor: const Color(0xFFF6F7F8),
 
-              return menuName.contains(
-                _searchText,
-              );
-            },
-          ).toList();
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(14.r),
+                        borderSide: BorderSide.none,
+                      ),
 
-          // ===============================================
-          // NORMAL / MORE LOGIC
-          // ===============================================
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(14.r),
+                        borderSide: BorderSide(
+                          color: const Color(0xFFE5E7EB),
+                          width: 1,
+                        ),
+                      ),
 
-          final visibleMenus =
-              _searchText.isNotEmpty
-                  ? filteredMenus
-                  : filteredMenus
-                      .take(
-                        actualVisibleCount,
-                      )
-                      .toList();
-
-          final bool showMoreButton =
-              _searchText.isEmpty &&
-                  hasMore;
-
-          // ===============================================
-          // EMPTY SEARCH
-          // ===============================================
-
-          if (visibleMenus.isEmpty) {
-            return Container(
-              width: double.infinity,
-              padding:
-                  EdgeInsets.symmetric(
-                vertical: 30.h,
-              ),
-              child: Column(
-                children: [
-                  Icon(
-                    Icons.search_off_rounded,
-                    size: 38.sp,
-                    color: Colors.grey,
-                  ),
-
-                  SizedBox(height: 8.h),
-
-                  Text(
-                    'No menu found',
-                    style: TextStyle(
-                      fontSize: 13.sp,
-                      fontWeight:
-                          FontWeight.w600,
-                      color: Colors.grey,
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(14.r),
+                        borderSide: BorderSide(
+                          color: Theme.of(context).primaryColor,
+                          width: 1.3,
+                        ),
+                      ),
                     ),
                   ),
-                ],
-              ),
-            );
-          }
-
-          return GridView.builder(
-            shrinkWrap: true,
-            physics:
-                const NeverScrollableScrollPhysics(),
-
-            itemCount:
-                visibleMenus.length +
-                    (showMoreButton
-                        ? 1
-                        : 0),
-
-            gridDelegate:
-                SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount:
-                  crossAxisCount,
-
-              crossAxisSpacing:
-                  8.w,
-
-              mainAxisSpacing:
-                  8.h,
-
-              childAspectRatio:
-                  0.9,
+                ),
+              ],
             ),
 
-            itemBuilder: (
-              context,
-              index,
-            ) {
-              // MORE BUTTON
-              if (showMoreButton &&
-                  index ==
-                      visibleMenus.length) {
-                return _MoreItem(
-                  onTap: _showMore,
+            SizedBox(height: 14.h),
+
+            // =====================================================
+            // MENU GRID
+            // =====================================================
+            LayoutBuilder(
+              builder: (context, constraints) {
+                final crossAxisCount = constraints.maxWidth < 600 ? 3 : 6;
+
+                // ===============================================
+                // SEARCH FILTER
+                // ===============================================
+
+                final filteredMenus = widget.menus.where((menu) {
+                  if (_searchText.isEmpty) {
+                    return true;
+                  }
+
+                  final menuName = menu.menuName.toString().toLowerCase();
+
+                  return menuName.contains(_searchText);
+                }).toList();
+
+                // ===============================================
+                // NORMAL / MORE LOGIC
+                // ===============================================
+
+                final visibleMenus = _searchText.isNotEmpty
+                    ? filteredMenus
+                    : filteredMenus.take(actualVisibleCount).toList();
+
+                final bool showMoreButton = _searchText.isEmpty && hasMore;
+
+                // ===============================================
+                // EMPTY SEARCH
+                // ===============================================
+
+                if (visibleMenus.isEmpty) {
+                  return Container(
+                    width: double.infinity,
+                    padding: EdgeInsets.symmetric(vertical: 30.h),
+                    child: Column(
+                      children: [
+                        Icon(
+                          Icons.search_off_rounded,
+                          size: 38.sp,
+                          color: Colors.grey,
+                        ),
+
+                        SizedBox(height: 8.h),
+
+                        Text(
+                          'No menu found',
+                          style: TextStyle(
+                            fontSize: 13.sp,
+                            fontWeight: FontWeight.w600,
+                            color: Colors.grey,
+                          ),
+                        ),
+                      ],
+                    ),
+                  );
+                }
+
+                return GridView.builder(
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+
+                  itemCount: visibleMenus.length + (showMoreButton ? 1 : 0),
+
+                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: crossAxisCount,
+
+                    crossAxisSpacing: 8.w,
+
+                    mainAxisSpacing: 8.h,
+
+                    childAspectRatio: 0.9,
+                  ),
+
+                  itemBuilder: (context, index) {
+                    // MORE BUTTON
+                    if (showMoreButton && index == visibleMenus.length) {
+                      return _MoreItem(onTap: _showMore);
+                    }
+
+                    final menu = visibleMenus[index];
+
+                    return QuickAccessMenuItem(
+                      menu: menu,
+                      punchStat: widget.punchStat,
+
+                      onTap: () => _onMenuTap(context, menu),
+                    );
+                  },
                 );
-              }
-
-              final menu =
-                  visibleMenus[index];
-
-              return QuickAccessMenuItem(
-                menu: menu,
-                punchStat:
-                    widget.punchStat,
-
-                onTap: () =>
-                    _onMenuTap(
-                  context,
-                  menu,
-                ),
-              );
-            },
-          );
-        },
+              },
+            ),
+          ],
+        ),
       ),
-    ],
-  ),
-),
-
-
-
-
-
     );
   }
 
@@ -878,13 +800,9 @@ class _QuickAccessSectionState extends State<QuickAccessSection> {
       context.push('/addExpense');
     } else if (menu.menuId == '85') {
       context.push('/selfcollectionTarget');
-    } else if (menu.menuId == '57' ||
-    } 
-    else if (menu.menuId == '84') {
+    } else if (menu.menuId == '84') {
       context.push('/selfAssignTargetPointWise');
-    } 
-    
-    else if (menu.menuId == '57' ||
+    } else if (menu.menuId == '57' ||
         menu.menuId == '63' ||
         menu.menuId == '32') {
       final userData = await SecureStorage.instance.getUserData();
@@ -932,7 +850,7 @@ class _QuickAccessSectionState extends State<QuickAccessSection> {
                   Container(
                     padding: EdgeInsets.all(10.r),
                     decoration: BoxDecoration(
-                      color: AppColors.primary.withOpacity(0.10),
+                      color: AppColors.primary.withValues(alpha: 0.10),
                       borderRadius: BorderRadius.circular(12.r),
                     ),
                     child: Icon(
@@ -1013,7 +931,9 @@ class _QuickAccessSectionState extends State<QuickAccessSection> {
                   style: ElevatedButton.styleFrom(
                     backgroundColor: AppColors.primary,
                     foregroundColor: Colors.white,
-                    disabledBackgroundColor: AppColors.primary.withOpacity(0.5),
+                    disabledBackgroundColor: AppColors.primary.withValues(
+                      alpha: 0.5,
+                    ),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(10.r),
                     ),
