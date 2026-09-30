@@ -1,6 +1,3 @@
-import 'package:solufine/features/assign_target_point_wise/presentation/bloc/self_target_bloc.dart';
-import 'package:solufine/features/assign_target_point_wise/presentation/bloc/self_target_event.dart';
-import 'package:solufine/features/assign_target_point_wise/presentation/bloc/self_target_state.dart';
 import 'package:solufine/core/di/sales_target_di.dart';
 import 'package:solufine/core/router/app_router.dart';
 import 'package:solufine/core/secure_storage/secure_storage.dart';
@@ -25,7 +22,7 @@ class SalesWiseTargetPage extends StatefulWidget {
 
 class _SalesWiseTargetPageState extends State<SalesWiseTargetPage> {
   late final SalesTargetBloc bloc;
-  late final SelfTargetBloc productGroupsBloc;
+  late final SalesTargetBloc productGroupsBloc;
 
   String userId = '';
 
@@ -38,13 +35,13 @@ class _SalesWiseTargetPageState extends State<SalesWiseTargetPage> {
   static const Color pendingColor = Color(0xffF2B93B);
 
   static const Color achievedColor = Color(0xff75B943);
-
+  String selectedTargetId = '';
   @override
   void initState() {
     super.initState();
 
     bloc = sl<SalesTargetBloc>();
-    productGroupsBloc = sl<SelfTargetBloc>();
+    productGroupsBloc = sl<SalesTargetBloc>();
 
     _initialize();
   }
@@ -73,7 +70,6 @@ class _SalesWiseTargetPageState extends State<SalesWiseTargetPage> {
         return;
       }
 
-      productGroupsBloc.add(const GetSelfTargetEvent());
       bloc.add(LoadTargetDatesEvent(userId: userId));
     } catch (e) {
       debugPrint('USER ID ERROR: $e');
@@ -84,6 +80,18 @@ class _SalesWiseTargetPageState extends State<SalesWiseTargetPage> {
         );
       }
     }
+  }
+
+  void _loadProductGroups(String targetId) {
+    selectedTargetId = targetId;
+    if (userId.isEmpty || selectedTargetId.isEmpty) return;
+
+    productGroupsBloc.add(
+      GetGrouupWiseAchivePointsEvent(
+        userId: userId,
+        targetId: selectedTargetId,
+      ),
+    );
   }
 
   @override
@@ -119,7 +127,7 @@ class _SalesWiseTargetPageState extends State<SalesWiseTargetPage> {
               context.go(AppRouter.home);
             },
           ),
-          title: 'fs Wise Target And Achievement',
+          title: 'Sales Wise Target And Achievement',
         ),
 
         // ===================================================
@@ -132,7 +140,16 @@ class _SalesWiseTargetPageState extends State<SalesWiseTargetPage> {
               _buildHeader(),
 
               Expanded(
-                child: BlocBuilder<SalesTargetBloc, SalesTargetState>(
+                child: BlocConsumer<SalesTargetBloc, SalesTargetState>(
+                  listenWhen: (previous, current) =>
+                      previous.datesStatus != TargetDatesStatus.success &&
+                      current.datesStatus == TargetDatesStatus.success,
+                  listener: (context, state) {
+                    final selectedDate = state.selectedDate;
+                    if (selectedDate != null) {
+                      _loadProductGroups(selectedDate.monthlyCollectionId);
+                    }
+                  },
                   builder: (context, state) {
                     // ---------------------------------------
                     // TARGET DATES LOADING
@@ -172,7 +189,6 @@ class _SalesWiseTargetPageState extends State<SalesWiseTargetPage> {
                           return;
                         }
 
-                        productGroupsBloc.add(const GetSelfTargetEvent());
                         bloc.add(LoadTargetDatesEvent(userId: userId));
 
                         await bloc.stream.firstWhere(
@@ -344,7 +360,8 @@ class _SalesWiseTargetPageState extends State<SalesWiseTargetPage> {
                   if (value == null) {
                     return;
                   }
-
+                  _loadProductGroups(value.monthlyCollectionId);
+                  print('selectedTargetId$selectedTargetId');
                   bloc.add(
                     SelectTargetDateEvent(selectedDate: value, userId: userId),
                   );
@@ -413,10 +430,10 @@ class _SalesWiseTargetPageState extends State<SalesWiseTargetPage> {
   // =========================================================
 
   Widget _buildProductGroups() {
-    return BlocBuilder<SelfTargetBloc, SelfTargetState>(
+    return BlocBuilder<SalesTargetBloc, SalesTargetState>(
       bloc: productGroupsBloc,
       builder: (context, state) {
-        final totalPoints = state.groups.fold<double>(
+        final totalPoints = state.argetwisepoint.fold<double>(
           0,
           (total, group) => total + group.groupPointsValue,
         );
@@ -453,7 +470,7 @@ class _SalesWiseTargetPageState extends State<SalesWiseTargetPage> {
                       ],
                     ),
                   ),
-                  if (state.status == SelfTargetStatus.success)
+                  if (state.targetStatus == SalesTargetStatus.success)
                     Text(
                       '${_formatGroupPoints(totalPoints)} Amt/Pts',
                       style: const TextStyle(
@@ -464,35 +481,30 @@ class _SalesWiseTargetPageState extends State<SalesWiseTargetPage> {
                 ],
               ),
               const SizedBox(height: 12),
-              if (state.status == SelfTargetStatus.initial ||
-                  state.status == SelfTargetStatus.loading)
+              if (state.targetStatus == SalesTargetStatus.initial ||
+                  state.targetStatus == SalesTargetStatus.loading)
                 const Padding(
                   padding: EdgeInsets.all(20),
                   child: Center(child: CustomLoader()),
                 )
-              else if (state.status == SelfTargetStatus.failure)
+              else if (state.targetStatus == SalesTargetStatus.failure)
                 Column(
                   children: [
-                    Text(
-                      state.message.isEmpty
-                          ? 'Unable to load product groups'
-                          : state.message,
-                    ),
+                    Text(state.message ?? 'Unable to load product groups'),
                     TextButton.icon(
-                      onPressed: () =>
-                          productGroupsBloc.add(const GetSelfTargetEvent()),
+                      onPressed: () => _loadProductGroups(selectedTargetId),
                       icon: const Icon(Icons.refresh),
                       label: const Text('Retry'),
                     ),
                   ],
                 )
-              else if (state.groups.isEmpty)
+              else if (state.argetwisepoint.isEmpty)
                 const Padding(
                   padding: EdgeInsets.symmetric(vertical: 16),
                   child: Center(child: Text('No product groups available')),
                 )
               else
-                ...state.groups.map(
+                ...state.argetwisepoint.map(
                   (group) => Padding(
                     padding: const EdgeInsets.only(bottom: 6),
                     child: Container(
@@ -524,7 +536,7 @@ class _SalesWiseTargetPageState extends State<SalesWiseTargetPage> {
                               borderRadius: BorderRadius.circular(10),
                             ),
                             child: Text(
-                              '${_formatGroupPoints(group.groupPointsValue)} Amt/Pts',
+                              '${_formatGroupPoints(double.tryParse(group.pointAssign.toString()) ?? 0.0)} Amt - ${_formatGroupPoints(double.tryParse(group.groupPointsValue.toString()) ?? 0.0)} pts',
                               style: const TextStyle(
                                 color: primaryGreen,
                                 fontWeight: FontWeight.w800,
@@ -542,6 +554,137 @@ class _SalesWiseTargetPageState extends State<SalesWiseTargetPage> {
       },
     );
   }
+
+  // Widget _buildProductGroups() {
+  //   return BlocBuilder<SelfTargetBloc, SelfTargetState>(
+  //     bloc: productGroupsBloc,
+  //     builder: (context, state) {
+  //       final totalPoints = state.groups.fold<double>(
+  //         0,
+  //         (total, group) => total + group.groupPointsValue,
+  //       );
+  //       return Container(
+  //         width: double.infinity,
+  //         padding: const EdgeInsets.all(12),
+  //         decoration: BoxDecoration(
+  //           color: Colors.white,
+  //           borderRadius: BorderRadius.circular(16),
+  //           border: Border.all(color: const Color(0xFFE5EAE7)),
+  //         ),
+  //         child: Column(
+  //           crossAxisAlignment: CrossAxisAlignment.start,
+  //           children: [
+  //             Row(
+  //               children: [
+  //                 const Icon(Icons.category_rounded, color: primaryGreen),
+  //                 const SizedBox(width: 9),
+  //                 const Expanded(
+  //                   child: Column(
+  //                     crossAxisAlignment: CrossAxisAlignment.start,
+  //                     children: [
+  //                       Text(
+  //                         'Product Groups',
+  //                         style: TextStyle(
+  //                           fontSize: 14,
+  //                           fontWeight: FontWeight.w800,
+  //                         ),
+  //                       ),
+  //                       Text(
+  //                         'Group-wise point details',
+  //                         style: TextStyle(fontSize: 11, color: Colors.black45),
+  //                       ),
+  //                     ],
+  //                   ),
+  //                 ),
+  //                 if (state.status == SelfTargetStatus.success)
+  //                   Text(
+  //                     '${_formatGroupPoints(totalPoints)} Amt/Pts',
+  //                     style: const TextStyle(
+  //                       color: primaryGreen,
+  //                       fontWeight: FontWeight.w800,
+  //                     ),
+  //                   ),
+  //               ],
+  //             ),
+  //             const SizedBox(height: 12),
+  //             if (state.status == SelfTargetStatus.initial ||
+  //                 state.status == SelfTargetStatus.loading)
+  //               const Padding(
+  //                 padding: EdgeInsets.all(20),
+  //                 child: Center(child: CustomLoader()),
+  //               )
+  //             else if (state.status == SelfTargetStatus.failure)
+  //               Column(
+  //                 children: [
+  //                   Text(
+  //                     state.message.isEmpty
+  //                         ? 'Unable to load product groups'
+  //                         : state.message,
+  //                   ),
+  //                   TextButton.icon(
+  //                     onPressed: () =>
+  //                         productGroupsBloc.add(const GetSelfTargetEvent()),
+  //                     icon: const Icon(Icons.refresh),
+  //                     label: const Text('Retry'),
+  //                   ),
+  //                 ],
+  //               )
+  //             else if (state.groups.isEmpty)
+  //               const Padding(
+  //                 padding: EdgeInsets.symmetric(vertical: 16),
+  //                 child: Center(child: Text('No product groups available')),
+  //               )
+  //             else
+  //               ...state.groups.map(
+  //                 (group) => Padding(
+  //                   padding: const EdgeInsets.only(bottom: 6),
+  //                   child: Container(
+  //                     padding: const EdgeInsets.all(12),
+  //                     decoration: BoxDecoration(
+  //                       color: const Color(0xFFF8FAF9),
+  //                       borderRadius: BorderRadius.circular(12),
+  //                       border: Border.all(color: const Color(0xFFE7ECE9)),
+  //                     ),
+  //                     child: Row(
+  //                       children: [
+  //                         Expanded(
+  //                           child: Text(
+  //                             group.groupType,
+  //                             style: const TextStyle(
+  //                               fontSize: 13,
+  //                               fontWeight: FontWeight.w700,
+  //                             ),
+  //                           ),
+  //                         ),
+  //                         const SizedBox(width: 12),
+  //                         Container(
+  //                           padding: const EdgeInsets.symmetric(
+  //                             horizontal: 10,
+  //                             vertical: 6,
+  //                           ),
+  //                           decoration: BoxDecoration(
+  //                             color: const Color(0xFFEAF6EE),
+  //                             borderRadius: BorderRadius.circular(10),
+  //                           ),
+  //                           child: Text(
+  //                             '${_formatGroupPoints(group.groupPointsValue)} Amt/Pts',
+  //                             style: const TextStyle(
+  //                               color: primaryGreen,
+  //                               fontWeight: FontWeight.w800,
+  //                             ),
+  //                           ),
+  //                         ),
+  //                       ],
+  //                     ),
+  //                   ),
+  //                 ),
+  //               ),
+  //           ],
+  //         ),
+  //       );
+  //     },
+  //   );
+  // }
 
   String _formatGroupPoints(double value) {
     return value == value.truncateToDouble()

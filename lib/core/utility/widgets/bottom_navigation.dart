@@ -77,9 +77,6 @@ class HomeShellState extends State<HomeShell> {
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       if (!mounted) return;
 
-      debugPrint('======================================');
-      debugPrint('INITIAL HOME LOAD');
-      debugPrint('======================================');
 
       await _refreshHome();
     });
@@ -110,9 +107,7 @@ class HomeShellState extends State<HomeShell> {
   Future<void> refreshHome() async {
     if (!mounted) return;
 
-    debugPrint('======================================');
-    debugPrint('EXTERNAL HOME REFRESH REQUEST');
-    debugPrint('======================================');
+
 
     await _refreshHome();
   }

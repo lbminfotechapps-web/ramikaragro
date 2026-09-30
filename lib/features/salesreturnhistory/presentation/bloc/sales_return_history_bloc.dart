@@ -25,6 +25,7 @@ class SalesReturnHistoryBloc
   }
 
   Future<void> _loadSalesReturnHistory(
+    
     LoadSalesReturnHistoryEvent event,
     Emitter<SalesReturnHistoryState> emit,
   ) async {
