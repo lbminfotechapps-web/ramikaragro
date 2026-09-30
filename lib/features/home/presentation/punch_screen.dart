@@ -1,54 +1,42 @@
 import 'dart:convert';
 import 'dart:io';
-import 'dart:typed_data';
 
+import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_screenutil_plus/flutter_screenutil_plus.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:go_router/go_router.dart';
+import 'package:intl/intl.dart';
+
 import 'package:solufine/core/location_tracking/background_location_service.dart';
-import 'package:solufine/core/theme/app_colors.dart';
+import 'package:solufine/core/router/app_router.dart';
 import 'package:solufine/core/secure_storage/secure_storage.dart';
 import 'package:solufine/core/utility/app_image_picker.dart';
 import 'package:solufine/core/utility/appdialog.dart';
 import 'package:solufine/core/utility/device_info_util.dart';
 import 'package:solufine/core/utility/location_util.dart';
 import 'package:solufine/core/utility/widgets/custom_appbar.dart';
-import 'package:solufine/core/router/app_router.dart';
-import 'package:solufine/core/utility/widgets/custom_button.dart';
 import 'package:solufine/core/utility/widgets/custom_textformfield.dart';
+
 import 'package:solufine/features/home/doman/home_entity/punch_stat_entity.dart';
 import 'package:solufine/features/home/doman/home_entity/vehicle_type_entity.dart';
-import 'package:solufine/features/home/presentation/home_bloc/home_bloc.dart';
-import 'package:solufine/features/home/presentation/home_bloc/home_event.dart';
 import 'package:solufine/features/home/presentation/quick_aceess_bloc/quick_acess_bloc.dart';
 import 'package:solufine/features/home/presentation/quick_aceess_bloc/quick_access_event.dart';
 import 'package:solufine/features/home/presentation/quick_aceess_bloc/quick_access_state.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_screenutil_plus/flutter_screenutil_plus.dart';
-import 'package:go_router/go_router.dart';
-import 'package:intl/intl.dart';
 
 class PunchScreen extends StatefulWidget {
   final PunchStatEntity? punchStat;
 
-  const PunchScreen({super.key, this.punchStat});
+  const PunchScreen({
+    super.key,
+    this.punchStat,
+  });
 
   @override
   State<PunchScreen> createState() => _PunchScreenState();
 }
 
 class _PunchScreenState extends State<PunchScreen> {
-  // String get nextInOutStatus {
-  //   final currentStatus = widget.punchStat?.inOutStatus ?? '0';
-
-  //   if (currentStatus == '0') {
-  //     return '1';
-  //   } else if (currentStatus == '1') {
-  //     return '2';
-  //   }
-
-  //   return '1';
-  // }
-
   bool isLoading = false;
   bool _submissionSent = false;
 
@@ -56,13 +44,17 @@ class _PunchScreenState extends State<PunchScreen> {
 
   File? _uploadedImage;
 
-  final TextEditingController openingKmController = TextEditingController();
+  final TextEditingController openingKmController =
+      TextEditingController();
 
-  final TextEditingController closingKmController = TextEditingController();
+  final TextEditingController closingKmController =
+      TextEditingController();
 
-  final TextEditingController routeController = TextEditingController();
+  final TextEditingController routeController =
+      TextEditingController();
 
-  final TextEditingController remarkController = TextEditingController();
+  final TextEditingController remarkController =
+      TextEditingController();
 
   String? selectedVehicleId;
 
@@ -71,109 +63,174 @@ class _PunchScreenState extends State<PunchScreen> {
   String address = '';
 
   Position? _punchInPosition;
+
   String _punchInAddress = '';
+
   int? _punchInUserId;
 
-  @override
+  // ===========================================================================
+  // INIT
+  // ===========================================================================
+
   @override
   void initState() {
     super.initState();
 
-    // debugPrint('Punch Out: $isPunchOut');
-    // debugPrint('Starting KM: ${widget.punchStat?.startingKm}');
-
-    // if (isPunchOut) {
-    //   final startingKm = widget.punchStat?.startingKm?.trim() ?? '';
-
-    //   if (startingKm.isNotEmpty) {
-    //     openingKmController.text = startingKm;
-    //   }
-    // }
-
     _loadVehicleTypes();
   }
 
-  Future<void> _loadVehicleTypes() async {
-    final userData = await SecureStorage.instance.getUserData();
-    final userId = int.tryParse(userData?['user_id']?.toString() ?? '');
+  // ===========================================================================
+  // LOAD VEHICLE TYPES
+  // ===========================================================================
 
-    if (!mounted || userId == null) return;
+  Future<void> _loadVehicleTypes() async {
+    final userData =
+        await SecureStorage.instance.getUserData();
+
+    final userId = int.tryParse(
+      userData?['user_id']?.toString() ?? '',
+    );
+
+    if (!mounted || userId == null) {
+      return;
+    }
 
     context.read<QuickAcessBloc>().add(
-      VehicleTypeEvent(userId, DateFormat('yyyy-MM-dd').format(DateTime.now())),
-    );
+          VehicleTypeEvent(
+            userId,
+            DateFormat(
+              'yyyy-MM-dd',
+            ).format(
+              DateTime.now(),
+            ),
+          ),
+        );
   }
+
+  // ===========================================================================
+  // CAMERA
+  // ===========================================================================
 
   Future<void> _captureImage() async {
     try {
-      final File? image = await AppImagePicker.instance.pickFromCamera();
+      final File? image =
+          await AppImagePicker.instance.pickFromCamera();
 
       if (image == null) {
         return;
       }
 
-      if (!mounted) return;
+      if (!mounted) {
+        return;
+      }
 
       setState(() {
         _uploadedImage = image;
       });
     } catch (e) {
-      if (!mounted) return;
+      if (!mounted) {
+        return;
+      }
 
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text('Failed to capture image')));
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text(
+            'Failed to capture image',
+          ),
+        ),
+      );
     }
   }
 
+  // ===========================================================================
+  // SUBMIT PUNCH
+  // ===========================================================================
+
   Future<void> _submitPunch() async {
     if (isLoading) {
-      debugPrint('PUNCH IN: Already loading, submit ignored');
+      debugPrint(
+        'PUNCH IN: Already loading, submit ignored',
+      );
+
       return;
     }
 
     if (!_formKey.currentState!.validate()) {
-      debugPrint('PUNCH IN: Form validation failed');
+      debugPrint(
+        'PUNCH IN: Form validation failed',
+      );
+
       return;
     }
 
-    final userData = await SecureStorage.instance.getUserData();
+    final userData =
+        await SecureStorage.instance.getUserData();
 
-    debugPrint('========== PUNCH IN SUBMIT ==========');
-    debugPrint('User data: $userData');
+    debugPrint(
+      '========== PUNCH IN SUBMIT ==========',
+    );
 
-    final userId = int.tryParse(userData?['user_id']?.toString() ?? '');
+    debugPrint(
+      'User data: $userData',
+    );
+
+    final userId = int.tryParse(
+      userData?['user_id']?.toString() ?? '',
+    );
 
     if (userId == null) {
-      debugPrint('PUNCH IN ERROR: User ID not found');
+      debugPrint(
+        'PUNCH IN ERROR: User ID not found',
+      );
 
-      if (!mounted) return;
+      if (!mounted) {
+        return;
+      }
 
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('User information not found')),
+        const SnackBar(
+          content: Text(
+            'User information not found',
+          ),
+        ),
       );
 
       return;
     }
 
-    debugPrint('User ID: $userId');
+    debugPrint(
+      'User ID: $userId',
+    );
+
     _punchInUserId = userId;
 
-    final vehicleTypeId = selectedVehicleId;
+    final vehicleTypeId =
+        selectedVehicleId;
 
-    if (vehicleTypeId == null || vehicleTypeId.isEmpty) {
-      debugPrint('PUNCH IN ERROR: Vehicle type not selected');
+    if (vehicleTypeId == null ||
+        vehicleTypeId.isEmpty) {
+      debugPrint(
+        'PUNCH IN ERROR: Vehicle type not selected',
+      );
 
-      if (!mounted) return;
+      if (!mounted) {
+        return;
+      }
 
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please select a vehicle type')),
+        const SnackBar(
+          content: Text(
+            'Please select a vehicle type',
+          ),
+        ),
       );
 
       return;
     }
 
-    debugPrint('Vehicle Type ID: $vehicleTypeId');
+    debugPrint(
+      'Vehicle Type ID: $vehicleTypeId',
+    );
 
     setState(() {
       isLoading = true;
@@ -181,223 +238,386 @@ class _PunchScreenState extends State<PunchScreen> {
     });
 
     try {
-      // ============================================
+      // -----------------------------------------------------------------------
       // BATTERY
-      // ============================================
-      final batteryInfo = await DeviceInfoUtil.instance.getBatteryInfo();
+      // -----------------------------------------------------------------------
 
-      debugPrint('Battery Info: $batteryInfo');
+      final batteryInfo =
+          await DeviceInfoUtil.instance.getBatteryInfo();
 
-      // ============================================
+      debugPrint(
+        'Battery Info: $batteryInfo',
+      );
+
+      // -----------------------------------------------------------------------
       // NETWORK
-      // ============================================
-      final networkInfo = await DeviceInfoUtil.instance.getNetworkInfo();
+      // -----------------------------------------------------------------------
 
-      debugPrint('Network Info: $networkInfo');
+      final networkInfo =
+          await DeviceInfoUtil.instance.getNetworkInfo();
 
-      // ============================================
+      debugPrint(
+        'Network Info: $networkInfo',
+      );
+
+      // -----------------------------------------------------------------------
       // LOCATION
-      // ============================================
+      // -----------------------------------------------------------------------
 
-      final position = await LocationUtil.instance.getCurrentLocation();
+      final position =
+          await LocationUtil.instance.getCurrentLocation();
 
       if (position != null) {
         _punchInPosition = position;
 
-        latitude = position.latitude.toString();
-        longitude = position.longitude.toString();
+        latitude =
+            position.latitude.toString();
 
-        debugPrint('Latitude: $latitude');
-        debugPrint('Longitude: $longitude');
-        debugPrint('Accuracy: ${position.accuracy}');
-        // debugPrint('Provider: ${position.provider}');
+        longitude =
+            position.longitude.toString();
 
-        address = await LocationUtil.instance.getAddress(
+        debugPrint(
+          'Latitude: $latitude',
+        );
+
+        debugPrint(
+          'Longitude: $longitude',
+        );
+
+        debugPrint(
+          'Accuracy: ${position.accuracy}',
+        );
+
+        address =
+            await LocationUtil.instance.getAddress(
           position.latitude,
           position.longitude,
         );
 
-        _punchInAddress = address;
+        _punchInAddress =
+            address;
 
-        debugPrint('Geo Address: $address');
+        debugPrint(
+          'Geo Address: $address',
+        );
       } else {
         _punchInPosition = null;
+
         _punchInAddress = '';
 
-        debugPrint('Location: NOT AVAILABLE');
+        debugPrint(
+          'Location: NOT AVAILABLE',
+        );
       }
 
-      // ============================================
-      // STARTING IMAGE -> BASE64
-      // ============================================
+      // -----------------------------------------------------------------------
+      // IMAGE -> BASE64
+      // -----------------------------------------------------------------------
+
       String? startingImageBase64;
 
       if (_uploadedImage != null) {
-        debugPrint('Starting image path: ${_uploadedImage!.path}');
+        debugPrint(
+          'Starting image path: ${_uploadedImage!.path}',
+        );
 
         if (await _uploadedImage!.exists()) {
-          final imageBytes = await _uploadedImage!.readAsBytes();
+          final imageBytes =
+              await _uploadedImage!.readAsBytes();
 
-          startingImageBase64 = base64Encode(imageBytes);
+          startingImageBase64 =
+              base64Encode(
+            imageBytes,
+          );
 
           debugPrint(
             'Starting image Base64 length: '
             '${startingImageBase64.length}',
           );
         } else {
-          debugPrint('Starting image file does not exist');
+          debugPrint(
+            'Starting image file does not exist',
+          );
         }
       } else {
-        debugPrint('Starting image: NOT SELECTED');
+        debugPrint(
+          'Starting image: NOT SELECTED',
+        );
       }
 
-      // ============================================
-      // OTHER FORM VALUES
-      // ============================================
-      final pinRemark = remarkController.text.trim();
+      // -----------------------------------------------------------------------
+      // FORM DATA
+      // -----------------------------------------------------------------------
 
-      final startingClosingKmAmount = openingKmController.text.trim();
+      final pinRemark =
+          remarkController.text.trim();
 
-      final route = routeController.text.trim();
+      final startingClosingKmAmount =
+          openingKmController.text.trim();
 
-      debugPrint('Pin Remark: $pinRemark');
+      final route =
+          routeController.text.trim();
+
+      debugPrint(
+        'Pin Remark: $pinRemark',
+      );
 
       debugPrint(
         'Starting KM Amount: '
         '$startingClosingKmAmount',
       );
 
-      debugPrint('Route: $route');
+      debugPrint(
+        'Route: $route',
+      );
 
-      // ============================================
-      // CURRENT PUNCH STATUS
-      // ============================================
+      // -----------------------------------------------------------------------
+      // DEBUG
+      // -----------------------------------------------------------------------
+
       debugPrint(
         'Previous Punch Status: '
         '${widget.punchStat?.inOutStatus}',
       );
 
-      debugPrint('Current Action: PUNCH IN');
-      debugPrint('In/Out Status: 1');
-      debugPrint('Activity ID: 3');
+      debugPrint(
+        'Current Action: PUNCH IN',
+      );
 
-      // ============================================
-      // FINAL REQUEST DEBUG
-      // ============================================
-      debugPrint('========== FINAL PUNCH IN DATA ==========');
+      debugPrint(
+        'In/Out Status: 1',
+      );
 
-      debugPrint('user_id: $userId');
-      debugPrint('in_out_status: 1');
-      debugPrint('differenceByAndroid: 0.0');
-      debugPrint('locationHistoryString:');
-      debugPrint('strBatteryInfo: $batteryInfo');
-      debugPrint('strNetworkInfo: $networkInfo');
-      debugPrint('pinRemark: $pinRemark');
+      debugPrint(
+        'Activity ID: 3',
+      );
+
+      debugPrint(
+        '========== FINAL PUNCH IN DATA ==========',
+      );
+
+      debugPrint(
+        'user_id: $userId',
+      );
+
+      debugPrint(
+        'in_out_status: 1',
+      );
+
+      debugPrint(
+        'differenceByAndroid: 0.0',
+      );
+
+      debugPrint(
+        'locationHistoryString:',
+      );
+
+      debugPrint(
+        'strBatteryInfo: $batteryInfo',
+      );
+
+      debugPrint(
+        'strNetworkInfo: $networkInfo',
+      );
+
+      debugPrint(
+        'pinRemark: $pinRemark',
+      );
 
       debugPrint(
         'strStartingClosingKmAmount: '
         '$startingClosingKmAmount',
       );
 
-      debugPrint('strVehicleTypeId: $vehicleTypeId');
+      debugPrint(
+        'strVehicleTypeId: $vehicleTypeId',
+      );
 
-      debugPrint('route: $route');
-      debugPrint('latitude: $latitude');
-      debugPrint('longitude: $longitude');
-      debugPrint('networkLatitude: $latitude');
-      debugPrint('networkLongitude: $longitude');
-      debugPrint('gpsLatitude: $latitude');
-      debugPrint('gpsLongitude: $longitude');
-      debugPrint('geoAddress: $address');
-      debugPrint('activityId: 3');
+      debugPrint(
+        'route: $route',
+      );
 
-      if (startingImageBase64 != null && startingImageBase64.isNotEmpty) {
+      debugPrint(
+        'latitude: $latitude',
+      );
+
+      debugPrint(
+        'longitude: $longitude',
+      );
+
+      debugPrint(
+        'networkLatitude: $latitude',
+      );
+
+      debugPrint(
+        'networkLongitude: $longitude',
+      );
+
+      debugPrint(
+        'gpsLatitude: $latitude',
+      );
+
+      debugPrint(
+        'gpsLongitude: $longitude',
+      );
+
+      debugPrint(
+        'geoAddress: $address',
+      );
+
+      debugPrint(
+        'activityId: 3',
+      );
+
+      if (startingImageBase64 != null &&
+          startingImageBase64.isNotEmpty) {
         debugPrint(
           'startingKmImage: '
-          '${startingImageBase64.length} Base64 characters',
+          '${startingImageBase64.length} '
+          'Base64 characters',
         );
       } else {
-        debugPrint('startingKmImage: NOT SENT');
+        debugPrint(
+          'startingKmImage: NOT SENT',
+        );
       }
 
-      // ============================================
-      // NOT SENT FOR PUNCH IN
-      // ============================================
-      debugPrint('date: NOT SENT');
-      debugPrint('time: NOT SENT');
-      debugPrint('closingKmImage: NOT SENT');
-      debugPrint('isForceOutPunch: NOT SENT');
-
-      debugPrint('==========================================');
-
-      if (!mounted) return;
-
-      // ============================================
-      // DISPATCH PUNCH IN EVENT
-      // ============================================
-      context.read<QuickAcessBloc>().add(
-        PunchInOutDetailsAddEvent(
-          userId: userId,
-
-          inOutStatus: '1',
-
-          differenceByAndroid: '0.0',
-          locationHistoryString: '',
-
-          batteryInfo: batteryInfo,
-          networkInfo: networkInfo,
-
-          pinRemark: pinRemark,
-
-          startingClosingKmAmount: startingClosingKmAmount,
-
-          vehicleTypeId: vehicleTypeId,
-
-          route: route,
-
-          latitude: latitude,
-          longitude: longitude,
-
-          networkLatitude: latitude,
-          networkLongitude: longitude,
-
-          gpsLatitude: latitude,
-          gpsLongitude: longitude,
-
-          geoAddress: address,
-
-          // Base64 image
-          startingKmImage: startingImageBase64,
-
-          activityId: '3',
-        ),
+      debugPrint(
+        'date: NOT SENT',
       );
+
+      debugPrint(
+        'time: NOT SENT',
+      );
+
+      debugPrint(
+        'closingKmImage: NOT SENT',
+      );
+
+      debugPrint(
+        'isForceOutPunch: NOT SENT',
+      );
+
+      debugPrint(
+        '==========================================',
+      );
+
+      if (!mounted) {
+        return;
+      }
+
+      // -----------------------------------------------------------------------
+      // DISPATCH
+      // -----------------------------------------------------------------------
+
+      context.read<QuickAcessBloc>().add(
+            PunchInOutDetailsAddEvent(
+              userId: userId,
+
+              inOutStatus:
+                  '1',
+
+              differenceByAndroid:
+                  '0.0',
+
+              locationHistoryString:
+                  '',
+
+              batteryInfo:
+                  batteryInfo,
+
+              networkInfo:
+                  networkInfo,
+
+              pinRemark:
+                  pinRemark,
+
+              startingClosingKmAmount:
+                  startingClosingKmAmount,
+
+              vehicleTypeId:
+                  vehicleTypeId,
+
+              route:
+                  route,
+
+              latitude:
+                  latitude,
+
+              longitude:
+                  longitude,
+
+              networkLatitude:
+                  latitude,
+
+              networkLongitude:
+                  longitude,
+
+              gpsLatitude:
+                  latitude,
+
+              gpsLongitude:
+                  longitude,
+
+              geoAddress:
+                  address,
+
+              startingKmImage:
+                  startingImageBase64,
+
+              activityId:
+                  '3',
+            ),
+          );
 
       _submissionSent = true;
 
-      debugPrint('PUNCH IN EVENT DISPATCHED SUCCESSFULLY');
+      debugPrint(
+        'PUNCH IN EVENT DISPATCHED SUCCESSFULLY',
+      );
 
-      debugPrint('========================================');
+      debugPrint(
+        '========================================',
+      );
     } catch (e, stackTrace) {
-      debugPrint('========== PUNCH IN ERROR ==========');
+      debugPrint(
+        '========== PUNCH IN ERROR ==========',
+      );
 
-      debugPrint('Error: $e');
-      debugPrint('StackTrace: $stackTrace');
+      debugPrint(
+        'Error: $e',
+      );
 
-      debugPrint('====================================');
+      debugPrint(
+        'StackTrace: $stackTrace',
+      );
 
-      if (!mounted) return;
+      debugPrint(
+        '====================================',
+      );
+
+      if (!mounted) {
+        return;
+      }
 
       setState(() {
         isLoading = false;
         _submissionSent = false;
       });
 
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text(e.toString())));
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            e.toString(),
+          ),
+        ),
+      );
     }
   }
+
+  // ===========================================================================
+  // DISPOSE
+  // ===========================================================================
 
   @override
   void dispose() {
@@ -405,221 +625,394 @@ class _PunchScreenState extends State<PunchScreen> {
     closingKmController.dispose();
     routeController.dispose();
     remarkController.dispose();
+
     super.dispose();
   }
+
+  // ===========================================================================
+  // BUILD
+  // ===========================================================================
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.backgroundColor,
+      backgroundColor:
+          const Color(
+        0xFFF4F7F5,
+      ),
 
       appBar: CustomAppBar(
-        title: 'Punch In',
-        showBackButton: true,
-        onBackTap: () => context.go(AppRouter.home),
+        title:
+            'Punch In',
+
+        showBackButton:
+            true,
+
+        onBackTap: () {
+          context.go(
+            AppRouter.home,
+          );
+        },
       ),
 
       body: SafeArea(
-        child: BlocConsumer<QuickAcessBloc, QuickAccessState>(
-          listener: (context, state) async {
-            if (!isLoading || !_submissionSent) return;
+        child: BlocConsumer<
+            QuickAcessBloc,
+            QuickAccessState>(
+          // ===================================================================
+          // LISTENER
+          // ===================================================================
+
+          listener:
+              (context, state) async {
+            if (!isLoading ||
+                !_submissionSent) {
+              return;
+            }
 
             if (state.quickAccessStatus ==
-                QuickAccessStatus.punchStatusSuccess) {
-              debugPrint('========================================');
-              debugPrint('PUNCH API SUCCESS');
-              debugPrint('NOW SAVING LOCATION TO LOCAL DB');
-              debugPrint('========================================');
+                QuickAccessStatus
+                    .punchStatusSuccess) {
+              debugPrint(
+                '========================================',
+              );
 
-              if (_punchInUserId != null && _punchInPosition != null) {
-                context.read<QuickAcessBloc>().add(
-                  SavePunchInLocationEvent(
-                    userId: _punchInUserId!,
-                    latitude: _punchInPosition!.latitude.toString(),
-                    longitude: _punchInPosition!.longitude.toString(),
-                    geoAddress: _punchInAddress,
-                    capturedAt: DateTime.now().millisecondsSinceEpoch,
-                    accuracy: _punchInPosition!.accuracy,
-                    provider: 'gps',
-                  ),
+              debugPrint(
+                'PUNCH API SUCCESS',
+              );
+
+              debugPrint(
+                'NOW SAVING LOCATION TO LOCAL DB',
+              );
+
+              debugPrint(
+                '========================================',
+              );
+
+              if (_punchInUserId != null &&
+                  _punchInPosition != null) {
+                context
+                    .read<QuickAcessBloc>()
+                    .add(
+                      SavePunchInLocationEvent(
+                        userId:
+                            _punchInUserId!,
+
+                        latitude:
+                            _punchInPosition!
+                                .latitude
+                                .toString(),
+
+                        longitude:
+                            _punchInPosition!
+                                .longitude
+                                .toString(),
+
+                        geoAddress:
+                            _punchInAddress,
+
+                        capturedAt:
+                            DateTime.now()
+                                .millisecondsSinceEpoch,
+
+                        accuracy:
+                            _punchInPosition!
+                                .accuracy,
+
+                        provider:
+                            'gps',
+                      ),
+                    );
+
+                await BackgroundLocationService
+                    .start(
+                  userId:
+                      _punchInUserId!,
                 );
 
-                await BackgroundLocationService.start(userId: _punchInUserId!);
-
-                debugPrint('SavePunchInLocationEvent DISPATCHED');
+                debugPrint(
+                  'SavePunchInLocationEvent DISPATCHED',
+                );
               } else {
-                debugPrint('PUNCH SUCCESS BUT LOCATION DATA NOT AVAILABLE');
+                debugPrint(
+                  'PUNCH SUCCESS BUT LOCATION DATA NOT AVAILABLE',
+                );
+              }
+
+              if (!mounted) {
+                return;
               }
 
               setState(() {
-                isLoading = false;
-                _submissionSent = false;
+                isLoading =
+                    false;
+
+                _submissionSent =
+                    false;
               });
 
               AppDialog.show(
-                context: context,
-                type: DialogType.success,
-                title: 'Punch In Successful',
-                message: 'Your punch in has been submitted successfully.',
-                buttonText: 'OK',
-                onButtonPressed: () {
-                  Navigator.pop(context, true);
-                  // context.go(AppRouter.home);
+                context:
+                    context,
+
+                type:
+                    DialogType.success,
+
+                title:
+                    'Punch In Successful',
+
+                message:
+                    'Your punch in has been submitted successfully.',
+
+                buttonText:
+                    'OK',
+
+                onButtonPressed:
+                    () {
+                  Navigator.pop(
+                    context,
+                    true,
+                  );
                 },
               );
             }
           },
 
-          /*
-          listener: (context, state) {
-            if (!isLoading || !_submissionSent) return;
+          // ===================================================================
+          // BUILDER
+          // ===================================================================
 
-            if (state.quickAccessStatus ==
-                QuickAccessStatus.punchStatusSuccess) {
-              setState(() {
-                isLoading = false;
-                _submissionSent = false;
-              });
+          builder:
+              (context, vehicleState) {
+            final selectedVehicle =
+                _selectedVehicle(
+              vehicleState,
+            );
 
-       
-              AppDialog.show(
-                context: context,
-                type: DialogType.success,
-                title: 'Punch In Successful',
-                message: 'Your punch in has been submitted successfully.',
-                buttonText: 'OK',
-                onButtonPressed: () {
-                  context.go(AppRouter.home);
-                },
-              );
-              // context.go(AppRouter.home);
-            } else if (state.quickAccessStatus == QuickAccessStatus.failure) {
-              setState(() {
-                isLoading = false;
-                _submissionSent = false;
-              });
-              AppDialog.show(
-                context: context,
-                type: DialogType.error,
-                title: 'Punch In Failed',
-                message: state.errorMessage ?? 'Unable to submit punch in.',
-                buttonText: 'OK',
-              );
-            }
-          },
+            return Form(
+              key:
+                  _formKey,
 
-          */
-          builder: (context, vehicleState) {
-            final selectedVehicle = _selectedVehicle(vehicleState);
+              child: Column(
+                children: [
+                  // -----------------------------------------------------------
+                  // SCROLLABLE CONTENT
+                  // -----------------------------------------------------------
 
-            return Stack(
-              children: [
-                Form(
-                  key: _formKey,
-                  child: SingleChildScrollView(
-                    child: Padding(
-                      padding: const EdgeInsets.only(left: 16, right: 16),
-                      child: Column(
+                  Expanded(
+                    child:
+                        SingleChildScrollView(
+                      physics:
+                          const BouncingScrollPhysics(),
+
+                      keyboardDismissBehavior:
+                          ScrollViewKeyboardDismissBehavior
+                              .onDrag,
+
+                      padding:
+                          EdgeInsets.fromLTRB(
+                        14.w,
+                        10.h,
+                        14.w,
+                        14.h,
+                      ),
+
+                      child:
+                          Column(
+                        crossAxisAlignment:
+                            CrossAxisAlignment
+                                .start,
+
                         children: [
-                          SizedBox(height: 14.h),
-                          _vehicleDropdown(vehicleState),
-                          SizedBox(height: 12.h),
+                          // ---------------------------------------------------
+                          // HEADER
+                          // ---------------------------------------------------
 
-                          if (selectedVehicle?.openingClosingKm != '0') ...[
-                            _kmField(
-                              controller: openingKmController,
-                              hintText: 'Opening KM*',
-                              enabled: true,
-                              validator: (value) =>
-                                  _validateKm(value, 'Opening KM'),
+                          _compactHeader(),
+
+                          SizedBox(
+                            height:
+                                14.h,
+                          ),
+
+                          // ---------------------------------------------------
+                          // VEHICLE SECTION
+                          // ---------------------------------------------------
+
+                          _compactSectionTitle(
+                            icon:
+                                Icons
+                                    .directions_car_filled_rounded,
+
+                            title:
+                                'Vehicle Details',
+                          ),
+
+                          SizedBox(
+                            height:
+                                8.h,
+                          ),
+
+                          _compactCard(
+                            child:
+                                Column(
+                              children: [
+                                _vehicleDropdown(
+                                  vehicleState,
+                                ),
+
+                                if (selectedVehicle
+                                        ?.openingClosingKm !=
+                                    '0') ...[
+                                  SizedBox(
+                                    height:
+                                        10.h,
+                                  ),
+
+                                  _kmField(
+                                    controller:
+                                        openingKmController,
+
+                                    hintText:
+                                        'Opening KM *',
+
+                                    enabled:
+                                        true,
+
+                                    validator:
+                                        (value) =>
+                                            _validateKm(
+                                      value,
+                                      'Opening KM',
+                                    ),
+                                  ),
+                                ],
+
+                                SizedBox(
+                                  height:
+                                      10.h,
+                                ),
+
+                                _textField(
+                                  controller:
+                                      routeController,
+
+                                  hintText:
+                                      'Enter Route *',
+
+                                  icon:
+                                      Icons.route_rounded,
+
+                                  validator:
+                                      (value) {
+                                    if (value ==
+                                            null ||
+                                        value
+                                            .trim()
+                                            .isEmpty) {
+                                      return 'Please enter route';
+                                    }
+
+                                    return null;
+                                  },
+                                ),
+
+                                SizedBox(
+                                  height:
+                                      10.h,
+                                ),
+
+                                _textField(
+                                  controller:
+                                      remarkController,
+
+                                  hintText:
+                                      'Enter Remark',
+
+                                  icon:
+                                      Icons.edit_note_rounded,
+
+                                  maxLines:
+                                      1,
+                                ),
+                              ],
                             ),
-                            SizedBox(height: 14.h),
-                          ],
-
-                          _textField(
-                            controller: routeController,
-                            hintText: 'Enter Route*',
-                            icon: Icons.route_outlined,
-                            validator: (value) {
-                              if (value == null || value.trim().isEmpty) {
-                                return 'Please enter route';
-                              }
-
-                              return null;
-                            },
                           ),
 
-                          SizedBox(height: 14.h),
-
-                          // Remark
-                          _textField(
-                            controller: remarkController,
-                            hintText: 'Enter Remark',
-
-                            icon: Icons.note_add_outlined,
-                            maxLines: 1,
+                          SizedBox(
+                            height:
+                                14.h,
                           ),
 
-                          SizedBox(height: 14.h),
+                          // ---------------------------------------------------
+                          // PHOTO SECTION
+                          // ---------------------------------------------------
 
-                          // Upload photo
+                          _compactSectionTitle(
+                            icon:
+                                Icons.photo_camera_rounded,
+
+                            title:
+                                'Verification Photo *',
+                          ),
+
+                          SizedBox(
+                            height:
+                                8.h,
+                          ),
+
                           FormField<bool>(
-                            initialValue: _uploadedImage != null,
-                            validator: (_) {
-                              if (_uploadedImage == null) {
+                            initialValue:
+                                _uploadedImage !=
+                                    null,
+
+                            validator:
+                                (_) {
+                              if (_uploadedImage ==
+                                  null) {
                                 return 'Please upload an image';
                               }
 
                               return null;
                             },
-                            builder: (field) {
+
+                            builder:
+                                (field) {
                               return Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
+                                crossAxisAlignment:
+                                    CrossAxisAlignment
+                                        .start,
+
                                 children: [
                                   _uploadPhotoCard(),
-                                  if (field.hasError)
-                                    Padding(
-                                      padding: EdgeInsets.only(
-                                        left: 16.w,
-                                        top: 4.h,
-                                      ),
-                                      child: Text(
-                                        field.errorText!,
-                                        style: TextStyle(
-                                          color: Colors.red,
-                                          fontSize: 12.sp,
-                                        ),
-                                      ),
+
+                                  if (field
+                                      .hasError) ...[
+                                    SizedBox(
+                                      height:
+                                          5.h,
                                     ),
+
+                                    _errorMessage(
+                                      field.errorText!,
+                                    ),
+                                  ],
                                 ],
                               );
                             },
                           ),
-                          SizedBox(height: 14.h),
-
-                          // Submit
-                          _submitButton(),
-                          SizedBox(height: 14.h),
                         ],
                       ),
                     ),
                   ),
-                ),
 
-                ///********* */ if we want to add center loader*********************
-                // if (isLoading)
-                //   Positioned.fill(
-                //     child: AbsorbPointer(
-                //       child: Container(
-                //         color: Colors.black26,
-                //         alignment: Alignment.center,
-                //         child: const CircularProgressIndicator(
-                //           color: AppColors.accentGreen,
-                //         ),
-                //       ),
-                //     ),
-                //   ),
-              ],
+                  // -----------------------------------------------------------
+                  // FIXED BOTTOM SUBMIT
+                  // -----------------------------------------------------------
+
+                  _bottomSubmitSection(),
+                ],
+              ),
             );
           },
         ),
@@ -627,298 +1020,1404 @@ class _PunchScreenState extends State<PunchScreen> {
     );
   }
 
-  // ------------------------------------------------------------
-  // VEHICLE DROPDOWN
-  // ------------------------------------------------------------
+  // ===========================================================================
+  // COMPACT HEADER
+  // ===========================================================================
 
-  VehicleTypeEntity? _selectedVehicle(QuickAccessState state) {
+  Widget _compactHeader() {
+    return Container(
+      width:
+          double.infinity,
+
+      padding:
+          EdgeInsets.symmetric(
+        horizontal:
+            14.w,
+        vertical:
+            12.h,
+      ),
+
+      decoration:
+          BoxDecoration(
+        gradient:
+            const LinearGradient(
+          begin:
+              Alignment.topLeft,
+
+          end:
+              Alignment.bottomRight,
+
+          colors: [
+            Color(
+              0xFF08783D,
+            ),
+            Color(
+              0xFF13A252,
+            ),
+          ],
+        ),
+
+        borderRadius:
+            BorderRadius.circular(
+          18.r,
+        ),
+
+        boxShadow: [
+          BoxShadow(
+            color:
+                const Color(
+              0xFF11934A,
+            ).withOpacity(
+              0.16,
+            ),
+
+            blurRadius:
+                14,
+
+            offset:
+                const Offset(
+              0,
+              5,
+            ),
+          ),
+        ],
+      ),
+
+      child:
+          Stack(
+        children: [
+          Positioned(
+            right:
+                -25.w,
+
+            top:
+                -30.h,
+
+            child:
+                Container(
+              width:
+                  90.w,
+
+              height:
+                  90.w,
+
+              decoration:
+                  BoxDecoration(
+                color:
+                    Colors.white
+                        .withOpacity(
+                  0.06,
+                ),
+
+                shape:
+                    BoxShape.circle,
+              ),
+            ),
+          ),
+
+          Row(
+            children: [
+              Container(
+                width:
+                    45.w,
+
+                height:
+                    45.w,
+
+                decoration:
+                    BoxDecoration(
+                  color:
+                      Colors.white
+                          .withOpacity(
+                    0.15,
+                  ),
+
+                  borderRadius:
+                      BorderRadius.circular(
+                    13.r,
+                  ),
+                ),
+
+                child:
+                    Icon(
+                  Icons
+                      .fingerprint_rounded,
+
+                  color:
+                      Colors.white,
+
+                  size:
+                      23.sp,
+                ),
+              ),
+
+              SizedBox(
+                width:
+                    11.w,
+              ),
+
+              Expanded(
+                child:
+                    Column(
+                  crossAxisAlignment:
+                      CrossAxisAlignment.start,
+
+                  children: [
+                    Text(
+                      'Ready to start?',
+
+                      style:
+                          TextStyle(
+                        color:
+                            Colors.white,
+
+                        fontSize:
+                            16.sp,
+
+                        fontWeight:
+                            FontWeight.w700,
+                      ),
+                    ),
+
+                    SizedBox(
+                      height:
+                          2.h,
+                    ),
+
+                    Text(
+                      'Enter trip details and punch in',
+
+                      maxLines:
+                          1,
+
+                      overflow:
+                          TextOverflow.ellipsis,
+
+                      style:
+                          TextStyle(
+                        color:
+                            Colors.white.withOpacity(
+                          0.80,
+                        ),
+
+                        fontSize:
+                            10.5.sp,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+
+              SizedBox(
+                width:
+                    8.w,
+              ),
+
+              Container(
+                padding:
+                    EdgeInsets.symmetric(
+                  horizontal:
+                      9.w,
+
+                  vertical:
+                      5.h,
+                ),
+
+                decoration:
+                    BoxDecoration(
+                  color:
+                      Colors.white.withOpacity(
+                    0.15,
+                  ),
+
+                  borderRadius:
+                      BorderRadius.circular(
+                    20.r,
+                  ),
+                ),
+
+                child:
+                    Row(
+                  mainAxisSize:
+                      MainAxisSize.min,
+
+                  children: [
+                    Container(
+                      width:
+                          6.w,
+
+                      height:
+                          6.w,
+
+                      decoration:
+                          const BoxDecoration(
+                        color:
+                            Color(
+                          0xFFB9F6CA,
+                        ),
+
+                        shape:
+                            BoxShape.circle,
+                      ),
+                    ),
+
+                    SizedBox(
+                      width:
+                          5.w,
+                    ),
+
+                    Text(
+                      'IN',
+
+                      style:
+                          TextStyle(
+                        color:
+                            Colors.white,
+
+                        fontSize:
+                            9.sp,
+
+                        fontWeight:
+                            FontWeight.w700,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  // ===========================================================================
+  // SECTION TITLE
+  // ===========================================================================
+
+  Widget _compactSectionTitle({
+    required IconData icon,
+    required String title,
+  }) {
+    return Row(
+      children: [
+        Container(
+          width:
+              30.w,
+
+          height:
+              30.w,
+
+          decoration:
+              BoxDecoration(
+            color:
+                const Color(
+              0xFFE7F6EC,
+            ),
+
+            borderRadius:
+                BorderRadius.circular(
+              9.r,
+            ),
+          ),
+
+          child:
+              Icon(
+            icon,
+
+            color:
+                const Color(
+              0xFF11934A,
+            ),
+
+            size:
+                16.sp,
+          ),
+        ),
+
+        SizedBox(
+          width:
+              8.w,
+        ),
+
+        Text(
+          title,
+
+          style:
+              TextStyle(
+            color:
+                const Color(
+              0xFF1D2521,
+            ),
+
+            fontSize:
+                13.5.sp,
+
+            fontWeight:
+                FontWeight.w700,
+          ),
+        ),
+      ],
+    );
+  }
+
+  // ===========================================================================
+  // COMPACT CARD
+  // ===========================================================================
+
+  Widget _compactCard({
+    required Widget child,
+  }) {
+    return Container(
+      width:
+          double.infinity,
+
+      padding:
+          EdgeInsets.all(
+        11.w,
+      ),
+
+      decoration:
+          BoxDecoration(
+        color:
+            Colors.white,
+
+        borderRadius:
+            BorderRadius.circular(
+          16.r,
+        ),
+
+        border:
+            Border.all(
+          color:
+              const Color(
+            0xFFE9ECEB,
+          ),
+        ),
+
+        boxShadow: [
+          BoxShadow(
+            color:
+                Colors.black.withOpacity(
+              0.025,
+            ),
+
+            blurRadius:
+                10,
+
+            offset:
+                const Offset(
+              0,
+              3,
+            ),
+          ),
+        ],
+      ),
+
+      child:
+          child,
+    );
+  }
+
+  // ===========================================================================
+  // SELECTED VEHICLE
+  // ===========================================================================
+
+  VehicleTypeEntity? _selectedVehicle(
+    QuickAccessState state,
+  ) {
     if (state.vehicleList.isEmpty) {
       return state.selectedVehicle;
     }
 
-    // If user has selected a vehicle, find it.
     if (selectedVehicleId != null) {
       try {
         return state.vehicleList.firstWhere(
-          (vehicle) => vehicle.vehicleTypeId == selectedVehicleId,
+          (vehicle) =>
+              vehicle.vehicleTypeId ==
+              selectedVehicleId,
         );
-      } catch (_) {
-        // Selected ID is no longer available in the list.
-      }
+      } catch (_) {}
     }
 
-    // If Bloc already has a selected vehicle, use it.
     if (state.selectedVehicle != null) {
       return state.selectedVehicle;
     }
 
-    // Otherwise select the first vehicle.
     return state.vehicleList.first;
   }
 
-  Widget _vehicleDropdown(QuickAccessState state) {
-    // If the list has loaded and nothing is selected,
-    // automatically select the first vehicle.
-    if (state.vehicleList.isNotEmpty && selectedVehicleId == null) {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (!mounted) return;
+  // ===========================================================================
+  // VEHICLE DROPDOWN
+  // ===========================================================================
 
-        final firstVehicle = state.vehicleList.first;
+  Widget _vehicleDropdown(
+    QuickAccessState state,
+  ) {
+    if (state.vehicleList.isNotEmpty &&
+        selectedVehicleId == null) {
+      WidgetsBinding.instance
+          .addPostFrameCallback(
+        (_) {
+          if (!mounted) {
+            return;
+          }
 
-        setState(() {
-          selectedVehicleId = firstVehicle.vehicleTypeId;
-        });
+          final firstVehicle =
+              state.vehicleList.first;
 
-        print('Default vehicle selected: ${firstVehicle.vehicleTypeId}');
-      });
+          setState(() {
+            selectedVehicleId =
+                firstVehicle.vehicleTypeId;
+          });
+
+          debugPrint(
+            'Default vehicle selected: '
+            '${firstVehicle.vehicleTypeId}',
+          );
+        },
+      );
     }
 
-    // Find currently selected vehicle.
-    VehicleTypeEntity? selectedVehicle;
+    VehicleTypeEntity?
+        selectedVehicle;
 
     if (selectedVehicleId != null) {
-      for (final vehicle in state.vehicleList) {
-        if (vehicle.vehicleTypeId == selectedVehicleId) {
+      for (final vehicle
+          in state.vehicleList) {
+        if (vehicle.vehicleTypeId ==
+            selectedVehicleId) {
           selectedVehicle = vehicle;
+
           break;
         }
       }
     }
 
-    // If still null, use first vehicle.
-    selectedVehicle ??= state.vehicleList.isNotEmpty
-        ? state.vehicleList.first
-        : null;
+    selectedVehicle ??=
+        state.vehicleList.isNotEmpty
+            ? state.vehicleList.first
+            : null;
 
-    return Container(
-      height: 60.h,
-      padding: EdgeInsets.symmetric(horizontal: 18.w),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(18.r),
-        border: Border.all(color: Colors.grey.shade200),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.03),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
+    return Column(
+      crossAxisAlignment:
+          CrossAxisAlignment.start,
+
+      children: [
+        _fieldLabel(
+          'Vehicle Type',
+          required: true,
+        ),
+
+        SizedBox(
+          height: 4.h,
+        ),
+
+        Container(
+          height:
+              52.h,
+
+          padding:
+              EdgeInsets.symmetric(
+            horizontal:
+                11.w,
           ),
-        ],
+
+          decoration:
+              BoxDecoration(
+            color:
+                const Color(
+              0xFFF8FAF9,
+            ),
+
+            borderRadius:
+                BorderRadius.circular(
+              13.r,
+            ),
+
+            border:
+                Border.all(
+              color:
+                  const Color(
+                0xFFE2E9E5,
+              ),
+            ),
+          ),
+
+          child:
+              Row(
+            children: [
+              Container(
+                width:
+                    34.w,
+
+                height:
+                    34.w,
+
+                decoration:
+                    BoxDecoration(
+                  color:
+                      const Color(
+                    0xFFE5F6EC,
+                  ),
+
+                  borderRadius:
+                      BorderRadius.circular(
+                    9.r,
+                  ),
+                ),
+
+                child:
+                    Icon(
+                  Icons
+                      .directions_car_filled_outlined,
+
+                  color:
+                      const Color(
+                    0xFF0D984A,
+                  ),
+
+                  size:
+                      18.sp,
+                ),
+              ),
+
+              SizedBox(
+                width:
+                    9.w,
+              ),
+
+              Expanded(
+                child:
+                    DropdownButtonHideUnderline(
+                  child:
+                      DropdownButton<String>(
+                    value:
+                        selectedVehicle
+                            ?.vehicleTypeId,
+
+                    isExpanded:
+                        true,
+
+                    borderRadius:
+                        BorderRadius.circular(
+                      14.r,
+                    ),
+
+                    dropdownColor:
+                        Colors.white,
+
+                    hint:
+                        Text(
+                      'Select Vehicle Type',
+
+                      style:
+                          TextStyle(
+                        color:
+                            const Color(
+                          0xFF9AA29E,
+                        ),
+
+                        fontSize:
+                            12.5.sp,
+                      ),
+                    ),
+
+                    icon:
+                        Icon(
+                      Icons
+                          .keyboard_arrow_down_rounded,
+
+                      color:
+                          const Color(
+                        0xFF67706B,
+                      ),
+
+                      size:
+                          22.sp,
+                    ),
+
+                    style:
+                        TextStyle(
+                      color:
+                          const Color(
+                        0xFF252B28,
+                      ),
+
+                      fontSize:
+                          12.5.sp,
+
+                      fontWeight:
+                          FontWeight.w600,
+                    ),
+
+                    items:
+                        state.vehicleList.map(
+                      (vehicle) {
+                        return DropdownMenuItem<
+                            String>(
+                          value:
+                              vehicle.vehicleTypeId,
+
+                          child:
+                              Text(
+                            vehicle.vehicleType,
+
+                            overflow:
+                                TextOverflow.ellipsis,
+                          ),
+                        );
+                      },
+                    ).toList(),
+
+                    onChanged:
+                        (value) {
+                      if (value == null) {
+                        return;
+                      }
+
+                      debugPrint(
+                        'Vehicle selected from dropdown: $value',
+                      );
+
+                      setState(() {
+                        selectedVehicleId =
+                            value;
+                      });
+                    },
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  // ===========================================================================
+  // FIELD LABEL
+  // ===========================================================================
+
+  Widget _fieldLabel(
+    String title, {
+    bool required = false,
+  }) {
+    return Padding(
+      padding:
+          EdgeInsets.only(
+        left:
+            2.w,
       ),
-      child: DropdownButtonHideUnderline(
-        child: DropdownButton<String>(
-          value: selectedVehicle?.vehicleTypeId,
 
-          isExpanded: true,
+      child:
+          RichText(
+        text:
+            TextSpan(
+          text:
+              title,
 
-          hint: const Text('Select Vehicle Type'),
+          style:
+              TextStyle(
+            fontSize:
+                10.5.sp,
 
-          icon: Icon(
-            Icons.keyboard_arrow_down_rounded,
-            color: Colors.grey.shade500,
+            color:
+                const Color(
+              0xFF606864,
+            ),
+
+            fontWeight:
+                FontWeight.w600,
           ),
 
-          style: TextStyle(
-            color: Colors.grey.shade700,
-            fontSize: 16.sp,
-            fontWeight: FontWeight.w500,
-          ),
+          children: [
+            if (required)
+              TextSpan(
+                text:
+                    ' *',
 
-          items: state.vehicleList.map((vehicle) {
-            return DropdownMenuItem<String>(
-              value: vehicle.vehicleTypeId,
-              child: Text(vehicle.vehicleType),
-            );
-          }).toList(),
-
-          onChanged: (value) {
-            if (value == null) return;
-
-            print('Vehicle selected from dropdown: $value');
-
-            setState(() {
-              selectedVehicleId = value;
-            });
-
-            print(
-              'selectedVehicleId after setState: '
-              '$selectedVehicleId',
-            );
-          },
+                style:
+                    TextStyle(
+                  color:
+                      Colors.red.shade500,
+                ),
+              ),
+          ],
         ),
       ),
     );
   }
 
+  // ===========================================================================
+  // KM FIELD
+  // ===========================================================================
+
   Widget _kmField({
     required TextEditingController controller,
+
     required String hintText,
+
     required bool enabled,
-    required String? Function(String?) validator,
+
+    required String? Function(String?)
+        validator,
   }) {
     return CustomTextFormField(
-      controller: controller,
-      hintText: hintText,
-      labelText: hintText,
-      prefixIcon: Icons.speed_outlined,
-      keyboardType: TextInputType.number,
-      enabled: enabled,
-      validator: enabled ? validator : null,
+      controller:
+          controller,
+
+      hintText:
+          hintText,
+
+      labelText:
+          hintText,
+
+      prefixIcon:
+          Icons.speed_rounded,
+
+      keyboardType:
+          TextInputType.number,
+
+      enabled:
+          enabled,
+
+      validator:
+          enabled
+              ? validator
+              : null,
     );
   }
 
-  String? _validateKm(String? value, String fieldName) {
-    final text = value?.trim() ?? '';
-    final km = double.tryParse(text);
+  // ===========================================================================
+  // KM VALIDATION
+  // ===========================================================================
+
+  String? _validateKm(
+    String? value,
+    String fieldName,
+  ) {
+    final text =
+        value?.trim() ?? '';
+
+    final km =
+        double.tryParse(
+      text,
+    );
 
     if (text.isEmpty) {
       return '$fieldName is required';
     }
 
-    if (km == null || km < 0) {
+    if (km == null ||
+        km < 0) {
       return 'Enter a valid $fieldName';
     }
-
-    // if (isPunchOut && fieldName == 'Closing KM') {
-    //   final openingText = openingKmController.text.trim();
-    //   final openingKm = double.tryParse(openingText);
-
-    //   if (openingKm != null && km < openingKm) {
-    //     return 'Closing KM cannot be less than Opening KM';
-    //   }
-    // }
 
     return null;
   }
 
-  // String? _validateKm(String? value, String fieldName) {
-  //   final text = value?.trim() ?? '';
-  //   final km = double.tryParse(text);
-
-  //   if (text.isEmpty) {
-  //     return '$fieldName is required';
-  //   }
-
-  //   if (km == null || km < 0) {
-  //     return 'Enter a valid $fieldName';
-  //   }
-
-  //   return null;
-  // }
+  // ===========================================================================
+  // TEXT FIELD
+  // ===========================================================================
 
   Widget _textField({
     required TextEditingController controller,
+
     required String hintText,
+
     required IconData icon,
+
     String? Function(String?)? validator,
+
     int maxLines = 1,
   }) {
     return CustomTextFormField(
-      controller: controller,
-      hintText: hintText,
-      labelText: hintText,
-      prefixIcon: icon,
-      maxLines: maxLines,
-      validator: validator,
+      controller:
+          controller,
+
+      hintText:
+          hintText,
+
+      labelText:
+          hintText,
+
+      prefixIcon:
+          icon,
+
+      maxLines:
+          maxLines,
+
+      validator:
+          validator,
     );
   }
 
+  // ===========================================================================
+  // PHOTO CARD
+  // ===========================================================================
+
   Widget _uploadPhotoCard() {
     return Container(
-      padding: EdgeInsets.fromLTRB(16.w, 6.h, 16.w, 16.h),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(20.r),
-        border: Border.all(color: Colors.grey.shade200),
+      width:
+          double.infinity,
+
+      padding:
+          EdgeInsets.all(
+        10.w,
       ),
-      child: Column(
-        children: [
-          // Upload header
-          InkWell(
-            onTap: _captureImage,
-            borderRadius: BorderRadius.circular(12.r),
-            child: Padding(
-              padding: EdgeInsets.symmetric(vertical: 6.h),
-              child: Row(
-                children: [
-                  Container(
-                    width: 42.w,
-                    height: 42.h,
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFE7F8EB),
-                      borderRadius: BorderRadius.circular(12.r),
-                    ),
-                    child: Icon(
-                      Icons.camera_alt_outlined,
-                      color: Color(0xFF00A83B),
-                      size: 22.sp,
-                    ),
-                  ),
 
-                  SizedBox(width: 14.w),
+      decoration:
+          BoxDecoration(
+        color:
+            Colors.white,
 
-                  Expanded(
-                    child: Text(
-                      'Upload Photo',
-                      style: TextStyle(
-                        fontSize: 16.sp,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  ),
+        borderRadius:
+            BorderRadius.circular(
+          16.r,
+        ),
 
-                  Icon(
-                    Icons.chevron_right_rounded,
-                    color: Colors.grey.shade500,
-                    size: 28.sp,
-                  ),
-                ],
-              ),
+        border:
+            Border.all(
+          color:
+              const Color(
+            0xFFE9EEEB,
+          ),
+        ),
+
+        boxShadow: [
+          BoxShadow(
+            color:
+                Colors.black.withOpacity(
+              0.025,
+            ),
+
+            blurRadius:
+                10,
+
+            offset:
+                const Offset(
+              0,
+              3,
             ),
           ),
+        ],
+      ),
 
-          SizedBox(height: 12.h),
+      child:
+          _uploadedImage == null
+              ? _emptyPhotoView()
+              : _selectedPhotoView(),
+    );
+  }
 
-          // Image capture area
-          InkWell(
-            onTap: _captureImage,
-            borderRadius: BorderRadius.circular(16.r),
-            child: Container(
-              height: 260.h,
-              width: double.infinity,
-              decoration: BoxDecoration(
-                color: const Color(0xFFFAFAFA),
-                borderRadius: BorderRadius.circular(16.r),
-                border: Border.all(color: Colors.grey.shade200),
+  // ===========================================================================
+  // EMPTY PHOTO
+  // ===========================================================================
+
+  Widget _emptyPhotoView() {
+    return InkWell(
+      onTap:
+          _captureImage,
+
+      borderRadius:
+          BorderRadius.circular(
+        13.r,
+      ),
+
+      child:
+          Container(
+        height:
+            115.h,
+
+        width:
+            double.infinity,
+
+        decoration:
+            BoxDecoration(
+          color:
+              const Color(
+            0xFFF8FAF9,
+          ),
+
+          borderRadius:
+              BorderRadius.circular(
+            13.r,
+          ),
+
+          border:
+              Border.all(
+            color:
+                const Color(
+              0xFFDDE7E1,
+            ),
+          ),
+        ),
+
+        child:
+            Row(
+          mainAxisAlignment:
+              MainAxisAlignment.center,
+
+          children: [
+            Container(
+              width:
+                  48.w,
+
+              height:
+                  48.w,
+
+              decoration:
+                  BoxDecoration(
+                color:
+                    const Color(
+                  0xFFE4F7EC,
+                ),
+
+                borderRadius:
+                    BorderRadius.circular(
+                  14.r,
+                ),
               ),
-              child: _uploadedImage == null
-                  ? Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(
-                          Icons.image_outlined,
-                          size: 52.sp,
-                          color: Colors.grey.shade400,
-                        ),
-                        SizedBox(height: 14.h),
-                        Text(
-                          'Tap to capture image',
-                          style: TextStyle(
-                            color: Colors.grey.shade500,
-                            fontSize: 15.sp,
-                          ),
-                        ),
-                      ],
-                    )
-                  : ClipRRect(
-                      borderRadius: BorderRadius.circular(16.r),
-                      child: Image.file(
-                        _uploadedImage!,
-                        width: double.infinity,
-                        height: double.infinity,
-                        fit: BoxFit.cover,
+
+              child:
+                  Icon(
+                Icons
+                    .add_a_photo_rounded,
+
+                color:
+                    const Color(
+                  0xFF0D984A,
+                ),
+
+                size:
+                    23.sp,
+              ),
+            ),
+
+            SizedBox(
+              width:
+                  12.w,
+            ),
+
+            Column(
+              mainAxisAlignment:
+                  MainAxisAlignment.center,
+
+              crossAxisAlignment:
+                  CrossAxisAlignment.start,
+
+              children: [
+                Text(
+                  'Capture Photo',
+
+                  style:
+                      TextStyle(
+                    color:
+                        const Color(
+                      0xFF27302B,
+                    ),
+
+                    fontSize:
+                        13.sp,
+
+                    fontWeight:
+                        FontWeight.w700,
+                  ),
+                ),
+
+                SizedBox(
+                  height:
+                      3.h,
+                ),
+
+                Text(
+                  'Tap to open camera',
+
+                  style:
+                      TextStyle(
+                    color:
+                        const Color(
+                      0xFF929B96,
+                    ),
+
+                    fontSize:
+                        10.5.sp,
+                  ),
+                ),
+
+                SizedBox(
+                  height:
+                      6.h,
+                ),
+
+                Container(
+                  padding:
+                      EdgeInsets.symmetric(
+                    horizontal:
+                        9.w,
+
+                    vertical:
+                        4.h,
+                  ),
+
+                  decoration:
+                      BoxDecoration(
+                    color:
+                        const Color(
+                      0xFFE8F7EE,
+                    ),
+
+                    borderRadius:
+                        BorderRadius.circular(
+                      10.r,
+                    ),
+                  ),
+
+                  child:
+                      Text(
+                    'OPEN CAMERA',
+
+                    style:
+                        TextStyle(
+                      color:
+                          const Color(
+                        0xFF0D9147,
+                      ),
+
+                      fontSize:
+                          8.5.sp,
+
+                      fontWeight:
+                          FontWeight.w700,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  // ===========================================================================
+  // SELECTED PHOTO
+  // ===========================================================================
+
+  Widget _selectedPhotoView() {
+    return Column(
+      children: [
+        Stack(
+          children: [
+            ClipRRect(
+              borderRadius:
+                  BorderRadius.circular(
+                13.r,
+              ),
+
+              child:
+                  Image.file(
+                _uploadedImage!,
+
+                width:
+                    double.infinity,
+
+                height:
+                    145.h,
+
+                fit:
+                    BoxFit.cover,
+              ),
+            ),
+
+            Positioned(
+              top:
+                  8.h,
+
+              left:
+                  8.w,
+
+              child:
+                  Container(
+                padding:
+                    EdgeInsets.symmetric(
+                  horizontal:
+                      8.w,
+
+                  vertical:
+                      4.h,
+                ),
+
+                decoration:
+                    BoxDecoration(
+                  color:
+                      Colors.black.withOpacity(
+                    0.55,
+                  ),
+
+                  borderRadius:
+                      BorderRadius.circular(
+                    15.r,
+                  ),
+                ),
+
+                child:
+                    Row(
+                  mainAxisSize:
+                      MainAxisSize.min,
+
+                  children: [
+                    Icon(
+                      Icons
+                          .check_circle_rounded,
+
+                      color:
+                          const Color(
+                        0xFF7DFFA9,
+                      ),
+
+                      size:
+                          13.sp,
+                    ),
+
+                    SizedBox(
+                      width:
+                          4.w,
+                    ),
+
+                    Text(
+                      'Photo Added',
+
+                      style:
+                          TextStyle(
+                        color:
+                            Colors.white,
+
+                        fontSize:
+                            9.5.sp,
+
+                        fontWeight:
+                            FontWeight.w600,
                       ),
                     ),
+                  ],
+                ),
+              ),
+            ),
+
+            Positioned(
+              top:
+                  8.h,
+
+              right:
+                  8.w,
+
+              child:
+                  InkWell(
+                onTap:
+                    _captureImage,
+
+                child:
+                    Container(
+                  width:
+                      32.w,
+
+                  height:
+                      32.w,
+
+                  decoration:
+                      BoxDecoration(
+                    color:
+                        Colors.black.withOpacity(
+                      0.55,
+                    ),
+
+                    shape:
+                        BoxShape.circle,
+                  ),
+
+                  child:
+                      Icon(
+                    Icons.camera_alt_rounded,
+
+                    color:
+                        Colors.white,
+
+                    size:
+                        16.sp,
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+
+        SizedBox(
+          height:
+              7.h,
+        ),
+
+        InkWell(
+          onTap:
+              _captureImage,
+
+          borderRadius:
+              BorderRadius.circular(
+            11.r,
+          ),
+
+          child:
+              Container(
+            width:
+                double.infinity,
+
+            padding:
+                EdgeInsets.symmetric(
+              vertical:
+                  7.h,
+            ),
+
+            decoration:
+                BoxDecoration(
+              color:
+                  const Color(
+                0xFFE8F7EE,
+              ),
+
+              borderRadius:
+                  BorderRadius.circular(
+                11.r,
+              ),
+            ),
+
+            child:
+                Row(
+              mainAxisAlignment:
+                  MainAxisAlignment.center,
+
+              children: [
+                Icon(
+                  Icons.refresh_rounded,
+
+                  color:
+                      const Color(
+                    0xFF0C9548,
+                  ),
+
+                  size:
+                      16.sp,
+                ),
+
+                SizedBox(
+                  width:
+                      5.w,
+                ),
+
+                Text(
+                  'Retake Photo',
+
+                  style:
+                      TextStyle(
+                    color:
+                        const Color(
+                      0xFF0C9548,
+                    ),
+
+                    fontSize:
+                        10.5.sp,
+
+                    fontWeight:
+                        FontWeight.w700,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  // ===========================================================================
+  // ERROR MESSAGE
+  // ===========================================================================
+
+  Widget _errorMessage(
+    String message,
+  ) {
+    return Container(
+      width:
+          double.infinity,
+
+      padding:
+          EdgeInsets.symmetric(
+        horizontal:
+            9.w,
+
+        vertical:
+            6.h,
+      ),
+
+      decoration:
+          BoxDecoration(
+        color:
+            const Color(
+          0xFFFFF3F3,
+        ),
+
+        borderRadius:
+            BorderRadius.circular(
+          8.r,
+        ),
+
+        border:
+            Border.all(
+          color:
+              const Color(
+            0xFFFFDADA,
+          ),
+        ),
+      ),
+
+      child:
+          Row(
+        children: [
+          Icon(
+            Icons.error_outline_rounded,
+
+            color:
+                const Color(
+              0xFFD94343,
+            ),
+
+            size:
+                14.sp,
+          ),
+
+          SizedBox(
+            width:
+                5.w,
+          ),
+
+          Expanded(
+            child:
+                Text(
+              message,
+
+              style:
+                  TextStyle(
+                color:
+                    const Color(
+                  0xFFD94343,
+                ),
+
+                fontSize:
+                    10.sp,
+
+                fontWeight:
+                    FontWeight.w500,
+              ),
             ),
           ),
         ],
@@ -926,13 +2425,179 @@ class _PunchScreenState extends State<PunchScreen> {
     );
   }
 
-  Widget _submitButton() {
-    return CustomButton(
-      width: double.infinity,
-      textSize: 15.sp,
-      text: 'SUBMIT',
-      isLoading: isLoading,
-      onPressed: _submitPunch,
+  // ===========================================================================
+  // BOTTOM SUBMIT
+  // ===========================================================================
+
+  Widget _bottomSubmitSection() {
+    return Container(
+      padding:
+          EdgeInsets.fromLTRB(
+        14.w,
+        7.h,
+        14.w,
+        8.h,
+      ),
+
+      decoration:
+          BoxDecoration(
+        color:
+            Colors.white,
+
+        border:
+            const Border(
+          top:
+              BorderSide(
+            color:
+                Color(
+              0xFFE8ECEA,
+            ),
+          ),
+        ),
+
+        boxShadow: [
+          BoxShadow(
+            color:
+                Colors.black.withOpacity(
+              0.035,
+            ),
+
+            blurRadius:
+                10,
+
+            offset:
+                const Offset(
+              0,
+              -3,
+            ),
+          ),
+        ],
+      ),
+
+      child:
+          SafeArea(
+        top:
+            false,
+
+        child:
+            SizedBox(
+          width:
+              double.infinity,
+
+          height:
+              48.h,
+
+          child:
+              ElevatedButton(
+            onPressed:
+                isLoading
+                    ? null
+                    : _submitPunch,
+
+            style:
+                ElevatedButton.styleFrom(
+              elevation:
+                  0,
+
+              backgroundColor:
+                  const Color(
+                0xFF0B9848,
+              ),
+
+              disabledBackgroundColor:
+                  const Color(
+                0xFF0B9848,
+              ).withOpacity(
+                0.60,
+              ),
+
+              foregroundColor:
+                  Colors.white,
+
+              shape:
+                  RoundedRectangleBorder(
+                borderRadius:
+                    BorderRadius.circular(
+                  14.r,
+                ),
+              ),
+
+              padding:
+                  EdgeInsets.zero,
+            ),
+
+            child:
+                isLoading
+                    ? SizedBox(
+                        width:
+                            20.w,
+
+                        height:
+                            20.w,
+
+                        child:
+                            const CircularProgressIndicator(
+                          strokeWidth:
+                              2.2,
+
+                          valueColor:
+                              AlwaysStoppedAnimation<
+                                  Color>(
+                            Colors.white,
+                          ),
+                        ),
+                      )
+                    : Row(
+                        mainAxisAlignment:
+                            MainAxisAlignment.center,
+
+                        children: [
+                          Icon(
+                            Icons
+                                .fingerprint_rounded,
+
+                            size:
+                                18.sp,
+                          ),
+
+                          SizedBox(
+                            width:
+                                7.w,
+                          ),
+
+                          Text(
+                            'PUNCH IN',
+
+                            style:
+                                TextStyle(
+                              fontSize:
+                                  12.5.sp,
+
+                              fontWeight:
+                                  FontWeight.w700,
+
+                              letterSpacing:
+                                  0.3,
+                            ),
+                          ),
+
+                          SizedBox(
+                            width:
+                                6.w,
+                          ),
+
+                          Icon(
+                            Icons
+                                .arrow_forward_rounded,
+
+                            size:
+                                17.sp,
+                          ),
+                        ],
+                      ),
+          ),
+        ),
+      ),
     );
   }
 }
