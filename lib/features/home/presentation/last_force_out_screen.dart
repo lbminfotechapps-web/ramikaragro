@@ -1,20 +1,15 @@
-import 'dart:io';
-
 import 'package:solufine/core/router/app_router.dart';
 import 'package:solufine/core/secure_storage/secure_storage.dart';
-import 'package:solufine/core/theme/app_colors.dart';
-import 'package:solufine/core/utility/app_image_picker.dart';
 import 'package:solufine/core/utility/appdialog.dart';
 import 'package:solufine/core/utility/device_info_util.dart';
 import 'package:solufine/core/utility/location_util.dart';
 import 'package:solufine/core/utility/widgets/custom_appbar.dart';
-import 'package:solufine/core/utility/widgets/custom_button.dart';
 import 'package:solufine/core/utility/widgets/custom_textformfield.dart';
 import 'package:solufine/features/home/doman/home_entity/punch_stat_entity.dart';
-import 'package:solufine/features/home/doman/home_entity/vehicle_type_entity.dart';
 import 'package:solufine/features/home/presentation/quick_aceess_bloc/quick_access_event.dart';
 import 'package:solufine/features/home/presentation/quick_aceess_bloc/quick_access_state.dart';
 import 'package:solufine/features/home/presentation/quick_aceess_bloc/quick_acess_bloc.dart';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil_plus/flutter_screenutil_plus.dart';
@@ -24,40 +19,71 @@ import 'package:intl/intl.dart';
 class LastForceOutScreen extends StatefulWidget {
   final PunchStatEntity? punchStat;
 
-  const LastForceOutScreen(this.punchStat, {super.key});
+  const LastForceOutScreen(
+    this.punchStat, {
+    super.key,
+  });
 
   @override
-  State<LastForceOutScreen> createState() => _LastForceOutScreenState();
+  State<LastForceOutScreen> createState() =>
+      _LastForceOutScreenState();
 }
 
 class _LastForceOutScreenState extends State<LastForceOutScreen> {
+  // ===========================================================================
+  // FORM
+  // ===========================================================================
+
   final _formKey = GlobalKey<FormState>();
 
+  // ===========================================================================
+  // CONTROLLERS
+  // ===========================================================================
+
   final TextEditingController dateController = TextEditingController();
+
   final TextEditingController lastTimeController = TextEditingController();
+
   final TextEditingController newTimeController = TextEditingController();
+
   final TextEditingController openingKmController = TextEditingController();
+
   final TextEditingController closingKmController = TextEditingController();
+
   final TextEditingController remarkController = TextEditingController();
 
+  // ===========================================================================
+  // STATE
+  // ===========================================================================
+
   bool isLoading = false;
+
   bool _submissionSent = false;
+
+  String? closingKmError;
+
+  // ===========================================================================
+  // INIT
+  // ===========================================================================
 
   @override
   void initState() {
     super.initState();
 
-    // dateController.text = widget.punchStat?.date ?? '';
-    // lastTimeController.text = widget.punchStat?.time ?? '';
+    dateController.text = _formatDate(
+      widget.punchStat?.date.trim() ?? '',
+    );
 
-    // openingKmController.text = widget.punchStat?.startingKm.trim() ?? '';
-    // dateController.text = widget.punchStat?.date.trim() ?? '';
+    lastTimeController.text =
+        widget.punchStat?.time.trim() ?? '';
 
-    dateController.text = _formatDate(widget.punchStat?.date.trim() ?? '');
-
-    lastTimeController.text = widget.punchStat?.time.trim() ?? '';
-    openingKmController.text = widget.punchStat?.startingKm.trim() ?? '';
+    openingKmController.text =
+        widget.punchStat?.startingKm.trim() ?? '';
   }
+
+  // ===========================================================================
+  // DATE FORMAT
+  // ===========================================================================
 
   String _formatDate(String value) {
     if (value.trim().isEmpty) {
@@ -71,22 +97,36 @@ class _LastForceOutScreenState extends State<LastForceOutScreen> {
     }
 
     try {
-      final parsedDate = DateFormat('dd-MM-yyyy').parseStrict(value.trim());
+      final parsedDate = DateFormat(
+        'dd-MM-yyyy',
+      ).parseStrict(
+        value.trim(),
+      );
 
-      return DateFormat('dd-MM-yyyy').format(parsedDate);
+      return DateFormat(
+        'dd-MM-yyyy',
+      ).format(
+        parsedDate,
+      );
     } catch (_) {
       return value;
     }
   }
-  // ------------------------------------------------------------
-  // TIME PICKER
-  // ------------------------------------------------------------
+
+  // ===========================================================================
+  // SELECT NEW TIME
+  // ===========================================================================
 
   Future<void> _selectNewTime() async {
-    final lastTime = _parseTime(lastTimeController.text);
+    final lastTime = _parseTime(
+      lastTimeController.text,
+    );
 
     final initialTime = lastTime != null
-        ? TimeOfDay(hour: lastTime.hour, minute: lastTime.minute)
+        ? TimeOfDay(
+            hour: lastTime.hour,
+            minute: lastTime.minute,
+          )
         : TimeOfDay.now();
 
     final selectedTime = await showTimePicker(
@@ -94,9 +134,10 @@ class _LastForceOutScreenState extends State<LastForceOutScreen> {
       initialTime: initialTime,
     );
 
-    if (!mounted || selectedTime == null) return;
+    if (!mounted || selectedTime == null) {
+      return;
+    }
 
-    // Show the selected time in 12-hour format with seconds and AM/PM.
     final now = DateTime.now();
 
     final selectedDateTime = DateTime(
@@ -108,33 +149,68 @@ class _LastForceOutScreenState extends State<LastForceOutScreen> {
       0,
     );
 
-    newTimeController.text = DateFormat('hh:mm a').format(selectedDateTime);
+    newTimeController.text = DateFormat(
+      'hh:mm a',
+    ).format(
+      selectedDateTime,
+    );
 
     _formKey.currentState?.validate();
 
     setState(() {});
   }
 
-  // ------------------------------------------------------------
+  // ===========================================================================
   // SUBMIT
-  // ------------------------------------------------------------
+  // ===========================================================================
 
   Future<void> _submitPunch() async {
-    if (isLoading) return;
+    if (isLoading) {
+      return;
+    }
 
     if (!_formKey.currentState!.validate()) {
       return;
     }
 
+    // -------------------------------------------------------------------------
+    // MANUAL CLOSING KM VALIDATION
+    // -------------------------------------------------------------------------
+
+    final kmError = _validateKm(
+      closingKmController.text,
+      'Closing KM',
+    );
+
+    if (kmError != null) {
+      setState(() {
+        closingKmError = kmError;
+      });
+
+      return;
+    }
+
+    // -------------------------------------------------------------------------
+    // USER
+    // -------------------------------------------------------------------------
+
     final userData = await SecureStorage.instance.getUserData();
 
-    final userId = int.tryParse(userData?['user_id']?.toString() ?? '');
+    final userId = int.tryParse(
+      userData?['user_id']?.toString() ?? '',
+    );
 
     if (userId == null) {
-      if (!mounted) return;
+      if (!mounted) {
+        return;
+      }
 
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('User information not found')),
+        const SnackBar(
+          content: Text(
+            'User information not found',
+          ),
+        ),
       );
 
       return;
@@ -145,39 +221,57 @@ class _LastForceOutScreenState extends State<LastForceOutScreen> {
       _submissionSent = true;
     });
 
+    // -------------------------------------------------------------------------
+    // DISPLAY DATE -> API DATE
+    // -------------------------------------------------------------------------
 
-String apiDate = '';
-try {
-  final displayDate = DateFormat(
-    'dd-MM-yyyy',
-  ).parseStrict(dateController.text.trim());
-
-  apiDate = DateFormat(
-    'yyyy-MM-dd',
-  ).format(displayDate);
-} catch (e) {
-  apiDate = dateController.text.trim();
-}
-
-debugPrint('DISPLAY DATE : ${dateController.text}');
-debugPrint('API DATE     : $apiDate');
-
-
+    String apiDate = '';
 
     try {
-      // ----------------------------------------------------------
-      // DEVICE INFORMATION
-      // ----------------------------------------------------------
+      final displayDate = DateFormat(
+        'dd-MM-yyyy',
+      ).parseStrict(
+        dateController.text.trim(),
+      );
 
-      final batteryInfo = await DeviceInfoUtil.instance.getBatteryInfo();
+      apiDate = DateFormat(
+        'yyyy-MM-dd',
+      ).format(
+        displayDate,
+      );
+    } catch (e) {
+      apiDate = dateController.text.trim();
+    }
 
-      final networkInfo = await DeviceInfoUtil.instance.getNetworkInfo();
+    debugPrint(
+      'DISPLAY DATE : ${dateController.text}',
+    );
 
-      // ----------------------------------------------------------
+    debugPrint(
+      'API DATE     : $apiDate',
+    );
+
+    try {
+      // -----------------------------------------------------------------------
+      // BATTERY
+      // -----------------------------------------------------------------------
+
+      final batteryInfo =
+          await DeviceInfoUtil.instance.getBatteryInfo();
+
+      // -----------------------------------------------------------------------
+      // NETWORK
+      // -----------------------------------------------------------------------
+
+      final networkInfo =
+          await DeviceInfoUtil.instance.getNetworkInfo();
+
+      // -----------------------------------------------------------------------
       // LOCATION
-      // ----------------------------------------------------------
+      // -----------------------------------------------------------------------
 
-      final position = await LocationUtil.instance.getCurrentLocation();
+      final position =
+          await LocationUtil.instance.getCurrentLocation();
 
       String latitude = '';
       String longitude = '';
@@ -185,6 +279,7 @@ debugPrint('API DATE     : $apiDate');
 
       if (position != null) {
         latitude = position.latitude.toString();
+
         longitude = position.longitude.toString();
 
         address = await LocationUtil.instance.getAddress(
@@ -193,11 +288,13 @@ debugPrint('API DATE     : $apiDate');
         );
       }
 
-      if (!mounted) return;
+      if (!mounted) {
+        return;
+      }
 
-      // ----------------------------------------------------------
+      // -----------------------------------------------------------------------
       // API EVENT
-      // ----------------------------------------------------------
+      // -----------------------------------------------------------------------
 
       context.read<QuickAcessBloc>().add(
         PunchInOutDetailsAddEvent(
@@ -206,91 +303,119 @@ debugPrint('API DATE     : $apiDate');
           inOutStatus: '2',
 
           differenceByAndroid: '0.0',
+
           locationHistoryString: '',
 
           batteryInfo: batteryInfo,
+
           networkInfo: networkInfo,
 
           latitude: latitude,
+
           longitude: longitude,
 
           networkLatitude: latitude,
+
           networkLongitude: longitude,
 
           gpsLatitude: latitude,
+
           gpsLongitude: longitude,
 
           geoAddress: address,
 
           pinRemark: remarkController.text.trim(),
 
-          startingClosingKmAmount: closingKmController.text.trim(),
+          startingClosingKmAmount:
+              closingKmController.text.trim(),
 
           vehicleTypeId: '',
 
           route: '',
 
-          // LAST FORCE OUT
-          activityId: '26', 
+          activityId: '26',
 
           isForceOutPunch: true,
 
-          // IMPORTANT
           date: apiDate,
+
           newTime: newTimeController.text.trim(),
         ),
       );
     } catch (e) {
-      if (!mounted) return;
+      if (!mounted) {
+        return;
+      }
 
       setState(() {
         isLoading = false;
         _submissionSent = false;
       });
 
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text('Something went wrong: $e')));
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            'Something went wrong: $e',
+          ),
+        ),
+      );
     }
   }
 
-  // ------------------------------------------------------------
+  // ===========================================================================
   // DISPOSE
-  // ------------------------------------------------------------
+  // ===========================================================================
 
   @override
   void dispose() {
     dateController.dispose();
+
     lastTimeController.dispose();
+
     newTimeController.dispose();
+
     openingKmController.dispose();
+
     closingKmController.dispose();
+
     remarkController.dispose();
 
     super.dispose();
   }
 
-  // ------------------------------------------------------------
+  // ===========================================================================
   // BUILD
-  // ------------------------------------------------------------
+  // ===========================================================================
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.backgroundColor,
+      backgroundColor: const Color(
+        0xFFF4F6F8,
+      ),
 
       appBar: CustomAppBar(
         title: 'Last Out Punch',
         showBackButton: true,
-        onBackTap: () => context.go(AppRouter.home),
+        onBackTap: () {
+          context.go(
+            AppRouter.home,
+          );
+        },
       ),
 
       body: SafeArea(
-        child: BlocConsumer<QuickAcessBloc, QuickAccessState>(
+        child: BlocConsumer<
+            QuickAcessBloc,
+            QuickAccessState>(
+          // ===================================================================
+          // LISTENER
+          // ===================================================================
+
           listener: (context, state) {
-            // --------------------------------------------------
+            // ---------------------------------------------------------------
             // SUCCESS
-            // --------------------------------------------------
+            // ---------------------------------------------------------------
 
             if (state.quickAccessStatus ==
                 QuickAccessStatus.punchStatusSuccess) {
@@ -302,20 +427,24 @@ debugPrint('API DATE     : $apiDate');
               AppDialog.show(
                 context: context,
                 type: DialogType.success,
-                title: 'Lat Punch Successful',
-                message: 'Your Last punch has been submitted successfully.',
+                title: 'Last Punch Successful',
+                message:
+                    'Your Last punch has been submitted successfully.',
                 buttonText: 'OK',
                 onButtonPressed: () {
-                  context.go(AppRouter.addExpense);
+                  context.go(
+                    AppRouter.addExpense,
+                  );
                 },
               );
             }
 
-            // --------------------------------------------------
+            // ---------------------------------------------------------------
             // FAILURE
-            // --------------------------------------------------
+            // ---------------------------------------------------------------
 
-            if (state.quickAccessStatus == QuickAccessStatus.failure &&
+            if (state.quickAccessStatus ==
+                    QuickAccessStatus.failure &&
                 _submissionSent) {
               setState(() {
                 isLoading = false;
@@ -326,160 +455,330 @@ debugPrint('API DATE     : $apiDate');
                 context: context,
                 type: DialogType.error,
                 title: 'Last Punch Failed',
-                message: state.errorMessage ?? 'Unable to submit Last Punch.',
+                message:
+                    state.errorMessage ??
+                    'Unable to submit Last Punch.',
                 buttonText: 'OK',
               );
             }
           },
 
-          builder: (context, vehicleState) {
+          // ===================================================================
+          // BUILDER
+          // ===================================================================
+
+          builder: (context, state) {
             return Form(
               key: _formKey,
+              child: Column(
+                children: [
+                  // -----------------------------------------------------------
+                  // SCROLL CONTENT
+                  // -----------------------------------------------------------
 
-              child: SingleChildScrollView(
-                padding: EdgeInsets.all(16.w),
+                  Expanded(
+                    child: SingleChildScrollView(
+                      physics:
+                          const BouncingScrollPhysics(),
 
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                      keyboardDismissBehavior:
+                          ScrollViewKeyboardDismissBehavior
+                              .onDrag,
 
-                  children: [
-                    Text(widget.punchStat!.date),
-                    _textField(
-                      controller: dateController,
-                      hintText: 'Date',
-                      icon: Icons.calendar_today_outlined,
-                      enabled: false,
-                    ),
+                      padding: EdgeInsets.fromLTRB(
+                        14.w,
+                        10.h,
+                        14.w,
+                        14.h,
+                      ),
 
-                    SizedBox(height: 14.h),
+                      child: Column(
+                        crossAxisAlignment:
+                            CrossAxisAlignment.start,
 
-                    // ------------------------------------------------
-                    // LAST TIME
-                    // ------------------------------------------------
-                    _textField(
-                      controller: lastTimeController,
-                      hintText: 'Last Time',
-                      icon: Icons.history_outlined,
-                      enabled: false,
-                    ),
+                        children: [
+                          // ---------------------------------------------------
+                          // HEADER
+                          // ---------------------------------------------------
 
-                    SizedBox(height: 14.h),
+                          _compactHeader(),
 
-                    // ------------------------------------------------
-                    // NEW TIME
-                    // ------------------------------------------------
-                    _textField(
-                      controller: newTimeController,
-                      hintText: 'Time',
-                      icon: Icons.access_time_outlined,
-                      validator: _validateNewTime,
-                      readOnly: true,
-                      suffixIcon: Icons.schedule_outlined,
-                      onTap: _selectNewTime,
-                    ),
+                          SizedBox(
+                            height: 14.h,
+                          ),
 
-                    SizedBox(height: 14.h),
+                          // ---------------------------------------------------
+                          // PREVIOUS ACTIVITY
+                          // ---------------------------------------------------
 
-                    // ------------------------------------------------
-                    // OPENING / CLOSING KM
-                    // ------------------------------------------------
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Expanded(
-                              child: _kmField(
-                                controller: openingKmController,
-                                hintText: 'Opening KM',
-                                enabled: false,
-                                validator: (_) => null,
-                              ),
-                            ),
+                          _sectionTitle(
+                            icon: Icons.history_rounded,
+                            title: 'Previous Activity',
+                          ),
 
-                            SizedBox(width: 12.w),
+                          SizedBox(
+                            height: 8.h,
+                          ),
 
-                            Expanded(
-                              child: _kmField(
-                                controller: closingKmController,
-                                hintText: 'Closing KM*',
-                                enabled: true,
+                          _contentCard(
+                            child: Row(
+                              crossAxisAlignment:
+                                  CrossAxisAlignment.start,
 
-                                // Don't show TextFormField's default error
-                                validator: (value) {
-                                  final error = _validateKm(
-                                    value,
-                                    'Closing KM',
-                                  );
+                              children: [
+                                Expanded(
+                                  child: _modernTextField(
+                                    controller:
+                                        dateController,
 
-                                  WidgetsBinding.instance.addPostFrameCallback((
-                                    _,
-                                  ) {
-                                    if (mounted && closingKmError != error) {
-                                      setState(() {
-                                        closingKmError = error;
-                                      });
-                                    }
-                                  });
+                                  
 
-                                  // Return null so TextFormField doesn't display error
-                                  return null;
-                                },
+                                    hintText:
+                                        'Date',
 
-                                onChanged: (value) {
-                                  setState(() {
-                                    closingKmError = _validateKm(
-                                      value,
-                                      'Closing KM',
-                                    );
-                                  });
-                                },
-                              ),
-                            ),
-                          ],
-                        ),
+                                    icon: Icons
+                                        .calendar_month_rounded,
 
-                        // Error gets full row width
-                        if (closingKmError != null) ...[
-                          SizedBox(height: 5.h),
-                          Padding(
-                            padding: EdgeInsets.only(
-                              left: MediaQuery.of(context).size.width / 2,
-                            ),
-                            child: Text(
-                              closingKmError!,
-                              style: TextStyle(
-                                color: Colors.red,
-                                fontSize: 11.sp,
-                              ),
+                                    enabled:
+                                        false,
+                                  ),
+                                ),
+
+                                SizedBox(
+                                  width: 10.w,
+                                ),
+
+                                Expanded(
+                                  child: _modernTextField(
+                                    controller:
+                                        lastTimeController,
+
+                                  
+
+                                    hintText:
+                                        'Last Time',
+
+                                    icon: Icons
+                                        .history_toggle_off_rounded,
+
+                                    enabled:
+                                        false,
+                                  ),
+                                ),
+                              ],
                             ),
                           ),
+
+                          SizedBox(
+                            height: 14.h,
+                          ),
+
+                          // ---------------------------------------------------
+                          // FORCE OUT DETAILS
+                          // ---------------------------------------------------
+
+                          _sectionTitle(
+                            icon: Icons.logout_rounded,
+                            title: 'Force Out Details',
+                          ),
+
+                          SizedBox(
+                            height: 8.h,
+                          ),
+
+                          _contentCard(
+                            child: Column(
+                              children: [
+                                // ---------------------------------------------
+                                // PUNCH OUT TIME
+                                // ---------------------------------------------
+
+                                _modernTextField(
+                                  controller:
+                                      newTimeController,
+
+                              
+
+                                  hintText:
+                                      'Select Time',
+
+                                  icon: Icons
+                                      .access_time_filled_rounded,
+
+                                  required:
+                                      true,
+
+                                  readOnly:
+                                      true,
+
+                                  validator:
+                                      _validateNewTime,
+
+                                  suffixIcon:
+                                      Icons.schedule_rounded,
+
+                                  onTap:
+                                      _selectNewTime,
+                                ),
+
+                                SizedBox(
+                                  height: 11.h,
+                                ),
+
+                                // ---------------------------------------------
+                                // KM ROW
+                                // ---------------------------------------------
+
+                                Row(
+                                  crossAxisAlignment:
+                                      CrossAxisAlignment.start,
+
+                                  children: [
+                                    Expanded(
+                                      child:
+                                          _modernKmField(
+                                        controller:
+                                            openingKmController,
+
+                                       
+
+                                        hintText:
+                                            'Opening KM',
+
+                                        enabled:
+                                            false,
+
+                                        validator:
+                                            (_) => null,
+                                      ),
+                                    ),
+
+                                    SizedBox(
+                                      width: 10.w,
+                                    ),
+
+                                    Expanded(
+                                      child:
+                                          _modernKmField(
+                                        controller:
+                                            closingKmController,
+
+
+                                        hintText:
+                                            'Closing KM',
+
+                                        enabled:
+                                            true,
+
+                                        required:
+                                            true,
+
+                                        validator:
+                                            (value) {
+                                          final error =
+                                              _validateKm(
+                                            value,
+                                            'Closing KM',
+                                          );
+
+                                          WidgetsBinding
+                                              .instance
+                                              .addPostFrameCallback(
+                                            (_) {
+                                              if (mounted &&
+                                                  closingKmError !=
+                                                      error) {
+                                                setState(
+                                                  () {
+                                                    closingKmError =
+                                                        error;
+                                                  },
+                                                );
+                                              }
+                                            },
+                                          );
+
+                                          return null;
+                                        },
+
+                                        onChanged:
+                                            (value) {
+                                          setState(
+                                            () {
+                                              closingKmError =
+                                                  _validateKm(
+                                                value,
+                                                'Closing KM',
+                                              );
+                                            },
+                                          );
+                                        },
+                                      ),
+                                    ),
+                                  ],
+                                ),
+
+                                // ---------------------------------------------
+                                // CLOSING KM ERROR
+                                // ---------------------------------------------
+
+                                if (closingKmError !=
+                                    null) ...[
+                                  SizedBox(
+                                    height: 5.h,
+                                  ),
+
+                                  _errorMessage(
+                                    closingKmError!,
+                                  ),
+                                ],
+
+                                SizedBox(
+                                  height: 11.h,
+                                ),
+
+                                // ---------------------------------------------
+                                // REMARK
+                                // ---------------------------------------------
+
+                                _modernTextField(
+                                  controller:
+                                      remarkController,
+
+                                
+                                  hintText:
+                                      'Enter Remark',
+
+                                  icon: Icons
+                                      .edit_note_rounded,
+
+                                  maxLines:
+                                      2,
+                                ),
+                              ],
+                            ),
+                          ),
+
+                          SizedBox(
+                            height: 10.h,
+                          ),
+
+                          // ---------------------------------------------------
+                          // WARNING
+                          // ---------------------------------------------------
+
+                          _warningCard(),
                         ],
-                      ],
+                      ),
                     ),
-                    SizedBox(height: 14.h),
+                  ),
 
-                    // ------------------------------------------------
-                    // REMARK
-                    // ------------------------------------------------
-                    _textField(
-                      controller: remarkController,
-                      hintText: 'Enter Remark',
-                      icon: Icons.note_add_outlined,
-                      maxLines: 3,
-                    ),
+                  // -----------------------------------------------------------
+                  // FIXED BUTTON
+                  // -----------------------------------------------------------
 
-                    SizedBox(height: 20.h),
-
-                    // ------------------------------------------------
-                    // SUBMIT
-                    // ------------------------------------------------
-                    _submitButton(),
-
-                    SizedBox(height: 14.h),
-                  ],
-                ),
+                  _bottomSubmitSection(),
+                ],
               ),
             );
           },
@@ -488,20 +787,772 @@ debugPrint('API DATE     : $apiDate');
     );
   }
 
-  // ------------------------------------------------------------
-  // TIME VALIDATION
-  // ------------------------------------------------------------
+  // ===========================================================================
+  // COMPACT HEADER
+  // ===========================================================================
 
-  String? _validateNewTime(String? value) {
-    final newTime = _parseTime(value);
-    final lastTime = _parseTime(lastTimeController.text);
+  Widget _compactHeader() {
+    return Container(
+      width: double.infinity,
 
-    debugPrint('================================');
-    debugPrint('LAST TIME RAW  : "${lastTimeController.text}"');
-    debugPrint('NEW TIME RAW   : "${value ?? ''}"');
-    debugPrint('LAST TIME PARSED: $lastTime');
-    debugPrint('NEW TIME PARSED : $newTime');
-    debugPrint('================================');
+      padding: EdgeInsets.symmetric(
+        horizontal: 14.w,
+        vertical: 12.h,
+      ),
+
+      decoration: BoxDecoration(
+        gradient: const LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            Color(
+              0xFF08783D,
+            ),
+            Color(
+              0xFF13A252,
+            ),
+          ],
+        ),
+
+        borderRadius: BorderRadius.circular(
+          18.r,
+        ),
+
+        boxShadow: [
+          BoxShadow(
+            color: const Color(
+              0xFF11934A,
+            ).withOpacity(
+              0.16,
+            ),
+            blurRadius: 14,
+            offset: const Offset(
+              0,
+              5,
+            ),
+          ),
+        ],
+      ),
+
+      child: Stack(
+        children: [
+          Positioned(
+            right: -25.w,
+            top: -30.h,
+            child: Container(
+              width: 90.w,
+              height: 90.w,
+              decoration: BoxDecoration(
+                color: Colors.white.withOpacity(
+                  0.06,
+                ),
+                shape: BoxShape.circle,
+              ),
+            ),
+          ),
+
+          Row(
+            children: [
+              // ---------------------------------------------------------------
+              // ICON
+              // ---------------------------------------------------------------
+
+              Container(
+                width: 45.w,
+                height: 45.w,
+                decoration: BoxDecoration(
+                  color: Colors.white.withOpacity(
+                    0.15,
+                  ),
+                  borderRadius:
+                      BorderRadius.circular(
+                    13.r,
+                  ),
+                ),
+                child: Icon(
+                  Icons.schedule_send_rounded,
+                  color: Colors.white,
+                  size: 22.sp,
+                ),
+              ),
+
+              SizedBox(
+                width: 11.w,
+              ),
+
+              // ---------------------------------------------------------------
+              // TITLE
+              // ---------------------------------------------------------------
+
+              Expanded(
+                child: Column(
+                  crossAxisAlignment:
+                      CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Last Force Out',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 16.sp,
+                        fontWeight:
+                            FontWeight.w700,
+                      ),
+                    ),
+
+                    SizedBox(
+                      height: 2.h,
+                    ),
+
+                    Text(
+                      'Complete your previous pending punch out',
+                      maxLines: 1,
+                      overflow:
+                          TextOverflow.ellipsis,
+                      style: TextStyle(
+                        color: Colors.white
+                            .withOpacity(
+                          0.80,
+                        ),
+                        fontSize: 10.5.sp,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+
+              SizedBox(
+                width: 8.w,
+              ),
+
+              // ---------------------------------------------------------------
+              // FORCE BADGE
+              // ---------------------------------------------------------------
+
+              Container(
+                padding: EdgeInsets.symmetric(
+                  horizontal: 9.w,
+                  vertical: 5.h,
+                ),
+                decoration: BoxDecoration(
+                  color: Colors.white.withOpacity(
+                    0.15,
+                  ),
+                  borderRadius:
+                      BorderRadius.circular(
+                    20.r,
+                  ),
+                ),
+                child: Row(
+                  mainAxisSize:
+                      MainAxisSize.min,
+                  children: [
+                    Container(
+                      width: 6.w,
+                      height: 6.w,
+                      decoration:
+                          const BoxDecoration(
+                        color: Color(
+                          0xFFB9F6CA,
+                        ),
+                        shape:
+                            BoxShape.circle,
+                      ),
+                    ),
+
+                    SizedBox(
+                      width: 5.w,
+                    ),
+
+                    Text(
+                      'FORCE',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 9.sp,
+                        fontWeight:
+                            FontWeight.w700,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  // ===========================================================================
+  // SECTION TITLE
+  // ===========================================================================
+
+  Widget _sectionTitle({
+    required IconData icon,
+    required String title,
+  }) {
+    return Row(
+      children: [
+        Container(
+          width: 30.w,
+          height: 30.w,
+          decoration: BoxDecoration(
+            color: const Color(
+              0xFFE7F6EC,
+            ),
+            borderRadius:
+                BorderRadius.circular(
+              9.r,
+            ),
+          ),
+          child: Icon(
+            icon,
+            color: const Color(
+              0xFF11934A,
+            ),
+            size: 16.sp,
+          ),
+        ),
+
+        SizedBox(
+          width: 8.w,
+        ),
+
+        Text(
+          title,
+          style: TextStyle(
+            color: const Color(
+              0xFF1D2521,
+            ),
+            fontSize: 13.5.sp,
+            fontWeight: FontWeight.w700,
+          ),
+        ),
+      ],
+    );
+  }
+
+  // ===========================================================================
+  // CONTENT CARD
+  // ===========================================================================
+
+  Widget _contentCard({
+    required Widget child,
+  }) {
+    return Container(
+      width: double.infinity,
+
+      padding: EdgeInsets.all(
+        11.w,
+      ),
+
+      decoration: BoxDecoration(
+        color: Colors.white,
+
+        borderRadius:
+            BorderRadius.circular(
+          16.r,
+        ),
+
+        border: Border.all(
+          color: const Color(
+            0xFFE9ECEB,
+          ),
+        ),
+
+        boxShadow: [
+          BoxShadow(
+            color:
+                Colors.black.withOpacity(
+              0.025,
+            ),
+            blurRadius: 10,
+            offset: const Offset(
+              0,
+              3,
+            ),
+          ),
+        ],
+      ),
+
+      child: child,
+    );
+  }
+
+  // ===========================================================================
+  // FIELD LABEL
+  // ===========================================================================
+
+  Widget _fieldLabel(
+    String title, {
+    bool required = false,
+  }) {
+    return Padding(
+      padding: EdgeInsets.only(
+        left: 2.w,
+      ),
+
+      child: RichText(
+        text: TextSpan(
+          text: title,
+
+          style: TextStyle(
+            color: const Color(
+              0xFF606864,
+            ),
+            fontSize: 10.5.sp,
+            fontWeight: FontWeight.w600,
+          ),
+
+          children: [
+            if (required)
+              TextSpan(
+                text: ' *',
+                style: TextStyle(
+                  color: Colors.red.shade500,
+                ),
+              ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  // ===========================================================================
+  // MODERN TEXT FIELD
+  // ===========================================================================
+
+  Widget _modernTextField({
+    required TextEditingController controller,
+   // required String title,
+    required String hintText,
+    required IconData icon,
+
+    String? Function(String?)? validator,
+
+    int maxLines = 1,
+
+    bool enabled = true,
+
+    bool readOnly = false,
+
+    bool required = false,
+
+    VoidCallback? onTap,
+
+    IconData? suffixIcon,
+  }) {
+    return Column(
+      crossAxisAlignment:
+          CrossAxisAlignment.start,
+
+      children: [
+        // _fieldLabel(
+        //   title,
+        //   required: required,
+        // ),
+
+        SizedBox(
+          height: 4.h,
+        ),
+
+        CustomTextFormField(
+          controller: controller,
+          hintText: hintText,
+          labelText: hintText,
+          prefixIcon: icon,
+          maxLines: maxLines,
+          enabled: enabled,
+          readOnly: readOnly,
+          onTap: onTap,
+          suffixIcon: suffixIcon,
+          validator: validator,
+        ),
+      ],
+    );
+  }
+
+  // ===========================================================================
+  // KM FIELD
+  // ===========================================================================
+
+  Widget _modernKmField({
+    required TextEditingController controller,
+   
+    required String hintText,
+    required bool enabled,
+    required String? Function(String?) validator,
+
+    bool required = false,
+
+    ValueChanged<String>? onChanged,
+  }) {
+    return Column(
+      crossAxisAlignment:
+          CrossAxisAlignment.start,
+
+      children: [
+       
+
+        SizedBox(
+          height: 4.h,
+        ),
+
+        CustomTextFormField(
+          controller: controller,
+          hintText: hintText,
+          labelText: hintText,
+          prefixIcon:
+              Icons.speed_rounded,
+          keyboardType:
+              const TextInputType
+                  .numberWithOptions(
+            decimal: true,
+          ),
+          enabled: enabled,
+          validator:
+              enabled ? validator : null,
+          onChanged: onChanged,
+        ),
+      ],
+    );
+  }
+
+  // ===========================================================================
+  // ERROR MESSAGE
+  // ===========================================================================
+
+  Widget _errorMessage(
+    String message,
+  ) {
+    return Container(
+      width: double.infinity,
+
+      padding: EdgeInsets.symmetric(
+        horizontal: 9.w,
+        vertical: 6.h,
+      ),
+
+      decoration: BoxDecoration(
+        color: const Color(
+          0xFFFFF3F3,
+        ),
+
+        borderRadius:
+            BorderRadius.circular(
+          8.r,
+        ),
+
+        border: Border.all(
+          color: const Color(
+            0xFFFFDADA,
+          ),
+        ),
+      ),
+
+      child: Row(
+        children: [
+          Icon(
+            Icons.error_outline_rounded,
+            color: const Color(
+              0xFFD94343,
+            ),
+            size: 14.sp,
+          ),
+
+          SizedBox(
+            width: 5.w,
+          ),
+
+          Expanded(
+            child: Text(
+              message,
+              style: TextStyle(
+                color: const Color(
+                  0xFFD94343,
+                ),
+                fontSize: 10.sp,
+                fontWeight:
+                    FontWeight.w500,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // ===========================================================================
+  // WARNING
+  // ===========================================================================
+
+  Widget _warningCard() {
+    return Container(
+      width: double.infinity,
+
+      padding: EdgeInsets.symmetric(
+        horizontal: 10.w,
+        vertical: 8.h,
+      ),
+
+      decoration: BoxDecoration(
+        color: const Color(
+          0xFFFFF9EA,
+        ),
+
+        borderRadius:
+            BorderRadius.circular(
+          11.r,
+        ),
+
+        border: Border.all(
+          color: const Color(
+            0xFFFFE5A3,
+          ),
+        ),
+      ),
+
+      child: Row(
+        crossAxisAlignment:
+            CrossAxisAlignment.center,
+
+        children: [
+          Container(
+            width: 28.w,
+            height: 28.w,
+            decoration: BoxDecoration(
+              color: const Color(
+                0xFFFFEDBE,
+              ),
+              borderRadius:
+                  BorderRadius.circular(
+                8.r,
+              ),
+            ),
+            child: Icon(
+              Icons.info_outline_rounded,
+              color: const Color(
+                0xFFE29A13,
+              ),
+              size: 16.sp,
+            ),
+          ),
+
+          SizedBox(
+            width: 8.w,
+          ),
+
+          Expanded(
+            child: Text(
+              'Punch out time cannot be earlier than your last activity time.',
+              style: TextStyle(
+                color: const Color(
+                  0xFF7B6537,
+                ),
+                fontSize: 10.5.sp,
+                height: 1.3,
+                fontWeight:
+                    FontWeight.w500,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // ===========================================================================
+  // BOTTOM SUBMIT
+  // ===========================================================================
+
+  Widget _bottomSubmitSection() {
+    return Container(
+      padding: EdgeInsets.fromLTRB(
+        14.w,
+        7.h,
+        14.w,
+        8.h,
+      ),
+
+      decoration: BoxDecoration(
+        color: Colors.white,
+
+        border: const Border(
+          top: BorderSide(
+            color: Color(
+              0xFFE8ECEA,
+            ),
+          ),
+        ),
+
+        boxShadow: [
+          BoxShadow(
+            color:
+                Colors.black.withOpacity(
+              0.035,
+            ),
+            blurRadius: 10,
+            offset: const Offset(
+              0,
+              -3,
+            ),
+          ),
+        ],
+      ),
+
+      child: SafeArea(
+        top: false,
+
+        child: SizedBox(
+          width: double.infinity,
+          height: 48.h,
+
+          child: ElevatedButton(
+            onPressed: isLoading
+                ? null
+                : _submitPunch,
+
+            style: ElevatedButton.styleFrom(
+              elevation: 0,
+
+              backgroundColor:
+                  const Color(
+                0xFF11934A,
+              ),
+
+              disabledBackgroundColor:
+                  const Color(
+                0xFF11934A,
+              ).withOpacity(
+                0.60,
+              ),
+
+              foregroundColor:
+                  Colors.white,
+
+              shape:
+                  RoundedRectangleBorder(
+                borderRadius:
+                    BorderRadius.circular(
+                  14.r,
+                ),
+              ),
+
+              padding: EdgeInsets.zero,
+            ),
+
+            child: isLoading
+                ? SizedBox(
+                    width: 20.w,
+                    height: 20.w,
+
+                    child:
+                        const CircularProgressIndicator(
+                      strokeWidth: 2.2,
+                      valueColor:
+                          AlwaysStoppedAnimation<
+                              Color>(
+                        Colors.white,
+                      ),
+                    ),
+                  )
+                : Row(
+                    mainAxisAlignment:
+                        MainAxisAlignment.center,
+
+                    children: [
+                      Container(
+                        width: 28.w,
+                        height: 28.w,
+
+                        decoration:
+                            BoxDecoration(
+                          color: Colors.white
+                              .withOpacity(
+                            0.15,
+                          ),
+                          borderRadius:
+                              BorderRadius.circular(
+                            8.r,
+                          ),
+                        ),
+
+                        child: Icon(
+                          Icons
+                              .schedule_send_rounded,
+                          color: Colors.white,
+                          size: 16.sp,
+                        ),
+                      ),
+
+                      SizedBox(
+                        width: 8.w,
+                      ),
+
+                      Text(
+                        'LAST FORCE OUT',
+                        style: TextStyle(
+                          fontSize: 12.5.sp,
+                          fontWeight:
+                              FontWeight.w700,
+                          letterSpacing: 0.3,
+                        ),
+                      ),
+
+                      SizedBox(
+                        width: 7.w,
+                      ),
+
+                      Icon(
+                        Icons
+                            .arrow_forward_rounded,
+                        size: 17.sp,
+                      ),
+                    ],
+                  ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  // ===========================================================================
+  // NEW TIME VALIDATION
+  // ===========================================================================
+
+  String? _validateNewTime(
+    String? value,
+  ) {
+    final newTime = _parseTime(
+      value,
+    );
+
+    final lastTime = _parseTime(
+      lastTimeController.text,
+    );
+
+    debugPrint(
+      '================================',
+    );
+
+    debugPrint(
+      'LAST TIME RAW  : "${lastTimeController.text}"',
+    );
+
+    debugPrint(
+      'NEW TIME RAW   : "${value ?? ''}"',
+    );
+
+    debugPrint(
+      'LAST TIME PARSED: $lastTime',
+    );
+
+    debugPrint(
+      'NEW TIME PARSED : $newTime',
+    );
+
+    debugPrint(
+      '================================',
+    );
 
     if (newTime == null) {
       return 'Please select a valid time';
@@ -511,9 +1562,13 @@ debugPrint('API DATE     : $apiDate');
       return 'Last time is not available';
     }
 
-    final lastMinutes = lastTime.hour * 60 + lastTime.minute;
+    final lastMinutes =
+        lastTime.hour * 60 +
+        lastTime.minute;
 
-    final newMinutes = newTime.hour * 60 + newTime.minute;
+    final newMinutes =
+        newTime.hour * 60 +
+        newTime.minute;
 
     if (newMinutes < lastMinutes) {
       return 'Out-Punch time can not be less than last Activity time';
@@ -522,7 +1577,13 @@ debugPrint('API DATE     : $apiDate');
     return null;
   }
 
-  DateTime? _parseTime(String? value) {
+  // ===========================================================================
+  // PARSE TIME
+  // ===========================================================================
+
+  DateTime? _parseTime(
+    String? value,
+  ) {
     if (value == null) {
       return null;
     }
@@ -533,110 +1594,102 @@ debugPrint('API DATE     : $apiDate');
       return null;
     }
 
-    debugPrint('Parsing time: "$text"');
+    debugPrint(
+      'Parsing time: "$text"',
+    );
 
-    // 12-hour format with seconds
-    // Example: 04:09:39 PM
+    // -------------------------------------------------------------------------
+    // 12 HOUR WITH SECONDS
+    // -------------------------------------------------------------------------
+
     try {
-      return DateFormat('hh:mm:ss a').parseStrict(text);
+      return DateFormat(
+        'hh:mm:ss a',
+      ).parseStrict(
+        text,
+      );
     } catch (_) {}
 
-    // 12-hour format without seconds
-    // Example: 06:46 PM
+    // -------------------------------------------------------------------------
+    // 12 HOUR WITHOUT SECONDS
+    // -------------------------------------------------------------------------
+
     try {
-      return DateFormat('hh:mm a').parseStrict(text);
+      return DateFormat(
+        'hh:mm a',
+      ).parseStrict(
+        text,
+      );
     } catch (_) {}
 
-    // 24-hour format with seconds
-    // Example: 16:09:39
+    // -------------------------------------------------------------------------
+    // 24 HOUR WITH SECONDS
+    // -------------------------------------------------------------------------
+
     try {
-      return DateFormat('HH:mm:ss').parseStrict(text);
+      return DateFormat(
+        'HH:mm:ss',
+      ).parseStrict(
+        text,
+      );
     } catch (_) {}
 
-    // 24-hour format without seconds
-    // Example: 16:09
+    // -------------------------------------------------------------------------
+    // 24 HOUR WITHOUT SECONDS
+    // -------------------------------------------------------------------------
+
     try {
-      return DateFormat('HH:mm').parseStrict(text);
+      return DateFormat(
+        'HH:mm',
+      ).parseStrict(
+        text,
+      );
     } catch (_) {}
 
-    debugPrint('Unable to parse time: "$text"');
+    debugPrint(
+      'Unable to parse time: "$text"',
+    );
 
     return null;
   }
 
-  String? closingKmError;
-  String? _validateKm(String? value, String fieldName) {
-    final text = value?.trim() ?? '';
+  // ===========================================================================
+  // KM VALIDATION
+  // ===========================================================================
+
+  String? _validateKm(
+    String? value,
+    String fieldName,
+  ) {
+    final text =
+        value?.trim() ?? '';
 
     if (text.isEmpty) {
       return 'Please enter $fieldName';
     }
 
-    final km = double.tryParse(text);
+    final km =
+        double.tryParse(
+      text,
+    );
 
     if (km == null) {
       return 'Please enter a valid $fieldName';
     }
 
-    final openingText = openingKmController.text.trim();
-    final openingKm = double.tryParse(openingText);
+    final openingText =
+        openingKmController.text.trim();
 
-    if (openingKm != null && km < openingKm) {
+    final openingKm =
+        double.tryParse(
+      openingText,
+    );
+
+    if (openingKm != null &&
+        km < openingKm) {
       return 'Closing KM cannot be less than Opening KM';
     }
 
     return null;
-  }
-
-  Widget _textField({
-    required TextEditingController controller,
-    required String hintText,
-    required IconData icon,
-    String? Function(String?)? validator,
-    int maxLines = 1,
-    bool enabled = true,
-    bool readOnly = false,
-    VoidCallback? onTap,
-    IconData? suffixIcon,
-  }) {
-    return CustomTextFormField(
-      controller: controller,
-      hintText: hintText,
-      prefixIcon: icon,
-      maxLines: maxLines,
-      enabled: enabled,
-      readOnly: readOnly,
-      onTap: onTap,
-      suffixIcon: suffixIcon,
-      validator: validator,
-    );
-  }
-
-  Widget _kmField({
-    required TextEditingController controller,
-    required String hintText,
-    required bool enabled,
-    required String? Function(String?) validator,
-    ValueChanged<String>? onChanged,
-  }) {
-    return CustomTextFormField(
-      controller: controller,
-      hintText: hintText,
-      prefixIcon: Icons.speed_outlined,
-      keyboardType: const TextInputType.numberWithOptions(decimal: true),
-      enabled: enabled,
-      validator: enabled ? validator : null,
-      onChanged: onChanged,
-    );
-  }
-
-  Widget _submitButton() {
-    return CustomButton(
-      width: double.infinity,
-      textSize: 15.sp,
-      text: 'SUBMIT',
-      onPressed: _submitPunch,
-      isLoading: isLoading,
-    );
   }
 }
