@@ -44,7 +44,7 @@ class _LoginScreenState extends State<LoginScreen> {
       body: BlocConsumer<AuthBloc, AuthState>(
   listener: (context, state) {
     if (state.loginStatus == LoginStatus.success) {
-      AppToast.success('Login SuccessFul');
+      AppToast.success('Login Successfully');
       context.go('/home');
     }
 

@@ -601,59 +601,7 @@ class _DealerFollowupAddState extends State<DealerFollowupAdd> {
       DistrictEvent(userId: userId.toString(), stateId: stateId),
     );
   }
-  // Future<void> _onStateSelected(String? stateId) async {
-  //   if (stateId == null || stateId.isEmpty) {
-  //     return;
-  //   }
-
-  //   debugPrint('================================');
-  //   debugPrint('STATE SELECTED');
-  //   debugPrint('STATE ID: $stateId');
-  //   debugPrint('================================');
-
-  //   if (stateId == '0') {
-  //     setState(() {
-  //       _selectedStateId = '0';
-
-  //       // Reset district
-  //       _selectedDistrictId = '0';
-
-  //       // Reset taluka
-  //       _selectedTalukaId = '0';
-  //     });
-
-  //     debugPrint('Select State selected');
-  //     debugPrint('District reset to Select District');
-  //     debugPrint('Taluka reset to Select Taluka');
-
-  //     return;
-  //   }
-
-  //   setState(() {
-  //     _selectedStateId = stateId;
-
-  //     _selectedDistrictId = '0';
-  //     _selectedTalukaId = '0';
-  //   });
-
-  //   final userData = await SecureStorage.instance.getUserData();
-
-  //   final userId = userData?['user_id']?.toString();
-
-  //   if (!mounted || userId == null || userId.isEmpty) {
-  //     return;
-  //   }
-
-  //   debugPrint('================================');
-  //   debugPrint('CALLING DISTRICT API');
-  //   debugPrint('USER ID: $userId');
-  //   debugPrint('STATE ID: $stateId');
-  //   debugPrint('================================');
-
-  //   context.read<AddDealerVisitBlock>().add(
-  //     DistrictEvent(userId: userId, stateId: stateId),
-  //   );
-  // }
+ 
 
   @override
   Widget build(BuildContext context) {

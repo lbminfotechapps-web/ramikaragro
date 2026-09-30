@@ -21,7 +21,6 @@ import 'package:flutter_screenutil_plus/flutter_screenutil_plus.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:go_router/go_router.dart';
-import 'package:image_picker/image_picker.dart';
 import 'package:solufine/features/home/presentation/quick_aceess_bloc/quick_access_event.dart';
 import 'package:solufine/features/home/presentation/quick_aceess_bloc/quick_acess_bloc.dart';
 
@@ -41,7 +40,6 @@ class _FamerFollowupPageState extends State<FamerFollowupPage> {
 
   final TextEditingController remarkController = TextEditingController();
 
-  final ImagePicker _imagePicker = ImagePicker();
 
   String? selectedFollowUpType;
   String? imagePath;
@@ -337,134 +335,6 @@ class _FamerFollowupPageState extends State<FamerFollowupPage> {
 
       _showMessage('Unable to capture image');
     }
-  }
-
-  // ==========================================================
-  // IMAGE PICKER - GALLERY
-  // ==========================================================
-
-  Future<void> _pickFromGallery() async {
-    try {
-      final XFile? image = await _imagePicker.pickImage(
-        source: ImageSource.gallery,
-        imageQuality: 80,
-      );
-
-      if (image != null && mounted) {
-        setState(() {
-          imagePath = image.path;
-        });
-      }
-    } catch (e) {
-      debugPrint('GALLERY ERROR: $e');
-
-      if (mounted) {
-        _showMessage('Unable to select image');
-      }
-    }
-  }
-
-  // ==========================================================
-  // IMAGE OPTIONS
-  // ==========================================================
-
-  void _showImageOptions() {
-    showModalBottomSheet(
-      context: context,
-      backgroundColor: Colors.transparent,
-      builder: (context) {
-        return Container(
-          padding: const EdgeInsets.fromLTRB(20, 20, 20, 30),
-          decoration: const BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
-          ),
-          child: SafeArea(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Container(
-                  width: 40,
-                  height: 4,
-                  decoration: BoxDecoration(
-                    color: Colors.grey.shade300,
-                    borderRadius: BorderRadius.circular(20),
-                  ),
-                ),
-
-                const SizedBox(height: 20),
-
-                const Align(
-                  alignment: Alignment.centerLeft,
-                  child: Text(
-                    'Add Follow-up Image',
-                    style: TextStyle(fontSize: 19, fontWeight: FontWeight.w700),
-                  ),
-                ),
-
-                const SizedBox(height: 18),
-
-                Row(
-                  children: [
-                    Expanded(
-                      child: _imageOption(
-                        icon: Icons.camera_alt_rounded,
-                        title: 'Camera',
-                        onTap: () {
-                          Navigator.pop(context);
-                          _captureImage();
-                        },
-                      ),
-                    ),
-
-                    const SizedBox(width: 12),
-
-                    Expanded(
-                      child: _imageOption(
-                        icon: Icons.photo_library_rounded,
-                        title: 'Gallery',
-                        onTap: () {
-                          Navigator.pop(context);
-                          _pickFromGallery();
-                        },
-                      ),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          ),
-        );
-      },
-    );
-  }
-
-  Widget _imageOption({
-    required IconData icon,
-    required String title,
-    required VoidCallback onTap,
-  }) {
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(18),
-      child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 20),
-        decoration: BoxDecoration(
-          color: const Color(0xFFF3F8F6),
-          borderRadius: BorderRadius.circular(18),
-          border: Border.all(color: const Color(0xFFDCEBE5)),
-        ),
-        child: Column(
-          children: [
-            Icon(icon, size: 30, color: const Color(0xFF087F5B)),
-
-            const SizedBox(height: 8),
-
-            Text(title, style: const TextStyle(fontWeight: FontWeight.w600)),
-          ],
-        ),
-      ),
-    );
   }
 
   // ==========================================================
@@ -1139,7 +1009,7 @@ class _FamerFollowupPageState extends State<FamerFollowupPage> {
               children: [
                 _imageActionButton(
                   icon: Icons.refresh_rounded,
-                  onTap: _showImageOptions,
+                  onTap: _captureImage,
                 ),
 
                 const SizedBox(width: 8),
@@ -1156,7 +1026,7 @@ class _FamerFollowupPageState extends State<FamerFollowupPage> {
     }
 
     return InkWell(
-      onTap: _showImageOptions,
+      onTap: _captureImage,
       borderRadius: BorderRadius.circular(20),
       child: Container(
         width: double.infinity,
@@ -1197,7 +1067,7 @@ class _FamerFollowupPageState extends State<FamerFollowupPage> {
             const SizedBox(height: 4),
 
             const Text(
-              'Camera or gallery',
+              'Tap to take a photo',
               style: TextStyle(color: Color(0xFF8A9792), fontSize: 12),
             ),
           ],
