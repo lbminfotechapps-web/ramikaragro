@@ -29,14 +29,14 @@ class SelfTargetRepositoryImpl implements SelfTargetRepository {
     );
   }
 
-  @override
-  Future<List<TargetGroupModel>> getGroupWiseAchivPoint({
-    required String userId,
-    required String targetId,
-  }) {
-    return remoteDataSource.getGroupWiseAchivPoint(
-      userId: userId,
-      targetId: targetId,
-    );
-  }
+  // @override
+  // Future<List<TargetGroupModel>> getGroupWiseAchivPoint({
+  //   required String userId,
+  //   required String targetId,
+  // }) {
+  //   return remoteDataSource.getGroupWiseAchivPoint(
+  //     userId: userId,
+  //     targetId: targetId,
+  //   );
+  // }
 }

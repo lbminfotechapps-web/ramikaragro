@@ -13,13 +13,13 @@ class GetSelfTarget {
     return repository.getSelfTarget();
   }
 
-  Future<List<TargetGroupModel>> getGroupWiseAchivPoint({
-    required String userId,
-    required String targetId,
-  }) {
-    return repository.getGroupWiseAchivPoint(
-      userId: userId,
-      targetId: targetId,
-    );
-  }
+  // Future<List<TargetGroupModel>> getGroupWiseAchivPoint({
+  //   required String userId,
+  //   required String targetId,
+  // }) {
+  //   return repository.getGroupWiseAchivPoint(
+  //     userId: userId,
+  //     targetId: targetId,
+  //   );
+  // }
 }
