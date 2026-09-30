@@ -372,7 +372,7 @@ class _DealerListScreenState extends State<DealerListScreen> {
         //     },
         //   ),
         // ),
-        title: 'Dealers',
+        title: 'Dealers List',
 
         showBackButton: false,
         onLogOutTap: () {
@@ -532,7 +532,7 @@ class _DealerListScreenState extends State<DealerListScreen> {
         },
         tooltip: 'Add dealer follow-up',
         icon: const Icon(Icons.add_rounded),
-        label: const Text('Follow-up'),
+        label: const Text('Add Dealer'),
       ),
     );
   }

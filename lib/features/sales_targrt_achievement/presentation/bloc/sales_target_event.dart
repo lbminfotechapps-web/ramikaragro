@@ -16,14 +16,10 @@ abstract class SalesTargetEvent extends Equatable {
 class LoadTargetDatesEvent extends SalesTargetEvent {
   final String userId;
 
-  const LoadTargetDatesEvent({
-    required this.userId,
-  });
+  const LoadTargetDatesEvent({required this.userId});
 
   @override
-  List<Object?> get props => [
-        userId,
-      ];
+  List<Object?> get props => [userId];
 }
 
 // ============================================================
@@ -40,8 +36,18 @@ class SelectTargetDateEvent extends SalesTargetEvent {
   });
 
   @override
-  List<Object?> get props => [
-        selectedDate,
-        userId,
-      ];
+  List<Object?> get props => [selectedDate, userId];
+}
+
+class GetGrouupWiseAchivePointsEvent extends SalesTargetEvent {
+  final String userId;
+  final String targetId;
+
+  const GetGrouupWiseAchivePointsEvent({
+    required this.userId,
+    required this.targetId,
+  });
+
+  @override
+  List<Object?> get props => [userId, targetId];
 }

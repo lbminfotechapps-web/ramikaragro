@@ -1,3 +1,4 @@
+import 'connection_status_row.dart';
 import 'package:solufine/core/router/app_router.dart';
 import 'package:solufine/core/secure_storage/secure_storage.dart';
 import 'package:solufine/core/theme/app_colors.dart';
@@ -208,13 +209,6 @@ class HomeShellState extends State<HomeShell> {
               _lastLocation != '${AppRouter.home}/')) {
         return;
       }
-
-      debugPrint('======================================');
-      debugPrint('HOME BECAME ACTIVE');
-      debugPrint('REASON: $reason');
-      debugPrint('REFRESHING ALL HOME APIs');
-      debugPrint('======================================');
-
       await _refreshHome();
     });
   }
@@ -225,25 +219,9 @@ class HomeShellState extends State<HomeShell> {
 
   Future<void> _refreshHome() async {
     try {
-      debugPrint('======================================');
-      debugPrint('HOME SHELL REFRESH START');
-      debugPrint('======================================');
-
-      // --------------------------------------------------------
-      // GET USER FROM SECURE STORAGE
-      // --------------------------------------------------------
-
       final userData = await SecureStorage.instance.getUserData();
 
-      // --------------------------------------------------------
-      // USER ID
-      // --------------------------------------------------------
-
       final userId = int.tryParse(userData?['user_id']?.toString() ?? '') ?? 0;
-
-      // --------------------------------------------------------
-      // USER NAME
-      // --------------------------------------------------------
 
       final storedUserName = userData?['user_name']?.toString() ?? '';
 
@@ -251,31 +229,13 @@ class HomeShellState extends State<HomeShell> {
 
       if (!mounted) return;
 
-      // --------------------------------------------------------
-      // UPDATE USER STATE
-      // --------------------------------------------------------
-
       setState(() {
         _userId = userId;
         _username = userName;
         _isUserLoaded = true;
       });
 
-      // --------------------------------------------------------
-      // LOGIN STATUS
-      //
-      // 0 = Guest
-      // 1 = Logged in
-      // --------------------------------------------------------
-
       final String loginStatus = userId == 0 ? '0' : '1';
-
-      debugPrint('======================================');
-      debugPrint('HOME USER DATA');
-      debugPrint('USER ID      : $_userId');
-      debugPrint('USER NAME    : $_username');
-      debugPrint('LOGIN STATUS : $loginStatus');
-      debugPrint('======================================');
 
       if (!mounted) return;
 
@@ -294,12 +254,6 @@ class HomeShellState extends State<HomeShell> {
       // ========================================================
 
       if (userId == 0) {
-        debugPrint('======================================');
-        debugPrint('GUEST USER');
-        debugPrint('MENU API CALLED');
-        debugPrint('LOGGED-IN APIs SKIPPED');
-        debugPrint('======================================');
-
         return;
       }
 
@@ -315,13 +269,6 @@ class HomeShellState extends State<HomeShell> {
 
       final searchToDate = DateFormat('yyyy-MM-dd').format(now);
 
-      debugPrint('======================================');
-      debugPrint('LOGGED-IN HOME APIs');
-      debugPrint('USER ID   : $userId');
-      debugPrint('FROM DATE : $searchFromDate');
-      debugPrint('TO DATE   : $searchToDate');
-      debugPrint('======================================');
-
       if (!mounted) return;
 
       // ========================================================
@@ -332,22 +279,7 @@ class HomeShellState extends State<HomeShell> {
 
       context.read<HomeBloc>().add(GetHomeVisitEvent(userId.toString()));
 
-      // ========================================================
-      // 3. PUNCH STATUS API
-      //
-      // IMPORTANT:
-      // This refreshes Quick Access Punch In / Punch Out.
-      // ========================================================
-
-      debugPrint('CALLING PUNCH STATUS API');
-
       context.read<QuickAcessBloc>().add(PunchStatEvent(userId));
-
-      // ========================================================
-      // 4. VISIT GRAPH API
-      // ========================================================
-
-      debugPrint('CALLING VISIT GRAPH API');
 
       context.read<HomeBloc>().add(
         VisitGraphCountEvent(userId, searchFromDate, searchToDate),
@@ -357,26 +289,10 @@ class HomeShellState extends State<HomeShell> {
       // 5. PENDING IN-PUNCH API
       // ========================================================
 
-      debugPrint('CALLING PENDING INPUNCH API');
-
       context.read<HomeBloc>().add(
         GetInpunchPendingEvent(userId: userId.toString()),
       );
-
-      debugPrint('======================================');
-      debugPrint('HOME SHELL REFRESH COMPLETE');
-      debugPrint('======================================');
     } catch (e, stackTrace) {
-      debugPrint('======================================');
-      debugPrint('HOME SHELL REFRESH ERROR');
-      debugPrint('ERROR: $e');
-      debugPrint('$stackTrace');
-      debugPrint('======================================');
-
-      // --------------------------------------------------------
-      // Don't keep loader forever if something fails.
-      // --------------------------------------------------------
-
       if (mounted) {
         setState(() {
           _userId = 0;
@@ -532,19 +448,32 @@ class HomeShellState extends State<HomeShell> {
         // ======================================================
         // BOTTOM NAVIGATION
         // ======================================================
-        bottomNavigationBar: BottomNavigationBar(
-          currentIndex: widget.navigationShell.currentIndex,
+        bottomNavigationBar: SafeArea(
+          top: false,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              MediaQuery.removePadding(
+                context: context,
+                removeBottom: true,
+                child: BottomNavigationBar(
+                  currentIndex: widget.navigationShell.currentIndex,
 
-          type: BottomNavigationBarType.fixed,
+                  type: BottomNavigationBarType.fixed,
 
-          onTap: _onTabTapped,
+                  onTap: _onTabTapped,
 
-          items: _tabs.map((tab) {
-            return BottomNavigationBarItem(
-              icon: Icon(tab.icon),
-              label: tab.label,
-            );
-          }).toList(),
+                  items: _tabs.map((tab) {
+                    return BottomNavigationBarItem(
+                      icon: Icon(tab.icon),
+                      label: tab.label,
+                    );
+                  }).toList(),
+                ),
+              ),
+              ConnectionStatusRow(userId: _userId),
+            ],
+          ),
         ),
       ),
     );

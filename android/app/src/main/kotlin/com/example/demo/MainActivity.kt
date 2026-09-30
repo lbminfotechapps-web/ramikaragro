@@ -1,5 +1,6 @@
 package com.lbm.solufine
 
+import android.net.TrafficStats
 import android.provider.Settings
 import io.flutter.embedding.android.FlutterActivity
 import io.flutter.embedding.engine.FlutterEngine
@@ -11,6 +12,17 @@ class MainActivity : FlutterActivity() {
 
     override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
         super.configureFlutterEngine(flutterEngine)
+        MethodChannel(flutterEngine.dartExecutor.binaryMessenger, "solufine/network_traffic")
+            .setMethodCallHandler { call, result ->
+                if (call.method == "readBytes") {
+                    val rx = TrafficStats.getTotalRxBytes()
+                    val tx = TrafficStats.getTotalTxBytes()
+                    result.success(if (rx < 0 || tx < 0) null else rx + tx)
+                } else {
+                    result.notImplemented()
+                }
+            }
+
 
         MethodChannel(
             flutterEngine.dartExecutor.binaryMessenger,

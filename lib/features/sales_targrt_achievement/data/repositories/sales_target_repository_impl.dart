@@ -1,4 +1,5 @@
 
+import 'package:solufine/features/assign_target_point_wise/data/models/target_group_model.dart';
 import 'package:solufine/features/sales_targrt_achievement/data/datasources/sales_target_remote_datasource.dart';
 import 'package:solufine/features/sales_targrt_achievement/domain/entities/sales_target_entity.dart';
 import 'package:solufine/features/sales_targrt_achievement/domain/entities/target_date_entity.dart';
@@ -24,6 +25,18 @@ class SalesTargetRepositoryImpl
     required String targetId,
   }) {
     return remoteDataSource.getSalesWiseTarget(
+      userId: userId,
+      targetId: targetId,
+    );
+  }
+
+
+    @override
+  Future<List<TargetGroupModel>> getGroupWiseAchivPoint({
+    required String userId,
+    required String targetId,
+  }) {
+    return remoteDataSource.getGroupWiseAchivPoint(
       userId: userId,
       targetId: targetId,
     );

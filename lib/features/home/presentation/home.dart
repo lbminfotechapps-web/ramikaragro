@@ -165,33 +165,6 @@ class _HomeState extends State<Home> {
       checkLocationPermission(context);
     });
   }
-  // @override
-  // void initState() {
-  //   super.initState();
-  //   WidgetsBinding.instance.addPostFrameCallback((_) async {
-  //     if (!mounted) return;
-
-  //     final isEnabled =
-  //         await DeveloperOptionsChecker.isDeveloperOptionsEnabled();
-
-  //     if (!mounted) return;
-
-  //     if (isEnabled) {
-  //       await showDeveloperOptionWarning();
-  //     }
-  //   });
-  //   _appBarTimer = Timer.periodic(const Duration(seconds: 4), (timer) {
-  //     if (!mounted) return;
-
-  //     setState(() {
-  //       _showUserInfo = !_showUserInfo;
-  //     });
-  //   });
-  //   WidgetsBinding.instance.addPostFrameCallback((_) {
-  //     checkLocationPermission(context);
-  //   });
-  //   _loadUserData();
-  // }
 
   Future<void> printCurrentLocationTable() async {
     try {
@@ -200,11 +173,6 @@ class _HomeState extends State<Home> {
       const int userId = 4;
 
       final locations = await repository.getAllLocations(userId);
-
-      debugPrint('========================================');
-      debugPrint('CURRENT LOCATION TABLE');
-      debugPrint('TOTAL RECORDS: ${locations.length}');
-      debugPrint('========================================');
 
       if (locations.isEmpty) {
         debugPrint('NO LOCATION RECORDS FOUND');
@@ -250,12 +218,6 @@ class _HomeState extends State<Home> {
       // ==========================================================
 
       if (userData == null) {
-        debugPrint('================================');
-        debugPrint('HOME: NO STORED USER');
-        debugPrint('USER ID: 0');
-        debugPrint('LOGIN STATUS: GUEST');
-        debugPrint('================================');
-
         setState(() {
           _userId = '0';
           _username = 'user';
@@ -272,16 +234,7 @@ class _HomeState extends State<Home> {
 
       final userName = userData['user_name']?.toString().trim() ?? '';
 
-      // ==========================================================
-      // EMPTY / ZERO USER ID = GUEST
-      // ==========================================================
-
       if (userId.isEmpty || userId == '0') {
-        debugPrint('================================');
-        debugPrint('HOME: GUEST USER');
-        debugPrint('USER ID: 0');
-        debugPrint('================================');
-
         setState(() {
           _userId = '0';
           _username = 'user';
@@ -300,22 +253,10 @@ class _HomeState extends State<Home> {
         _username = userName.isNotEmpty ? userName : 'user';
       });
 
-      debugPrint('================================');
-      debugPrint('HOME: USER LOGGED IN');
-      debugPrint('USER ID: $_userId');
-      debugPrint('USER NAME: $_username');
-      debugPrint('================================');
-
       await getEmployeeStatus(userId);
 
       if (!mounted) return;
     } catch (e, stackTrace) {
-      debugPrint('================================');
-      debugPrint('LOAD USER DATA ERROR');
-      debugPrint('$e');
-      debugPrint('$stackTrace');
-      debugPrint('================================');
-
       if (!mounted) return;
 
       // If reading storage fails, treat as guest.
@@ -487,21 +428,17 @@ class _HomeState extends State<Home> {
                   //   Icons.person_2_outlined,
                   //   color: AppColors.textColor,
                   // ),
-
-                   icon: Image.asset(
-                  'assets/icons/logo.png',
-                  width: 35,
-                  height: 35,
+                  icon: Image.asset(
+                    'assets/icons/logo.png',
+                    width: 35,
+                    height: 35,
                   ),
-
-
 
                   onPressed: () {
                     context.push('/profile');
                   },
                 ),
               );
-
             },
           ),
 
@@ -818,228 +755,8 @@ class _HomeState extends State<Home> {
             ),
           ),
         ),
-        /*
-        Padding(
-          padding: const EdgeInsets.only(left: 10, right: 10),
-          child: SingleChildScrollView(
-            child: Column(
-              children: [
-                SizedBox(height: 8.h),
-
-                // Row(
-                //   children: [
-                //     ElevatedButton(
-                //       onPressed: () async {
-                //         await BackgroundLocationService.start();
-                //       },
-                //       child: const Text('Start Location'),
-                //     ),
-
-                //     ElevatedButton(
-                //       onPressed: () async {
-                //         await BackgroundLocationService.stop();
-                //       },
-                //       child: const Text('Stop Location'),
-                //     ),
-                //   ],
-                // ),
-                BlocBuilder<HomeBloc, HomeState>(
-                  builder: (context, state) {
-                    int pendingCount = 0;
-                    int pendingTotalCount = 0;
-
-                    String punchTiming = '';
-                    String city = '';
-                    String countryState = '';
-
-                    final data = state.data;
-
-                    if (state.status == HomeStatus.success && data != null) {
-                      pendingCount = data.pendingInpunchCount;
-                      pendingTotalCount = data.totalRecursiveEmployee;
-                      punchTiming = data.inpunchTime ?? '';
-                      city = data.city ?? '';
-                      countryState = data.state ?? '';
-                    }
-
-                    return Row(
-                      children: [
-                        Expanded(
-                          child: SizedBox(
-                            height: 100.h,
-                            child: buildPunchCard(
-                              "Today's Punch",
-                              punchTiming.isEmpty ? '--' : punchTiming,
-                              [
-                                city,
-                                countryState,
-                              ].where((e) => e.isNotEmpty).join(', '),
-                            ),
-                          ),
-                        ),
-
-                        SizedBox(width: 8.w),
-
-                        Expanded(
-                          child: SizedBox(
-                            height: 100.h,
-                            child: buildInfoCard(
-                              'In Punch Pending',
-                              '$pendingCount/$pendingTotalCount',
-                              onTap: () {
-                                final pendingList = data?.result ?? [];
-
-                                _showPendingListDialog(pendingList);
-                              },
-                            ),
-                          ),
-                        ),
-                      ],
-                    );
-                  },
-                ),
-
-                BlocBuilder<HomeBloc, HomeState>(
-                  builder: (context, state) {
-                    if (state.status == HomeStatus.loading) {
-                      return Container(
-                        margin: EdgeInsets.symmetric(
-                          horizontal: 8.w,
-                          vertical: 8.h,
-                        ),
-                        height: 140.h,
-                        child: const Center(child: CircularProgressIndicator()),
-                      );
-                    }
-
-                    final homeData =
-                        state.homedata ??
-                        HomeVisitEntity(
-                          status: false,
-                          message: '',
-                          todayTotalVisit: '0',
-                          todayDealerCnt: '0',
-                          todayFarmerCnt: '0',
-                          monthlyTotalVisit: '0',
-                          monthlyDealerCnt: '0',
-                          monthlyFarmerCnt: '0',
-                          monthlyUniqueDealerCnt: '0',
-                          monthlyUniqueFarmerCnt: '0',
-                          lastThirNotVisitDealer: '0',
-                          lastThirNotVisitFarmer: '0',
-                        );
-
-                    return VisitStatisticsTable(homeData);
-                  },
-                ),
-
-                BlocBuilder<HomeBloc, HomeState>(
-                  builder: (context, state) {
-                    if (state.status == HomeStatus.loading) {
-                      return Container(
-                        margin: EdgeInsets.symmetric(horizontal: 8.w),
-                        height: 140.h,
-                        child: const Center(child: CircularProgressIndicator()),
-                      );
-                    }
-
-                    final homeData =
-                        state.homedata ??
-                        //  ??
-                        HomeVisitEntity(
-                          status: false,
-                          message: '',
-                          todayTotalVisit: '0',
-                          todayDealerCnt: '0',
-                          todayFarmerCnt: '0',
-                          monthlyTotalVisit: '0',
-                          monthlyDealerCnt: '0',
-                          monthlyFarmerCnt: '0',
-                          monthlyUniqueDealerCnt: '0',
-                          monthlyUniqueFarmerCnt: '0',
-                          lastThirNotVisitDealer: '0',
-                          lastThirNotVisitFarmer: '0',
-                        );
-                    // final homeData = state.homedata;
-                    return NotVisitedCard(homeData);
-                  },
-                ),
-                SizedBox(height: 8.h),
-                Row(
-                  children: [
-                    Expanded(
-                      child: _buildDateField(
-                        label: 'From Date',
-                        date: _fromDate,
-                        onTap: _selectFromDate,
-                      ),
-                    ),
-
-                    SizedBox(width: 10.w),
-
-                    Expanded(
-                      child: _buildDateField(
-                        label: 'To Date',
-                        date: _toDate,
-                        onTap: _selectToDate,
-                      ),
-                    ),
-                  ],
-                ),
-
-                SizedBox(height: 8.h),
-
-                BlocBuilder<HomeBloc, HomeState>(
-                  builder: (context, state) {
-                    return VisitOverviewCard(
-                      dealerCount: state.totalDealerCount ?? '0',
-                      farmerCount: state.totalFarmerCount ?? '0',
-                    );
-                  },
-                ),
-                SizedBox(height: 12.h),
-
-                BlocBuilder<HomeBloc, HomeState>(
-                  builder: (context, homeState) {
-                    if (homeState.status == HomeStatus.loading) {
-                      return const Center(child: CircularProgressIndicator());
-                    }
-
-                    if (homeState.status == HomeStatus.failure) {
-                      return Text(
-                        homeState.errorMessage ?? 'Failed to load menu',
-                      );
-                    }
-
-                    if (homeState.menus.isEmpty) {
-                      return const SizedBox.shrink();
-                    }
-
-                    return BlocBuilder<QuickAcessBloc, QuickAccessState>(
-                      builder: (context, quickAccessState) {
-                        return QuickAccessSection(
-                          menus: homeState.menus,
-                          punchStat: quickAccessState.punchStat,
-                        );
-                      },
-                    );
-                  },
-                ),
-
-                SizedBox(height: 12.h),
-              ],
-            ),
-          ),
-        ),
-
-        */
       ),
     );
-
-    /* 
-   
-
-    */
   }
 
   Widget buildPunchCard(String label, String value, String location) {
