@@ -1,22 +1,12 @@
+import 'package:solufine/features/assign_target_point_wise/domain/entities/target_group_entity.dart';
 import 'package:solufine/features/sales_targrt_achievement/domain/entities/sales_target_entity.dart';
 import 'package:equatable/equatable.dart';
 
-
 import '../../domain/entities/target_date_entity.dart';
 
-enum TargetDatesStatus {
-  initial,
-  loading,
-  success,
-  failure,
-}
+enum TargetDatesStatus { initial, loading, success, failure }
 
-enum SalesTargetStatus {
-  initial,
-  loading,
-  success,
-  failure,
-}
+enum SalesTargetStatus { initial, loading, success, failure }
 
 class SalesTargetState extends Equatable {
   final TargetDatesStatus datesStatus;
@@ -27,13 +17,14 @@ class SalesTargetState extends Equatable {
   final SalesTargetDateEntity? selectedDate;
 
   final SalesTargetEntity? target;
-
+  final List<TargetGroupEntity> argetwisepoint;
   final String? message;
 
   const SalesTargetState({
     this.datesStatus = TargetDatesStatus.initial,
     this.targetStatus = SalesTargetStatus.initial,
     this.targetDates = const [],
+    this.argetwisepoint = const [],
     this.selectedDate,
     this.target,
     this.message,
@@ -43,6 +34,7 @@ class SalesTargetState extends Equatable {
     TargetDatesStatus? datesStatus,
     SalesTargetStatus? targetStatus,
     List<SalesTargetDateEntity>? targetDates,
+    List<TargetGroupEntity>? argetwisepoint,
     SalesTargetDateEntity? selectedDate,
     SalesTargetEntity? target,
     String? message,
@@ -56,28 +48,26 @@ class SalesTargetState extends Equatable {
       targetStatus: targetStatus ?? this.targetStatus,
 
       targetDates: targetDates ?? this.targetDates,
+      argetwisepoint: argetwisepoint ?? this.argetwisepoint,
 
       selectedDate: clearSelectedDate
           ? null
           : selectedDate ?? this.selectedDate,
 
-      target: clearTarget
-          ? null
-          : target ?? this.target,
+      target: clearTarget ? null : target ?? this.target,
 
-      message: clearMessage
-          ? null
-          : message ?? this.message,
+      message: clearMessage ? null : message ?? this.message,
     );
   }
 
   @override
   List<Object?> get props => [
-        datesStatus,
-        targetStatus,
-        targetDates,
-        selectedDate,
-        target,
-        message,
-      ];
+    datesStatus,
+    targetStatus,
+    targetDates,
+    selectedDate,
+    target,
+    message,
+    argetwisepoint,
+  ];
 }
