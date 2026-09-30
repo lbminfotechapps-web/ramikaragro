@@ -1,4 +1,5 @@
 import 'package:solufine/core/di/auth_di.dart';
+import 'package:solufine/core/router/app_router.dart';
 import 'package:solufine/core/theme/app_colors.dart';
 import 'package:solufine/core/utility/appname.dart';
 import 'package:solufine/features/auth/provider/auth_provider.dart';
@@ -19,14 +20,24 @@ class _SplashScreenState extends State<SplashScreen> {
     _checkLogin();
   }
 
-  Future<void> _checkLogin() async {
-    final authProvider = sl<AuthProvider>();
+Future<void> _checkLogin() async {
+  final authProvider = sl<AuthProvider>();
 
-    await authProvider.checkLoginStatus();
+  await authProvider.checkLoginStatus();
 
-    if (!mounted) return;
-    context.go(authProvider.isLoggedIn ? '/home' : '/login');
-  }
+  if (!mounted) return;
+
+  // Always open home.
+  context.go(AppRouter.home);
+}
+  // Future<void> _checkLogin() async {
+  //   final authProvider = sl<AuthProvider>();
+
+  //   await authProvider.checkLoginStatus();
+
+  //   if (!mounted) return;
+  //   context.go(authProvider.isLoggedIn ? '/home' : '/home');
+  // }
 
   @override
   Widget build(BuildContext context) {

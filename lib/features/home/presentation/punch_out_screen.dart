@@ -1,19 +1,23 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_screenutil_plus/flutter_screenutil_plus.dart';
+import 'package:go_router/go_router.dart';
+import 'package:intl/intl.dart';
+
 import 'package:solufine/core/di/auth_di.dart';
 import 'package:solufine/core/location_tracking/app_database.dart';
 import 'package:solufine/core/location_tracking/background_location_service.dart';
 import 'package:solufine/core/location_tracking/location_repository.dart';
 import 'package:solufine/core/router/app_router.dart';
 import 'package:solufine/core/secure_storage/secure_storage.dart';
-import 'package:solufine/core/theme/app_colors.dart';
 import 'package:solufine/core/utility/app_image_picker.dart';
 import 'package:solufine/core/utility/appdialog.dart';
 import 'package:solufine/core/utility/device_info_util.dart';
 import 'package:solufine/core/utility/location_util.dart';
 import 'package:solufine/core/utility/widgets/custom_appbar.dart';
-import 'package:solufine/core/utility/widgets/custom_button.dart';
 import 'package:solufine/core/utility/widgets/custom_textformfield.dart';
 import 'package:solufine/features/home/doman/home_entity/punch_stat_entity.dart';
 import 'package:solufine/features/home/doman/home_entity/vehicle_type_entity.dart';
@@ -21,15 +25,14 @@ import 'package:solufine/features/home/presentation/quick_aceess_bloc/quick_acce
     show PunchInOutDetailsAddEvent, VehicleTypeEvent, StoreTrackLocation;
 import 'package:solufine/features/home/presentation/quick_aceess_bloc/quick_access_state.dart';
 import 'package:solufine/features/home/presentation/quick_aceess_bloc/quick_acess_bloc.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_screenutil_plus/flutter_screenutil_plus.dart';
-import 'package:go_router/go_router.dart';
-import 'package:intl/intl.dart';
 
 class PunchOutScreen extends StatefulWidget {
   final PunchStatEntity? punchStat;
-  const PunchOutScreen(this.punchStat, {super.key});
+
+  const PunchOutScreen(
+    this.punchStat, {
+    super.key,
+  });
 
   @override
   State<PunchOutScreen> createState() => _PunchOutScreenState();
@@ -40,44 +43,78 @@ class _PunchOutScreenState extends State<PunchOutScreen> {
 
   File? _uploadedImage;
 
-  final TextEditingController openingKmController = TextEditingController();
+  final TextEditingController openingKmController =
+      TextEditingController();
 
-  final TextEditingController closingKmController = TextEditingController();
+  final TextEditingController closingKmController =
+      TextEditingController();
 
-  final TextEditingController routeController = TextEditingController();
+  final TextEditingController routeController =
+      TextEditingController();
 
-  final TextEditingController remarkController = TextEditingController();
-  final TextEditingController vehicleController = TextEditingController();
-  // String? punchVehicleId;
+  final TextEditingController remarkController =
+      TextEditingController();
+
+  final TextEditingController vehicleController =
+      TextEditingController();
+
   String? userId;
+
   bool isLoading = false;
+
   bool _submissionSent = false;
+
   bool _waitingForStoreLocation = false;
+
+  // ===========================================================================
+  // INIT
+  // ===========================================================================
+
   @override
   void initState() {
     super.initState();
+
     getUserId();
-    openingKmController.text = widget.punchStat?.startingKm?.trim() ?? '';
+
+    openingKmController.text =
+        widget.punchStat?.startingKm?.trim() ?? '';
+
     _loadVehicleTypes();
   }
 
+  // ===========================================================================
+  // USER ID
+  // ===========================================================================
+
   Future<void> getUserId() async {
     try {
-      final userData = await SecureStorage.instance.getUserData();
+      final userData =
+          await SecureStorage.instance.getUserData();
 
-      debugPrint('USER DATA: $userData');
+      debugPrint(
+        'USER DATA: $userData',
+      );
 
-      if (!mounted) return;
+      if (!mounted) {
+        return;
+      }
 
       setState(() {
-        userId = userData?['user_id']?.toString();
+        userId =
+            userData?['user_id']?.toString();
       });
 
-      debugPrint('LOGGED IN USER ID: $userId');
+      debugPrint(
+        'LOGGED IN USER ID: $userId',
+      );
     } catch (e) {
-      debugPrint('GET USER DATA ERROR: $e');
+      debugPrint(
+        'GET USER DATA ERROR: $e',
+      );
 
-      if (!mounted) return;
+      if (!mounted) {
+        return;
+      }
 
       setState(() {
         userId = null;
@@ -85,24 +122,48 @@ class _PunchOutScreenState extends State<PunchOutScreen> {
     }
   }
 
+  // ===========================================================================
+  // STORED LOCATIONS
+  // ===========================================================================
+
   Future<String> _getStoredLocations() async {
     try {
-      final int? parsedUserId = int.tryParse(userId.toString());
+      final int? parsedUserId =
+          int.tryParse(
+        userId.toString(),
+      );
 
       if (parsedUserId == null) {
-        debugPrint('LOCATION: Invalid userId = $userId');
+        debugPrint(
+          'LOCATION: Invalid userId = $userId',
+        );
+
         return '[]';
       }
 
-      final LocationRepository repository = sl<LocationRepository>();
+      final LocationRepository repository =
+          sl<LocationRepository>();
 
-      final List<LocationHistoryData> locations = await repository
-          .getAllLocations(parsedUserId);
+      final List<LocationHistoryData> locations =
+          await repository.getAllLocations(
+        parsedUserId,
+      );
 
-      debugPrint('========================================');
-      debugPrint('DEALER VISIT - STORED LOCATIONS');
-      debugPrint('TOTAL LOCATIONS: ${locations.length}');
-      debugPrint('========================================');
+      debugPrint(
+        '========================================',
+      );
+
+      debugPrint(
+        'DEALER VISIT - STORED LOCATIONS',
+      );
+
+      debugPrint(
+        'TOTAL LOCATIONS: ${locations.length}',
+      );
+
+      debugPrint(
+        '========================================',
+      );
 
       for (final location in locations) {
         debugPrint(
@@ -117,142 +178,264 @@ class _PunchOutScreenState extends State<PunchOutScreen> {
         );
       }
 
-      // ============================================================
-      // CREATE DATA FOR STORE LOCATION API
-      // ============================================================
+      final List<Map<String, dynamic>> locationList =
+          locations.map(
+        (location) {
+          return {
+            'latitude':
+                location.latitude,
 
-      final List<Map<String, dynamic>> locationList = locations.map((location) {
-        return {
-          'latitude': location.latitude,
-          'longitude': location.longitude,
-          'time': location.capturedAt,
-          'accuracy': location.accuracy,
-          'provider': location.provider,
-          'address': location.geoAddress,
-          'distance': location.distance,
-        };
-      }).toList();
+            'longitude':
+                location.longitude,
 
-      // ============================================================
-      // JSON ARRAY -> STRING
-      // ============================================================
+            'time':
+                location.capturedAt,
 
-      final String strAllLocations = jsonEncode(locationList);
+            'accuracy':
+                location.accuracy,
 
-      debugPrint('========================================');
-      debugPrint('STR ALL LOCATIONS');
-      debugPrint('TOTAL: ${locations.length}');
-      debugPrint(strAllLocations);
-      debugPrint('========================================');
+            'provider':
+                location.provider,
+
+            'address':
+                location.geoAddress,
+
+            'distance':
+                location.distance,
+          };
+        },
+      ).toList();
+
+      final String strAllLocations =
+          jsonEncode(
+        locationList,
+      );
+
+      debugPrint(
+        '========================================',
+      );
+
+      debugPrint(
+        'STR ALL LOCATIONS',
+      );
+
+      debugPrint(
+        'TOTAL: ${locations.length}',
+      );
+
+      debugPrint(
+        strAllLocations,
+      );
+
+      debugPrint(
+        '========================================',
+      );
 
       return strAllLocations;
     } catch (e, stackTrace) {
-      debugPrint('========================================');
-      debugPrint('GET STORED LOCATIONS ERROR');
-      debugPrint('$e');
-      debugPrint('$stackTrace');
-      debugPrint('========================================');
+      debugPrint(
+        '========================================',
+      );
+
+      debugPrint(
+        'GET STORED LOCATIONS ERROR',
+      );
+
+      debugPrint(
+        '$e',
+      );
+
+      debugPrint(
+        '$stackTrace',
+      );
+
+      debugPrint(
+        '========================================',
+      );
 
       return '[]';
     }
   }
 
+  // ===========================================================================
+  // LOAD VEHICLE
+  // ===========================================================================
+
   Future<void> _loadVehicleTypes() async {
-    final userData = await SecureStorage.instance.getUserData();
+    final userData =
+        await SecureStorage.instance.getUserData();
 
-    final userId = int.tryParse(userData?['user_id']?.toString() ?? '');
+    final userId = int.tryParse(
+      userData?['user_id']?.toString() ?? '',
+    );
 
-    if (!mounted || userId == null) return;
+    if (!mounted || userId == null) {
+      return;
+    }
 
     context.read<QuickAcessBloc>().add(
-      VehicleTypeEvent(userId, DateFormat('yyyy-MM-dd').format(DateTime.now())),
-    );
+          VehicleTypeEvent(
+            userId,
+            DateFormat(
+              'yyyy-MM-dd',
+            ).format(
+              DateTime.now(),
+            ),
+          ),
+        );
   }
 
-  VehicleTypeEntity? _getMatchedVehicle(QuickAccessState state) {
+  // ===========================================================================
+  // MATCH VEHICLE
+  // ===========================================================================
+
+  VehicleTypeEntity? _getMatchedVehicle(
+    QuickAccessState state,
+  ) {
     try {
       return state.vehicleList.firstWhere(
         (vehicle) =>
             vehicle.vehicleTypeId.isNotEmpty &&
             vehicle.vehicleTypeId != '0' &&
-            vehicle.vehicleTypeId == vehicle.vehicleTypeIdValue,
+            vehicle.vehicleTypeId ==
+                vehicle.vehicleTypeIdValue,
       );
     } catch (_) {
       return null;
     }
   }
 
-  void _setMatchedVehicleAndRoute(QuickAccessState state) {
-    final vehicle = _getMatchedVehicle(state);
+  // ===========================================================================
+  // SET VEHICLE + ROUTE
+  // ===========================================================================
+
+  void _setMatchedVehicleAndRoute(
+    QuickAccessState state,
+  ) {
+    final vehicle =
+        _getMatchedVehicle(
+      state,
+    );
 
     if (vehicle == null) {
       return;
     }
 
-    if (!mounted) return;
+    if (!mounted) {
+      return;
+    }
 
     setState(() {
-      vehicleController.text = vehicle.vehicleType;
-      routeController.text = vehicle.todaysRoute;
+      vehicleController.text =
+          vehicle.vehicleType;
+
+      routeController.text =
+          vehicle.todaysRoute;
     });
 
-    debugPrint('Matched Vehicle: ${vehicle.vehicleType}');
-    debugPrint('Matched Vehicle ID: ${vehicle.vehicleTypeId}');
-    debugPrint('Matched Route: ${vehicle.todaysRoute}');
+    debugPrint(
+      'Matched Vehicle: ${vehicle.vehicleType}',
+    );
+
+    debugPrint(
+      'Matched Vehicle ID: ${vehicle.vehicleTypeId}',
+    );
+
+    debugPrint(
+      'Matched Route: ${vehicle.todaysRoute}',
+    );
   }
+
+  // ===========================================================================
+  // CAMERA
+  // ===========================================================================
 
   Future<void> _captureImage() async {
     try {
-      final File? image = await AppImagePicker.instance.pickFromCamera();
+      final File? image =
+          await AppImagePicker.instance.pickFromCamera();
 
       if (image == null) {
         return;
       }
 
-      if (!mounted) return;
+      if (!mounted) {
+        return;
+      }
 
       setState(() {
         _uploadedImage = image;
       });
     } catch (e) {
-      if (!mounted) return;
+      if (!mounted) {
+        return;
+      }
 
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text('Failed to capture image')));
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text(
+            'Failed to capture image',
+          ),
+        ),
+      );
     }
   }
 
+  // ===========================================================================
+  // SUBMIT PUNCH
+  // ===========================================================================
+
   Future<void> _submitPunch() async {
-    if (isLoading) return;
+    if (isLoading) {
+      return;
+    }
 
     if (!_formKey.currentState!.validate()) {
       return;
     }
 
-    final vehicleState = context.read<QuickAcessBloc>().state;
+    final vehicleState =
+        context.read<QuickAcessBloc>().state;
 
-    final matchedVehicle = _getMatchedVehicle(vehicleState);
+    final matchedVehicle =
+        _getMatchedVehicle(
+      vehicleState,
+    );
 
     if (matchedVehicle == null) {
-      if (!mounted) return;
+      if (!mounted) {
+        return;
+      }
 
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(const SnackBar(content: Text('Vehicle type not found')));
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text(
+            'Vehicle type not found',
+          ),
+        ),
+      );
 
       return;
     }
 
-    final userData = await SecureStorage.instance.getUserData();
+    final userData =
+        await SecureStorage.instance.getUserData();
 
-    final userId = int.tryParse(userData?['user_id']?.toString() ?? '');
+    final userId = int.tryParse(
+      userData?['user_id']?.toString() ?? '',
+    );
 
     if (userId == null) {
-      if (!mounted) return;
+      if (!mounted) {
+        return;
+      }
 
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('User information not found')),
+        const SnackBar(
+          content: Text(
+            'User information not found',
+          ),
+        ),
       );
 
       return;
@@ -260,558 +443,811 @@ class _PunchOutScreenState extends State<PunchOutScreen> {
 
     setState(() {
       isLoading = true;
+
       _submissionSent = true;
     });
 
     try {
-      final batteryInfo = await DeviceInfoUtil.instance.getBatteryInfo();
+      // -----------------------------------------------------------------------
+      // BATTERY
+      // -----------------------------------------------------------------------
 
-      final networkInfo = await DeviceInfoUtil.instance.getNetworkInfo();
+      final batteryInfo =
+          await DeviceInfoUtil.instance.getBatteryInfo();
 
-      final position = await LocationUtil.instance.getCurrentLocation();
+      // -----------------------------------------------------------------------
+      // NETWORK
+      // -----------------------------------------------------------------------
+
+      final networkInfo =
+          await DeviceInfoUtil.instance.getNetworkInfo();
+
+      // -----------------------------------------------------------------------
+      // LOCATION
+      // -----------------------------------------------------------------------
+
+      final position =
+          await LocationUtil.instance.getCurrentLocation();
 
       String latitude = '';
+
       String longitude = '';
+
       String address = '';
 
       if (position != null) {
-        latitude = position.latitude.toString();
-        longitude = position.longitude.toString();
+        latitude =
+            position.latitude.toString();
 
-        address = await LocationUtil.instance.getAddress(
+        longitude =
+            position.longitude.toString();
+
+        address =
+            await LocationUtil.instance.getAddress(
           position.latitude,
           position.longitude,
         );
       }
 
-      if (!mounted) return;
+      if (!mounted) {
+        return;
+      }
+
+      // -----------------------------------------------------------------------
+      // IMAGE
+      // -----------------------------------------------------------------------
 
       String? closingImageBase64;
 
       if (_uploadedImage != null) {
-        debugPrint('Closing image path: ${_uploadedImage!.path}');
+        debugPrint(
+          'Closing image path: ${_uploadedImage!.path}',
+        );
 
         if (await _uploadedImage!.exists()) {
-          final imageBytes = await _uploadedImage!.readAsBytes();
+          final imageBytes =
+              await _uploadedImage!.readAsBytes();
 
-          closingImageBase64 = base64Encode(imageBytes);
+          closingImageBase64 =
+              base64Encode(
+            imageBytes,
+          );
 
           debugPrint(
             'Closing image Base64 length: '
             '${closingImageBase64.length}',
           );
         } else {
-          debugPrint('Closing image file does not exist');
+          debugPrint(
+            'Closing image file does not exist',
+          );
         }
       } else {
-        debugPrint('Closing image: NOT SELECTED');
+        debugPrint(
+          'Closing image: NOT SELECTED',
+        );
       }
 
+      // -----------------------------------------------------------------------
+      // PUNCH OUT API EVENT
+      // -----------------------------------------------------------------------
+
       context.read<QuickAcessBloc>().add(
-        PunchInOutDetailsAddEvent(
-          userId: userId,
+            PunchInOutDetailsAddEvent(
+              userId:
+                  userId,
 
-          // OUT PUNCH
-          inOutStatus: '2',
+              inOutStatus:
+                  '2',
 
-          differenceByAndroid: '0.0',
-          locationHistoryString: '',
+              differenceByAndroid:
+                  '0.0',
 
-          batteryInfo: batteryInfo,
-          networkInfo: networkInfo,
+              locationHistoryString:
+                  '',
 
-          pinRemark: remarkController.text.trim(),
+              batteryInfo:
+                  batteryInfo,
 
-          startingClosingKmAmount: closingKmController.text.trim(),
+              networkInfo:
+                  networkInfo,
 
-          vehicleTypeId: matchedVehicle.vehicleTypeId,
+              pinRemark:
+                  remarkController.text.trim(),
 
-          route: routeController.text.trim(),
+              startingClosingKmAmount:
+                  closingKmController.text.trim(),
 
-          latitude: latitude,
-          longitude: longitude,
+              vehicleTypeId:
+                  matchedVehicle.vehicleTypeId,
 
-          networkLatitude: latitude,
-          networkLongitude: longitude,
+              route:
+                  routeController.text.trim(),
 
-          gpsLatitude: latitude,
-          gpsLongitude: longitude,
+              latitude:
+                  latitude,
 
-          geoAddress: address,
-          closingKmImage: closingImageBase64,
-          // No startingKmImage
-          // No closingKmImage
-          // No date
-          // No newTime
-          // No isForceOutPunch
-          activityId: '4',
-        ),
-      );
+              longitude:
+                  longitude,
+
+              networkLatitude:
+                  latitude,
+
+              networkLongitude:
+                  longitude,
+
+              gpsLatitude:
+                  latitude,
+
+              gpsLongitude:
+                  longitude,
+
+              geoAddress:
+                  address,
+
+              closingKmImage:
+                  closingImageBase64,
+
+              activityId:
+                  '4',
+            ),
+          );
     } catch (e) {
-      if (!mounted) return;
+      if (!mounted) {
+        return;
+      }
 
       setState(() {
         isLoading = false;
+
         _submissionSent = false;
       });
 
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text(e.toString())));
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            e.toString(),
+          ),
+        ),
+      );
     }
   }
+
+  // ===========================================================================
+  // DISPOSE
+  // ===========================================================================
 
   @override
   void dispose() {
     openingKmController.dispose();
+
     closingKmController.dispose();
+
     routeController.dispose();
+
     remarkController.dispose();
+
     vehicleController.dispose();
 
     super.dispose();
   }
 
+  // ===========================================================================
+  // BUILD
+  // ===========================================================================
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.backgroundColor,
+      backgroundColor:
+          const Color(
+        0xFFF4F7F5,
+      ),
 
       appBar: CustomAppBar(
-        title: 'Punch Out',
-        showBackButton: true,
-        onBackTap: () => context.go(AppRouter.home),
+        title:
+            'Punch Out',
+
+        showBackButton:
+            true,
+
+        onBackTap: () {
+          context.go(
+            AppRouter.home,
+          );
+        },
       ),
 
       body: SafeArea(
-        child: BlocConsumer<QuickAcessBloc, QuickAccessState>(
-          listener: (context, state) async {
-            if (state.quickAccessStatus == QuickAccessStatus.success &&
+        child: BlocConsumer<
+            QuickAcessBloc,
+            QuickAccessState>(
+          // ===================================================================
+          // LISTENER
+          // ===================================================================
+
+          listener:
+              (context, state) async {
+            // ---------------------------------------------------------------
+            // VEHICLE API SUCCESS
+            // ---------------------------------------------------------------
+
+            if (state.quickAccessStatus ==
+                    QuickAccessStatus.success &&
                 !_submissionSent) {
-              _setMatchedVehicleAndRoute(state);
+              _setMatchedVehicleAndRoute(
+                state,
+              );
             }
-
-            // if (state.quickAccessStatus == QuickAccessStatus.success &&
-            //     !_submissionSent) {
-            //   final vehicle = _getMatchedVehicle(state);
-
-            //   if (vehicle != null) {
-            //     vehicleController.text = vehicle.vehicleType;
-            //   }
-            // }
 
             if (!_submissionSent) {
               return;
             }
 
+            // ---------------------------------------------------------------
+            // PUNCH OUT SUCCESS
+            // ---------------------------------------------------------------
+
             if (state.quickAccessStatus ==
-                    QuickAccessStatus.punchStatusSuccess &&
+                    QuickAccessStatus
+                        .punchStatusSuccess &&
                 _submissionSent) {
-              debugPrint('========================================');
-              debugPrint('PUNCH OUT API SUCCESS');
-              debugPrint('========================================');
+              debugPrint(
+                '========================================',
+              );
 
-              final String? dailyTranId = state.dailyTranId;
+              debugPrint(
+                'PUNCH OUT API SUCCESS',
+              );
 
-              if (userId == null || userId!.isEmpty) {
-                debugPrint('PUNCH OUT STORE LOCATION NOT CALLED: userId null');
+              debugPrint(
+                '========================================',
+              );
+
+              final String? dailyTranId =
+                  state.dailyTranId;
+
+              if (userId == null ||
+                  userId!.isEmpty) {
+                debugPrint(
+                  'PUNCH OUT STORE LOCATION NOT CALLED: userId null',
+                );
+
                 return;
               }
 
-              if (dailyTranId == null || dailyTranId.isEmpty) {
+              if (dailyTranId == null ||
+                  dailyTranId.isEmpty) {
                 debugPrint(
                   'PUNCH OUT STORE LOCATION NOT CALLED: dailyTranId null',
                 );
+
                 return;
               }
 
-              final String strAllLocations = await _getStoredLocations();
+              final String strAllLocations =
+                  await _getStoredLocations();
 
-              debugPrint('========================================');
-              debugPrint('PUNCH OUT - CALL STORE LOCATION API');
-              debugPrint('USER ID: $userId');
-              debugPrint('DAILY TRAN ID: $dailyTranId');
-              debugPrint('STR ALL LOCATIONS: $strAllLocations');
-              debugPrint('========================================');
-
-              // IMPORTANT:
-              // Keep _submissionSent = true.
-              // Now wait for StoreTrackLocation API success.
-              _waitingForStoreLocation = true;
-
-              context.read<QuickAcessBloc>().add(
-                StoreTrackLocation(userId!, dailyTranId, strAllLocations),
+              debugPrint(
+                '========================================',
               );
 
-              // DO NOT:
-              // _submissionSent = false;
-              // isLoading = false;
-              // show success dialog here.
+              debugPrint(
+                'PUNCH OUT - CALL STORE LOCATION API',
+              );
+
+              debugPrint(
+                'USER ID: $userId',
+              );
+
+              debugPrint(
+                'DAILY TRAN ID: $dailyTranId',
+              );
+
+              debugPrint(
+                'STR ALL LOCATIONS: $strAllLocations',
+              );
+
+              debugPrint(
+                '========================================',
+              );
+
+              _waitingForStoreLocation =
+                  true;
+
+              context
+                  .read<QuickAcessBloc>()
+                  .add(
+                    StoreTrackLocation(
+                      userId!,
+                      dailyTranId,
+                      strAllLocations,
+                    ),
+                  );
 
               return;
             }
 
-            /*
-            if (state.quickAccessStatus ==
-                QuickAccessStatus.punchStatusSuccess) {
-              setState(() {
-                isLoading = false;
-                _submissionSent = false;
-              });
-
-              final String? dailyTranId = state.dailyTranId;
-
-              if (userId == null) {
-                debugPrint('PUNCH OUT STORE LOCATION NOT CALLED: userId null');
-                return;
-              }
-
-              if (dailyTranId == null || dailyTranId.isEmpty) {
-                debugPrint(
-                  'PUNCH OUT STORE LOCATION NOT CALLED: dailyTranId null',
-                );
-                return;
-              }
-
-              final String strAllLocations = await _getStoredLocations();
-
-              debugPrint('========================================');
-              debugPrint('PUNCH OUT - CALL STORE LOCATION API');
-              debugPrint('USER ID: $userId');
-              debugPrint('DAILY TRAN ID: $dailyTranId');
-              debugPrint('STR ALL LOCATIONS: $strAllLocations');
-              debugPrint('========================================');
-
-              context.read<QuickAcessBloc>().add(
-                StoreTrackLocation(
-                  userId.toString(),
-                  dailyTranId,
-                  strAllLocations,
-                ),
-              );
-
-              AppDialog.show(
-                context: context,
-                type: DialogType.success,
-                title: 'Punch Out Successful',
-                message: 'Your punch out has been submitted successfully.',
-                buttonText: 'OK',
-                onButtonPressed: () {
-                  context.go('${AppRouter.addExpense}?refresh=true');
-                  // context.go(AppRouter.home);
-                },
-              );
-            }
-
-            */
+            // ---------------------------------------------------------------
+            // STORE LOCATION SUCCESS
+            // ---------------------------------------------------------------
 
             if (state.quickAccessStatus ==
-                    QuickAccessStatus.locationAddedSucces &&
+                    QuickAccessStatus
+                        .locationAddedSucces &&
                 _waitingForStoreLocation) {
-              debugPrint('========================================');
-              debugPrint('PUNCH OUT STORE LOCATION API SUCCESS');
-              debugPrint('STARTING FINAL CLEANUP');
-              debugPrint('========================================');
+              debugPrint(
+                '========================================',
+              );
 
-              // Prevent this block from executing twice.
-              _waitingForStoreLocation = false;
+              debugPrint(
+                'PUNCH OUT STORE LOCATION API SUCCESS',
+              );
+
+              debugPrint(
+                'STARTING FINAL CLEANUP',
+              );
+
+              debugPrint(
+                '========================================',
+              );
+
+              _waitingForStoreLocation =
+                  false;
 
               try {
-                // ============================================================
-                // 1. STOP BACKGROUND LOCATION SERVICE
-                // ============================================================
+                // -----------------------------------------------------------
+                // STOP BACKGROUND LOCATION
+                // -----------------------------------------------------------
 
                 await BackgroundLocationService.stop();
 
-                debugPrint('========================================');
-                debugPrint('BACKGROUND LOCATION SERVICE STOPPED');
-                debugPrint('========================================');
+                debugPrint(
+                  '========================================',
+                );
 
-                // Give any active background callback time to finish.
-                await Future.delayed(const Duration(milliseconds: 500));
+                debugPrint(
+                  'BACKGROUND LOCATION SERVICE STOPPED',
+                );
 
-                // ============================================================
-                // 2. DELETE ALL LOCAL LOCATION RECORDS
-                // ============================================================
+                debugPrint(
+                  '========================================',
+                );
 
-                final int? parsedUserId = int.tryParse(userId ?? '');
+                await Future.delayed(
+                  const Duration(
+                    milliseconds: 500,
+                  ),
+                );
+
+                // -----------------------------------------------------------
+                // DELETE LOCAL LOCATIONS
+                // -----------------------------------------------------------
+
+                final int? parsedUserId =
+                    int.tryParse(
+                  userId ?? '',
+                );
 
                 if (parsedUserId != null) {
                   final LocationRepository repository =
                       sl<LocationRepository>();
 
-                  final int deletedCount = await repository.deleteUserLocations(
+                  final int deletedCount =
+                      await repository
+                          .deleteUserLocations(
                     parsedUserId,
                   );
 
-                  debugPrint('========================================');
-                  debugPrint('PUNCH OUT LOCATION CLEANUP');
-                  debugPrint('DELETED RECORDS: $deletedCount');
+                  debugPrint(
+                    '========================================',
+                  );
 
-                  // Verify DB is empty.
-                  final remaining = await repository.getAllLocations(
+                  debugPrint(
+                    'PUNCH OUT LOCATION CLEANUP',
+                  );
+
+                  debugPrint(
+                    'DELETED RECORDS: $deletedCount',
+                  );
+
+                  final remaining =
+                      await repository
+                          .getAllLocations(
                     parsedUserId,
                   );
 
-                  debugPrint('REMAINING RECORDS: ${remaining.length}');
+                  debugPrint(
+                    'REMAINING RECORDS: ${remaining.length}',
+                  );
 
-                  debugPrint('========================================');
+                  debugPrint(
+                    '========================================',
+                  );
                 } else {
                   debugPrint(
                     'PUNCH OUT CLEANUP ERROR: Invalid userId = $userId',
                   );
                 }
               } catch (e, stackTrace) {
-                debugPrint('========================================');
-                debugPrint('PUNCH OUT CLEANUP ERROR');
-                debugPrint('$e');
-                debugPrint('$stackTrace');
-                debugPrint('========================================');
+                debugPrint(
+                  '========================================',
+                );
+
+                debugPrint(
+                  'PUNCH OUT CLEANUP ERROR',
+                );
+
+                debugPrint(
+                  '$e',
+                );
+
+                debugPrint(
+                  '$stackTrace',
+                );
+
+                debugPrint(
+                  '========================================',
+                );
               }
 
-              if (!mounted) return;
-
-              // ============================================================
-              // 3. NOW COMPLETE PUNCH OUT
-              // ============================================================
+              if (!mounted) {
+                return;
+              }
 
               setState(() {
-                isLoading = false;
-                _submissionSent = false;
+                isLoading =
+                    false;
+
+                _submissionSent =
+                    false;
               });
 
-              // ============================================================
-              // 4. SHOW SUCCESS DIALOG
-              // ============================================================
-
               AppDialog.show(
-                context: context,
-                type: DialogType.success,
-                title: 'Punch Out Successful',
-                message: 'Your punch out has been submitted successfully.',
-                buttonText: 'OK',
-                onButtonPressed: () {
-                  context.go('${AppRouter.addExpense}?refresh=true');
+                context:
+                    context,
+
+                type:
+                    DialogType.success,
+
+                title:
+                    'Punch Out Successful',
+
+                message:
+                    'Your punch out has been submitted successfully.',
+
+                buttonText:
+                    'OK',
+
+                onButtonPressed:
+                    () {
+                  context.go(
+                    '${AppRouter.addExpense}?refresh=true',
+                  );
                 },
               );
 
               return;
             }
-            /*
+
+            // ---------------------------------------------------------------
+            // FAILURE
+            // ---------------------------------------------------------------
 
             if (state.quickAccessStatus ==
-                QuickAccessStatus.locationAddedSucces) {
-              debugPrint('========================================');
-              debugPrint('PUNCH OUT STORE LOCATION API SUCCESS');
-              debugPrint('STARTING FINAL CLEANUP');
-              debugPrint('========================================');
-
-              try {
-                // ============================================
-                // 1. STOP BACKGROUND TRACKING FIRST
-                // ============================================
-
-                await BackgroundLocationService.stop();
-
-                debugPrint('BACKGROUND LOCATION SERVICE STOPPED');
-
-                // Give active callback a moment to finish.
-                await Future.delayed(const Duration(milliseconds: 500));
-
-                // ============================================
-                // 2. DELETE ALL LOCAL LOCATIONS
-                // ============================================
-
-                if (userId != null) {
-                  final LocationRepository repository =
-                      sl<LocationRepository>();
-
-                  final int? parsedUserId = int.tryParse(userId ?? '');
-
-                  if (parsedUserId != null) {
-                    final int deletedCount = await repository
-                        .deleteUserLocations(parsedUserId);
-
-                    debugPrint('========================================');
-                    debugPrint('PUNCH OUT LOCATION CLEANUP');
-                    debugPrint('DELETED RECORDS: $deletedCount');
-
-                    final remaining = await repository.getAllLocations(
-                      parsedUserId,
-                    );
-
-                    debugPrint('REMAINING RECORDS: ${remaining.length}');
-                    debugPrint('========================================');
-                    debugPrint('========================================');
-                    debugPrint('PUNCH OUT LOCATION CLEANUP');
-                    debugPrint('DELETED RECORDS: $deletedCount');
-
-                    debugPrint('REMAINING RECORDS: ${remaining.length}');
-                    debugPrint('========================================');
-                  }
-                }
-              } catch (e, stackTrace) {
-                debugPrint('PUNCH OUT CLEANUP ERROR: $e');
-                debugPrint('$stackTrace');
-              }
-
-              if (!mounted) return;
-
+                QuickAccessStatus.failure) {
               setState(() {
-                isLoading = false;
-                _submissionSent = false;
+                isLoading =
+                    false;
+
+                _submissionSent =
+                    false;
+
+                _waitingForStoreLocation =
+                    false;
               });
 
-              // ============================================
-              // 3. SHOW FINAL SUCCESS
-              // ============================================
-
-              // AppDialog.show(
-              //   context: context,
-              //   type: DialogType.success,
-              //   title: 'Punch Out Successful',
-              //   message:
-              //       'Your punch out has been submitted successfully.',
-              //   buttonText: 'OK',
-              //   onButtonPressed: () {
-              //     context.go(
-              //       '${AppRouter.addExpense}?refresh=true',
-              //     );
-              //   },
-              // );
-            }
-
-            */
-
-            if (state.quickAccessStatus == QuickAccessStatus.failure) {
-              setState(() {
-                isLoading = false;
-                _submissionSent = false;
-              });
               AppDialog.show(
-                context: context,
-                type: DialogType.error,
-                title: 'Punch Out Failed',
-                message: state.errorMessage ?? 'Unable to submit punch out.',
-                buttonText: 'OK',
+                context:
+                    context,
+
+                type:
+                    DialogType.error,
+
+                title:
+                    'Punch Out Failed',
+
+                message:
+                    state.errorMessage ??
+                        'Unable to submit punch out.',
+
+                buttonText:
+                    'OK',
               );
             }
           },
-          builder: (context, vehicleState) {
-            // final selectedVehicle = _getMatchedVehicle(vehicleState);
+
+          // ===================================================================
+          // UI
+          // ===================================================================
+
+          builder:
+              (context, vehicleState) {
             return Form(
-              key: _formKey,
-              child: SingleChildScrollView(
-                child: Padding(
-                  padding: const EdgeInsets.only(left: 16, right: 16),
-                  child: Column(
-                    children: [
-                      SizedBox(height: 14.h),
+              key:
+                  _formKey,
 
-                      // _vehicleDropdown(vehicleState),
-                      SizedBox(height: 14.h),
+              child: Column(
+                children: [
+                  // -----------------------------------------------------------
+                  // SCROLLABLE SECTION
+                  // -----------------------------------------------------------
 
-                      _textField(
-                        controller: vehicleController,
-                        hintText: 'Vehicle Type',
-                        icon: Icons.directions_car_outlined,
-                        enabled: false,
+                  Expanded(
+                    child:
+                        SingleChildScrollView(
+                      physics:
+                          const BouncingScrollPhysics(),
+
+                      keyboardDismissBehavior:
+                          ScrollViewKeyboardDismissBehavior
+                              .onDrag,
+
+                      padding:
+                          EdgeInsets.fromLTRB(
+                        14.w,
+                        9.h,
+                        14.w,
+                        14.h,
                       ),
 
-                      SizedBox(height: 14.h),
+                      child:
+                          Column(
+                        crossAxisAlignment:
+                            CrossAxisAlignment.start,
 
-                      // Opening KM - READ ONLY
-                      _kmField(
-                        controller: openingKmController,
-                        hintText: 'Opening KM',
-                        enabled: false,
-                        validator: (_) => null,
-                      ),
+                        children: [
+                          // ---------------------------------------------------
+                          // HEADER
+                          // ---------------------------------------------------
 
-                      SizedBox(height: 14.h),
+                          _compactHeader(),
 
-                      // Closing KM - EDITABLE
-                      _kmField(
-                        controller: closingKmController,
-                        hintText: 'Closing KM*',
-                        enabled: true,
-                        validator: (value) => _validateKm(value, 'Closing KM'),
-                        onChanged: (value) {
-                          // Validate immediately while typing
-                          _formKey.currentState?.validate();
-                        },
-                      ),
+                          SizedBox(
+                            height:
+                                13.h,
+                          ),
 
-                      SizedBox(height: 14.h),
+                          // ---------------------------------------------------
+                          // TRIP DETAILS
+                          // ---------------------------------------------------
 
-                      // Route
-                      _textField(
-                        controller: routeController,
-                        hintText: 'Enter Route*',
-                        icon: Icons.route_outlined,
-                        validator: (value) {
-                          if (value == null || value.trim().isEmpty) {
-                            return 'Please enter route';
-                          }
+                          _compactSectionHeader(
+                            icon:
+                                Icons.directions_car_filled_rounded,
 
-                          return null;
-                        },
-                      ),
+                            title:
+                                'Trip Details',
 
-                      SizedBox(height: 14.h),
+                            subtitle:
+                                'Review journey and enter closing KM',
+                          ),
 
-                      // Remark
-                      _textField(
-                        controller: remarkController,
-                        hintText: 'Enter Remark',
-                        icon: Icons.note_add_outlined,
-                        maxLines: 1,
-                      ),
+                          SizedBox(
+                            height:
+                                7.h,
+                          ),
 
-                      SizedBox(height: 14.h),
+                          _contentCard(
+                            child:
+                                Column(
+                              children: [
+                                // VEHICLE
 
-                      // Upload photo
-                      FormField<bool>(
-                        initialValue: _uploadedImage != null,
-                        validator: (_) {
-                          if (_uploadedImage == null) {
-                            return 'Please upload an image';
-                          }
+                                _modernTextField(
+                                  controller:
+                                      vehicleController,
 
-                          return null;
-                        },
+                                  hintText:
+                                      'Vehicle Type',
 
-                        builder: (field) {
-                          return Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              _uploadPhotoCard(),
-                              if (field.hasError)
-                                Padding(
-                                  padding: EdgeInsets.only(
-                                    left: 16.w,
-                                    top: 4.h,
-                                  ),
-                                  child: Text(
-                                    field.errorText!,
-                                    style: TextStyle(
-                                      color: Colors.red,
-                                      fontSize: 12.sp,
-                                    ),
-                                  ),
+                                  icon:
+                                      Icons
+                                          .directions_car_filled_outlined,
+
+                                  enabled:
+                                      false,
                                 ),
-                            ],
-                          );
-                        },
-                      ),
-                      SizedBox(height: 14.h),
 
-                      // Submit
-                      _submitButton(),
-                      SizedBox(height: 14.h),
-                    ],
+                                SizedBox(
+                                  height:
+                                      9.h,
+                                ),
+
+                                // KM ROW
+
+                                Row(
+                                  crossAxisAlignment:
+                                      CrossAxisAlignment.start,
+
+                                  children: [
+                                    Expanded(
+                                      child:
+                                          _modernKmField(
+                                        controller:
+                                            openingKmController,
+
+                                        hintText:
+                                            'Opening KM',
+
+                                        enabled:
+                                            false,
+
+                                        validator:
+                                            (_) => null,
+                                      ),
+                                    ),
+
+                                    SizedBox(
+                                      width:
+                                          9.w,
+                                    ),
+
+                                    Expanded(
+                                      child:
+                                          _modernKmField(
+                                        controller:
+                                            closingKmController,
+
+                                        hintText:
+                                            'Closing KM *',
+
+                                        enabled:
+                                            true,
+
+                                        validator:
+                                            (value) =>
+                                                _validateKm(
+                                          value,
+                                          'Closing KM',
+                                        ),
+
+                                        onChanged:
+                                            (value) {
+                                          _formKey
+                                              .currentState
+                                              ?.validate();
+                                        },
+                                      ),
+                                    ),
+                                  ],
+                                ),
+
+                                SizedBox(
+                                  height:
+                                      9.h,
+                                ),
+
+                                // ROUTE
+
+                                _modernTextField(
+                                  controller:
+                                      routeController,
+
+                                  hintText:
+                                      'Enter Route *',
+
+                                  icon:
+                                      Icons.route_rounded,
+
+                                  validator:
+                                      (value) {
+                                    if (value ==
+                                            null ||
+                                        value
+                                            .trim()
+                                            .isEmpty) {
+                                      return 'Please enter route';
+                                    }
+
+                                    return null;
+                                  },
+                                ),
+
+                                SizedBox(
+                                  height:
+                                      9.h,
+                                ),
+
+                                // REMARK
+
+                                _modernTextField(
+                                  controller:
+                                      remarkController,
+
+                                  hintText:
+                                      'Enter Remark',
+
+                                  icon:
+                                      Icons.edit_note_rounded,
+                                ),
+                              ],
+                            ),
+                          ),
+
+                          SizedBox(
+                            height:
+                                13.h,
+                          ),
+
+                          // ---------------------------------------------------
+                          // PHOTO
+                          // ---------------------------------------------------
+
+                          _compactSectionHeader(
+                            icon:
+                                Icons.photo_camera_rounded,
+
+                            title:
+                                'Closing Photo *',
+
+                            subtitle:
+                                'Capture photo before completing trip',
+                          ),
+
+                          SizedBox(
+                            height:
+                                7.h,
+                          ),
+
+                          FormField<bool>(
+                            initialValue:
+                                _uploadedImage != null,
+
+                            validator:
+                                (_) {
+                              if (_uploadedImage ==
+                                  null) {
+                                return 'Please upload an image';
+                              }
+
+                              return null;
+                            },
+
+                            builder:
+                                (field) {
+                              return Column(
+                                crossAxisAlignment:
+                                    CrossAxisAlignment.start,
+
+                                children: [
+                                  _uploadPhotoCard(),
+
+                                  if (field.hasError) ...[
+                                    SizedBox(
+                                      height:
+                                          5.h,
+                                    ),
+
+                                    _errorMessage(
+                                      field.errorText!,
+                                    ),
+                                  ],
+                                ],
+                              );
+                            },
+                          ),
+                        ],
+                      ),
+                    ),
                   ),
-                ),
+
+                  // -----------------------------------------------------------
+                  // FIXED BOTTOM BUTTON
+                  // -----------------------------------------------------------
+
+                  _bottomSubmitSection(),
+                ],
               ),
             );
           },
@@ -820,165 +1256,1151 @@ class _PunchOutScreenState extends State<PunchOutScreen> {
     );
   }
 
-  Widget _kmField({
-    required TextEditingController controller,
-    required String hintText,
-    required bool enabled,
-    required String? Function(String?) validator,
-    ValueChanged<String>? onChanged,
-  }) {
-    return CustomTextFormField(
-      controller: controller,
-      hintText: hintText,
-      labelText: hintText,
-      prefixIcon: Icons.speed_outlined,
-      keyboardType: TextInputType.number,
-      enabled: enabled,
-      validator: enabled ? validator : null,
-      onChanged: onChanged,
+  // ===========================================================================
+  // COMPACT HEADER
+  // ===========================================================================
+
+  Widget _compactHeader() {
+    return Container(
+      width:
+          double.infinity,
+
+      padding:
+          EdgeInsets.symmetric(
+        horizontal:
+            14.w,
+
+        vertical:
+            12.h,
+      ),
+
+      decoration:
+          BoxDecoration(
+        gradient:
+            const LinearGradient(
+          begin:
+              Alignment.topLeft,
+
+          end:
+              Alignment.bottomRight,
+
+          colors: [
+            Color(
+              0xFF08783D,
+            ),
+            Color(
+              0xFF13A252,
+            ),
+          ],
+        ),
+
+        borderRadius:
+            BorderRadius.circular(
+          18.r,
+        ),
+
+        boxShadow: [
+          BoxShadow(
+            color:
+                const Color(
+              0xFF11934A,
+            ).withOpacity(
+              0.16,
+            ),
+
+            blurRadius:
+                14,
+
+            offset:
+                const Offset(
+              0,
+              5,
+            ),
+          ),
+        ],
+      ),
+
+      child:
+          Stack(
+        children: [
+          Positioned(
+            right:
+                -25.w,
+
+            top:
+                -30.h,
+
+            child:
+                Container(
+              width:
+                  90.w,
+
+              height:
+                  90.w,
+
+              decoration:
+                  BoxDecoration(
+                color:
+                    Colors.white.withOpacity(
+                  0.06,
+                ),
+
+                shape:
+                    BoxShape.circle,
+              ),
+            ),
+          ),
+
+          Row(
+            children: [
+              Container(
+                width:
+                    45.w,
+
+                height:
+                    45.w,
+
+                decoration:
+                    BoxDecoration(
+                  color:
+                      Colors.white.withOpacity(
+                    0.15,
+                  ),
+
+                  borderRadius:
+                      BorderRadius.circular(
+                    13.r,
+                  ),
+                ),
+
+                child:
+                    Icon(
+                  Icons.logout_rounded,
+
+                  color:
+                      Colors.white,
+
+                  size:
+                      22.sp,
+                ),
+              ),
+
+              SizedBox(
+                width:
+                    11.w,
+              ),
+
+              Expanded(
+                child:
+                    Column(
+                  crossAxisAlignment:
+                      CrossAxisAlignment.start,
+
+                  children: [
+                    Text(
+                      'End your trip',
+
+                      style:
+                          TextStyle(
+                        color:
+                            Colors.white,
+
+                        fontSize:
+                            16.sp,
+
+                        fontWeight:
+                            FontWeight.w700,
+                      ),
+                    ),
+
+                    SizedBox(
+                      height:
+                          2.h,
+                    ),
+
+                    Text(
+                      'Complete trip details and punch out',
+
+                      maxLines:
+                          1,
+
+                      overflow:
+                          TextOverflow.ellipsis,
+
+                      style:
+                          TextStyle(
+                        color:
+                            Colors.white.withOpacity(
+                          0.80,
+                        ),
+
+                        fontSize:
+                            10.5.sp,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+
+              SizedBox(
+                width:
+                    8.w,
+              ),
+
+              Container(
+                padding:
+                    EdgeInsets.symmetric(
+                  horizontal:
+                      9.w,
+
+                  vertical:
+                      5.h,
+                ),
+
+                decoration:
+                    BoxDecoration(
+                  color:
+                      Colors.white.withOpacity(
+                    0.15,
+                  ),
+
+                  borderRadius:
+                      BorderRadius.circular(
+                    20.r,
+                  ),
+                ),
+
+                child:
+                    Row(
+                  mainAxisSize:
+                      MainAxisSize.min,
+
+                  children: [
+                    Container(
+                      width:
+                          6.w,
+
+                      height:
+                          6.w,
+
+                      decoration:
+                          const BoxDecoration(
+                        color:
+                            Color(
+                          0xFFFFD2D2,
+                        ),
+
+                        shape:
+                            BoxShape.circle,
+                      ),
+                    ),
+
+                    SizedBox(
+                      width:
+                          5.w,
+                    ),
+
+                    Text(
+                      'OUT',
+
+                      style:
+                          TextStyle(
+                        color:
+                            Colors.white,
+
+                        fontSize:
+                            9.sp,
+
+                        fontWeight:
+                            FontWeight.w700,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
     );
   }
 
-  String? _validateKm(String? value, String fieldName) {
-    final text = value?.trim() ?? '';
+  // ===========================================================================
+  // SECTION HEADER
+  // ===========================================================================
 
-    // Empty field
+  Widget _compactSectionHeader({
+    required IconData icon,
+
+    required String title,
+
+    required String subtitle,
+  }) {
+    return Row(
+      children: [
+        Container(
+          width:
+              30.w,
+
+          height:
+              30.w,
+
+          decoration:
+              BoxDecoration(
+            color:
+                const Color(
+              0xFFFFEEEE,
+            ),
+
+            borderRadius:
+                BorderRadius.circular(
+              9.r,
+            ),
+          ),
+
+          child:
+              Icon(
+            icon,
+
+            color:
+                const Color(
+              0xFF0D984A,
+            ),
+
+            size:
+                16.sp,
+          ),
+        ),
+
+        SizedBox(
+          width:
+              8.w,
+        ),
+
+        Expanded(
+          child:
+              Column(
+            crossAxisAlignment:
+                CrossAxisAlignment.start,
+
+            children: [
+              Text(
+                title,
+
+                style:
+                    TextStyle(
+                  color:
+                      const Color(
+                    0xFF1D2521,
+                  ),
+
+                  fontSize:
+                      13.sp,
+
+                  fontWeight:
+                      FontWeight.w700,
+                ),
+              ),
+
+              SizedBox(
+                height:
+                    1.h,
+              ),
+
+              Text(
+                subtitle,
+
+                maxLines:
+                    1,
+
+                overflow:
+                    TextOverflow.ellipsis,
+
+                style:
+                    TextStyle(
+                  color:
+                      const Color(
+                    0xFF89928D,
+                  ),
+
+                  fontSize:
+                      9.5.sp,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  // ===========================================================================
+  // CONTENT CARD
+  // ===========================================================================
+
+  Widget _contentCard({
+    required Widget child,
+  }) {
+    return Container(
+      width:
+          double.infinity,
+
+      padding:
+          EdgeInsets.all(
+        10.w,
+      ),
+
+      decoration:
+          BoxDecoration(
+        color:
+            Colors.white,
+
+        borderRadius:
+            BorderRadius.circular(
+          16.r,
+        ),
+
+        border:
+            Border.all(
+          color:
+              const Color(
+            0xFFE9EEEB,
+          ),
+        ),
+
+        boxShadow: [
+          BoxShadow(
+            color:
+                Colors.black.withOpacity(
+              0.025,
+            ),
+
+            blurRadius:
+                9,
+
+            offset:
+                const Offset(
+              0,
+              3,
+            ),
+          ),
+        ],
+      ),
+
+      child:
+          child,
+    );
+  }
+
+  // ===========================================================================
+  // TEXT FIELD
+  // ===========================================================================
+
+  Widget _modernTextField({
+    required TextEditingController controller,
+
+    required String hintText,
+
+    required IconData icon,
+
+    bool enabled = true,
+
+    String? Function(String?)? validator,
+  }) {
+    return CustomTextFormField(
+      controller:
+          controller,
+
+      hintText:
+          hintText,
+
+      labelText:
+          hintText,
+
+      prefixIcon:
+          icon,
+
+      enabled:
+          enabled,
+
+      validator:
+          validator,
+    );
+  }
+
+  // ===========================================================================
+  // KM FIELD
+  // ===========================================================================
+
+  Widget _modernKmField({
+    required TextEditingController controller,
+
+    required String hintText,
+
+    required bool enabled,
+
+    required String? Function(String?)
+        validator,
+
+    ValueChanged<String>?
+        onChanged,
+  }) {
+    return CustomTextFormField(
+      controller:
+          controller,
+
+      hintText:
+          hintText,
+
+      labelText:
+          hintText,
+
+      prefixIcon:
+          Icons.speed_rounded,
+
+      keyboardType:
+          TextInputType.number,
+
+      enabled:
+          enabled,
+
+      validator:
+          enabled
+              ? validator
+              : null,
+
+      onChanged:
+          onChanged,
+    );
+  }
+
+  // ===========================================================================
+  // KM VALIDATION
+  // ===========================================================================
+
+  String? _validateKm(
+    String? value,
+
+    String fieldName,
+  ) {
+    final text =
+        value?.trim() ?? '';
+
     if (text.isEmpty) {
       return 'Please enter $fieldName';
     }
 
-    final km = double.tryParse(text);
+    final km =
+        double.tryParse(
+      text,
+    );
 
-    // Invalid number
     if (km == null) {
       return 'Please enter a valid $fieldName';
     }
 
-    final openingText = openingKmController.text.trim();
-    final openingKm = double.tryParse(openingText);
+    final openingText =
+        openingKmController.text.trim();
 
-    // Compare only when opening KM is available
-    if (openingKm != null && km < openingKm) {
+    final openingKm =
+        double.tryParse(
+      openingText,
+    );
+
+    if (openingKm != null &&
+        km < openingKm) {
       return 'Closing KM cannot be less than Opening KM';
     }
 
     return null;
   }
 
-  Widget _textField({
-    required TextEditingController controller,
-    required String hintText,
-    required IconData icon,
-    String? Function(String?)? validator,
-    int maxLines = 1,
-    bool enabled = true,
-  }) {
-    return CustomTextFormField(
-      controller: controller,
-      hintText: hintText,
-      labelText: hintText,
-      prefixIcon: icon,
-      maxLines: maxLines,
-      validator: validator,
-    );
-  }
+  // ===========================================================================
+  // PHOTO CARD
+  // ===========================================================================
 
   Widget _uploadPhotoCard() {
     return Container(
-      padding: EdgeInsets.fromLTRB(16.w, 6.h, 16.w, 16.h),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(20.r),
-        border: Border.all(color: Colors.grey.shade200),
+      width:
+          double.infinity,
+
+      padding:
+          EdgeInsets.all(
+        9.w,
       ),
-      child: Column(
-        children: [
-          // Upload header
-          InkWell(
-            onTap: _captureImage,
-            borderRadius: BorderRadius.circular(12.r),
-            child: Padding(
-              padding: EdgeInsets.symmetric(vertical: 6.h),
-              child: Row(
-                children: [
-                  Container(
-                    width: 42.w,
-                    height: 42.h,
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFE7F8EB),
-                      borderRadius: BorderRadius.circular(12.r),
-                    ),
-                    child: Icon(
-                      Icons.camera_alt_outlined,
-                      color: Color(0xFF00A83B),
-                      size: 22.sp,
-                    ),
-                  ),
 
-                  SizedBox(width: 14.w),
+      decoration:
+          BoxDecoration(
+        color:
+            Colors.white,
 
-                  Expanded(
-                    child: Text(
-                      'Upload Photo',
-                      style: TextStyle(
-                        fontSize: 16.sp,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  ),
+        borderRadius:
+            BorderRadius.circular(
+          16.r,
+        ),
 
-                  Icon(
-                    Icons.chevron_right_rounded,
-                    color: Colors.grey.shade500,
-                    size: 28.sp,
-                  ),
-                ],
-              ),
+        border:
+            Border.all(
+          color:
+              const Color(
+            0xFFE9EEEB,
+          ),
+        ),
+
+        boxShadow: [
+          BoxShadow(
+            color:
+                Colors.black.withOpacity(
+              0.025,
+            ),
+
+            blurRadius:
+                9,
+
+            offset:
+                const Offset(
+              0,
+              3,
             ),
           ),
+        ],
+      ),
 
-          SizedBox(height: 12.h),
+      child:
+          _uploadedImage == null
+              ? _emptyPhotoView()
+              : _selectedPhotoView(),
+    );
+  }
 
-          // Image capture area
-          InkWell(
-            onTap: _captureImage,
-            borderRadius: BorderRadius.circular(16.r),
-            child: Container(
-              height: 260.h,
-              width: double.infinity,
-              decoration: BoxDecoration(
-                color: const Color(0xFFFAFAFA),
-                borderRadius: BorderRadius.circular(16.r),
-                border: Border.all(color: Colors.grey.shade200),
+  // ===========================================================================
+  // EMPTY PHOTO
+  // ===========================================================================
+
+  Widget _emptyPhotoView() {
+    return InkWell(
+      onTap:
+          _captureImage,
+
+      borderRadius:
+          BorderRadius.circular(
+        13.r,
+      ),
+
+      child:
+          Container(
+        height:
+            110.h,
+
+        width:
+            double.infinity,
+
+        decoration:
+            BoxDecoration(
+          color:
+              const Color(
+            0xFFFFF8F8,
+          ),
+
+          borderRadius:
+              BorderRadius.circular(
+            13.r,
+          ),
+
+          border:
+              Border.all(
+            color:
+                const Color(
+              0xFFF0DEDE,
+            ),
+          ),
+        ),
+
+        child:
+            Row(
+          mainAxisAlignment:
+              MainAxisAlignment.center,
+
+          children: [
+            Container(
+              width:
+                  46.w,
+
+              height:
+                  46.w,
+
+              decoration:
+                  BoxDecoration(
+                color:
+                    const Color(
+                  0xFFFFEAEA,
+                ),
+
+                borderRadius:
+                    BorderRadius.circular(
+                  13.r,
+                ),
               ),
-              child: _uploadedImage == null
-                  ? Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(
-                          Icons.image_outlined,
-                          size: 52.sp,
-                          color: Colors.grey.shade400,
-                        ),
-                        SizedBox(height: 14.h),
-                        Text(
-                          'Tap to capture image',
-                          style: TextStyle(
-                            color: Colors.grey.shade500,
-                            fontSize: 15.sp,
-                          ),
-                        ),
-                      ],
-                    )
-                  : ClipRRect(
-                      borderRadius: BorderRadius.circular(16.r),
-                      child: Image.file(
-                        _uploadedImage!,
-                        width: double.infinity,
-                        height: double.infinity,
-                        fit: BoxFit.cover,
+
+              child:
+                  Icon(
+                Icons.add_a_photo_rounded,
+
+                color:
+                    const Color(
+                  0xFFD84040,
+                ),
+
+                size:
+                    22.sp,
+              ),
+            ),
+
+            SizedBox(
+              width:
+                  11.w,
+            ),
+
+            Column(
+              mainAxisAlignment:
+                  MainAxisAlignment.center,
+
+              crossAxisAlignment:
+                  CrossAxisAlignment.start,
+
+              children: [
+                Text(
+                  'Capture Closing Photo',
+
+                  style:
+                      TextStyle(
+                    color:
+                        const Color(
+                      0xFF27302B,
+                    ),
+
+                    fontSize:
+                        12.5.sp,
+
+                    fontWeight:
+                        FontWeight.w700,
+                  ),
+                ),
+
+                SizedBox(
+                  height:
+                      3.h,
+                ),
+
+                Text(
+                  'Tap to open camera',
+
+                  style:
+                      TextStyle(
+                    color:
+                        const Color(
+                      0xFF929B96,
+                    ),
+
+                    fontSize:
+                        10.sp,
+                  ),
+                ),
+
+                SizedBox(
+                  height:
+                      5.h,
+                ),
+
+                Container(
+                  padding:
+                      EdgeInsets.symmetric(
+                    horizontal:
+                        9.w,
+
+                    vertical:
+                        4.h,
+                  ),
+
+                  decoration:
+                      BoxDecoration(
+                    color:
+                        const Color(
+                      0xFFFFEAEA,
+                    ),
+
+                    borderRadius:
+                        BorderRadius.circular(
+                      10.r,
+                    ),
+                  ),
+
+                  child:
+                      Text(
+                    'OPEN CAMERA',
+
+                    style:
+                        TextStyle(
+                      color:
+                          const Color(
+                        0xFFD84040,
+                      ),
+
+                      fontSize:
+                          8.5.sp,
+
+                      fontWeight:
+                          FontWeight.w700,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  // ===========================================================================
+  // SELECTED PHOTO
+  // ===========================================================================
+
+  Widget _selectedPhotoView() {
+    return Column(
+      children: [
+        Stack(
+          children: [
+            ClipRRect(
+              borderRadius:
+                  BorderRadius.circular(
+                13.r,
+              ),
+
+              child:
+                  Image.file(
+                _uploadedImage!,
+
+                width:
+                    double.infinity,
+
+                height:
+                    140.h,
+
+                fit:
+                    BoxFit.cover,
+              ),
+            ),
+
+            // ---------------------------------------------------------------
+            // PHOTO ADDED
+            // ---------------------------------------------------------------
+
+            Positioned(
+              top:
+                  7.h,
+
+              left:
+                  7.w,
+
+              child:
+                  Container(
+                padding:
+                    EdgeInsets.symmetric(
+                  horizontal:
+                      8.w,
+
+                  vertical:
+                      4.h,
+                ),
+
+                decoration:
+                    BoxDecoration(
+                  color:
+                      Colors.black.withOpacity(
+                    0.55,
+                  ),
+
+                  borderRadius:
+                      BorderRadius.circular(
+                    14.r,
+                  ),
+                ),
+
+                child:
+                    Row(
+                  mainAxisSize:
+                      MainAxisSize.min,
+
+                  children: [
+                    Icon(
+                      Icons.check_circle_rounded,
+
+                      color:
+                          const Color(
+                        0xFF7DFFA9,
+                      ),
+
+                      size:
+                          12.sp,
+                    ),
+
+                    SizedBox(
+                      width:
+                          4.w,
+                    ),
+
+                    Text(
+                      'Photo Added',
+
+                      style:
+                          TextStyle(
+                        color:
+                            Colors.white,
+
+                        fontSize:
+                            9.sp,
+
+                        fontWeight:
+                            FontWeight.w600,
                       ),
                     ),
+                  ],
+                ),
+              ),
+            ),
+
+            // ---------------------------------------------------------------
+            // CAMERA
+            // ---------------------------------------------------------------
+
+            Positioned(
+              top:
+                  7.h,
+
+              right:
+                  7.w,
+
+              child:
+                  Material(
+                color:
+                    Colors.transparent,
+
+                child:
+                    InkWell(
+                  onTap:
+                      _captureImage,
+
+                  borderRadius:
+                      BorderRadius.circular(
+                    50.r,
+                  ),
+
+                  child:
+                      Container(
+                    width:
+                        30.w,
+
+                    height:
+                        30.w,
+
+                    decoration:
+                        BoxDecoration(
+                      color:
+                          Colors.black.withOpacity(
+                        0.55,
+                      ),
+
+                      shape:
+                          BoxShape.circle,
+                    ),
+
+                    child:
+                        Icon(
+                      Icons.camera_alt_rounded,
+
+                      color:
+                          Colors.white,
+
+                      size:
+                          15.sp,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+
+        SizedBox(
+          height:
+              6.h,
+        ),
+
+        // -------------------------------------------------------------------
+        // RETAKE
+        // -------------------------------------------------------------------
+
+        InkWell(
+          onTap:
+              _captureImage,
+
+          borderRadius:
+              BorderRadius.circular(
+            10.r,
+          ),
+
+          child:
+              Container(
+            width:
+                double.infinity,
+
+            padding:
+                EdgeInsets.symmetric(
+              vertical:
+                  7.h,
+            ),
+
+            decoration:
+                BoxDecoration(
+              color:
+                  const Color(
+                0xFFFFEAEA,
+              ),
+
+              borderRadius:
+                  BorderRadius.circular(
+                10.r,
+              ),
+            ),
+
+            child:
+                Row(
+              mainAxisAlignment:
+                  MainAxisAlignment.center,
+
+              children: [
+                Icon(
+                  Icons.refresh_rounded,
+
+                  color:
+                      const Color(
+                    0xFFD84040,
+                  ),
+
+                  size:
+                      15.sp,
+                ),
+
+                SizedBox(
+                  width:
+                      5.w,
+                ),
+
+                Text(
+                  'Retake Photo',
+
+                  style:
+                      TextStyle(
+                    color:
+                        const Color(
+                      0xFFD84040,
+                    ),
+
+                    fontSize:
+                        10.5.sp,
+
+                    fontWeight:
+                        FontWeight.w700,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  // ===========================================================================
+  // ERROR MESSAGE
+  // ===========================================================================
+
+  Widget _errorMessage(
+    String message,
+  ) {
+    return Container(
+      width:
+          double.infinity,
+
+      padding:
+          EdgeInsets.symmetric(
+        horizontal:
+            9.w,
+
+        vertical:
+            6.h,
+      ),
+
+      decoration:
+          BoxDecoration(
+        color:
+            const Color(
+          0xFFFFF3F3,
+        ),
+
+        borderRadius:
+            BorderRadius.circular(
+          8.r,
+        ),
+
+        border:
+            Border.all(
+          color:
+              const Color(
+            0xFFFFDADA,
+          ),
+        ),
+      ),
+
+      child:
+          Row(
+        children: [
+          Icon(
+            Icons.error_outline_rounded,
+
+            color:
+                const Color(
+              0xFFD94343,
+            ),
+
+            size:
+                14.sp,
+          ),
+
+          SizedBox(
+            width:
+                5.w,
+          ),
+
+          Expanded(
+            child:
+                Text(
+              message,
+
+              style:
+                  TextStyle(
+                color:
+                    const Color(
+                  0xFFD94343,
+                ),
+
+                fontSize:
+                    10.sp,
+
+                fontWeight:
+                    FontWeight.w500,
+              ),
             ),
           ),
         ],
@@ -986,13 +2408,202 @@ class _PunchOutScreenState extends State<PunchOutScreen> {
     );
   }
 
-  Widget _submitButton() {
-    return CustomButton(
-      width: double.infinity,
-      textSize: 15.sp,
-      text: 'SUBMIT',
-      onPressed: _submitPunch,
-      isLoading: isLoading,
+  // ===========================================================================
+  // BOTTOM BUTTON
+  // ===========================================================================
+
+  Widget _bottomSubmitSection() {
+    return Container(
+      padding:
+          EdgeInsets.fromLTRB(
+        14.w,
+        7.h,
+        14.w,
+        8.h,
+      ),
+
+      decoration:
+          BoxDecoration(
+        color:
+            Colors.white,
+
+        border:
+            const Border(
+          top:
+              BorderSide(
+            color:
+                Color(
+              0xFFE8ECEA,
+            ),
+          ),
+        ),
+
+        boxShadow: [
+          BoxShadow(
+            color:
+                Colors.black.withOpacity(
+              0.035,
+            ),
+
+            blurRadius:
+                10,
+
+            offset:
+                const Offset(
+              0,
+              -3,
+            ),
+          ),
+        ],
+      ),
+
+      child:
+          SafeArea(
+        top:
+            false,
+
+        child:
+            SizedBox(
+          width:
+              double.infinity,
+
+          height:
+              48.h,
+
+          child:
+              ElevatedButton(
+            onPressed:
+                isLoading
+                    ? null
+                    : _submitPunch,
+
+            style:
+                ElevatedButton.styleFrom(
+              elevation:
+                  0,
+
+              backgroundColor:
+                  const Color(
+                0xFF0B9848,
+              ),
+
+              disabledBackgroundColor:
+                  const Color(
+                0xFF0B9848,
+              ).withOpacity(
+                0.60,
+              ),
+
+              foregroundColor:
+                  Colors.white,
+
+              shape:
+                  RoundedRectangleBorder(
+                borderRadius:
+                    BorderRadius.circular(
+                  14.r,
+                ),
+              ),
+
+              padding:
+                  EdgeInsets.zero,
+            ),
+
+            child:
+                isLoading
+                    ? SizedBox(
+                        width:
+                            20.w,
+
+                        height:
+                            20.w,
+
+                        child:
+                            const CircularProgressIndicator(
+                          strokeWidth:
+                              2.2,
+
+                          valueColor:
+                              AlwaysStoppedAnimation<
+                                  Color>(
+                            Colors.white,
+                          ),
+                        ),
+                      )
+                    : Row(
+                        mainAxisAlignment:
+                            MainAxisAlignment.center,
+
+                        children: [
+                          Container(
+                            width:
+                                28.w,
+
+                            height:
+                                28.w,
+
+                            decoration:
+                                BoxDecoration(
+                              color:
+                                  Colors.white.withOpacity(
+                                0.15,
+                              ),
+
+                              borderRadius:
+                                  BorderRadius.circular(
+                                8.r,
+                              ),
+                            ),
+
+                            child:
+                                Icon(
+                              Icons.logout_rounded,
+
+                              color:
+                                  Colors.white,
+
+                              size:
+                                  16.sp,
+                            ),
+                          ),
+
+                          SizedBox(
+                            width:
+                                8.w,
+                          ),
+
+                          Text(
+                            'PUNCH OUT',
+
+                            style:
+                                TextStyle(
+                              fontSize:
+                                  12.5.sp,
+
+                              fontWeight:
+                                  FontWeight.w700,
+
+                              letterSpacing:
+                                  0.3,
+                            ),
+                          ),
+
+                          SizedBox(
+                            width:
+                                6.w,
+                          ),
+
+                          Icon(
+                            Icons.arrow_forward_rounded,
+
+                            size:
+                                17.sp,
+                          ),
+                        ],
+                      ),
+          ),
+        ),
+      ),
     );
   }
 }

@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:solufine/features/dealer/data/models/dealer_products.dart';
 import 'dart:async';
 import 'package:flutter_test/flutter_test.dart';
@@ -32,6 +34,12 @@ class FakeRepository implements DealerListRepository {
   Future<Map<String, dynamic>> addDealerLocation(
     Map<String, dynamic> data,
   ) async => {};
+
+  @override
+  Future<Map<String, dynamic>> addDealerStock(Map<String, dynamic> jsonData, File? dealerImage, String? digitalSignature) {
+    // TODO: implement addDealerStock
+    throw UnimplementedError();
+  }
 }
 
 DealerListEvent page(int offset, [String search = '']) => DealerListEvent(

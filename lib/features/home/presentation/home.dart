@@ -15,6 +15,7 @@ import 'package:solufine/core/utility/developer_options_checker.dart';
 import 'package:solufine/core/utility/locationpermissiondialog.dart';
 import 'package:solufine/core/utility/widgets/custom_appbar.dart';
 import 'package:solufine/core/utility/widgets/custom_card.dart';
+import 'package:solufine/features/auth/provider/auth_provider.dart';
 import 'package:solufine/features/home/doman/home_entity/homevisit_entity.dart';
 import 'package:solufine/features/home/doman/home_entity/inpunch_pending_entity.dart';
 import 'package:solufine/features/home/presentation/home_bloc/home_bloc.dart';
@@ -45,6 +46,7 @@ class Home extends StatefulWidget {
 }
 
 class _HomeState extends State<Home> {
+  late final AuthProvider _authProvider;
   String _username = 'user';
   String? _userId;
 
@@ -121,17 +123,25 @@ class _HomeState extends State<Home> {
 
   static String _appName = appName;
   static const String _appSubtitle = 'Agro Company';
-
   @override
   void initState() {
     super.initState();
 
-    // Load login state immediately
+    // ============================================================
+    // AUTH LISTENER
+    // ============================================================
+
+    _authProvider = sl<AuthProvider>();
+
+    _authProvider.addListener(_onAuthChanged);
+
+    // Initial user load
     _loadUserData();
 
     // ------------------------------------------------------------
     // DEVELOPER OPTIONS CHECK
     // ------------------------------------------------------------
+
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       if (!mounted) return;
 
@@ -148,6 +158,7 @@ class _HomeState extends State<Home> {
     // ------------------------------------------------------------
     // APP BAR USER/APP NAME SWITCH
     // ------------------------------------------------------------
+
     _appBarTimer = Timer.periodic(const Duration(seconds: 4), (timer) {
       if (!mounted) return;
 
@@ -159,12 +170,49 @@ class _HomeState extends State<Home> {
     // ------------------------------------------------------------
     // LOCATION PERMISSION
     // ------------------------------------------------------------
+
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
 
       checkLocationPermission(context);
     });
   }
+
+  Future<void> _onAuthChanged() async {
+    debugPrint('================================');
+    debugPrint('HOME: AUTH STATE CHANGED');
+    debugPrint('RELOADING USER DATA');
+    debugPrint('================================');
+
+    await _loadUserData();
+  }
+  // @override
+  // void initState() {
+  //   super.initState();
+  //   WidgetsBinding.instance.addPostFrameCallback((_) async {
+  //     if (!mounted) return;
+
+  //     final isEnabled =
+  //         await DeveloperOptionsChecker.isDeveloperOptionsEnabled();
+
+  //     if (!mounted) return;
+
+  //     if (isEnabled) {
+  //       await showDeveloperOptionWarning();
+  //     }
+  //   });
+  //   _appBarTimer = Timer.periodic(const Duration(seconds: 4), (timer) {
+  //     if (!mounted) return;
+
+  //     setState(() {
+  //       _showUserInfo = !_showUserInfo;
+  //     });
+  //   });
+  //   WidgetsBinding.instance.addPostFrameCallback((_) {
+  //     checkLocationPermission(context);
+  //   });
+  //   _loadUserData();
+  // }
 
   Future<void> printCurrentLocationTable() async {
     try {
@@ -201,7 +249,10 @@ class _HomeState extends State<Home> {
 
   @override
   void dispose() {
+    _authProvider.removeListener(_onAuthChanged);
+
     _appBarTimer?.cancel();
+
     super.dispose();
   }
 
@@ -380,16 +431,17 @@ class _HomeState extends State<Home> {
       // Clear logged-in user data
       await SecureStorage.instance.clearAll();
 
-      if (!mounted) return;
+      final authProvider = sl<AuthProvider>();
 
+      await authProvider.checkLoginStatus();
+      if (!mounted) return;
       // Update local state
       setState(() {
         _userId = '0';
         _username = 'user';
       });
 
-      // Go to login
-      context.go(AppRouter.login);
+      context.go(AppRouter.home);
     } catch (e, stackTrace) {
       debugPrint('Logout error: $e');
       debugPrint('$stackTrace');
