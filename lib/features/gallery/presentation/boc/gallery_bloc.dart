@@ -49,7 +49,10 @@ class GalleryBloc extends Bloc<GalleryEvent, GalleryState> {
             clearError: true,
           ),
         );
-      } else if (event.type == 'certificate') {
+      } else if (const [
+        'certificate',
+        'certificates',
+      ].contains(event.type.toLowerCase())) {
         emit(
           state.copyWith(
             status: GalleryStatus.success,
@@ -99,7 +102,10 @@ class GalleryBloc extends Bloc<GalleryEvent, GalleryState> {
             clearError: true,
           ),
         );
-      } else if (event.type == 'certificate') {
+      } else if (const [
+        'certificate',
+        'certificates',
+      ].contains(event.type.toLowerCase())) {
         emit(
           state.copyWith(
             status: GalleryStatus.success,

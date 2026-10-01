@@ -46,22 +46,31 @@ class GalleryDatasource {
 
       final List<GalleryModel> galleries = [];
 
-      // result = crop list
-      for (final crop in result) {
-        if (crop is! Map) continue;
+      final requestedType = type.trim().toUpperCase();
+      final galleryType = requestedType == 'CERTIFICATE'
+          ? 'CERTIFICATES'
+          : requestedType;
 
-        final Map<String, dynamic> cropData = Map<String, dynamic>.from(crop);
+      void addGallery(Map<dynamic, dynamic> record) {
+        final gallery = GalleryModel.fromJson(
+          Map<String, dynamic>.from(record),
+        );
+        if (gallery.galleryType.trim().toUpperCase() == galleryType) {
+          galleries.add(gallery);
+        }
+      }
 
-        // Get gallary_details from each crop
-        final List<dynamic> galleryDetails =
-            cropData['gallary_details'] as List? ?? [];
+      for (final record in result) {
+        if (record is! Map) continue;
 
-        for (final gallery in galleryDetails) {
-          if (gallery is! Map) continue;
-
-          galleries.add(
-            GalleryModel.fromJson(Map<String, dynamic>.from(gallery)),
-          );
+        // Support both flat gallery records and the existing crop-grouped response.
+        final details = record['gallary_details'];
+        if (details is List) {
+          for (final gallery in details) {
+            if (gallery is Map) addGallery(gallery);
+          }
+        } else if (record.containsKey('fld_gallery_id')) {
+          addGallery(record);
         }
       }
 

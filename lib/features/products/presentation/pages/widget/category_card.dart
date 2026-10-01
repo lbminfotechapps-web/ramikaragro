@@ -45,7 +45,7 @@ class CategoryCard extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               // IMAGE
-              SizedBox(width: 150, height: 120, child: _buildImage()),
+              SizedBox(width: 150, height: 100, child: _buildImage()),
 
               //  SizedBox(height: 5.h),
 
