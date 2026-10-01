@@ -14,8 +14,7 @@ class ProductSelectionDialog extends StatefulWidget {
   });
 
   @override
-  State<ProductSelectionDialog> createState() =>
-      _ProductSelectionDialogState();
+  State<ProductSelectionDialog> createState() => _ProductSelectionDialogState();
 }
 
 class _ProductSelectionDialogState extends State<ProductSelectionDialog> {
@@ -25,25 +24,16 @@ class _ProductSelectionDialogState extends State<ProductSelectionDialog> {
   void initState() {
     super.initState();
 
-    _selectedProductIds = List<String>.from(
-      widget.selectedProductIds,
-    );
+    _selectedProductIds = List<String>.from(widget.selectedProductIds);
   }
 
   @override
   Widget build(BuildContext context) {
     return Dialog(
-      insetPadding: EdgeInsets.symmetric(
-        horizontal: 16.w,
-        vertical: 24.h,
-      ),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(20.r),
-      ),
+      insetPadding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 24.h),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20.r)),
       child: ConstrainedBox(
-        constraints: BoxConstraints(
-          maxHeight: 0.75.sh,
-        ),
+        constraints: BoxConstraints(maxHeight: 0.75.sh),
         child: Column(
           children: [
             _buildHeader(),
@@ -62,8 +52,7 @@ class _ProductSelectionDialogState extends State<ProductSelectionDialog> {
                   : ListView.separated(
                       padding: EdgeInsets.all(14.w),
                       itemCount: widget.productList.length,
-                      separatorBuilder: (_, __) =>
-                          SizedBox(height: 8.h),
+                      separatorBuilder: (_, __) => SizedBox(height: 8.h),
                       itemBuilder: (context, index) {
                         final product = widget.productList[index];
 
@@ -82,23 +71,14 @@ class _ProductSelectionDialogState extends State<ProductSelectionDialog> {
   Widget _buildHeader() {
     return Container(
       width: double.infinity,
-      padding: EdgeInsets.symmetric(
-        horizontal: 18.w,
-        vertical: 16.h,
-      ),
+      padding: EdgeInsets.symmetric(horizontal: 18.w, vertical: 16.h),
       decoration: BoxDecoration(
         color: const Color(0xFF087C3A),
-        borderRadius: BorderRadius.vertical(
-          top: Radius.circular(20.r),
-        ),
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20.r)),
       ),
       child: Row(
         children: [
-          Icon(
-            Icons.inventory_2_outlined,
-            color: Colors.white,
-            size: 25.sp,
-          ),
+          Icon(Icons.inventory_2_outlined, color: Colors.white, size: 25.sp),
           SizedBox(width: 10.w),
 
           Expanded(
@@ -116,10 +96,7 @@ class _ProductSelectionDialogState extends State<ProductSelectionDialog> {
             onPressed: () {
               Navigator.pop(context);
             },
-            icon: const Icon(
-              Icons.close,
-              color: Colors.white,
-            ),
+            icon: const Icon(Icons.close, color: Colors.white),
           ),
         ],
       ),
@@ -132,7 +109,7 @@ class _ProductSelectionDialogState extends State<ProductSelectionDialog> {
     final isSelected = _selectedProductIds.contains(productId);
 
     return InkWell(
-      borderRadius: BorderRadius.circular(14.r),
+      borderRadius: BorderRadius.circular(12.r),
       onTap: () {
         setState(() {
           if (isSelected) {
@@ -143,19 +120,12 @@ class _ProductSelectionDialogState extends State<ProductSelectionDialog> {
         });
       },
       child: Container(
-        padding: EdgeInsets.symmetric(
-          horizontal: 10.w,
-          vertical: 8.h,
-        ),
+        padding: EdgeInsets.symmetric(horizontal: 5.w, vertical: 4.h),
         decoration: BoxDecoration(
-          color: isSelected
-              ? const Color(0xFFE8F5E9)
-              : Colors.white,
-          borderRadius: BorderRadius.circular(14.r),
+          color: isSelected ? const Color(0xFFE8F5E9) : Colors.white,
+          borderRadius: BorderRadius.circular(12.r),
           border: Border.all(
-            color: isSelected
-                ? const Color(0xFF087C3A)
-                : Colors.grey.shade300,
+            color: isSelected ? const Color(0xFF087C3A) : Colors.grey.shade300,
           ),
           boxShadow: [
             BoxShadow(
@@ -212,13 +182,8 @@ class _ProductSelectionDialogState extends State<ProductSelectionDialog> {
                 Navigator.pop(context);
               },
               style: OutlinedButton.styleFrom(
-                minimumSize: Size(
-                  double.infinity,
-                  48.h,
-                ),
-                side: const BorderSide(
-                  color: Color(0xFF087C3A),
-                ),
+                minimumSize: Size(double.infinity, 48.h),
+                side: const BorderSide(color: Color(0xFF087C3A)),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12.r),
                 ),
@@ -239,8 +204,7 @@ class _ProductSelectionDialogState extends State<ProductSelectionDialog> {
             child: ElevatedButton(
               onPressed: () {
                 if (_selectedProductIds.isEmpty) {
-
-                     AppToast.error('Please select at least one product',);
+                  AppToast.error('Please select at least one product');
                   // ScaffoldMessenger.of(context).showSnackBar(
                   //   const SnackBar(
                   //     content: Text(
@@ -252,16 +216,10 @@ class _ProductSelectionDialogState extends State<ProductSelectionDialog> {
                   return;
                 }
 
-                Navigator.pop(
-                  context,
-                  _selectedProductIds,
-                );
+                Navigator.pop(context, _selectedProductIds);
               },
               style: ElevatedButton.styleFrom(
-                minimumSize: Size(
-                  double.infinity,
-                  48.h,
-                ),
+                minimumSize: Size(double.infinity, 48.h),
                 backgroundColor: const Color(0xFF087C3A),
                 foregroundColor: Colors.white,
                 shape: RoundedRectangleBorder(
@@ -270,9 +228,7 @@ class _ProductSelectionDialogState extends State<ProductSelectionDialog> {
               ),
               child: const Text(
                 'Add',
-                style: TextStyle(
-                  fontWeight: FontWeight.w600,
-                ),
+                style: TextStyle(fontWeight: FontWeight.w600),
               ),
             ),
           ),

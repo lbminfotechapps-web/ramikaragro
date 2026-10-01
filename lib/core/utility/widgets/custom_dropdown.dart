@@ -7,6 +7,7 @@ class CustomDropdown<T> extends StatelessWidget {
   final List<DropdownMenuItem<T>> items;
   final ValueChanged<T?>? onChanged;
   final bool enabled;
+  final bool compactItems;
   final String? Function(T?)? validator;
 
   const CustomDropdown({
@@ -17,6 +18,7 @@ class CustomDropdown<T> extends StatelessWidget {
     required this.items,
     required this.onChanged,
     this.enabled = true,
+    this.compactItems = false,
     this.validator,
   });
 
@@ -24,6 +26,16 @@ class CustomDropdown<T> extends StatelessWidget {
   Widget build(BuildContext context) {
     return DropdownButtonFormField<T>(
       value: value,
+      itemHeight: compactItems ? null : kMinInteractiveDimension,
+      // Keep menu padding out of the shorter selected-value display.
+      selectedItemBuilder: compactItems
+          ? (context) => items
+              .map((item) => Align(
+                    alignment: item.alignment,
+                    child: item.child,
+                  ))
+              .toList()
+          : null,
     
       isExpanded: true,
     
@@ -124,7 +136,30 @@ class CustomDropdown<T> extends StatelessWidget {
         ),
       ),
     
-      items: items,
+      items: compactItems
+          ? items.map((item) => _CompactDropdownMenuItem<T>(item)).toList()
+          : items,
+    );
+  }
+}
+
+// Natural row height keeps the menu compact while allowing larger text to grow.
+class _CompactDropdownMenuItem<T> extends DropdownMenuItem<T> {
+  _CompactDropdownMenuItem(DropdownMenuItem<T> item)
+      : super(
+          key: item.key,
+          value: item.value,
+          onTap: item.onTap,
+          enabled: item.enabled,
+          alignment: item.alignment,
+          child: item.child,
+        );
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 10),
+      child: Align(alignment: alignment, heightFactor: 1, child: child),
     );
   }
 }

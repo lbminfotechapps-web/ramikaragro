@@ -60,6 +60,10 @@ class _AddDealerVisitPageState extends State<AddDealerVisitPage> {
   // VARIABLES
   // ============================================================
 
+  bool _isSubmitting = false;
+  bool _submissionSent = false;
+  bool _submissionCompleted = false;
+
   DateTime? nextFollowUpDate;
   String? imagePath;
   String selectedFollowUpType = 'Select Follow Up Type';
@@ -129,11 +133,7 @@ class _AddDealerVisitPageState extends State<AddDealerVisitPage> {
     super.initState();
 
     dealerVisitBloc = sl<AddDealerVisitBlock>();
-    debugPrint('======================================');
-    debugPrint('ADD DEALER VISIT INIT');
-    debugPrint('dealerId77   : "${widget.dealerId}"');
-    debugPrint('dealerName : "${widget.dealerName}"');
-    debugPrint('======================================');
+
     _loadUserId();
     _loadDeviceData();
     _getPurposeData();
@@ -249,41 +249,12 @@ class _AddDealerVisitPageState extends State<AddDealerVisitPage> {
         position.longitude,
       );
 
-      // ==========================================================
-      // 8. DEBUG
-      // ==========================================================
-
-      debugPrint('==========================================');
-      debugPrint('             DEVICE DATA');
-      debugPrint('==========================================');
-
-      debugPrint('latitude          : $latitude');
-      debugPrint('longitude         : $longitude');
-
-      debugPrint('networkLatitude   : $networkLatitude');
-      debugPrint('networkLongitude  : $networkLongitude');
-
-      debugPrint('gpsLatitude       : $gpsLatitude');
-      debugPrint('gpsLongitude      : $gpsLongitude');
-
-      debugPrint('geoAddress        : $geoAddress');
-
-      debugPrint('networkInfo       : $strNetworkInfo');
-
-      debugPrint('batteryInfo       : $strBatteryInfo');
-
-      debugPrint('==========================================');
-
       if (mounted) {
         setState(() {});
       }
     } catch (e, stackTrace) {
-      debugPrint('==========================================');
-      debugPrint('DEVICE DATA ERROR');
-      debugPrint('==========================================');
       debugPrint('ERROR: $e');
       debugPrint('STACK: $stackTrace');
-      debugPrint('==========================================');
     }
   }
 
@@ -417,45 +388,12 @@ class _AddDealerVisitPageState extends State<AddDealerVisitPage> {
     });
   }
 
-  // ============================================================
-  // IMAGE
-  // ============================================================
-
-  // Future<void> _takeDealerImage() async {
-  //   try {
-  //     final XFile? image = await _imagePicker.pickImage(
-  //       source: ImageSource.camera,
-  //       imageQuality: 70,
-  //       maxWidth: 1200,
-  //       maxHeight: 1200,
-  //     );
-
-  //     if (image == null) return;
-
-  //     setState(() {
-  //       dealerImage = File(image.path);
-  //     });
-  //   } catch (e) {
-  //     _showError('Unable to open camera');
-  //   }
-  // }
-
-  // ============================================================
-  // SUBMIT
-  // ============================================================
-
   Future<void> _submit() async {
-    // ==========================================================
-    // 1. DATE VALIDATION
-    // ==========================================================
-
-    debugPrint('==========================================');
-    debugPrint('SUBMIT DEALER VISIT');
-    debugPrint('widget.dealerId : "${widget.dealerId}"');
-    debugPrint('widget.dealerName : "${widget.dealerName}"');
-    debugPrint('userId : "$userId"');
-    debugPrint('==========================================');
-
+    if (_isSubmitting ||
+        _submissionCompleted ||
+        dealerVisitBloc.state.addLeaveStatus == AddDealerVisitStatus.loading) {
+      return;
+    }
     if (widget.dealerId.trim().isEmpty) {
       _showError('Dealer ID is empty');
       return;
@@ -502,119 +440,115 @@ class _AddDealerVisitPageState extends State<AddDealerVisitPage> {
       return;
     }
 
-    // ==========================================================
-    // 6. GET LATEST DEVICE / LOCATION DATA
-    // ==========================================================
-    //
-    // This refreshes:
-    // latitude
-    // longitude
-    // networkLatitude
-    // networkLongitude
-    // gpsLatitude
-    // gpsLongitude
-    // geoAddress
-    // strNetworkInfo
-    // strBatteryInfo
-    //
-    // immediately before sending the API request.
-    //
-    await _loadDeviceData();
+    // Lock synchronously before collecting device data.
+    setState(() => _isSubmitting = true);
+    try {
+      await _loadDeviceData();
+      if (!mounted) return;
 
-    // ==========================================================
-    // 7. FORMAT DATE
-    // ==========================================================
-    final String formattedDate = DateFormat(
-      'yyyy-MM-dd',
-    ).format(nextFollowUpDate!);
+      // ==========================================================
+      // 7. FORMAT DATE
+      // ==========================================================
+      final String formattedDate = DateFormat(
+        'yyyy-MM-dd',
+      ).format(nextFollowUpDate!);
 
-    // ==========================================================
-    // 8. DEBUG LOG
-    // ==========================================================
-    debugPrint('==========================================');
-    debugPrint('          ADD DEALER VISIT');
-    debugPrint('==========================================');
+      // ==========================================================
+      // 8. DEBUG LOG
+      // ==========================================================
+      debugPrint('==========================================');
+      debugPrint('          ADD DEALER VISIT');
+      debugPrint('==========================================');
 
-    debugPrint('user_id          : $userId');
-    debugPrint('outlet_id        : ${widget.dealerId}');
-    debugPrint('purposeId        : $selectedPurposeId');
-    debugPrint('amount           : $amount');
-    debugPrint('followUpDate     : $formattedDate');
-    debugPrint('followUpType     : $selectedFollowUpType');
-    debugPrint('remark           : $remark');
+      debugPrint('user_id          : $userId');
+      debugPrint('outlet_id        : ${widget.dealerId}');
+      debugPrint('purposeId        : $selectedPurposeId');
+      debugPrint('amount           : $amount');
+      debugPrint('followUpDate     : $formattedDate');
+      debugPrint('followUpType     : $selectedFollowUpType');
+      debugPrint('remark           : $remark');
 
-    debugPrint('------------------------------------------');
-    debugPrint('LOCATION DATA');
-    debugPrint('------------------------------------------');
+      debugPrint('------------------------------------------');
+      debugPrint('LOCATION DATA');
+      debugPrint('------------------------------------------');
 
-    debugPrint('latitude         : $latitude');
-    debugPrint('longitude        : $longitude');
+      debugPrint('latitude         : $latitude');
+      debugPrint('longitude        : $longitude');
 
-    debugPrint('networkLatitude  : $networkLatitude');
-    debugPrint('networkLongitude : $networkLongitude');
+      debugPrint('networkLatitude  : $networkLatitude');
+      debugPrint('networkLongitude : $networkLongitude');
 
-    debugPrint('gpsLatitude      : $gpsLatitude');
-    debugPrint('gpsLongitude     : $gpsLongitude');
+      debugPrint('gpsLatitude      : $gpsLatitude');
+      debugPrint('gpsLongitude     : $gpsLongitude');
 
-    debugPrint('geoAddress       : $geoAddress');
+      debugPrint('geoAddress       : $geoAddress');
 
-    debugPrint('------------------------------------------');
-    debugPrint('DEVICE DATA');
-    debugPrint('------------------------------------------');
+      debugPrint('------------------------------------------');
+      debugPrint('DEVICE DATA');
+      debugPrint('------------------------------------------');
 
-    debugPrint('networkInfo      : $strNetworkInfo');
-    debugPrint('batteryInfo      : $strBatteryInfo');
+      debugPrint('networkInfo      : $strNetworkInfo');
+      debugPrint('batteryInfo      : $strBatteryInfo');
 
-    debugPrint('------------------------------------------');
-    debugPrint('OTHER DATA');
-    debugPrint('------------------------------------------');
+      debugPrint('------------------------------------------');
+      debugPrint('OTHER DATA');
+      debugPrint('------------------------------------------');
 
-    debugPrint('activityId       : $activityId');
-    debugPrint('dealerImage      : ${imagePath}');
+      debugPrint('activityId       : $activityId');
+      debugPrint('dealerImage      : ${imagePath}');
 
-    debugPrint('==========================================');
+      debugPrint('==========================================');
 
-    // ==========================================================
-    // 9. SEND BLOC EVENT
-    // ==========================================================
-    dealerVisitBloc.add(
-      AddDealerRemarkSubmitEvent(
-        userId: userId,
-        outletId: widget.dealerId,
-        purposeId: selectedPurposeId!,
-        amount: amount,
-        followUpDate: formattedDate,
-        followUpType: selectedFollowUpType,
-        remark: remark,
+      // ==========================================================
+      // 9. SEND BLOC EVENT
+      // ==========================================================
+      _submissionSent = true;
+      dealerVisitBloc.add(
+        AddDealerRemarkSubmitEvent(
+          userId: userId,
+          outletId: widget.dealerId,
+          purposeId: selectedPurposeId!,
+          amount: amount,
+          followUpDate: formattedDate,
+          followUpType: selectedFollowUpType,
+          remark: remark,
 
-        // Location
-        latitude: latitude,
-        longitude: longitude,
+          // Location
+          latitude: latitude,
+          longitude: longitude,
 
-        // Network location
-        networkLatitude: networkLatitude,
-        networkLongitude: networkLongitude,
+          // Network location
+          networkLatitude: networkLatitude,
+          networkLongitude: networkLongitude,
 
-        // GPS location
-        gpsLatitude: gpsLatitude,
-        gpsLongitude: gpsLongitude,
+          // GPS location
+          gpsLatitude: gpsLatitude,
+          gpsLongitude: gpsLongitude,
 
-        // Address
-        geoAddress: geoAddress,
+          // Address
+          geoAddress: geoAddress,
 
-        // Device information
-        strNetworkInfo: strNetworkInfo,
-        strBatteryInfo: strBatteryInfo,
+          // Device information
+          strNetworkInfo: strNetworkInfo,
+          strBatteryInfo: strBatteryInfo,
 
-        // Activity
-        activityId: activityId,
+          // Activity
+          activityId: activityId,
 
-        // IMPORTANT:
-        // If your event has dealerImage, pass it here:
-        //
-        imagePath: imagePath,
-      ),
-    );
+          // IMPORTANT:
+          // If your event has dealerImage, pass it here:
+          //
+          imagePath: imagePath,
+        ),
+      );
+    } catch (error) {
+      if (!mounted) return;
+      setState(() {
+        _isSubmitting = false;
+        _submissionSent = false;
+      });
+      _showError('Unable to submit dealer visit. Please try again.');
+    }
   }
 
   // ============================================================
@@ -670,14 +604,21 @@ class _AddDealerVisitPageState extends State<AddDealerVisitPage> {
 
       child: BlocConsumer<AddDealerVisitBlock, AddDealerVisitState>(
         listener: (context, state) async {
+          if (!_isSubmitting || !_submissionSent) return;
           // ======================================================
           // SUCCESS
           // ======================================================
 
           if (state.addLeaveStatus == AddDealerVisitStatus.dealerAddedSuccess) {
+            setState(() {
+              _submissionCompleted = true;
+              _isSubmitting = false;
+              _submissionSent = false;
+            });
             debugPrint('DAILY TRAN ID FROM STATE: ${state.dailyTranId}');
 
             final String strAllLocations = await _getStoredLocations();
+            if (!mounted || !context.mounted) return;
             debugPrint('========================================');
             debugPrint('CALLING STORE TRACK LOCATION API');
             debugPrint('USER ID: $userId');
@@ -693,10 +634,10 @@ class _AddDealerVisitPageState extends State<AddDealerVisitPage> {
               context: context,
               type: DialogType.success,
               title: 'Successful',
-              message: 'Dealer Visit successfully.',
+              message: 'Dealer Visit Successfully.',
               buttonText: 'OK',
               onButtonPressed: () {
-                context.go(AppRouter.home);
+                context.go('/visits');
               },
             );
           }
@@ -706,6 +647,10 @@ class _AddDealerVisitPageState extends State<AddDealerVisitPage> {
           // ======================================================
 
           if (state.addLeaveStatus == AddDealerVisitStatus.failure) {
+            setState(() {
+              _isSubmitting = false;
+              _submissionSent = false;
+            });
             ScaffoldMessenger.of(context).hideCurrentSnackBar();
 
             ScaffoldMessenger.of(context).showSnackBar(
@@ -748,6 +693,7 @@ class _AddDealerVisitPageState extends State<AddDealerVisitPage> {
           debugPrint('PURPOSE DATA = ${state.purpose}');
 
           final bool isLoading =
+              _isSubmitting ||
               state.addLeaveStatus == AddDealerVisitStatus.loading;
 
           return Scaffold(
@@ -1717,7 +1663,7 @@ class _AddDealerVisitPageState extends State<AddDealerVisitPage> {
           width: double.infinity,
 
           child: ElevatedButton(
-            onPressed: isLoading ? null : _submit,
+            onPressed: isLoading || _submissionCompleted ? null : _submit,
 
             style: ElevatedButton.styleFrom(
               backgroundColor: primaryGreen,

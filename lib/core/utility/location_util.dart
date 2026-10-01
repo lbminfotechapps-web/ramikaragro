@@ -1,5 +1,6 @@
 import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
+import 'address_formatter.dart';
 
 class LocationUtil {
   LocationUtil._();
@@ -60,7 +61,7 @@ class LocationUtil {
         place.country ?? '',
       ];
 
-      return addressParts.where((value) => value.trim().isNotEmpty).join(', ');
+      return formatAddressParts(addressParts);
     } catch (e) {
       return '';
     }

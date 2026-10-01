@@ -354,30 +354,11 @@ class _DealerListScreenState extends State<DealerListScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.background,
-
+      backgroundColor: AppColors.backgroundColor,
       appBar: CustomAppBar(
-        // leading: Container(
-        //   width: 45,
-        //   height: 45,
-        //   decoration: BoxDecoration(
-        //     shape: BoxShape.circle,
-        //     border: Border.all(color: const Color(0xFF527467)),
-        //   ),
-        //   child: IconButton(
-        //     padding: EdgeInsets.zero,
-        //     icon: const Icon(Icons.person_2_outlined, color: Colors.white),
-        //     onPressed: () {
-        //       Scaffold.of(context).openDrawer();
-        //     },
-        //   ),
-        // ),
-        title: 'Dealers List',
-
-        showBackButton: false,
-        onLogOutTap: () {
-          // Handle notification tap
-        },
+        title: 'Dealer List',
+        showBackButton: true,
+        onBackTap: () => Navigator.pop(context),
       ),
 
       body: BlocConsumer<DealerListBloc, DealerListState>(
@@ -792,7 +773,7 @@ class _DealerListItem extends StatelessWidget {
                           : Icons.push_pin_outlined,
                       size: 15,
                     ),
-                    label: Text(locationNotAvailable ? 'Location' : 'Pin'),
+                    label: Text(locationNotAvailable ? 'LOC' : 'Pin'),
                     style: OutlinedButton.styleFrom(
                       foregroundColor: AppColors.primary,
                       side: const BorderSide(color: AppColors.primary),
