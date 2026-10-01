@@ -1,6 +1,6 @@
 List<String> farmerStatus = [
   "Hot",
-  "Worm",
+  "Warm",
   "Cold",
   "Abundant",
   "Next Year Planning",

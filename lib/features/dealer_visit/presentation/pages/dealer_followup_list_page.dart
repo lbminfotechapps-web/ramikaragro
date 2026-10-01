@@ -54,7 +54,7 @@ class _DealerFollowupListPageState extends State<DealerFollowupListPage> {
         // APP BAR
         // =========================================================
         appBar: CustomAppBar(
-          title: 'Visit Summary',
+          title: 'Dealer Visit Summary',
           // subtitle: widget.dealerName,
           showBackButton: true,
           actionIcon: Icons.refresh_rounded,
@@ -63,56 +63,6 @@ class _DealerFollowupListPageState extends State<DealerFollowupListPage> {
             dealerVisitBloc.add(GetFollowupEvent(widget.dealerId));
           },
         ),
-        // appBar: AppBar(
-        //   backgroundColor: const Color(0xFF087C3A),
-        //   elevation: 3,
-
-        //   leading: IconButton(
-        //     onPressed: () => context.pop(),
-        //     icon: const Icon(
-        //       Icons.arrow_back,
-        //       color: Colors.white,
-        //     ),
-        //   ),
-
-        //   title: Column(
-        //     crossAxisAlignment: CrossAxisAlignment.start,
-        //     children: [
-        //       const Text(
-        //         'Follow-ups',
-        //         style: TextStyle(
-        //           color: Colors.white,
-        //           fontSize: 19,
-        //           fontWeight: FontWeight.w700,
-        //         ),
-        //       ),
-
-        //       Text(
-        //         widget.dealerName,
-        //         maxLines: 1,
-        //         overflow: TextOverflow.ellipsis,
-        //         style: const TextStyle(
-        //           color: Colors.white70,
-        //           fontSize: 12,
-        //         ),
-        //       ),
-        //     ],
-        //   ),
-
-        //   actions: [
-        //     IconButton(
-        //       onPressed: () {
-        // dealerVisitBloc.add(
-        //   GetFollowupEvent(widget.dealerId),
-        // );
-        //       },
-        //       icon: const Icon(
-        //         Icons.refresh,
-        //         color: Colors.white,
-        //       ),
-        //     ),
-        //   ],
-        // ),
 
         // =========================================================
         // BODY
@@ -304,20 +254,6 @@ class _DealerFollowupListPageState extends State<DealerFollowupListPage> {
   // ===============================================================
 
   Widget _buildFollowupCard(DealerFollowupListEntity item, int index) {
-    debugPrint('========== FOLLOW UP $index ==========');
-
-    debugPrint('Employee: ${item.admName}');
-
-    debugPrint('Dealer: ${item.outletName}');
-
-    debugPrint('Date: ${item.followupDate}');
-
-    debugPrint('Time: ${item.followupTime}');
-
-    debugPrint('Remark: ${item.followupRemark}');
-
-    debugPrint('=====================================');
-
     return Container(
       width: double.infinity,
       margin: const EdgeInsets.only(bottom: 14),
@@ -370,16 +306,6 @@ class _DealerFollowupListPageState extends State<DealerFollowupListPage> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // Text(
-                    //   'Follow-up $index',
-
-                    //   style: const TextStyle(
-                    //     color: Color(0xFF1B4332),
-                    //     fontSize: 16,
-                    //     fontWeight: FontWeight.w700,
-                    //   ),
-                    // ),
-
                     const SizedBox(height: 4),
 
                     if (item.followupDate.isNotEmpty ||
@@ -424,28 +350,6 @@ class _DealerFollowupListPageState extends State<DealerFollowupListPage> {
           ),
 
           const SizedBox(height: 11),
-
-          // ========================================================
-          // DATE
-          // ========================================================
-          _buildFollowupInfoRow(
-            icon: Icons.calendar_today_outlined,
-            title: 'Date',
-            value: item.followupDate.isEmpty ? '-' : item.followupDate,
-          ),
-
-          const SizedBox(height: 11),
-
-          // ========================================================
-          // TIME
-          // ========================================================
-          _buildFollowupInfoRow(
-            icon: Icons.access_time_rounded,
-            title: 'Time',
-            value: item.followupTime.isEmpty ? '-' : item.followupTime,
-          ),
-
-          const SizedBox(height: 14),
 
           // ========================================================
           // REMARK

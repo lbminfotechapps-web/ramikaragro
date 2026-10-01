@@ -186,33 +186,6 @@ class _HomeState extends State<Home> {
 
     await _loadUserData();
   }
-  // @override
-  // void initState() {
-  //   super.initState();
-  //   WidgetsBinding.instance.addPostFrameCallback((_) async {
-  //     if (!mounted) return;
-
-  //     final isEnabled =
-  //         await DeveloperOptionsChecker.isDeveloperOptionsEnabled();
-
-  //     if (!mounted) return;
-
-  //     if (isEnabled) {
-  //       await showDeveloperOptionWarning();
-  //     }
-  //   });
-  //   _appBarTimer = Timer.periodic(const Duration(seconds: 4), (timer) {
-  //     if (!mounted) return;
-
-  //     setState(() {
-  //       _showUserInfo = !_showUserInfo;
-  //     });
-  //   });
-  //   WidgetsBinding.instance.addPostFrameCallback((_) {
-  //     checkLocationPermission(context);
-  //   });
-  //   _loadUserData();
-  // }
 
   Future<void> printCurrentLocationTable() async {
     try {
@@ -515,7 +488,7 @@ class _HomeState extends State<Home> {
           // USER NAME
           // ============================================================
           userName: _userId != null && _userId != '0' && _showUserInfo
-              ? '$_username ($_userId)'
+              ? '$_username '
               : null,
 
           // userName: _userId != null && _userId != '0' && _showUserInfo

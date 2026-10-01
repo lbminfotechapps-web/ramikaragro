@@ -70,11 +70,61 @@ class _DealerFollowupAddState extends State<DealerFollowupAdd> {
     getGeoAddress();
   }
 
+  bool _submitted = false;
+  bool _submissionCompleted = false;
+
+  void _focusFirstInvalidField(Set<FormFieldState<dynamic>> invalidFields) {
+    // Walk the form in visual order, including fields below the viewport.
+    FormFieldState<dynamic>? firstInvalid;
+    void findInvalid(Element element) {
+      if (firstInvalid != null) return;
+      if (element is StatefulElement &&
+          element.state is FormFieldState &&
+          invalidFields.contains(element.state)) {
+        firstInvalid = element.state as FormFieldState<dynamic>;
+        return;
+      }
+      element.visitChildren(findInvalid);
+    }
+
+    _formKey.currentContext?.visitChildElements(findInvalid);
+    final field = firstInvalid;
+    if (field == null) return;
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted || !field.mounted) return;
+      FocusNode? target;
+      void findFocus(Element element) {
+        if (target != null) return;
+        final widget = element.widget;
+        if (widget is EditableText) {
+          target = widget.focusNode;
+        } else if (widget is Focus &&
+            widget.focusNode?.canRequestFocus == true) {
+          target = widget.focusNode;
+        }
+        if (target == null) element.visitChildren(findFocus);
+      }
+
+      field.context.visitChildElements(findFocus);
+      target?.requestFocus();
+      Scrollable.ensureVisible(
+        field.context,
+        alignment: 0.2,
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.easeInOut,
+      );
+    });
+  }
+
   void _submit() async {
     FocusScope.of(context).unfocus();
 
-    if (isLoading) return;
-    if (!_formKey.currentState!.validate()) {
+    if (isLoading || _submissionCompleted) return;
+    setState(() => _submitted = true);
+    final invalidFields = _formKey.currentState!.validateGranularly();
+    if (invalidFields.isNotEmpty) {
+      _focusFirstInvalidField(invalidFields);
       return;
     }
 
@@ -92,128 +142,130 @@ class _DealerFollowupAddState extends State<DealerFollowupAdd> {
       return;
     }
 
-    final batteryInfo = await DeviceInfoUtil.instance.getBatteryInfo();
-
-    final networkInfo = await DeviceInfoUtil.instance.getNetworkInfo();
-
-    final position = await LocationUtil.instance.getCurrentLocation();
-
-    String latitude = '';
-    String longitude = '';
-    String address = '';
-
-    if (position != null) {
-      latitude = position.latitude.toString();
-      longitude = position.longitude.toString();
-
-      address = await LocationUtil.instance.getAddress(
-        position.latitude,
-        position.longitude,
-      );
-    }
-
     if (_selectedTalukaId == null || _selectedTalukaId!.isEmpty) {
       ScaffoldMessenger.of(
         context,
       ).showSnackBar(const SnackBar(content: Text('Please select taluka')));
       return;
     }
-    debugPrint('================================');
-    debugPrint('FARMER REGISTRATION - ALL PARAMS');
-    debugPrint('================================');
-
-    debugPrint('FARMER LATTTT - $latitude');
-    debugPrint('FARMER LONG - $longitude');
-    debugPrint('================================');
-
-    debugPrint('fld_address: ${addressController.text.trim()}');
-
-    debugPrint('fld_category_id: ');
-    debugPrint('state: ${_selectedStateId ?? '0'}');
-    debugPrint('fld_demo_type_id: ');
-    debugPrint('district: ${_selectedDistrictId ?? '0'}');
-    debugPrint('taluka: ${_selectedTalukaId ?? '0'}');
-
-    debugPrint('campaign_radio: Yes');
-
-    // Mobile / contact
-    debugPrint('fld_mobile_no: ${mobileController.text.trim()}');
-    debugPrint('fld_mobile_no2: ${alternateMobileController.text.trim()}');
-    debugPrint('fld_email_id: ${emailController.text.trim()}');
-
-    debugPrint('geoAddress: $address');
-    debugPrint('meetingLocation: ');
-    debugPrint('marketNearby: ');
-
-    // Other farmer details
-    debugPrint('fld_tractor_mode: ');
-
-    debugPrint('aadhaarNo: ');
-    debugPrint('remark: ${remarkController.text.trim()}');
-
-    debugPrint('selectedCattleId: ');
-    debugPrint('selectedCattleCount: ');
-
-    // Crop details
-    debugPrint('--------------------------------');
-    debugPrint('SELECTED CROP DETAILS');
-    debugPrint('--------------------------------');
-
-    // Location
-    debugPrint('--------------------------------');
-    debugPrint('LOCATION');
-    debugPrint('--------------------------------');
-
-    debugPrint('latitude: $latitude');
-    debugPrint('longitude: $longitude');
-
-    debugPrint('networkLatitude: $latitude');
-    debugPrint('networkLongitude: $longitude');
-
-    debugPrint('gpsLatitude: $latitude');
-    debugPrint('gpsLongitude: $longitude');
-
-    debugPrint('differenceByAndroid: 0.0');
-
-    // Device information
-    debugPrint('--------------------------------');
-    debugPrint('DEVICE INFORMATION');
-    debugPrint('--------------------------------');
-
-    debugPrint('strNetworkInfo: $networkInfo');
-    debugPrint('strBatteryInfo: $batteryInfo');
-
-    // Activity
-    debugPrint('activityId: 2');
-
-    // Image
-    debugPrint('--------------------------------');
-    debugPrint('IMAGE');
-    debugPrint('--------------------------------');
-
-    debugPrint(
-      'selfie_capture_image: '
-      '${_uploadedImage?.path ?? 'No image selected'}',
-    );
-
-    debugPrint('================================');
-    debugPrint('END FARMER REGISTRATION PARAMS');
-    debugPrint('================================');
-
-    debugPrint('================================');
-
-    final userData = await SecureStorage.instance.getUserData();
-
-    final userId = int.tryParse(userData?['user_id']?.toString() ?? '');
-
-    debugPrint('User ID: $userId');
-
+    // Lock before device/location lookups yield to another tap.
     setState(() {
       isLoading = true;
       _submissionSent = false;
     });
 
     try {
+      final batteryInfo = await DeviceInfoUtil.instance.getBatteryInfo();
+
+      final networkInfo = await DeviceInfoUtil.instance.getNetworkInfo();
+
+      final position = await LocationUtil.instance.getCurrentLocation();
+
+      String latitude = '';
+      String longitude = '';
+      String address = '';
+
+      if (position != null) {
+        latitude = position.latitude.toString();
+        longitude = position.longitude.toString();
+
+        address = await LocationUtil.instance.getAddress(
+          position.latitude,
+          position.longitude,
+        );
+      }
+
+      debugPrint('================================');
+      debugPrint('FARMER REGISTRATION - ALL PARAMS');
+      debugPrint('================================');
+
+      debugPrint('FARMER LATTTT - $latitude');
+      debugPrint('FARMER LONG - $longitude');
+      debugPrint('================================');
+
+      debugPrint('fld_address: ${addressController.text.trim()}');
+
+      debugPrint('fld_category_id: ');
+      debugPrint('state: ${_selectedStateId ?? '0'}');
+      debugPrint('fld_demo_type_id: ');
+      debugPrint('district: ${_selectedDistrictId ?? '0'}');
+      debugPrint('taluka: ${_selectedTalukaId ?? '0'}');
+
+      debugPrint('campaign_radio: Yes');
+
+      // Mobile / contact
+      debugPrint('fld_mobile_no: ${mobileController.text.trim()}');
+      debugPrint('fld_mobile_no2: ${alternateMobileController.text.trim()}');
+      debugPrint('fld_email_id: ${emailController.text.trim()}');
+
+      debugPrint('geoAddress: $address');
+      debugPrint('meetingLocation: ');
+      debugPrint('marketNearby: ');
+
+      // Other farmer details
+      debugPrint('fld_tractor_mode: ');
+
+      debugPrint('aadhaarNo: ');
+      debugPrint('remark: ${remarkController.text.trim()}');
+
+      debugPrint('selectedCattleId: ');
+      debugPrint('selectedCattleCount: ');
+
+      // Crop details
+      debugPrint('--------------------------------');
+      debugPrint('SELECTED CROP DETAILS');
+      debugPrint('--------------------------------');
+
+      // Location
+      debugPrint('--------------------------------');
+      debugPrint('LOCATION');
+      debugPrint('--------------------------------');
+
+      debugPrint('latitude: $latitude');
+      debugPrint('longitude: $longitude');
+
+      debugPrint('networkLatitude: $latitude');
+      debugPrint('networkLongitude: $longitude');
+
+      debugPrint('gpsLatitude: $latitude');
+      debugPrint('gpsLongitude: $longitude');
+
+      debugPrint('differenceByAndroid: 0.0');
+
+      // Device information
+      debugPrint('--------------------------------');
+      debugPrint('DEVICE INFORMATION');
+      debugPrint('--------------------------------');
+
+      debugPrint('strNetworkInfo: $networkInfo');
+      debugPrint('strBatteryInfo: $batteryInfo');
+
+      // Activity
+      debugPrint('activityId: 2');
+
+      // Image
+      debugPrint('--------------------------------');
+      debugPrint('IMAGE');
+      debugPrint('--------------------------------');
+
+      debugPrint(
+        'selfie_capture_image: '
+        '${_uploadedImage?.path ?? 'No image selected'}',
+      );
+
+      debugPrint('================================');
+      debugPrint('END FARMER REGISTRATION PARAMS');
+      debugPrint('================================');
+
+      debugPrint('================================');
+
+      final userData = await SecureStorage.instance.getUserData();
+
+      final userId = int.tryParse(userData?['user_id']?.toString() ?? '');
+
+      debugPrint('User ID: $userId');
+
+      if (!mounted) return;
       context.read<AddDealerVisitBlock>().add(
         AddDealerFollowUpEvent(
           userId: userId.toString(),
@@ -409,10 +461,12 @@ class _DealerFollowupAddState extends State<DealerFollowupAdd> {
   }
 
   Future<void> _pickDate() async {
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
     final selectedDate = await showDatePicker(
       context: context,
-      initialDate: DateTime.now(),
-      firstDate: DateTime(2000),
+      initialDate: today,
+      firstDate: today,
       lastDate: DateTime(2100),
     );
 
@@ -601,7 +655,6 @@ class _DealerFollowupAddState extends State<DealerFollowupAdd> {
       DistrictEvent(userId: userId.toString(), stateId: stateId),
     );
   }
- 
 
   @override
   Widget build(BuildContext context) {
@@ -617,10 +670,10 @@ class _DealerFollowupAddState extends State<DealerFollowupAdd> {
           BlocBuilder<AddDealerVisitBlock, AddDealerVisitState>(
             builder: (context, state) {
               return Padding(
-                padding: const EdgeInsets.only(left: 16,right: 16),
+                padding: const EdgeInsets.only(left: 16, right: 16),
                 child: CustomButton(
                   text: 'Register Dealer',
-                  onPressed: _submit,
+                  onPressed: isLoading || _submissionCompleted ? null : _submit,
                   isLoading: isLoading,
                   width: double.infinity,
                   height: 52,
@@ -637,11 +690,13 @@ class _DealerFollowupAddState extends State<DealerFollowupAdd> {
           if (state.addLeaveStatus == AddDealerVisitStatus.dealerAddedSuccess) {
             _clearCapturedImage();
             setState(() {
+              _submissionCompleted = true;
               isLoading = false;
               _submissionSent = false;
             });
 
             final String strAllLocations = await _getStoredLocations();
+            if (!mounted || !context.mounted) return;
 
             debugPrint('========================================');
             debugPrint('CALLING STORE TRACK LOCATION API');
@@ -658,7 +713,7 @@ class _DealerFollowupAddState extends State<DealerFollowupAdd> {
               context: context,
 
               message: 'Dealer Added Successfully',
-              onButtonPressed: () => {context.go(AppRouter.home)},
+              onButtonPressed: () => {context.go('/visits')},
             );
             // context.push(AppRouter.home);
           }
@@ -754,6 +809,9 @@ class _DealerFollowupAddState extends State<DealerFollowupAdd> {
           return SafeArea(
             child: Form(
               key: _formKey,
+              autovalidateMode: _submitted
+                  ? AutovalidateMode.always
+                  : AutovalidateMode.disabled,
 
               child: SingleChildScrollView(
                 padding: const EdgeInsets.only(left: 16, right: 16),
@@ -957,6 +1015,7 @@ class _DealerFollowupAddState extends State<DealerFollowupAdd> {
 
                       prefixIcon: Icons.map_outlined,
 
+                      compactItems: true,
                       items: stateItems,
 
                       onChanged: (value) {
@@ -1017,6 +1076,7 @@ class _DealerFollowupAddState extends State<DealerFollowupAdd> {
                       prefixIcon: Icons.location_city_outlined,
                       enabled:
                           _selectedStateId != null && _selectedStateId != '0',
+                      compactItems: true,
                       items: districtItems,
                       onChanged: (value) {
                         _onDistrictSelected(value, state);
@@ -1030,32 +1090,6 @@ class _DealerFollowupAddState extends State<DealerFollowupAdd> {
                       },
                     ),
 
-                    // CustomDropdown<String>(
-                    //   value: _selectedDistrictId == '0'
-                    //       ? null
-                    //       : _selectedDistrictId,
-
-                    //   hintText: 'Select District',
-
-                    //   prefixIcon: Icons.location_city_outlined,
-
-                    //   enabled:
-                    //       _selectedStateId != null && _selectedStateId != '0',
-
-                    //   items: districtItems,
-
-                    //   onChanged: (value) {
-                    //     _onDistrictSelected(value, state);
-                    //   },
-
-                    //   validator: (value) {
-                    //     if (value == null || value == '0') {
-                    //       return 'Please select district';
-                    //     }
-
-                    //     return null;
-                    //   },
-                    // ),
                     SizedBox(height: 10.h),
 
                     const Text(
@@ -1078,6 +1112,7 @@ class _DealerFollowupAddState extends State<DealerFollowupAdd> {
                           _selectedDistrictId != null &&
                           _selectedDistrictId != '0' &&
                           talukaList.isNotEmpty,
+                      compactItems: true,
                       items: talukaItems,
                       onChanged: (value) {
                         setState(() {
@@ -1287,7 +1322,7 @@ class _DealerFollowupAddState extends State<DealerFollowupAdd> {
             onTap: _captureImage,
             borderRadius: BorderRadius.circular(16.r),
             child: Container(
-              height: 260.h,
+              height: 200.h,
               width: double.infinity,
               decoration: BoxDecoration(
                 color: const Color(0xFFFAFAFA),
