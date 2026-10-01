@@ -47,8 +47,9 @@ class _EnquiryPageState extends State<EnquiryPage> {
   final TextEditingController _addressController =
       TextEditingController();
 
-  final TextEditingController _messageController =
-      TextEditingController();
+  final TextEditingController _messageController =TextEditingController();
+
+   
 
   // ============================================================
   // SELECTED VALUES
@@ -68,6 +69,8 @@ class _EnquiryPageState extends State<EnquiryPage> {
   void initState() {
     super.initState();
 
+       _messageController.text =
+      'I would like to buy this product.';
     debugPrint('======================================');
     debugPrint('PRODUCT ENQUIRY PAGE');
     debugPrint('PRODUCT ID   : ${widget.productId}');
@@ -1025,29 +1028,49 @@ Widget build(BuildContext context) {
     );
   }
 
-  // ============================================================
-  // ENQUIRY FIELDS
-  // ============================================================
+  // // ============================================================
+  // // ENQUIRY FIELDS
+  // // ============================================================
 
-  Widget _buildEnquiryFields() {
-    return CustomTextFormField(
-      controller:
-          _messageController,
-      hintText:
-          'Write your enquiry here...',
-      labelText:
-          'Message / Remark *',
-      prefixIcon:
-          Icons.chat_bubble_outline_rounded,
-      suffixIcon: null,
-      keyboardType:
-          TextInputType.multiline,
-      maxLines: 5,
-      maxLength: 500,
-      validator:
-          _validateMessage,
-    );
-  }
+  // Widget _buildEnquiryFields() {
+  //   return CustomTextFormField(
+  //     controller:
+  //         _messageController,
+  //     hintText:
+  //         'Write your enquiry here...',
+  //     labelText:
+  //         'Message / Remark *',
+  //     prefixIcon:
+  //         Icons.chat_bubble_outline_rounded,
+  //     suffixIcon: null,
+  //     keyboardType:
+  //         TextInputType.multiline,
+  //     maxLines: 5,
+  //     maxLength: 500,
+  //     validator:
+  //         _validateMessage,
+  //   );
+  // }
+
+
+   // ============================================================
+// ENQUIRY FIELDS
+// ============================================================
+
+Widget _buildEnquiryFields() {
+  return CustomTextFormField(
+    controller: _messageController,
+    hintText: 'Write your enquiry here...',
+    labelText: 'Message / Remark *',
+    prefixIcon: Icons.chat_bubble_outline_rounded,
+    suffixIcon: null,
+    keyboardType: TextInputType.multiline,
+    maxLines: 5,
+    maxLength: 500,
+    validator: _validateMessage,
+  );
+}
+
 
   // ============================================================
   // DROPDOWN CONTAINER

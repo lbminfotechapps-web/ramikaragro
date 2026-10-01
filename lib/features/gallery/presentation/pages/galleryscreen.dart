@@ -86,7 +86,7 @@ class _GalleryScreenState extends State<GalleryScreen>
       backgroundColor: Colors.white,
 
       appBar: CustomAppBar(
-        title: 'Gallary',
+        title: 'Gallery',
         showBackButton: true,
         onBackTap: () => Navigator.pop(context),
       ),

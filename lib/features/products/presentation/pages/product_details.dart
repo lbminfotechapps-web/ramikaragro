@@ -175,12 +175,12 @@ class ProductDetails extends StatelessWidget {
     // if (userData == null) {
     //   if (!context.mounted) return;
 
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('User information not found. Please login again.'),
-        behavior: SnackBarBehavior.floating,
-      ),
-    );
+    // ScaffoldMessenger.of(context).showSnackBar(
+    //   const SnackBar(
+    //     content: Text('User information not found. Please login again.'),
+    //     behavior: SnackBarBehavior.floating,
+    //   ),
+    // );
 
     //   return;
     // }
@@ -190,31 +190,19 @@ class ProductDetails extends StatelessWidget {
     // if (userId.isEmpty) {
     //   if (!context.mounted) return;
 
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('User ID not found. Please login again.'),
-        behavior: SnackBarBehavior.floating,
-      ),
-    );
+    // ScaffoldMessenger.of(context).showSnackBar(
+    //   const SnackBar(
+    //     content: Text('User ID not found. Please login again.'),
+    //     behavior: SnackBarBehavior.floating,
+    //   ),
+    // );
 
     //   return;
     // }
 
     if (!context.mounted) return;
 
-    // Navigator.push(
-    //   context,
-    //   MaterialPageRoute(
-    //     builder: (_) => BlocProvider<EnquiryBloc>(
-    //       create: (_) => sl<EnquiryBloc>(),
-    //       child: EnquiryPage(
-    //         productId: product!.productId,
-    //         productName: product!.productName,
-    //         userId: userId,
-    //       ),
-    //     ),
-    //   ),
-    // );
+  
     context.push(
       '/productEnquiry',
       extra: {
