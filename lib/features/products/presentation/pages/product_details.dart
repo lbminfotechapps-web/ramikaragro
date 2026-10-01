@@ -12,8 +12,259 @@ import 'package:flutter_screenutil_plus/flutter_screenutil_plus.dart';
 import 'package:go_router/go_router.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 
-// IMPORTANT:
-// Use the file where your existing global `sl = GetIt.instance` is defined.
+enum ProductLanguage { english, marathi, hindi, kannada }
+
+class DynamicHtmlContent extends StatefulWidget {
+  final String htmlContent;
+
+  const DynamicHtmlContent({super.key, required this.htmlContent});
+
+  @override
+  State<DynamicHtmlContent> createState() => _DynamicHtmlContentState();
+}
+
+class _DynamicHtmlContentState extends State<DynamicHtmlContent> {
+  late final WebViewController _controller;
+
+  double _webViewHeight = 1;
+
+  @override
+  void initState() {
+    super.initState();
+
+    _controller = WebViewController()
+      ..setJavaScriptMode(JavaScriptMode.unrestricted)
+      ..setBackgroundColor(Colors.transparent)
+      ..addJavaScriptChannel(
+        'Height',
+        onMessageReceived: (message) {
+          final height = double.tryParse(message.message);
+
+          if (height == null) {
+            return;
+          }
+
+          if (!mounted) {
+            return;
+          }
+
+          if (height <= 0) {
+            return;
+          }
+
+          setState(() {
+            _webViewHeight = height + 4;
+          });
+        },
+      )
+      ..setNavigationDelegate(
+        NavigationDelegate(
+          onPageFinished: (url) {
+            _calculateHeight();
+          },
+        ),
+      )
+      ..loadHtmlString(_buildHtml(widget.htmlContent));
+  }
+
+  // ============================================================
+  // CALCULATE HTML HEIGHT
+  // ============================================================
+
+  Future<void> _calculateHeight() async {
+    try {
+      await _controller.runJavaScript('''
+        setTimeout(function() {
+          var body = document.body;
+          var html = document.documentElement;
+
+          var height = Math.max(
+            body.scrollHeight,
+            body.offsetHeight,
+            html.clientHeight,
+            html.scrollHeight,
+            html.offsetHeight
+          );
+
+          Height.postMessage(height.toString());
+        }, 100);
+      ''');
+    } catch (e) {
+      debugPrint('WEBVIEW HEIGHT ERROR: $e');
+    }
+  }
+
+  // ============================================================
+  // BUILD HTML
+  // ============================================================
+
+  String _buildHtml(String htmlContent) {
+    return '''
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta
+  name="viewport"
+  content="width=device-width,
+  initial-scale=1.0,
+  maximum-scale=1.0,
+  user-scalable=no">
+
+<style>
+
+html,
+body {
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  background: transparent;
+}
+
+body {
+  font-family:
+    Arial,
+    "Noto Sans",
+    sans-serif;
+
+  font-size: 14px;
+
+  line-height: 1.55;
+
+  color: #424242;
+
+  overflow: hidden;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  margin-top: 4px;
+  margin-bottom: 6px;
+}
+
+h4 {
+  font-size: 17px;
+}
+
+p {
+  margin-top: 4px;
+  margin-bottom: 7px;
+}
+
+ul,
+ol {
+  margin-top: 4px;
+  margin-bottom: 8px;
+  padding-left: 22px;
+}
+
+li {
+  margin-top: 0;
+  margin-bottom: 4px;
+  padding: 0;
+}
+
+img {
+  max-width: 100%;
+  height: auto;
+  display: block;
+}
+
+.greenLine {
+  width: 50px;
+  border-bottom: 3px solid #228B22;
+  margin: 4px 0 8px 0;
+}
+
+.languageBlock {
+  margin: 0;
+  padding: 0;
+}
+
+.languageSeparator {
+  width: 100%;
+  height: 1px;
+  background-color: #E5E5E5;
+
+  margin-top: 12px;
+  margin-bottom: 12px;
+}
+
+meta,
+title,
+link,
+style {
+  display: none;
+}
+
+</style>
+
+</head>
+
+<body>
+
+$htmlContent
+
+<script>
+
+function sendHeight() {
+
+  var body = document.body;
+
+  var html = document.documentElement;
+
+  var height = Math.max(
+    body.scrollHeight,
+    body.offsetHeight,
+    html.clientHeight,
+    html.scrollHeight,
+    html.offsetHeight
+  );
+
+  Height.postMessage(
+    height.toString()
+  );
+}
+
+window.onload = function() {
+
+  sendHeight();
+
+  setTimeout(
+    sendHeight,
+    100
+  );
+
+  setTimeout(
+    sendHeight,
+    300
+  );
+};
+
+</script>
+
+</body>
+
+</html>
+''';
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      height: _webViewHeight,
+      child: WebViewWidget(controller: _controller),
+    );
+  }
+}
 
 class ProductDetails extends StatelessWidget {
   final FertilizerProductEntity? product;
@@ -25,6 +276,14 @@ class ProductDetails extends StatelessWidget {
     if (product == null) {
       return const Scaffold(body: Center(child: Text('Product Not Found')));
     }
+
+    // ============================================================
+    // PREPARE PRODUCT CONTENT
+    // ============================================================
+
+    final String productContent = _prepareProductContent(
+      product!.productContents,
+    );
 
     return Scaffold(
       backgroundColor: AppColors.backgroundColor,
@@ -44,20 +303,20 @@ class ProductDetails extends StatelessWidget {
       // BODY
       // ============================================================
       body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.fromLTRB(16, 16, 16, 24),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            // ========================================================
+            // ======================================================
             // PRODUCT IMAGE
-            // ========================================================
+            // ======================================================
             _buildProductImage(context),
 
-            const SizedBox(height: 20),
+            const SizedBox(height: 16),
 
-            // ========================================================
+            // ======================================================
             // PRODUCT NAME
-            // ========================================================
+            // ======================================================
             Text(
               product!.productName,
               textAlign: TextAlign.center,
@@ -70,9 +329,9 @@ class ProductDetails extends StatelessWidget {
 
             const SizedBox(height: 16),
 
-            // ========================================================
-            // PRODUCT ENQUIRY BUTTON
-            // ========================================================
+            // ======================================================
+            // PRODUCT ENQUIRY
+            // ======================================================
             SizedBox(
               height: 50,
               child: ElevatedButton.icon(
@@ -103,12 +362,12 @@ class ProductDetails extends StatelessWidget {
               ),
             ),
 
-            const SizedBox(height: 20),
+            const SizedBox(height: 16),
 
-            // ========================================================
+            // ======================================================
             // SHORT DETAILS
-            // ========================================================
-            if (product!.productShortDetails.isNotEmpty)
+            // ======================================================
+            if (product!.productShortDetails.trim().isNotEmpty)
               _buildSection(
                 title: 'Product Details',
                 child: Text(
@@ -121,19 +380,10 @@ class ProductDetails extends StatelessWidget {
                 ),
               ),
 
-            // ========================================================
-            // DESCRIPTION
-            // ========================================================
-            if (product!.productContents.isNotEmpty)
-              _buildSection(
-                title: 'Description',
-                child: _buildHtmlContent(product!.productContents),
-              ),
-
-            // ========================================================
+            // ======================================================
             // DOSAGE
-            // ========================================================
-            if (product!.productDosage.isNotEmpty)
+            // ======================================================
+            if (product!.productDosage.trim().isNotEmpty)
               _buildSection(
                 title: 'Dosage',
                 child: Text(
@@ -146,75 +396,143 @@ class ProductDetails extends StatelessWidget {
                 ),
               ),
 
-            // ========================================================
+            // ======================================================
             // PRODUCT CONTENT
-            // ========================================================
-            if (product!.productContents.isNotEmpty)
+            // ======================================================
+            if (productContent.isNotEmpty)
               _buildSection(
                 title: 'Product Contents',
-                child: _buildHtmlContent(product!.productContents),
+                child: DynamicHtmlContent(htmlContent: productContent),
               ),
 
-            // ========================================================
+            // ======================================================
             // DISEASE IMAGE
-            // ========================================================
-            if (product!.diseasePath.isNotEmpty) _buildDiseaseImage(),
+            // ======================================================
+            if (product!.diseasePath.trim().isNotEmpty) _buildDiseaseImage(),
           ],
         ),
       ),
     );
   }
 
-  // ==============================================================
-  // OPEN PRODUCT ENQUIRY
-  // ==============================================================
+  // ============================================================
+  // PREPARE PRODUCT CONTENT
+  //
+  // API:
+  //
+  // English *_* Marathi *_* Hindi *_* Kannada
+  //
+  // OR sometimes only one language.
+  //
+  // This method:
+  // 1. Splits *_*
+  // 2. Removes empty blocks
+  // 3. Removes duplicate blocks
+  // 4. Shows every available block once
+  // ============================================================
+
+  String _prepareProductContent(String content) {
+    if (content.trim().isEmpty) {
+      return '';
+    }
+
+    final List<String> parts = content
+        .split('*_*')
+        .map((e) => e.trim())
+        .where((e) => e.isNotEmpty)
+        .toList();
+
+    if (parts.isEmpty) {
+      return '';
+    }
+
+    final List<String> uniqueParts = [];
+
+    final Set<String> alreadyAdded = {};
+
+    for (final part in parts) {
+      final String comparableContent = _normalizeHtmlForComparison(part);
+
+      if (comparableContent.isEmpty) {
+        continue;
+      }
+
+      if (!alreadyAdded.contains(comparableContent)) {
+        alreadyAdded.add(comparableContent);
+
+        uniqueParts.add(part);
+      }
+    }
+
+    if (uniqueParts.isEmpty) {
+      return '';
+    }
+
+    // Only one language from API.
+    if (uniqueParts.length == 1) {
+      return uniqueParts.first;
+    }
+
+    // Multiple unique languages.
+    return uniqueParts
+        .map(
+          (content) =>
+              '''
+<div class="languageBlock">
+  $content
+</div>
+''',
+        )
+        .join('''
+<div class="languageSeparator"></div>
+''');
+  }
+
+  // ============================================================
+  // NORMALIZE HTML FOR DUPLICATE CHECK
+  // ============================================================
+
+  String _normalizeHtmlForComparison(String html) {
+    return html
+        .replaceAll(
+          RegExp(r'<style[^>]*>[\s\S]*?</style>', caseSensitive: false),
+          '',
+        )
+        .replaceAll(RegExp(r'<link[^>]*>', caseSensitive: false), '')
+        .replaceAll(RegExp(r'<meta[^>]*>', caseSensitive: false), '')
+        .replaceAll(
+          RegExp(r'<title[^>]*>[\s\S]*?</title>', caseSensitive: false),
+          '',
+        )
+        .replaceAll(RegExp(r'<[^>]*>'), '')
+        .replaceAll('&nbsp;', ' ')
+        .replaceAll('&amp;', '&')
+        .replaceAll('&bull;', '•')
+        .replaceAll(RegExp(r'\s+'), ' ')
+        .trim()
+        .toLowerCase();
+  }
+
+  // ============================================================
+  // PRODUCT ENQUIRY
+  // ============================================================
 
   Future<void> _openProductEnquiry(BuildContext context) async {
     final userData = await SecureStorage.instance.getUserData();
 
-    // if (userData == null) {
-    //   if (!context.mounted) return;
-
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('User information not found. Please login again.'),
-        behavior: SnackBarBehavior.floating,
-      ),
-    );
-
-    //   return;
-    // }
+    if (!context.mounted) {
+      return;
+    }
 
     final String userId = userData?['user_id']?.toString() ?? '';
 
-    // if (userId.isEmpty) {
-    //   if (!context.mounted) return;
+    debugPrint('======================================');
+    debugPrint('OPEN PRODUCT ENQUIRY');
+    debugPrint('USER ID      : $userId');
+    debugPrint('PRODUCT ID   : ${product!.productId}');
+    debugPrint('PRODUCT NAME : ${product!.productName}');
+    debugPrint('======================================');
 
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('User ID not found. Please login again.'),
-        behavior: SnackBarBehavior.floating,
-      ),
-    );
-
-    //   return;
-    // }
-
-    if (!context.mounted) return;
-
-    // Navigator.push(
-    //   context,
-    //   MaterialPageRoute(
-    //     builder: (_) => BlocProvider<EnquiryBloc>(
-    //       create: (_) => sl<EnquiryBloc>(),
-    //       child: EnquiryPage(
-    //         productId: product!.productId,
-    //         productName: product!.productName,
-    //         userId: userId,
-    //       ),
-    //     ),
-    //   ),
-    // );
     context.push(
       '/productEnquiry',
       extra: {
@@ -224,70 +542,63 @@ class ProductDetails extends StatelessWidget {
     );
   }
 
-  Widget _buildHtmlContent(String htmlContent) {
-    final controller = WebViewController()
-      ..setJavaScriptMode(JavaScriptMode.unrestricted)
-      ..setBackgroundColor(Colors.transparent)
-      ..loadHtmlString('''
-<!DOCTYPE html>
-<html>
-<head>
-<meta charset="UTF-8">
+  // ============================================================
+  // PRODUCT IMAGE
+  // ============================================================
 
-<meta name="viewport"
-      content="width=device-width, initial-scale=1.0">
+  Widget _buildProductImage(BuildContext context) {
+    if (product!.productPath.trim().isEmpty) {
+      return _imagePlaceholder();
+    }
 
-<style>
-  body {
-    font-family: Arial, sans-serif;
-    font-size: 14px;
-    line-height: 1.6;
-    color: #424242;
-    margin: 0;
-    padding: 0;
-    background: transparent;
+    final imageUrl =
+        '${ApiClient.imageBaseUrl}/products/${product!.productPath}';
+
+    return GestureDetector(
+      onTap: () {
+        _showZoomImage(context, imageUrl);
+      },
+      child: Container(
+        height: 260,
+        width: double.infinity,
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(20),
+        ),
+        padding: const EdgeInsets.all(16),
+        child: Stack(
+          children: [
+            Center(
+              child: Image.network(
+                imageUrl,
+                fit: BoxFit.contain,
+                errorBuilder: (_, __, ___) {
+                  return _imagePlaceholder();
+                },
+              ),
+            ),
+
+            Positioned(
+              right: 8,
+              bottom: 8,
+              child: Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: Colors.black.withOpacity(0.55),
+                  shape: BoxShape.circle,
+                ),
+                child: const Icon(Icons.zoom_in, color: Colors.white, size: 22),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 
-  ul {
-    padding-left: 22px;
-  }
-
-  li {
-    margin-bottom: 6px;
-  }
-
-  p {
-    margin-top: 6px;
-    margin-bottom: 8px;
-  }
-
-  h2, h3, h4 {
-    margin-top: 10px;
-    margin-bottom: 8px;
-  }
-
-  img {
-    max-width: 100%;
-    height: auto;
-  }
-</style>
-
-</head>
-
-<body>
-
-${htmlContent.replaceAll('*_*', '<hr>')}
-
-</body>
-</html>
-''');
-
-    return SizedBox(height: 1000, child: WebViewWidget(controller: controller));
-  }
-
-  // ==============================================================
-  // SHOW ZOOM IMAGE
-  // ==============================================================
+  // ============================================================
+  // ZOOM IMAGE
+  // ============================================================
 
   void _showZoomImage(BuildContext context, String imageUrl) {
     showDialog(
@@ -299,9 +610,6 @@ ${htmlContent.replaceAll('*_*', '<hr>')}
           insetPadding: EdgeInsets.zero,
           child: Stack(
             children: [
-              // ====================================================
-              // ZOOMABLE IMAGE
-              // ====================================================
               Center(
                 child: InteractiveViewer(
                   minScale: 0.5,
@@ -322,9 +630,6 @@ ${htmlContent.replaceAll('*_*', '<hr>')}
                 ),
               ),
 
-              // ====================================================
-              // CLOSE BUTTON
-              // ====================================================
               Positioned(
                 top: 40,
                 right: 20,
@@ -353,74 +658,14 @@ ${htmlContent.replaceAll('*_*', '<hr>')}
     );
   }
 
-  // ==============================================================
-  // PRODUCT IMAGE
-  // ==============================================================
-
-  Widget _buildProductImage(BuildContext context) {
-    if (product!.productPath.isEmpty) {
-      return _imagePlaceholder();
-    }
-
-    final imageUrl =
-        '${ApiClient.imageBaseUrl}/products/${product!.productPath}';
-
-    return GestureDetector(
-      onTap: () {
-        _showZoomImage(context, imageUrl);
-      },
-      child: Container(
-        height: 260,
-        width: double.infinity,
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(20),
-        ),
-        padding: const EdgeInsets.all(16),
-        child: Stack(
-          children: [
-            // ======================================================
-            // IMAGE
-            // ======================================================
-            Center(
-              child: Image.network(
-                imageUrl,
-                fit: BoxFit.contain,
-                errorBuilder: (_, __, ___) {
-                  return _imagePlaceholder();
-                },
-              ),
-            ),
-
-            // ======================================================
-            // ZOOM ICON
-            // ======================================================
-            Positioned(
-              right: 8,
-              bottom: 8,
-              child: Container(
-                padding: const EdgeInsets.all(8),
-                decoration: BoxDecoration(
-                  color: Colors.black.withOpacity(0.55),
-                  shape: BoxShape.circle,
-                ),
-                child: const Icon(Icons.zoom_in, color: Colors.white, size: 22),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  // ==============================================================
+  // ============================================================
   // SECTION
-  // ==============================================================
+  // ============================================================
 
   Widget _buildSection({required String title, required Widget child}) {
     return Container(
-      margin: const EdgeInsets.only(bottom: 16),
-      padding: const EdgeInsets.all(16),
+      margin: const EdgeInsets.only(bottom: 14),
+      padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
@@ -444,7 +689,7 @@ ${htmlContent.replaceAll('*_*', '<hr>')}
             ),
           ),
 
-          const SizedBox(height: 10),
+          const SizedBox(height: 8),
 
           child,
         ],
@@ -452,14 +697,14 @@ ${htmlContent.replaceAll('*_*', '<hr>')}
     );
   }
 
-  // ==============================================================
+  // ============================================================
   // DISEASE IMAGE
-  // ==============================================================
+  // ============================================================
 
   Widget _buildDiseaseImage() {
     return Container(
-      margin: const EdgeInsets.only(bottom: 16),
-      padding: const EdgeInsets.all(16),
+      margin: const EdgeInsets.only(bottom: 14),
+      padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
@@ -476,18 +721,22 @@ ${htmlContent.replaceAll('*_*', '<hr>')}
             ),
           ),
 
-          const SizedBox(height: 12),
+          const SizedBox(height: 10),
 
           Image.network(
             '${ApiClient.imageBaseUrl}/disease/${product!.diseasePath}',
-            height: 200,
             width: double.infinity,
             fit: BoxFit.contain,
             errorBuilder: (_, __, ___) {
-              return const Icon(
-                Icons.image_not_supported_outlined,
-                size: 60,
-                color: Colors.grey,
+              return const SizedBox(
+                height: 140,
+                child: Center(
+                  child: Icon(
+                    Icons.image_not_supported_outlined,
+                    size: 60,
+                    color: Colors.grey,
+                  ),
+                ),
               );
             },
           ),
@@ -496,9 +745,9 @@ ${htmlContent.replaceAll('*_*', '<hr>')}
     );
   }
 
-  // ==============================================================
+  // ============================================================
   // IMAGE PLACEHOLDER
-  // ==============================================================
+  // ============================================================
 
   Widget _imagePlaceholder() {
     return Container(
@@ -512,17 +761,5 @@ ${htmlContent.replaceAll('*_*', '<hr>')}
         child: Icon(Icons.inventory_2_rounded, size: 80, color: Colors.grey),
       ),
     );
-  }
-
-  // ==============================================================
-  // REMOVE HTML
-  // ==============================================================
-
-  String _removeHtml(String html) {
-    return html
-        .replaceAll(RegExp(r'<[^>]*>'), '')
-        .replaceAll('&nbsp;', ' ')
-        .replaceAll('&amp;', '&')
-        .trim();
   }
 }

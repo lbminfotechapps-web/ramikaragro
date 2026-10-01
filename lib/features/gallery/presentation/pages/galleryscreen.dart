@@ -86,7 +86,7 @@ class _GalleryScreenState extends State<GalleryScreen>
       backgroundColor: Colors.white,
 
       appBar: CustomAppBar(
-        title: 'Gallary',
+        title: 'Gallery',
         showBackButton: true,
         onBackTap: () => Navigator.pop(context),
       ),
@@ -375,8 +375,10 @@ class _GalleryScreenState extends State<GalleryScreen>
                   children: [
                     Expanded(
                       child: Text(
-                        item.galleryTitle.isNotEmpty
+                        item.galleryTitle.trim().isNotEmpty
                             ? item.galleryTitle
+                            : type == 'CERTIFICATES'
+                            ? 'Certificate'
                             : 'Gallery',
 
                         maxLines: 2,

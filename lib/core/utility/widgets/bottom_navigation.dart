@@ -1,3 +1,5 @@
+import 'package:solufine/core/di/auth_di.dart';
+import 'package:solufine/features/auth/provider/auth_provider.dart';
 import 'connection_status_row.dart';
 import 'package:solufine/core/router/app_router.dart';
 import 'package:solufine/core/secure_storage/secure_storage.dart';
@@ -27,6 +29,9 @@ class HomeShellState extends State<HomeShell> {
   // ============================================================
 
   GoRouterDelegate? _routerDelegate;
+  late final AuthProvider _authProvider;
+
+  List<int> get _visibleTabIndices => _userId > 0 ? [0, 1, 2] : [0, 2];
 
   int _userId = 0;
   String _username = 'user';
@@ -70,6 +75,8 @@ class HomeShellState extends State<HomeShell> {
   @override
   void initState() {
     super.initState();
+    _authProvider = sl<AuthProvider>();
+    _authProvider.addListener(_onAuthChanged);
 
     // ----------------------------------------------------------
     // INITIAL HOME LOAD
@@ -95,8 +102,14 @@ class HomeShellState extends State<HomeShell> {
     delegate.addListener(_checkHomeNavigation);
   }
 
+  void _onAuthChanged() {
+    if (!mounted || _authProvider.isChecking) return;
+    _refreshHome();
+  }
+
   @override
   void dispose() {
+    _authProvider.removeListener(_onAuthChanged);
     _routerDelegate?.removeListener(_checkHomeNavigation);
     super.dispose();
   }
@@ -303,10 +316,12 @@ class HomeShellState extends State<HomeShell> {
   // ============================================================
 
   void _onTabTapped(int index) {
-    if (index < 0 || index >= _tabs.length) {
+    final visibleTabIndices = _visibleTabIndices;
+    if (index < 0 || index >= visibleTabIndices.length) {
       return;
     }
 
+    final branchIndex = visibleTabIndices[index];
     final currentIndex = widget.navigationShell.currentIndex;
 
     debugPrint('======================================');
@@ -320,8 +335,8 @@ class HomeShellState extends State<HomeShell> {
     // ----------------------------------------------------------
 
     widget.navigationShell.goBranch(
-      index,
-      initialLocation: index == currentIndex,
+      branchIndex,
+      initialLocation: branchIndex == currentIndex,
     );
   }
 
@@ -423,6 +438,11 @@ class HomeShellState extends State<HomeShell> {
     // HOME SHELL
     // ==========================================================
 
+    final visibleTabIndices = _visibleTabIndices;
+    final selectedIndex = visibleTabIndices.indexOf(
+      widget.navigationShell.currentIndex,
+    );
+
     return PopScope(
       canPop: false,
 
@@ -452,13 +472,14 @@ class HomeShellState extends State<HomeShell> {
                 context: context,
                 removeBottom: true,
                 child: BottomNavigationBar(
-                  currentIndex: widget.navigationShell.currentIndex,
+                  currentIndex: selectedIndex < 0 ? 0 : selectedIndex,
 
                   type: BottomNavigationBarType.fixed,
 
                   onTap: _onTabTapped,
 
-                  items: _tabs.map((tab) {
+                  items: visibleTabIndices.map((index) {
+                    final tab = _tabs[index];
                     return BottomNavigationBarItem(
                       icon: Icon(tab.icon),
                       label: tab.label,
