@@ -375,8 +375,10 @@ class _GalleryScreenState extends State<GalleryScreen>
                   children: [
                     Expanded(
                       child: Text(
-                        item.galleryTitle.isNotEmpty
+                        item.galleryTitle.trim().isNotEmpty
                             ? item.galleryTitle
+                            : type == 'CERTIFICATES'
+                            ? 'Certificate'
                             : 'Gallery',
 
                         maxLines: 2,

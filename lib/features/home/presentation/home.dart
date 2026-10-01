@@ -632,23 +632,25 @@ class _HomeState extends State<Home> {
                             ),
                           ),
 
-                          SizedBox(width: 8.w),
+                          if (pendingTotalCount != 1) ...[
+                            SizedBox(width: 8.w),
 
-                          Expanded(
-                            child: SizedBox(
-                              height: 100.h,
-                              child: buildInfoCard(
-                                'In Punch Pending',
-                                '$pendingCount/'
-                                    '$pendingTotalCount',
-                                onTap: () {
-                                  final pendingList = data?.result ?? [];
+                            Expanded(
+                              child: SizedBox(
+                                height: 100.h,
+                                child: buildInfoCard(
+                                  'In Punch Pending',
+                                  '$pendingCount/'
+                                      '$pendingTotalCount',
+                                  onTap: () {
+                                    final pendingList = data?.result ?? [];
 
-                                  _showPendingListDialog(pendingList);
-                                },
+                                    _showPendingListDialog(pendingList);
+                                  },
+                                ),
                               ),
                             ),
-                          ),
+                          ],
                         ],
                       );
                     },
@@ -1030,7 +1032,7 @@ class _HomeState extends State<Home> {
                     fontWeight: FontWeight.bold,
                   ),
                 ),
-                Text('Pending Punch', style: TextStyle(fontSize: 10.sp)),
+                // Text('Pending Punch', style: TextStyle(fontSize: 10.sp)),
               ],
             ),
           ),
