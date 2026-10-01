@@ -38,7 +38,7 @@ class UserGuidelinesPage extends StatelessWidget {
               context.go(AppRouter.home);
             },
           ),
-          title: 'About Us',
+          title: 'User Guide',
           titleStyle: const TextStyle(
             fontSize: 22,
             fontWeight: FontWeight.w600,
