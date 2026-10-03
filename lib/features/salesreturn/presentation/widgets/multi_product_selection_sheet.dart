@@ -863,206 +863,457 @@ class _MultiProductRateBottomSheetState
   // RATE CARD
   // ===========================================================================
 
+  // Widget _buildRateCard({
+  //   required String productId,
+  //   required ProductRateEntity rate,
+  // }) {
+  //   final selected =
+  //       _isRateSelected(
+  //     productId,
+  //     rate,
+  //   );
+
+  //   final productDetailsId =
+  //       rate.productDetailsId.toString();
+
+  //   final quantity =
+  //       _quantity(
+  //     productId,
+  //     productDetailsId,
+  //   );
+
+  //   // Debug to verify Unit Per Case.
+  //   debugPrint(
+  //     'RATE CARD => '
+  //     'Product=$productId | '
+  //     'Details=$productDetailsId | '
+  //     'Packing=${rate.packing} ${rate.unit} | '
+  //     'UnitsPerCase="${rate.unitsPerCase}" | '
+  //     'DisplayCase="${rate.displayCase}"',
+  //   );
+
+  //   return InkWell(
+  //     onTap: () {
+  //       _toggleRate(
+  //         productId,
+  //         rate,
+  //       );
+  //     },
+  //     borderRadius:
+  //         BorderRadius.circular(13.r),
+  //     child: AnimatedContainer(
+  //       duration:
+  //           const Duration(
+  //         milliseconds: 150,
+  //       ),
+  //       padding: EdgeInsets.symmetric(
+  //         horizontal: 9.w,
+  //         vertical: 8.h,
+  //       ),
+  //       decoration: BoxDecoration(
+  //         color: selected
+  //             ? AppColors.lightGreen
+  //             : Colors.white,
+  //         borderRadius:
+  //             BorderRadius.circular(13.r),
+  //         border: Border.all(
+  //           color: selected
+  //               ? AppColors.primary
+  //               : AppColors.border,
+  //           width:
+  //               selected ? 1.3 : 1,
+  //         ),
+  //         boxShadow: [
+  //           BoxShadow(
+  //             color: selected
+  //                 ? AppColors.primary
+  //                     .withOpacity(0.07)
+  //                 : Colors.black
+  //                     .withOpacity(0.018),
+  //             blurRadius:
+  //                 selected ? 7 : 5,
+  //             offset:
+  //                 const Offset(0, 2),
+  //           ),
+  //         ],
+  //       ),
+  //       child: Column(
+  //         children: [
+  //           // =================================================================
+  //           // FIRST ROW
+  //           // Packing + Price
+  //           // =================================================================
+
+  //           Row(
+  //             children: [
+  //               // CHECKBOX
+  //               SizedBox(
+  //                 width: 28.w,
+  //                 height: 28.w,
+  //                 child: Checkbox(
+  //                   value: selected,
+  //                   activeColor:
+  //                       AppColors.primary,
+  //                   checkColor:
+  //                       Colors.white,
+  //                   materialTapTargetSize:
+  //                       MaterialTapTargetSize
+  //                           .shrinkWrap,
+  //                   visualDensity:
+  //                       VisualDensity.compact,
+  //                   shape:
+  //                       RoundedRectangleBorder(
+  //                     borderRadius:
+  //                         BorderRadius.circular(
+  //                       5.r,
+  //                     ),
+  //                   ),
+  //                   onChanged: (_) {
+  //                     _toggleRate(
+  //                       productId,
+  //                       rate,
+  //                     );
+  //                   },
+  //                 ),
+  //               ),
+
+  //               SizedBox(width: 6.w),
+
+  //               // PACKING
+  //               Expanded(
+  //                 child: Text(
+  //                   'Packing: ${rate.packing} ${rate.unit}',
+  //                   maxLines: 1,
+  //                   overflow:
+  //                       TextOverflow.ellipsis,
+  //                   style: TextStyle(
+  //                     fontSize: 12.5.sp,
+  //                     fontWeight:
+  //                         FontWeight.w800,
+  //                     color:
+  //                         AppColors.textPrimary,
+  //                   ),
+  //                 ),
+  //               ),
+
+  //               SizedBox(width: 7.w),
+
+  //               // PRICE
+  //               Text(
+  //                 rate.displayRate,
+  //                 style: TextStyle(
+  //                   fontSize: 14.sp,
+  //                   fontWeight:
+  //                       FontWeight.w900,
+  //                   color:
+  //                       AppColors.primary,
+  //                 ),
+  //               ),
+  //             ],
+  //           ),
+
+  //           SizedBox(height: 6.h),
+
+  //           // =================================================================
+  //           // SECOND ROW
+  //           // Unit Per Case + GST + Quantity
+  //           // =================================================================
+
+  //           Row(
+  //             children: [
+  //               // UNIT PER CASE
+  //               _rateInfoBadge(
+  //                 icon:
+  //                     Icons.inventory_2_rounded,
+  //                 label:
+  //                     'Unit/Case',
+  //                 value:
+  //                     rate.displayCase,
+  //                 highlighted: true,
+  //               ),
+
+  //               SizedBox(width: 5.w),
+
+  //               // // GST
+  //               // _rateInfoBadge(
+  //               //   icon:
+  //               //       Icons.percent_rounded,
+  //               //   label: 'GST',
+  //               //   value:
+  //               //       '${rate.gstPercentage}%',
+  //               //   highlighted: false,
+  //               // ),
+
+  //               const Spacer(),
+
+  //               // QUANTITY
+  //               if (selected)
+  //                 _buildQuantityControl(
+  //                   productId:
+  //                       productId,
+  //                   productDetailsId:
+  //                       productDetailsId,
+  //                   quantity:
+  //                       quantity,
+  //                 ),
+  //             ],
+  //           ),
+  //         ],
+  //       ),
+  //     ),
+  //   );
+  // }
+
+
   Widget _buildRateCard({
-    required String productId,
-    required ProductRateEntity rate,
-  }) {
-    final selected =
-        _isRateSelected(
-      productId,
-      rate,
-    );
+  required String productId,
+  required ProductRateEntity rate,
+}) {
+  final selected =
+      _isRateSelected(
+    productId,
+    rate,
+  );
 
-    final productDetailsId =
-        rate.productDetailsId.toString();
+  final productDetailsId =
+      rate.productDetailsId.toString();
 
-    final quantity =
-        _quantity(
-      productId,
-      productDetailsId,
-    );
+  final quantity =
+      _quantity(
+    productId,
+    productDetailsId,
+  );
 
-    // Debug to verify Unit Per Case.
-    debugPrint(
-      'RATE CARD => '
-      'Product=$productId | '
-      'Details=$productDetailsId | '
-      'Packing=${rate.packing} ${rate.unit} | '
-      'UnitsPerCase="${rate.unitsPerCase}" | '
-      'DisplayCase="${rate.displayCase}"',
-    );
+  debugPrint(
+    'RATE CARD => '
+    'Product=$productId | '
+    'Details=$productDetailsId | '
+    'Packing=${rate.packing} ${rate.unit} | '
+    'UnitsPerCase="${rate.unitsPerCase}" | '
+    'DisplayCase="${rate.displayCase}"',
+  );
 
-    return InkWell(
-      onTap: () {
-        _toggleRate(
-          productId,
-          rate,
-        );
-      },
+  return AnimatedContainer(
+    duration:
+        const Duration(
+      milliseconds: 150,
+    ),
+
+    padding:
+        EdgeInsets.symmetric(
+      horizontal: 9.w,
+      vertical: 8.h,
+    ),
+
+    decoration:
+        BoxDecoration(
+      color: selected
+          ? AppColors.lightGreen
+          : Colors.white,
+
       borderRadius:
-          BorderRadius.circular(13.r),
-      child: AnimatedContainer(
-        duration:
-            const Duration(
-          milliseconds: 150,
-        ),
-        padding: EdgeInsets.symmetric(
-          horizontal: 9.w,
-          vertical: 8.h,
-        ),
-        decoration: BoxDecoration(
-          color: selected
-              ? AppColors.lightGreen
-              : Colors.white,
-          borderRadius:
-              BorderRadius.circular(13.r),
-          border: Border.all(
-            color: selected
-                ? AppColors.primary
-                : AppColors.border,
-            width:
-                selected ? 1.3 : 1,
-          ),
-          boxShadow: [
-            BoxShadow(
-              color: selected
-                  ? AppColors.primary
-                      .withOpacity(0.07)
-                  : Colors.black
-                      .withOpacity(0.018),
-              blurRadius:
-                  selected ? 7 : 5,
-              offset:
-                  const Offset(0, 2),
-            ),
-          ],
-        ),
-        child: Column(
-          children: [
-            // =================================================================
-            // FIRST ROW
-            // Packing + Price
-            // =================================================================
-
-            Row(
-              children: [
-                // CHECKBOX
-                SizedBox(
-                  width: 28.w,
-                  height: 28.w,
-                  child: Checkbox(
-                    value: selected,
-                    activeColor:
-                        AppColors.primary,
-                    checkColor:
-                        Colors.white,
-                    materialTapTargetSize:
-                        MaterialTapTargetSize
-                            .shrinkWrap,
-                    visualDensity:
-                        VisualDensity.compact,
-                    shape:
-                        RoundedRectangleBorder(
-                      borderRadius:
-                          BorderRadius.circular(
-                        5.r,
-                      ),
-                    ),
-                    onChanged: (_) {
-                      _toggleRate(
-                        productId,
-                        rate,
-                      );
-                    },
-                  ),
-                ),
-
-                SizedBox(width: 6.w),
-
-                // PACKING
-                Expanded(
-                  child: Text(
-                    'Packing: ${rate.packing} ${rate.unit}',
-                    maxLines: 1,
-                    overflow:
-                        TextOverflow.ellipsis,
-                    style: TextStyle(
-                      fontSize: 12.5.sp,
-                      fontWeight:
-                          FontWeight.w800,
-                      color:
-                          AppColors.textPrimary,
-                    ),
-                  ),
-                ),
-
-                SizedBox(width: 7.w),
-
-                // PRICE
-                Text(
-                  rate.displayRate,
-                  style: TextStyle(
-                    fontSize: 14.sp,
-                    fontWeight:
-                        FontWeight.w900,
-                    color:
-                        AppColors.primary,
-                  ),
-                ),
-              ],
-            ),
-
-            SizedBox(height: 6.h),
-
-            // =================================================================
-            // SECOND ROW
-            // Unit Per Case + GST + Quantity
-            // =================================================================
-
-            Row(
-              children: [
-                // UNIT PER CASE
-                _rateInfoBadge(
-                  icon:
-                      Icons.inventory_2_rounded,
-                  label:
-                      'Unit/Case',
-                  value:
-                      rate.displayCase,
-                  highlighted: true,
-                ),
-
-                SizedBox(width: 5.w),
-
-                // // GST
-                // _rateInfoBadge(
-                //   icon:
-                //       Icons.percent_rounded,
-                //   label: 'GST',
-                //   value:
-                //       '${rate.gstPercentage}%',
-                //   highlighted: false,
-                // ),
-
-                const Spacer(),
-
-                // QUANTITY
-                if (selected)
-                  _buildQuantityControl(
-                    productId:
-                        productId,
-                    productDetailsId:
-                        productDetailsId,
-                    quantity:
-                        quantity,
-                  ),
-              ],
-            ),
-          ],
-        ),
+          BorderRadius.circular(
+        13.r,
       ),
-    );
-  }
+
+      border: Border.all(
+        color: selected
+            ? AppColors.primary
+            : AppColors.border,
+
+        width:
+            selected ? 1.3 : 1,
+      ),
+
+      boxShadow: [
+        BoxShadow(
+          color: selected
+              ? AppColors.primary
+                  .withOpacity(
+                  0.07,
+                )
+              : Colors.black
+                  .withOpacity(
+                  0.018,
+                ),
+
+          blurRadius:
+              selected ? 7 : 5,
+
+          offset:
+              const Offset(
+            0,
+            2,
+          ),
+        ),
+      ],
+    ),
+
+    child: Column(
+      children: [
+        // =========================================================
+        // FIRST ROW
+        // Packing + Price
+        // =========================================================
+
+        Row(
+          children: [
+            // =====================================================
+            // CHECKBOX
+            // ONLY THIS WILL SELECT / UNSELECT
+            // =====================================================
+
+            SizedBox(
+              width: 28.w,
+              height: 28.w,
+
+              child: Checkbox(
+                value: selected,
+
+                activeColor:
+                    AppColors.primary,
+
+                checkColor:
+                    Colors.white,
+
+                materialTapTargetSize:
+                    MaterialTapTargetSize
+                        .shrinkWrap,
+
+                visualDensity:
+                    VisualDensity.compact,
+
+                shape:
+                    RoundedRectangleBorder(
+                  borderRadius:
+                      BorderRadius.circular(
+                    5.r,
+                  ),
+                ),
+
+                onChanged: (value) {
+                  _toggleRate(
+                    productId,
+                    rate,
+                  );
+                },
+              ),
+            ),
+
+            SizedBox(
+              width: 6.w,
+            ),
+
+            // =====================================================
+            // PACKING
+            // CLICKING HERE DOES NOTHING
+            // =====================================================
+
+            Expanded(
+              child: Text(
+                'Packing: ${rate.packing} ${rate.unit}',
+
+                maxLines: 1,
+
+                overflow:
+                    TextOverflow.ellipsis,
+
+                style:
+                    TextStyle(
+                  fontSize:
+                      12.5.sp,
+
+                  fontWeight:
+                      FontWeight.w800,
+
+                  color:
+                      AppColors.textPrimary,
+                ),
+              ),
+            ),
+
+            SizedBox(
+              width: 7.w,
+            ),
+
+            // =====================================================
+            // PRICE
+            // CLICKING HERE DOES NOTHING
+            // =====================================================
+
+            Text(
+              rate.displayRate,
+
+              style: TextStyle(
+                fontSize: 14.sp,
+
+                fontWeight:
+                    FontWeight.w900,
+
+                color:
+                    AppColors.primary,
+              ),
+            ),
+          ],
+        ),
+
+        SizedBox(
+          height: 6.h,
+        ),
+
+        // =========================================================
+        // SECOND ROW
+        // Unit Per Case + Quantity
+        // =========================================================
+
+        Row(
+          children: [
+            // =====================================================
+            // UNIT PER CASE
+            // =====================================================
+
+            _rateInfoBadge(
+              icon:
+                  Icons.inventory_2_rounded,
+
+              label:
+                  'Unit/Case',
+
+              value:
+                  rate.displayCase,
+
+              highlighted:
+                  true,
+            ),
+
+            SizedBox(
+              width: 5.w,
+            ),
+
+            const Spacer(),
+
+            // =====================================================
+            // QUANTITY
+            // =====================================================
+
+            if (selected)
+              _buildQuantityControl(
+                productId:
+                    productId,
+
+                productDetailsId:
+                    productDetailsId,
+
+                quantity:
+                    quantity,
+              ),
+          ],
+        ),
+      ],
+    ),
+  );
+}
+
 
   // ===========================================================================
   // INFO BADGE

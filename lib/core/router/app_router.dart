@@ -44,6 +44,7 @@ import 'package:solufine/features/products/presentation/pages/product_details.da
 import 'package:solufine/features/products/presentation/pages/product_list.dart';
 import 'package:solufine/features/products/presentation/pages/products_screen.dart';
 import 'package:solufine/features/profilepage/profile_page.dart';
+import 'package:solufine/features/reports/presentation/bloc/employee_activity_bloc.dart';
 import 'package:solufine/features/reports/presentation/pages/about_us_page.dart';
 import 'package:solufine/features/reports/presentation/pages/contact_us_page.dart';
 import 'package:solufine/features/reports/presentation/pages/employee_activity_report_page.dart';
@@ -128,7 +129,7 @@ class AppRouter {
   static const String addStock = '/addStock';
   static const String selfcollectionTarget = '/selfcollectionTarget';
 
-   static const String selfAssignTargetPointWise = '/selfAssignTargetPointWise';
+  static const String selfAssignTargetPointWise = '/selfAssignTargetPointWise';
 
   static final GoRouter router = GoRouter(
     initialLocation: splash,
@@ -293,17 +294,13 @@ class AppRouter {
         },
       ),
 
-     
-
-       GoRoute(
+      GoRoute(
         path: selfAssignTargetPointWise,
         name: 'selfAssignTargetPointWise',
         builder: (context, state) {
           return const SelfTargetPage();
         },
       ),
-
-
 
       GoRoute(
         path: collectionList,
@@ -379,15 +376,11 @@ class AppRouter {
         path: productEnquiry,
         name: 'productEnquiry',
         builder: (context, state) {
-
-
           final extra = state.extra as Map<String, dynamic>?;
 
           final String productId = extra?['productId']?.toString() ?? '';
 
           final String productName = extra?['productName']?.toString() ?? '';
-
-
 
           return EnquiryPage(productId: productId, productName: productName);
         },
@@ -477,12 +470,25 @@ class AppRouter {
         path: empActivityReport,
         name: 'empActivityReport',
         builder: (context, state) {
-          final userId = state.extra is String ? state.extra as String : '';
+          final String userId = state.extra is String
+              ? state.extra as String
+              : '';
 
-          return EmployeeActivityReportPage(userId: userId);
+          return MultiBlocProvider(
+            providers: [
+              BlocProvider<EmployeeActivityBloc>(
+                create: (_) => sl<EmployeeActivityBloc>(),
+              ),
+
+              BlocProvider<EmployeeOutputBloc>(
+                create: (_) => sl<EmployeeOutputBloc>(),
+              ),
+            ],
+
+            child: EmployeeActivityReportPage(userId: userId),
+          );
         },
       ),
-
       GoRoute(
         path: dealrFollowUpAdd,
         name: 'dealrFollowUpAdd',
@@ -545,10 +551,21 @@ class AppRouter {
         path: visitSummaryReport,
         name: 'visitSummaryReport',
         builder: (context, state) {
-          final userId = state.extra is String ? state.extra as String : '';
+          final String userId = state.extra is String
+              ? state.extra as String
+              : '';
 
-          return BlocProvider<VisitReportBloc>(
-            create: (_) => sl<VisitReportBloc>(),
+          return MultiBlocProvider(
+            providers: [
+              BlocProvider<VisitReportBloc>(
+                create: (_) => sl<VisitReportBloc>(),
+              ),
+
+              BlocProvider<EmployeeOutputBloc>(
+                create: (_) => sl<EmployeeOutputBloc>(),
+              ),
+            ],
+
             child: VisitSummaryPage(userId: userId),
           );
         },
@@ -590,15 +607,11 @@ class AppRouter {
         path: notification,
         name: 'notification',
         builder: (context, state) {
-
-
           final userId = state.extra is String
               ? int.tryParse(state.extra as String) ?? 0
               : state.extra is int
               ? state.extra as int
               : 0;
-
-
 
           return NotificationPage(userId: userId, isLogin: true, userType: '');
         },

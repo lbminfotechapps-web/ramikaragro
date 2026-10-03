@@ -1053,55 +1053,59 @@ class _AddExpensePageState extends State<AddExpensePage> {
                 state,
               ),
 
-              SizedBox(
-                height: 9.h,
-              ),
+              if ((vehicle?.fldOpeningClosingKm ??
+                      state.fldOpeningClosingKm) ==
+                  '1') ...[
+                SizedBox(
+                  height: 9.h,
+                ),
 
-              Row(
-                crossAxisAlignment:
-                    CrossAxisAlignment.start,
-                children: [
-                  Expanded(
-                    child: buildField(
-                      'Opening KM',
-                      openingKm,
-                      readOnly: true,
+                Row(
+                  crossAxisAlignment:
+                      CrossAxisAlignment.start,
+                  children: [
+                    Expanded(
+                      child: buildField(
+                        'Opening KM',
+                        openingKm,
+                        readOnly: true,
+                      ),
                     ),
-                  ),
-                  SizedBox(
-                    width: 8.w,
-                  ),
-                  Expanded(
-                    child: buildField(
-                      'Closing KM',
-                      closingKm,
-                      readOnly: true,
+                    SizedBox(
+                      width: 8.w,
                     ),
-                  ),
-                  SizedBox(
-                    width: 8.w,
-                  ),
-                  Expanded(
-                    child: buildField(
-                      'Total KM',
-                      totalKm,
-                      readOnly: true,
+                    Expanded(
+                      child: buildField(
+                        'Closing KM',
+                        closingKm,
+                        readOnly: true,
+                      ),
                     ),
-                  ),
-                ],
-              ),
+                    SizedBox(
+                      width: 8.w,
+                    ),
+                    Expanded(
+                      child: buildField(
+                        'Total KM',
+                        totalKm,
+                        readOnly: true,
+                      ),
+                    ),
+                  ],
+                ),
 
-              SizedBox(
-                height: 9.h,
-              ),
+                SizedBox(
+                  height: 9.h,
+                ),
 
-              buildField(
-                'Traveling Amount',
-                amountController,
-                readOnly: true,
-                icon: Icons
-                    .currency_rupee_rounded,
-              ),
+                buildField(
+                  'Traveling Amount',
+                  amountController,
+                  readOnly: true,
+                  icon: Icons
+                      .currency_rupee_rounded,
+                ),
+              ],
             ],
           ),
         ),

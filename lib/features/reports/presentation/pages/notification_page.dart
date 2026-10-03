@@ -482,7 +482,7 @@ class _NotificationPageState extends State<NotificationPage> {
                     const SizedBox(height: 25),
 
                     const Text(
-                      'All Caught Up!',
+                      'Record Not Found',
                       style: TextStyle(
                         color: textDark,
                         fontSize: 21,
@@ -492,47 +492,36 @@ class _NotificationPageState extends State<NotificationPage> {
 
                     const SizedBox(height: 9),
 
-                    const Text(
-                      'You don’t have any notifications right now.\n'
-                      'We’ll let you know when something arrives.',
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                        color: textGrey,
-                        fontSize: 13,
-                        height: 1.55,
-                      ),
-                    ),
+                
 
-                    const SizedBox(height: 24),
-
-                    // =========================================
-                    // REFRESH BUTTON
-                    // =========================================
-                    ElevatedButton.icon(
-                      onPressed: () {
-                        context.read<NotificationBloc>().add(
-                          RefreshNotificationListEvent(
-                            userId: widget.userId,
-                            isLogin: widget.isLogin,
-                            userType: widget.userType,
-                          ),
-                        );
-                      },
-                      icon: const Icon(Icons.refresh_rounded, size: 19),
-                      label: const Text('Refresh Notifications'),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: primaryGreen,
-                        foregroundColor: Colors.white,
-                        elevation: 0,
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 21,
-                          vertical: 13,
-                        ),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(14),
-                        ),
-                      ),
-                    ),
+                    // // =========================================
+                    // // REFRESH BUTTON
+                    // // =========================================
+                    // ElevatedButton.icon(
+                    //   onPressed: () {
+                    //     context.read<NotificationBloc>().add(
+                    //       RefreshNotificationListEvent(
+                    //         userId: widget.userId,
+                    //         isLogin: widget.isLogin,
+                    //         userType: widget.userType,
+                    //       ),
+                    //     );
+                    //   },
+                    //   icon: const Icon(Icons.refresh_rounded, size: 19),
+                    //   label: const Text('Refresh Notifications'),
+                    //   style: ElevatedButton.styleFrom(
+                    //     backgroundColor: primaryGreen,
+                    //     foregroundColor: Colors.white,
+                    //     elevation: 0,
+                    //     padding: const EdgeInsets.symmetric(
+                    //       horizontal: 21,
+                    //       vertical: 13,
+                    //     ),
+                    //     shape: RoundedRectangleBorder(
+                    //       borderRadius: BorderRadius.circular(14),
+                    //     ),
+                    //   ),
+                    // ),
                   ],
                 ),
               ),

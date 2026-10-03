@@ -1,6 +1,14 @@
 import 'package:solufine/features/home/doman/home_entity/menu_entity.dart';
 
 String _normalize(String value) => value
+    .replaceAllMapped(
+      RegExp(r'([A-Z]+)([A-Z][a-z])'),
+      (match) => '${match[1]} ${match[2]}',
+    )
+    .replaceAllMapped(
+      RegExp(r'([a-z0-9])([A-Z])'),
+      (match) => '${match[1]} ${match[2]}',
+    )
     .toLowerCase()
     .replaceAll('&', ' and ')
     .replaceAll(RegExp(r'[^a-z0-9\s]'), ' ')

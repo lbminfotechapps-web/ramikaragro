@@ -694,8 +694,9 @@ class _SalesReurnViewState extends State<_SalesReturnView> {
   }
 
 
+ Future<void> _openAddDetailsDialog() async {
+  String? validationMessage;
 
-Future<void> _openAddDetailsDialog() async {
   await showDialog(
     context: context,
     barrierDismissible: false,
@@ -709,15 +710,18 @@ Future<void> _openAddDetailsDialog() async {
         child: StatefulBuilder(
           builder: (context, dialogSetState) {
             final bool hasImage =
-                imagePath != null && imagePath!.trim().isNotEmpty;
+                imagePath != null &&
+                imagePath!.trim().isNotEmpty;
 
             final bool hasSignature =
-                signatureBytes != null && signatureBytes!.isNotEmpty;
+                signatureBytes != null &&
+                signatureBytes!.isNotEmpty;
 
             return Container(
               width: double.infinity,
               constraints: BoxConstraints(
-                maxHeight: MediaQuery.of(context).size.height * 0.88,
+                maxHeight:
+                    MediaQuery.of(context).size.height * 0.88,
               ),
               decoration: BoxDecoration(
                 color: AppColors.background,
@@ -726,9 +730,7 @@ Future<void> _openAddDetailsDialog() async {
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  // =====================================================
                   // HEADER
-                  // =====================================================
                   Container(
                     padding: EdgeInsets.symmetric(
                       horizontal: 15.w,
@@ -752,7 +754,8 @@ Future<void> _openAddDetailsDialog() async {
                           height: 38.w,
                           decoration: BoxDecoration(
                             color: AppColors.lightGreen,
-                            borderRadius: BorderRadius.circular(11.r),
+                            borderRadius:
+                                BorderRadius.circular(11.r),
                           ),
                           child: Icon(
                             Icons.edit_note_rounded,
@@ -760,12 +763,11 @@ Future<void> _openAddDetailsDialog() async {
                             size: 21.sp,
                           ),
                         ),
-
                         SizedBox(width: 10.w),
-
                         Expanded(
                           child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
+                            crossAxisAlignment:
+                                CrossAxisAlignment.start,
                             children: [
                               Text(
                                 'Add Order Details',
@@ -781,18 +783,19 @@ Future<void> _openAddDetailsDialog() async {
                                 style: TextStyle(
                                   fontSize: 10.5.sp,
                                   fontWeight: FontWeight.w500,
-                                  color: AppColors.textSecondary,
+                                  color:
+                                      AppColors.textSecondary,
                                 ),
                               ),
                             ],
                           ),
                         ),
-
                         InkWell(
                           onTap: () {
                             Navigator.pop(dialogContext);
                           },
-                          borderRadius: BorderRadius.circular(30.r),
+                          borderRadius:
+                              BorderRadius.circular(30.r),
                           child: Container(
                             width: 34.w,
                             height: 34.w,
@@ -811,19 +814,60 @@ Future<void> _openAddDetailsDialog() async {
                     ),
                   ),
 
-                  // =====================================================
-                  // SCROLLABLE CONTENT
-                  // =====================================================
                   Flexible(
                     child: SingleChildScrollView(
-                      physics: const BouncingScrollPhysics(),
+                      physics:
+                          const BouncingScrollPhysics(),
                       padding: EdgeInsets.all(12.w),
                       child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
+                        crossAxisAlignment:
+                            CrossAxisAlignment.start,
                         children: [
-                          // =============================================
-                          // PROGRESS / STATUS
-                          // =============================================
+                          // VALIDATION MESSAGE
+                          if (validationMessage != null) ...[
+                            Container(
+                              width: double.infinity,
+                              padding: EdgeInsets.symmetric(
+                                horizontal: 12.w,
+                                vertical: 10.h,
+                              ),
+                              decoration: BoxDecoration(
+                                color: Colors.red.shade50,
+                                borderRadius:
+                                    BorderRadius.circular(10.r),
+                                border: Border.all(
+                                  color:
+                                      Colors.red.shade200,
+                                ),
+                              ),
+                              child: Row(
+                                children: [
+                                  Icon(
+                                    Icons.error_outline,
+                                    color:
+                                        Colors.red.shade700,
+                                    size: 20.sp,
+                                  ),
+                                  SizedBox(width: 8.w),
+                                  Expanded(
+                                    child: Text(
+                                      validationMessage!,
+                                      style: TextStyle(
+                                        color:
+                                            Colors.red.shade700,
+                                        fontSize: 12.sp,
+                                        fontWeight:
+                                            FontWeight.w600,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            SizedBox(height: 10.h),
+                          ],
+
+                          // STATUS
                           Container(
                             width: double.infinity,
                             padding: EdgeInsets.symmetric(
@@ -831,43 +875,45 @@ Future<void> _openAddDetailsDialog() async {
                               vertical: 9.h,
                             ),
                             decoration: BoxDecoration(
-                              color: AppColors.lightGreen.withOpacity(0.45),
-                              borderRadius: BorderRadius.circular(12.r),
+                              color: AppColors.lightGreen
+                                  .withOpacity(0.45),
+                              borderRadius:
+                                  BorderRadius.circular(12.r),
                               border: Border.all(
-                                color: AppColors.primary.withOpacity(0.12),
+                                color: AppColors.primary
+                                    .withOpacity(0.12),
                               ),
                             ),
                             child: Row(
                               children: [
                                 _buildDetailStatus(
-                                  icon: Icons.photo_camera_rounded,
+                                  icon:
+                                      Icons.photo_camera_rounded,
                                   title: 'Photo',
                                   completed: hasImage,
                                 ),
-
                                 Container(
                                   height: 26.h,
                                   width: 1,
                                   color: AppColors.border,
                                 ),
-
                                 _buildDetailStatus(
                                   icon: Icons.draw_rounded,
                                   title: 'Signature',
                                   completed: hasSignature,
                                 ),
-
                                 Container(
                                   height: 26.h,
                                   width: 1,
                                   color: AppColors.border,
                                 ),
-
                                 _buildDetailStatus(
                                   icon: Icons.notes_rounded,
                                   title: 'Remark',
                                   completed:
-                                      remarkController.text.trim().isNotEmpty,
+                                      remarkController.text
+                                          .trim()
+                                          .isNotEmpty,
                                 ),
                               ],
                             ),
@@ -875,103 +921,102 @@ Future<void> _openAddDetailsDialog() async {
 
                           SizedBox(height: 11.h),
 
-                          // =============================================
                           // PHOTO
-                          // =============================================
                           ImagePickerSection(
                             imagePath: imagePath,
                             onChanged: (path) {
                               imagePath = path;
 
-                              setState(() {});
+                              dialogSetState(() {
+                                validationMessage = null;
+                              });
 
-                              dialogSetState(() {});
+                              setState(() {});
                             },
                           ),
 
                           SizedBox(height: 10.h),
 
-                          // =============================================
                           // SIGNATURE
-                          // =============================================
                           SignatureSection(
-                            controller: signatureController,
+                            controller:
+                                signatureController,
                             onClear: () {
                               signatureController.clear();
-
                               signatureBytes = null;
 
-                              setState(() {});
+                              dialogSetState(() {
+                                validationMessage = null;
+                              });
 
-                              dialogSetState(() {});
+                              setState(() {});
                             },
                             onSignatureChanged: (bytes) {
                               signatureBytes = bytes;
 
-                              setState(() {});
+                              dialogSetState(() {
+                                validationMessage = null;
+                              });
 
-                              dialogSetState(() {});
+                              setState(() {});
                             },
                           ),
 
                           SizedBox(height: 10.h),
 
-                          // =============================================
                           // REMARK
-                          // =============================================
                           Container(
                             padding: EdgeInsets.all(10.w),
                             decoration: BoxDecoration(
                               color: Colors.white,
-                              borderRadius: BorderRadius.circular(14.r),
+                              borderRadius:
+                                  BorderRadius.circular(14.r),
                               border: Border.all(
                                 color: AppColors.border,
                               ),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: Colors.black.withOpacity(0.025),
-                                  blurRadius: 6,
-                                  offset: const Offset(0, 2),
-                                ),
-                              ],
                             ),
                             child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
+                              crossAxisAlignment:
+                                  CrossAxisAlignment.start,
                               children: [
                                 Row(
                                   children: [
                                     Container(
                                       width: 32.w,
                                       height: 32.w,
-                                      decoration: BoxDecoration(
-                                        color: AppColors.lightGreen,
+                                      decoration:
+                                          BoxDecoration(
+                                        color:
+                                            AppColors.lightGreen,
                                         borderRadius:
-                                            BorderRadius.circular(9.r),
+                                            BorderRadius.circular(
+                                          9.r,
+                                        ),
                                       ),
                                       child: Icon(
                                         Icons.notes_rounded,
-                                        color: AppColors.primary,
+                                        color:
+                                            AppColors.primary,
                                         size: 17.sp,
                                       ),
                                     ),
-
                                     SizedBox(width: 8.w),
-
                                     Text(
                                       'Remark',
                                       style: TextStyle(
                                         fontSize: 11.5.sp,
-                                        fontWeight: FontWeight.w800,
-                                        color: AppColors.textPrimary,
+                                        fontWeight:
+                                            FontWeight.w800,
+                                        color: AppColors
+                                            .textPrimary,
                                       ),
                                     ),
                                   ],
                                 ),
-
                                 SizedBox(height: 8.h),
-
                                 TextField(
-                                  controller: remarkController,
+                                  controller:
+                                      remarkController,
                                   maxLines: 3,
                                   minLines: 3,
                                   onChanged: (_) {
@@ -979,44 +1024,29 @@ Future<void> _openAddDetailsDialog() async {
                                   },
                                   style: TextStyle(
                                     fontSize: 12.sp,
-                                    fontWeight: FontWeight.w500,
-                                    color: AppColors.textPrimary,
+                                    fontWeight:
+                                        FontWeight.w500,
+                                    color:
+                                        AppColors.textPrimary,
                                   ),
-                                  decoration: InputDecoration(
+                                  decoration:
+                                      InputDecoration(
                                     hintText:
                                         'Enter additional order remark...',
                                     hintStyle: TextStyle(
                                       fontSize: 11.sp,
-                                      color: AppColors.textSecondary,
+                                      color: AppColors
+                                          .textSecondary,
                                     ),
                                     filled: true,
-                                    fillColor:
-                                        const Color(0xFFFAFCFA),
-                                    contentPadding:
-                                        EdgeInsets.symmetric(
-                                      horizontal: 12.w,
-                                      vertical: 11.h,
+                                    fillColor: const Color(
+                                      0xFFFAFCFA,
                                     ),
-                                    border: OutlineInputBorder(
+                                    border:
+                                        OutlineInputBorder(
                                       borderRadius:
-                                          BorderRadius.circular(11.r),
-                                      borderSide: BorderSide(
-                                        color: AppColors.border,
-                                      ),
-                                    ),
-                                    enabledBorder: OutlineInputBorder(
-                                      borderRadius:
-                                          BorderRadius.circular(11.r),
-                                      borderSide: BorderSide(
-                                        color: AppColors.border,
-                                      ),
-                                    ),
-                                    focusedBorder: OutlineInputBorder(
-                                      borderRadius:
-                                          BorderRadius.circular(11.r),
-                                      borderSide: const BorderSide(
-                                        color: AppColors.primary,
-                                        width: 1.3,
+                                          BorderRadius.circular(
+                                        11.r,
                                       ),
                                     ),
                                   ),
@@ -1031,9 +1061,7 @@ Future<void> _openAddDetailsDialog() async {
                     ),
                   ),
 
-                  // =====================================================
                   // BOTTOM BUTTON
-                  // =====================================================
                   Container(
                     padding: EdgeInsets.fromLTRB(
                       12.w,
@@ -1059,25 +1087,11 @@ Future<void> _openAddDetailsDialog() async {
                             height: 45.h,
                             child: OutlinedButton(
                               onPressed: () {
-                                Navigator.pop(dialogContext);
+                                Navigator.pop(
+                                  dialogContext,
+                                );
                               },
-                              style: OutlinedButton.styleFrom(
-                                side: BorderSide(
-                                  color: AppColors.border,
-                                ),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius:
-                                      BorderRadius.circular(11.r),
-                                ),
-                              ),
-                              child: Text(
-                                'Cancel',
-                                style: TextStyle(
-                                  fontSize: 12.sp,
-                                  fontWeight: FontWeight.w700,
-                                  color: AppColors.textSecondary,
-                                ),
-                              ),
+                              child: const Text('Cancel'),
                             ),
                           ),
                         ),
@@ -1088,78 +1102,70 @@ Future<void> _openAddDetailsDialog() async {
                           child: SizedBox(
                             height: 45.h,
                             child: ElevatedButton.icon(
-
-
-                              // onPressed: () {
-                              //   if (imagePath == null ||
-                              //       imagePath!.trim().isEmpty) {
-                              //     _showMessage(
-                              //       'Please add details',
-                              //     );
-                              //     return;
-                              //   }
-
-                              //   if (signatureBytes == null ||
-                              //       signatureBytes!.isEmpty) {
-                              //     _showMessage(
-                              //       'Please add dealer signature',
-                              //     );
-                              //     return;
-                              //   }
-
-                              //   setState(() {});
-
-                              //   Navigator.pop(dialogContext);
-                              // },
-
-
                               onPressed: () {
-                                  // ============================================================
-                                  // IMAGE VALIDATION
-                                  // ============================================================
+                                // IMAGE VALIDATION
+                                if (imagePath == null ||
+                                    imagePath!
+                                        .trim()
+                                        .isEmpty) {
+                                  dialogSetState(() {
+                                    validationMessage =
+                                        'Please add order photo';
+                                  });
 
-                                  if (imagePath == null || imagePath!.trim().isEmpty) {
-                                    _showMessage('Please add order photo');
-                                    return;
-                                  }
+                                  return;
+                                }
 
-                                  // ============================================================
-                                  // SIGNATURE VALIDATION
-                                  // ============================================================
+                                // SIGNATURE VALIDATION
+                                if (signatureBytes ==
+                                        null ||
+                                    signatureBytes!
+                                        .isEmpty) {
+                                  dialogSetState(() {
+                                    validationMessage =
+                                        'Please add dealer signature';
+                                  });
 
-                                  if (signatureBytes == null || signatureBytes!.isEmpty) {
-                                    _showMessage('Please add dealer signature');
-                                    return;
-                                  }
+                                  return;
+                                }
 
-                                  // ============================================================
-                                  // ALL VALID
-                                  // ============================================================
+                                // VALID
+                                dialogSetState(() {
+                                  validationMessage = null;
+                                });
 
-                                  setState(() {});
+                                setState(() {});
 
-                                  Navigator.pop(dialogContext);
-                                },
-
-
+                                Navigator.pop(
+                                  dialogContext,
+                                );
+                              },
                               icon: Icon(
-                                Icons.check_circle_rounded,
+                                Icons
+                                    .check_circle_rounded,
                                 size: 18.sp,
                               ),
                               label: Text(
                                 'Save Details',
                                 style: TextStyle(
                                   fontSize: 12.sp,
-                                  fontWeight: FontWeight.w800,
+                                  fontWeight:
+                                      FontWeight.w800,
                                 ),
                               ),
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: AppColors.primary,
-                                foregroundColor: Colors.white,
+                              style:
+                                  ElevatedButton.styleFrom(
+                                backgroundColor:
+                                    AppColors.primary,
+                                foregroundColor:
+                                    Colors.white,
                                 elevation: 0,
-                                shape: RoundedRectangleBorder(
+                                shape:
+                                    RoundedRectangleBorder(
                                   borderRadius:
-                                      BorderRadius.circular(11.r),
+                                      BorderRadius.circular(
+                                    11.r,
+                                  ),
                                 ),
                               ),
                             ),
@@ -1176,7 +1182,8 @@ Future<void> _openAddDetailsDialog() async {
       );
     },
   );
-}
+}   
+
 
 Widget _buildDetailStatus({
   required IconData icon,

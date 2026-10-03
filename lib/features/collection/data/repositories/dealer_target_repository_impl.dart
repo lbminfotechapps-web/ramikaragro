@@ -12,8 +12,8 @@ class DealerTargetRepositoryImpl
   });
 
   @override
-  Future<List<TargetDateEntity>> getTargetDates() {
-    return remoteDataSource.getTargetDates();
+  Future<List<TargetDateEntity>> getTargetDates({required String userId}) {
+    return remoteDataSource.getTargetDates(userId: userId);
   }
 
   @override

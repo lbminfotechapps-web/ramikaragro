@@ -3,6 +3,9 @@ import 'package:flutter/material.dart';
 
 class CustomTextFormField extends StatelessWidget {
   final TextEditingController controller;
+  final FocusNode? focusNode;
+  final GlobalKey<FormFieldState>? fieldKey;
+  final bool isValid;
   final String hintText;
   final String? labelText;
   final IconData prefixIcon;
@@ -20,6 +23,9 @@ class CustomTextFormField extends StatelessWidget {
 
   const CustomTextFormField({
     super.key,
+    this.focusNode,
+    this.fieldKey,
+    this.isValid = false,
     required this.controller,
     required this.hintText,
     this.labelText,
@@ -40,6 +46,8 @@ class CustomTextFormField extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return TextFormField(
+      key: fieldKey,
+      focusNode: focusNode,
       maxLength: maxLength,
       controller: controller,
       obscureText: obscureText,
@@ -50,40 +58,40 @@ class CustomTextFormField extends StatelessWidget {
       readOnly: readOnly,
       onTap: onTap,
       onChanged: onChanged,
-    
+
       style: const TextStyle(fontSize: 14, color: Colors.black87),
-    
+
       decoration: InputDecoration(
         hintText: hintText,
         labelText: labelText,
-    
+
         // Normal label
         labelStyle: TextStyle(
           color: Colors.grey.shade500, // inside field
           fontSize: 16,
           fontWeight: FontWeight.w400,
         ),
-    
+
         floatingLabelStyle: TextStyle(
           color: AppColors.accentGreen, // floating at top
           fontSize: 14,
           fontWeight: FontWeight.w600,
         ),
-    
+
         // Floating label when focused / text entered
         // floatingLabelStyle: TextStyle(
         //   color: AppColors.accentGreen,
         //   fontSize: 14,
         //   fontWeight: FontWeight.w600,
         // ),
-    
+
         // Hint remains grey
         hintStyle: TextStyle(
           color: Colors.grey.shade500,
           fontSize: 16,
           fontWeight: FontWeight.w400,
         ),
-    
+
         prefixIcon: Padding(
           padding: const EdgeInsets.all(10),
           child: Container(
@@ -94,39 +102,41 @@ class CustomTextFormField extends StatelessWidget {
             child: Icon(prefixIcon, color: AppColors.accentGreen, size: 22),
           ),
         ),
-    
+
         suffixIcon: suffixIcon != null
             ? IconButton(
                 onPressed: onSuffixIconTap,
                 icon: Icon(suffixIcon, color: Colors.grey.shade500),
               )
             : null,
-    
+
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(10),
           borderSide: BorderSide(color: Colors.grey.shade200),
         ),
-    
+
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(10),
-          borderSide: BorderSide(color: Colors.grey.shade200),
+          borderSide: BorderSide(
+            color: isValid ? const Color(0xFF087C3A) : Colors.grey.shade200,
+          ),
         ),
-    
+
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(10),
           borderSide: const BorderSide(color: Color(0xFF087C3A), width: 1.5),
         ),
-    
+
         errorBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(10),
           borderSide: const BorderSide(color: Colors.red),
         ),
-    
+
         focusedErrorBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(10),
           borderSide: const BorderSide(color: Colors.red, width: 1.5),
         ),
-    
+
         contentPadding: const EdgeInsets.symmetric(
           horizontal: 16,
           vertical: 16,

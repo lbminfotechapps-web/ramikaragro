@@ -664,6 +664,11 @@ class _HomeState extends State<Home> {
                             monthlyUniqueFarmerCnt: '0',
                             lastThirNotVisitDealer: '0',
                             lastThirNotVisitFarmer: '0',
+                            // NEW FIELDS
+                            totalDealerCount: '0',
+                            totalFarmerCount: '0',
+                            dayWise: const [],
+
                           );
 
                       return VisitStatisticsTable(homeData);
@@ -700,6 +705,10 @@ class _HomeState extends State<Home> {
                             monthlyUniqueFarmerCnt: '0',
                             lastThirNotVisitDealer: '0',
                             lastThirNotVisitFarmer: '0',
+                            // NEW FIELDS
+                            totalDealerCount: '0',
+                            totalFarmerCount: '0',
+                            dayWise: const [],
                           );
 
                       return NotVisitedCard(homeData);
@@ -711,41 +720,62 @@ class _HomeState extends State<Home> {
                   // ======================================================
                   // FROM / TO DATE
                   // ======================================================
-                  Row(
-                    children: [
-                      Expanded(
-                        child: _buildDateField(
-                          label: 'From Date',
-                          date: _fromDate,
-                          onTap: _selectFromDate,
-                        ),
-                      ),
+                  // Row(
+                  //   children: [
+                  //     Expanded(
+                  //       child: _buildDateField(
+                  //         label: 'From Date',
+                  //         date: _fromDate,
+                  //         onTap: _selectFromDate,
+                  //       ),
+                  //     ),
 
-                      SizedBox(width: 10.w),
+                  //     SizedBox(width: 10.w),
 
-                      Expanded(
-                        child: _buildDateField(
-                          label: 'To Date',
-                          date: _toDate,
-                          onTap: _selectToDate,
-                        ),
-                      ),
-                    ],
-                  ),
+                  //     Expanded(
+                  //       child: _buildDateField(
+                  //         label: 'To Date',
+                  //         date: _toDate,
+                  //         onTap: _selectToDate,
+                  //       ),
+                  //     ),
+                  //   ],
+                  // ),
 
-                  SizedBox(height: 8.h),
+                  // SizedBox(height: 8.h),
 
                   // ======================================================
                   // VISIT OVERVIEW
                   // ======================================================
-                  BlocBuilder<HomeBloc, HomeState>(
-                    builder: (context, state) {
-                      return VisitOverviewCard(
-                        dealerCount: state.totalDealerCount ?? '0',
-                        farmerCount: state.totalFarmerCount ?? '0',
-                      );
-                    },
-                  ),
+                  // BlocBuilder<HomeBloc, HomeState>(
+                  //   builder: (context, state) {
+                  //     return VisitOverviewCard(
+                  //       dealerCount: state.totalDealerCount ?? '0',
+                  //       farmerCount: state.totalFarmerCount ?? '0',
+                  //     );
+                  //   },
+                  // ),
+
+
+                    BlocBuilder<HomeBloc, HomeState>(
+                      builder: (context, state) {
+                        final homeData = state.homedata;
+
+                        return VisitOverviewCard(
+                          dealerCount:
+                              homeData?.totalDealerCount ?? '0',
+
+                          farmerCount:
+                              homeData?.totalFarmerCount ?? '0',
+                      
+                          dayWise:
+                              homeData?.dayWise ?? const [],
+                        );
+                      },
+                    ),
+
+
+
 
                   SizedBox(height: 12.h),
 

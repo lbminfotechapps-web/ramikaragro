@@ -9,7 +9,7 @@ import 'package:solufine/features/collection/data/models/target_date_model.dart'
 import 'package:dio/dio.dart';
 
 abstract class DealerTargetRemoteDataSource {
-  Future<List<TargetDateModel>> getTargetDates();
+  Future<List<TargetDateModel>> getTargetDates({required String userId});
 
   Future<CollectionTargetModel?> getCollectionWiseTarget({
     required String userId,
@@ -32,15 +32,13 @@ class DealerTargetRemoteDataSourceImpl
   // =========================================================
 
   @override
-  Future<List<TargetDateModel>> getTargetDates() async {
+  Future<List<TargetDateModel>> getTargetDates({required String userId}) async {
     try {
-      print('========================================');
-      print('GET TARGET DATES API');
-      print('========================================');
+    
 
       final response = await dioClient.client.post(
         ApiClient.getTargetDates,
-        data: {},
+        data: FormData.fromMap({'userId': userId}),
         options: Options(
           responseType: ResponseType.plain,
           validateStatus: (status) =>
@@ -48,14 +46,7 @@ class DealerTargetRemoteDataSourceImpl
         ),
       );
 
-      print(
-        'TARGET DATES API STATUS: ${response.statusCode}',
-      );
-
-      print(
-        'TARGET DATES API RESPONSE: ${response.data}',
-      );
-
+    
       // -------------------------------------------------------
       // HTTP STATUS
       // -------------------------------------------------------
@@ -171,21 +162,7 @@ class DealerTargetRemoteDataSourceImpl
     required String collectionTypeId,
   }) async {
     try {
-      print('');
-      print('========================================');
-      print('COLLECTION TARGET API');
-      print('========================================');
-      print('USER ID: $userId');
-      print('TARGET ID: $targetId');
-      print('========================================');
 
-      // -------------------------------------------------------
-      // REQUEST BODY
-      //
-      // IMPORTANT:
-      // Convert both values to String because the backend
-      // expects userId and targetId as request parameters.
-      // -------------------------------------------------------
 
       final Map<String, dynamic> requestData = {
         'userId': userId.toString(),

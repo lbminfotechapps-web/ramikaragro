@@ -72,7 +72,7 @@ class ExpenseBloc extends Bloc<ExpenseEvent, ExpenseState> {
       dynamic selectedVehicle;
 
       for (final vehicle in vehicles) {
-        if (vehicle.fldVehicleTypeIdAdmin == vehicle.fldVehicleTypeId) {
+        if (vehicle.vehicleTypeId == vehicle.fldVehicleTypeId) {
           selectedVehicle = vehicle;
           break;
         }

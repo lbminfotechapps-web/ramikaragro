@@ -96,14 +96,7 @@ class _FarmerlistScreenState extends State<FarmerlistScreen> {
       _startLimit = startLimit;
       _hasMore = true;
     }
-    debugPrint('================================');
-    debugPrint('LOAD FARMERS');
-    debugPrint('================================');
-    debugPrint('User ID: $userId');
-    debugPrint('Search: $searchKey');
-    debugPrint('Start Limit: $startLimit');
-    debugPrint('Load More: $isLoadMore');
-    debugPrint('================================');
+   
     if (!mounted) return;
     context.read<FarmerListBloc>().add(
       FarmerListEvent(

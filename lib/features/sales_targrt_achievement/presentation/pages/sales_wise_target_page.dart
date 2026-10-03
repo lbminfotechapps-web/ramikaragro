@@ -127,7 +127,8 @@ class _SalesWiseTargetPageState extends State<SalesWiseTargetPage> {
               context.go(AppRouter.home);
             },
           ),
-          title: 'Sales Wise Target And Achievement',
+           title: ' Target And Achievement ',
+           subtitle: ' Sales Wise',
         ),
 
         // ===================================================
@@ -472,14 +473,14 @@ class _SalesWiseTargetPageState extends State<SalesWiseTargetPage> {
                       ],
                     ),
                   ),
-                  if (state.targetStatus == SalesTargetStatus.success)
-                    Text(
-                      '${_formatGroupPoints(totalPoints)} Amt/Pts',
-                      style: const TextStyle(
-                        color: primaryGreen,
-                        fontWeight: FontWeight.w800,
-                      ),
-                    ),
+                  // if (state.targetStatus == SalesTargetStatus.success)
+                  //   Text(
+                  //     '${_formatGroupPoints(totalPoints)} Pts',
+                  //     style: const TextStyle(
+                  //       color: primaryGreen,
+                  //       fontWeight: FontWeight.w800,
+                  //     ),
+                  //   ),
                 ],
               ),
               const SizedBox(height: 12),

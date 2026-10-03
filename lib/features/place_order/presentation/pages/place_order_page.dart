@@ -600,469 +600,475 @@ class _PlaceOrderViewState extends State<_PlaceOrderView> {
   // ===========================================================================
 
   Future<void> _openAddDetailsDialog() async {
-    await showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (dialogContext) {
-        return Dialog(
-          backgroundColor: Colors.transparent,
-          insetPadding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 20.h),
-          child: StatefulBuilder(
-            builder: (context, dialogSetState) {
-              final bool hasImage =
-                  imagePath != null && imagePath!.trim().isNotEmpty;
+  String? validationMessage;
 
-              final bool hasSignature =
-                  signatureBytes != null && signatureBytes!.isNotEmpty;
+  await showDialog(
+    context: context,
+    barrierDismissible: false,
+    builder: (dialogContext) {
+      return Dialog(
+        backgroundColor: Colors.transparent,
+        insetPadding: EdgeInsets.symmetric(
+          horizontal: 14.w,
+          vertical: 20.h,
+        ),
+        child: StatefulBuilder(
+          builder: (context, dialogSetState) {
+            final bool hasImage =
+                imagePath != null &&
+                imagePath!.trim().isNotEmpty;
 
-              return Container(
-                width: double.infinity,
-                constraints: BoxConstraints(
-                  maxHeight: MediaQuery.of(context).size.height * 0.88,
-                ),
-                decoration: BoxDecoration(
-                  color: AppColors.background,
-                  borderRadius: BorderRadius.circular(20.r),
-                ),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    // =====================================================
-                    // HEADER
-                    // =====================================================
-                    Container(
-                      padding: EdgeInsets.symmetric(
-                        horizontal: 15.w,
-                        vertical: 13.h,
+            final bool hasSignature =
+                signatureBytes != null &&
+                signatureBytes!.isNotEmpty;
+
+            return Container(
+              width: double.infinity,
+              constraints: BoxConstraints(
+                maxHeight:
+                    MediaQuery.of(context).size.height * 0.88,
+              ),
+              decoration: BoxDecoration(
+                color: AppColors.background,
+                borderRadius: BorderRadius.circular(20.r),
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  // HEADER
+                  Container(
+                    padding: EdgeInsets.symmetric(
+                      horizontal: 15.w,
+                      vertical: 13.h,
+                    ),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.vertical(
+                        top: Radius.circular(20.r),
                       ),
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.vertical(
-                          top: Radius.circular(20.r),
-                        ),
-                        border: Border(
-                          bottom: BorderSide(color: AppColors.border),
+                      border: Border(
+                        bottom: BorderSide(
+                          color: AppColors.border,
                         ),
                       ),
-                      child: Row(
-                        children: [
-                          Container(
-                            width: 38.w,
-                            height: 38.w,
+                    ),
+                    child: Row(
+                      children: [
+                        Container(
+                          width: 38.w,
+                          height: 38.w,
+                          decoration: BoxDecoration(
+                            color: AppColors.lightGreen,
+                            borderRadius:
+                                BorderRadius.circular(11.r),
+                          ),
+                          child: Icon(
+                            Icons.edit_note_rounded,
+                            color: AppColors.primary,
+                            size: 21.sp,
+                          ),
+                        ),
+                        SizedBox(width: 10.w),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment:
+                                CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'Add Order Details',
+                                style: TextStyle(
+                                  fontSize: 16.sp,
+                                  fontWeight: FontWeight.w800,
+                                  color: AppColors.textPrimary,
+                                ),
+                              ),
+                              SizedBox(height: 2.h),
+                              Text(
+                                'Add photo, signature and remark',
+                                style: TextStyle(
+                                  fontSize: 10.5.sp,
+                                  fontWeight: FontWeight.w500,
+                                  color:
+                                      AppColors.textSecondary,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        InkWell(
+                          onTap: () {
+                            Navigator.pop(dialogContext);
+                          },
+                          borderRadius:
+                              BorderRadius.circular(30.r),
+                          child: Container(
+                            width: 34.w,
+                            height: 34.w,
                             decoration: BoxDecoration(
-                              color: AppColors.lightGreen,
-                              borderRadius: BorderRadius.circular(11.r),
+                              color: Colors.grey.shade100,
+                              shape: BoxShape.circle,
                             ),
                             child: Icon(
-                              Icons.edit_note_rounded,
-                              color: AppColors.primary,
-                              size: 21.sp,
+                              Icons.close_rounded,
+                              size: 20.sp,
+                              color: AppColors.textPrimary,
                             ),
                           ),
+                        ),
+                      ],
+                    ),
+                  ),
 
-                          SizedBox(width: 10.w),
-
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  'Add Order Details',
-                                  style: TextStyle(
-                                    fontSize: 16.sp,
-                                    fontWeight: FontWeight.w800,
-                                    color: AppColors.textPrimary,
-                                  ),
+                  // CONTENT
+                  Flexible(
+                    child: SingleChildScrollView(
+                      physics:
+                          const BouncingScrollPhysics(),
+                      padding: EdgeInsets.all(12.w),
+                      child: Column(
+                        crossAxisAlignment:
+                            CrossAxisAlignment.start,
+                        children: [
+                          // VALIDATION MESSAGE
+                          if (validationMessage != null) ...[
+                            Container(
+                              width: double.infinity,
+                              padding: EdgeInsets.symmetric(
+                                horizontal: 12.w,
+                                vertical: 10.h,
+                              ),
+                              decoration: BoxDecoration(
+                                color: Colors.red.shade50,
+                                borderRadius:
+                                    BorderRadius.circular(10.r),
+                                border: Border.all(
+                                  color:
+                                      Colors.red.shade200,
                                 ),
-                                SizedBox(height: 2.h),
-                                Text(
-                                  'Add photo, signature and remark',
-                                  style: TextStyle(
-                                    fontSize: 10.5.sp,
-                                    fontWeight: FontWeight.w500,
-                                    color: AppColors.textSecondary,
+                              ),
+                              child: Row(
+                                children: [
+                                  Icon(
+                                    Icons.error_outline,
+                                    color:
+                                        Colors.red.shade700,
+                                    size: 20.sp,
                                   ),
+                                  SizedBox(width: 8.w),
+                                  Expanded(
+                                    child: Text(
+                                      validationMessage!,
+                                      style: TextStyle(
+                                        color:
+                                            Colors.red.shade700,
+                                        fontSize: 12.sp,
+                                        fontWeight:
+                                            FontWeight.w600,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            SizedBox(height: 10.h),
+                          ],
+
+                          // STATUS
+                          Container(
+                            width: double.infinity,
+                            padding: EdgeInsets.symmetric(
+                              horizontal: 11.w,
+                              vertical: 9.h,
+                            ),
+                            decoration: BoxDecoration(
+                              color: AppColors.lightGreen
+                                  .withOpacity(0.45),
+                              borderRadius:
+                                  BorderRadius.circular(12.r),
+                              border: Border.all(
+                                color: AppColors.primary
+                                    .withOpacity(0.12),
+                              ),
+                            ),
+                            child: Row(
+                              children: [
+                                _buildDetailStatus(
+                                  icon:
+                                      Icons.photo_camera_rounded,
+                                  title: 'Photo',
+                                  completed: hasImage,
+                                ),
+                                Container(
+                                  height: 26.h,
+                                  width: 1,
+                                  color: AppColors.border,
+                                ),
+                                _buildDetailStatus(
+                                  icon: Icons.draw_rounded,
+                                  title: 'Signature',
+                                  completed: hasSignature,
+                                ),
+                                Container(
+                                  height: 26.h,
+                                  width: 1,
+                                  color: AppColors.border,
+                                ),
+                                _buildDetailStatus(
+                                  icon: Icons.notes_rounded,
+                                  title: 'Remark',
+                                  completed: remarkController
+                                      .text
+                                      .trim()
+                                      .isNotEmpty,
                                 ),
                               ],
                             ),
                           ),
 
-                          InkWell(
-                            onTap: () {
-                              Navigator.pop(dialogContext);
+                          SizedBox(height: 11.h),
+
+                          // PHOTO
+                          ImagePickerSection(
+                            imagePath: imagePath,
+                            onChanged: (path) {
+                              imagePath = path;
+
+                              dialogSetState(() {
+                                validationMessage = null;
+                              });
+
+                              setState(() {});
                             },
-                            borderRadius: BorderRadius.circular(30.r),
-                            child: Container(
-                              width: 34.w,
-                              height: 34.w,
-                              decoration: BoxDecoration(
-                                color: Colors.grey.shade100,
-                                shape: BoxShape.circle,
+                          ),
+
+                          SizedBox(height: 10.h),
+
+                          // SIGNATURE
+                          SignatureSection(
+                            controller:
+                                signatureController,
+                            onClear: () {
+                              signatureController.clear();
+                              signatureBytes = null;
+
+                              dialogSetState(() {
+                                validationMessage = null;
+                              });
+
+                              setState(() {});
+                            },
+                            onSignatureChanged: (bytes) {
+                              signatureBytes = bytes;
+
+                              dialogSetState(() {
+                                validationMessage = null;
+                              });
+
+                              setState(() {});
+                            },
+                          ),
+
+                          SizedBox(height: 10.h),
+
+                          // REMARK
+                          Container(
+                            padding: EdgeInsets.all(10.w),
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius:
+                                  BorderRadius.circular(14.r),
+                              border: Border.all(
+                                color: AppColors.border,
                               ),
-                              child: Icon(
-                                Icons.close_rounded,
-                                size: 20.sp,
-                                color: AppColors.textPrimary,
-                              ),
+                            ),
+                            child: Column(
+                              crossAxisAlignment:
+                                  CrossAxisAlignment.start,
+                              children: [
+                                Row(
+                                  children: [
+                                    Container(
+                                      width: 32.w,
+                                      height: 32.w,
+                                      decoration:
+                                          BoxDecoration(
+                                        color:
+                                            AppColors.lightGreen,
+                                        borderRadius:
+                                            BorderRadius.circular(
+                                          9.r,
+                                        ),
+                                      ),
+                                      child: Icon(
+                                        Icons.notes_rounded,
+                                        color:
+                                            AppColors.primary,
+                                        size: 17.sp,
+                                      ),
+                                    ),
+                                    SizedBox(width: 8.w),
+                                    Text(
+                                      'Remark',
+                                      style: TextStyle(
+                                        fontSize: 11.5.sp,
+                                        fontWeight:
+                                            FontWeight.w800,
+                                        color: AppColors
+                                            .textPrimary,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                SizedBox(height: 8.h),
+                                TextField(
+                                  controller:
+                                      remarkController,
+                                  maxLines: 3,
+                                  minLines: 3,
+                                  onChanged: (_) {
+                                    dialogSetState(() {});
+                                  },
+                                  decoration:
+                                      InputDecoration(
+                                    hintText:
+                                        'Enter additional order remark...',
+                                    filled: true,
+                                    fillColor: const Color(
+                                      0xFFFAFCFA,
+                                    ),
+                                    border:
+                                        OutlineInputBorder(
+                                      borderRadius:
+                                          BorderRadius.circular(
+                                        11.r,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ],
                             ),
                           ),
                         ],
                       ),
                     ),
+                  ),
 
-                    // =====================================================
-                    // SCROLLABLE CONTENT
-                    // =====================================================
-                    Flexible(
-                      child: SingleChildScrollView(
-                        physics: const BouncingScrollPhysics(),
-                        padding: EdgeInsets.all(12.w),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            // =============================================
-                            // PROGRESS / STATUS
-                            // =============================================
-                            Container(
-                              width: double.infinity,
-                              padding: EdgeInsets.symmetric(
-                                horizontal: 11.w,
-                                vertical: 9.h,
-                              ),
-                              decoration: BoxDecoration(
-                                color: AppColors.lightGreen.withOpacity(0.45),
-                                borderRadius: BorderRadius.circular(12.r),
-                                border: Border.all(
-                                  color: AppColors.primary.withOpacity(0.12),
-                                ),
-                              ),
-                              child: Row(
-                                children: [
-                                  _buildDetailStatus(
-                                    icon: Icons.photo_camera_rounded,
-                                    title: 'Photo',
-                                    completed: hasImage,
-                                  ),
-
-                                  Container(
-                                    height: 26.h,
-                                    width: 1,
-                                    color: AppColors.border,
-                                  ),
-
-                                  _buildDetailStatus(
-                                    icon: Icons.draw_rounded,
-                                    title: 'Signature',
-                                    completed: hasSignature,
-                                  ),
-
-                                  Container(
-                                    height: 26.h,
-                                    width: 1,
-                                    color: AppColors.border,
-                                  ),
-
-                                  _buildDetailStatus(
-                                    icon: Icons.notes_rounded,
-                                    title: 'Remark',
-                                    completed: remarkController.text
+                  // BUTTONS
+                  Container(
+                    padding: EdgeInsets.fromLTRB(
+                      12.w,
+                      10.h,
+                      12.w,
+                      12.h,
+                    ),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.vertical(
+                        bottom: Radius.circular(20.r),
+                      ),
+                      border: Border(
+                        top: BorderSide(
+                          color: AppColors.border,
+                        ),
+                      ),
+                    ),
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: SizedBox(
+                            height: 45.h,
+                            child: OutlinedButton(
+                              onPressed: () {
+                                Navigator.pop(
+                                  dialogContext,
+                                );
+                              },
+                              child: const Text('Cancel'),
+                            ),
+                          ),
+                        ),
+                        SizedBox(width: 9.w),
+                        Expanded(
+                          child: SizedBox(
+                            height: 45.h,
+                            child: ElevatedButton.icon(
+                              onPressed: () {
+                                if (imagePath == null ||
+                                    imagePath!
                                         .trim()
-                                        .isNotEmpty,
-                                  ),
-                                ],
-                              ),
-                            ),
+                                        .isEmpty) {
+                                  dialogSetState(() {
+                                    validationMessage =
+                                        'Please add order photo';
+                                  });
+                                  return;
+                                }
 
-                            SizedBox(height: 11.h),
+                                if (signatureBytes ==
+                                        null ||
+                                    signatureBytes!
+                                        .isEmpty) {
+                                  dialogSetState(() {
+                                    validationMessage =
+                                        'Please add dealer signature';
+                                  });
+                                  return;
+                                }
 
-                            // =============================================
-                            // PHOTO
-                            // =============================================
-                            ImagePickerSection(
-                              imagePath: imagePath,
-                              onChanged: (path) {
-                                imagePath = path;
-
-                                setState(() {});
-
-                                dialogSetState(() {});
-                              },
-                            ),
-
-                            SizedBox(height: 10.h),
-
-                            // =============================================
-                            // SIGNATURE
-                            // =============================================
-                            SignatureSection(
-                              controller: signatureController,
-                              onClear: () {
-                                signatureController.clear();
-
-                                signatureBytes = null;
+                                dialogSetState(() {
+                                  validationMessage = null;
+                                });
 
                                 setState(() {});
 
-                                dialogSetState(() {});
+                                Navigator.pop(
+                                  dialogContext,
+                                );
                               },
-                              onSignatureChanged: (bytes) {
-                                signatureBytes = bytes;
-
-                                setState(() {});
-
-                                dialogSetState(() {});
-                              },
-                            ),
-
-                            SizedBox(height: 10.h),
-
-                            // =============================================
-                            // REMARK
-                            // =============================================
-                            Container(
-                              padding: EdgeInsets.all(10.w),
-                              decoration: BoxDecoration(
-                                color: Colors.white,
-                                borderRadius: BorderRadius.circular(14.r),
-                                border: Border.all(color: AppColors.border),
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: Colors.black.withOpacity(0.025),
-                                    blurRadius: 6,
-                                    offset: const Offset(0, 2),
-                                  ),
-                                ],
+                              icon: Icon(
+                                Icons
+                                    .check_circle_rounded,
+                                size: 18.sp,
                               ),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Row(
-                                    children: [
-                                      Container(
-                                        width: 32.w,
-                                        height: 32.w,
-                                        decoration: BoxDecoration(
-                                          color: AppColors.lightGreen,
-                                          borderRadius: BorderRadius.circular(
-                                            9.r,
-                                          ),
-                                        ),
-                                        child: Icon(
-                                          Icons.notes_rounded,
-                                          color: AppColors.primary,
-                                          size: 17.sp,
-                                        ),
-                                      ),
-
-                                      SizedBox(width: 8.w),
-
-                                      Text(
-                                        'Remark',
-                                        style: TextStyle(
-                                          fontSize: 11.5.sp,
-                                          fontWeight: FontWeight.w800,
-                                          color: AppColors.textPrimary,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-
-                                  SizedBox(height: 8.h),
-
-                                  TextField(
-                                    controller: remarkController,
-                                    maxLines: 3,
-                                    minLines: 3,
-                                    onChanged: (_) {
-                                      dialogSetState(() {});
-                                    },
-                                    style: TextStyle(
-                                      fontSize: 12.sp,
-                                      fontWeight: FontWeight.w500,
-                                      color: AppColors.textPrimary,
-                                    ),
-                                    decoration: InputDecoration(
-                                      hintText:
-                                          'Enter additional order remark...',
-                                      hintStyle: TextStyle(
-                                        fontSize: 11.sp,
-                                        color: AppColors.textSecondary,
-                                      ),
-                                      filled: true,
-                                      fillColor: const Color(0xFFFAFCFA),
-                                      contentPadding: EdgeInsets.symmetric(
-                                        horizontal: 12.w,
-                                        vertical: 11.h,
-                                      ),
-                                      border: OutlineInputBorder(
-                                        borderRadius: BorderRadius.circular(
-                                          11.r,
-                                        ),
-                                        borderSide: BorderSide(
-                                          color: AppColors.border,
-                                        ),
-                                      ),
-                                      enabledBorder: OutlineInputBorder(
-                                        borderRadius: BorderRadius.circular(
-                                          11.r,
-                                        ),
-                                        borderSide: BorderSide(
-                                          color: AppColors.border,
-                                        ),
-                                      ),
-                                      focusedBorder: OutlineInputBorder(
-                                        borderRadius: BorderRadius.circular(
-                                          11.r,
-                                        ),
-                                        borderSide: const BorderSide(
-                                          color: AppColors.primary,
-                                          width: 1.3,
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-
-                            SizedBox(height: 5.h),
-                          ],
-                        ),
-                      ),
-                    ),
-
-                    // =====================================================
-                    // BOTTOM BUTTON
-                    // =====================================================
-                    Container(
-                      padding: EdgeInsets.fromLTRB(12.w, 10.h, 12.w, 12.h),
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.vertical(
-                          bottom: Radius.circular(20.r),
-                        ),
-                        border: Border(
-                          top: BorderSide(color: AppColors.border),
-                        ),
-                      ),
-                      child: Row(
-                        children: [
-                          Expanded(
-                            child: SizedBox(
-                              height: 45.h,
-                              child: OutlinedButton(
-                                onPressed: () {
-                                  Navigator.pop(dialogContext);
-                                },
-                                style: OutlinedButton.styleFrom(
-                                  side: BorderSide(color: AppColors.border),
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(11.r),
-                                  ),
+                              label: Text(
+                                'Save Details',
+                                style: TextStyle(
+                                  fontSize: 12.sp,
+                                  fontWeight:
+                                      FontWeight.w800,
                                 ),
-                                child: Text(
-                                  'Cancel',
-                                  style: TextStyle(
-                                    fontSize: 12.sp,
-                                    fontWeight: FontWeight.w700,
-                                    color: AppColors.textSecondary,
+                              ),
+                              style:
+                                  ElevatedButton.styleFrom(
+                                backgroundColor:
+                                    AppColors.primary,
+                                foregroundColor:
+                                    Colors.white,
+                                elevation: 0,
+                                shape:
+                                    RoundedRectangleBorder(
+                                  borderRadius:
+                                      BorderRadius.circular(
+                                    11.r,
                                   ),
                                 ),
                               ),
                             ),
                           ),
-
-                          SizedBox(width: 9.w),
-
-                          Expanded(
-                            child: SizedBox(
-                              height: 45.h,
-                              child: ElevatedButton.icon(
-                                // onPressed: () {
-                                //   if (imagePath == null ||
-                                //       imagePath!.trim().isEmpty) {
-                                //     _showMessage(
-                                //       'Please add details',
-                                //     );
-                                //     return;
-                                //   }
-
-                                //   if (signatureBytes == null ||
-                                //       signatureBytes!.isEmpty) {
-                                //     _showMessage(
-                                //       'Please add dealer signature',
-                                //     );
-                                //     return;
-                                //   }
-
-                                //   setState(() {});
-
-                                //   Navigator.pop(dialogContext);
-                                // },
-                                onPressed: () {
-                                  // ============================================================
-                                  // IMAGE VALIDATION
-                                  // ============================================================
-
-                                  if (imagePath == null ||
-                                      imagePath!.trim().isEmpty) {
-                                    _showMessage('Please add order photo');
-                                    return;
-                                  }
-
-                                  // ============================================================
-                                  // SIGNATURE VALIDATION
-                                  // ============================================================
-
-                                  if (signatureBytes == null ||
-                                      signatureBytes!.isEmpty) {
-                                    _showMessage('Please add dealer signature');
-                                    return;
-                                  }
-
-                                  // ============================================================
-                                  // ALL VALID
-                                  // ============================================================
-
-                                  setState(() {});
-
-                                  Navigator.pop(dialogContext);
-                                },
-
-                                icon: Icon(
-                                  Icons.check_circle_rounded,
-                                  size: 18.sp,
-                                ),
-                                label: Text(
-                                  'Save Details',
-                                  style: TextStyle(
-                                    fontSize: 12.sp,
-                                    fontWeight: FontWeight.w800,
-                                  ),
-                                ),
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: AppColors.primary,
-                                  foregroundColor: Colors.white,
-                                  elevation: 0,
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(11.r),
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
+                        ),
+                      ],
                     ),
-                  ],
-                ),
-              );
-            },
-          ),
-        );
-      },
-    );
-  }
+                  ),
+                ],
+              ),
+            );
+          },
+        ),
+      );
+    },
+  );
+}
+
 
   Widget _buildDetailStatus({
     required IconData icon,

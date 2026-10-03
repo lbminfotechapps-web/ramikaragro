@@ -42,6 +42,44 @@ class FarmerregistrationPage extends StatefulWidget {
 
 class _FarmerregistrationPageState extends State<FarmerregistrationPage> {
   final _formKey = GlobalKey<FormState>();
+  final _fieldKeys = {
+    for (final name in [
+      'name',
+      'address',
+      'mobile',
+      'alternate',
+      'email',
+      'state',
+      'district',
+      'taluka',
+      'status',
+      'products',
+      'crops',
+      'photo',
+    ])
+      name: GlobalKey<FormFieldState>(),
+  };
+  final _fieldFocus = {
+    for (final name in [
+      'name',
+      'address',
+      'mobile',
+      'alternate',
+      'email',
+      'state',
+      'district',
+      'taluka',
+      'status',
+      'products',
+      'crops',
+      'photo',
+    ])
+      name: FocusNode(),
+  };
+
+  void _refreshRequiredFields() {
+    if (mounted) setState(() {});
+  }
 
   final TextEditingController farmerNameController = TextEditingController();
 
@@ -83,6 +121,13 @@ class _FarmerregistrationPageState extends State<FarmerregistrationPage> {
   @override
   void initState() {
     super.initState();
+    for (final controller in [
+      farmerNameController,
+      addressController,
+      mobileController,
+    ]) {
+      controller.addListener(_refreshRequiredFields);
+    }
     // getUserId();
     _loadStates();
     getGeoAddress();
@@ -453,7 +498,25 @@ class _FarmerregistrationPageState extends State<FarmerregistrationPage> {
 
     if (isLoading) return;
 
-    if (!_formKey.currentState!.validate()) {
+    final invalidFields = _formKey.currentState!.validateGranularly();
+    if (invalidFields.isNotEmpty) {
+      for (final entry in _fieldKeys.entries) {
+        final field = entry.value.currentState;
+        if (field != null && invalidFields.contains(field)) {
+          _fieldFocus[entry.key]!.requestFocus();
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            final fieldContext = entry.value.currentContext;
+            if (mounted && fieldContext != null) {
+              Scrollable.ensureVisible(
+                fieldContext,
+                duration: const Duration(milliseconds: 300),
+                alignment: 0.2,
+              );
+            }
+          });
+          break;
+        }
+      }
       return;
     }
 
@@ -618,6 +681,9 @@ class _FarmerregistrationPageState extends State<FarmerregistrationPage> {
 
   @override
   void dispose() {
+    for (final node in _fieldFocus.values) {
+      node.dispose();
+    }
     farmerNameController.dispose();
     contactPersonController.dispose();
     addressController.dispose();
@@ -763,7 +829,7 @@ class _FarmerregistrationPageState extends State<FarmerregistrationPage> {
             AppDialog.show(
               context: context,
               message: 'Farmer Added Successfully',
-              onButtonPressed: () => {context.go(AppRouter.home)},
+              onButtonPressed: () => {context.go('/farmers')},
             );
           }
           // ============================================
@@ -842,6 +908,7 @@ class _FarmerregistrationPageState extends State<FarmerregistrationPage> {
           return SafeArea(
             child: Form(
               key: _formKey,
+              autovalidateMode: AutovalidateMode.onUserInteraction,
 
               child: SingleChildScrollView(
                 padding: const EdgeInsets.only(left: 16, right: 16),
@@ -853,6 +920,9 @@ class _FarmerregistrationPageState extends State<FarmerregistrationPage> {
                     SizedBox(height: 10.h),
                     CustomTextFormField(
                       controller: farmerNameController,
+                      fieldKey: _fieldKeys['name'],
+                      focusNode: _fieldFocus['name'],
+                      isValid: farmerNameController.text.trim().isNotEmpty,
                       hintText: 'Farmer Name *',
                       labelText: 'Farmer Name *',
                       prefixIcon: Icons.person_outline,
@@ -878,6 +948,9 @@ class _FarmerregistrationPageState extends State<FarmerregistrationPage> {
 
                     CustomTextFormField(
                       controller: addressController,
+                      fieldKey: _fieldKeys['address'],
+                      focusNode: _fieldFocus['address'],
+                      isValid: addressController.text.trim().isNotEmpty,
                       hintText: 'Address *',
                       labelText: 'Address',
                       prefixIcon: Icons.location_on_outlined,
@@ -896,6 +969,11 @@ class _FarmerregistrationPageState extends State<FarmerregistrationPage> {
                     CustomTextFormField(
                       maxLength: 10,
                       controller: mobileController,
+                      fieldKey: _fieldKeys['mobile'],
+                      focusNode: _fieldFocus['mobile'],
+                      isValid: RegExp(
+                        r'^\d{10}$',
+                      ).hasMatch(mobileController.text.trim()),
                       hintText: 'Mobile No *',
                       labelText: 'Mobile No *',
                       prefixIcon: Icons.phone_outlined,
@@ -919,6 +997,9 @@ class _FarmerregistrationPageState extends State<FarmerregistrationPage> {
                     CustomTextFormField(
                       maxLength: 10,
                       controller: alternateMobileController,
+                      fieldKey: _fieldKeys['alternate'],
+                      focusNode: _fieldFocus['alternate'],
+                      isValid: false,
                       hintText: 'Alternate Mobile No',
                       labelText: 'Alternate Mobile No ',
                       prefixIcon: Icons.phone_outlined,
@@ -941,6 +1022,9 @@ class _FarmerregistrationPageState extends State<FarmerregistrationPage> {
                     // SizedBox(height: 10.h),
                     CustomTextFormField(
                       controller: emailController,
+                      fieldKey: _fieldKeys['email'],
+                      focusNode: _fieldFocus['email'],
+                      isValid: false,
                       hintText: 'Email ID',
                       labelText: 'Email ID',
                       prefixIcon: Icons.email_outlined,
@@ -987,6 +1071,10 @@ class _FarmerregistrationPageState extends State<FarmerregistrationPage> {
                       value: _selectedStateId == '0' ? null : _selectedStateId,
 
                       hintText: 'Select State',
+                      fieldKey: _fieldKeys['state'],
+                      focusNode: _fieldFocus['state'],
+                      isValid:
+                          _selectedStateId != null && _selectedStateId != '0',
 
                       prefixIcon: Icons.map_outlined,
 
@@ -1027,6 +1115,11 @@ class _FarmerregistrationPageState extends State<FarmerregistrationPage> {
                           : _selectedDistrictId,
 
                       hintText: 'Select District',
+                      fieldKey: _fieldKeys['district'],
+                      focusNode: _fieldFocus['district'],
+                      isValid:
+                          _selectedDistrictId != null &&
+                          _selectedDistrictId != '0',
 
                       prefixIcon: Icons.location_city_outlined,
 
@@ -1065,6 +1158,10 @@ class _FarmerregistrationPageState extends State<FarmerregistrationPage> {
                           : _selectedTalukaId,
 
                       hintText: 'Select Taluka',
+                      fieldKey: _fieldKeys['taluka'],
+                      focusNode: _fieldFocus['taluka'],
+                      isValid:
+                          _selectedTalukaId != null && _selectedTalukaId != '0',
 
                       prefixIcon: Icons.location_on_outlined,
 
@@ -1109,6 +1206,9 @@ class _FarmerregistrationPageState extends State<FarmerregistrationPage> {
                       value: _selectedFarmerStatus,
 
                       hintText: 'Farmer Status',
+                      fieldKey: _fieldKeys['status'],
+                      focusNode: _fieldFocus['status'],
+                      isValid: _selectedFarmerStatus?.isNotEmpty == true,
 
                       prefixIcon: Icons.person_outline,
 
@@ -1153,6 +1253,9 @@ class _FarmerregistrationPageState extends State<FarmerregistrationPage> {
                             : _selectedProductNames,
                       ),
                       hintText: 'Select Suggested Product',
+                      fieldKey: _fieldKeys['products'],
+                      focusNode: _fieldFocus['products'],
+                      isValid: _selectedProductIds.isNotEmpty,
                       prefixIcon: Icons.inventory_2_outlined,
                       readOnly: true,
                       onTap: productDetailData.isEmpty
@@ -1218,6 +1321,9 @@ class _FarmerregistrationPageState extends State<FarmerregistrationPage> {
                                   .join(', '),
                       ),
                       hintText: 'Select Land and Crop Details',
+                      fieldKey: _fieldKeys['crops'],
+                      focusNode: _fieldFocus['crops'],
+                      isValid: _selectedCropDetails.isNotEmpty,
                       prefixIcon: Icons.grass_outlined,
                       readOnly: true,
                       onTap: () {
@@ -1246,6 +1352,7 @@ class _FarmerregistrationPageState extends State<FarmerregistrationPage> {
 
                     // Upload photo
                     FormField<bool>(
+                      key: _fieldKeys['photo'],
                       initialValue: _uploadedImage != null,
                       validator: (_) {
                         if (_uploadedImage == null) {
@@ -1360,12 +1467,17 @@ class _FarmerregistrationPageState extends State<FarmerregistrationPage> {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(20.r),
-        border: Border.all(color: Colors.grey.shade200),
+        border: Border.all(
+          color: _uploadedImage != null
+              ? const Color(0xFF087C3A)
+              : Colors.grey.shade200,
+        ),
       ),
       child: Column(
         children: [
           // Upload header
           InkWell(
+            focusNode: _fieldFocus['photo'],
             onTap: _captureImage,
             borderRadius: BorderRadius.circular(12.r),
             child: Padding(
@@ -1419,7 +1531,11 @@ class _FarmerregistrationPageState extends State<FarmerregistrationPage> {
               decoration: BoxDecoration(
                 color: const Color(0xFFFAFAFA),
                 borderRadius: BorderRadius.circular(16.r),
-                border: Border.all(color: Colors.grey.shade200),
+                border: Border.all(
+                  color: _uploadedImage != null
+                      ? const Color(0xFF087C3A)
+                      : Colors.grey.shade200,
+                ),
               ),
               child: _uploadedImage == null
                   ? Column(

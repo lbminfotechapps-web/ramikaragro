@@ -28,12 +28,9 @@ class DealerTargetBloc
     LoadTargetDatesEvent event,
     Emitter<DealerTargetState> emit,
   ) async {
-    print('====================================');
-    print('LOAD TARGET DATES');
+   
     _targetRequest++;
-    print('USER ID: ${event.userId}');
-    print('====================================');
-
+    
     emit(
       state.copyWith(
         datesStatus: TargetDatesStatus.loading,
@@ -44,7 +41,7 @@ class DealerTargetBloc
     );
 
     try {
-      final dates = await getTargetDates();
+      final dates = await getTargetDates(userId: event.userId);
 
       print('TARGET DATES COUNT: ${dates.length}');
 
