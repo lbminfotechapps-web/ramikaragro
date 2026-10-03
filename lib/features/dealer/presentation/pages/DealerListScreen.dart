@@ -353,167 +353,178 @@ class _DealerListScreenState extends State<DealerListScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: AppColors.backgroundColor,
-      appBar: CustomAppBar(
-        title: 'Dealer List',
-        showBackButton: true,
-        onBackTap: () => Navigator.pop(context),
-      ),
+    return PopScope(
+      canPop: false,
+      onPopInvokedWithResult: (didPop, result) {
+        if (didPop) return;
+        context.go('/home');
+      },
+      child: Scaffold(
+        backgroundColor: AppColors.backgroundColor,
+        appBar: CustomAppBar(
+          title: 'Dealer List',
+          showBackButton: true,
+          onBackTap: () => context.go('/home'),
+        ),
 
-      body: BlocConsumer<DealerListBloc, DealerListState>(
-        listener: (context, state) {
-          if (state.status == DealerListStatus.success ||
-              state.status == DealerListStatus.failure) {
-            if (mounted) {
-              setState(() {
-                _isInitialLoading = false;
-                _isLoadingMore = false;
-              });
+        body: BlocConsumer<DealerListBloc, DealerListState>(
+          listener: (context, state) {
+            if (state.status == DealerListStatus.success ||
+                state.status == DealerListStatus.failure) {
+              if (mounted) {
+                setState(() {
+                  _isInitialLoading = false;
+                  _isLoadingMore = false;
+                });
+              }
             }
-          }
-          // ============================================================
-          // ADD DEALER LOCATION SUCCESS
-          // ============================================================
+            // ============================================================
+            // ADD DEALER LOCATION SUCCESS
+            // ============================================================
 
-          if (state.status == DealerListStatus.addDealerLocationSuccess) {
-            debugPrint('DEALER LOCATION UPDATED SUCCESSFULLY');
+            if (state.status == DealerListStatus.addDealerLocationSuccess) {
+              debugPrint('DEALER LOCATION UPDATED SUCCESSFULLY');
 
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(
-                content: Text('Dealer location updated successfully'),
-                duration: Duration(seconds: 2),
-              ),
-            );
-
-            // Refresh dealer list after location update
-            _loadDealers(searchKey: _searchController.text.trim());
-          }
-
-          //
-        },
-        builder: (context, state) {
-          if (_isInitialLoading || state.status == DealerListStatus.loading) {
-            return const CustomLoader();
-          }
-
-          if (state.status == DealerListStatus.failure) {
-            return Center(
-              child: Padding(
-                padding: const EdgeInsets.all(24),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Icon(
-                      Icons.error_outline,
-                      size: 50,
-                      color: Colors.red.shade400,
-                    ),
-                    const SizedBox(height: 12),
-                    Text(
-                      state.errorMessage ?? 'Something went wrong',
-                      textAlign: TextAlign.center,
-                      style: const TextStyle(fontSize: 14),
-                    ),
-                    const SizedBox(height: 16),
-                    ElevatedButton(
-                      onPressed: () {
-                        _loadDealers(searchKey: _searchController.text.trim());
-                        // _loadFarmers(searchKey: _searchController.text.trim());
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: AppColors.primary,
-                        foregroundColor: Colors.white,
-                      ),
-                      child: const Text('Retry'),
-                    ),
-                  ],
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  content: Text('Dealer location updated successfully'),
+                  duration: Duration(seconds: 2),
                 ),
-              ),
-            );
-          }
+              );
 
-          final dealers = state.dealerList;
+              // Refresh dealer list after location update
+              _loadDealers(searchKey: _searchController.text.trim());
+            }
 
-          return Column(
-            children: [
-              _buildSearchBar(),
+            //
+          },
+          builder: (context, state) {
+            if (_isInitialLoading || state.status == DealerListStatus.loading) {
+              return const CustomLoader();
+            }
 
-              Padding(
-                padding: const EdgeInsets.fromLTRB(20, 10, 20, 12),
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: Text(
-                        _searchText.isEmpty ? 'Your dealers' : 'Search results',
-                        style: const TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.w700,
-                          letterSpacing: -0.4,
-                          color: Color(0xFF203C32),
-                        ),
+            if (state.status == DealerListStatus.failure) {
+              return Center(
+                child: Padding(
+                  padding: const EdgeInsets.all(24),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(
+                        Icons.error_outline,
+                        size: 50,
+                        color: Colors.red.shade400,
                       ),
-                    ),
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 10,
-                        vertical: 5,
+                      const SizedBox(height: 12),
+                      Text(
+                        state.errorMessage ?? 'Something went wrong',
+                        textAlign: TextAlign.center,
+                        style: const TextStyle(fontSize: 14),
                       ),
-                      decoration: BoxDecoration(
-                        color: const Color(0xFFE1E9DF),
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: Text(
-                        '${dealers.length}',
-                        style: const TextStyle(
-                          fontSize: 12,
-                          fontWeight: FontWeight.w700,
-                          color: Color(0xFF3B5D4A),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              Expanded(
-                child: dealers.isEmpty
-                    ? _buildEmptyView()
-                    : RefreshIndicator(
-                        onRefresh: () async {
-                          _loadDealers();
+                      const SizedBox(height: 16),
+                      ElevatedButton(
+                        onPressed: () {
+                          _loadDealers(
+                            searchKey: _searchController.text.trim(),
+                          );
+                          // _loadFarmers(searchKey: _searchController.text.trim());
                         },
-                        child: ListView.builder(
-                          physics: const AlwaysScrollableScrollPhysics(),
-                          padding: const EdgeInsets.fromLTRB(16, 0, 16, 104),
-                          itemCount: dealers.length,
-                          itemBuilder: (context, index) {
-                            final dealer = dealers[index];
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: AppColors.primary,
+                          foregroundColor: Colors.white,
+                        ),
+                        child: const Text('Retry'),
+                      ),
+                    ],
+                  ),
+                ),
+              );
+            }
 
-                            return _DealerListItem(
-                              dealer: dealer,
-                              onLocationTap: () {
-                                _submitDealerLocation(dealer);
-                              },
-                            );
-                          },
+            final dealers = state.dealerList;
+
+            return Column(
+              children: [
+                _buildSearchBar(),
+
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(20, 10, 20, 12),
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: Text(
+                          _searchText.isEmpty
+                              ? 'Your dealers'
+                              : 'Search results',
+                          style: const TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.w700,
+                            letterSpacing: -0.4,
+                            color: Color(0xFF203C32),
+                          ),
                         ),
                       ),
-              ),
-            ],
-          );
-        },
-      ),
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 10,
+                          vertical: 5,
+                        ),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFE1E9DF),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: Text(
+                          '${dealers.length}',
+                          style: const TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w700,
+                            color: Color(0xFF3B5D4A),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                Expanded(
+                  child: dealers.isEmpty
+                      ? _buildEmptyView()
+                      : RefreshIndicator(
+                          onRefresh: () async {
+                            _loadDealers();
+                          },
+                          child: ListView.builder(
+                            physics: const AlwaysScrollableScrollPhysics(),
+                            padding: const EdgeInsets.fromLTRB(16, 0, 16, 104),
+                            itemCount: dealers.length,
+                            itemBuilder: (context, index) {
+                              final dealer = dealers[index];
 
-      floatingActionButton: FloatingActionButton.extended(
-        backgroundColor: AppColors.primary,
-        foregroundColor: Colors.white,
-        elevation: 3,
-        onPressed: () {
-          context.push('/dealrFollowUpAdd');
-        },
-        tooltip: 'Add dealer follow-up',
-        icon: const Icon(Icons.add_rounded),
-        label: const Text('Add Dealer'),
+                              return _DealerListItem(
+                                dealer: dealer,
+                                onLocationTap: () {
+                                  _submitDealerLocation(dealer);
+                                },
+                              );
+                            },
+                          ),
+                        ),
+                ),
+              ],
+            );
+          },
+        ),
+
+        floatingActionButton: FloatingActionButton.extended(
+          backgroundColor: AppColors.primary,
+          foregroundColor: Colors.white,
+          elevation: 3,
+          onPressed: () {
+            context.push('/dealrFollowUpAdd');
+          },
+          tooltip: 'Add dealer follow-up',
+          icon: const Icon(Icons.add_rounded),
+          label: const Text('Add Dealer'),
+        ),
       ),
     );
   }
@@ -580,7 +591,7 @@ class _DealerListScreenState extends State<DealerListScreen> {
           const SizedBox(height: 12),
 
           Text(
-            _searchText.isNotEmpty ? 'No dealers found' : 'No dealers yet',
+            'No Dealers Found..!',
             style: TextStyle(
               color: Colors.grey.shade600,
               fontSize: 15,

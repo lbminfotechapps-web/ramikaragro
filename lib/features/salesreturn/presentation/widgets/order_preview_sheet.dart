@@ -279,7 +279,7 @@ class OrderPreviewSheet extends StatelessWidget {
                   CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Order Preview',
+                  'Preview',
                   style: TextStyle(
                     fontSize: 17.sp,
                     fontWeight: FontWeight.w800,

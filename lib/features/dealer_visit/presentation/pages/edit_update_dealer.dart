@@ -5,7 +5,8 @@ import 'package:solufine/core/secure_storage/secure_storage.dart';
 import 'package:solufine/core/theme/app_colors.dart';
 import 'package:solufine/core/utility/app_image_picker.dart';
 import 'package:solufine/core/utility/data_list.dart';
-import 'package:solufine/core/utility/widgets/custom_appbar.dart' show CustomAppBar;
+import 'package:solufine/core/utility/widgets/custom_appbar.dart'
+    show CustomAppBar;
 import 'package:solufine/core/utility/widgets/custom_button.dart';
 import 'package:solufine/core/utility/widgets/custom_dropdown.dart';
 import 'package:solufine/core/utility/widgets/custom_textformfield.dart';
@@ -414,9 +415,16 @@ class _EditUpdateDealerState extends State<EditUpdateDealer> {
       );
     }
 
-    _selectedStateId = widget.dealerData!.outletState?.toString() ?? '0';
-    _selectedDistrictId = widget.dealerData!.outletDistrict?.toString() ?? '0';
-    _selectedTalukaId = widget.dealerData!.outletTaluka?.toString() ?? '0';
+    _selectedStateId = _normalizeLocationId(widget.dealerData!.outletState);
+    _selectedDistrictId = _normalizeLocationId(
+      widget.dealerData!.outletDistrict,
+    );
+    _selectedTalukaId = _normalizeLocationId(widget.dealerData!.outletTaluka);
+  }
+
+  String _normalizeLocationId(String? value) {
+    final id = value?.trim() ?? '';
+    return id.isEmpty ? '0' : id;
   }
 
   String _dateOnly(String? value) {
@@ -442,8 +450,9 @@ class _EditUpdateDealerState extends State<EditUpdateDealer> {
       return;
     }
 
+    final selectedStateId = _normalizeLocationId(_selectedStateId);
     final exists = state.statentity.any(
-      (item) => item.stateId == _selectedStateId,
+      (item) => _normalizeLocationId(item.stateId) == selectedStateId,
     );
 
     if (!exists) {
@@ -483,8 +492,11 @@ class _EditUpdateDealerState extends State<EditUpdateDealer> {
       return;
     }
 
+    final selectedDistrictId = _normalizeLocationId(_selectedDistrictId);
+    final selectedTalukaId = _normalizeLocationId(_selectedTalukaId);
     final districtExists = state.districtList.any(
-      (district) => district.fldDistId == _selectedDistrictId,
+      (district) =>
+          _normalizeLocationId(district.fldDistId) == selectedDistrictId,
     );
 
     if (!districtExists) {
@@ -497,11 +509,12 @@ class _EditUpdateDealerState extends State<EditUpdateDealer> {
     }
 
     final district = state.districtList.firstWhere(
-      (district) => district.fldDistId == _selectedDistrictId,
+      (district) =>
+          _normalizeLocationId(district.fldDistId) == selectedDistrictId,
     );
 
     final talukaExists = district.taluka.any(
-      (taluka) => taluka.fldTalukaId == _selectedTalukaId,
+      (taluka) => _normalizeLocationId(taluka.fldTalukaId) == selectedTalukaId,
     );
 
     if (!talukaExists) {
@@ -540,7 +553,8 @@ class _EditUpdateDealerState extends State<EditUpdateDealer> {
     DistrictEntity? selectedDistrict;
 
     for (final district in state.districtList) {
-      if (district.fldDistId == districtId) {
+      if (_normalizeLocationId(district.fldDistId) ==
+          _normalizeLocationId(districtId)) {
         selectedDistrict = district;
         break;
       }
@@ -559,7 +573,7 @@ class _EditUpdateDealerState extends State<EditUpdateDealer> {
     debugPrint('Taluka Count: ${selectedDistrict.taluka.length}');
 
     setState(() {
-      _selectedDistrictId = districtId;
+      _selectedDistrictId = _normalizeLocationId(districtId);
 
       // Whenever district changes,
       // old taluka must be cleared.
@@ -687,8 +701,12 @@ class _EditUpdateDealerState extends State<EditUpdateDealer> {
         builder: (context, state) {
           DistrictEntity? selectedDistrict;
 
+          final selectedDistrictId = _normalizeLocationId(_selectedDistrictId);
+          final selectedTalukaId = _normalizeLocationId(_selectedTalukaId);
+
           for (final district in state.districtList) {
-            if (district.fldDistId == _selectedDistrictId) {
+            if (_normalizeLocationId(district.fldDistId) ==
+                selectedDistrictId) {
               selectedDistrict = district;
               break;
             }
@@ -698,7 +716,8 @@ class _EditUpdateDealerState extends State<EditUpdateDealer> {
 
           if (_selectedDistrictId != null && _selectedDistrictId != '0') {
             for (final district in state.districtList) {
-              if (district.fldDistId == _selectedDistrictId) {
+              if (_normalizeLocationId(district.fldDistId) ==
+                  selectedDistrictId) {
                 selectedDistrict = district;
                 break;
               }
@@ -780,6 +799,10 @@ class _EditUpdateDealerState extends State<EditUpdateDealer> {
                 ),
               )
               .toList();
+          final selectedStateValue =
+              uniqueStates.containsKey(_selectedStateId?.trim())
+              ? _selectedStateId?.trim()
+              : null;
 
           final dealerTypeItems = dealerTypeStatus.map((status) {
             return DropdownMenuItem<String>(value: status, child: Text(status));
@@ -790,13 +813,13 @@ class _EditUpdateDealerState extends State<EditUpdateDealer> {
           }).toList();
 
           final selectedDistrictValue =
-              uniqueDistricts.containsKey(_selectedDistrictId)
-              ? _selectedDistrictId
+              uniqueDistricts.containsKey(selectedDistrictId)
+              ? selectedDistrictId
               : null;
 
           final selectedTalukaValue =
-              uniqueTalukas.containsKey(_selectedTalukaId)
-              ? _selectedTalukaId
+              uniqueTalukas.containsKey(selectedTalukaId)
+              ? selectedTalukaId
               : null;
 
           return SafeArea(
@@ -992,7 +1015,7 @@ class _EditUpdateDealerState extends State<EditUpdateDealer> {
 
                     SizedBox(height: 10.h),
                     CustomDropdown<String>(
-                      value: _selectedStateId == '0' ? null : _selectedStateId,
+                      value: selectedStateValue,
 
                       hintText: 'Select State',
 

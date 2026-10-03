@@ -102,21 +102,157 @@ class HomeDatasource {
     return responseData;
   }
 
-  Future<HomeVisitModel> getHomeVisitCount({required String userId}) async {
-    final formdata = FormData.fromMap({"userId": userId});
-    final response = await dioClient.client.post(
+
+
+
+  // Future<HomeVisitModel> getHomeVisitCount({required String userId}) async {
+  //   final formdata = FormData.fromMap({"userId": userId});
+  //   final response = await dioClient.client.post(
+  //     ApiClient.getEmployeeVisitCount,
+  //     data: formdata,
+  //   );
+
+  //   print('home visit data %%%%%%%%$response');
+
+  //   final responseString = response.data.toString().trim();
+
+  //   final Map<String, dynamic> jsonData = jsonDecode(responseString);
+
+  //   return HomeVisitModel.fromJson(jsonData);
+  // }
+
+Future<HomeVisitModel> getHomeVisitCount({
+  required String userId,
+}) async {
+  try {
+    print('======================================');
+    print('GET HOME VISIT COUNT API');
+    print('USER ID: $userId');
+    print('======================================');
+
+    final formData = FormData.fromMap({
+      'userId': userId,
+    });
+
+    final response =
+        await dioClient.client.post(
       ApiClient.getEmployeeVisitCount,
-      data: formdata,
+      data: formData,
     );
 
-    print('home visit data %%%%%%%%$response');
+    print(
+      'STATUS CODE: ${response.statusCode}',
+    );
 
-    final responseString = response.data.toString().trim();
+    print(
+      'RESPONSE TYPE: '
+      '${response.data.runtimeType}',
+    );
 
-    final Map<String, dynamic> jsonData = jsonDecode(responseString);
+    print(
+      'HOME VISIT RESPONSE: '
+      '${response.data}',
+    );
 
-    return HomeVisitModel.fromJson(jsonData);
+    dynamic data = response.data;
+
+    // ------------------------------------------------------------
+    // API STRING RESPONSE
+    // ------------------------------------------------------------
+
+    if (data is String) {
+      final raw = data.trim();
+
+      if (raw.isEmpty) {
+        throw const FormatException(
+          'Empty home visit response',
+        );
+      }
+
+      data = jsonDecode(raw);
+    }
+
+    // ------------------------------------------------------------
+    // VALIDATE RESPONSE
+    // ------------------------------------------------------------
+
+    if (data is! Map) {
+      throw FormatException(
+        'Invalid home visit response: '
+        '${data.runtimeType}',
+      );
+    }
+
+    final Map<String, dynamic> jsonData =
+        Map<String, dynamic>.from(data);
+
+    // ------------------------------------------------------------
+    // MODEL
+    // ------------------------------------------------------------
+
+    final model =
+        HomeVisitModel.fromJson(
+      jsonData,
+    );
+
+    print('======================================');
+
+    print(
+      'TOTAL DEALER COUNT: '
+      '${model.totalDealerCount}',
+    );
+
+    print(
+      'TOTAL FARMER COUNT: '
+      '${model.totalFarmerCount}',
+    );
+
+    print(
+      'DAY WISE COUNT: '
+      '${model.dayWise.length}',
+    );
+
+    for (final item in model.dayWise) {
+      print(
+        '${item.date} -> '
+        'Dealer: ${item.dealerCount} | '
+        'Farmer: ${item.farmerCount}',
+      );
+    }
+
+    print('======================================');
+
+    return model;
+  } on DioException catch (e) {
+    print(
+      'HOME VISIT DIO ERROR: '
+      '${e.message}',
+    );
+
+    print(
+      'RESPONSE: ${e.response?.data}',
+    );
+
+    throw Exception(
+      e.message ??
+          'Home visit network error',
+    );
+  } catch (e, stackTrace) {
+    print(
+      'HOME VISIT ERROR: $e',
+    );
+
+    print(
+      'STACK TRACE: $stackTrace',
+    );
+
+    rethrow;
   }
+}
+
+
+
+
 
   Future<InpunchPendingResponseModel> getInpunchPending(String userId) async {
     try {

@@ -31,7 +31,7 @@ class _CollectionWiseFormPageState extends State<CollectionWiseFormPage> {
   // CONTROLLERS
   // ============================================================
 
-  final TextEditingController amountController = TextEditingController();
+  final TextEditingController amountController = TextEditingController(text: '0.00');
 
   final TextEditingController rtgsController = TextEditingController();
 
@@ -198,63 +198,38 @@ class _CollectionWiseFormPageState extends State<CollectionWiseFormPage> {
   // CHEQUE DATE
   // ============================================================
 
-  Future<void> _selectChequeDate() async {
-    final pickedDate = await showDatePicker(
-      context: context,
-      initialDate: DateTime.now(),
-      firstDate: DateTime(2000),
-      lastDate: DateTime.now(),
-      builder: (context, child) {
-        return Theme(
-          data: Theme.of(context).copyWith(
-            colorScheme: const ColorScheme.light(primary: Color(0xFF166534)),
+ Future<void> _selectChequeDate() async {
+  final today = DateTime.now();
+
+  final pickedDate = await showDatePicker(
+    context: context,
+    initialDate: today,
+    firstDate: today,
+    lastDate: DateTime(2100),
+    builder: (context, child) {
+      return Theme(
+        data: Theme.of(context).copyWith(
+          colorScheme: const ColorScheme.light(
+            primary: Color(0xFF166534),
           ),
-          child: child!,
-        );
-      },
-    );
+        ),
+        child: child!,
+      );
+    },
+  );
 
-    if (!mounted || pickedDate == null) {
-      return;
-    }
-
-    final day = pickedDate.day.toString().padLeft(2, '0');
-
-    final month = pickedDate.month.toString().padLeft(2, '0');
-
-    chequeDateController.text = '$day-$month-${pickedDate.year}';
-
-    setState(() {});
+  if (!mounted || pickedDate == null) {
+    return;
   }
 
-  // ============================================================
-  // IMAGE PICKER
-  // ============================================================
+  final day = pickedDate.day.toString().padLeft(2, '0');
+  final month = pickedDate.month.toString().padLeft(2, '0');
 
-  // Future<void> _pickImages() async {
-  //   try {
-  //     final files = await imagePicker.pickMultiImage(
-  //       imageQuality: 80,
-  //       maxWidth: 1080,
-  //       maxHeight: 1080,
-  //     );
+  chequeDateController.text =
+      '$day-$month-${pickedDate.year}';
 
-  //     if (files.isEmpty) {
-  //       return;
-  //     }
-
-  //     setState(() {
-  //       selectedImages = files.map((e) => File(e.path)).toList();
-  //     });
-
-  //     debugPrint('Selected images = ${selectedImages.length}');
-  //   } catch (e) {
-  //     debugPrint('Image picker error: $e');
-
-  //     _showMessage('Unable to select images');
-  //   }
-  // }
-
+  setState(() {});
+}
 
 
   Future<void> _pickImages() async {
@@ -1123,11 +1098,12 @@ class _CollectionWiseFormPageState extends State<CollectionWiseFormPage> {
                   ],
 
                   onChanged: (_) {
+                    amountController.text = collectionTotalAmount.toStringAsFixed(2);
                     setState(() {});
                   },
 
                   decoration: InputDecoration(
-                    hintText: 'Enter amount',
+                    hintText: 'Enter Amt',
 
                     prefixText: '₹ ',
 
@@ -1717,6 +1693,7 @@ class _CollectionWiseFormPageState extends State<CollectionWiseFormPage> {
           Expanded(
             child: TextField(
               controller: amountController,
+              readOnly: true,
 
               keyboardType: const TextInputType.numberWithOptions(
                 decimal: true,

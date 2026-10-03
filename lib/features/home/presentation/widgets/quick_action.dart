@@ -740,12 +740,12 @@ class _QuickAccessSectionState extends State<QuickAccessSection> {
       final userId = userData?['user_id']?.toString();
 
       if (!context.mounted) return;
-      if (userId == null || userId.isEmpty) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('User information is not available')),
-        );
-        return;
-      }
+      // if (userId == null || userId.isEmpty) {
+      //   ScaffoldMessenger.of(context).showSnackBar(
+      //     const SnackBar(content: Text('User information is not available')),
+      //   );
+      //   return;
+      // }
 
       context.push('/notification', extra: userId);
     } else if (menu.menuId == '14') {
@@ -824,12 +824,12 @@ class _QuickAccessSectionState extends State<QuickAccessSection> {
 
       if (!context.mounted) return;
 
-      if (userId == null || userId.isEmpty) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('User information is not available')),
-        );
-        return;
-      }
+      // if (userId == null || userId.isEmpty) {
+      //   ScaffoldMessenger.of(context).showSnackBar(
+      //     const SnackBar(content: Text('User information is not available')),
+      //   );
+      //   return;
+      // }
 
       final route = switch (menu.menuId) {
         '57' => '/visitSummaryReport',

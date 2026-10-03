@@ -16,6 +16,18 @@ void main() {
     MenuEntity(menuId: '17', menuName: 'In Punch', iconImage: ''),
   ];
 
+  test('matches individual words in camel case menu names', () {
+    const combinedMenus = [
+      MenuEntity(menuId: '20', menuName: 'AboutUs', iconImage: ''),
+      MenuEntity(menuId: '21', menuName: 'HRReports', iconImage: ''),
+    ];
+    for (final command in ['about', 'us', 'about us', 'open AboutUs']) {
+      expect(matchVoiceMenus(command, combinedMenus).single.menuId, '20');
+    }
+    expect(matchVoiceMenus('reports', combinedMenus).single.menuId, '21');
+    expect(matchVoiceMenus('weather', combinedMenus), isEmpty);
+  });
+
   test('matches commands, case, punctuation and expense variants', () {
     for (final command in [
       'add expense',

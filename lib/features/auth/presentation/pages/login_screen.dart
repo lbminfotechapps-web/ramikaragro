@@ -212,7 +212,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
             // Subtitle
             Text(
-              'Welcome back! Please login to continue.',
+              'Welcome, Please login to continue.',
               style: TextStyle(
                 color: Colors.grey.shade600,
                 fontSize: 14.sp,

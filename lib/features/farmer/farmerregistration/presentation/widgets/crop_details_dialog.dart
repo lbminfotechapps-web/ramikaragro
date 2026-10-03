@@ -223,7 +223,7 @@ class _CropDetailsDialogState extends State<CropDetailsDialog> {
 
             Expanded(
               child: Text(
-                date == null ? 'Select Date' : _formatDate(date),
+                date == null ? 'Select Showing Date' : _formatDate(date),
                 style: TextStyle(
                   fontSize: 14.sp,
                   color: date == null ? Colors.grey.shade500 : Colors.black87,

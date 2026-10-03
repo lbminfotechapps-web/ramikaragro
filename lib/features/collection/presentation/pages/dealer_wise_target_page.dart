@@ -70,13 +70,16 @@ class _DealerWiseTargetPageState extends State<DealerWiseTargetPage> {
 
   void _reloadTarget() {
     final date = bloc.state.selectedDate;
-    if (date == null || bloc.state.datesStatus != TargetDatesStatus.success) return;
-    bloc.add(SelectTargetDateEvent(
-      selectedDate: date,
-      userId: userId,
-      outletId: _selectedDealerId ?? '',
-      collectionTypeId: _selectedCollectionTypeId ?? '',
-    ));
+    if (date == null || bloc.state.datesStatus != TargetDatesStatus.success)
+      return;
+    bloc.add(
+      SelectTargetDateEvent(
+        selectedDate: date,
+        userId: userId,
+        outletId: _selectedDealerId ?? '',
+        collectionTypeId: _selectedCollectionTypeId ?? '',
+      ),
+    );
   }
 
   static const Color primaryGreen = Color(0xff237653);
@@ -114,7 +117,13 @@ class _DealerWiseTargetPageState extends State<DealerWiseTargetPage> {
         return;
       }
 
-      bloc.add(LoadTargetDatesEvent(userId: userId, outletId: _selectedDealerId ?? '', collectionTypeId: _selectedCollectionTypeId ?? ''));
+      bloc.add(
+        LoadTargetDatesEvent(
+          userId: userId,
+          outletId: _selectedDealerId ?? '',
+          collectionTypeId: _selectedCollectionTypeId ?? '',
+        ),
+      );
     } catch (e) {
       debugPrint('USER ID ERROR: $e');
 
@@ -155,7 +164,8 @@ class _DealerWiseTargetPageState extends State<DealerWiseTargetPage> {
               context.go(AppRouter.home);
             },
           ),
-          title: 'Collection Overview',
+          title: 'Target & Achievement ',
+          subtitle: 'Collection Wise',
         ),
 
         body: SafeArea(
@@ -188,7 +198,13 @@ class _DealerWiseTargetPageState extends State<DealerWiseTargetPage> {
                           return;
                         }
 
-                        bloc.add(LoadTargetDatesEvent(userId: userId, outletId: _selectedDealerId ?? '', collectionTypeId: _selectedCollectionTypeId ?? ''));
+                        bloc.add(
+                          LoadTargetDatesEvent(
+                            userId: userId,
+                            outletId: _selectedDealerId ?? '',
+                            collectionTypeId: _selectedCollectionTypeId ?? '',
+                          ),
+                        );
 
                         await bloc.stream.firstWhere(
                           (state) =>
@@ -313,8 +329,9 @@ class _DealerWiseTargetPageState extends State<DealerWiseTargetPage> {
                   (dealer) => DropdownMenuItem(
                     value: dealer.outletId,
                     child: Text(
-                      dealer.outletName,
+                      dealer.outletName+' - (${dealer.outletMobile})',
                       overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(fontSize: 13),
                     ),
                   ),
                 )
@@ -441,7 +458,12 @@ class _DealerWiseTargetPageState extends State<DealerWiseTargetPage> {
                   }
 
                   bloc.add(
-                    SelectTargetDateEvent(selectedDate: value, userId: userId, outletId: _selectedDealerId ?? '', collectionTypeId: _selectedCollectionTypeId ?? ''),
+                    SelectTargetDateEvent(
+                      selectedDate: value,
+                      userId: userId,
+                      outletId: _selectedDealerId ?? '',
+                      collectionTypeId: _selectedCollectionTypeId ?? '',
+                    ),
                   );
                 },
               ),
@@ -466,7 +488,9 @@ class _DealerWiseTargetPageState extends State<DealerWiseTargetPage> {
     }
 
     if (_selectedDealerId == null || _selectedCollectionTypeId == null) {
-      return _buildMessage('Select a dealer and collection type to view targets.');
+      return _buildMessage(
+        'Select a dealer and collection type to view targets.',
+      );
     }
 
     final target = state.target;

@@ -201,7 +201,7 @@ class _FamerFollowupPageState extends State<FamerFollowupPage> {
         if (placemarks.isNotEmpty) {
           final Placemark place = placemarks.first;
 
-          final List<String?> addressParts = [
+          final List<String?> addressFields = [
             place.name,
             place.street,
             place.subLocality,
@@ -211,10 +211,23 @@ class _FamerFollowupPageState extends State<FamerFollowupPage> {
             place.country,
           ];
 
-          geoAddress = addressParts
-              .where((element) => element != null && element.trim().isNotEmpty)
-              .map((element) => element!.trim())
-              .join(', ');
+          final addressParts = <String>[];
+          for (final field in addressFields) {
+            for (final part in (field ?? '').split(',')) {
+              final value = part.trim();
+              if (value.isEmpty) continue;
+
+              final normalizedValue = value.toLowerCase();
+              final alreadyIncluded = addressParts.any(
+                (existing) => existing.toLowerCase().contains(normalizedValue),
+              );
+              if (!alreadyIncluded) {
+                addressParts.add(value);
+              }
+            }
+          }
+
+          geoAddress = addressParts.join(', ');
 
           debugPrint('CURRENT ADDRESS: $geoAddress');
         }

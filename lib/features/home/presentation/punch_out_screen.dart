@@ -16,6 +16,7 @@ import 'package:solufine/core/secure_storage/secure_storage.dart';
 import 'package:solufine/core/utility/app_image_picker.dart';
 import 'package:solufine/core/utility/appdialog.dart';
 import 'package:solufine/core/utility/device_info_util.dart';
+import 'package:solufine/core/utility/image_compression.dart';
 import 'package:solufine/core/utility/location_util.dart';
 import 'package:solufine/core/utility/widgets/custom_appbar.dart';
 import 'package:solufine/core/utility/widgets/custom_textformfield.dart';
@@ -350,36 +351,157 @@ class _PunchOutScreenState extends State<PunchOutScreen> {
   // CAMERA
   // ===========================================================================
 
+  // Future<void> _captureImage() async {
+  //   try {
+  //     final File? image =
+  //         await AppImagePicker.instance.pickFromCamera();
+
+  //     if (image == null) {
+  //       return;
+  //     }
+
+  //     if (!mounted) {
+  //       return;
+  //     }
+
+  //     setState(() {
+  //       _uploadedImage = image;
+  //     });
+  //   } catch (e) {
+  //     if (!mounted) {
+  //       return;
+  //     }
+
+  //     ScaffoldMessenger.of(context).showSnackBar(
+  //       const SnackBar(
+  //         content: Text(
+  //           'Failed to capture image',
+  //         ),
+  //       ),
+  //     );
+  //   }
+  // }
+
   Future<void> _captureImage() async {
-    try {
-      final File? image =
-          await AppImagePicker.instance.pickFromCamera();
+  try {
+    // ============================================================
+    // 1. CAPTURE ORIGINAL IMAGE
+    // ============================================================
 
-      if (image == null) {
-        return;
-      }
+    final File? originalImage =
+        await AppImagePicker.instance.pickFromCamera();
 
-      if (!mounted) {
-        return;
-      }
+    if (originalImage == null) {
+      return;
+    }
 
-      setState(() {
-        _uploadedImage = image;
-      });
-    } catch (e) {
-      if (!mounted) {
-        return;
-      }
+    if (!await originalImage.exists()) {
+      debugPrint(
+        'ORIGINAL IMAGE NOT FOUND',
+      );
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text(
-            'Failed to capture image',
-          ),
-        ),
+      return;
+    }
+
+    // ============================================================
+    // 2. ORIGINAL IMAGE SIZE
+    // ============================================================
+
+    final int originalSize =
+        await originalImage.length();
+
+    debugPrint(
+      '========================================',
+    );
+
+    debugPrint(
+      'ORIGINAL IMAGE PATH: ${originalImage.path}',
+    );
+
+    debugPrint(
+      'ORIGINAL IMAGE SIZE: '
+      '${(originalSize / 1024).toStringAsFixed(2)} KB',
+    );
+
+    // ============================================================
+    // 3. COMPRESS IMAGE
+    // ============================================================
+
+    final File? compressedImage =
+        await ImageCompression.compressImage(
+      originalImage,
+      maxWidth: 450,
+      maxHeight: 450,
+      quality: 45,
+    );
+
+    // ============================================================
+    // 4. USE COMPRESSED IMAGE
+    // ============================================================
+
+    File finalImage = originalImage;
+
+    if (compressedImage != null &&
+        await compressedImage.exists()) {
+      finalImage = compressedImage;
+
+      final compressedSize =
+          await compressedImage.length();
+
+      debugPrint(
+        'COMPRESSED IMAGE PATH: '
+        '${compressedImage.path}',
+      );
+
+      debugPrint(
+        'COMPRESSED IMAGE SIZE: '
+        '${(compressedSize / 1024).toStringAsFixed(2)} KB',
+      );
+    } else {
+      debugPrint(
+        'COMPRESSION FAILED - USING ORIGINAL IMAGE',
       );
     }
+
+    debugPrint(
+      '========================================',
+    );
+
+    // ============================================================
+    // 5. SAVE FINAL IMAGE
+    // ============================================================
+
+    if (!mounted) {
+      return;
+    }
+
+    setState(() {
+      _uploadedImage = finalImage;
+    });
+  } catch (e, stackTrace) {
+    debugPrint(
+      'CAPTURE IMAGE ERROR: $e',
+    );
+
+    debugPrint(
+      '$stackTrace',
+    );
+
+    if (!mounted) {
+      return;
+    }
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text(
+          'Failed to capture image',
+        ),
+      ),
+    );
   }
+}
+
+
 
   // ===========================================================================
   // SUBMIT PUNCH
@@ -973,6 +1095,9 @@ class _PunchOutScreenState extends State<PunchOutScreen> {
 
           builder:
               (context, vehicleState) {
+            final showKmFields =
+                _getMatchedVehicle(vehicleState)?.openingClosingKm != '0';
+
             return Form(
               key:
                   _formKey,
@@ -1064,6 +1189,7 @@ class _PunchOutScreenState extends State<PunchOutScreen> {
                                       9.h,
                                 ),
 
+                                if (showKmFields) ...[
                                 // KM ROW
 
                                 Row(
@@ -1127,6 +1253,7 @@ class _PunchOutScreenState extends State<PunchOutScreen> {
                                   height:
                                       9.h,
                                 ),
+                                ],
 
                                 // ROUTE
 
@@ -1745,7 +1872,13 @@ class _PunchOutScreenState extends State<PunchOutScreen> {
     ValueChanged<String>?
         onChanged,
   }) {
-    return CustomTextFormField(
+    return Theme(
+      data: Theme.of(context).copyWith(
+        inputDecorationTheme: Theme.of(context).inputDecorationTheme.copyWith(
+          errorMaxLines: 3,
+        ),
+      ),
+      child: CustomTextFormField(
       controller:
           controller,
 
@@ -1771,6 +1904,7 @@ class _PunchOutScreenState extends State<PunchOutScreen> {
 
       onChanged:
           onChanged,
+      ),
     );
   }
 
@@ -1809,7 +1943,7 @@ class _PunchOutScreenState extends State<PunchOutScreen> {
 
     if (openingKm != null &&
         km < openingKm) {
-      return 'Closing KM cannot be less than Opening KM';
+      return 'Closing KM Cannot Be Less Than Opening KM';
     }
 
     return null;
@@ -1890,7 +2024,7 @@ class _PunchOutScreenState extends State<PunchOutScreen> {
       child:
           Container(
         height:
-            110.h,
+            180.h,
 
         width:
             double.infinity,
@@ -2085,7 +2219,7 @@ class _PunchOutScreenState extends State<PunchOutScreen> {
                     double.infinity,
 
                 height:
-                    140.h,
+                    180.h,
 
                 fit:
                     BoxFit.cover,

@@ -347,12 +347,22 @@ class _AssignSelfCollectionTargetPageState
   // ============================================================
   // MESSAGE
   // ============================================================
-
-  void _showSubmitMessage(String message) {
-    ScaffoldMessenger.of(context)
-      ..hideCurrentSnackBar()
-      ..showSnackBar(SnackBar(content: Text(message)));
-  }
+void _showSubmitMessage(String message) {
+  ScaffoldMessenger.of(context)
+    ..hideCurrentSnackBar()
+    ..showSnackBar(
+      SnackBar(
+        content: Text(
+          message,
+          style: const TextStyle(
+            color: Colors.white,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+        backgroundColor: Colors.red,
+      ),
+    );
+}
 
   // ============================================================
   // DISPOSE
@@ -393,7 +403,7 @@ class _AssignSelfCollectionTargetPageState
         // ============================================================
         appBar: AppBar(
           title: const Text(
-            'Collection targets',
+            'Add Collectionwise Target',
             style: TextStyle(fontSize: 20, fontWeight: FontWeight.w700),
           ),
           centerTitle: false,
@@ -443,7 +453,7 @@ class _AssignSelfCollectionTargetPageState
                                 )
                               : const Icon(Icons.check_circle_outline_rounded),
                           label: Text(
-                            _isSubmitting ? 'Submitting…' : 'Submit targets',
+                            _isSubmitting ? 'Submitting…' : 'Submit Targets',
                           ),
                           style: FilledButton.styleFrom(
                             backgroundColor: const Color(0xFF1E6046),
@@ -590,7 +600,7 @@ class _AssignSelfCollectionTargetPageState
                             Container(
                               width: double.infinity,
                               margin: const EdgeInsets.fromLTRB(16, 12, 16, 16),
-                              padding: const EdgeInsets.all(20),
+                              padding: const EdgeInsets.all(10),
                               decoration: BoxDecoration(
                                 gradient: const LinearGradient(
                                   colors: [
@@ -650,24 +660,24 @@ class _AssignSelfCollectionTargetPageState
                                     ],
                                   ),
 
-                                  const SizedBox(height: 4),
+                            
 
                                   const Text(
                                     'Plan your collection',
                                     style: TextStyle(
                                       color: Colors.white,
-                                      fontSize: 23,
+                                      fontSize:18,
                                       fontWeight: FontWeight.w700,
                                     ),
                                   ),
 
-                                  const SizedBox(height: 6),
+                    
 
                                   const Text(
                                     'Enter collection targets for each dealer below.',
                                     style: TextStyle(
                                       color: Color(0xFFD2E8DC),
-                                      fontSize: 13,
+                                      fontSize: 11,
                                       height: 1.5,
                                     ),
                                   ),
@@ -713,75 +723,136 @@ class _AssignSelfCollectionTargetPageState
                             //
                             // Values are coming from API.
                             // ============================================================
-                            Padding(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 16,
-                              ),
-                              child: _DealerTargetRow(
-                                dealer: 'Dealer',
-                                collectionTypes:
-                                    collectionState.collectionTypes,
-                                isHeader: true,
-                              ),
-                            ),
-
-                            // ============================================================
-                            // DEALER LIST
-                            // ============================================================
                             Expanded(
-                              child: RefreshIndicator(
-                                onRefresh: _refreshDealerList,
-                                child: ListView.builder(
-                                  physics:
-                                      const AlwaysScrollableScrollPhysics(),
-                                  padding: const EdgeInsets.fromLTRB(
-                                    16,
-                                    8,
-                                    16,
-                                    24,
-                                  ),
-                                  keyboardDismissBehavior:
-                                      ScrollViewKeyboardDismissBehavior.onDrag,
-                                  itemCount: dealerState.dealers.length,
-                                  itemBuilder: (context, index) {
-                                    final dealer = dealerState.dealers[index];
+                              child: LayoutBuilder(
+                                builder: (context, constraints) {
+                                  var columnWidth = 140.0;
+                                  for (final type
+                                      in collectionState.collectionTypes) {
+                                    final painter = TextPainter(
+                                      text: TextSpan(
+                                        text: '${type.collectionType} Target',
+                                        style: const TextStyle(
+                                          fontSize: 11,
+                                          fontWeight: FontWeight.w700,
+                                        ),
+                                      ),
+                                      textDirection: Directionality.of(context),
+                                      textScaler: MediaQuery.textScalerOf(
+                                        context,
+                                      ),
+                                      maxLines: 1,
+                                    )..layout();
+                                    final width = painter.width + 24;
+                                    if (width > columnWidth) { columnWidth = width; }
+                                    painter.dispose();
+                                  }
+                                  final minimumWidth =
+                                      60 +
+                                      columnWidth *
+                                          (collectionState
+                                                  .collectionTypes
+                                                  .length +
+                                              4 / 3);
+                                  return SingleChildScrollView(
+                                    scrollDirection: Axis.horizontal,
+                                    child: SizedBox(
+                                      width: minimumWidth > constraints.maxWidth
+                                          ? minimumWidth
+                                          : constraints.maxWidth,
+                                      height: constraints.maxHeight,
+                                      child: Column(
+                                        children: [
+                                          Padding(
+                                            padding: const EdgeInsets.symmetric(
+                                              horizontal: 16,
+                                            ),
+                                            child: _DealerTargetRow(
+                                              dealer: 'Dealer',
+                                              collectionTypes: collectionState
+                                                  .collectionTypes,
+                                              isHeader: true,
+                                            ),
+                                          ),
 
-                                    return _DealerTargetRow(
-                                      key: ValueKey(dealer.outletId),
+                                          // ============================================================
+                                          // DEALER LIST
+                                          // ============================================================
+                                          Expanded(
+                                            child: RefreshIndicator(
+                                              onRefresh: _refreshDealerList,
+                                              child: ListView.builder(
+                                                physics:
+                                                    const AlwaysScrollableScrollPhysics(),
+                                                padding:
+                                                    const EdgeInsets.fromLTRB(
+                                                      16,
+                                                      8,
+                                                      16,
+                                                      24,
+                                                    ),
+                                                keyboardDismissBehavior:
+                                                    ScrollViewKeyboardDismissBehavior
+                                                        .onDrag,
+                                                itemCount:
+                                                    dealerState.dealers.length,
+                                                itemBuilder: (context, index) {
+                                                  final dealer = dealerState
+                                                      .dealers[index];
 
-                                      dealer: dealer.outletName,
+                                                  return _DealerTargetRow(
+                                                    key: ValueKey(
+                                                      dealer.outletId,
+                                                    ),
 
-                                      // ============================================================
-                                      // API COLLECTION TYPES
-                                      // ============================================================
-                                      collectionTypes:
-                                          collectionState.collectionTypes,
+                                                    dealer: dealer.outletName+"\n(${dealer.outletMobile})",
 
-                                      // ============================================================
-                                      // GET CURRENT VALUE
-                                      // ============================================================
-                                      getTargetValue: (collectionTypeId) {
-                                        return _getTargetValue(
-                                          dealerId: dealer.outletId,
-                                          collectionTypeId: collectionTypeId,
-                                        );
-                                      },
+                                                    // ============================================================
+                                                    // API COLLECTION TYPES
+                                                    // ============================================================
+                                                    collectionTypes:
+                                                        collectionState
+                                                            .collectionTypes,
 
-                                      // ============================================================
-                                      // SAVE VALUE
-                                      // ============================================================
-                                      onTargetChanged:
-                                          (collectionTypeId, value) {
-                                            _setTargetValue(
-                                              dealerId: dealer.outletId,
-                                              collectionTypeId:
-                                                  collectionTypeId,
-                                              value: value,
-                                            );
-                                          },
-                                    );
-                                  },
-                                ),
+                                                    // ============================================================
+                                                    // GET CURRENT VALUE
+                                                    // ============================================================
+                                                    getTargetValue:
+                                                        (collectionTypeId) {
+                                                          return _getTargetValue(
+                                                            dealerId:
+                                                                dealer.outletId,
+                                                            collectionTypeId:
+                                                                collectionTypeId,
+                                                          );
+                                                        },
+
+                                                    // ============================================================
+                                                    // SAVE VALUE
+                                                    // ============================================================
+                                                    onTargetChanged:
+                                                        (
+                                                          collectionTypeId,
+                                                          value,
+                                                        ) {
+                                                          _setTargetValue(
+                                                            dealerId:
+                                                                dealer.outletId,
+                                                            collectionTypeId:
+                                                                collectionTypeId,
+                                                            value: value,
+                                                          );
+                                                        },
+                                                  );
+                                                },
+                                              ),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  );
+                                },
                               ),
                             ),
                           ],
@@ -849,7 +920,7 @@ class _DealerTargetRow extends StatelessWidget {
               flex: 4,
               child: Text(
                 dealer,
-                maxLines: isHeader ? 2 : 3,
+                maxLines: isHeader ? 1 : 3,
                 overflow: TextOverflow.ellipsis,
               ),
             ),
@@ -877,7 +948,8 @@ class _DealerTargetRow extends StatelessWidget {
                       ? Text(
                           '${collectionType.collectionType} Target',
                           textAlign: TextAlign.center,
-                          maxLines: 2,
+                          maxLines: 1,
+                          softWrap: false,
                           overflow: TextOverflow.ellipsis,
                         )
                       // ====================================================

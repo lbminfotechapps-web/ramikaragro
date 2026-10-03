@@ -205,14 +205,7 @@ class _ProductSelectionDialogState extends State<ProductSelectionDialog> {
               onPressed: () {
                 if (_selectedProductIds.isEmpty) {
                   AppToast.error('Please select at least one product');
-                  // ScaffoldMessenger.of(context).showSnackBar(
-                  //   const SnackBar(
-                  //     content: Text(
-                  //       'Please select at least one product',
-                  //     ),
-                  //     backgroundColor: Colors.red,
-                  //   ),
-                  // );
+                
                   return;
                 }
 

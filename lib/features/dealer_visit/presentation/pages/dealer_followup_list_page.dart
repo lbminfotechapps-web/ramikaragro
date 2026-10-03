@@ -317,7 +317,7 @@ class _DealerFollowupListPageState extends State<DealerFollowupListPage> {
                         ].join(' • '),
 
                         style: const TextStyle(
-                          color: Colors.grey,
+                          color: Colors.black,
                           fontSize: 12,
                         ),
                       ),

@@ -29,14 +29,15 @@ class VisitStatisticsTable extends StatelessWidget {
           children: [
             // Header
             Container(
-              padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 8.h),
+              padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 8.h),
               color: const Color(0xFF1B4332),
               child: Row(
                 children: [
                   Expanded(
-                    flex: 2,
                     child: Text(
                       'Visited',
+                      maxLines: 1,
+                      softWrap: false,
                       style: TextStyle(
                         color: Colors.white,
                         fontSize: 13.sp,
@@ -75,9 +76,12 @@ class VisitStatisticsTable extends StatelessWidget {
   }
 
   Widget _headerText(String text) {
-    return Center(
+    return FittedBox(
+      fit: BoxFit.scaleDown,
       child: Text(
         text,
+        maxLines: 1,
+        softWrap: false,
         textAlign: TextAlign.center,
         style: TextStyle(
           color: Colors.white,
@@ -106,7 +110,6 @@ class VisitStatisticsTable extends StatelessWidget {
       child: Row(
         children: [
           Expanded(
-            flex: 2,
             child: Text(
               title,
               style: TextStyle(

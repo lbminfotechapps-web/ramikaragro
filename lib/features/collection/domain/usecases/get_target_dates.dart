@@ -8,7 +8,7 @@ class GetTargetDates {
     required this.repository,
   });
 
-  Future<List<TargetDateEntity>> call() {
-    return repository.getTargetDates();
+  Future<List<TargetDateEntity>> call({required String userId}) {
+    return repository.getTargetDates(userId: userId);
   }
 }

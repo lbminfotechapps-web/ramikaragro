@@ -136,6 +136,12 @@ class DealerListDataSource {
       // --------------------------------------------------
 
       if (apiStatus != true) {
+        if (message?.toString().toLowerCase().contains('no dealers found') ==
+            true) {
+          print('API REPORTS NO DEALERS; RETURNING AN EMPTY LIST');
+          return [];
+        }
+
         throw Exception(
           message?.toString().isNotEmpty == true
               ? message.toString()
@@ -819,114 +825,89 @@ class DealerListDataSource {
     }
   }
 
- Future<Map<String, dynamic>> addDealerStock(
-  Map<String, dynamic> jsonData,
-  File? dealerImage,
-  String digitalSignature,
-) async {
-  try {
-    final Map<String, dynamic> requestData =
-        Map<String, dynamic>.from(
-      jsonData,
-    );
+  Future<Map<String, dynamic>> addDealerStock(
+    Map<String, dynamic> jsonData,
+    File? dealerImage,
+    String digitalSignature,
+  ) async {
+    try {
+      final Map<String, dynamic> requestData = Map<String, dynamic>.from(
+        jsonData,
+      );
 
-    // ============================================================
-    // NOW SEND SERVER SIGNATURE FILE NAME AS NORMAL STRING
-    // ============================================================
+      // ============================================================
+      // NOW SEND SERVER SIGNATURE FILE NAME AS NORMAL STRING
+      // ============================================================
 
-    requestData['digitalSignature'] =
-        digitalSignature;
+      requestData['digitalSignature'] = digitalSignature;
 
-    final FormData formData =
-        FormData.fromMap(
-      requestData,
-    );
+      final FormData formData = FormData.fromMap(requestData);
 
-    // ============================================================
-    // DEALER IMAGE MULTIPART
-    // ============================================================
+      // ============================================================
+      // DEALER IMAGE MULTIPART
+      // ============================================================
 
-    if (dealerImage != null &&
-        await dealerImage.exists()) {
-      formData.files.add(
-        MapEntry(
-          'dealerImage',
-          await MultipartFile.fromFile(
-            dealerImage.path,
-            filename:
-                dealerImage.path
-                    .split(
-                      Platform.pathSeparator,
-                    )
-                    .last,
+      if (dealerImage != null && await dealerImage.exists()) {
+        formData.files.add(
+          MapEntry(
+            'dealerImage',
+            await MultipartFile.fromFile(
+              dealerImage.path,
+              filename: dealerImage.path.split(Platform.pathSeparator).last,
+            ),
           ),
-        ),
+        );
+      }
+
+      // ============================================================
+      // DEBUG
+      // ============================================================
+
+      debugPrint('');
+      debugPrint('========================================');
+      debugPrint('ADD DEALER STOCK FINAL REQUEST');
+      debugPrint('========================================');
+
+      for (final field in formData.fields) {
+        debugPrint('${field.key} : ${field.value}');
+      }
+
+      for (final file in formData.files) {
+        debugPrint('${file.key} : ${file.value.filename}');
+      }
+
+      debugPrint('========================================');
+
+      // ============================================================
+      // API CALL
+      // ============================================================
+
+      final response = await dioClient.client.post(
+        ApiClient.addStock,
+        data: formData,
       );
+
+      dynamic data = response.data;
+
+      if (data is String) {
+        data = jsonDecode(data);
+      }
+
+      if (data is! Map) {
+        throw const FormatException('Add Dealer Stock response is invalid');
+      }
+
+      return Map<String, dynamic>.from(data);
+    } catch (e, stackTrace) {
+      debugPrint('ADD DEALER STOCK ERROR: $e');
+
+      debugPrint('$stackTrace');
+
+      rethrow;
     }
-
-    // ============================================================
-    // DEBUG
-    // ============================================================
-
-    debugPrint('');
-    debugPrint('========================================');
-    debugPrint('ADD DEALER STOCK FINAL REQUEST');
-    debugPrint('========================================');
-
-    for (final field in formData.fields) {
-      debugPrint(
-        '${field.key} : ${field.value}',
-      );
-    }
-
-    for (final file in formData.files) {
-      debugPrint(
-        '${file.key} : ${file.value.filename}',
-      );
-    }
-
-    debugPrint('========================================');
-
-    // ============================================================
-    // API CALL
-    // ============================================================
-
-    final response =
-        await dioClient.client.post(
-      ApiClient.addStock,
-      data: formData,
-    );
-
-    dynamic data = response.data;
-
-    if (data is String) {
-      data = jsonDecode(data);
-    }
-
-    if (data is! Map) {
-      throw const FormatException(
-        'Add Dealer Stock response is invalid',
-      );
-    }
-
-    return Map<String, dynamic>.from(
-      data,
-    );
-  } catch (e, stackTrace) {
-    debugPrint(
-      'ADD DEALER STOCK ERROR: $e',
-    );
-
-    debugPrint(
-      '$stackTrace',
-    );
-
-    rethrow;
   }
-}
 
-
-   dynamic _decodeResponse(dynamic responseData) {
+  dynamic _decodeResponse(dynamic responseData) {
     if (responseData == null) {
       return null;
     }
