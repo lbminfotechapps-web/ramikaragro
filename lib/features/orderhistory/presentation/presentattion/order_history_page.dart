@@ -938,7 +938,7 @@ class _OrderHistoryPageState extends State<OrderHistoryPage> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'Order #${order.orderNo}',
+                        'Order : ${order.orderNo}',
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                         style: TextStyle(

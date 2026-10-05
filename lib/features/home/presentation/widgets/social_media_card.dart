@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:share_plus/share_plus.dart';
 
 class SocialMediaCard extends StatelessWidget {
   final String title;
@@ -18,6 +19,33 @@ class SocialMediaCard extends StatelessWidget {
     required this.onTap,
   });
 
+  Future<void> _share(BuildContext context) async {
+    final box = context.findRenderObject() as RenderBox?;
+    final origin = box != null && box.hasSize
+        ? box.localToGlobal(Offset.zero) & box.size
+        : null;
+
+    try {
+      await SharePlus.instance.share(
+        ShareParams(
+          subject: 'Connect with Solufine on $title',
+          text:
+              'Grow together with Solufine! 🌱\n\n'
+              'Connect with us on $title for farming updates, inspiration, '
+              'and the latest from Solufine:\n${link.trim()}\n\n'
+              'Explore more with the Solufine app. Download it on Google Play:\n'
+              'https://play.google.com/store/apps/details?id=com.lbm.solufine',
+          sharePositionOrigin: origin,
+        ),
+      );
+    } catch (_) {
+      if (!context.mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Unable to share. Please try again.')),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -25,12 +53,10 @@ class SocialMediaCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-          color: Colors.grey.shade200,
-        ),
+        border: Border.all(color: Colors.grey.shade200),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.04),
+            color: Colors.black.withValues(alpha: 0.04),
             blurRadius: 8,
             offset: const Offset(0, 3),
           ),
@@ -47,22 +73,17 @@ class SocialMediaCard extends StatelessWidget {
                 height: 50,
                 width: 50,
                 decoration: BoxDecoration(
-                  color: iconColor.withOpacity(0.10),
+                  color: iconColor.withValues(alpha: 0.10),
                   borderRadius: BorderRadius.circular(14),
                 ),
-                child: Icon(
-                  icon,
-                  color: iconColor,
-                  size: 28,
-                ),
+                child: Icon(icon, color: iconColor, size: 28),
               ),
 
               const SizedBox(width: 14),
 
               Expanded(
                 child: Column(
-                  crossAxisAlignment:
-                      CrossAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
                       title,
@@ -77,20 +98,24 @@ class SocialMediaCard extends StatelessWidget {
 
                     Text(
                       subtitle,
-                      style: const TextStyle(
-                        fontSize: 13,
-                        color: Colors.grey,
-                      ),
+                      style: const TextStyle(fontSize: 13, color: Colors.grey),
                     ),
                   ],
                 ),
               ),
 
-              const Icon(
-                Icons.arrow_forward_ios,
-                size: 16,
-                color: Colors.grey,
+              Builder(
+                builder: (shareContext) => IconButton(
+                  tooltip: 'Share $title',
+                  onPressed: () => _share(shareContext),
+                  style: IconButton.styleFrom(
+                    foregroundColor: iconColor,
+                    backgroundColor: iconColor.withValues(alpha: 0.08),
+                  ),
+                  icon: const Icon(Icons.share_outlined, size: 20),
+                ),
               ),
+              const SizedBox(width: 8),
             ],
           ),
         ),

@@ -179,11 +179,6 @@ class _HomeState extends State<Home> {
   }
 
   Future<void> _onAuthChanged() async {
-    debugPrint('================================');
-    debugPrint('HOME: AUTH STATE CHANGED');
-    debugPrint('RELOADING USER DATA');
-    debugPrint('================================');
-
     await _loadUserData();
   }
 
@@ -467,13 +462,6 @@ class _HomeState extends State<Home> {
             },
           ),
 
-          // ============================================================
-          // LOGIN / LOGOUT
-          //
-          // null -> still loading -> show neither
-          // 0    -> guest         -> Login
-          // >0   -> logged in     -> Logout
-          // ============================================================
           showLogin: _userId != null && _userId == '0',
 
           showLogout: _userId != null && _userId != '0',
@@ -491,13 +479,6 @@ class _HomeState extends State<Home> {
               ? '$_username '
               : null,
 
-          // userName: _userId != null && _userId != '0' && _showUserInfo
-          //     ? _username
-          //     : null,
-
-          // ============================================================
-          // APP NAME
-          // ============================================================
           title: !_showUserInfo || _userId == null || _userId == '0'
               ? _appName
               : null,
@@ -522,13 +503,6 @@ class _HomeState extends State<Home> {
                     padding: EdgeInsets.all(30),
                     child: Center(child: CircularProgressIndicator()),
                   )
-                // ========================================================
-                // GUEST USER
-                //
-                // USER ID = 0
-                //
-                // SHOW ONLY QUICK ACCESS
-                // ========================================================
                 else if (_userId == '0') ...[
                   SizedBox(height: 10),
                   BlocBuilder<HomeBloc, HomeState>(
@@ -554,18 +528,7 @@ class _HomeState extends State<Home> {
                   ),
 
                   SizedBox(height: 12.h),
-                ]
-                // ========================================================
-                // LOGGED-IN USER
-                //
-                // USER ID != 0
-                //
-                // SHOW COMPLETE HOME
-                // ========================================================
-                else ...[
-                  // ======================================================
-                  // TODAY PUNCH + PENDING PUNCH
-                  // ======================================================
+                ] else ...[
                   BlocBuilder<HomeBloc, HomeState>(
                     builder: (context, state) {
                       int pendingCount = 0;
@@ -668,7 +631,6 @@ class _HomeState extends State<Home> {
                             totalDealerCount: '0',
                             totalFarmerCount: '0',
                             dayWise: const [],
-
                           );
 
                       return VisitStatisticsTable(homeData);
@@ -717,73 +679,22 @@ class _HomeState extends State<Home> {
 
                   SizedBox(height: 8.h),
 
-                  // ======================================================
-                  // FROM / TO DATE
-                  // ======================================================
-                  // Row(
-                  //   children: [
-                  //     Expanded(
-                  //       child: _buildDateField(
-                  //         label: 'From Date',
-                  //         date: _fromDate,
-                  //         onTap: _selectFromDate,
-                  //       ),
-                  //     ),
+                  BlocBuilder<HomeBloc, HomeState>(
+                    builder: (context, state) {
+                      final homeData = state.homedata;
 
-                  //     SizedBox(width: 10.w),
+                      return VisitOverviewCard(
+                        dealerCount: homeData?.totalDealerCount ?? '0',
 
-                  //     Expanded(
-                  //       child: _buildDateField(
-                  //         label: 'To Date',
-                  //         date: _toDate,
-                  //         onTap: _selectToDate,
-                  //       ),
-                  //     ),
-                  //   ],
-                  // ),
+                        farmerCount: homeData?.totalFarmerCount ?? '0',
 
-                  // SizedBox(height: 8.h),
-
-                  // ======================================================
-                  // VISIT OVERVIEW
-                  // ======================================================
-                  // BlocBuilder<HomeBloc, HomeState>(
-                  //   builder: (context, state) {
-                  //     return VisitOverviewCard(
-                  //       dealerCount: state.totalDealerCount ?? '0',
-                  //       farmerCount: state.totalFarmerCount ?? '0',
-                  //     );
-                  //   },
-                  // ),
-
-
-                    BlocBuilder<HomeBloc, HomeState>(
-                      builder: (context, state) {
-                        final homeData = state.homedata;
-
-                        return VisitOverviewCard(
-                          dealerCount:
-                              homeData?.totalDealerCount ?? '0',
-
-                          farmerCount:
-                              homeData?.totalFarmerCount ?? '0',
-                      
-                          dayWise:
-                              homeData?.dayWise ?? const [],
-                        );
-                      },
-                    ),
-
-
-
+                        dayWise: homeData?.dayWise ?? const [],
+                      );
+                    },
+                  ),
 
                   SizedBox(height: 12.h),
 
-                  // ======================================================
-                  // QUICK ACCESS
-                  //
-                  // LOGGED-IN USER VERSION
-                  // ======================================================
                   BlocBuilder<HomeBloc, HomeState>(
                     builder: (context, homeState) {
                       if (homeState.status == HomeStatus.loading &&

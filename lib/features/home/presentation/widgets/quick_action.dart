@@ -51,6 +51,7 @@ class QuickAccessSection extends StatefulWidget {
 
 class _QuickAccessSectionState extends State<QuickAccessSection> {
   static const int initialItemCount = 5;
+  static const informationMenuIds = ['22', '23', '60', '19', '20', '56', '21'];
   int? userId;
   int visibleItemCount = initialItemCount;
 
@@ -94,15 +95,6 @@ class _QuickAccessSectionState extends State<QuickAccessSection> {
   }
 
   Future<void> _submitShareLocation({required String remark}) async {
-    // final bloc = context.read<QuickAcessBloc>();
-    debugPrint('========================================');
-    debugPrint('SHARE LOCATION SUBMIT');
-    debugPrint('========================================');
-
-    // ============================================
-    // USER DATA
-    // ============================================
-
     final userData = await SecureStorage.instance.getUserData();
 
     debugPrint('User data: $userData');
@@ -378,11 +370,19 @@ class _QuickAccessSectionState extends State<QuickAccessSection> {
       return const SizedBox.shrink();
     }
 
-    final actualVisibleCount = visibleItemCount > widget.menus.length
-        ? widget.menus.length
-        : visibleItemCount;
-
-    final hasMore = actualVisibleCount < widget.menus.length;
+    final actionMenus = widget.menus
+        .where((menu) => !informationMenuIds.contains(menu.menuId))
+        .toList();
+    final informationMenus =
+        widget.menus
+            .where((menu) => informationMenuIds.contains(menu.menuId))
+            .toList()
+          ..sort(
+            (a, b) => informationMenuIds
+                .indexOf(a.menuId)
+                .compareTo(informationMenuIds.indexOf(b.menuId)),
+          );
+    final hasMore = visibleItemCount < actionMenus.length;
 
     return BlocListener<QuickAcessBloc, QuickAccessState>(
       listenWhen: (previous, current) =>
@@ -451,9 +451,8 @@ class _QuickAccessSectionState extends State<QuickAccessSection> {
         }
       },
 
-      child: CustomCard(
-        padding: EdgeInsets.all(16.w),
-        borderRadius: 24.r,
+      child: Padding(
+        padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 16.h),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -580,100 +579,98 @@ class _QuickAccessSectionState extends State<QuickAccessSection> {
             // =====================================================
             LayoutBuilder(
               builder: (context, constraints) {
-                final crossAxisCount = constraints.maxWidth < 600 ? 3 : 6;
+                final crossAxisCount = constraints.maxWidth < 280
+                    ? 2
+                    : constraints.maxWidth < 600
+                    ? 3
+                    : 6;
 
-                // ===============================================
-                // SEARCH FILTER
-                // ===============================================
-
-                final filteredMenus = widget.menus.where((menu) {
-                  if (_searchText.isEmpty) {
-                    return true;
-                  }
-
-                  final menuName = menu.menuName.toString().toLowerCase();
-
-                  return menuName.contains(_searchText);
-                }).toList();
-
-                // ===============================================
-                // NORMAL / MORE LOGIC
-                // ===============================================
-
-                final visibleMenus = _searchText.isNotEmpty
-                    ? filteredMenus
-                    : filteredMenus.take(actualVisibleCount).toList();
-
-                final bool showMoreButton = _searchText.isEmpty && hasMore;
-
-                // ===============================================
-                // EMPTY SEARCH
-                // ===============================================
-
-                if (visibleMenus.isEmpty) {
-                  return Container(
-                    width: double.infinity,
+                bool matchesSearch(MenuEntity menu) =>
+                    menu.menuName.toLowerCase().contains(_searchText);
+                final filteredActions = actionMenus
+                    .where(matchesSearch)
+                    .toList();
+                final filteredInformation = informationMenus
+                    .where(matchesSearch)
+                    .toList();
+                final visibleActions = _searchText.isNotEmpty
+                    ? filteredActions
+                    : filteredActions.take(visibleItemCount).toList();
+                if (visibleActions.isEmpty && filteredInformation.isEmpty) {
+                  return Padding(
                     padding: EdgeInsets.symmetric(vertical: 30.h),
-                    child: Column(
-                      children: [
-                        Icon(
-                          Icons.search_off_rounded,
-                          size: 38.sp,
-                          color: Colors.grey,
-                        ),
-
-                        SizedBox(height: 8.h),
-
-                        Text(
-                          'No menu found',
-                          style: TextStyle(
-                            fontSize: 13.sp,
-                            fontWeight: FontWeight.w600,
-                            color: Colors.grey,
-                          ),
-                        ),
-                      ],
-                    ),
+                    child: const Center(child: Text('No menu found')),
                   );
                 }
-
-                return GridView.builder(
-                  shrinkWrap: true,
-                  physics: const NeverScrollableScrollPhysics(),
-
-                  itemCount: visibleMenus.length + (showMoreButton ? 1 : 0),
-
-                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: crossAxisCount,
-
-                    crossAxisSpacing: 8.w,
-
-                    mainAxisSpacing: 8.h,
-
-                    childAspectRatio: 0.9,
-                  ),
-
-                  itemBuilder: (context, index) {
-                    // MORE BUTTON
-                    if (showMoreButton && index == visibleMenus.length) {
-                      return _MoreItem(onTap: _showMore);
-                    }
-
-                    final menu = visibleMenus[index];
-
-                    return QuickAccessMenuItem(
-                      menu: menu,
-                      punchStat: widget.punchStat,
-
-                      onTap: () => _onMenuTap(context, menu),
-                    );
-                  },
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    if (visibleActions.isNotEmpty) ...[
+                      _groupTitle('Quick Access'),
+                      _menuGrid(
+                        visibleActions,
+                        crossAxisCount,
+                        showMore: _searchText.isEmpty && hasMore,
+                      ),
+                    ],
+                    if (filteredInformation.isNotEmpty) ...[
+                      if (visibleActions.isNotEmpty) ...[
+                        SizedBox(height: 18.h),
+                        const Divider(color: Color(0xFFE5E7EB)),
+                        SizedBox(height: 10.h),
+                      ],
+                      _groupTitle('Information & Support'),
+                      _menuGrid(filteredInformation, crossAxisCount),
+                    ],
+                  ],
                 );
               },
             ),
           ],
         ),
       ),
+    );
+  }
+
+  Widget _groupTitle(String title) => Padding(
+    padding: EdgeInsets.only(bottom: 12.h),
+    child: Text(
+      title,
+      style: TextStyle(
+        fontSize: 15.sp,
+        fontWeight: FontWeight.w700,
+        color: AppColors.primary,
+      ),
+    ),
+  );
+
+  Widget _menuGrid(
+    List<MenuEntity> menus,
+    int crossAxisCount, {
+    bool showMore = false,
+  }) {
+    return GridView.builder(
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      itemCount: menus.length + (showMore ? 1 : 0),
+      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: crossAxisCount,
+        crossAxisSpacing: 12.w,
+        mainAxisSpacing: 16.h,
+        mainAxisExtent:
+            72.w + 12.h + 46.sp * MediaQuery.textScalerOf(context).scale(1),
+      ),
+      itemBuilder: (context, index) {
+        if (showMore && index == menus.length) {
+          return _MoreItem(onTap: _showMore);
+        }
+        final menu = menus[index];
+        return QuickAccessMenuItem(
+          menu: menu,
+          punchStat: widget.punchStat,
+          onTap: () => _onMenuTap(context, menu),
+        );
+      },
     );
   }
 
@@ -1059,65 +1056,33 @@ class QuickAccessMenuItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return CustomCard(
-      elevation: 1,
-      color: _getBackgroundColor(menu.menuId),
-      borderRadius: 14.r,
-      padding: EdgeInsets.all(8.w),
+    final accent = _accentColor;
+    return _MenuShortcut(
+      title: displayName,
+      accent: accent,
       onTap: onTap,
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Center(
-            child: Image.network(
-              menu.iconImage,
-              width: 40.w,
-              height: 40.h,
-              fit: BoxFit.contain,
-              errorBuilder: (context, error, stackTrace) {
-                return Icon(
-                  Icons.apps_rounded,
-                  size: 30.sp,
-                  color: AppColors.textColor,
-                );
-              },
-              loadingBuilder: (context, child, loadingProgress) {
-                if (loadingProgress == null) {
-                  return child;
-                }
-
-                return const CustomLoader();
-              },
-            ),
-          ),
-          SizedBox(height: 16.h),
-          Text(
-            displayName,
-            maxLines: 3,
-            overflow: TextOverflow.ellipsis,
-            textAlign: TextAlign.center,
-            style: TextStyle(fontSize: 10.sp, fontWeight: FontWeight.w500),
-          ),
-        ],
+      icon: Image.network(
+        menu.iconImage,
+        width: 32.w,
+        height: 32.w,
+        fit: BoxFit.contain,
+        errorBuilder: (context, error, stackTrace) =>
+            Icon(Icons.apps_rounded, size: 28.sp, color: accent),
+        loadingBuilder: (context, child, loadingProgress) =>
+            loadingProgress == null ? child : const CustomLoader(),
       ),
     );
   }
 
-  Color _getBackgroundColor(String menuId) {
-    switch (menuId) {
-      case '17':
-        return const Color(0xFFF1FAF4);
-      case '8':
-        return const Color(0xFFFFF8ED);
-      case '3':
-        return const Color(0xFFF1F5FD);
-      case '1':
-        return const Color(0xFFF5F5F5);
-      case '2':
-        return const Color(0xFFF9F0FF);
-      default:
-        return const Color(0xFFF5F5F5);
-    }
+  Color get _accentColor {
+    const palette = [
+      Color(0xFF218653),
+      Color(0xFF397AC4),
+      Color(0xFF9270CA),
+      Color(0xFFC18A32),
+      Color(0xFF2B9195),
+    ];
+    return palette[(int.tryParse(menu.menuId) ?? 0) % palette.length];
   }
 }
 
@@ -1128,24 +1093,81 @@ class _MoreItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return CustomCard(
-      color: const Color(0xFFF5F5F5),
-      borderRadius: 14.r,
-      padding: EdgeInsets.all(8.w),
+    return _MenuShortcut(
+      title: 'More',
+      accent: const Color(0xFF64748B),
       onTap: onTap,
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(Icons.more_horiz_rounded, size: 28.sp, color: Colors.black87),
-          SizedBox(height: 6.h),
-          Text(
-            'More',
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-            textAlign: TextAlign.center,
-            style: TextStyle(fontSize: 10.sp, fontWeight: FontWeight.w500),
-          ),
-        ],
+      icon: Icon(
+        Icons.more_horiz_rounded,
+        size: 30.sp,
+        color: const Color(0xFF64748B),
+      ),
+    );
+  }
+}
+
+class _MenuShortcut extends StatelessWidget {
+  final String title;
+  final Color accent;
+  final Widget icon;
+  final VoidCallback? onTap;
+
+  const _MenuShortcut({
+    required this.title,
+    required this.accent,
+    required this.icon,
+    this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      type: MaterialType.transparency,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(18.r),
+        splashColor: accent.withValues(alpha: 0.12),
+        highlightColor: accent.withValues(alpha: 0.05),
+        child: Column(
+          children: [
+            Container(
+              width: 72.w,
+              height: 72.w,
+              padding: EdgeInsets.all(17.w),
+              decoration: BoxDecoration(
+                color: accent.withValues(alpha: 0.08),
+                borderRadius: BorderRadius.circular(22.r),
+                border: Border.all(color: accent.withValues(alpha: 0.13)),
+                boxShadow: [
+                  BoxShadow(
+                    color: accent.withValues(alpha: 0.06),
+                    blurRadius: 10.r,
+                    offset: Offset(0, 3.h),
+                  ),
+                ],
+              ),
+              child: FittedBox(fit: BoxFit.contain, child: icon),
+            ),
+            SizedBox(height: 10.h),
+            Expanded(
+              child: Padding(
+                padding: EdgeInsets.symmetric(horizontal: 3.w),
+                child: Text(
+                  title,
+                  maxLines: 3,
+                  overflow: TextOverflow.ellipsis,
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontSize: 11.sp,
+                    fontWeight: FontWeight.w600,
+                    color: const Color(0xFF24352C),
+                    height: 1.3,
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
