@@ -2,6 +2,7 @@ import 'package:solufine/core/utility/widgets/bottom_navigation.dart';
 import 'package:solufine/core/di/auth_di.dart';
 import 'package:solufine/features/addexpense/presentation/pages/add_expense_page.dart';
 import 'package:solufine/features/assign_target_point_wise/presentation/pages/self_target_page.dart';
+import 'package:solufine/features/auth/presentation/pages/change_password.dart';
 import 'package:solufine/features/auth/presentation/pages/login_screen.dart';
 import 'package:solufine/features/collection/presentation/pages/collection_list_page.dart';
 import 'package:solufine/features/collection/presentation/pages/collection_wise_form_page.dart';
@@ -92,6 +93,7 @@ class AppRouter {
   static const String visitSummaryReport = '/visitSummaryReport';
 
   static const String aboutUs = '/aboutUs';
+   static const String changePassword = '/changePassword';
   static const String contactUs = '/contactUs';
   static const String userGuide = '/userGuide';
   static const String notification = '/notification';
@@ -156,6 +158,14 @@ class AppRouter {
         name: 'profile',
         builder: (context, state) {
           return const ProfilePage();
+        },
+      ),
+
+         GoRoute(
+        path: changePassword,
+        name: 'changePassword',
+        builder: (context, state) {
+          return const ChangePassword();
         },
       ),
 
