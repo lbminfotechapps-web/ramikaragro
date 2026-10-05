@@ -54,25 +54,31 @@ class ProductCard extends StatelessWidget {
 
     return Container(
       width: double.infinity,
+
       margin: EdgeInsets.only(
         bottom: 6.h,
       ),
+
       padding: EdgeInsets.symmetric(
         horizontal: 9.w,
         vertical: 8.h,
       ),
+
       decoration: BoxDecoration(
         color: Colors.white,
+
         borderRadius:
             BorderRadius.circular(
           12.r,
         ),
+
         border: Border.all(
           color: hasRates
               ? AppColors.primary
                   .withOpacity(0.22)
               : AppColors.border,
         ),
+
         boxShadow: [
           BoxShadow(
             color: Colors.black
@@ -83,6 +89,7 @@ class ProductCard extends StatelessWidget {
           ),
         ],
       ),
+
       child: Column(
         crossAxisAlignment:
             CrossAxisAlignment.start,
@@ -112,8 +119,7 @@ class ProductCard extends StatelessWidget {
                   ),
                 ),
                 child: Icon(
-                  Icons
-                      .inventory_2_rounded,
+                  Icons.inventory_2_rounded,
                   color:
                       AppColors.primary,
                   size: 17.sp,
@@ -140,8 +146,7 @@ class ProductCard extends StatelessWidget {
                       overflow:
                           TextOverflow
                               .ellipsis,
-                      style:
-                          TextStyle(
+                      style: TextStyle(
                         fontSize:
                             12.5.sp,
                         fontWeight:
@@ -164,8 +169,7 @@ class ProductCard extends StatelessWidget {
                                   .check_circle_rounded
                               : Icons
                                   .radio_button_unchecked_rounded,
-                          size:
-                              11.sp,
+                          size: 11.sp,
                           color: hasRates
                               ? AppColors
                                   .primary
@@ -182,8 +186,7 @@ class ProductCard extends StatelessWidget {
                             hasRates
                                 ? '${selectedRates.length} packing${selectedRates.length == 1 ? '' : 's'} selected'
                                 : 'Select packing / rate',
-                            maxLines:
-                                1,
+                            maxLines: 1,
                             overflow:
                                 TextOverflow
                                     .ellipsis,
@@ -245,21 +248,24 @@ class ProductCard extends StatelessWidget {
             ),
 
             Container(
-              width:
-                  double.infinity,
+              width: double.infinity,
+
               padding:
                   EdgeInsets.symmetric(
                 horizontal: 7.w,
                 vertical: 2.h,
               ),
+
               decoration:
                   BoxDecoration(
                 color:
                     AppColors.background,
+
                 borderRadius:
                     BorderRadius.circular(
                   9.r,
                 ),
+
                 border:
                     Border.all(
                   color:
@@ -269,6 +275,7 @@ class ProductCard extends StatelessWidget {
                   ),
                 ),
               ),
+
               child: Column(
                 children: [
                   for (
@@ -306,20 +313,23 @@ class ProductCard extends StatelessWidget {
     );
   }
 
-  // ===========================================================
+  // ============================================================
   // PACKING ROW
-  // ===========================================================
+  // ============================================================
 
   Widget _buildPackingRow(
     ProductRateEntity rate,
   ) {
-    final String
-        productDetailsId =
+    final String productDetailsId =
         rate.productDetailsId
             .toString();
 
-    // IMPORTANT:
-    // Default 0 instead of 1.
+    // ==========================================================
+    // IMPORTANT
+    // If quantity doesn't exist, keep it 0.
+    // Field will display empty.
+    // ==========================================================
+
     final int quantity =
         packingQuantities[
                 productDetailsId] ??
@@ -330,6 +340,7 @@ class ProductCard extends StatelessWidget {
           EdgeInsets.symmetric(
         vertical: 5.h,
       ),
+
       child: Row(
         crossAxisAlignment:
             CrossAxisAlignment.center,
@@ -379,8 +390,7 @@ class ProductCard extends StatelessWidget {
                     Flexible(
                       child: Text(
                         '${rate.packing} ${rate.unit}',
-                        maxLines:
-                            1,
+                        maxLines: 1,
                         overflow:
                             TextOverflow
                                 .ellipsis,
@@ -427,12 +437,14 @@ class ProductCard extends StatelessWidget {
 
                 Container(
                   padding:
-                      EdgeInsets.symmetric(
+                      EdgeInsets
+                          .symmetric(
                     horizontal:
                         5.w,
                     vertical:
                         1.5.h,
                   ),
+
                   decoration:
                       BoxDecoration(
                     color:
@@ -444,6 +456,7 @@ class ProductCard extends StatelessWidget {
                       5.r,
                     ),
                   ),
+
                   child: Text(
                     rate.displayCase,
                     style:
@@ -497,36 +510,365 @@ class ProductCard extends StatelessWidget {
     );
   }
 
-  // ===========================================================
-  // CASE QUANTITY - DIRECT TYPE
-  // ===========================================================
+  // ============================================================
+  // CASE QUANTITY
+  // ============================================================
+  //
+  // IMPORTANT:
+  //
+  // OLD:
+  //
+  // TextFormField(
+  //   initialValue: quantity.toString()
+  // )
+  //
+  // PROBLEM:
+  //
+  // initialValue is only applied when TextFormField State is
+  // created. If quantity changes externally after Add More,
+  // old visible value may remain.
+  //
+  // NEW:
+  //
+  // Controller based StatefulWidget.
+  // ============================================================
 
   Widget _buildQuantityControl({
     required ProductRateEntity rate,
     required int quantity,
   }) {
+    return _ProductQuantityField(
+      key: ValueKey(
+        'product_${product.id}_case_${rate.productDetailsId}',
+      ),
+
+      quantity:
+          quantity,
+
+      onChanged:
+          (enteredQuantity) {
+        onQuantityChanged(
+          rate,
+          enteredQuantity,
+        );
+      },
+    );
+  }
+
+  // ============================================================
+  // ADD / MORE BUTTON
+  // ============================================================
+
+  Widget _buildCompactActionButton({
+    required bool hasRates,
+  }) {
+    return Material(
+      color: hasRates
+          ? AppColors.primary
+              .withOpacity(
+              0.08,
+            )
+          : AppColors.primary,
+
+      borderRadius:
+          BorderRadius.circular(
+        8.r,
+      ),
+
+      child: InkWell(
+        onTap:
+            hasRates
+                ? onAddMore
+                : onAdd,
+
+        borderRadius:
+            BorderRadius.circular(
+          8.r,
+        ),
+
+        child: Container(
+          height: 30.h,
+
+          padding:
+              EdgeInsets.symmetric(
+            horizontal: 8.w,
+          ),
+
+          alignment:
+              Alignment.center,
+
+          child: Row(
+            mainAxisSize:
+                MainAxisSize.min,
+            children: [
+              Icon(
+                hasRates
+                    ? Icons
+                        .add_circle_outline_rounded
+                    : Icons
+                        .add_rounded,
+
+                size: 14.sp,
+
+                color: hasRates
+                    ? AppColors
+                        .primary
+                    : Colors.white,
+              ),
+
+              SizedBox(
+                width: 3.w,
+              ),
+
+              Text(
+                hasRates
+                    ? 'More'
+                    : 'Add',
+
+                style:
+                    TextStyle(
+                  fontSize:
+                      9.sp,
+
+                  fontWeight:
+                      FontWeight
+                          .w800,
+
+                  color: hasRates
+                      ? AppColors
+                          .primary
+                      : Colors.white,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  // ============================================================
+  // COMPLETE PRODUCT DELETE
+  // ============================================================
+
+  Widget _buildDeleteButton({
+    required VoidCallback onTap,
+  }) {
+    return Material(
+      color: Colors.red
+          .withOpacity(
+        0.06,
+      ),
+
+      borderRadius:
+          BorderRadius.circular(
+        8.r,
+      ),
+
+      child: InkWell(
+        onTap: onTap,
+
+        borderRadius:
+            BorderRadius.circular(
+          8.r,
+        ),
+
+        child: SizedBox(
+          width: 30.w,
+          height: 30.w,
+
+          child: Icon(
+            Icons
+                .delete_outline_rounded,
+
+            color:
+                Colors.redAccent,
+
+            size: 16.sp,
+          ),
+        ),
+      ),
+    );
+  }
+
+  // ============================================================
+  // PARTICULAR PACKING DELETE
+  // ============================================================
+
+  Widget _buildDeletePackingButton({
+    required VoidCallback onTap,
+  }) {
+    return Material(
+      color: Colors.red
+          .withOpacity(
+        0.07,
+      ),
+
+      borderRadius:
+          BorderRadius.circular(
+        7.r,
+      ),
+
+      child: InkWell(
+        onTap: onTap,
+
+        borderRadius:
+            BorderRadius.circular(
+          7.r,
+        ),
+
+        child: SizedBox(
+          width: 28.w,
+          height: 28.h,
+
+          child: Icon(
+            Icons.close_rounded,
+
+            color:
+                Colors.redAccent,
+
+            size: 15.sp,
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+// ============================================================================
+// PRODUCT QUANTITY FIELD
+// ============================================================================
+//
+// This StatefulWidget is required because ProductCard itself can remain
+// StatelessWidget while each quantity field owns a TextEditingController.
+//
+// When Bloc quantity changes:
+// old quantity = 2
+// new quantity = 5
+//
+// didUpdateWidget() updates controller text to 5.
+//
+// ============================================================================
+
+class _ProductQuantityField
+    extends StatefulWidget {
+  final int quantity;
+
+  final ValueChanged<int>
+      onChanged;
+
+  const _ProductQuantityField({
+    super.key,
+    required this.quantity,
+    required this.onChanged,
+  });
+
+  @override
+  State<_ProductQuantityField>
+      createState() =>
+          _ProductQuantityFieldState();
+}
+
+class _ProductQuantityFieldState
+    extends State<
+        _ProductQuantityField> {
+  late final TextEditingController
+      _controller;
+
+  // ============================================================
+  // INIT
+  // ============================================================
+
+  @override
+  void initState() {
+    super.initState();
+
+    _controller =
+        TextEditingController(
+      text: widget.quantity > 0
+          ? widget.quantity
+              .toString()
+          : '',
+    );
+  }
+
+  // ============================================================
+  // UPDATE EXTERNAL QUANTITY
+  // ============================================================
+
+  @override
+  void didUpdateWidget(
+    covariant _ProductQuantityField
+        oldWidget,
+  ) {
+    super.didUpdateWidget(
+      oldWidget,
+    );
+
+    // No quantity change
+    if (oldWidget.quantity ==
+        widget.quantity) {
+      return;
+    }
+
+    final String newText =
+        widget.quantity > 0
+            ? widget.quantity
+                .toString()
+            : '';
+
+    // Don't reset cursor unnecessarily
+    if (_controller.text ==
+        newText) {
+      return;
+    }
+
+    _controller.value =
+        TextEditingValue(
+      text: newText,
+
+      selection:
+          TextSelection.collapsed(
+        offset:
+            newText.length,
+      ),
+    );
+  }
+
+  // ============================================================
+  // DISPOSE
+  // ============================================================
+
+  @override
+  void dispose() {
+    _controller.dispose();
+
+    super.dispose();
+  }
+
+  // ============================================================
+  // BUILD
+  // ============================================================
+
+  @override
+  Widget build(
+    BuildContext context,
+  ) {
     return SizedBox(
       width: 95.w,
       height: 34.h,
+
       child: TextFormField(
-        // IMPORTANT:
-        // Keep key stable.
-        // Do not include quantity in key.
-        key: ValueKey(
-          'case_${rate.productDetailsId}',
-        ),
+        controller:
+            _controller,
 
-        // Existing value
-        initialValue:
-            quantity > 0
-                ? quantity.toString()
-                : '',
+        // ======================================================
+        // NUMBER KEYBOARD
+        // ======================================================
 
-        // Only number keyboard
         keyboardType:
             TextInputType.number,
 
-        // Only digits
         inputFormatters: [
           FilteringTextInputFormatter
               .digitsOnly,
@@ -538,13 +880,24 @@ class ProductCard extends StatelessWidget {
         textAlign:
             TextAlign.center,
 
+        // ======================================================
+        // TEXT STYLE
+        // ======================================================
+
         style: TextStyle(
-          fontSize: 10.sp,
+          fontSize:
+              10.sp,
+
           fontWeight:
               FontWeight.w800,
+
           color:
               AppColors.textPrimary,
         ),
+
+        // ======================================================
+        // DESIGN
+        // ======================================================
 
         decoration:
             InputDecoration(
@@ -553,15 +906,19 @@ class ProductCard extends StatelessWidget {
 
           hintStyle:
               TextStyle(
-            fontSize: 8.sp,
+            fontSize:
+                8.sp,
+
             fontWeight:
                 FontWeight.w500,
+
             color:
                 AppColors
                     .textSecondary,
           ),
 
-          isDense: true,
+          isDense:
+              true,
 
           contentPadding:
               EdgeInsets.symmetric(
@@ -571,7 +928,8 @@ class ProductCard extends StatelessWidget {
                 7.h,
           ),
 
-          filled: true,
+          filled:
+              true,
 
           fillColor:
               Colors.white,
@@ -582,6 +940,7 @@ class ProductCard extends StatelessWidget {
                 BorderRadius.circular(
               7.r,
             ),
+
             borderSide:
                 BorderSide(
               color:
@@ -598,32 +957,61 @@ class ProductCard extends StatelessWidget {
                 BorderRadius.circular(
               7.r,
             ),
+
             borderSide:
                 BorderSide(
               color:
                   AppColors.primary,
-              width: 1.2,
+
+              width:
+                  1.2,
             ),
           ),
         ),
 
-        // =======================================================
-        // DIRECT CASE ENTRY
-        // =======================================================
+        // ======================================================
+        // QUANTITY CHANGED
+        // ======================================================
 
-        onChanged: (value) {
-          final int
+        onChanged:
+            (value) {
+          final String
+              cleanedValue =
+              value.trim();
+
+          // Empty field
+          if (cleanedValue
+              .isEmpty) {
+            widget.onChanged(
+              0,
+            );
+
+            return;
+          }
+
+          final int?
               enteredQuantity =
               int.tryParse(
-                    value.trim(),
-                  ) ??
-                  0;
+            cleanedValue,
+          );
 
-          onQuantityChanged(
-            rate,
+          if (enteredQuantity ==
+              null) {
+            widget.onChanged(
+              0,
+            );
+
+            return;
+          }
+
+          widget.onChanged(
             enteredQuantity,
           );
         },
+
+        // ======================================================
+        // DONE
+        // ======================================================
 
         onFieldSubmitted:
             (_) {
@@ -632,158 +1020,6 @@ class ProductCard extends StatelessWidget {
               .primaryFocus
               ?.unfocus();
         },
-      ),
-    );
-  }
-
-  // ===========================================================
-  // ADD / MORE BUTTON
-  // ===========================================================
-
-  Widget _buildCompactActionButton({
-    required bool hasRates,
-  }) {
-    return Material(
-      color: hasRates
-          ? AppColors.primary
-              .withOpacity(
-              0.08,
-            )
-          : AppColors.primary,
-      borderRadius:
-          BorderRadius.circular(
-        8.r,
-      ),
-      child: InkWell(
-        onTap:
-            hasRates
-                ? onAddMore
-                : onAdd,
-        borderRadius:
-            BorderRadius.circular(
-          8.r,
-        ),
-        child: Container(
-          height: 30.h,
-          padding:
-              EdgeInsets.symmetric(
-            horizontal: 8.w,
-          ),
-          alignment:
-              Alignment.center,
-          child: Row(
-            mainAxisSize:
-                MainAxisSize.min,
-            children: [
-              Icon(
-                hasRates
-                    ? Icons
-                        .add_circle_outline_rounded
-                    : Icons
-                        .add_rounded,
-                size: 14.sp,
-                color: hasRates
-                    ? AppColors
-                        .primary
-                    : Colors.white,
-              ),
-
-              SizedBox(
-                width: 3.w,
-              ),
-
-              Text(
-                hasRates
-                    ? 'More'
-                    : 'Add',
-                style:
-                    TextStyle(
-                  fontSize: 9.sp,
-                  fontWeight:
-                      FontWeight
-                          .w800,
-                  color: hasRates
-                      ? AppColors
-                          .primary
-                      : Colors.white,
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  // ===========================================================
-  // COMPLETE PRODUCT DELETE
-  // ===========================================================
-
-  Widget _buildDeleteButton({
-    required VoidCallback onTap,
-  }) {
-    return Material(
-      color: Colors.red
-          .withOpacity(
-        0.06,
-      ),
-      borderRadius:
-          BorderRadius.circular(
-        8.r,
-      ),
-      child: InkWell(
-        onTap: onTap,
-        borderRadius:
-            BorderRadius.circular(
-          8.r,
-        ),
-        child: SizedBox(
-          width: 30.w,
-          height: 30.w,
-          child: Icon(
-            Icons
-                .delete_outline_rounded,
-            color:
-                Colors.redAccent,
-            size: 16.sp,
-          ),
-        ),
-      ),
-    );
-  }
-
-  // ===========================================================
-  // PARTICULAR PACKING DELETE
-  // ===========================================================
-
-  Widget _buildDeletePackingButton({
-    required VoidCallback onTap,
-  }) {
-    return Material(
-      color: Colors.red
-          .withOpacity(
-        0.07,
-      ),
-      borderRadius:
-          BorderRadius.circular(
-        7.r,
-      ),
-      child: InkWell(
-        onTap: onTap,
-        borderRadius:
-            BorderRadius.circular(
-          7.r,
-        ),
-        child: SizedBox(
-          width: 28.w,
-          height: 28.h,
-          child: Icon(
-            Icons.close_rounded,
-            color:
-                Colors.redAccent,
-            size: 15.sp,
-          ),
-        ),
       ),
     );
   }

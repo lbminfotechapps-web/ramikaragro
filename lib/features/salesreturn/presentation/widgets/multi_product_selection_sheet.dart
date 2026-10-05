@@ -246,12 +246,16 @@ class _MultiProductRateBottomSheetState
   //   return _packingQuantities[productId]?[productDetailsId] ?? 1;
   // }
 
-   int _quantity(
+  int _quantity(
   String productId,
   String productDetailsId,
 ) {
   return _packingQuantities[productId]?[productDetailsId] ?? 0;
 }
+
+// ===========================================================================
+// SET CASE QUANTITY
+// ===========================================================================
 
 void _setQuantity(
   String productId,
@@ -259,12 +263,22 @@ void _setQuantity(
   int quantity,
 ) {
   final productQuantities =
-      _packingQuantities.putIfAbsent(
+      _packingQuantities
+          .putIfAbsent(
     productId,
     () => <String, int>{},
   );
 
-  productQuantities[productDetailsId] = quantity;
+  productQuantities[
+          productDetailsId] =
+      quantity;
+
+  debugPrint(
+    'BOTTOM SHEET QUANTITY => '
+    'product=$productId | '
+    'details=$productDetailsId | '
+    'quantity=$quantity',
+  );
 }
 
 
@@ -412,10 +426,14 @@ void _setQuantity(
       final productDetailsId =
           rate.productDetailsId.toString();
 
+     
+
+
       productQuantities.putIfAbsent(
-        productDetailsId,
-        () => 1,
-      );
+      productDetailsId,
+      () => 0,
+      
+        );
 
       debugPrint(
         'Packing selected: '
@@ -1439,7 +1457,7 @@ void _setQuantity(
       decoration:
           InputDecoration(
         hintText:
-            'Enter Case',
+            'Case',
         isDense:
             true,
         filled:

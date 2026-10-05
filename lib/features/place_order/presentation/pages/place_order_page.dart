@@ -2784,8 +2784,7 @@ class _PlaceOrderViewState extends State<_PlaceOrderView> {
                 ),
                 SizedBox(height: 1.h),
                 Text(
-                  '${selectedCategories.length} '
-                  'categor${selectedCategories.length == 1 ? 'y' : 'ies'} • '
+                 
                   'Total quantity: $totalQuantity',
                   style: TextStyle(
                     fontSize: 10.sp,
