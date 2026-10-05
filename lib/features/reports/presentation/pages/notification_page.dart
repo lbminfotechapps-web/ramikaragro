@@ -14,6 +14,8 @@ import '../bloc/notification_state.dart';
 import '../widgets/notification_card.dart';
 import '../widgets/notification_shimmer.dart';
 
+
+
 class NotificationPage extends StatefulWidget {
   final int userId;
   final bool isLogin;
