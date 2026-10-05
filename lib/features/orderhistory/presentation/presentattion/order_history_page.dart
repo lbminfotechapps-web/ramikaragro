@@ -552,8 +552,8 @@ class _OrderHistoryPageState extends State<OrderHistoryPage> {
               setState(() {});
             },
             decoration: InputDecoration(
-              labelText: 'Search Name',
-              hintText: 'Enter minimum 3 characters',
+              labelText: 'Search Dealer Name',
+
               prefixIcon: const Icon(Icons.search_rounded),
               filled: true,
               fillColor: Colors.grey.shade50,

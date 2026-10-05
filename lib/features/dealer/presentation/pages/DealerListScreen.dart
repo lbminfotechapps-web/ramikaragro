@@ -39,6 +39,7 @@ class _DealerListScreenState extends State<DealerListScreen> {
   String? _currentLongitude;
   bool _isLoadingMore = false;
   bool _hasMore = true;
+  bool _isOpeningDirections = false;
   @override
   void initState() {
     super.initState();
@@ -108,15 +109,6 @@ class _DealerListScreenState extends State<DealerListScreen> {
       _hasMore = true;
     }
 
-    debugPrint('================================');
-    debugPrint('LOAD DEALERS');
-    debugPrint('================================');
-    debugPrint('User ID: $userId');
-    debugPrint('Search: $searchKey');
-    debugPrint('Start Limit: $startLimit');
-    debugPrint('Load More: $isLoadMore');
-    debugPrint('================================');
-
     // Get current location
     String latitude = '';
     String longitude = '';
@@ -152,49 +144,67 @@ class _DealerListScreenState extends State<DealerListScreen> {
     );
   }
 
+  Future<void> _openDealerDirections(DealerListModel dealer) async {
+    if (_isOpeningDirections) return;
+
+    void showError(String message) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(message)));
+    }
+
+    final latitude = double.tryParse(dealer.latitude?.trim() ?? '');
+    final longitude = double.tryParse(dealer.longitude?.trim() ?? '');
+    if (latitude == null ||
+        longitude == null ||
+        !latitude.isFinite ||
+        !longitude.isFinite ||
+        latitude.abs() > 90 ||
+        longitude.abs() > 180 ||
+        (latitude == 0 && longitude == 0)) {
+      showError('Dealer location is not available. Please update it first.');
+      return;
+    }
+
+    setState(() => _isOpeningDirections = true);
+    try {
+      final position = await LocationUtil.instance.getCurrentLocation().timeout(
+        const Duration(seconds: 20),
+        onTimeout: () => null,
+      );
+      if (!mounted) return;
+      if (position == null) {
+        showError(
+          'Unable to get your location. Enable GPS and allow location access.',
+        );
+        return;
+      }
+
+      final uri = Uri.https('www.google.com', '/maps/dir/', {
+        'api': '1',
+        'origin': '${position.latitude},${position.longitude}',
+        'destination': '$latitude,$longitude',
+        'travelmode': 'driving',
+      });
+      final opened = await launchUrl(uri, mode: LaunchMode.externalApplication);
+      if (!opened) showError('Unable to open Google Maps. Please try again.');
+    } catch (_) {
+      showError('Unable to open directions. Please try again.');
+    } finally {
+      if (mounted) setState(() => _isOpeningDirections = false);
+    }
+  }
+
   Future<void> _submitDealerLocation(DealerListModel dealer) async {
     try {
-      debugPrint('');
-      debugPrint('========================================');
-      debugPrint('UPDATE DEALER LOCATION');
-      debugPrint('========================================');
-
-      // ============================================================
-      // 1. DEALER ID
-      // ============================================================
-
       final String dealerId = dealer.outletId?.toString().trim() ?? '';
-
-      // if (dealerId.isEmpty || dealerId == '0') {
-      //   _showError('Dealer ID is not available');
-      //   return;
-      // }
-
-      // ============================================================
-      // 2. GET USER ID
-      // ============================================================
 
       final userData = await SecureStorage.instance.getUserData();
 
       final String userId = userData?['user_id']?.toString().trim() ?? '';
 
-      // if (userId.isEmpty || userId == '0') {
-      //   _showError('User ID is not available');
-      //   return;
-      // }
-
-      // ============================================================
-      // 3. GET FRESH CURRENT LOCATION
-      // ============================================================
-
       final position = await LocationUtil.instance.getCurrentLocation();
-
-      // if (position == null) {
-      //   _showError(
-      //     'Unable to get current location. Please try again.',
-      //   );
-      //   return;
-      // }
 
       final String latitude = position!.latitude.toString();
 
@@ -522,6 +532,9 @@ class _DealerListScreenState extends State<DealerListScreen> {
 
                                     return _DealerListItem(
                                       dealer: dealer,
+                                      onMapTap: _isOpeningDirections
+                                          ? null
+                                          : () => _openDealerDirections(dealer),
                                       onLocationTap: () {
                                         _submitDealerLocation(dealer);
                                       },
@@ -603,88 +616,75 @@ class _DealerListScreenState extends State<DealerListScreen> {
         borderRadius: BorderRadius.vertical(bottom: Radius.circular(28)),
       ),
 
-      // child: TextField(
-      //   controller: _searchController,
-      //   textInputAction: TextInputAction.search,
-      //   style: const TextStyle(fontSize: 14, color: AppColors.textDark),
-      //   decoration: InputDecoration(
-      //     hintText: 'Search name or mobile number',
-      //     hintStyle: const TextStyle(color: AppColors.textGrey, fontSize: 14),
-      //     filled: true,
-      //     fillColor: Colors.white,
-      //     prefixIcon: const Icon(
-      //       Icons.search_rounded,
-      //       color: AppColors.primaryLight,
-      //     ),
-      //     suffixIcon: _searchController.text.isNotEmpty
-      //         ? IconButton(
-      //             tooltip: 'Clear search',
-      //             icon: const Icon(Icons.close_rounded, size: 20),
-      //             onPressed: _searchController.clear,
-      //           )
-      //         : null,
-      //     border: OutlineInputBorder(
-      //       borderRadius: BorderRadius.circular(16),
-      //       borderSide: const BorderSide(color: Color(0xFFE0E8E2)),
-      //     ),
-      //     enabledBorder: OutlineInputBorder(
-      //       borderRadius: BorderRadius.circular(16),
-      //       borderSide: const BorderSide(color: Color(0xFFE0E8E2)),
-      //     ),
-      //     focusedBorder: OutlineInputBorder(
-      //       borderRadius: BorderRadius.circular(16),
-      //       borderSide: const BorderSide(color: AppColors.primaryLight),
-      //     ),
-      //     contentPadding: const EdgeInsets.symmetric(
-      //       horizontal: 16,
-      //       vertical: 16,
-      //     ),
-      //   ),
-      // ),
-      child: TextField(
-        controller: _searchController,
-        textInputAction: TextInputAction.search,
-        style: const TextStyle(fontSize: 14, color: AppColors.textDark),
-        decoration: InputDecoration(
-          hintText: 'Search name or mobile number',
-          hintStyle: const TextStyle(color: AppColors.textGrey, fontSize: 14),
-          filled: true,
-          fillColor: Colors.white,
-          prefixIcon: const Icon(
-            Icons.search_rounded,
-            color: AppColors.primaryLight,
-          ),
-          suffixIcon: _searchController.text.isNotEmpty
-              ? IconButton(
-                  tooltip: 'Clear search',
-                  icon: const Icon(Icons.close_rounded, size: 20),
-                  onPressed: _searchController.clear,
-                )
-              : null,
+      child: _AnimatedDealerSearchHint(
+        builder: (context, index) => TextField(
+          controller: _searchController,
+          textInputAction: TextInputAction.search,
+          style: const TextStyle(fontSize: 14, color: AppColors.textDark),
+          decoration: InputDecoration(
+            hint: AnimatedSwitcher(
+              layoutBuilder: (currentChild, previousChildren) => Stack(
+                alignment: AlignmentDirectional.centerStart,
+                children: [...previousChildren, ?currentChild],
+              ),
+              duration: Duration(
+                milliseconds: MediaQuery.disableAnimationsOf(context) ? 0 : 400,
+              ),
+              child: Text(
+                index == 0 ? 'Search dealer name' : 'Search with mobile no',
+                key: ValueKey(index),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: const TextStyle(color: AppColors.textGrey, fontSize: 14),
+              ),
+            ),
+            hintStyle: const TextStyle(color: AppColors.textGrey, fontSize: 14),
+            filled: true,
+            fillColor: Colors.white,
+            prefixIcon: AnimatedSwitcher(
+              duration: Duration(
+                milliseconds: MediaQuery.disableAnimationsOf(context) ? 0 : 400,
+              ),
+              child: Icon(
+                _searchController.text.isNotEmpty || index == 0
+                    ? Icons.search_rounded
+                    : Icons.phone_android_rounded,
+                key: ValueKey(_searchController.text.isNotEmpty ? 0 : index),
+                color: AppColors.primaryLight,
+              ),
+            ),
+            suffixIcon: _searchController.text.isNotEmpty
+                ? IconButton(
+                    tooltip: 'Clear search',
+                    icon: const Icon(Icons.close_rounded, size: 20),
+                    onPressed: _searchController.clear,
+                  )
+                : null,
 
-          helperText:
-              'Search after 3 characters. After searching wait for 2 sec..!',
-          helperStyle: const TextStyle(
-            fontSize: 10,
-            color: Colors.red,
-            fontWeight: FontWeight.w500,
-          ),
+            helperText:
+                'Search after 3 characters. After searching wait for 2 sec..!',
+            helperStyle: const TextStyle(
+              fontSize: 10,
+              color: Colors.red,
+              fontWeight: FontWeight.w500,
+            ),
 
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(16),
-            borderSide: const BorderSide(color: Color(0xFFE0E8E2)),
-          ),
-          enabledBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(16),
-            borderSide: const BorderSide(color: Color(0xFFE0E8E2)),
-          ),
-          focusedBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(16),
-            borderSide: const BorderSide(color: AppColors.primaryLight),
-          ),
-          contentPadding: const EdgeInsets.symmetric(
-            horizontal: 16,
-            vertical: 16,
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(16),
+              borderSide: const BorderSide(color: Color(0xFFE0E8E2)),
+            ),
+            enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(16),
+              borderSide: const BorderSide(color: Color(0xFFE0E8E2)),
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(16),
+              borderSide: const BorderSide(color: AppColors.primaryLight),
+            ),
+            contentPadding: const EdgeInsets.symmetric(
+              horizontal: 16,
+              vertical: 16,
+            ),
           ),
         ),
       ),
@@ -726,11 +726,51 @@ class _DealerListScreenState extends State<DealerListScreen> {
   }
 }
 
+class _AnimatedDealerSearchHint extends StatefulWidget {
+  final Widget Function(BuildContext context, int index) builder;
+  const _AnimatedDealerSearchHint({required this.builder});
+
+  @override
+  State<_AnimatedDealerSearchHint> createState() =>
+      _AnimatedDealerSearchHintState();
+}
+
+class _AnimatedDealerSearchHintState extends State<_AnimatedDealerSearchHint> {
+  Timer? _timer;
+  int _index = 0;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _timer?.cancel();
+    if (!MediaQuery.disableAnimationsOf(context)) {
+      _timer = Timer.periodic(const Duration(seconds: 3), (_) {
+        if (!mounted || !TickerMode.valuesOf(context).enabled) return;
+        setState(() => _index = (_index + 1) % 2);
+      });
+    }
+  }
+
+  @override
+  void dispose() {
+    _timer?.cancel();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) => widget.builder(context, _index);
+}
+
 class _DealerListItem extends StatelessWidget {
   final DealerListModel dealer;
   final VoidCallback onLocationTap;
+  final VoidCallback? onMapTap;
 
-  const _DealerListItem({required this.dealer, required this.onLocationTap});
+  const _DealerListItem({
+    required this.dealer,
+    required this.onLocationTap,
+    required this.onMapTap,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -836,22 +876,43 @@ class _DealerListItem extends StatelessWidget {
             ],
           ),
           const Padding(
-            padding: EdgeInsets.symmetric(vertical: 10),
+            padding: EdgeInsets.symmetric(vertical: 5),
             child: Divider(height: 1, color: Color(0xFFF0F1EF)),
           ),
 
-          _DealerDetail(
-            icon: Icons.phone_outlined,
-            label: 'Mobile Number',
-            text: mobile.isEmpty ? 'Not available' : mobile,
-            onTap: mobile.isEmpty
-                ? null
-                : () {
-                    callFarmer(mobile);
-                  },
+          Row(
+            children: [
+              Expanded(
+                child: _DealerDetail(
+                  icon: Icons.phone_outlined,
+                  label: 'Mobile Number',
+                  text: mobile.isEmpty ? 'Not available' : mobile,
+                  onTap: mobile.isEmpty
+                      ? null
+                      : () {
+                          callFarmer(mobile);
+                        },
+                ),
+              ),
+              const SizedBox(width: 8),
+              IconButton.outlined(
+                tooltip: 'Directions to dealer',
+                onPressed: onMapTap,
+                icon: Image.asset(
+                  'assets/images/map.png',
+                  width: 20,
+                  height: 20,
+                  fit: BoxFit.contain,
+                ),
+                style: IconButton.styleFrom(
+                  backgroundColor: const Color(0xFFF1F6FF),
+                  side: const BorderSide(color: Color(0xFFD4E3FC)),
+                ),
+              ),
+            ],
           ),
 
-          const SizedBox(height: 8),
+          const SizedBox(height: 4),
           _DealerDetail(
             icon: Icons.location_on_outlined,
             label: 'Address',
@@ -859,7 +920,7 @@ class _DealerListItem extends StatelessWidget {
                 ? 'Address not available'
                 : dealer.outletAddress.trim(),
           ),
-          const SizedBox(height: 10),
+          const SizedBox(height: 5),
           LayoutBuilder(
             builder: (context, constraints) {
               final call = _ActivityInfo(

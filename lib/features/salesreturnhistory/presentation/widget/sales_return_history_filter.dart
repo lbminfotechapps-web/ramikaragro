@@ -78,7 +78,10 @@ class SalesReturnHistoryFilter extends StatelessWidget {
               controller: controller,
               focusNode: focusNode,
               onChanged: onDealerChanged,
-              decoration: _decoration('Dealer', Icons.store_outlined),
+              decoration: _decoration(
+                'Search Dealer Name',
+                Icons.store_outlined,
+              ).copyWith(hintText: 'Search dealer name'),
             );
           },
         ),

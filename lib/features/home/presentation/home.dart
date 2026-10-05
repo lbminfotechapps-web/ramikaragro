@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:android_intent_plus/android_intent.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:solufine/core/api_constant/api_client.dart';
 import 'package:solufine/core/api_constant/dio_client.dart';
 import 'package:solufine/core/di/auth_di.dart';
@@ -171,10 +172,10 @@ class _HomeState extends State<Home> {
     // LOCATION PERMISSION
     // ------------------------------------------------------------
 
-    WidgetsBinding.instance.addPostFrameCallback((_) {
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
       if (!mounted) return;
 
-      checkLocationPermission(context);
+      await _checkLocationAndGps();
     });
   }
 
@@ -338,6 +339,34 @@ class _HomeState extends State<Home> {
     return result ?? false;
   }
 
+  Future<void> _checkLocationAndGps() async {
+    // ============================================================
+    // 1. CHECK LOCATION PERMISSION
+    // ============================================================
+
+    final PermissionStatus permissionStatus = await Permission.location.status;
+
+    if (!permissionStatus.isGranted) {
+      if (!mounted) return;
+
+      await checkLocationPermission(context);
+
+      return;
+    }
+
+    // ============================================================
+    // 2. CHECK GPS / LOCATION SERVICE
+    // ============================================================
+
+    final bool gpsEnabled = await Geolocator.isLocationServiceEnabled();
+
+    if (!gpsEnabled) {
+      if (!mounted) return;
+
+      await _showGpsOffDialog();
+    }
+  }
+
   Future<void> checkLocationPermission(BuildContext context) async {
     final status = await Permission.location.status;
 
@@ -352,6 +381,90 @@ class _HomeState extends State<Home> {
       barrierDismissible: false,
       builder: (_) {
         return LocationPermissionDialog(onPermissionResult: () {});
+      },
+    );
+  }
+
+  Future<void> _showGpsOffDialog() async {
+    if (!mounted) return;
+
+    await showDialog<void>(
+      context: context,
+      barrierDismissible: false,
+      builder: (dialogContext) {
+        return AlertDialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(18),
+          ),
+
+          // ========================================================
+          // TITLE
+          // ========================================================
+          title: Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: Colors.orange.withOpacity(0.12),
+                  shape: BoxShape.circle,
+                ),
+                child: const Icon(
+                  Icons.location_off_rounded,
+                  color: Colors.orange,
+                  size: 28,
+                ),
+              ),
+
+              const SizedBox(width: 12),
+
+              const Expanded(
+                child: Text(
+                  'GPS is Off',
+                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                ),
+              ),
+            ],
+          ),
+
+          // ========================================================
+          // MESSAGE
+          // ========================================================
+          content: const Text(
+            'Your GPS / Location service is turned off. '
+            'Please turn on GPS to continue using location services.',
+            style: TextStyle(fontSize: 14, height: 1.5),
+          ),
+
+          // ========================================================
+          // BUTTON
+          // ========================================================
+          actions: [
+            ElevatedButton.icon(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppColors.accentGreen,
+                foregroundColor: Colors.white,
+                elevation: 0,
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 18,
+                  vertical: 11,
+                ),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
+              ),
+              onPressed: () async {
+                Navigator.of(dialogContext).pop();
+
+                await Geolocator.openLocationSettings();
+              },
+              icon: const Icon(Icons.settings, size: 18),
+              label: const Text(
+                'TURN ON GPS',
+                style: TextStyle(fontWeight: FontWeight.w600),
+              ),
+            ),
+          ],
+        );
       },
     );
   }
