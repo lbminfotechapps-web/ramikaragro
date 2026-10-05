@@ -1,6 +1,5 @@
 import 'package:solufine/core/di/auth_di.dart';
 import 'package:solufine/features/auth/provider/auth_provider.dart';
-import 'connection_status_row.dart';
 import 'package:solufine/core/router/app_router.dart';
 import 'package:solufine/core/secure_storage/secure_storage.dart';
 import 'package:solufine/core/theme/app_colors.dart';
@@ -85,7 +84,6 @@ class HomeShellState extends State<HomeShell> {
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       if (!mounted) return;
 
-
       await _refreshHome();
     });
   }
@@ -120,8 +118,6 @@ class HomeShellState extends State<HomeShell> {
 
   Future<void> refreshHome() async {
     if (!mounted) return;
-
-
 
     await _refreshHome();
   }
@@ -487,7 +483,6 @@ class HomeShellState extends State<HomeShell> {
                   }).toList(),
                 ),
               ),
-              ConnectionStatusRow(userId: _userId),
             ],
           ),
         ),

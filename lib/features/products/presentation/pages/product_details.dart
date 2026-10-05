@@ -1,3 +1,8 @@
+import 'package:http/http.dart' as http;
+import 'package:html/parser.dart' as html_parser;
+import 'package:html/dom.dart' as html_dom;
+import 'package:share_plus/share_plus.dart';
+
 import 'package:solufine/core/api_constant/api_client.dart';
 
 import 'package:solufine/core/secure_storage/secure_storage.dart';
@@ -266,10 +271,18 @@ window.onload = function() {
   }
 }
 
-class ProductDetails extends StatelessWidget {
+class ProductDetails extends StatefulWidget {
   final FertilizerProductEntity? product;
 
   const ProductDetails(this.product, {super.key});
+
+  @override
+  State<ProductDetails> createState() => _ProductDetailsState();
+}
+
+class _ProductDetailsState extends State<ProductDetails> {
+  FertilizerProductEntity? get product => widget.product;
+  bool _isSharing = false;
 
   @override
   Widget build(BuildContext context) {
@@ -302,117 +315,279 @@ class ProductDetails extends StatelessWidget {
       // ============================================================
       // BODY
       // ============================================================
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.fromLTRB(16, 16, 16, 24),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            // ======================================================
-            // PRODUCT IMAGE
-            // ======================================================
-            _buildProductImage(context),
-
-            const SizedBox(height: 16),
-
-            // ======================================================
-            // PRODUCT NAME
-            // ======================================================
-            Text(
-              product!.productName,
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                fontSize: 22.sp,
-                fontWeight: FontWeight.w700,
-                color: Colors.black87,
-              ),
-            ),
-
-            const SizedBox(height: 16),
-
-            // ======================================================
-            // PRODUCT ENQUIRY
-            // ======================================================
-            SizedBox(
-              height: 50,
-              child: ElevatedButton.icon(
-                onPressed: () {
-                  _openProductEnquiry(context);
-                },
-                icon: const Icon(
-                  Icons.contact_support_outlined,
-                  color: Colors.white,
-                  size: 22,
-                ),
-                label: const Text(
-                  'Product Enquiry',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 15,
-                    fontWeight: FontWeight.w700,
+      body: SafeArea(
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            final imageHeight = (constraints.maxHeight * 0.30)
+                .clamp(0.0, 260.0)
+                .toDouble();
+            return Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
+                  child: SizedBox(
+                    height: imageHeight,
+                    child: _buildProductImage(context),
                   ),
                 ),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.accentGreen,
-                  foregroundColor: Colors.white,
-                  elevation: 2,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(14),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      // ======================================================
+                      // PRODUCT NAME
+                      // ======================================================
+                      Text(
+                        product!.productName,
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          fontSize: 22.sp,
+                          fontWeight: FontWeight.w700,
+                          color: Colors.black87,
+                        ),
+                      ),
+
+                      const SizedBox(height: 16),
+
+                      // ======================================================
+                      // PRODUCT ENQUIRY
+                      // ======================================================
+                      SizedBox(
+                        height: 50,
+                        child: Row(
+                          children: [
+                            Expanded(
+                              flex: 3,
+                              child: ElevatedButton.icon(
+                                onPressed: () => _openProductEnquiry(context),
+                                icon: const Icon(
+                                  Icons.contact_support_outlined,
+                                  size: 22,
+                                ),
+                                label: const FittedBox(
+                                  fit: BoxFit.scaleDown,
+                                  child: Text('Product Enquiry'),
+                                ),
+                                style: _actionButtonStyle(),
+                              ),
+                            ),
+                            const SizedBox(width: 10),
+                            Expanded(
+                              flex: 2,
+                              child: Builder(
+                                builder: (shareContext) => OutlinedButton.icon(
+                                  onPressed: _isSharing
+                                      ? null
+                                      : () => _shareProduct(shareContext),
+                                  icon: _isSharing
+                                      ? const SizedBox(
+                                          width: 18,
+                                          height: 18,
+                                          child: CircularProgressIndicator(
+                                            strokeWidth: 2,
+                                            color: AppColors.accentGreen,
+                                          ),
+                                        )
+                                      : const Icon(
+                                          Icons.share_outlined,
+                                          size: 22,
+                                        ),
+                                  label: const Text('Share'),
+                                  style: OutlinedButton.styleFrom(
+                                    backgroundColor: Colors.white,
+                                    foregroundColor: AppColors.accentGreen,
+                                    minimumSize: const Size(0, 50),
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 10,
+                                    ),
+                                    side: const BorderSide(
+                                      color: AppColors.accentGreen,
+                                      width: 1.5,
+                                    ),
+                                    textStyle: const TextStyle(
+                                      fontSize: 15,
+                                      fontWeight: FontWeight.w700,
+                                    ),
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(14),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+
+                      const SizedBox(height: 16),
+                    ],
                   ),
                 ),
-              ),
-            ),
+                Expanded(
+                  child: SingleChildScrollView(
+                    padding: const EdgeInsets.fromLTRB(16, 8, 16, 24),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        // ======================================================
+                        // SHORT DETAILS
+                        // ======================================================
+                        if (product!.productShortDetails.trim().isNotEmpty)
+                          _buildSection(
+                            title: 'Product Details',
+                            child: Text(
+                              product!.productShortDetails,
+                              style: TextStyle(
+                                fontSize: 14.sp,
+                                height: 1.5,
+                                color: Colors.grey.shade700,
+                              ),
+                            ),
+                          ),
 
-            const SizedBox(height: 16),
+                        // ======================================================
+                        // DOSAGE
+                        // ======================================================
+                        if (product!.productDosage.trim().isNotEmpty)
+                          _buildSection(
+                            title: 'Dosage',
+                            child: Text(
+                              product!.productDosage,
+                              style: TextStyle(
+                                fontSize: 14.sp,
+                                height: 1.5,
+                                color: Colors.grey.shade700,
+                              ),
+                            ),
+                          ),
 
-            // ======================================================
-            // SHORT DETAILS
-            // ======================================================
-            if (product!.productShortDetails.trim().isNotEmpty)
-              _buildSection(
-                title: 'Product Details',
-                child: Text(
-                  product!.productShortDetails,
-                  style: TextStyle(
-                    fontSize: 14.sp,
-                    height: 1.5,
-                    color: Colors.grey.shade700,
+                        // ======================================================
+                        // PRODUCT CONTENT
+                        // ======================================================
+                        if (productContent.isNotEmpty)
+                          _buildSection(
+                            title: 'Product Contents',
+                            child: DynamicHtmlContent(
+                              htmlContent: productContent,
+                            ),
+                          ),
+
+                        // ======================================================
+                        // DISEASE IMAGE
+                        // ======================================================
+                        if (product!.diseasePath.trim().isNotEmpty)
+                          _buildDiseaseImage(),
+                      ],
+                    ),
                   ),
                 ),
-              ),
-
-            // ======================================================
-            // DOSAGE
-            // ======================================================
-            if (product!.productDosage.trim().isNotEmpty)
-              _buildSection(
-                title: 'Dosage',
-                child: Text(
-                  product!.productDosage,
-                  style: TextStyle(
-                    fontSize: 14.sp,
-                    height: 1.5,
-                    color: Colors.grey.shade700,
-                  ),
-                ),
-              ),
-
-            // ======================================================
-            // PRODUCT CONTENT
-            // ======================================================
-            if (productContent.isNotEmpty)
-              _buildSection(
-                title: 'Product Contents',
-                child: DynamicHtmlContent(htmlContent: productContent),
-              ),
-
-            // ======================================================
-            // DISEASE IMAGE
-            // ======================================================
-            if (product!.diseasePath.trim().isNotEmpty) _buildDiseaseImage(),
-          ],
+              ],
+            );
+          },
         ),
       ),
     );
+  }
+
+  ButtonStyle _actionButtonStyle() => ElevatedButton.styleFrom(
+    backgroundColor: AppColors.accentGreen,
+    foregroundColor: Colors.white,
+    minimumSize: const Size(0, 50),
+    padding: const EdgeInsets.symmetric(horizontal: 10),
+    textStyle: const TextStyle(fontSize: 15, fontWeight: FontWeight.w700),
+    elevation: 2,
+    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+  );
+
+  String _plainText(String content) {
+    final document = html_parser.parse(content);
+    for (final node in document.querySelectorAll(
+      'style, script, title, meta, link',
+    )) {
+      node.remove();
+    }
+    for (final node in document.querySelectorAll('br')) {
+      node.replaceWith(html_dom.Text('\n'));
+    }
+    for (final node in document.querySelectorAll(
+      'p, div, li, h1, h2, h3, h4, h5, h6',
+    )) {
+      node.nodes.add(html_dom.Text('\n'));
+    }
+    return (document.body?.text ?? '')
+        .replaceAll(RegExp(r'[^\S\n]+'), ' ')
+        .replaceAll(RegExp(r' *\n *'), '\n')
+        .replaceAll(RegExp(r'\n{3,}'), '\n\n')
+        .trim();
+  }
+
+  Future<void> _shareProduct(BuildContext shareContext) async {
+    final currentProduct = product;
+    if (currentProduct == null || _isSharing) return;
+    final box = shareContext.findRenderObject() as RenderBox?;
+    final origin = box == null
+        ? null
+        : box.localToGlobal(Offset.zero) & box.size;
+    setState(() => _isSharing = true);
+
+    try {
+      final sections = <String>[currentProduct.productName];
+      void addSection(String label, String content) {
+        final text = _plainText(content);
+        if (text.isNotEmpty) sections.add('$label:\n$text');
+      }
+
+      addSection('Product Details', currentProduct.productShortDetails);
+      addSection('Dosage', currentProduct.productDosage);
+      addSection(
+        'Product Contents',
+        _prepareProductContent(currentProduct.productContents),
+      );
+
+      final files = <XFile>[];
+      final names = <String>[];
+      if (currentProduct.productPath.trim().isNotEmpty) {
+        final uri = Uri.parse(
+          '${ApiClient.imageBaseUrl}/products/${currentProduct.productPath}',
+        );
+        final response = await http
+            .get(uri)
+            .timeout(const Duration(seconds: 30));
+        if (response.statusCode != 200 || response.bodyBytes.isEmpty) {
+          throw Exception('Product image download failed');
+        }
+        final mimeType = response.headers['content-type']
+            ?.split(';')
+            .first
+            .trim();
+        if (mimeType != null && !mimeType.startsWith('image/')) {
+          throw Exception('Invalid product image');
+        }
+        files.add(XFile.fromData(response.bodyBytes, mimeType: mimeType));
+        names.add(uri.pathSegments.last);
+      }
+      if (!mounted) return;
+      await SharePlus.instance.share(
+        ShareParams(
+          text: sections.join('\n\n'),
+          files: files.isEmpty ? null : files,
+          fileNameOverrides: names.isEmpty ? null : names,
+          sharePositionOrigin: origin,
+        ),
+      );
+    } catch (_) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Unable to share product. Please try again.'),
+          ),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _isSharing = false);
+    }
   }
 
   // ============================================================

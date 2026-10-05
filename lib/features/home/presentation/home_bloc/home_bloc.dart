@@ -314,6 +314,7 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
       final HomeVisitEntity
           updatedHomeData =
           HomeVisitEntity(
+        currentMonth: oldHomeData?.currentMonth ?? '',
         // --------------------------------------------------------
         // EXISTING HOME API DATA
         // --------------------------------------------------------
@@ -513,6 +514,7 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
       final HomeVisitEntity
           mergedData =
           HomeVisitEntity(
+        currentMonth: response.currentMonth,
         // --------------------------------------------------------
         // DATA FROM HOME VISIT API
         // --------------------------------------------------------

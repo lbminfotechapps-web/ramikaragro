@@ -102,157 +102,112 @@ class HomeDatasource {
     return responseData;
   }
 
+  Future<HomeVisitModel> getHomeVisitCount({required String userId}) async {
+    try {
+      print('======================================');
+      print('GET HOME VISIT COUNT API');
+      print('USER ID: $userId');
+      print('======================================');
 
+      final formData = FormData.fromMap({'userId': userId});
 
+      final response = await dioClient.client.post(
+        ApiClient.getEmployeeVisitCount,
+        data: formData,
+      );
 
-  // Future<HomeVisitModel> getHomeVisitCount({required String userId}) async {
-  //   final formdata = FormData.fromMap({"userId": userId});
-  //   final response = await dioClient.client.post(
-  //     ApiClient.getEmployeeVisitCount,
-  //     data: formdata,
-  //   );
+      print('STATUS CODE: ${response.statusCode}');
 
-  //   print('home visit data %%%%%%%%$response');
+      print(
+        'RESPONSE TYPE: '
+        '${response.data.runtimeType}',
+      );
 
-  //   final responseString = response.data.toString().trim();
+      print(
+        'HOME VISIT RESPONSE: '
+        '${response.data}',
+      );
 
-  //   final Map<String, dynamic> jsonData = jsonDecode(responseString);
+      dynamic data = response.data;
 
-  //   return HomeVisitModel.fromJson(jsonData);
-  // }
+      // ------------------------------------------------------------
+      // API STRING RESPONSE
+      // ------------------------------------------------------------
 
-Future<HomeVisitModel> getHomeVisitCount({
-  required String userId,
-}) async {
-  try {
-    print('======================================');
-    print('GET HOME VISIT COUNT API');
-    print('USER ID: $userId');
-    print('======================================');
+      if (data is String) {
+        final raw = data.trim();
 
-    final formData = FormData.fromMap({
-      'userId': userId,
-    });
+        if (raw.isEmpty) {
+          throw const FormatException('Empty home visit response');
+        }
 
-    final response =
-        await dioClient.client.post(
-      ApiClient.getEmployeeVisitCount,
-      data: formData,
-    );
+        data = jsonDecode(raw);
+      }
 
-    print(
-      'STATUS CODE: ${response.statusCode}',
-    );
+      // ------------------------------------------------------------
+      // VALIDATE RESPONSE
+      // ------------------------------------------------------------
 
-    print(
-      'RESPONSE TYPE: '
-      '${response.data.runtimeType}',
-    );
-
-    print(
-      'HOME VISIT RESPONSE: '
-      '${response.data}',
-    );
-
-    dynamic data = response.data;
-
-    // ------------------------------------------------------------
-    // API STRING RESPONSE
-    // ------------------------------------------------------------
-
-    if (data is String) {
-      final raw = data.trim();
-
-      if (raw.isEmpty) {
-        throw const FormatException(
-          'Empty home visit response',
+      if (data is! Map) {
+        throw FormatException(
+          'Invalid home visit response: '
+          '${data.runtimeType}',
         );
       }
 
-      data = jsonDecode(raw);
-    }
+      final Map<String, dynamic> jsonData = Map<String, dynamic>.from(data);
 
-    // ------------------------------------------------------------
-    // VALIDATE RESPONSE
-    // ------------------------------------------------------------
+      // ------------------------------------------------------------
+      // MODEL
+      // ------------------------------------------------------------
 
-    if (data is! Map) {
-      throw FormatException(
-        'Invalid home visit response: '
-        '${data.runtimeType}',
-      );
-    }
+      final model = HomeVisitModel.fromJson(jsonData);
 
-    final Map<String, dynamic> jsonData =
-        Map<String, dynamic>.from(data);
+      print('======================================');
 
-    // ------------------------------------------------------------
-    // MODEL
-    // ------------------------------------------------------------
-
-    final model =
-        HomeVisitModel.fromJson(
-      jsonData,
-    );
-
-    print('======================================');
-
-    print(
-      'TOTAL DEALER COUNT: '
-      '${model.totalDealerCount}',
-    );
-
-    print(
-      'TOTAL FARMER COUNT: '
-      '${model.totalFarmerCount}',
-    );
-
-    print(
-      'DAY WISE COUNT: '
-      '${model.dayWise.length}',
-    );
-
-    for (final item in model.dayWise) {
       print(
-        '${item.date} -> '
-        'Dealer: ${item.dealerCount} | '
-        'Farmer: ${item.farmerCount}',
+        'TOTAL DEALER COUNT: '
+        '${model.totalDealerCount}',
       );
+
+      print(
+        'TOTAL FARMER COUNT: '
+        '${model.totalFarmerCount}',
+      );
+
+      print(
+        'DAY WISE COUNT: '
+        '${model.dayWise.length}',
+      );
+
+      for (final item in model.dayWise) {
+        print(
+          '${item.date} -> '
+          'Dealer: ${item.dealerCount} | '
+          'Farmer: ${item.farmerCount}',
+        );
+      }
+
+      print('======================================');
+
+      return model;
+    } on DioException catch (e) {
+      print(
+        'HOME VISIT DIO ERROR: '
+        '${e.message}',
+      );
+
+      print('RESPONSE: ${e.response?.data}');
+
+      throw Exception(e.message ?? 'Home visit network error');
+    } catch (e, stackTrace) {
+      print('HOME VISIT ERROR: $e');
+
+      print('STACK TRACE: $stackTrace');
+
+      rethrow;
     }
-
-    print('======================================');
-
-    return model;
-  } on DioException catch (e) {
-    print(
-      'HOME VISIT DIO ERROR: '
-      '${e.message}',
-    );
-
-    print(
-      'RESPONSE: ${e.response?.data}',
-    );
-
-    throw Exception(
-      e.message ??
-          'Home visit network error',
-    );
-  } catch (e, stackTrace) {
-    print(
-      'HOME VISIT ERROR: $e',
-    );
-
-    print(
-      'STACK TRACE: $stackTrace',
-    );
-
-    rethrow;
   }
-}
-
-
-
-
 
   Future<InpunchPendingResponseModel> getInpunchPending(String userId) async {
     try {

@@ -92,6 +92,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:solufine/core/utility/widgets/app_status_frame.dart';
 import 'package:solufine/core/di/auth_di.dart';
 import 'package:solufine/core/notifications/notification_navigation_service.dart';
 import 'package:solufine/core/router/app_router.dart';
@@ -233,7 +234,7 @@ class _MyAppState extends State<MyApp> {
         builder: (context, child) {
           return Container(
             decoration: AppColor.appGradientDecoration,
-            child: child,
+            child: AppStatusFrame(child: child ?? const SizedBox.shrink()),
           );
         },
 

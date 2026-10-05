@@ -179,8 +179,10 @@ class _ConnectionStatusRowState extends State<ConnectionStatusRow>
               Text(_network),
             ],
           ),
-          Tooltip(
-            message: 'Current device download + upload traffic',
+          Semantics(
+            label: 'Current device download and upload traffic: '
+                '${formatNetworkSpeed(_speed)}',
+            excludeSemantics: true,
             child: Text('↕ ${formatNetworkSpeed(_speed)}'),
           ),
         ],

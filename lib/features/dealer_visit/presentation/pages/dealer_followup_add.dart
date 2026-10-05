@@ -4,10 +4,8 @@ import 'dart:io';
 import 'package:solufine/core/di/auth_di.dart';
 import 'package:solufine/core/location_tracking/app_database.dart';
 import 'package:solufine/core/location_tracking/location_repository.dart';
-import 'package:solufine/core/router/app_router.dart';
 import 'package:solufine/core/secure_storage/secure_storage.dart';
 import 'package:solufine/core/theme/app_colors.dart';
-import 'package:solufine/core/utility/app_image_picker.dart';
 import 'package:solufine/core/utility/appdialog.dart';
 import 'package:solufine/core/utility/cameracapturepage.dart';
 import 'package:solufine/core/utility/data_list.dart';
@@ -22,8 +20,6 @@ import 'package:solufine/features/dealer_visit/presentation/bloc/add_dealer_visi
 import 'package:solufine/features/dealer_visit/presentation/bloc/add_dealer_visit_state.dart';
 import 'package:solufine/features/farmer/farmerregistration/domain/entity/district_entity.dart';
 import 'package:solufine/features/farmer/farmerregistration/domain/entity/state_entity.dart';
-import 'package:solufine/features/farmer/farmerregistration/presentation/bloc/state_bloc.dart';
-import 'package:solufine/features/farmer/farmerregistration/presentation/bloc/states_state.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil_plus/flutter_screenutil_plus.dart';
@@ -272,7 +268,7 @@ class _DealerFollowupAddState extends State<DealerFollowupAdd> {
           type: 'Dealer',
           outletName: shopNameController.text.trim(),
           contactPerson: ownerNameController.text.trim(),
-          gstNo: gstController.text.trim(),
+          gstNo: gstController.text.trim().toUpperCase(),
           mobileNo: mobileController.text.trim(),
           mobileNo2: alternateMobileController.text.trim(),
           emailId: emailController.text.trim(),
@@ -298,7 +294,9 @@ class _DealerFollowupAddState extends State<DealerFollowupAdd> {
           strBatteryInfo: batteryInfo,
           registrationType: _selectedDealerType.toString(),
           flag: '1',
-          dealerCode: dealerCodeController.text.trim(),
+          dealerCode: _selectedDealerType == 'EXISTING'
+              ? dealerCodeController.text.trim()
+              : '',
           activityId: '1',
           selfieCaptureImage: _uploadedImage?.path ?? '',
         ),
@@ -650,6 +648,7 @@ class _DealerFollowupAddState extends State<DealerFollowupAdd> {
       return;
     }
 
+    if (!mounted) return;
     // Load districts for NEW state
     context.read<AddDealerVisitBlock>().add(
       DistrictEvent(userId: userId.toString(), stateId: stateId),
@@ -665,12 +664,12 @@ class _DealerFollowupAddState extends State<DealerFollowupAdd> {
         showBackButton: true,
         onBackTap: () => Navigator.pop(context),
       ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
-      floatingActionButton:
+      resizeToAvoidBottomInset: true,
+      bottomNavigationBar:
           BlocBuilder<AddDealerVisitBlock, AddDealerVisitState>(
             builder: (context, state) {
-              return Padding(
-                padding: const EdgeInsets.only(left: 16, right: 16),
+              return SafeArea(
+                minimum: const EdgeInsets.fromLTRB(16, 8, 16, 12),
                 child: CustomButton(
                   text: 'Register Dealer',
                   onPressed: isLoading || _submissionCompleted ? null : _submit,
@@ -847,6 +846,9 @@ class _DealerFollowupAddState extends State<DealerFollowupAdd> {
                       onChanged: (value) {
                         setState(() {
                           _selectedDealerType = value;
+                          if (value != 'EXISTING') {
+                            dealerCodeController.clear();
+                          }
                         });
 
                         debugPrint(
@@ -880,14 +882,15 @@ class _DealerFollowupAddState extends State<DealerFollowupAdd> {
 
                     SizedBox(height: 10.h),
 
-                    CustomTextFormField(
-                      controller: dealerCodeController,
-                      hintText: 'Dealer Code',
-                      labelText: 'Dealer Code',
-                      prefixIcon: Icons.person_outline,
-                    ),
-
-                    SizedBox(height: 10.h),
+                    if (_selectedDealerType == 'EXISTING') ...[
+                      CustomTextFormField(
+                        controller: dealerCodeController,
+                        hintText: 'Dealer Code',
+                        labelText: 'Dealer Code',
+                        prefixIcon: Icons.person_outline,
+                      ),
+                      SizedBox(height: 10.h),
+                    ],
 
                     CustomTextFormField(
                       controller: ownerNameController,
@@ -953,6 +956,17 @@ class _DealerFollowupAddState extends State<DealerFollowupAdd> {
                       labelText: 'GST No',
                       prefixIcon: Icons.receipt_long_outlined,
                       keyboardType: TextInputType.text,
+                      maxLength: 15,
+                      validator: (value) {
+                        final gst = value?.trim().toUpperCase() ?? '';
+                        if (gst.isEmpty) return null;
+                        if (!RegExp(
+                          r'^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z][1-9A-Z]Z[0-9A-Z]$',
+                        ).hasMatch(gst)) {
+                          return 'Enter a valid 15-character GST number';
+                        }
+                        return null;
+                      },
                     ),
 
                     SizedBox(height: 10.h),
@@ -1224,7 +1238,7 @@ class _DealerFollowupAddState extends State<DealerFollowupAdd> {
                       prefixIcon: Icons.note,
                       maxLines: 2,
                     ),
-                    const SizedBox(height: 100),
+                    SizedBox(height: 24.h),
                   ],
                 ),
               ),
@@ -1314,8 +1328,6 @@ class _DealerFollowupAddState extends State<DealerFollowupAdd> {
               ),
             ),
           ),
-
-          SizedBox(height: 12.h),
 
           // Image capture area
           InkWell(
