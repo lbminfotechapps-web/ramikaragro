@@ -8,4 +8,10 @@ abstract class LoginRepository {
     String mobileInfo,
     String macAddress,
   );
+
+  Future<void> changePassword(
+    String oldPassword,
+    String newPassword,
+    String empId,
+  );
 }
