@@ -36,4 +36,18 @@ class LoginUsecase {
       throw Exception('Failed to login: $e');
     }
   }
+
+  Future<void> changePassword(
+    String oldPassword,
+    String newPassword,
+    String empId,
+  ) async {
+    final response = await loginRepository.changePassword(
+      oldPassword,
+      newPassword,
+      empId,
+    );
+
+    return response;
+  }
 }

@@ -10,6 +10,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
 
   AuthBloc(this._loginUsecase) : super(const AuthState()) {
     on<LoginEvent>(_onLogin);
+    on<ChangePasswordEvent>(_onChangePassword);
   }
 
   FutureOr<void> _onLogin(LoginEvent event, Emitter<AuthState> emit) async {
@@ -36,6 +37,31 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
           ),
         );
       }
+    } catch (e) {
+      emit(
+        state.copyWith(
+          loginStatus: LoginStatus.failure,
+          errorMessage: e.toString(),
+        ),
+      );
+    }
+  }
+
+  FutureOr<void> _onChangePassword(
+    ChangePasswordEvent event,
+    Emitter<AuthState> emit,
+  ) async {
+    emit(state.copyWith(loginStatus: LoginStatus.loading, errorMessage: null));
+
+    try {
+      await _loginUsecase.changePassword(
+        event.oldPassword,
+        event.newPassword,
+        event.empId,
+      );
+      emit(
+        state.copyWith(loginStatus: LoginStatus.success, errorMessage: null),
+      );
     } catch (e) {
       emit(
         state.copyWith(

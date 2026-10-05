@@ -167,7 +167,7 @@ class _ProfilePageState extends State<ProfilePage> {
         title: 'My Profile',
         showBackButton: true,
         onBackTap: () {
-          context.pop();
+        context.push('/home');
         },
       ),
       body: _isLoading

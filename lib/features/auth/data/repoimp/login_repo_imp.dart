@@ -15,7 +15,7 @@ class LoginRepoImp implements LoginRepository {
     String username,
     String password,
     String fcmToken,
-     String mobileInfo,
+    String mobileInfo,
     String macAddress,
   ) async {
     try {
@@ -24,7 +24,7 @@ class LoginRepoImp implements LoginRepository {
         password,
         fcmToken,
         mobileInfo,
-        macAddress
+        macAddress,
       );
 
       await secureStorage.saveUserData({
@@ -60,5 +60,14 @@ class LoginRepoImp implements LoginRepository {
     } catch (e) {
       throw Exception('Failed to login: $e');
     }
+  }
+
+  @override
+  Future<void> changePassword(
+    String oldPassword,
+    String newPassword,
+    String empId,
+  ) async {
+    await authDatasource.changePassword(oldPassword, newPassword, empId);
   }
 }
