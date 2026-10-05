@@ -1007,34 +1007,7 @@ DateTime toDate = DateTime(
               : const Color(0xFFFFE8B8),
         ),
       ),
-      child: Row(
-        mainAxisSize:
-            MainAxisSize.min,
-        children: [
-          Icon(
-            isPhone
-                ? Icons.timer
-                : Icons.location_on_outlined,
-            size: 12,
-            color: isPhone
-                ? const Color(0xFF178A45)
-                : const Color(0xFFB76B00),
-          ),
-
-          const SizedBox(width: 4),
-
-          Text(
-            type,
-            style: TextStyle(
-              fontSize: 9,
-              fontWeight: FontWeight.w700,
-              color: isPhone
-                  ? const Color(0xFF178A45)
-                  : const Color(0xFFB76B00),
-            ),
-          ),
-        ],
-      ),
+     
     );
   }
 

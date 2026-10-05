@@ -26,26 +26,31 @@ class _MyExpenseCardState extends State<MyExpenseCard> {
     final bool approved = expense.status == '1';
 
     return Container(
-      margin: const EdgeInsets.only(bottom: 15),
+      // ============================================================
+      // OPTIMIZED OUTER SPACE
+      // ============================================================
+      margin: const EdgeInsets.only(bottom: 8),
+
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(22),
+        borderRadius: BorderRadius.circular(16),
         border: Border.all(color: const Color(0xFFE3EAE5)),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.035),
-            blurRadius: 15,
-            offset: const Offset(0, 5),
+            color: Colors.black.withOpacity(0.03),
+            blurRadius: 8,
+            offset: const Offset(0, 3),
           ),
         ],
       ),
+
       child: Column(
         children: [
           // ============================================================
           // MAIN CARD
           // ============================================================
           Padding(
-            padding: const EdgeInsets.all(16),
+            padding: const EdgeInsets.all(11),
             child: Column(
               children: [
                 // ======================================================
@@ -55,22 +60,22 @@ class _MyExpenseCardState extends State<MyExpenseCard> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Container(
-                      width: 52,
-                      height: 52,
+                      width: 30,
+                      height: 30,
                       decoration: BoxDecoration(
                         gradient: const LinearGradient(
                           colors: [Color(0xFFE8F5ED), Color(0xFFD8EEE0)],
                         ),
-                        borderRadius: BorderRadius.circular(17),
+                        borderRadius: BorderRadius.circular(13),
                       ),
                       child: const Icon(
                         Icons.receipt_long_rounded,
                         color: mediumGreen,
-                        size: 26,
+                        size: 21,
                       ),
                     ),
 
-                    const SizedBox(width: 12),
+                    const SizedBox(width: 9),
 
                     Expanded(
                       child: Column(
@@ -79,91 +84,73 @@ class _MyExpenseCardState extends State<MyExpenseCard> {
                           const Text(
                             'EXPENSE DATE',
                             style: TextStyle(
-                              fontSize: 9,
-                              letterSpacing: 0.7,
+                              fontSize: 8,
+                              letterSpacing: 0.5,
                               color: Color(0xFF8A938D),
                               fontWeight: FontWeight.w800,
                             ),
                           ),
 
-                          const SizedBox(height: 4),
+                          const SizedBox(height: 2),
 
                           Text(
                             expense.expenseDate,
                             style: const TextStyle(
-                              fontSize: 16,
+                              fontSize: 14,
                               fontWeight: FontWeight.w900,
                               color: Color(0xFF18231C),
                             ),
                           ),
+
+                      
                         ],
                       ),
                     ),
 
-                    const SizedBox(width: 8),
+                   
+
+                  
+              
+
+                     Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Text(
+                            'Daily Total',
+                            style: TextStyle(
+                              fontSize: 8,
+                              letterSpacing: 0.5,
+                              color: Color(0xFF8A938D),
+                              fontWeight: FontWeight.w800,
+                            ),
+                          ),
+
+                          const SizedBox(height: 2),
+
+                          Text(
+                           '₹ ${expense.dailyTotal}',
+                            style: const TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w900,
+                              color: Color(0xFF18231C),
+                            ),
+                          ),
+
+                    
+                        ],
+                      ),
+                    ),
+
+                    const SizedBox(width: 6),
 
                     _statusBadge(approved),
                   ],
                 ),
 
-                const SizedBox(height: 18),
+                const SizedBox(height: 10),
 
-                // ======================================================
-                // TOTAL EXPENSE
-                // ======================================================
-                Container(
-                  width: double.infinity,
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 15,
-                    vertical: 14,
-                  ),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFFF6F9F7),
-                    borderRadius: BorderRadius.circular(17),
-                  ),
-                  child: Row(
-                    children: [
-                      const Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              'TOTAL EXPENSE',
-                              style: TextStyle(
-                                fontSize: 9,
-                                letterSpacing: 0.5,
-                                color: Color(0xFF8A938D),
-                                fontWeight: FontWeight.w800,
-                              ),
-                            ),
-
-                            SizedBox(height: 4),
-
-                            Text(
-                              'Daily total',
-                              style: TextStyle(
-                                fontSize: 11,
-                                color: Color(0xFF69756E),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-
-                      Text(
-                        '₹ ${expense.dailyTotal}',
-                        style: const TextStyle(
-                          fontSize: 21,
-                          fontWeight: FontWeight.w900,
-                          color: primaryGreen,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-
-                const SizedBox(height: 12),
-
+               
                 // ======================================================
                 // VISITED PLACE + TRAVEL MODE
                 // ======================================================
@@ -177,7 +164,7 @@ class _MyExpenseCardState extends State<MyExpenseCard> {
                       ),
                     ),
 
-                    const SizedBox(width: 10),
+                    const SizedBox(width: 6),
 
                     Expanded(
                       child: _infoItem(
@@ -193,7 +180,7 @@ class _MyExpenseCardState extends State<MyExpenseCard> {
                 // REPORTING STATUS
                 // ======================================================
                 if (expense.reportingStatus.trim().isNotEmpty) ...[
-                  const SizedBox(height: 10),
+                  const SizedBox(height: 7),
 
                   _buildStatusBox(
                     title: 'REPORTING STATUS',
@@ -207,7 +194,7 @@ class _MyExpenseCardState extends State<MyExpenseCard> {
                 // ADMIN STATUS
                 // ======================================================
                 if (expense.adminStatus.trim().isNotEmpty) ...[
-                  const SizedBox(height: 10),
+                  const SizedBox(height: 7),
 
                   _buildStatusBox(
                     title: 'ADMIN STATUS',
@@ -221,12 +208,12 @@ class _MyExpenseCardState extends State<MyExpenseCard> {
                 // REMARK
                 // ======================================================
                 if (expense.remark.trim().isNotEmpty) ...[
-                  const SizedBox(height: 10),
+                  const SizedBox(height: 7),
 
                   _buildRemarkBox(expense.remark),
                 ],
 
-                const SizedBox(height: 14),
+                const SizedBox(height: 9),
 
                 // ======================================================
                 // VIEW DETAILS BUTTON
@@ -234,7 +221,7 @@ class _MyExpenseCardState extends State<MyExpenseCard> {
                 Material(
                   color: Colors.transparent,
                   child: InkWell(
-                    borderRadius: BorderRadius.circular(15),
+                    borderRadius: BorderRadius.circular(12),
                     onTap: () {
                       setState(() {
                         showDetails = !showDetails;
@@ -244,12 +231,12 @@ class _MyExpenseCardState extends State<MyExpenseCard> {
                       duration: const Duration(milliseconds: 250),
                       width: double.infinity,
                       padding: const EdgeInsets.symmetric(
-                        horizontal: 14,
-                        vertical: 12,
+                        horizontal: 11,
+                        vertical: 9,
                       ),
                       decoration: BoxDecoration(
                         color: showDetails ? primaryGreen : lightGreen,
-                        borderRadius: BorderRadius.circular(15),
+                        borderRadius: BorderRadius.circular(12),
                       ),
                       child: Row(
                         children: [
@@ -257,18 +244,18 @@ class _MyExpenseCardState extends State<MyExpenseCard> {
                             showDetails
                                 ? Icons.keyboard_arrow_up_rounded
                                 : Icons.keyboard_arrow_down_rounded,
-                            size: 21,
+                            size: 19,
                             color: showDetails ? Colors.white : primaryGreen,
                           ),
 
-                          const SizedBox(width: 7),
+                          const SizedBox(width: 5),
 
                           Text(
                             showDetails
                                 ? 'Hide Expense Details'
                                 : 'View Expense Details',
                             style: TextStyle(
-                              fontSize: 11,
+                              fontSize: 10,
                               fontWeight: FontWeight.w800,
                               color: showDetails ? Colors.white : primaryGreen,
                             ),
@@ -278,19 +265,19 @@ class _MyExpenseCardState extends State<MyExpenseCard> {
 
                           Container(
                             padding: const EdgeInsets.symmetric(
-                              horizontal: 8,
-                              vertical: 4,
+                              horizontal: 7,
+                              vertical: 3,
                             ),
                             decoration: BoxDecoration(
                               color: showDetails
                                   ? Colors.white.withOpacity(0.15)
                                   : Colors.white,
-                              borderRadius: BorderRadius.circular(10),
+                              borderRadius: BorderRadius.circular(8),
                             ),
                             child: Text(
                               '${expense.details.length}',
                               style: TextStyle(
-                                fontSize: 10,
+                                fontSize: 9,
                                 fontWeight: FontWeight.w900,
                                 color: showDetails ? Colors.white : mediumGreen,
                               ),
@@ -327,17 +314,17 @@ class _MyExpenseCardState extends State<MyExpenseCard> {
 
   Widget _statusBadge(bool approved) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
       decoration: BoxDecoration(
         color: approved ? const Color(0xFFE8F5E9) : const Color(0xFFFFF4E5),
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(9),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
           Container(
-            width: 6,
-            height: 6,
+            width: 5,
+            height: 5,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
               color: approved
@@ -346,12 +333,12 @@ class _MyExpenseCardState extends State<MyExpenseCard> {
             ),
           ),
 
-          const SizedBox(width: 5),
+          const SizedBox(width: 4),
 
           Text(
             approved ? 'Approved' : 'Pending',
             style: TextStyle(
-              fontSize: 9,
+              fontSize: 8,
               fontWeight: FontWeight.w900,
               color: approved
                   ? const Color(0xFF2E7D32)
@@ -419,6 +406,10 @@ class _MyExpenseCardState extends State<MyExpenseCard> {
     }
   }
 
+  // ==================================================================
+  // STATUS BOX
+  // ==================================================================
+
   Widget _buildStatusBox({
     required String title,
     required String value,
@@ -427,25 +418,25 @@ class _MyExpenseCardState extends State<MyExpenseCard> {
   }) {
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.symmetric(horizontal: 11, vertical: 9),
+      padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 7),
       decoration: BoxDecoration(
         color: color.withOpacity(0.055),
-        borderRadius: BorderRadius.circular(13),
+        borderRadius: BorderRadius.circular(10),
         border: Border.all(color: color.withOpacity(0.13)),
       ),
       child: Row(
         children: [
           Container(
-            width: 34,
-            height: 34,
+            width: 29,
+            height: 29,
             decoration: BoxDecoration(
               color: color.withOpacity(0.10),
               shape: BoxShape.circle,
             ),
-            child: Icon(icon, size: 17, color: color),
+            child: Icon(icon, size: 15, color: color),
           ),
 
-          const SizedBox(width: 10),
+          const SizedBox(width: 8),
 
           Expanded(
             child: Column(
@@ -456,21 +447,21 @@ class _MyExpenseCardState extends State<MyExpenseCard> {
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: TextStyle(
-                    fontSize: 8,
-                    letterSpacing: 0.5,
+                    fontSize: 7,
+                    letterSpacing: 0.4,
                     color: color,
                     fontWeight: FontWeight.w900,
                   ),
                 ),
 
-                const SizedBox(height: 3),
+                const SizedBox(height: 2),
 
                 Text(
                   _statusDisplayText(value),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: TextStyle(
-                    fontSize: 11,
+                    fontSize: 10,
                     color: color,
                     fontWeight: FontWeight.w900,
                   ),
@@ -490,30 +481,30 @@ class _MyExpenseCardState extends State<MyExpenseCard> {
   Widget _buildRemarkBox(String remark) {
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.symmetric(horizontal: 11, vertical: 9),
+      padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 7),
       decoration: BoxDecoration(
         color: const Color(0xFFF3F7FF),
-        borderRadius: BorderRadius.circular(13),
+        borderRadius: BorderRadius.circular(10),
         border: Border.all(color: const Color(0xFFDCE7FA)),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Container(
-            width: 34,
-            height: 34,
-            decoration: BoxDecoration(
-              color: const Color(0xFFE6EEFF),
+            width: 29,
+            height: 29,
+            decoration: const BoxDecoration(
+              color: Color(0xFFE6EEFF),
               shape: BoxShape.circle,
             ),
             child: const Icon(
               Icons.notes_rounded,
-              size: 17,
+              size: 15,
               color: Color(0xFF4267A8),
             ),
           ),
 
-          const SizedBox(width: 10),
+          const SizedBox(width: 8),
 
           Expanded(
             child: Column(
@@ -522,22 +513,22 @@ class _MyExpenseCardState extends State<MyExpenseCard> {
                 const Text(
                   'REMARK',
                   style: TextStyle(
-                    fontSize: 8,
-                    letterSpacing: 0.5,
+                    fontSize: 7,
+                    letterSpacing: 0.4,
                     color: Color(0xFF4267A8),
                     fontWeight: FontWeight.w900,
                   ),
                 ),
 
-                const SizedBox(height: 3),
+                const SizedBox(height: 2),
 
                 Text(
                   remark,
                   style: const TextStyle(
-                    fontSize: 10,
+                    fontSize: 9,
                     color: Color(0xFF37474F),
                     fontWeight: FontWeight.w600,
-                    height: 1.3,
+                    height: 1.2,
                   ),
                 ),
               ],
@@ -558,25 +549,25 @@ class _MyExpenseCardState extends State<MyExpenseCard> {
     required String value,
   }) {
     return Container(
-      padding: const EdgeInsets.all(11),
+      padding: const EdgeInsets.all(8),
       decoration: BoxDecoration(
         color: const Color(0xFFFAFCFA),
-        borderRadius: BorderRadius.circular(15),
+        borderRadius: BorderRadius.circular(11),
         border: Border.all(color: const Color(0xFFEDF1EE)),
       ),
       child: Row(
         children: [
           Container(
-            width: 32,
-            height: 32,
+            width: 27,
+            height: 27,
             decoration: BoxDecoration(
               color: lightGreen,
-              borderRadius: BorderRadius.circular(10),
+              borderRadius: BorderRadius.circular(8),
             ),
-            child: Icon(icon, size: 16, color: mediumGreen),
+            child: Icon(icon, size: 14, color: mediumGreen),
           ),
 
-          const SizedBox(width: 8),
+          const SizedBox(width: 6),
 
           Expanded(
             child: Column(
@@ -587,20 +578,20 @@ class _MyExpenseCardState extends State<MyExpenseCard> {
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: const TextStyle(
-                    fontSize: 8,
+                    fontSize: 7,
                     color: Color(0xFF8A938D),
                     fontWeight: FontWeight.w700,
                   ),
                 ),
 
-                const SizedBox(height: 3),
+                const SizedBox(height: 2),
 
                 Text(
                   value.isEmpty ? '-' : value,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: const TextStyle(
-                    fontSize: 10,
+                    fontSize: 9,
                     fontWeight: FontWeight.w800,
                     color: Color(0xFF263229),
                   ),
@@ -620,34 +611,34 @@ class _MyExpenseCardState extends State<MyExpenseCard> {
   Widget _buildDetails(MyExpenseEntity expense) {
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+      padding: const EdgeInsets.fromLTRB(11, 0, 11, 11),
       decoration: const BoxDecoration(
         color: Color(0xFFF7FAF8),
         borderRadius: BorderRadius.only(
-          bottomLeft: Radius.circular(22),
-          bottomRight: Radius.circular(22),
+          bottomLeft: Radius.circular(16),
+          bottomRight: Radius.circular(16),
         ),
       ),
       child: Column(
         children: [
           const Divider(height: 1, color: Color(0xFFE3EAE5)),
 
-          const SizedBox(height: 14),
+          const SizedBox(height: 9),
 
           const Align(
             alignment: Alignment.centerLeft,
             child: Text(
               'EXPENSE BREAKDOWN',
               style: TextStyle(
-                fontSize: 10,
-                letterSpacing: 0.8,
+                fontSize: 9,
+                letterSpacing: 0.6,
                 fontWeight: FontWeight.w900,
                 color: Color(0xFF6D7971),
               ),
             ),
           ),
 
-          const SizedBox(height: 10),
+          const SizedBox(height: 7),
 
           ...expense.details.map((detail) {
             return _detailItem(
@@ -695,11 +686,11 @@ class _MyExpenseCardState extends State<MyExpenseCard> {
     final bool hasImage = image.trim().isNotEmpty;
 
     return Container(
-      margin: const EdgeInsets.only(bottom: 10),
-      padding: const EdgeInsets.all(11),
+      margin: const EdgeInsets.only(bottom: 7),
+      padding: const EdgeInsets.all(8),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(14),
+        borderRadius: BorderRadius.circular(11),
         border: Border.all(color: const Color(0xFFE6ECE8)),
       ),
       child: Column(
@@ -710,22 +701,22 @@ class _MyExpenseCardState extends State<MyExpenseCard> {
           Row(
             children: [
               Container(
-                width: 36,
-                height: 36,
+                width: 30,
+                height: 30,
                 decoration: BoxDecoration(
                   color: lightGreen,
-                  borderRadius: BorderRadius.circular(11),
+                  borderRadius: BorderRadius.circular(8),
                 ),
-                child: Icon(icon, size: 18, color: mediumGreen),
+                child: Icon(icon, size: 15, color: mediumGreen),
               ),
 
-              const SizedBox(width: 10),
+              const SizedBox(width: 8),
 
               Expanded(
                 child: Text(
                   name.isEmpty ? 'Expense' : name,
                   style: const TextStyle(
-                    fontSize: 11,
+                    fontSize: 10,
                     fontWeight: FontWeight.w800,
                     color: Color(0xFF263229),
                   ),
@@ -735,7 +726,7 @@ class _MyExpenseCardState extends State<MyExpenseCard> {
               Text(
                 '₹ $amount',
                 style: const TextStyle(
-                  fontSize: 12,
+                  fontSize: 11,
                   fontWeight: FontWeight.w900,
                   color: primaryGreen,
                 ),
@@ -747,20 +738,20 @@ class _MyExpenseCardState extends State<MyExpenseCard> {
           // IMAGE
           // ============================================================
           if (hasImage) ...[
-            const SizedBox(height: 10),
+            const SizedBox(height: 7),
 
             GestureDetector(
               onTap: () {
                 _showExpenseImage(context, image, name);
               },
               child: ClipRRect(
-                borderRadius: BorderRadius.circular(12),
+                borderRadius: BorderRadius.circular(10),
                 child: Stack(
                   children: [
                     Image.network(
                       '${ApiClient.imageExpensetUrl}$image',
                       width: double.infinity,
-                      height: 180,
+                      height: 135,
                       fit: BoxFit.cover,
 
                       // Loading
@@ -771,14 +762,14 @@ class _MyExpenseCardState extends State<MyExpenseCard> {
 
                         return Container(
                           width: double.infinity,
-                          height: 180,
+                          height: 135,
                           decoration: BoxDecoration(
                             color: const Color(0xFFF1F5F2),
-                            borderRadius: BorderRadius.circular(12),
+                            borderRadius: BorderRadius.circular(10),
                           ),
                           child: Center(
                             child: CircularProgressIndicator(
-                              strokeWidth: 2.5,
+                              strokeWidth: 2,
                               color: mediumGreen,
                               value: loadingProgress.expectedTotalBytes != null
                                   ? loadingProgress.cumulativeBytesLoaded /
@@ -793,44 +784,44 @@ class _MyExpenseCardState extends State<MyExpenseCard> {
                       errorBuilder: (context, error, stackTrace) {
                         return Container(
                           width: double.infinity,
-                          height: 180,
+                          height: 135,
                           decoration: BoxDecoration(
                             color: const Color(0xFFFFF5F5),
-                            borderRadius: BorderRadius.circular(12),
+                            borderRadius: BorderRadius.circular(10),
                           ),
                           child: Column(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
                               const Icon(
                                 Icons.broken_image_outlined,
-                                size: 36,
+                                size: 28,
                                 color: Color(0xFFC62828),
                               ),
 
-                              const SizedBox(height: 8),
+                              const SizedBox(height: 5),
 
                               const Text(
                                 'Unable to load image',
                                 style: TextStyle(
-                                  fontSize: 11,
+                                  fontSize: 9,
                                   fontWeight: FontWeight.w700,
                                   color: Color(0xFFC62828),
                                 ),
                               ),
 
-                              const SizedBox(height: 4),
+                              const SizedBox(height: 3),
 
                               Padding(
                                 padding: const EdgeInsets.symmetric(
-                                  horizontal: 16,
+                                  horizontal: 12,
                                 ),
                                 child: Text(
                                   image,
-                                  maxLines: 2,
+                                  maxLines: 1,
                                   textAlign: TextAlign.center,
                                   overflow: TextOverflow.ellipsis,
                                   style: const TextStyle(
-                                    fontSize: 9,
+                                    fontSize: 8,
                                     color: Color(0xFF8A938D),
                                   ),
                                 ),
@@ -841,20 +832,17 @@ class _MyExpenseCardState extends State<MyExpenseCard> {
                       },
                     ),
 
-                    // ==================================================
-                    // VIEW IMAGE OVERLAY
-                    // ==================================================
                     Positioned(
-                      right: 10,
-                      bottom: 10,
+                      right: 7,
+                      bottom: 7,
                       child: Container(
                         padding: const EdgeInsets.symmetric(
-                          horizontal: 10,
-                          vertical: 7,
+                          horizontal: 7,
+                          vertical: 4,
                         ),
                         decoration: BoxDecoration(
                           color: Colors.black.withOpacity(0.65),
-                          borderRadius: BorderRadius.circular(20),
+                          borderRadius: BorderRadius.circular(14),
                         ),
                         child: const Row(
                           mainAxisSize: MainAxisSize.min,
@@ -862,14 +850,16 @@ class _MyExpenseCardState extends State<MyExpenseCard> {
                             Icon(
                               Icons.zoom_in_rounded,
                               color: Colors.white,
-                              size: 15,
+                              size: 12,
                             ),
-                            SizedBox(width: 5),
+
+                            SizedBox(width: 3),
+
                             Text(
                               'View',
                               style: TextStyle(
                                 color: Colors.white,
-                                fontSize: 9,
+                                fontSize: 8,
                                 fontWeight: FontWeight.w800,
                               ),
                             ),
@@ -904,12 +894,12 @@ class _MyExpenseCardState extends State<MyExpenseCard> {
       builder: (dialogContext) {
         return Dialog(
           backgroundColor: Colors.transparent,
-          insetPadding: const EdgeInsets.all(12),
+          insetPadding: const EdgeInsets.all(10),
           child: Container(
             width: double.infinity,
             decoration: BoxDecoration(
               color: Colors.black,
-              borderRadius: BorderRadius.circular(20),
+              borderRadius: BorderRadius.circular(16),
             ),
             child: Column(
               mainAxisSize: MainAxisSize.min,
@@ -918,7 +908,7 @@ class _MyExpenseCardState extends State<MyExpenseCard> {
                 // HEADER
                 // ======================================================
                 Padding(
-                  padding: const EdgeInsets.fromLTRB(16, 14, 10, 10),
+                  padding: const EdgeInsets.fromLTRB(13, 9, 7, 7),
                   child: Row(
                     children: [
                       Expanded(
@@ -928,19 +918,21 @@ class _MyExpenseCardState extends State<MyExpenseCard> {
                           overflow: TextOverflow.ellipsis,
                           style: const TextStyle(
                             color: Colors.white,
-                            fontSize: 15,
+                            fontSize: 13,
                             fontWeight: FontWeight.w800,
                           ),
                         ),
                       ),
 
                       IconButton(
+                        visualDensity: VisualDensity.compact,
                         onPressed: () {
                           Navigator.pop(dialogContext);
                         },
                         icon: const Icon(
                           Icons.close_rounded,
                           color: Colors.white,
+                          size: 21,
                         ),
                       ),
                     ],
@@ -964,7 +956,7 @@ class _MyExpenseCardState extends State<MyExpenseCard> {
                         }
 
                         return const SizedBox(
-                          height: 350,
+                          height: 300,
                           child: Center(
                             child: CircularProgressIndicator(
                               color: Colors.white,
@@ -975,7 +967,7 @@ class _MyExpenseCardState extends State<MyExpenseCard> {
 
                       errorBuilder: (context, error, stackTrace) {
                         return const SizedBox(
-                          height: 350,
+                          height: 300,
                           child: Center(
                             child: Column(
                               mainAxisAlignment: MainAxisAlignment.center,
@@ -983,16 +975,16 @@ class _MyExpenseCardState extends State<MyExpenseCard> {
                                 Icon(
                                   Icons.broken_image_outlined,
                                   color: Colors.white70,
-                                  size: 50,
+                                  size: 42,
                                 ),
 
-                                SizedBox(height: 12),
+                                SizedBox(height: 8),
 
                                 Text(
                                   'Unable to load image',
                                   style: TextStyle(
                                     color: Colors.white70,
-                                    fontSize: 13,
+                                    fontSize: 11,
                                   ),
                                 ),
                               ],
@@ -1004,19 +996,19 @@ class _MyExpenseCardState extends State<MyExpenseCard> {
                   ),
                 ),
 
-                const SizedBox(height: 14),
+                const SizedBox(height: 8),
 
                 // ======================================================
                 // IMAGE NAME
                 // ======================================================
                 Padding(
-                  padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+                  padding: const EdgeInsets.fromLTRB(12, 0, 12, 10),
                   child: Text(
                     imageName,
-                    maxLines: 2,
+                    maxLines: 1,
                     textAlign: TextAlign.center,
                     overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(color: Colors.white54, fontSize: 10),
+                    style: const TextStyle(color: Colors.white54, fontSize: 9),
                   ),
                 ),
               ],

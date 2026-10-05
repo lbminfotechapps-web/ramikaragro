@@ -217,70 +217,116 @@ class _FarmerlistScreenState extends State<FarmerlistScreen> {
                 child: Row(
                   children: [
                     SizedBox(height: 14.h),
-                    Expanded(
-                      child: Container(
-                        height: 48,
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(14),
-                          border: Border.all(color: Colors.grey.shade200),
-                        ),
-                        child: TextField(
-                          controller: _searchController,
-                          textInputAction: TextInputAction.search,
-                          decoration: InputDecoration(
-                            hintText: 'Search farmer...',
-                            hintStyle: TextStyle(
-                              fontSize: 13,
-                              color: Colors.grey.shade500,
-                            ),
-                            prefixIcon: Icon(
-                              Icons.search,
-                              color: Colors.grey.shade600,
-                            ),
-                            suffixIcon: _searchController.text.isNotEmpty
-                                ? IconButton(
-                                    onPressed: () {
-                                      _searchTimer?.cancel();
+                  
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Container(
+                              height: 48,
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                borderRadius: BorderRadius.circular(14),
+                                border: Border.all(
+                                  color: Colors.grey.shade200,
+                                ),
+                              ),
+                              child: TextField(
+                                controller: _searchController,
+                                textInputAction: TextInputAction.search,
 
-                                      _searchController.clear();
+                                decoration: InputDecoration(
+                                  hintText: 'Search farmer...',
+                                  hintStyle: TextStyle(
+                                    fontSize: 13,
+                                    color: Colors.grey.shade500,
+                                  ),
 
-                                      setState(() {
-                                        _startLimit = 0;
-                                        _hasMore = true;
-                                      });
+                                  prefixIcon: Icon(
+                                    Icons.search,
+                                    color: Colors.grey.shade600,
+                                  ),
 
-                                      _loadFarmers(
-                                        searchKey: '',
-                                        startLimit: 0,
-                                        isLoadMore: false,
-                                      );
-                                    },
-                                    icon: const Icon(Icons.close),
-                                  )
-                                : null,
-                            border: InputBorder.none,
-                            contentPadding: const EdgeInsets.symmetric(
-                              vertical: 14,
+                                  suffixIcon:
+                                      _searchController.text.isNotEmpty
+                                          ? IconButton(
+                                              onPressed: () {
+                                                _searchTimer?.cancel();
+
+                                                _searchController.clear();
+
+                                                setState(() {
+                                                  _startLimit = 0;
+                                                  _hasMore = true;
+                                                });
+
+                                                _loadFarmers(
+                                                  searchKey: '',
+                                                  startLimit: 0,
+                                                  isLoadMore: false,
+                                                );
+                                              },
+                                              icon: const Icon(
+                                                Icons.close,
+                                              ),
+                                            )
+                                          : null,
+
+                                  border: InputBorder.none,
+
+                                  contentPadding:
+                                      const EdgeInsets.symmetric(
+                                    vertical: 14,
+                                  ),
+                                ),
+
+                                onChanged: (value) {
+                                  setState(() {});
+
+                                  _searchFarmers(
+                                    value,
+                                  );
+                                },
+
+                                onSubmitted: (value) {
+                                  _searchTimer?.cancel();
+
+                                  _startLimit = 0;
+                                  _hasMore = true;
+
+                                  _loadFarmers(
+                                    searchKey: value.trim(),
+                                    startLimit: 0,
+                                    isLoadMore: false,
+                                  );
+                                },
+                              ),
                             ),
-                          ),
-                          onChanged: (value) {
-                            setState(() {});
-                            _searchFarmers(value);
-                          },
-                          onSubmitted: (value) {
-                            _searchTimer?.cancel();
-                            _startLimit = 0;
-                            _hasMore = true;
-                            _loadFarmers(
-                              searchKey: value.trim(),
-                              startLimit: 0,
-                              isLoadMore: false,
-                            );
-                          },
+
+                            const SizedBox(
+                              height: 4,
+                            ),
+
+                            const Padding(
+                              padding: EdgeInsets.only(
+                                left: 6,
+                              ),
+                              child: Text(
+                                'Search after 3 characters. After searching wait for 2 sec..!',
+                                style: TextStyle(
+                                  fontSize: 10,
+                                  color: Colors.red,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                            ),
+                          ],
                         ),
                       ),
-                    ),
+
+
+
+
 
                     // const SizedBox(width: 10),
 
@@ -489,13 +535,38 @@ class _FarmerListItem extends StatelessWidget {
             padding: EdgeInsets.symmetric(vertical: 10),
             child: Divider(height: 1, color: Color(0xFFF0F1EF)),
           ),
+
+
+          // _FarmerDetail(
+          //   icon: Icons.phone_outlined,
+          //   label: 'Mobile Number',
+          //   text: farmer.farmerPhone.isEmpty
+          //       ? 'Not available'
+          //       : farmer.farmerPhone,
+          // ),
+
+
           _FarmerDetail(
             icon: Icons.phone_outlined,
             label: 'Mobile Number',
             text: farmer.farmerPhone.isEmpty
                 ? 'Not available'
                 : farmer.farmerPhone,
+            onTap: farmer.farmerPhone.isEmpty
+                ? null
+                : () {
+                    callFarmer(
+                      farmer.farmerPhone,
+                    );
+
+                    FarmerCallEvent(
+                      farmer.farmerId,
+                      farmer.farmerPhone,
+                    );
+                  },
           ),
+
+
           const SizedBox(height: 8),
           _FarmerDetail(
             icon: Icons.location_on_outlined,
@@ -610,56 +681,74 @@ class _FarmerListItem extends StatelessWidget {
   }
 }
 
+
+
 class _FarmerDetail extends StatelessWidget {
   final IconData icon;
   final String label;
   final String text;
+  final VoidCallback? onTap;
+
   const _FarmerDetail({
     required this.icon,
     required this.label,
     required this.text,
+    this.onTap,
   });
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Container(
-          width: 28,
-          height: 28,
-          decoration: BoxDecoration(
-            color: const Color(0xFFEDF5EF),
-            borderRadius: BorderRadius.circular(7),
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(8),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            width: 28,
+            height: 28,
+            decoration: BoxDecoration(
+              color: const Color(0xFFEDF5EF),
+              borderRadius: BorderRadius.circular(7),
+            ),
+            child: Icon(
+              icon,
+              size: 15,
+              color: AppColors.primary,
+            ),
           ),
-          child: Icon(icon, size: 15, color: AppColors.primary),
-        ),
-        const SizedBox(width: 8),
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                label,
-                style: const TextStyle(
-                  fontSize: 9,
-                  color: AppColors.textSecondary,
+          const SizedBox(width: 8),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  label,
+                  style: const TextStyle(
+                    fontSize: 9,
+                    color: AppColors.textSecondary,
+                  ),
                 ),
-              ),
-              const SizedBox(height: 2),
-              Text(
-                text,
-                style: const TextStyle(
-                  fontSize: 12,
-                  height: 1.25,
-                  fontWeight: FontWeight.w600,
-                  color: Color(0xFF18231C),
+                const SizedBox(height: 2),
+                Text(
+                  text,
+                  style: TextStyle(
+                    fontSize: 12,
+                    height: 1.25,
+                    fontWeight: FontWeight.w600,
+                    color: onTap != null
+                        ? AppColors.primary
+                        : const Color(0xFF18231C),
+                    decoration: onTap != null
+                        ? TextDecoration.underline
+                        : TextDecoration.none,
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 }

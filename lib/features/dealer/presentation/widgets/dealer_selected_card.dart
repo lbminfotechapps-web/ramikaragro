@@ -229,53 +229,57 @@ class DealerSelectorCard extends StatelessWidget {
                       0xFFE1E7E2),
                 ),
               ),
+
+
               child: TextField(
                 controller: controller,
                 onChanged: onChanged,
-                decoration:
-                    InputDecoration(
-                  hintText:
-                      'Search dealer name or mobile...',
-                  hintStyle:
-                      TextStyle(
+                decoration: InputDecoration(
+                  hintText: 'Search dealer name or mobile...',
+                  hintStyle: TextStyle(
                     fontSize: 12.sp,
-                    color: AppColors
-                        .textSecondary,
+                    color: AppColors.textSecondary,
                   ),
+
                   prefixIcon: Icon(
                     Icons.search,
-                    color:
-                        AppColors.primary,
+                    color: AppColors.primary,
                     size: 20.sp,
                   ),
-                  suffixIcon:
-                      query.isNotEmpty
-                          ? IconButton(
-                              onPressed:
-                                  () {
-                                controller
-                                    .clear();
 
-                                onChanged(
-                                    '');
-                              },
-                              icon: Icon(
-                                Icons
-                                    .close_rounded,
-                                size:
-                                    18.sp,
-                              ),
-                            )
-                          : null,
-                  border:
-                      InputBorder.none,
-                  contentPadding:
-                      EdgeInsets
-                          .symmetric(
+                  suffixIcon: query.isNotEmpty
+                      ? IconButton(
+                          onPressed: () {
+                            controller.clear();
+                            onChanged('');
+                          },
+                          icon: Icon(
+                            Icons.close_rounded,
+                            size: 18.sp,
+                          ),
+                        )
+                      : null,
+
+                  helperText:
+                      '    Search after 4 characters. After searching wait for 2 sec..!',
+                  helperStyle: TextStyle(
+                    fontSize: 9.sp,
+                    color: Colors.red,
+                    fontWeight: FontWeight.w500,
+                  ),
+                  helperMaxLines: 1,
+
+                  border: InputBorder.none,
+                  enabledBorder: InputBorder.none,
+                  focusedBorder: InputBorder.none,
+
+                  contentPadding: EdgeInsets.symmetric(
                     vertical: 14.h,
                   ),
                 ),
               ),
+
+
             ),
 
             if (showDealers) ...[
