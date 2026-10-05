@@ -419,6 +419,11 @@ class ProductCard extends StatelessWidget {
             },
           ),
 
+
+          
+
+
+
           SizedBox(width: 5.w),
 
           // DELETE PACKING
@@ -542,12 +547,13 @@ class ProductCard extends StatelessWidget {
 // Add More bottom sheet, this field also receives and displays the new value.
 // ============================================================================
 
+
+
 class _CaseQuantityField
     extends StatefulWidget {
   final int quantity;
 
-  final ValueChanged<int>
-      onChanged;
+  final ValueChanged<int> onChanged;
 
   const _CaseQuantityField({
     super.key,
@@ -566,6 +572,9 @@ class _CaseQuantityFieldState
   late final TextEditingController
       _controller;
 
+  late final FocusNode
+      _focusNode;
+
   @override
   void initState() {
     super.initState();
@@ -573,60 +582,118 @@ class _CaseQuantityFieldState
     _controller =
         TextEditingController(
       text: widget.quantity > 0
-          ? widget.quantity
-              .toString()
+          ? widget.quantity.toString()
           : '',
+    );
+
+    _focusNode =
+        FocusNode();
+
+    _focusNode.addListener(
+      _onFocusChanged,
     );
   }
 
   // ============================================================
-  // VERY IMPORTANT
-  //
-  // When Add More bottom sheet returns,
-  // Bloc quantity changes.
-  //
-  // ProductCard rebuilds.
-  //
-  // didUpdateWidget receives that new quantity and updates text.
+  // FOCUS CHANGE
+  // ============================================================
+
+  void _onFocusChanged() {
+    // User is typing.
+    // Don't overwrite controller.
+    if (_focusNode.hasFocus) {
+      return;
+    }
+
+    // User finished typing.
+    // Now sync external quantity if needed.
+    _syncText(
+      widget.quantity,
+    );
+  }
+
+  // ============================================================
+  // EXTERNAL QUANTITY UPDATE
   // ============================================================
 
   @override
   void didUpdateWidget(
-    covariant _CaseQuantityField
-        oldWidget,
+    covariant _CaseQuantityField oldWidget,
   ) {
     super.didUpdateWidget(
       oldWidget,
     );
 
-    if (oldWidget.quantity !=
+    if (oldWidget.quantity ==
         widget.quantity) {
-      final String newText =
-          widget.quantity > 0
-              ? widget.quantity
-                  .toString()
-              : '';
-
-      if (_controller.text !=
-          newText) {
-        _controller.value =
-            TextEditingValue(
-          text: newText,
-          selection:
-              TextSelection.collapsed(
-            offset: newText.length,
-          ),
-        );
-      }
+      return;
     }
+
+    // ==========================================================
+    // IMPORTANT FIX
+    //
+    // If user is typing:
+    // 22 -> delete -> 2 -> type 1 -> 21
+    //
+    // DON'T overwrite controller from Bloc rebuild.
+    // ==========================================================
+
+    if (_focusNode.hasFocus) {
+      return;
+    }
+
+    _syncText(
+      widget.quantity,
+    );
   }
+
+  // ============================================================
+  // SYNC CONTROLLER
+  // ============================================================
+
+  void _syncText(
+    int quantity,
+  ) {
+    final String newText =
+        quantity > 0
+            ? quantity.toString()
+            : '';
+
+    if (_controller.text ==
+        newText) {
+      return;
+    }
+
+    _controller.value =
+        TextEditingValue(
+      text: newText,
+      selection:
+          TextSelection.collapsed(
+        offset:
+            newText.length,
+      ),
+    );
+  }
+
+  // ============================================================
+  // DISPOSE
+  // ============================================================
 
   @override
   void dispose() {
+    _focusNode.removeListener(
+      _onFocusChanged,
+    );
+
+    _focusNode.dispose();
     _controller.dispose();
 
     super.dispose();
   }
+
+  // ============================================================
+  // BUILD
+  // ============================================================
 
   @override
   Widget build(
@@ -638,6 +705,9 @@ class _CaseQuantityFieldState
       child: TextFormField(
         controller:
             _controller,
+
+        focusNode:
+            _focusNode,
 
         keyboardType:
             TextInputType.number,
@@ -671,19 +741,23 @@ class _CaseQuantityFieldState
             fontSize: 8.sp,
             fontWeight:
                 FontWeight.w500,
-            color: AppColors
-                .textSecondary,
+            color:
+                AppColors.textSecondary,
           ),
 
-          isDense: true,
+          isDense:
+              true,
 
           contentPadding:
               EdgeInsets.symmetric(
-            horizontal: 5.w,
-            vertical: 8.h,
+            horizontal:
+                5.w,
+            vertical:
+                8.h,
           ),
 
-          filled: true,
+          filled:
+              true,
 
           fillColor:
               Colors.white,
@@ -698,7 +772,8 @@ class _CaseQuantityFieldState
                 BorderSide(
               color:
                   AppColors.border,
-              width: 1,
+              width:
+                  1,
             ),
           ),
 
@@ -712,7 +787,8 @@ class _CaseQuantityFieldState
                 BorderSide(
               color:
                   AppColors.primary,
-              width: 1.3,
+              width:
+                  1.3,
             ),
           ),
 
@@ -739,28 +815,45 @@ class _CaseQuantityFieldState
                 const BorderSide(
               color:
                   Colors.red,
-              width: 1.3,
+              width:
+                  1.3,
             ),
           ),
         ),
 
+        // ======================================================
+        // USER ENTERS QUANTITY
+        // ======================================================
+
         onChanged: (value) {
-          final int quantity =
+          final String cleanValue =
+              value.trim();
+
+          if (cleanValue.isEmpty) {
+            widget.onChanged(0);
+            return;
+          }
+
+          final int? quantity =
               int.tryParse(
-                    value.trim(),
-                  ) ??
-                  0;
+            cleanValue,
+          );
+
+          if (quantity == null) {
+            return;
+          }
 
           widget.onChanged(
             quantity,
           );
         },
 
+        // ======================================================
+        // DONE
+        // ======================================================
+
         onFieldSubmitted: (_) {
-          FocusManager
-              .instance
-              .primaryFocus
-              ?.unfocus();
+          _focusNode.unfocus();
         },
       ),
     );
