@@ -282,17 +282,20 @@ void _setQuantity(
   int quantity,
 ) {
   final productQuantities =
-      _packingQuantities.putIfAbsent(
+      _packingQuantities
+          .putIfAbsent(
     productId,
     () => <String, int>{},
   );
 
-  productQuantities[productDetailsId] = quantity;
+  productQuantities[
+          productDetailsId] =
+      quantity;
 
   debugPrint(
-    'CASE QUANTITY => '
-    'product=$productId '
-    'details=$productDetailsId '
+    'BOTTOM SHEET QUANTITY => '
+    'product=$productId | '
+    'details=$productDetailsId | '
     'quantity=$quantity',
   );
 }
@@ -391,7 +394,9 @@ void _setQuantity(
   void _toggleRate(
     String productId,
     ProductRateEntity rate,
-  ) {
+  )
+  
+   {
     final current = List<ProductRateEntity>.from(
       _selectedRates[productId] ??
           <ProductRateEntity>[],
@@ -443,9 +448,9 @@ void _setQuantity(
           rate.productDetailsId.toString();
 
       productQuantities.putIfAbsent(
-        productDetailsId,
-        () => 1,
-      );
+  productDetailsId,
+  () => 0,
+);
 
       debugPrint(
         'Packing selected: '
@@ -1472,7 +1477,7 @@ Widget _buildQuantityControl({
           TextAlign.center,
       decoration:
           InputDecoration(
-        hintText: 'Enter Case',
+        hintText: 'Case',
         isDense: true,
         border: OutlineInputBorder(
           borderRadius:
