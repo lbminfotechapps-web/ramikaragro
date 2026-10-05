@@ -96,7 +96,7 @@ class _FarmerlistScreenState extends State<FarmerlistScreen> {
       _startLimit = startLimit;
       _hasMore = true;
     }
-   
+
     if (!mounted) return;
     context.read<FarmerListBloc>().add(
       FarmerListEvent(
@@ -217,65 +217,116 @@ class _FarmerlistScreenState extends State<FarmerlistScreen> {
                 child: Row(
                   children: [
                     SizedBox(height: 14.h),
-                  
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Container(
-                              height: 48,
-                              decoration: BoxDecoration(
-                                color: Colors.white,
-                                borderRadius: BorderRadius.circular(14),
-                                border: Border.all(
-                                  color: Colors.grey.shade200,
-                                ),
-                              ),
-                              child: TextField(
+
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Container(
+                            height: 48,
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(14),
+                              border: Border.all(color: Colors.grey.shade200),
+                            ),
+                            child: _FarmerSearchAnimation(
+                              controller: _searchController,
+                              builder: (context, index) => TextField(
                                 controller: _searchController,
                                 textInputAction: TextInputAction.search,
 
                                 decoration: InputDecoration(
-                                  hintText: 'Search farmer...',
+                                  hint: AnimatedSwitcher(
+                                    duration: Duration(
+                                      milliseconds:
+                                          MediaQuery.disableAnimationsOf(
+                                            context,
+                                          )
+                                          ? 0
+                                          : 400,
+                                    ),
+                                    layoutBuilder: (child, previous) => Stack(
+                                      alignment:
+                                          AlignmentDirectional.centerStart,
+                                      children: [...previous, ?child],
+                                    ),
+                                    transitionBuilder: (child, animation) =>
+                                        FadeTransition(
+                                          opacity: animation,
+                                          child: SlideTransition(
+                                            position: Tween<Offset>(
+                                              begin: const Offset(0, 0.35),
+                                              end: Offset.zero,
+                                            ).animate(animation),
+                                            child: child,
+                                          ),
+                                        ),
+                                    child: Text(
+                                      index == 0
+                                          ? 'Search farmer name'
+                                          : 'Search with mobile no',
+                                      key: ValueKey(index),
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                      style: TextStyle(
+                                        fontSize: 13,
+                                        color: Colors.grey.shade500,
+                                      ),
+                                    ),
+                                  ),
                                   hintStyle: TextStyle(
                                     fontSize: 13,
                                     color: Colors.grey.shade500,
                                   ),
 
-                                  prefixIcon: Icon(
-                                    Icons.search,
-                                    color: Colors.grey.shade600,
+                                  prefixIcon: AnimatedSwitcher(
+                                    duration: Duration(
+                                      milliseconds:
+                                          MediaQuery.disableAnimationsOf(
+                                            context,
+                                          )
+                                          ? 0
+                                          : 400,
+                                    ),
+                                    child: Icon(
+                                      _searchController.text.isNotEmpty ||
+                                              index == 0
+                                          ? Icons.search_rounded
+                                          : Icons.phone_android_rounded,
+                                      key: ValueKey(
+                                        _searchController.text.isNotEmpty
+                                            ? 0
+                                            : index,
+                                      ),
+                                      color: Colors.grey.shade600,
+                                    ),
                                   ),
 
-                                  suffixIcon:
-                                      _searchController.text.isNotEmpty
-                                          ? IconButton(
-                                              onPressed: () {
-                                                _searchTimer?.cancel();
+                                  suffixIcon: _searchController.text.isNotEmpty
+                                      ? IconButton(
+                                          onPressed: () {
+                                            _searchTimer?.cancel();
 
-                                                _searchController.clear();
+                                            _searchController.clear();
 
-                                                setState(() {
-                                                  _startLimit = 0;
-                                                  _hasMore = true;
-                                                });
+                                            setState(() {
+                                              _startLimit = 0;
+                                              _hasMore = true;
+                                            });
 
-                                                _loadFarmers(
-                                                  searchKey: '',
-                                                  startLimit: 0,
-                                                  isLoadMore: false,
-                                                );
-                                              },
-                                              icon: const Icon(
-                                                Icons.close,
-                                              ),
-                                            )
-                                          : null,
+                                            _loadFarmers(
+                                              searchKey: '',
+                                              startLimit: 0,
+                                              isLoadMore: false,
+                                            );
+                                          },
+                                          icon: const Icon(Icons.close),
+                                        )
+                                      : null,
 
                                   border: InputBorder.none,
 
-                                  contentPadding:
-                                      const EdgeInsets.symmetric(
+                                  contentPadding: const EdgeInsets.symmetric(
                                     vertical: 14,
                                   ),
                                 ),
@@ -283,9 +334,7 @@ class _FarmerlistScreenState extends State<FarmerlistScreen> {
                                 onChanged: (value) {
                                   setState(() {});
 
-                                  _searchFarmers(
-                                    value,
-                                  );
+                                  _searchFarmers(value);
                                 },
 
                                 onSubmitted: (value) {
@@ -302,31 +351,24 @@ class _FarmerlistScreenState extends State<FarmerlistScreen> {
                                 },
                               ),
                             ),
+                          ),
 
-                            const SizedBox(
-                              height: 4,
-                            ),
+                          const SizedBox(height: 4),
 
-                            const Padding(
-                              padding: EdgeInsets.only(
-                                left: 6,
-                              ),
-                              child: Text(
-                                'Search after 3 characters. After searching wait for 2 sec..!',
-                                style: TextStyle(
-                                  fontSize: 10,
-                                  color: Colors.red,
-                                  fontWeight: FontWeight.w500,
-                                ),
+                          const Padding(
+                            padding: EdgeInsets.only(left: 6),
+                            child: Text(
+                              'Search after 3 characters. After searching wait for 2 sec..!',
+                              style: TextStyle(
+                                fontSize: 10,
+                                color: Colors.red,
+                                fontWeight: FontWeight.w500,
                               ),
                             ),
-                          ],
-                        ),
+                          ),
+                        ],
                       ),
-
-
-
-
+                    ),
 
                     // const SizedBox(width: 10),
 
@@ -536,7 +578,6 @@ class _FarmerListItem extends StatelessWidget {
             child: Divider(height: 1, color: Color(0xFFF0F1EF)),
           ),
 
-
           // _FarmerDetail(
           //   icon: Icons.phone_outlined,
           //   label: 'Mobile Number',
@@ -544,8 +585,6 @@ class _FarmerListItem extends StatelessWidget {
           //       ? 'Not available'
           //       : farmer.farmerPhone,
           // ),
-
-
           _FarmerDetail(
             icon: Icons.phone_outlined,
             label: 'Mobile Number',
@@ -555,17 +594,11 @@ class _FarmerListItem extends StatelessWidget {
             onTap: farmer.farmerPhone.isEmpty
                 ? null
                 : () {
-                    callFarmer(
-                      farmer.farmerPhone,
-                    );
+                    callFarmer(farmer.farmerPhone);
 
-                    FarmerCallEvent(
-                      farmer.farmerId,
-                      farmer.farmerPhone,
-                    );
+                    FarmerCallEvent(farmer.farmerId, farmer.farmerPhone);
                   },
           ),
-
 
           const SizedBox(height: 8),
           _FarmerDetail(
@@ -681,8 +714,6 @@ class _FarmerListItem extends StatelessWidget {
   }
 }
 
-
-
 class _FarmerDetail extends StatelessWidget {
   final IconData icon;
   final String label;
@@ -711,11 +742,7 @@ class _FarmerDetail extends StatelessWidget {
               color: const Color(0xFFEDF5EF),
               borderRadius: BorderRadius.circular(7),
             ),
-            child: Icon(
-              icon,
-              size: 15,
-              color: AppColors.primary,
-            ),
+            child: Icon(icon, size: 15, color: AppColors.primary),
           ),
           const SizedBox(width: 8),
           Expanded(
@@ -929,4 +956,66 @@ String getCurrentTime() {
   return "$formattedHour:"
       "$formattedMinute "
       "$period";
+}
+
+class _FarmerSearchAnimation extends StatefulWidget {
+  final TextEditingController controller;
+  final Widget Function(BuildContext, int) builder;
+  const _FarmerSearchAnimation({
+    required this.controller,
+    required this.builder,
+  });
+
+  @override
+  State<_FarmerSearchAnimation> createState() => _FarmerSearchAnimationState();
+}
+
+class _FarmerSearchAnimationState extends State<_FarmerSearchAnimation> {
+  Timer? _timer;
+  int _index = 0;
+  double _dragDistance = 0;
+
+  void _advance() {
+    if (!mounted ||
+        widget.controller.text.isNotEmpty ||
+        !TickerMode.valuesOf(context).enabled) {
+      return;
+    }
+    setState(() => _index = 1 - _index);
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _timer?.cancel();
+    if (!MediaQuery.disableAnimationsOf(context)) {
+      _timer = Timer.periodic(const Duration(seconds: 3), (_) => _advance());
+    }
+  }
+
+  @override
+  void dispose() {
+    _timer?.cancel();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) => GestureDetector(
+    onHorizontalDragStart: widget.controller.text.isEmpty
+        ? (_) => _dragDistance = 0
+        : null,
+    onHorizontalDragUpdate: widget.controller.text.isEmpty
+        ? (details) => _dragDistance += details.delta.dx
+        : null,
+    onHorizontalDragEnd: widget.controller.text.isEmpty
+        ? (details) {
+            if (_dragDistance.abs() >= 24 ||
+                (details.primaryVelocity ?? 0).abs() > 100) {
+              _advance();
+            }
+            _dragDistance = 0;
+          }
+        : null,
+    child: widget.builder(context, _index),
+  );
 }

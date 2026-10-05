@@ -257,18 +257,6 @@ class _QuickAccessSectionState extends State<QuickAccessSection> {
     debugPrint('SHARE LOCATION EVENT DISPATCHED SUCCESSFULLY');
 
     debugPrint('========================================');
-
-    // final String strAllLocations = await _getStoredLocations();
-    //           debugPrint('========================================');
-    //           debugPrint('CALLING STORE TRACK LOCATION API');
-    //           debugPrint('USER ID: $userId');
-    //           debugPrint('DAILY TRAN ID: ${state.dailyTranId}');
-    //           debugPrint('STR ALL LOCATIONS: $strAllLocations');
-    //           debugPrint('========================================');
-
-    //           context.read<QuickAcessBloc>().add(
-    //             StoreTrackLocation(userId, state.dailyTranId!, strAllLocations),
-    //           );
   }
 
   @override
@@ -656,9 +644,9 @@ class _QuickAccessSectionState extends State<QuickAccessSection> {
       gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
         crossAxisCount: crossAxisCount,
         crossAxisSpacing: 12.w,
-        mainAxisSpacing: 16.h,
+        mainAxisSpacing: 10.h,
         mainAxisExtent:
-            72.w + 12.h + 46.sp * MediaQuery.textScalerOf(context).scale(1),
+            72.w + 4.h + MediaQuery.textScalerOf(context).scale(11.sp) * 2.8,
       ),
       itemBuilder: (context, index) {
         if (showMore && index == menus.length) {
@@ -1148,13 +1136,13 @@ class _MenuShortcut extends StatelessWidget {
               ),
               child: FittedBox(fit: BoxFit.contain, child: icon),
             ),
-            SizedBox(height: 10.h),
+            SizedBox(height: 4.h),
             Expanded(
               child: Padding(
                 padding: EdgeInsets.symmetric(horizontal: 3.w),
                 child: Text(
                   title,
-                  maxLines: 3,
+                  maxLines: 2,
                   overflow: TextOverflow.ellipsis,
                   textAlign: TextAlign.center,
                   style: TextStyle(

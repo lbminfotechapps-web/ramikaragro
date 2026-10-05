@@ -326,7 +326,7 @@ class _SalesReturnHistoryPageState extends State<SalesReturnHistoryPage> {
             AnimatedCrossFade(
               firstChild: const SizedBox.shrink(),
               secondChild: Padding(
-                padding: EdgeInsets.fromLTRB(12.w, 0, 12.w, 15.h),
+                padding: EdgeInsets.fromLTRB(12.w, 8.h, 12.w, 15.h),
                 child:
                     BlocBuilder<
                       SalesReturnHistoryBloc,
