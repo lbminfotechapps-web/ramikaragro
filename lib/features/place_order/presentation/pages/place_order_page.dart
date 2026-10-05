@@ -2608,61 +2608,80 @@ class _PlaceOrderViewState extends State<_PlaceOrderView> {
                                 selectedRates[productId] ??
                                 <ProductRateEntity>[];
 
-                            return ProductCard(
-                              product: product,
-
-                              selectedRates: productRates,
-
-                              packingQuantities:
-                                  state.packingQuantities[productId] ??
-                                  <String, int>{},
-
-                              onAdd: () async {
-                                await _addProduct(product);
-                              },
-
-                              onAddMore: () async {
-                                await _openMultiProductSelector(
-                                  initialProductId: productId,
-                                );
-                              },
-
-                              onIncrease: (rate) {
-                                context.read<PlaceOrderBloc>().add(
-                                  IncreasePackingQuantityEvent(
-                                    productId: product.id.toString(),
-
-                                    productDetailsId: rate.productDetailsId
-                                        .toString(),
-                                  ),
-                                );
-                              },
-
-                              onDecrease: (rate) {
-                                context.read<PlaceOrderBloc>().add(
-                                  DecreasePackingQuantityEvent(
-                                    productId: product.id.toString(),
-
-                                    productDetailsId: rate.productDetailsId
-                                        .toString(),
-                                  ),
-                                );
-                              },
-
-                              // ===========================================================
-                              // NEW - DELETE PARTICULAR PACKING
-                              // ===========================================================
-                              onDeletePacking: (rate) {
-                                _deleteProductPacking(
+                          
+                                return ProductCard(
                                   product: product,
-                                  rate: rate,
-                                );
-                              },
 
-                              onDelete: () {
-                                _deleteProduct(product);
-                              },
-                            );
+                                  selectedRates: productRates,
+
+                                  packingQuantities:
+                                      state.packingQuantities[productId] ??
+                                      <String, int>{},
+
+                                  // ===========================================================
+                                  // ADD PRODUCT
+                                  // ===========================================================
+
+                                  onAdd: () async {
+                                    await _addProduct(product);
+                                  },
+
+                                  // ===========================================================
+                                  // ADD MORE PACKING
+                                  // ===========================================================
+
+                                  onAddMore: () async {
+                                    await _openMultiProductSelector(
+                                      initialProductId: productId,
+                                    );
+                                  },
+
+                                  // ===========================================================
+                                  // NEW - DIRECT ENTER CASE QUANTITY
+                                  // ===========================================================
+
+                                  onQuantityChanged: (
+                                    rate,
+                                    quantity,
+                                  ) {
+                                    context.read<PlaceOrderBloc>().add(
+                                      SetPackingQuantityEvent(
+                                        productId:
+                                            product.id.toString(),
+
+                                        productDetailsId:
+                                            rate.productDetailsId
+                                                .toString(),
+
+                                        quantity: quantity,
+                                      ),
+                                    );
+                                  },
+
+                                  // ===========================================================
+                                  // DELETE PARTICULAR PACKING
+                                  // ===========================================================
+
+                                  onDeletePacking: (rate) {
+                                    _deleteProductPacking(
+                                      product: product,
+                                      rate: rate,
+                                    );
+                                  },
+
+                                  // ===========================================================
+                                  // DELETE PRODUCT
+                                  // ===========================================================
+
+                                  onDelete: () {
+                                    _deleteProduct(product);
+                                  },
+                                );
+                                                            
+                    
+
+
+
                           }),
                       ],
                     ),

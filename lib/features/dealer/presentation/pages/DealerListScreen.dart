@@ -958,7 +958,11 @@ class _DealerListItem extends StatelessWidget {
                     onPressed: locationNotAvailable
                         ? onLocationTap
                         : () {
-                            context.push('/dealerpin', extra: dealer.outletId);
+                            // context.push('/dealerpin', extra: dealer.outletId);
+                            context.push(
+                              '/dealrFollowUpAddNew',
+                              extra: dealer.outletId,
+                            );
                           },
                     icon: Icon(
                       locationNotAvailable

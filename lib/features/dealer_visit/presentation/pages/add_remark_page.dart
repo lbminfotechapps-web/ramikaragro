@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
+import 'package:flutter_screenutil_plus/flutter_screenutil_plus.dart';
 import 'package:solufine/core/location_tracking/app_database.dart';
 import 'package:solufine/core/location_tracking/location_repository.dart';
 import 'package:solufine/core/utility/appdialog.dart';
@@ -15,6 +16,8 @@ import 'package:intl/intl.dart';
 import 'package:solufine/core/di/leave_list_di.dart';
 import 'package:solufine/core/router/app_router.dart';
 import 'package:solufine/core/secure_storage/secure_storage.dart';
+import 'package:solufine/core/utility/widgets/custom_appbar.dart';
+import 'package:solufine/features/dealer_visit/domain/entities/dealer_followup_list_entity.dart';
 import 'package:solufine/features/home/presentation/quick_aceess_bloc/quick_access_event.dart';
 import 'package:solufine/features/home/presentation/quick_aceess_bloc/quick_acess_bloc.dart';
 
@@ -698,10 +701,14 @@ class _AddDealerVisitPageState extends State<AddDealerVisitPage> {
 
           return Scaffold(
             backgroundColor: backgroundColor,
+            appBar: CustomAppBar(
+              title: 'Dealer Follow-up',
+              // subtitle: 'Add farmer follow-up',
+              showBackButton: true,
+              onBackTap: () => Navigator.pop(context),
+            ),
 
-            // ====================================================
-            // APP BAR
-            // ====================================================
+            /*
             appBar: AppBar(
               elevation: 0,
 
@@ -743,6 +750,7 @@ class _AddDealerVisitPageState extends State<AddDealerVisitPage> {
                 ],
               ),
             ),
+            */
 
             // ====================================================
             // BODY
@@ -754,18 +762,15 @@ class _AddDealerVisitPageState extends State<AddDealerVisitPage> {
                     child: SingleChildScrollView(
                       physics: const BouncingScrollPhysics(),
 
-                      padding: const EdgeInsets.fromLTRB(14, 12, 14, 14),
+                      padding: const EdgeInsets.only(left: 16, right: 16),
 
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
 
                         children: [
-                          // ======================================
-                          // DEALER HEADER
-                          // ======================================
-                          //Text(widget.dealerId),
-                          // _buildDealerHeader(),
-                          const SizedBox(height: 14),
+                          SizedBox(height: 14.h),
+                          _buildHistoryStrip(),
+                          const SizedBox(height: 18),
 
                           // ======================================
                           // FOLLOW-UP DETAILS
@@ -851,6 +856,97 @@ class _AddDealerVisitPageState extends State<AddDealerVisitPage> {
             ),
           );
         },
+      ),
+    );
+  }
+
+  void _showFollowupHistory() {
+    showDialog(
+      context: context,
+      barrierDismissible: true,
+      builder: (dialogContext) {
+        return _FollowupHistoryDialog(
+          dealerId: widget.dealerId,
+          dealerName: widget.dealerName,
+        );
+      },
+    );
+  }
+
+  Widget _buildHistoryStrip() {
+    return Material(
+      color: Colors.white,
+      borderRadius: BorderRadius.circular(16),
+      child: InkWell(
+        onTap: _showFollowupHistory,
+        borderRadius: BorderRadius.circular(16),
+        child: Container(
+          width: double.infinity,
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(color: const Color(0xFFDCE5E1)),
+          ),
+          child: Row(
+            children: [
+              Container(
+                height: 40,
+                width: 40,
+                decoration: BoxDecoration(
+                  color: const Color(0xFFE8F5F0),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: const Icon(
+                  Icons.history_rounded,
+                  color: Color(0xFF087F5B),
+                  size: 22,
+                ),
+              ),
+
+              const SizedBox(width: 12),
+
+              const Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Follow-up History',
+                      style: TextStyle(
+                        color: Color(0xFF172B24),
+                        fontSize: 14,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+
+                    SizedBox(height: 3),
+
+                    Text(
+                      'View previous dealer follow-ups',
+                      style: TextStyle(
+                        color: Color(0xFF7A8983),
+                        fontSize: 11.5,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+
+              Container(
+                height: 34,
+                width: 34,
+                decoration: BoxDecoration(
+                  color: const Color(0xFFF3F8F6),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: const Icon(
+                  Icons.arrow_forward_ios_rounded,
+                  size: 14,
+                  color: Color(0xFF087F5B),
+                ),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }
@@ -1604,6 +1700,532 @@ class _AddDealerVisitPageState extends State<AddDealerVisitPage> {
                     ],
                   ),
           ),
+        ),
+      ),
+    );
+  }
+}
+
+class _FollowupHistoryDialog extends StatefulWidget {
+  final String dealerId;
+  final String dealerName;
+
+  const _FollowupHistoryDialog({
+    required this.dealerId,
+    required this.dealerName,
+  });
+
+  @override
+  State<_FollowupHistoryDialog> createState() => _FollowupHistoryDialogState();
+}
+
+class _FollowupHistoryDialogState extends State<_FollowupHistoryDialog> {
+  late AddDealerVisitBlock dealerVisitBloc;
+
+  @override
+  void initState() {
+    super.initState();
+
+    // ============================================================
+    // CREATE DEALER FOLLOW-UP BLOC
+    // ============================================================
+
+    dealerVisitBloc = sl<AddDealerVisitBlock>();
+
+    debugPrint('HISTORY DEALER ID => ${widget.dealerId}');
+
+    // ============================================================
+    // LOAD DEALER FOLLOW-UP HISTORY
+    // ============================================================
+
+    dealerVisitBloc.add(GetFollowupEvent(widget.dealerId));
+  }
+
+  @override
+  void dispose() {
+    dealerVisitBloc.close();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocProvider.value(
+      value: dealerVisitBloc,
+      child: Dialog(
+        backgroundColor: Colors.transparent,
+        insetPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 30),
+        child: Container(
+          constraints: const BoxConstraints(maxHeight: 650),
+          decoration: BoxDecoration(
+            color: const Color(0xFFF6F8F7),
+            borderRadius: BorderRadius.circular(24),
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              // ====================================================
+              // HEADER
+              // ====================================================
+              _buildHeader(context),
+
+              // ====================================================
+              // HISTORY LIST
+              // ====================================================
+              Expanded(
+                child: BlocBuilder<AddDealerVisitBlock, AddDealerVisitState>(
+                  builder: (context, state) {
+                    // ==============================================
+                    // LOADING
+                    // ==============================================
+
+                    if (state.addLeaveStatus == AddDealerVisitStatus.loading) {
+                      return const Center(
+                        child: CircularProgressIndicator(
+                          color: Color(0xFF087F5B),
+                        ),
+                      );
+                    }
+
+                    final followups = state.followupList;
+
+                    debugPrint(
+                      'Dealer Followup History Count: '
+                      '${followups.length}',
+                    );
+
+                    // ==============================================
+                    // EMPTY
+                    // ==============================================
+
+                    if (followups.isEmpty) {
+                      return _buildEmpty();
+                    }
+
+                    // ==============================================
+                    // LIST
+                    // ==============================================
+
+                    return RefreshIndicator(
+                      color: const Color(0xFF087F5B),
+                      onRefresh: () async {
+                        dealerVisitBloc.add(GetFollowupEvent(widget.dealerId));
+
+                        await Future.delayed(const Duration(milliseconds: 500));
+                      },
+                      child: ListView.separated(
+                        padding: const EdgeInsets.fromLTRB(16, 14, 16, 20),
+                        physics: const AlwaysScrollableScrollPhysics(
+                          parent: BouncingScrollPhysics(),
+                        ),
+                        itemCount: followups.length,
+                        separatorBuilder: (_, __) => const SizedBox(height: 12),
+                        itemBuilder: (context, index) {
+                          final item = followups[index];
+
+                          return _buildHistoryItem(item, index + 1);
+                        },
+                      ),
+                    );
+                  },
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  // ===============================================================
+  // HEADER
+  // ===============================================================
+
+  Widget _buildHeader(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.fromLTRB(18, 18, 10, 16),
+      decoration: const BoxDecoration(
+        gradient: LinearGradient(
+          colors: [Color(0xFF087F5B), Color(0xFF0B9A70)],
+        ),
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      child: Row(
+        children: [
+          Container(
+            height: 42,
+            width: 42,
+            decoration: BoxDecoration(
+              color: Colors.white.withOpacity(.16),
+              borderRadius: BorderRadius.circular(13),
+            ),
+            child: const Icon(
+              Icons.history_rounded,
+              color: Colors.white,
+              size: 23,
+            ),
+          ),
+
+          const SizedBox(width: 12),
+
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text(
+                  'Dealer Follow-up History',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 17,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+
+                const SizedBox(height: 3),
+
+                // if (widget.dealerName.isNotEmpty)
+                //   Text(
+                //     widget.dealerName,
+                //     maxLines: 1,
+                //     overflow: TextOverflow.ellipsis,
+                //     style: TextStyle(
+                //       color: Colors.white.withOpacity(.85),
+                //       fontSize: 11.5,
+                //       fontWeight: FontWeight.w500,
+                //     ),
+                //   )
+                // else
+                //   Text(
+                //     'Dealer ID: ${widget.dealerId}',
+                //     style: TextStyle(
+                //       color: Colors.white.withOpacity(.8),
+                //       fontSize: 11.5,
+                //     ),
+                //   ),
+              ],
+            ),
+          ),
+
+          // =======================================================
+          // REFRESH
+          // =======================================================
+          IconButton(
+            tooltip: 'Refresh',
+            onPressed: () {
+              dealerVisitBloc.add(GetFollowupEvent(widget.dealerId));
+            },
+            icon: const Icon(Icons.refresh_rounded, color: Colors.white),
+          ),
+
+          // =======================================================
+          // CLOSE
+          // =======================================================
+          IconButton(
+            tooltip: 'Close',
+            onPressed: () {
+              Navigator.pop(context);
+            },
+            icon: const Icon(Icons.close_rounded, color: Colors.white),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // ===============================================================
+  // HISTORY ITEM
+  // ===============================================================
+
+  Widget _buildHistoryItem(DealerFollowupListEntity item, int index) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(15),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(17),
+        border: Border.all(color: const Color(0xFFDCE5E1)),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(.035),
+            blurRadius: 8,
+            offset: const Offset(0, 3),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // ========================================================
+          // DATE + TIME
+          // ========================================================
+          Row(
+            children: [
+              Expanded(
+                child: Wrap(
+                  spacing: 7,
+                  runSpacing: 7,
+                  children: [
+                    // DATE
+                    if (item.followupDate.isNotEmpty)
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 9,
+                          vertical: 6,
+                        ),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFE8F5F0),
+                          borderRadius: BorderRadius.circular(9),
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            const Icon(
+                              Icons.calendar_today_rounded,
+                              size: 13,
+                              color: Color(0xFF087F5B),
+                            ),
+
+                            const SizedBox(width: 5),
+
+                            Text(
+                              item.followupDate,
+                              style: const TextStyle(
+                                color: Color(0xFF087F5B),
+                                fontSize: 11.5,
+                                fontWeight: FontWeight.w700,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+
+                    // TIME
+                    if (item.followupTime.isNotEmpty)
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 9,
+                          vertical: 6,
+                        ),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFF3F6F5),
+                          borderRadius: BorderRadius.circular(9),
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            const Icon(
+                              Icons.access_time_rounded,
+                              size: 13,
+                              color: Color(0xFF7A8983),
+                            ),
+
+                            const SizedBox(width: 5),
+
+                            Text(
+                              item.followupTime,
+                              style: const TextStyle(
+                                color: Color(0xFF7A8983),
+                                fontSize: 11.5,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                  ],
+                ),
+              ),
+
+              const SizedBox(width: 8),
+
+              Container(
+                height: 28,
+                width: 28,
+                alignment: Alignment.center,
+                decoration: BoxDecoration(
+                  color: const Color(0xFFF0F7F4),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Text(
+                  '$index',
+                  style: const TextStyle(
+                    color: Color(0xFF087F5B),
+                    fontSize: 11,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+              ),
+            ],
+          ),
+
+          const SizedBox(height: 15),
+
+          // ========================================================
+          // EMPLOYEE
+          // ========================================================
+          _buildInfoRow(
+            icon: Icons.person_outline_rounded,
+            title: 'Employee',
+            value: item.admName.isEmpty ? '-' : item.admName,
+          ),
+
+          const SizedBox(height: 11),
+
+          // ========================================================
+          // DEALER
+          // ========================================================
+          _buildInfoRow(
+            icon: Icons.storefront_outlined,
+            title: 'Dealer',
+            value: item.outletName.isEmpty ? '-' : item.outletName,
+          ),
+
+          const SizedBox(height: 13),
+
+          // ========================================================
+          // REMARK
+          // ========================================================
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: const Color(0xFFF5F8F6),
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Row(
+                  children: [
+                    Icon(
+                      Icons.notes_rounded,
+                      size: 17,
+                      color: Color(0xFF087F5B),
+                    ),
+
+                    SizedBox(width: 7),
+
+                    Text(
+                      'Remark',
+                      style: TextStyle(
+                        color: Color(0xFF087F5B),
+                        fontSize: 12,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                  ],
+                ),
+
+                const SizedBox(height: 7),
+
+                Text(
+                  item.followupRemark.isEmpty
+                      ? 'No remark'
+                      : item.followupRemark,
+                  style: const TextStyle(
+                    color: Color(0xFF40534B),
+                    fontSize: 12.5,
+                    height: 1.4,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // ===============================================================
+  // INFO ROW
+  // ===============================================================
+
+  Widget _buildInfoRow({
+    required IconData icon,
+    required String title,
+    required String value,
+  }) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Container(
+          height: 32,
+          width: 32,
+          decoration: BoxDecoration(
+            color: const Color(0xFFE8F5E9),
+            borderRadius: BorderRadius.circular(8),
+          ),
+          child: Icon(icon, size: 17, color: const Color(0xFF087C3A)),
+        ),
+
+        const SizedBox(width: 10),
+
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                title,
+                style: const TextStyle(
+                  color: Colors.grey,
+                  fontSize: 11,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+
+              const SizedBox(height: 2),
+
+              Text(
+                value,
+                style: const TextStyle(
+                  color: Color(0xFF263238),
+                  fontSize: 13,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  // ===============================================================
+  // EMPTY
+  // ===============================================================
+
+  Widget _buildEmpty() {
+    return const Center(
+      child: Padding(
+        padding: EdgeInsets.all(30),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(
+              Icons.history_toggle_off_rounded,
+              size: 55,
+              color: Color(0xFFB4C3BD),
+            ),
+
+            SizedBox(height: 14),
+
+            Text(
+              'No Follow-up History',
+              style: TextStyle(
+                color: Color(0xFF172B24),
+                fontSize: 15,
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+
+            SizedBox(height: 5),
+
+            Text(
+              'No previous follow-ups found for this dealer.',
+              textAlign: TextAlign.center,
+              style: TextStyle(color: Color(0xFF7A8983), fontSize: 12),
+            ),
+          ],
         ),
       ),
     );

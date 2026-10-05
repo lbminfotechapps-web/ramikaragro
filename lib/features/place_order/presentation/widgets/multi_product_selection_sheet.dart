@@ -1,4 +1,5 @@
 
+import 'package:flutter/services.dart';
 import 'package:solufine/core/theme/app_colors.dart';
 import 'package:solufine/features/place_order/domain/entities/product_entity.dart';
 import 'package:solufine/features/place_order/domain/entities/product_rate_entity.dart';
@@ -256,13 +257,47 @@ class _MultiProductRateBottomSheetState
   // QUANTITY
   // ===========================================================================
 
-  int _quantity(
-    String productId,
-    String productDetailsId,
-  ) {
-    return _packingQuantities[productId]?[productDetailsId] ?? 1;
-  }
+  // int _quantity(
+  //   String productId,
+  //   String productDetailsId,
+  // ) {
+  //   return _packingQuantities[productId]?[productDetailsId] ?? 1;
+  // }
 
+  
+  int _quantity(
+  String productId,
+  String productDetailsId,
+) {
+  return _packingQuantities[productId]?[productDetailsId] ?? 0;
+}
+
+// ===========================================================================
+// SET CASE QUANTITY
+// ===========================================================================
+
+void _setQuantity(
+  String productId,
+  String productDetailsId,
+  int quantity,
+) {
+  final productQuantities =
+      _packingQuantities.putIfAbsent(
+    productId,
+    () => <String, int>{},
+  );
+
+  productQuantities[productDetailsId] = quantity;
+
+  debugPrint(
+    'CASE QUANTITY => '
+    'product=$productId '
+    'details=$productDetailsId '
+    'quantity=$quantity',
+  );
+}
+
+  
   // ===========================================================================
   // INCREASE QUANTITY
   // ===========================================================================
@@ -1410,89 +1445,56 @@ Widget _buildRateCard({
   // QUANTITY CONTROL
   // ===========================================================================
 
-  Widget _buildQuantityControl({
-    required String productId,
-    required String productDetailsId,
-    required int quantity,
-  }) {
-    return Container(
-      height: 28.h,
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius:
-            BorderRadius.circular(7.r),
-        border: Border.all(
-          color:
-              AppColors.primary.withOpacity(0.18),
+Widget _buildQuantityControl({
+  required String productId,
+  required String productDetailsId,
+  required int quantity,
+}) {
+  return SizedBox(
+    width: 95.w,
+    height: 36.h,
+    child: TextFormField(
+      key: ValueKey(
+        'case_${productId}_$productDetailsId',
+      ),
+      initialValue:
+          quantity > 0
+              ? quantity.toString()
+              : '',
+      keyboardType:
+          TextInputType.number,
+      inputFormatters: [
+        FilteringTextInputFormatter.digitsOnly,
+      ],
+      textInputAction:
+          TextInputAction.done,
+      textAlign:
+          TextAlign.center,
+      decoration:
+          InputDecoration(
+        hintText: 'Enter Case',
+        isDense: true,
+        border: OutlineInputBorder(
+          borderRadius:
+              BorderRadius.circular(7.r),
         ),
       ),
-      child: Row(
-        mainAxisSize:
-            MainAxisSize.min,
-        children: [
-          InkWell(
-            onTap: quantity > 1
-                ? () {
-                    _decreaseQuantity(
-                      productId,
-                      productDetailsId,
-                    );
-                  }
-                : null,
-            child: SizedBox(
-              width: 27.w,
-              height: 28.h,
-              child: Icon(
-                Icons.remove_rounded,
-                size: 14.sp,
-                color: quantity > 1
-                    ? AppColors.primary
-                    : AppColors.border,
-              ),
-            ),
-          ),
+      onChanged: (value) {
+        final int enteredQuantity =
+            int.tryParse(
+                  value.trim(),
+                ) ??
+                0;
 
-          Container(
-            constraints:
-                BoxConstraints(
-              minWidth: 27.w,
-            ),
-            alignment:
-                Alignment.center,
-            child: Text(
-              '$quantity',
-              style: TextStyle(
-                fontSize: 10.5.sp,
-                fontWeight:
-                    FontWeight.w900,
-                color:
-                    AppColors.primary,
-              ),
-            ),
-          ),
-
-          InkWell(
-            onTap: () {
-              _increaseQuantity(
-                productId,
-                productDetailsId,
-              );
-            },
-            child: SizedBox(
-              width: 27.w,
-              height: 28.h,
-              child: Icon(
-                Icons.add_rounded,
-                size: 14.sp,
-                color:
-                    AppColors.primary,
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
+        _setQuantity(
+          productId,
+          productDetailsId,
+          enteredQuantity,
+        );
+      },
+    ),
+  );
+}
 
   // ===========================================================================
   // EMPTY STATE
