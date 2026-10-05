@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_screenutil_plus/flutter_screenutil_plus.dart';
 
 import 'package:solufine/core/theme/app_colors.dart';
-
 import 'package:solufine/features/salesreturn/domain/entities/product_entity.dart';
 import 'package:solufine/features/salesreturn/domain/entities/product_rate_entity.dart';
 
@@ -24,14 +24,16 @@ class ProductCard extends StatelessWidget {
   /// Delete complete product
   final VoidCallback onDelete;
 
-  /// Increase particular packing quantity
-  final void Function(ProductRateEntity rate) onIncrease;
-
-  /// Decrease particular packing quantity
-  final void Function(ProductRateEntity rate) onDecrease;
+  /// Direct Case Quantity
+  final void Function(
+    ProductRateEntity rate,
+    int quantity,
+  ) onQuantityChanged;
 
   /// Delete only one selected packing
-  final void Function(ProductRateEntity rate) onDeletePacking;
+  final void Function(
+    ProductRateEntity rate,
+  ) onDeletePacking;
 
   const ProductCard({
     super.key,
@@ -41,14 +43,14 @@ class ProductCard extends StatelessWidget {
     required this.onAdd,
     required this.onAddMore,
     required this.onDelete,
-    required this.onIncrease,
-    required this.onDecrease,
+    required this.onQuantityChanged,
     required this.onDeletePacking,
   });
 
   @override
   Widget build(BuildContext context) {
-    final bool hasRates = selectedRates.isNotEmpty;
+    final bool hasRates =
+        selectedRates.isNotEmpty;
 
     return Container(
       width: double.infinity,
@@ -61,22 +63,23 @@ class ProductCard extends StatelessWidget {
       ),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(
+        borderRadius:
+            BorderRadius.circular(
           12.r,
         ),
         border: Border.all(
           color: hasRates
-              ? AppColors.primary.withOpacity(0.22)
+              ? AppColors.primary
+                  .withOpacity(0.22)
               : AppColors.border,
         ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.025),
+            color: Colors.black
+                .withOpacity(0.025),
             blurRadius: 5,
-            offset: const Offset(
-              0,
-              2,
-            ),
+            offset:
+                const Offset(0, 2),
           ),
         ],
       ),
@@ -92,50 +95,66 @@ class ProductCard extends StatelessWidget {
             crossAxisAlignment:
                 CrossAxisAlignment.center,
             children: [
+              // =================================================
               // PRODUCT ICON
+              // =================================================
+
               Container(
                 width: 34.w,
                 height: 34.w,
-                decoration: BoxDecoration(
-                  color: AppColors.lightGreen,
+                decoration:
+                    BoxDecoration(
+                  color:
+                      AppColors.lightGreen,
                   borderRadius:
                       BorderRadius.circular(
                     9.r,
                   ),
                 ),
                 child: Icon(
-                  Icons.inventory_2_rounded,
-                  color: AppColors.primary,
+                  Icons
+                      .inventory_2_rounded,
+                  color:
+                      AppColors.primary,
                   size: 17.sp,
                 ),
               ),
 
-              SizedBox(width: 8.w),
+              SizedBox(
+                width: 8.w,
+              ),
 
               // =================================================
-              // PRODUCT NAME + PACKING COUNT
+              // PRODUCT NAME
               // =================================================
 
               Expanded(
                 child: Column(
                   crossAxisAlignment:
-                      CrossAxisAlignment.start,
+                      CrossAxisAlignment
+                          .start,
                   children: [
                     Text(
                       product.name,
                       maxLines: 1,
                       overflow:
-                          TextOverflow.ellipsis,
-                      style: TextStyle(
-                        fontSize: 12.5.sp,
+                          TextOverflow
+                              .ellipsis,
+                      style:
+                          TextStyle(
+                        fontSize:
+                            12.5.sp,
                         fontWeight:
-                            FontWeight.w800,
-                        color:
-                            AppColors.textPrimary,
+                            FontWeight
+                                .w800,
+                        color: AppColors
+                            .textPrimary,
                       ),
                     ),
 
-                    SizedBox(height: 2.h),
+                    SizedBox(
+                      height: 2.h,
+                    ),
 
                     Row(
                       children: [
@@ -145,28 +164,36 @@ class ProductCard extends StatelessWidget {
                                   .check_circle_rounded
                               : Icons
                                   .radio_button_unchecked_rounded,
-                          size: 11.sp,
+                          size:
+                              11.sp,
                           color: hasRates
-                              ? AppColors.primary
+                              ? AppColors
+                                  .primary
                               : AppColors
                                   .textSecondary,
                         ),
 
-                        SizedBox(width: 3.w),
+                        SizedBox(
+                          width: 3.w,
+                        ),
 
                         Flexible(
                           child: Text(
                             hasRates
                                 ? '${selectedRates.length} packing${selectedRates.length == 1 ? '' : 's'} selected'
                                 : 'Select packing / rate',
-                            maxLines: 1,
+                            maxLines:
+                                1,
                             overflow:
                                 TextOverflow
                                     .ellipsis,
-                            style: TextStyle(
-                              fontSize: 9.sp,
+                            style:
+                                TextStyle(
+                              fontSize:
+                                  9.sp,
                               fontWeight:
-                                  FontWeight.w600,
+                                  FontWeight
+                                      .w600,
                               color: hasRates
                                   ? AppColors
                                       .primary
@@ -181,20 +208,25 @@ class ProductCard extends StatelessWidget {
                 ),
               ),
 
-              SizedBox(width: 5.w),
+              SizedBox(
+                width: 5.w,
+              ),
 
               // =================================================
               // ADD / MORE
               // =================================================
 
               _buildCompactActionButton(
-                hasRates: hasRates,
+                hasRates:
+                    hasRates,
               ),
 
-              SizedBox(width: 4.w),
+              SizedBox(
+                width: 4.w,
+              ),
 
               // =================================================
-              // DELETE COMPLETE PRODUCT
+              // DELETE PRODUCT
               // =================================================
 
               _buildDeleteButton(
@@ -208,23 +240,33 @@ class ProductCard extends StatelessWidget {
           // =====================================================
 
           if (hasRates) ...[
-            SizedBox(height: 7.h),
+            SizedBox(
+              height: 7.h,
+            ),
 
             Container(
-              width: double.infinity,
-              padding: EdgeInsets.symmetric(
+              width:
+                  double.infinity,
+              padding:
+                  EdgeInsets.symmetric(
                 horizontal: 7.w,
                 vertical: 2.h,
               ),
-              decoration: BoxDecoration(
-                color: AppColors.background,
+              decoration:
+                  BoxDecoration(
+                color:
+                    AppColors.background,
                 borderRadius:
                     BorderRadius.circular(
                   9.r,
                 ),
-                border: Border.all(
-                  color: AppColors.border
-                      .withOpacity(0.45),
+                border:
+                    Border.all(
+                  color:
+                      AppColors.border
+                          .withOpacity(
+                    0.45,
+                  ),
                 ),
               ),
               child: Column(
@@ -232,22 +274,27 @@ class ProductCard extends StatelessWidget {
                   for (
                     int index = 0;
                     index <
-                        selectedRates.length;
+                        selectedRates
+                            .length;
                     index++
                   ) ...[
                     _buildPackingRow(
-                      selectedRates[index],
+                      selectedRates[
+                          index],
                     ),
 
                     if (index <
-                        selectedRates.length -
+                        selectedRates
+                                .length -
                             1)
                       Divider(
                         height: 1,
-                        color: AppColors.border
-                            .withOpacity(
-                              0.35,
-                            ),
+                        color:
+                            AppColors
+                                .border
+                                .withOpacity(
+                          0.35,
+                        ),
                       ),
                   ],
                 ],
@@ -266,16 +313,21 @@ class ProductCard extends StatelessWidget {
   Widget _buildPackingRow(
     ProductRateEntity rate,
   ) {
-    final String productDetailsId =
-        rate.productDetailsId.toString();
+    final String
+        productDetailsId =
+        rate.productDetailsId
+            .toString();
 
+    // IMPORTANT:
+    // Default 0 instead of 1.
     final int quantity =
         packingQuantities[
                 productDetailsId] ??
-            1;
+            0;
 
     return Padding(
-      padding: EdgeInsets.symmetric(
+      padding:
+          EdgeInsets.symmetric(
         vertical: 5.h,
       ),
       child: Row(
@@ -289,19 +341,26 @@ class ProductCard extends StatelessWidget {
           Container(
             width: 20.w,
             height: 20.w,
-            decoration: const BoxDecoration(
-              color: AppColors.lightGreen,
-              shape: BoxShape.circle,
+            decoration:
+                const BoxDecoration(
+              color:
+                  AppColors.lightGreen,
+              shape:
+                  BoxShape.circle,
             ),
-            alignment: Alignment.center,
+            alignment:
+                Alignment.center,
             child: Icon(
               Icons.check_rounded,
-              color: AppColors.primary,
+              color:
+                  AppColors.primary,
               size: 12.sp,
             ),
           ),
 
-          SizedBox(width: 5.w),
+          SizedBox(
+            width: 5.w,
+          ),
 
           // =====================================================
           // PACKING INFORMATION
@@ -310,7 +369,8 @@ class ProductCard extends StatelessWidget {
           Expanded(
             child: Column(
               crossAxisAlignment:
-                  CrossAxisAlignment.start,
+                  CrossAxisAlignment
+                      .start,
               children: [
                 // PACKING + PRICE
 
@@ -319,64 +379,83 @@ class ProductCard extends StatelessWidget {
                     Flexible(
                       child: Text(
                         '${rate.packing} ${rate.unit}',
-                        maxLines: 1,
+                        maxLines:
+                            1,
                         overflow:
                             TextOverflow
                                 .ellipsis,
-                        style: TextStyle(
+                        style:
+                            TextStyle(
                           fontSize:
                               10.5.sp,
                           fontWeight:
                               FontWeight
                                   .w700,
-                          color: AppColors
-                              .textPrimary,
+                          color:
+                              AppColors
+                                  .textPrimary,
                         ),
                       ),
                     ),
 
-                    SizedBox(width: 5.w),
+                    SizedBox(
+                      width: 5.w,
+                    ),
 
                     Text(
                       '₹${rate.rateWithGst}',
-                      style: TextStyle(
-                        fontSize: 9.sp,
+                      style:
+                          TextStyle(
+                        fontSize:
+                            9.sp,
                         fontWeight:
                             FontWeight
                                 .w800,
                         color:
-                            AppColors.primary,
+                            AppColors
+                                .primary,
                       ),
                     ),
                   ],
                 ),
 
-                SizedBox(height: 2.h),
+                SizedBox(
+                  height: 2.h,
+                ),
 
-                // CASE INFO
+                // CASE INFORMATION
 
                 Container(
                   padding:
                       EdgeInsets.symmetric(
-                    horizontal: 5.w,
-                    vertical: 1.5.h,
+                    horizontal:
+                        5.w,
+                    vertical:
+                        1.5.h,
                   ),
-                  decoration: BoxDecoration(
+                  decoration:
+                      BoxDecoration(
                     color:
-                        AppColors.lightGreen,
+                        AppColors
+                            .lightGreen,
                     borderRadius:
-                        BorderRadius.circular(
+                        BorderRadius
+                            .circular(
                       5.r,
                     ),
                   ),
                   child: Text(
                     rate.displayCase,
-                    style: TextStyle(
-                      fontSize: 7.5.sp,
+                    style:
+                        TextStyle(
+                      fontSize:
+                          7.5.sp,
                       fontWeight:
-                          FontWeight.w700,
+                          FontWeight
+                              .w700,
                       color:
-                          AppColors.primary,
+                          AppColors
+                              .primary,
                     ),
                   ),
                 ),
@@ -384,26 +463,33 @@ class ProductCard extends StatelessWidget {
             ),
           ),
 
-          SizedBox(width: 5.w),
+          SizedBox(
+            width: 5.w,
+          ),
 
           // =====================================================
-          // QUANTITY
+          // ENTER CASE
           // =====================================================
 
           _buildQuantityControl(
             rate: rate,
-            quantity: quantity,
+            quantity:
+                quantity,
           ),
 
-          SizedBox(width: 4.w),
+          SizedBox(
+            width: 4.w,
+          ),
 
           // =====================================================
-          // DELETE PARTICULAR PACKING
+          // DELETE PACKING
           // =====================================================
 
           _buildDeletePackingButton(
             onTap: () {
-              onDeletePacking(rate);
+              onDeletePacking(
+                rate,
+              );
             },
           ),
         ],
@@ -412,104 +498,140 @@ class ProductCard extends StatelessWidget {
   }
 
   // ===========================================================
-  // QUANTITY CONTROL
+  // CASE QUANTITY - DIRECT TYPE
   // ===========================================================
 
   Widget _buildQuantityControl({
     required ProductRateEntity rate,
     required int quantity,
   }) {
-    return Container(
-      height: 28.h,
-      decoration: BoxDecoration(
-        color: AppColors.lightGreen,
-        borderRadius:
-            BorderRadius.circular(
-          7.r,
+    return SizedBox(
+      width: 95.w,
+      height: 34.h,
+      child: TextFormField(
+        // IMPORTANT:
+        // Keep key stable.
+        // Do not include quantity in key.
+        key: ValueKey(
+          'case_${rate.productDetailsId}',
         ),
-        border: Border.all(
-          color: AppColors.primary
-              .withOpacity(0.18),
-        ),
-      ),
-      child: Row(
-        mainAxisSize:
-            MainAxisSize.min,
-        children: [
-          // =====================================================
-          // MINUS
-          // =====================================================
 
-          InkWell(
-            onTap: quantity > 1
-                ? () {
-                    onDecrease(rate);
-                  }
-                : null,
-            borderRadius:
-                BorderRadius.circular(
-              7.r,
-            ),
-            child: SizedBox(
-              width: 25.w,
-              height: 28.h,
-              child: Icon(
-                Icons.remove_rounded,
-                size: 13.sp,
-                color: quantity > 1
-                    ? AppColors.primary
-                    : AppColors.border,
-              ),
-            ),
-          ),
+        // Existing value
+        initialValue:
+            quantity > 0
+                ? quantity.toString()
+                : '',
 
-          // =====================================================
-          // QUANTITY
-          // =====================================================
+        // Only number keyboard
+        keyboardType:
+            TextInputType.number,
 
-          Container(
-            constraints:
-                BoxConstraints(
-              minWidth: 22.w,
-            ),
-            alignment:
-                Alignment.center,
-            child: Text(
-              quantity.toString(),
-              style: TextStyle(
-                fontSize: 9.8.sp,
-                fontWeight:
-                    FontWeight.w900,
-                color:
-                    AppColors.primary,
-              ),
-            ),
-          ),
-
-          // =====================================================
-          // PLUS
-          // =====================================================
-
-          InkWell(
-            onTap: () {
-              onIncrease(rate);
-            },
-            borderRadius:
-                BorderRadius.circular(
-              7.r,
-            ),
-            child: SizedBox(
-              width: 25.w,
-              height: 28.h,
-              child: Icon(
-                Icons.add_rounded,
-                size: 13.sp,
-                color:
-                    AppColors.primary,
-              ),
-            ),
-          ),
+        // Only digits
+        inputFormatters: [
+          FilteringTextInputFormatter
+              .digitsOnly,
         ],
+
+        textInputAction:
+            TextInputAction.done,
+
+        textAlign:
+            TextAlign.center,
+
+        style: TextStyle(
+          fontSize: 10.sp,
+          fontWeight:
+              FontWeight.w800,
+          color:
+              AppColors.textPrimary,
+        ),
+
+        decoration:
+            InputDecoration(
+          hintText:
+              'Enter Case',
+
+          hintStyle:
+              TextStyle(
+            fontSize: 8.sp,
+            fontWeight:
+                FontWeight.w500,
+            color:
+                AppColors
+                    .textSecondary,
+          ),
+
+          isDense: true,
+
+          contentPadding:
+              EdgeInsets.symmetric(
+            horizontal:
+                5.w,
+            vertical:
+                7.h,
+          ),
+
+          filled: true,
+
+          fillColor:
+              Colors.white,
+
+          enabledBorder:
+              OutlineInputBorder(
+            borderRadius:
+                BorderRadius.circular(
+              7.r,
+            ),
+            borderSide:
+                BorderSide(
+              color:
+                  AppColors.primary
+                      .withOpacity(
+                0.18,
+              ),
+            ),
+          ),
+
+          focusedBorder:
+              OutlineInputBorder(
+            borderRadius:
+                BorderRadius.circular(
+              7.r,
+            ),
+            borderSide:
+                BorderSide(
+              color:
+                  AppColors.primary,
+              width: 1.2,
+            ),
+          ),
+        ),
+
+        // =======================================================
+        // DIRECT CASE ENTRY
+        // =======================================================
+
+        onChanged: (value) {
+          final int
+              enteredQuantity =
+              int.tryParse(
+                    value.trim(),
+                  ) ??
+                  0;
+
+          onQuantityChanged(
+            rate,
+            enteredQuantity,
+          );
+        },
+
+        onFieldSubmitted:
+            (_) {
+          FocusManager
+              .instance
+              .primaryFocus
+              ?.unfocus();
+        },
       ),
     );
   }
@@ -524,7 +646,9 @@ class ProductCard extends StatelessWidget {
     return Material(
       color: hasRates
           ? AppColors.primary
-              .withOpacity(0.08)
+              .withOpacity(
+              0.08,
+            )
           : AppColors.primary,
       borderRadius:
           BorderRadius.circular(
@@ -532,7 +656,9 @@ class ProductCard extends StatelessWidget {
       ),
       child: InkWell(
         onTap:
-            hasRates ? onAddMore : onAdd,
+            hasRates
+                ? onAddMore
+                : onAdd,
         borderRadius:
             BorderRadius.circular(
           8.r,
@@ -557,20 +683,25 @@ class ProductCard extends StatelessWidget {
                         .add_rounded,
                 size: 14.sp,
                 color: hasRates
-                    ? AppColors.primary
+                    ? AppColors
+                        .primary
                     : Colors.white,
               ),
 
-              SizedBox(width: 3.w),
+              SizedBox(
+                width: 3.w,
+              ),
 
               Text(
                 hasRates
                     ? 'More'
                     : 'Add',
-                style: TextStyle(
+                style:
+                    TextStyle(
                   fontSize: 9.sp,
                   fontWeight:
-                      FontWeight.w800,
+                      FontWeight
+                          .w800,
                   color: hasRates
                       ? AppColors
                           .primary
@@ -585,15 +716,15 @@ class ProductCard extends StatelessWidget {
   }
 
   // ===========================================================
-  // COMPLETE PRODUCT DELETE BUTTON
+  // COMPLETE PRODUCT DELETE
   // ===========================================================
 
   Widget _buildDeleteButton({
     required VoidCallback onTap,
   }) {
     return Material(
-      color:
-          Colors.red.withOpacity(
+      color: Colors.red
+          .withOpacity(
         0.06,
       ),
       borderRadius:
@@ -610,8 +741,10 @@ class ProductCard extends StatelessWidget {
           width: 30.w,
           height: 30.w,
           child: Icon(
-            Icons.delete_outline_rounded,
-            color: Colors.redAccent,
+            Icons
+                .delete_outline_rounded,
+            color:
+                Colors.redAccent,
             size: 16.sp,
           ),
         ),
@@ -620,15 +753,15 @@ class ProductCard extends StatelessWidget {
   }
 
   // ===========================================================
-  // PARTICULAR PACKING DELETE BUTTON
+  // PARTICULAR PACKING DELETE
   // ===========================================================
 
   Widget _buildDeletePackingButton({
     required VoidCallback onTap,
   }) {
     return Material(
-      color:
-          Colors.red.withOpacity(
+      color: Colors.red
+          .withOpacity(
         0.07,
       ),
       borderRadius:
@@ -646,7 +779,8 @@ class ProductCard extends StatelessWidget {
           height: 28.h,
           child: Icon(
             Icons.close_rounded,
-            color: Colors.redAccent,
+            color:
+                Colors.redAccent,
             size: 15.sp,
           ),
         ),
