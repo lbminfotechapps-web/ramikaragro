@@ -542,7 +542,7 @@ class _MyExpensePageState extends State<MyExpensePage> {
             count: expenses.length,
           ),
 
-          const SizedBox(height: 22),
+          const SizedBox(height: 10),
 
           // ---------------------------------------------------------------
           // HISTORY HEADER
@@ -647,8 +647,8 @@ class _MyExpensePageState extends State<MyExpensePage> {
           Row(
             children: [
               Container(
-                width: 44,
-                height: 44,
+                width: 34,
+                height: 34,
 
                 decoration: BoxDecoration(
                   color: Colors.white.withOpacity(0.14),
@@ -698,8 +698,7 @@ class _MyExpensePageState extends State<MyExpensePage> {
             ],
           ),
 
-          const SizedBox(height: 20),
-
+         
           // -------------------------------------------------------------
           // TOTAL
           // -------------------------------------------------------------
@@ -708,22 +707,13 @@ class _MyExpensePageState extends State<MyExpensePage> {
             '₹ ${total.toStringAsFixed(2)}',
             style: const TextStyle(
               color: Colors.white,
-              fontSize: 30,
+              fontSize: 20,
               fontWeight: FontWeight.w900,
               letterSpacing: -0.8,
             ),
           ),
 
-          const SizedBox(height: 5),
-
-          const Text(
-            'Recorded expense amount',
-            style: TextStyle(
-              color: Color(0xFFB7D8C4),
-              fontSize: 11,
-              fontWeight: FontWeight.w500,
-            ),
-          ),
+      
         ],
       ),
     );
