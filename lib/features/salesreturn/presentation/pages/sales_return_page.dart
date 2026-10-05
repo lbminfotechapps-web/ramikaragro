@@ -2801,6 +2801,9 @@ Widget _buildPreviewButton(SalesReturnState state) {
                                 selectedRates[productId] ??
                                 <ProductRateEntity>[];
 
+                           ;
+
+                           
                             return ProductCard(
                               product: product,
 
@@ -2808,7 +2811,9 @@ Widget _buildPreviewButton(SalesReturnState state) {
                                   productRates,
 
                               packingQuantities:
-                                  state.packingQuantities[productId] ??
+                                  state.packingQuantities[
+                                        productId
+                                      ] ??
                                   <String, int>{},
 
                               onAdd: () async {
@@ -2824,55 +2829,38 @@ Widget _buildPreviewButton(SalesReturnState state) {
                                 );
                               },
 
-                              onIncrease: (rate) {
+                              // ============================================
+                              // DIRECT ENTER CASE
+                              // ============================================
+
+                              onQuantityChanged:
+                                  (rate, quantity) {
                                 context
-                                    .read<
-                                      SalesReturnBloc
-                                    >()
+                                    .read<SalesReturnBloc>()
                                     .add(
-                                      IncreasePackingQuantityEvent(
+                                      SetPackingQuantityEvent(
                                         productId:
                                             product.id
                                                 .toString(),
 
                                         productDetailsId:
-                                            rate
-                                                .productDetailsId
+                                            rate.productDetailsId
                                                 .toString(),
+
+                                        quantity:
+                                            quantity,
                                       ),
                                     );
                               },
 
-                              onDecrease: (rate) {
-                                context
-                                    .read<
-                                      SalesReturnBloc
-                                    >()
-                                    .add(
-                                      DecreasePackingQuantityEvent(
-                                        productId:
-                                            product.id
-                                                .toString(),
-
-                                        productDetailsId:
-                                            rate
-                                                .productDetailsId
-                                                .toString(),
-                                      ),
-                                    );
+                              onDeletePacking: (rate) {
+                                _deleteProductPacking(
+                                  product:
+                                      product,
+                                  rate:
+                                      rate,
+                                );
                               },
-
-                                // ===========================================================
-                                // NEW - DELETE PARTICULAR PACKING
-                                // ===========================================================
-
-                                onDeletePacking: (rate) {
-                                  _deleteProductPacking(
-                                    product: product,
-                                    rate: rate,
-                                  );
-                                },
-
 
                               onDelete: () {
                                 _deleteProduct(
@@ -2880,6 +2868,12 @@ Widget _buildPreviewButton(SalesReturnState state) {
                                 );
                               },
                             );
+
+
+
+
+
+
                           },
                         ),
                     ],
