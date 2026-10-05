@@ -5,7 +5,7 @@ import 'package:android_intent_plus/android_intent.dart';
 import 'package:solufine/core/api_constant/api_client.dart';
 import 'package:solufine/core/api_constant/dio_client.dart';
 import 'package:solufine/core/di/auth_di.dart';
-import 'package:solufine/core/location_tracking/background_location_service.dart';
+
 import 'package:solufine/core/location_tracking/location_repository.dart';
 import 'package:solufine/core/router/app_router.dart';
 import 'package:solufine/core/secure_storage/secure_storage.dart';

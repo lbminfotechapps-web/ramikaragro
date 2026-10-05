@@ -802,10 +802,9 @@ class _DealerListItem extends StatelessWidget {
                         color: Color(0xFF18231C),
                       ),
                     ),
-                  
+
                     const SizedBox(height: 4),
 
-                   
                     Row(
                       children: [
                         const Icon(
@@ -841,22 +840,16 @@ class _DealerListItem extends StatelessWidget {
             child: Divider(height: 1, color: Color(0xFFF0F1EF)),
           ),
 
-
-         
-            _DealerDetail(
-              icon: Icons.phone_outlined,
-              label: 'Mobile Number',
-              text: mobile.isEmpty
-                  ? 'Not available'
-                  : mobile,
-              onTap: mobile.isEmpty
-                  ? null
-                  : () {
-                      callFarmer(mobile);
-                    },
-            ),
-           
-
+          _DealerDetail(
+            icon: Icons.phone_outlined,
+            label: 'Mobile Number',
+            text: mobile.isEmpty ? 'Not available' : mobile,
+            onTap: mobile.isEmpty
+                ? null
+                : () {
+                    callFarmer(mobile);
+                  },
+          ),
 
           const SizedBox(height: 8),
           _DealerDetail(
@@ -904,7 +897,11 @@ class _DealerListItem extends StatelessWidget {
                     onPressed: locationNotAvailable
                         ? onLocationTap
                         : () {
-                            context.push('/dealerpin', extra: dealer.outletId);
+                            // context.push('/dealerpin', extra: dealer.outletId);
+                            context.push(
+                              '/dealrFollowUpAddNew',
+                              extra: dealer.outletId,
+                            );
                           },
                     icon: Icon(
                       locationNotAvailable
@@ -1036,7 +1033,6 @@ class _DealerListItem extends StatelessWidget {
 //   }
 // }
 
-
 class _DealerDetail extends StatelessWidget {
   final IconData icon;
   final String label;
@@ -1065,11 +1061,7 @@ class _DealerDetail extends StatelessWidget {
               color: const Color(0xFFEDF5EF),
               borderRadius: BorderRadius.circular(7),
             ),
-            child: Icon(
-              icon,
-              size: 15,
-              color: AppColors.primary,
-            ),
+            child: Icon(icon, size: 15, color: AppColors.primary),
           ),
           const SizedBox(width: 8),
           Expanded(
