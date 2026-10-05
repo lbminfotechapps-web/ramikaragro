@@ -750,12 +750,286 @@ class ProductCard extends StatelessWidget {
 //
 // ============================================================================
 
+// class _ProductQuantityField
+//     extends StatefulWidget {
+//   final int quantity;
+
+//   final ValueChanged<int>
+//       onChanged;
+
+//   const _ProductQuantityField({
+//     super.key,
+//     required this.quantity,
+//     required this.onChanged,
+//   });
+
+//   @override
+//   State<_ProductQuantityField>
+//       createState() =>
+//           _ProductQuantityFieldState();
+// }
+
+// class _ProductQuantityFieldState
+//     extends State<
+//         _ProductQuantityField> {
+//   late final TextEditingController
+//       _controller;
+
+//   // ============================================================
+//   // INIT
+//   // ============================================================
+
+//   @override
+//   void initState() {
+//     super.initState();
+
+//     _controller =
+//         TextEditingController(
+//       text: widget.quantity > 0
+//           ? widget.quantity
+//               .toString()
+//           : '',
+//     );
+//   }
+
+//   // ============================================================
+//   // UPDATE EXTERNAL QUANTITY
+//   // ============================================================
+
+//   @override
+//   void didUpdateWidget(
+//     covariant _ProductQuantityField
+//         oldWidget,
+//   ) {
+//     super.didUpdateWidget(
+//       oldWidget,
+//     );
+
+//     // No quantity change
+//     if (oldWidget.quantity ==
+//         widget.quantity) {
+//       return;
+//     }
+
+//     final String newText =
+//         widget.quantity > 0
+//             ? widget.quantity
+//                 .toString()
+//             : '';
+
+//     // Don't reset cursor unnecessarily
+//     if (_controller.text ==
+//         newText) {
+//       return;
+//     }
+
+//     _controller.value =
+//         TextEditingValue(
+//       text: newText,
+
+//       selection:
+//           TextSelection.collapsed(
+//         offset:
+//             newText.length,
+//       ),
+//     );
+//   }
+
+//   // ============================================================
+//   // DISPOSE
+//   // ============================================================
+
+//   @override
+//   void dispose() {
+//     _controller.dispose();
+
+//     super.dispose();
+//   }
+
+//   // ============================================================
+//   // BUILD
+//   // ============================================================
+
+//   @override
+//   Widget build(
+//     BuildContext context,
+//   ) {
+//     return SizedBox(
+//       width: 95.w,
+//       height: 34.h,
+
+//       child: TextFormField(
+//         controller:
+//             _controller,
+
+//         // ======================================================
+//         // NUMBER KEYBOARD
+//         // ======================================================
+
+//         keyboardType:
+//             TextInputType.number,
+
+//         inputFormatters: [
+//           FilteringTextInputFormatter
+//               .digitsOnly,
+//         ],
+
+//         textInputAction:
+//             TextInputAction.done,
+
+//         textAlign:
+//             TextAlign.center,
+
+//         // ======================================================
+//         // TEXT STYLE
+//         // ======================================================
+
+//         style: TextStyle(
+//           fontSize:
+//               10.sp,
+
+//           fontWeight:
+//               FontWeight.w800,
+
+//           color:
+//               AppColors.textPrimary,
+//         ),
+
+//         // ======================================================
+//         // DESIGN
+//         // ======================================================
+
+//         decoration:
+//             InputDecoration(
+//           hintText:
+//               'Enter Case',
+
+//           hintStyle:
+//               TextStyle(
+//             fontSize:
+//                 8.sp,
+
+//             fontWeight:
+//                 FontWeight.w500,
+
+//             color:
+//                 AppColors
+//                     .textSecondary,
+//           ),
+
+//           isDense:
+//               true,
+
+//           contentPadding:
+//               EdgeInsets.symmetric(
+//             horizontal:
+//                 5.w,
+//             vertical:
+//                 7.h,
+//           ),
+
+//           filled:
+//               true,
+
+//           fillColor:
+//               Colors.white,
+
+//           enabledBorder:
+//               OutlineInputBorder(
+//             borderRadius:
+//                 BorderRadius.circular(
+//               7.r,
+//             ),
+
+//             borderSide:
+//                 BorderSide(
+//               color:
+//                   AppColors.primary
+//                       .withOpacity(
+//                 0.18,
+//               ),
+//             ),
+//           ),
+
+//           focusedBorder:
+//               OutlineInputBorder(
+//             borderRadius:
+//                 BorderRadius.circular(
+//               7.r,
+//             ),
+
+//             borderSide:
+//                 BorderSide(
+//               color:
+//                   AppColors.primary,
+
+//               width:
+//                   1.2,
+//             ),
+//           ),
+//         ),
+
+//         // ======================================================
+//         // QUANTITY CHANGED
+//         // ======================================================
+
+//         onChanged:
+//             (value) {
+//           final String
+//               cleanedValue =
+//               value.trim();
+
+//           // Empty field
+//           if (cleanedValue
+//               .isEmpty) {
+//             widget.onChanged(
+//               0,
+//             );
+
+//             return;
+//           }
+
+//           final int?
+//               enteredQuantity =
+//               int.tryParse(
+//             cleanedValue,
+//           );
+
+//           if (enteredQuantity ==
+//               null) {
+//             widget.onChanged(
+//               0,
+//             );
+
+//             return;
+//           }
+
+//           widget.onChanged(
+//             enteredQuantity,
+//           );
+//         },
+
+//         // ======================================================
+//         // DONE
+//         // ======================================================
+
+//         onFieldSubmitted:
+//             (_) {
+//           FocusManager
+//               .instance
+//               .primaryFocus
+//               ?.unfocus();
+//         },
+//       ),
+//     );
+//   }
+// }
+
+
 class _ProductQuantityField
     extends StatefulWidget {
   final int quantity;
-
-  final ValueChanged<int>
-      onChanged;
+  final ValueChanged<int> onChanged;
 
   const _ProductQuantityField({
     super.key,
@@ -770,10 +1044,12 @@ class _ProductQuantityField
 }
 
 class _ProductQuantityFieldState
-    extends State<
-        _ProductQuantityField> {
+    extends State<_ProductQuantityField> {
   late final TextEditingController
       _controller;
+
+  late final FocusNode
+      _focusNode;
 
   // ============================================================
   // INIT
@@ -786,14 +1062,38 @@ class _ProductQuantityFieldState
     _controller =
         TextEditingController(
       text: widget.quantity > 0
-          ? widget.quantity
-              .toString()
+          ? widget.quantity.toString()
           : '',
+    );
+
+    _focusNode =
+        FocusNode();
+
+    _focusNode.addListener(
+      _handleFocusChange,
     );
   }
 
   // ============================================================
-  // UPDATE EXTERNAL QUANTITY
+  // FOCUS CHANGE
+  // ============================================================
+
+  void _handleFocusChange() {
+    // User is currently typing.
+    // Never overwrite controller.
+    if (_focusNode.hasFocus) {
+      return;
+    }
+
+    // User finished editing.
+    // Sync latest Bloc/parent value.
+    _syncController(
+      widget.quantity,
+    );
+  }
+
+  // ============================================================
+  // UPDATE FROM BLOC / PARENT
   // ============================================================
 
   @override
@@ -805,19 +1105,47 @@ class _ProductQuantityFieldState
       oldWidget,
     );
 
-    // No quantity change
+    // Quantity didn't change.
     if (oldWidget.quantity ==
         widget.quantity) {
       return;
     }
 
+    // ==========================================================
+    // IMPORTANT FIX
+    //
+    // User may be doing:
+    //
+    // 22
+    // backspace -> 2
+    // type 1 -> 21
+    //
+    // Bloc rebuild happens after every key.
+    //
+    // Do NOT overwrite controller while focused.
+    // ==========================================================
+
+    if (_focusNode.hasFocus) {
+      return;
+    }
+
+    _syncController(
+      widget.quantity,
+    );
+  }
+
+  // ============================================================
+  // SYNC CONTROLLER
+  // ============================================================
+
+  void _syncController(
+    int quantity,
+  ) {
     final String newText =
-        widget.quantity > 0
-            ? widget.quantity
-                .toString()
+        quantity > 0
+            ? quantity.toString()
             : '';
 
-    // Don't reset cursor unnecessarily
     if (_controller.text ==
         newText) {
       return;
@@ -826,11 +1154,9 @@ class _ProductQuantityFieldState
     _controller.value =
         TextEditingValue(
       text: newText,
-
       selection:
           TextSelection.collapsed(
-        offset:
-            newText.length,
+        offset: newText.length,
       ),
     );
   }
@@ -841,6 +1167,11 @@ class _ProductQuantityFieldState
 
   @override
   void dispose() {
+    _focusNode.removeListener(
+      _handleFocusChange,
+    );
+
+    _focusNode.dispose();
     _controller.dispose();
 
     super.dispose();
@@ -857,13 +1188,15 @@ class _ProductQuantityFieldState
     return SizedBox(
       width: 95.w,
       height: 34.h,
-
       child: TextFormField(
         controller:
             _controller,
 
+        focusNode:
+            _focusNode,
+
         // ======================================================
-        // NUMBER KEYBOARD
+        // INPUT
         // ======================================================
 
         keyboardType:
@@ -881,23 +1214,16 @@ class _ProductQuantityFieldState
             TextAlign.center,
 
         // ======================================================
-        // TEXT STYLE
+        // STYLE
         // ======================================================
 
         style: TextStyle(
-          fontSize:
-              10.sp,
-
+          fontSize: 10.sp,
           fontWeight:
               FontWeight.w800,
-
           color:
               AppColors.textPrimary,
         ),
-
-        // ======================================================
-        // DESIGN
-        // ======================================================
 
         decoration:
             InputDecoration(
@@ -906,30 +1232,22 @@ class _ProductQuantityFieldState
 
           hintStyle:
               TextStyle(
-            fontSize:
-                8.sp,
-
+            fontSize: 8.sp,
             fontWeight:
                 FontWeight.w500,
-
             color:
-                AppColors
-                    .textSecondary,
+                AppColors.textSecondary,
           ),
 
-          isDense:
-              true,
+          isDense: true,
 
           contentPadding:
               EdgeInsets.symmetric(
-            horizontal:
-                5.w,
-            vertical:
-                7.h,
+            horizontal: 5.w,
+            vertical: 7.h,
           ),
 
-          filled:
-              true,
+          filled: true,
 
           fillColor:
               Colors.white,
@@ -940,7 +1258,6 @@ class _ProductQuantityFieldState
                 BorderRadius.circular(
               7.r,
             ),
-
             borderSide:
                 BorderSide(
               color:
@@ -957,55 +1274,40 @@ class _ProductQuantityFieldState
                 BorderRadius.circular(
               7.r,
             ),
-
             borderSide:
                 BorderSide(
               color:
                   AppColors.primary,
-
-              width:
-                  1.2,
+              width: 1.2,
             ),
           ),
         ),
 
         // ======================================================
-        // QUANTITY CHANGED
+        // QUANTITY CHANGE
         // ======================================================
 
-        onChanged:
-            (value) {
-          final String
-              cleanedValue =
+        onChanged: (value) {
+          final String cleanValue =
               value.trim();
 
-          // Empty field
-          if (cleanedValue
-              .isEmpty) {
-            widget.onChanged(
-              0,
-            );
-
+          // Field empty
+          if (cleanValue.isEmpty) {
+            widget.onChanged(0);
             return;
           }
 
-          final int?
-              enteredQuantity =
+          final int? quantity =
               int.tryParse(
-            cleanedValue,
+            cleanValue,
           );
 
-          if (enteredQuantity ==
-              null) {
-            widget.onChanged(
-              0,
-            );
-
+          if (quantity == null) {
             return;
           }
 
           widget.onChanged(
-            enteredQuantity,
+            quantity,
           );
         },
 
@@ -1013,12 +1315,16 @@ class _ProductQuantityFieldState
         // DONE
         // ======================================================
 
-        onFieldSubmitted:
-            (_) {
-          FocusManager
-              .instance
-              .primaryFocus
-              ?.unfocus();
+        onFieldSubmitted: (_) {
+          _focusNode.unfocus();
+        },
+
+        // ======================================================
+        // TAP OUTSIDE
+        // ======================================================
+
+        onTapOutside: (_) {
+          _focusNode.unfocus();
         },
       ),
     );
