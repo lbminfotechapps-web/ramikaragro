@@ -1,3 +1,5 @@
+import 'package:flutter/foundation.dart';
+import 'package:keyboard_actions/keyboard_actions.dart';
 import 'package:solufine/core/di/auth_di.dart';
 import 'package:solufine/core/router/app_router.dart';
 import 'package:solufine/core/theme/app_colors.dart';
@@ -28,11 +30,15 @@ class _LoginScreenState extends State<LoginScreen> {
   final TextEditingController _passwordController = TextEditingController();
 
   final _formKey = GlobalKey<FormState>();
+  final FocusNode _emailFocus = FocusNode();
+  final FocusNode _passwordFocus = FocusNode();
 
   bool _isPasswordVisible = false;
 
   @override
   void dispose() {
+    _emailFocus.dispose();
+    _passwordFocus.dispose();
     _emailController.dispose();
     _passwordController.dispose();
     super.dispose();
@@ -43,7 +49,6 @@ class _LoginScreenState extends State<LoginScreen> {
     return Scaffold(
       backgroundColor: Colors.white,
       resizeToAvoidBottomInset: true,
-
       body: BlocConsumer<AuthBloc, AuthState>(
         listener: (context, state) async {
           if (state.loginStatus == LoginStatus.success) {
@@ -80,46 +85,55 @@ class _LoginScreenState extends State<LoginScreen> {
             );
           }
 
-          return SafeArea(
-            bottom: false,
-            child: LayoutBuilder(
-              builder: (context, constraints) {
-                return SingleChildScrollView(
-                  keyboardDismissBehavior:
-                      ScrollViewKeyboardDismissBehavior.onDrag,
+          return KeyboardActions(
+            enabled: !kIsWeb && defaultTargetPlatform == TargetPlatform.iOS,
+            doneText: 'Done',
+            theme: const KeyboardActionsThemeData(
+              barColor: Colors.white,
+              foregroundColor: AppColors.accentGreen,
+              doneTextStyle: TextStyle(fontWeight: FontWeight.w700),
+            ),
+            child: SafeArea(
+              bottom: false,
+              child: LayoutBuilder(
+                builder: (context, constraints) {
+                  return SingleChildScrollView(
+                    keyboardDismissBehavior:
+                        ScrollViewKeyboardDismissBehavior.onDrag,
 
-                  child: ConstrainedBox(
-                    constraints: BoxConstraints(
-                      minHeight: constraints.maxHeight,
-                    ),
+                    child: ConstrainedBox(
+                      constraints: BoxConstraints(
+                        minHeight: constraints.maxHeight,
+                      ),
 
-                    child: IntrinsicHeight(
-                      child: Column(
-                        children: [
-                          // =========================
-                          // HERO
-                          // =========================
-                          _heroSection(),
+                      child: IntrinsicHeight(
+                        child: Column(
+                          children: [
+                            // =========================
+                            // HERO
+                            // =========================
+                            _heroSection(),
 
-                          // =========================
-                          // LOGIN
-                          // =========================
-                          _loginSection(),
+                            // =========================
+                            // LOGIN
+                            // =========================
+                            _loginSection(),
 
-                          // Push bottom logo down when there is
-                          // extra available screen space.
-                          const Spacer(),
+                            // Push bottom logo down when there is
+                            // extra available screen space.
+                            const Spacer(),
 
-                          // =========================
-                          // BOTTOM LOGO
-                          // =========================
-                          _bottomLogo(),
-                        ],
+                            // =========================
+                            // BOTTOM LOGO
+                            // =========================
+                            _bottomLogo(),
+                          ],
+                        ),
                       ),
                     ),
-                  ),
-                );
-              },
+                  );
+                },
+              ),
             ),
           );
         },
@@ -223,12 +237,12 @@ class _LoginScreenState extends State<LoginScreen> {
             SizedBox(height: 15.h),
 
             // Mobile
-            email(),
+            KeyboardField(focusNode: _emailFocus, child: email()),
 
             SizedBox(height: 20.h),
 
             // Password
-            password(),
+            KeyboardField(focusNode: _passwordFocus, child: password()),
 
             SizedBox(height: 10.h),
 
@@ -250,20 +264,30 @@ class _LoginScreenState extends State<LoginScreen> {
   Widget email() {
     return CustomTextFormField(
       controller: _emailController,
+      showKeyboardDone: false,
+      focusNode: _emailFocus,
+
       hintText: 'Enter Username',
-      labelText: 'Enter Username ',
+      labelText: 'Enter Username',
       prefixIcon: Icons.person_outline,
+
       keyboardType: TextInputType.text,
 
+      textInputAction: TextInputAction.next,
+
+      onFieldSubmitted: (_) {
+        _passwordFocus.requestFocus();
+      },
+
       validator: (value) {
-        if (value == null || value.isEmpty) {
+        if (value == null || value.trim().isEmpty) {
           return 'Please enter your username';
         }
 
         return null;
       },
+
       onChanged: (value) {
-        // Validate immediately while typing
         _formKey.currentState?.validate();
       },
     );
@@ -295,6 +319,10 @@ class _LoginScreenState extends State<LoginScreen> {
   Widget password() {
     return CustomTextFormField(
       controller: _passwordController,
+      showKeyboardDone: false,
+      focusNode: _passwordFocus,
+      textInputAction: TextInputAction.done,
+      onFieldSubmitted: (_) => FocusScope.of(context).unfocus(),
       hintText: 'Password',
       labelText: 'Password',
       prefixIcon: Icons.lock_outline,
