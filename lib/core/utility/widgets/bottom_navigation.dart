@@ -1,3 +1,4 @@
+import 'package:solufine/core/utility/tab_refresh.dart';
 import 'package:solufine/core/di/auth_di.dart';
 import 'package:solufine/features/auth/provider/auth_provider.dart';
 import 'package:solufine/core/router/app_router.dart';
@@ -319,6 +320,21 @@ class HomeShellState extends State<HomeShell> {
 
     final branchIndex = visibleTabIndices[index];
     final currentIndex = widget.navigationShell.currentIndex;
+    // Refresh on every tap, including the active tab. Record the destination
+    // first to avoid a duplicate Home refresh from the route listener.
+    _lastLocation = _tabs[branchIndex].path;
+    switch (branchIndex) {
+      case 0:
+        _refreshHome();
+        TabRefresh.home.refresh();
+        break;
+      case 1:
+        TabRefresh.followup.refresh();
+        break;
+      case 2:
+        TabRefresh.products.refresh();
+        break;
+    }
 
     debugPrint('======================================');
     debugPrint('BOTTOM NAVIGATION');

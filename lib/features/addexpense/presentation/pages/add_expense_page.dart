@@ -12,8 +12,11 @@ import 'package:intl/intl.dart';
 import 'package:solufine/core/router/app_router.dart';
 import 'package:solufine/core/secure_storage/secure_storage.dart';
 import 'package:solufine/core/utility/app_dialog.dart';
+import 'package:solufine/core/utility/app_tutorial_service.dart';
 import 'package:solufine/core/utility/image_compression.dart';
 import 'package:solufine/core/utility/widgets/custom_appbar.dart';
+import 'package:solufine/core/utility/widgets/tutorial_description.dart';
+import 'package:tutorial_coach_mark/tutorial_coach_mark.dart';
 
 import '../../domain/entities/expense_parameter_entity.dart';
 import '../../domain/entities/vehicle_entity.dart';
@@ -62,9 +65,15 @@ class _AddExpensePageState extends State<AddExpensePage> {
 
   final Map<String, TextEditingController> _expenseAmountControllers = {};
 
-  // ===========================================================================
-  // EXPENSE HELPERS
-  // ===========================================================================
+  final GlobalKey _expenseDateKey = GlobalKey();
+
+  final GlobalKey _expenseDaKey = GlobalKey();
+
+  final GlobalKey _addExpenseKey = GlobalKey();
+
+  final GlobalKey _expenseRemarkKey = GlobalKey();
+
+  bool _expenseTutorialRequested = false;
 
   bool _isTravelExpense(ExpenseParameterEntity expense) {
     final name = expense.fldExpName.trim().toLowerCase();
@@ -78,6 +87,171 @@ class _AddExpensePageState extends State<AddExpensePage> {
     return _isTravelExpense(expense)
         ? double.tryParse(amountController.text) ?? 0
         : expense.amount;
+  }
+
+  void _showExpenseTutorialIfNeeded() {
+    if (_expenseTutorialRequested) {
+      return;
+    }
+
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      if (!mounted || _expenseTutorialRequested) {
+        return;
+      }
+
+      // =========================================================
+      // ENSURE UI TARGETS EXIST
+      // =========================================================
+
+      final bool targetsReady =
+          _expenseDateKey.currentContext != null &&
+          _expenseDaKey.currentContext != null &&
+          _addExpenseKey.currentContext != null &&
+          _expenseRemarkKey.currentContext != null;
+
+      if (!targetsReady) {
+        debugPrint('Expense tutorial targets not ready');
+
+        return;
+      }
+
+      _expenseTutorialRequested = true;
+
+      await AppTutorialService.showExpenseTutorial(
+        context: context,
+
+        targets: _buildExpenseTutorialTargets(),
+      );
+    });
+  }
+
+  List<TargetFocus> _buildExpenseTutorialTargets() {
+    return [
+      // ==========================================================
+      // 1. EXPENSE DATE
+      // ==========================================================
+      TargetFocus(
+        identify: 'expense_date',
+
+        keyTarget: _expenseDateKey,
+
+        shape: ShapeLightFocus.RRect,
+
+        radius: 14,
+
+        paddingFocus: 6,
+
+        enableOverlayTab: false,
+        enableTargetTab: false,
+
+        contents: [
+          TargetContent(
+            align: ContentAlign.bottom,
+
+            child: const TutorialDescription(
+              step: '1 of 4',
+              title: 'Expense Date',
+              description:
+                  'Select the date for which you want to enter your daily expense.',
+            ),
+          ),
+        ],
+      ),
+
+      // ==========================================================
+      // 2. SELECT DA
+      // ==========================================================
+      TargetFocus(
+        identify: 'expense_da',
+
+        keyTarget: _expenseDaKey,
+
+        shape: ShapeLightFocus.RRect,
+
+        radius: 12,
+
+        paddingFocus: 6,
+
+        enableOverlayTab: false,
+        enableTargetTab: false,
+
+        contents: [
+          TargetContent(
+            align: ContentAlign.top,
+
+            child: const TutorialDescription(
+              step: '2 of 4',
+              title: 'Select DA',
+              description:
+                  'Select the applicable DA type. You can choose DA or Night Halt DA based on your eligibility.',
+            ),
+          ),
+        ],
+      ),
+
+      // ==========================================================
+      // 3. ADD EXPENSE
+      // ==========================================================
+      TargetFocus(
+        identify: 'add_expense',
+
+        keyTarget: _addExpenseKey,
+
+        shape: ShapeLightFocus.RRect,
+
+        radius: 14,
+
+        paddingFocus: 6,
+
+        enableOverlayTab: false,
+        enableTargetTab: false,
+
+        contents: [
+          TargetContent(
+            align: ContentAlign.top,
+
+            child: const TutorialDescription(
+              step: '3 of 4',
+              title: 'Add Expenses',
+              description:
+                  'Tap here to add other expenses, enter the amount and attach the expense receipt.',
+            ),
+          ),
+        ],
+      ),
+
+      // ==========================================================
+      // 4. REMARK
+      // ==========================================================
+      TargetFocus(
+        identify: 'expense_remark',
+
+        keyTarget: _expenseRemarkKey,
+
+        shape: ShapeLightFocus.RRect,
+
+        radius: 12,
+
+        paddingFocus: 6,
+
+        enableOverlayTab: false,
+        enableTargetTab: false,
+
+        contents: [
+          TargetContent(
+            align: ContentAlign.top,
+
+            child: const TutorialDescription(
+              step: '4 of 4',
+              title: 'Expense Remark',
+              description:
+                  'Enter any additional note or information related to this expense.',
+              isLast: true,
+            ),
+          ),
+        ],
+      ),
+    ];
   }
 
   TextEditingController _getExpenseAmountController(
@@ -94,9 +268,7 @@ class _AddExpensePageState extends State<AddExpensePage> {
     return _expenseAmountControllers[key]!;
   }
 
-  // ===========================================================================
-  // INIT
-  // ===========================================================================
+
 
   @override
   void initState() {
@@ -124,9 +296,7 @@ class _AddExpensePageState extends State<AddExpensePage> {
     );
   }
 
-  // ===========================================================================
-  // DISPOSE
-  // ===========================================================================
+
 
   @override
   void dispose() {
@@ -467,6 +637,11 @@ class _AddExpensePageState extends State<AddExpensePage> {
               return const Center(child: CircularProgressIndicator());
             }
 
+            if (state.status == ExpenseStatus.loaded &&
+                (state.expStatus == 0 || state.expStatus == -1)) {
+              _showExpenseTutorialIfNeeded();
+            }
+
             return SingleChildScrollView(
               physics: const BouncingScrollPhysics(),
               keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
@@ -622,6 +797,7 @@ class _AddExpensePageState extends State<AddExpensePage> {
         onTap: () => pickDate(state),
         borderRadius: BorderRadius.circular(14.r),
         child: Container(
+          key: _expenseDateKey,
           width: double.infinity,
           padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 10.h),
           decoration: BoxDecoration(
@@ -784,6 +960,7 @@ class _AddExpensePageState extends State<AddExpensePage> {
         SizedBox(height: 7.h),
 
         InkWell(
+          key: _addExpenseKey,
           onTap: () {
             showExpenseSheet(state);
           },
@@ -854,6 +1031,7 @@ class _AddExpensePageState extends State<AddExpensePage> {
 
         _modernCard(
           child: TextField(
+            key: _expenseRemarkKey,
             controller: remarkController,
             minLines: 1,
             maxLines: 2,
@@ -999,26 +1177,55 @@ class _AddExpensePageState extends State<AddExpensePage> {
   // ===========================================================================
   // DA
   // ===========================================================================
-
   Widget _daDropdown(ExpenseState state) {
-    return DropdownButtonFormField<String>(
-      value: daType,
-      isExpanded: true,
-      isDense: true,
-      hint: const Text('Select DA Type'),
-      decoration: InputDecoration(
-        filled: true,
-        fillColor: Colors.white,
+    return Container(
+      key: _expenseDaKey,
+
+      child: DropdownButtonFormField<String>(
+        value: daType,
+
+        isExpanded: true,
+
         isDense: true,
-        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12.r)),
+
+        hint: const Text('Select DA Type'),
+
+        decoration: InputDecoration(
+          filled: true,
+          fillColor: Colors.white,
+          isDense: true,
+          border: OutlineInputBorder(borderRadius: BorderRadius.circular(12.r)),
+        ),
+
+        items: const [
+          DropdownMenuItem(value: 'DA', child: Text('DA')),
+
+          DropdownMenuItem(value: 'NIGHT', child: Text('Night Halt DA')),
+        ],
+
+        onChanged: (value) => selectDaType(value, state),
       ),
-      items: const [
-        DropdownMenuItem(value: 'DA', child: Text('DA')),
-        DropdownMenuItem(value: 'NIGHT', child: Text('Night Halt DA')),
-      ],
-      onChanged: (value) => selectDaType(value, state),
     );
   }
+  // Widget _daDropdown(ExpenseState state) {
+  //   return DropdownButtonFormField<String>(
+  //     value: daType,
+  //     isExpanded: true,
+  //     isDense: true,
+  //     hint: const Text('Select DA Type'),
+  //     decoration: InputDecoration(
+  //       filled: true,
+  //       fillColor: Colors.white,
+  //       isDense: true,
+  //       border: OutlineInputBorder(borderRadius: BorderRadius.circular(12.r)),
+  //     ),
+  //     items: const [
+  //       DropdownMenuItem(value: 'DA', child: Text('DA')),
+  //       DropdownMenuItem(value: 'NIGHT', child: Text('Night Halt DA')),
+  //     ],
+  //     onChanged: (value) => selectDaType(value, state),
+  //   );
+  // }
 
   // ===========================================================================
   // TOTAL
@@ -1282,20 +1489,6 @@ class _AddExpensePageState extends State<AddExpensePage> {
       },
     );
   }
-
-  // ===========================================================================
-  // EXPENSE ITEM
-  // ===========================================================================
-  //
-  // THIS IS THE MAIN CHANGE:
-  //
-  // OLD:
-  // Navigator.push(... CameraCapturePage())
-  //
-  // NEW:
-  // ImagePicker().pickImage(source: ImageSource.gallery)
-  //
-  // ===========================================================================
 
   Widget _expenseItemCard({
     required BuildContext sheetContext,

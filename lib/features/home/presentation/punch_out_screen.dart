@@ -66,6 +66,8 @@ class _PunchOutScreenState extends State<PunchOutScreen> {
   bool _submissionSent = false;
 
   bool _waitingForStoreLocation = false;
+  bool _punchOutSaved = false;
+  bool _finishingPunchOut = false;
 
   // ===========================================================================
   // INIT
@@ -139,7 +141,7 @@ class _PunchOutScreenState extends State<PunchOutScreen> {
           'LOCATION: Invalid userId = $userId',
         );
 
-        return '[]';
+        throw StateError('Invalid user ID for stored locations');
       }
 
       final LocationRepository repository =
@@ -254,7 +256,7 @@ class _PunchOutScreenState extends State<PunchOutScreen> {
         '========================================',
       );
 
-      return '[]';
+      rethrow;
     }
   }
 
@@ -507,8 +509,42 @@ class _PunchOutScreenState extends State<PunchOutScreen> {
   // SUBMIT PUNCH
   // ===========================================================================
 
+  Future<void> _finishPunchOut({required bool locationsUploaded}) async {
+    if (!mounted || _finishingPunchOut) return;
+    _finishingPunchOut = true;
+    _waitingForStoreLocation = false;
+    try {
+      // Never delete tracking data when the server rejected its upload.
+      if (locationsUploaded) {
+        final parsedUserId = int.tryParse(userId ?? '');
+        if (parsedUserId != null) {
+          await sl<LocationRepository>().deleteUserLocations(parsedUserId);
+        }
+      }
+    } catch (error, stackTrace) {
+      debugPrint('Punch out saved, local cleanup failed: $error');
+      debugPrint('$stackTrace');
+    }
+    if (!mounted) return;
+    setState(() {
+      isLoading = false;
+      _submissionSent = false;
+    });
+    AppDialog.show(
+      context: context,
+      type: DialogType.success,
+      title: 'Punch Out Successful',
+      message: locationsUploaded
+          ? 'Your punch out has been submitted successfully.'
+          : 'Your punch out has been submitted successfully. Location history could not be synced. Any saved locations have been kept on this device.',
+      buttonText: 'OK',
+      onButtonPressed: () {
+        context.go('${AppRouter.addExpense}?refresh=true');
+      },
+    );
+  }
   Future<void> _submitPunch() async {
-    if (isLoading) {
+    if (isLoading || _punchOutSaved) {
       return;
     }
 
@@ -810,248 +846,53 @@ class _PunchOutScreenState extends State<PunchOutScreen> {
             // PUNCH OUT SUCCESS
             // ---------------------------------------------------------------
 
-            if (state.quickAccessStatus ==
-                    QuickAccessStatus
-                        .punchStatusSuccess &&
-                _submissionSent) {
-              debugPrint(
-                '========================================',
-              );
-
-              debugPrint(
-                'PUNCH OUT API SUCCESS',
-              );
-
-              debugPrint(
-                '========================================',
-              );
-
-              final String? dailyTranId =
-                  state.dailyTranId;
-
-              if (userId == null ||
-                  userId!.isEmpty) {
-                debugPrint(
-                  'PUNCH OUT STORE LOCATION NOT CALLED: userId null',
-                );
-
-                return;
-              }
-
-              if (dailyTranId == null ||
-                  dailyTranId.isEmpty) {
-                debugPrint(
-                  'PUNCH OUT STORE LOCATION NOT CALLED: dailyTranId null',
-                );
-
-                return;
-              }
-
-              final String strAllLocations =
-                  await _getStoredLocations();
-
-              debugPrint(
-                '========================================',
-              );
-
-              debugPrint(
-                'PUNCH OUT - CALL STORE LOCATION API',
-              );
-
-              debugPrint(
-                'USER ID: $userId',
-              );
-
-              debugPrint(
-                'DAILY TRAN ID: $dailyTranId',
-              );
-
-              debugPrint(
-                'STR ALL LOCATIONS: $strAllLocations',
-              );
-
-              debugPrint(
-                '========================================',
-              );
-
-              _waitingForStoreLocation =
-                  true;
-
-              context
-                  .read<QuickAcessBloc>()
-                  .add(
-                    StoreTrackLocation(
-                      userId!,
-                      dailyTranId,
-                      strAllLocations,
-                    ),
-                  );
-
-              return;
-            }
-
-            // ---------------------------------------------------------------
-            // STORE LOCATION SUCCESS
-            // ---------------------------------------------------------------
-
-            if (state.quickAccessStatus ==
-                    QuickAccessStatus
-                        .locationAddedSucces &&
-                _waitingForStoreLocation) {
-              debugPrint(
-                '========================================',
-              );
-
-              debugPrint(
-                'PUNCH OUT STORE LOCATION API SUCCESS',
-              );
-
-              debugPrint(
-                'STARTING FINAL CLEANUP',
-              );
-
-              debugPrint(
-                '========================================',
-              );
-
-              _waitingForStoreLocation =
-                  false;
-
+            if (state.quickAccessStatus == QuickAccessStatus.punchStatusSuccess &&
+                !_punchOutSaved) {
+              _punchOutSaved = true;
               try {
-                // -----------------------------------------------------------
-                // STOP BACKGROUND LOCATION
-                // -----------------------------------------------------------
-
+                // Punch-out is already saved. Stop tracking before taking the
+                // final history snapshot, even if its upload later fails.
                 await BackgroundLocationService.stop();
-
-                debugPrint(
-                  '========================================',
-                );
-
-                debugPrint(
-                  'BACKGROUND LOCATION SERVICE STOPPED',
-                );
-
-                debugPrint(
-                  '========================================',
-                );
-
-                await Future.delayed(
-                  const Duration(
-                    milliseconds: 500,
-                  ),
-                );
-
-                // -----------------------------------------------------------
-                // DELETE LOCAL LOCATIONS
-                // -----------------------------------------------------------
-
-                final int? parsedUserId =
-                    int.tryParse(
-                  userId ?? '',
-                );
-
-                if (parsedUserId != null) {
-                  final LocationRepository repository =
-                      sl<LocationRepository>();
-
-                  final int deletedCount =
-                      await repository
-                          .deleteUserLocations(
-                    parsedUserId,
-                  );
-
-                  debugPrint(
-                    '========================================',
-                  );
-
-                  debugPrint(
-                    'PUNCH OUT LOCATION CLEANUP',
-                  );
-
-                  debugPrint(
-                    'DELETED RECORDS: $deletedCount',
-                  );
-
-                  final remaining =
-                      await repository
-                          .getAllLocations(
-                    parsedUserId,
-                  );
-
-                  debugPrint(
-                    'REMAINING RECORDS: ${remaining.length}',
-                  );
-
-                  debugPrint(
-                    '========================================',
-                  );
-                } else {
-                  debugPrint(
-                    'PUNCH OUT CLEANUP ERROR: Invalid userId = $userId',
-                  );
+                await Future<void>.delayed(const Duration(milliseconds: 500));
+                if (!mounted) return;
+                final dailyTranId = state.dailyTranId;
+                if (userId == null || userId!.isEmpty ||
+                    dailyTranId == null || dailyTranId.isEmpty) {
+                  await _finishPunchOut(locationsUploaded: false);
+                  return;
                 }
-              } catch (e, stackTrace) {
-                debugPrint(
-                  '========================================',
+                final strAllLocations = await _getStoredLocations();
+                if (!mounted || !context.mounted) return;
+                final locations = jsonDecode(strAllLocations) as List<dynamic>;
+                if (locations.isEmpty) {
+                  debugPrint('Punch out saved: no stored locations to upload.');
+                  await _finishPunchOut(locationsUploaded: true);
+                  return;
+                }
+                _waitingForStoreLocation = true;
+                context.read<QuickAcessBloc>().add(
+                  StoreTrackLocation(userId!, dailyTranId, strAllLocations),
                 );
-
-                debugPrint(
-                  'PUNCH OUT CLEANUP ERROR',
-                );
-
-                debugPrint(
-                  '$e',
-                );
-
-                debugPrint(
-                  '$stackTrace',
-                );
-
-                debugPrint(
-                  '========================================',
-                );
+              } catch (error, stackTrace) {
+                debugPrint('Punch out saved, location sync failed: $error');
+                debugPrint('$stackTrace');
+                await _finishPunchOut(locationsUploaded: false);
               }
-
-              if (!mounted) {
-                return;
-              }
-
-              setState(() {
-                isLoading =
-                    false;
-
-                _submissionSent =
-                    false;
-              });
-
-              AppDialog.show(
-                context:
-                    context,
-
-                type:
-                    DialogType.success,
-
-                title:
-                    'Punch Out Successful',
-
-                message:
-                    'Your punch out has been submitted successfully.',
-
-                buttonText:
-                    'OK',
-
-                onButtonPressed:
-                    () {
-                  context.go(
-                    '${AppRouter.addExpense}?refresh=true',
-                  );
-                },
-              );
-
               return;
             }
 
+            if (state.quickAccessStatus == QuickAccessStatus.locationAddedSucces &&
+                _waitingForStoreLocation) {
+              await _finishPunchOut(locationsUploaded: true);
+              return;
+            }
+
+            if (state.quickAccessStatus == QuickAccessStatus.failure &&
+                _punchOutSaved) {
+              debugPrint('Punch out saved, location sync failed: ${state.errorMessage}');
+              await _finishPunchOut(locationsUploaded: false);
+              return;
+            }
             // ---------------------------------------------------------------
             // FAILURE
             // ---------------------------------------------------------------

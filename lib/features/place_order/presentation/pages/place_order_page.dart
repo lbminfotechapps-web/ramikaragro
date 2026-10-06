@@ -1,6 +1,10 @@
 import 'dart:io';
 import 'dart:typed_data';
 
+import 'package:solufine/core/utility/app_tutorial_service.dart';
+import 'package:solufine/core/utility/widgets/tutorial_description.dart';
+import 'package:tutorial_coach_mark/tutorial_coach_mark.dart';
+
 import 'package:solufine/core/di/place_order_target_di.dart';
 import 'package:solufine/core/router/app_router.dart';
 import 'package:solufine/core/secure_storage/secure_storage.dart';
@@ -170,6 +174,126 @@ class _PlaceOrderView extends StatefulWidget {
 }
 
 class _PlaceOrderViewState extends State<_PlaceOrderView> {
+  final GlobalKey _orderDealerKey = GlobalKey();
+  final GlobalKey _orderGodownKey = GlobalKey();
+  final GlobalKey _orderProductAddKey = GlobalKey();
+  final GlobalKey _orderDetailsKey = GlobalKey();
+  bool _orderTutorialPending = false;
+  bool _orderSetupTutorialFinished = false;
+  bool _orderProductsTutorialFinished = false;
+
+  TargetFocus _orderTutorialTarget({
+    required String id,
+    required GlobalKey key,
+    required String title,
+    required String description,
+    required bool isLast,
+    ContentAlign align = ContentAlign.bottom,
+  }) {
+    return TargetFocus(
+      identify: id,
+      keyTarget: key,
+      shape: ShapeLightFocus.RRect,
+      radius: 12,
+      paddingFocus: 6,
+      enableOverlayTab: false,
+      enableTargetTab: false,
+      contents: [
+        TargetContent(
+          align: align,
+          child: TutorialDescription(
+            step: 'Place Order',
+            title: title,
+            description: description,
+            isLast: isLast,
+          ),
+        ),
+      ],
+    );
+  }
+
+  void _showOrderTutorialIfNeeded({required bool hasProducts}) {
+    if (_orderTutorialPending || _orderProductsTutorialFinished) return;
+    if (_orderSetupTutorialFinished && !hasProducts) return;
+    _orderTutorialPending = true;
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      try {
+        if (!mounted || ModalRoute.of(context)?.isCurrent != true) return;
+        final productStage = _orderSetupTutorialFinished;
+        final keys = productStage
+            ? [_orderProductAddKey, _orderDetailsKey]
+            : [_orderDealerKey, _orderGodownKey];
+        if (keys.any((key) => key.currentContext == null)) return;
+        // The product button may be below the visible part of the page.
+        await Scrollable.ensureVisible(
+          keys.first.currentContext!,
+          alignment: 0.1,
+          duration: const Duration(milliseconds: 300),
+        );
+        if (!mounted || ModalRoute.of(context)?.isCurrent != true) return;
+        await WidgetsBinding.instance.endOfFrame;
+        if (!mounted || keys.any((key) => key.currentContext == null)) return;
+        final targets = productStage
+            ? [
+                _orderTutorialTarget(
+                  id: 'order_product_add',
+                  key: _orderProductAddKey,
+                  title: 'Add a Product',
+                  description:
+                      'Tap Add to choose product packing and rates, then enter the quantity for your order. Use More to add another packing.',
+                  isLast: false,
+                ),
+                _orderTutorialTarget(
+                  id: 'order_details',
+                  key: _orderDetailsKey,
+                  title: 'Add Order Details',
+                  description:
+                      'Tap Add Details to attach an image and capture the signature before previewing your order.',
+                  isLast: true,
+                  align: ContentAlign.top,
+                ),
+              ]
+            : [
+                _orderTutorialTarget(
+                  id: 'order_dealer',
+                  key: _orderDealerKey,
+                  title: 'Search for a Dealer',
+                  description:
+                      'Search for the dealer and select them from the results to place their order.',
+                  isLast: false,
+                ),
+                _orderTutorialTarget(
+                  id: 'order_godown',
+                  key: _orderGodownKey,
+                  title: 'Select a Godown',
+                  description:
+                      'Choose the godown that will supply the products for this order.',
+                  isLast: true,
+                ),
+              ];
+        final finished = await AppTutorialService.showPlaceOrderTutorial(
+          context: context,
+          targets: targets,
+          productStage: productStage,
+        );
+        if (!mounted) return;
+        if (finished) {
+          setState(() {
+            if (productStage) {
+              _orderProductsTutorialFinished = true;
+            } else {
+              _orderSetupTutorialFinished = true;
+            }
+            _orderTutorialPending = false;
+          });
+        }
+      } finally {
+        _orderTutorialPending = false;
+      }
+    });
+  }
+
+
   // ===========================================================================
   // CONTROLLERS
   // ===========================================================================
@@ -244,6 +368,7 @@ class _PlaceOrderViewState extends State<_PlaceOrderView> {
 
   @override
   void dispose() {
+    AppTutorialService.dismissPlaceOrderTutorial();
     dealerController.dispose();
     remarkController.dispose();
     productSearchController.dispose();
@@ -1124,6 +1249,7 @@ class _PlaceOrderViewState extends State<_PlaceOrderView> {
     return SizedBox(
       height: 48.h,
       child: OutlinedButton(
+        key: _orderDetailsKey,
         onPressed: _openAddDetailsDialog,
         style: OutlinedButton.styleFrom(
           backgroundColor: detailsAdded ? AppColors.lightGreen : Colors.white,
@@ -2403,6 +2529,10 @@ class _PlaceOrderViewState extends State<_PlaceOrderView> {
 
           final List<ProductEntity> filteredProducts = _getFilteredProducts();
 
+          if (state.status == PlaceOrderStatus.loaded) {
+            _showOrderTutorialIfNeeded(hasProducts: filteredProducts.isNotEmpty);
+          }
+
           final bool hasSelectedProducts = _getSelectedProducts(
             state,
           ).isNotEmpty;
@@ -2423,6 +2553,7 @@ class _PlaceOrderViewState extends State<_PlaceOrderView> {
                   // DEALER
                   // =================================================
                   DealerSearchField(
+                    key: _orderDealerKey,
                     controller: dealerController,
                     dealers: state.dealers,
                     selectedDealer: selectedDealer,
@@ -2437,6 +2568,7 @@ class _PlaceOrderViewState extends State<_PlaceOrderView> {
                   // GODOWN
                   // =================================================
                   ModernDropdown<String>(
+                    key: _orderGodownKey,
                     label: 'Godown *',
                     hint: 'Select godown',
                     icon: Icons.warehouse_rounded,
@@ -2610,6 +2742,9 @@ class _PlaceOrderViewState extends State<_PlaceOrderView> {
 
                           
                                 return ProductCard(
+                                  addButtonKey: identical(product, filteredProducts.first)
+                                      ? _orderProductAddKey
+                                      : null,
                                   product: product,
 
                                   selectedRates: productRates,
@@ -2784,8 +2919,7 @@ class _PlaceOrderViewState extends State<_PlaceOrderView> {
                 ),
                 SizedBox(height: 1.h),
                 Text(
-                  '${selectedCategories.length} '
-                  'categor${selectedCategories.length == 1 ? 'y' : 'ies'} • '
+                 
                   'Total quantity: $totalQuantity',
                   style: TextStyle(
                     fontSize: 10.sp,

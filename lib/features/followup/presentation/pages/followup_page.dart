@@ -1,4 +1,5 @@
 import 'package:url_launcher/url_launcher.dart';
+import 'package:solufine/core/utility/tab_refresh.dart';
 
 import 'package:solufine/core/router/app_router.dart';
 import 'package:solufine/core/theme/app_colors.dart';
@@ -52,6 +53,7 @@ class _FollowupPageState extends State<FollowupPage> {
   void initState() {
     super.initState();
 
+    TabRefresh.followup.addListener(_onTabRefresh);
     _initializePage();
   }
 
@@ -59,6 +61,15 @@ class _FollowupPageState extends State<FollowupPage> {
   // INITIALIZE
   // ===========================================================================
 
+  void _onTabRefresh() {
+    _initializePage();
+  }
+
+  @override
+  void dispose() {
+    TabRefresh.followup.removeListener(_onTabRefresh);
+    super.dispose();
+  }
   Future<void> _initializePage() async {
     final userData = await SecureStorage.instance.getUserData();
 

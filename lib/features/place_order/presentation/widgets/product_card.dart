@@ -8,6 +8,7 @@ import 'package:flutter_screenutil_plus/flutter_screenutil_plus.dart';
 
 class ProductCard extends StatelessWidget {
   final ProductEntity product;
+  final Key? addButtonKey;
 
   final Map<String, int> packingQuantities;
 
@@ -18,16 +19,6 @@ class ProductCard extends StatelessWidget {
   final VoidCallback onAddMore;
 
   final VoidCallback onDelete;
-
-  // ============================================================
-  // CHANGED
-  // OLD:
-  // final void Function(ProductRateEntity rate) onIncrease;
-  // final void Function(ProductRateEntity rate) onDecrease;
-  //
-  // NEW:
-  // Directly enter case quantity
-  // ============================================================
 
   final void Function(
     ProductRateEntity rate,
@@ -40,6 +31,7 @@ class ProductCard extends StatelessWidget {
 
   const ProductCard({
     super.key,
+    this.addButtonKey,
     required this.product,
     required this.packingQuantities,
     required this.selectedRates,
@@ -57,46 +49,35 @@ class ProductCard extends StatelessWidget {
 
     return Container(
       width: double.infinity,
-
       margin: EdgeInsets.only(
         bottom: 6.h,
       ),
-
       padding: EdgeInsets.symmetric(
         horizontal: 9.w,
         vertical: 8.h,
       ),
-
       decoration: BoxDecoration(
         color: Colors.white,
-
         borderRadius:
             BorderRadius.circular(
           12.r,
         ),
-
         border: Border.all(
           color: hasRates
-              ? AppColors.primary.withOpacity(
-                  0.22,
-                )
+              ? AppColors.primary
+                  .withOpacity(0.22)
               : AppColors.border,
         ),
-
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(
-              0.025,
-            ),
+            color: Colors.black
+                .withOpacity(0.025),
             blurRadius: 5,
-            offset: const Offset(
-              0,
-              2,
-            ),
+            offset:
+                const Offset(0, 2),
           ),
         ],
       ),
-
       child: Column(
         crossAxisAlignment:
             CrossAxisAlignment.start,
@@ -109,13 +90,12 @@ class ProductCard extends StatelessWidget {
             crossAxisAlignment:
                 CrossAxisAlignment.center,
             children: [
-              // PRODUCT ICON
-
               Container(
                 width: 34.w,
                 height: 34.w,
                 decoration: BoxDecoration(
-                  color: AppColors.lightGreen,
+                  color:
+                      AppColors.lightGreen,
                   borderRadius:
                       BorderRadius.circular(
                     9.r,
@@ -128,36 +108,30 @@ class ProductCard extends StatelessWidget {
                 ),
               ),
 
-              SizedBox(
-                width: 8.w,
-              ),
-
-              // =================================================
-              // PRODUCT NAME + STATUS
-              // =================================================
+              SizedBox(width: 8.w),
 
               Expanded(
                 child: Column(
                   crossAxisAlignment:
-                      CrossAxisAlignment.start,
+                      CrossAxisAlignment
+                          .start,
                   children: [
                     Text(
                       product.name,
                       maxLines: 1,
                       overflow:
-                          TextOverflow.ellipsis,
+                          TextOverflow
+                              .ellipsis,
                       style: TextStyle(
                         fontSize: 12.5.sp,
                         fontWeight:
                             FontWeight.w800,
-                        color:
-                            AppColors.textPrimary,
+                        color: AppColors
+                            .textPrimary,
                       ),
                     ),
 
-                    SizedBox(
-                      height: 2.h,
-                    ),
+                    SizedBox(height: 2.h),
 
                     Row(
                       children: [
@@ -169,14 +143,13 @@ class ProductCard extends StatelessWidget {
                                   .radio_button_unchecked_rounded,
                           size: 11.sp,
                           color: hasRates
-                              ? AppColors.primary
+                              ? AppColors
+                                  .primary
                               : AppColors
                                   .textSecondary,
                         ),
 
-                        SizedBox(
-                          width: 3.w,
-                        ),
+                        SizedBox(width: 3.w),
 
                         Flexible(
                           child: Text(
@@ -187,10 +160,13 @@ class ProductCard extends StatelessWidget {
                             overflow:
                                 TextOverflow
                                     .ellipsis,
-                            style: TextStyle(
-                              fontSize: 9.sp,
+                            style:
+                                TextStyle(
+                              fontSize:
+                                  9.sp,
                               fontWeight:
-                                  FontWeight.w600,
+                                  FontWeight
+                                      .w600,
                               color: hasRates
                                   ? AppColors
                                       .primary
@@ -205,25 +181,15 @@ class ProductCard extends StatelessWidget {
                 ),
               ),
 
-              SizedBox(
-                width: 5.w,
-              ),
-
-              // =================================================
-              // ADD / ADD MORE
-              // =================================================
+              SizedBox(width: 5.w),
 
               _buildCompactActionButton(
                 hasRates: hasRates,
               ),
 
-              SizedBox(
-                width: 3.w,
-              ),
+              SizedBox(width: 3.w),
 
-              // =================================================
               // DELETE PRODUCT
-              // =================================================
 
               InkWell(
                 borderRadius:
@@ -236,13 +202,15 @@ class ProductCard extends StatelessWidget {
                   height: 30.w,
                   alignment:
                       Alignment.center,
-                  decoration: BoxDecoration(
+                  decoration:
+                      BoxDecoration(
                     color: Colors.red
                         .withOpacity(
                       0.06,
                     ),
                     borderRadius:
-                        BorderRadius.circular(
+                        BorderRadius
+                            .circular(
                       8.r,
                     ),
                   ),
@@ -263,19 +231,15 @@ class ProductCard extends StatelessWidget {
           // =====================================================
 
           if (hasRates) ...[
-            SizedBox(
-              height: 7.h,
-            ),
+            SizedBox(height: 7.h),
 
             Container(
               width: double.infinity,
-
               padding:
                   EdgeInsets.symmetric(
                 horizontal: 7.w,
                 vertical: 2.h,
               ),
-
               decoration: BoxDecoration(
                 color:
                     AppColors.background,
@@ -290,7 +254,6 @@ class ProductCard extends StatelessWidget {
                   ),
                 ),
               ),
-
               child: Column(
                 children: [
                   for (
@@ -338,17 +301,6 @@ class ProductCard extends StatelessWidget {
         rate.productDetailsId
             .toString();
 
-    // ==========================================================
-    // CHANGED
-    //
-    // OLD:
-    // final int quantity =
-    //     packingQuantities[productDetailsId] ?? 1;
-    //
-    // NEW:
-    // 0 means empty field until user enters case
-    // ==========================================================
-
     final int quantity =
         packingQuantities[
                 productDetailsId] ??
@@ -360,28 +312,19 @@ class ProductCard extends StatelessWidget {
       ),
       child: Row(
         children: [
-          // =====================================================
-          // CHECK ICON
-          // =====================================================
-
           Icon(
             Icons.check_circle_rounded,
             color: AppColors.primary,
             size: 13.sp,
           ),
 
-          SizedBox(
-            width: 5.w,
-          ),
-
-          // =====================================================
-          // PACKING INFORMATION
-          // =====================================================
+          SizedBox(width: 5.w),
 
           Expanded(
             child: Column(
               crossAxisAlignment:
-                  CrossAxisAlignment.start,
+                  CrossAxisAlignment
+                      .start,
               children: [
                 Row(
                   children: [
@@ -392,7 +335,8 @@ class ProductCard extends StatelessWidget {
                         overflow:
                             TextOverflow
                                 .ellipsis,
-                        style: TextStyle(
+                        style:
+                            TextStyle(
                           fontSize:
                               10.5.sp,
                           fontWeight:
@@ -404,95 +348,91 @@ class ProductCard extends StatelessWidget {
                       ),
                     ),
 
-                    SizedBox(
-                      width: 5.w,
-                    ),
+                    SizedBox(width: 5.w),
 
                     Text(
                       '₹${rate.rateWithGst}',
                       style: TextStyle(
                         fontSize: 9.sp,
                         fontWeight:
-                            FontWeight.w800,
-                        color:
-                            AppColors.primary,
-                      ),
-                    ),
-                  ],
-                ),
-
-                SizedBox(
-                  height: 2.h,
-                ),
-
-                Row(
-                  children: [
-                    Container(
-                      padding:
-                          EdgeInsets
-                              .symmetric(
-                        horizontal:
-                            5.w,
-                        vertical:
-                            1.5.h,
-                      ),
-                      decoration:
-                          BoxDecoration(
+                            FontWeight
+                                .w800,
                         color: AppColors
-                            .lightGreen,
-                        borderRadius:
-                            BorderRadius
-                                .circular(
-                          5.r,
-                        ),
-                      ),
-                      child: Text(
-                        rate.displayCase,
-                        style:
-                            TextStyle(
-                          fontSize:
-                              7.5.sp,
-                          fontWeight:
-                              FontWeight
-                                  .w700,
-                          color:
-                              AppColors
-                                  .primary,
-                        ),
+                            .primary,
                       ),
                     ),
                   ],
+                ),
+
+                SizedBox(height: 2.h),
+
+                Container(
+                  padding:
+                      EdgeInsets
+                          .symmetric(
+                    horizontal: 5.w,
+                    vertical: 1.5.h,
+                  ),
+                  decoration:
+                      BoxDecoration(
+                    color: AppColors
+                        .lightGreen,
+                    borderRadius:
+                        BorderRadius
+                            .circular(
+                      5.r,
+                    ),
+                  ),
+                  child: Text(
+                    rate.displayCase,
+                    style:
+                        TextStyle(
+                      fontSize:
+                          7.5.sp,
+                      fontWeight:
+                          FontWeight
+                              .w700,
+                      color: AppColors
+                          .primary,
+                    ),
+                  ),
                 ),
               ],
             ),
           ),
 
-          SizedBox(
-            width: 6.w,
-          ),
+          SizedBox(width: 6.w),
 
           // =====================================================
-          // ENTER CASE FIELD
+          // QUANTITY FIELD
           // =====================================================
 
-          _buildQuantityControl(
-            rate: rate,
+          _CaseQuantityField(
+            key: ValueKey(
+              'product_card_${product.id}_${rate.productDetailsId}',
+            ),
             quantity: quantity,
+            onChanged:
+                (newQuantity) {
+              onQuantityChanged(
+                rate,
+                newQuantity,
+              );
+            },
           ),
 
-          SizedBox(
-            width: 5.w,
-          ),
 
-          // =====================================================
+          
+
+
+
+          SizedBox(width: 5.w),
+
           // DELETE PACKING
-          // =====================================================
 
           Material(
             color: Colors.red
-                .withOpacity(
-              0.07,
-            ),
+                .withOpacity(0.07),
             borderRadius:
                 BorderRadius.circular(
               7.r,
@@ -525,261 +465,38 @@ class ProductCard extends StatelessWidget {
   }
 
   // ============================================================
-  // ENTER CASE CONTROL
-  // ============================================================
-  //
-  // OLD:
-  //
-  //     -    1    +
-  //
-  // NEW:
-  //
-  //     [ Enter Case ]
-  //
+  // ADD / MORE BUTTON
   // ============================================================
 
-  Widget _buildQuantityControl({
-    required ProductRateEntity rate,
-    required int quantity,
-  }) {
-    return SizedBox(
-      width: 82.w,
-      height: 34.h,
-      child: TextFormField(
-        // ========================================================
-        // KEY
-        // ========================================================
-
-        key: ValueKey(
-          'qty_${rate.productDetailsId}',
-        ),
-
-        // ========================================================
-        // DEFAULT VALUE
-        // ========================================================
-
-        initialValue:
-            quantity > 0
-                ? quantity
-                    .toString()
-                : '',
-
-        // ========================================================
-        // NUMBER KEYBOARD
-        // ========================================================
-
-        keyboardType:
-            TextInputType.number,
-
-        inputFormatters: [
-          FilteringTextInputFormatter
-              .digitsOnly,
-        ],
-
-        textAlign:
-            TextAlign.center,
-
-        textInputAction:
-            TextInputAction.done,
-
-        // ========================================================
-        // TEXT STYLE
-        // ========================================================
-
-        style: TextStyle(
-          fontSize: 10.sp,
-          fontWeight:
-              FontWeight.w800,
-          color:
-              AppColors.textPrimary,
-        ),
-
-        // ========================================================
-        // DESIGN
-        // ========================================================
-
-        decoration:
-            InputDecoration(
-          hintText:
-              'Enter Case',
-
-          hintStyle:
-              TextStyle(
-            fontSize: 8.sp,
-            fontWeight:
-                FontWeight.w500,
-            color: AppColors
-                .textSecondary,
-          ),
-
-          isDense: true,
-
-          contentPadding:
-              EdgeInsets.symmetric(
-            horizontal: 5.w,
-            vertical: 8.h,
-          ),
-
-          filled: true,
-
-          fillColor:
-              Colors.white,
-
-          enabledBorder:
-              OutlineInputBorder(
-            borderRadius:
-                BorderRadius.circular(
-              7.r,
-            ),
-            borderSide:
-                BorderSide(
-              color:
-                  AppColors.border,
-              width: 1,
-            ),
-          ),
-
-          focusedBorder:
-              OutlineInputBorder(
-            borderRadius:
-                BorderRadius.circular(
-              7.r,
-            ),
-            borderSide:
-                BorderSide(
-              color:
-                  AppColors.primary,
-              width: 1.3,
-            ),
-          ),
-
-          errorBorder:
-              OutlineInputBorder(
-            borderRadius:
-                BorderRadius.circular(
-              7.r,
-            ),
-            borderSide:
-                const BorderSide(
-              color: Colors.red,
-              width: 1,
-            ),
-          ),
-
-          focusedErrorBorder:
-              OutlineInputBorder(
-            borderRadius:
-                BorderRadius.circular(
-              7.r,
-            ),
-            borderSide:
-                const BorderSide(
-              color: Colors.red,
-              width: 1.3,
-            ),
-          ),
-        ),
-
-        // ========================================================
-        // QUANTITY CHANGE
-        // ========================================================
-
-        onChanged: (value) {
-          final String
-              cleanedValue =
-              value.trim();
-
-          // Empty field
-          if (cleanedValue
-              .isEmpty) {
-            onQuantityChanged(
-              rate,
-              0,
-            );
-
-            return;
-          }
-
-          final int?
-              enteredQuantity =
-              int.tryParse(
-            cleanedValue,
-          );
-
-          if (enteredQuantity ==
-              null) {
-            onQuantityChanged(
-              rate,
-              0,
-            );
-
-            return;
-          }
-
-          onQuantityChanged(
-            rate,
-            enteredQuantity,
-          );
-        },
-
-        // ========================================================
-        // DONE
-        // ========================================================
-
-        onFieldSubmitted:
-            (_) {
-          FocusManager
-              .instance
-              .primaryFocus
-              ?.unfocus();
-        },
-      ),
-    );
-  }
-
-  // ============================================================
-  // ADD / ADD MORE BUTTON
-  // ============================================================
-
-  Widget
-      _buildCompactActionButton({
+  Widget _buildCompactActionButton({
     required bool hasRates,
   }) {
     return Material(
+      key: addButtonKey,
       color: hasRates
           ? AppColors.primary
-              .withOpacity(
-              0.08,
-            )
+              .withOpacity(0.08)
           : AppColors.primary,
-
       borderRadius:
           BorderRadius.circular(
         8.r,
       ),
-
       child: InkWell(
-        onTap:
-            hasRates
-                ? onAddMore
-                : onAdd,
-
+        onTap: hasRates
+            ? onAddMore
+            : onAdd,
         borderRadius:
             BorderRadius.circular(
           8.r,
         ),
-
         child: Container(
           height: 30.h,
-
           padding:
               EdgeInsets.symmetric(
             horizontal: 8.w,
           ),
-
           alignment:
               Alignment.center,
-
           child: Row(
             mainAxisSize:
                 MainAxisSize.min,
@@ -797,9 +514,7 @@ class ProductCard extends StatelessWidget {
                     : Colors.white,
               ),
 
-              SizedBox(
-                width: 3.w,
-              ),
+              SizedBox(width: 3.w),
 
               Text(
                 hasRates
@@ -818,6 +533,331 @@ class ProductCard extends StatelessWidget {
             ],
           ),
         ),
+      ),
+    );
+  }
+}
+
+// ============================================================================
+// QUANTITY FIELD
+// ============================================================================
+//
+// IMPORTANT:
+//
+// We are NOT using initialValue.
+//
+// TextEditingController is used so that when the quantity changes from
+// Add More bottom sheet, this field also receives and displays the new value.
+// ============================================================================
+
+
+
+class _CaseQuantityField
+    extends StatefulWidget {
+  final int quantity;
+
+  final ValueChanged<int> onChanged;
+
+  const _CaseQuantityField({
+    super.key,
+    required this.quantity,
+    required this.onChanged,
+  });
+
+  @override
+  State<_CaseQuantityField>
+      createState() =>
+          _CaseQuantityFieldState();
+}
+
+class _CaseQuantityFieldState
+    extends State<_CaseQuantityField> {
+  late final TextEditingController
+      _controller;
+
+  late final FocusNode
+      _focusNode;
+
+  @override
+  void initState() {
+    super.initState();
+
+    _controller =
+        TextEditingController(
+      text: widget.quantity > 0
+          ? widget.quantity.toString()
+          : '',
+    );
+
+    _focusNode =
+        FocusNode();
+
+    _focusNode.addListener(
+      _onFocusChanged,
+    );
+  }
+
+  // ============================================================
+  // FOCUS CHANGE
+  // ============================================================
+
+  void _onFocusChanged() {
+    // User is typing.
+    // Don't overwrite controller.
+    if (_focusNode.hasFocus) {
+      return;
+    }
+
+    // User finished typing.
+    // Now sync external quantity if needed.
+    _syncText(
+      widget.quantity,
+    );
+  }
+
+  // ============================================================
+  // EXTERNAL QUANTITY UPDATE
+  // ============================================================
+
+  @override
+  void didUpdateWidget(
+    covariant _CaseQuantityField oldWidget,
+  ) {
+    super.didUpdateWidget(
+      oldWidget,
+    );
+
+    if (oldWidget.quantity ==
+        widget.quantity) {
+      return;
+    }
+
+    // ==========================================================
+    // IMPORTANT FIX
+    //
+    // If user is typing:
+    // 22 -> delete -> 2 -> type 1 -> 21
+    //
+    // DON'T overwrite controller from Bloc rebuild.
+    // ==========================================================
+
+    if (_focusNode.hasFocus) {
+      return;
+    }
+
+    _syncText(
+      widget.quantity,
+    );
+  }
+
+  // ============================================================
+  // SYNC CONTROLLER
+  // ============================================================
+
+  void _syncText(
+    int quantity,
+  ) {
+    final String newText =
+        quantity > 0
+            ? quantity.toString()
+            : '';
+
+    if (_controller.text ==
+        newText) {
+      return;
+    }
+
+    _controller.value =
+        TextEditingValue(
+      text: newText,
+      selection:
+          TextSelection.collapsed(
+        offset:
+            newText.length,
+      ),
+    );
+  }
+
+  // ============================================================
+  // DISPOSE
+  // ============================================================
+
+  @override
+  void dispose() {
+    _focusNode.removeListener(
+      _onFocusChanged,
+    );
+
+    _focusNode.dispose();
+    _controller.dispose();
+
+    super.dispose();
+  }
+
+  // ============================================================
+  // BUILD
+  // ============================================================
+
+  @override
+  Widget build(
+    BuildContext context,
+  ) {
+    return SizedBox(
+      width: 82.w,
+      height: 34.h,
+      child: TextFormField(
+        controller:
+            _controller,
+
+        focusNode:
+            _focusNode,
+
+        keyboardType:
+            TextInputType.number,
+
+        inputFormatters: [
+          FilteringTextInputFormatter
+              .digitsOnly,
+        ],
+
+        textAlign:
+            TextAlign.center,
+
+        textInputAction:
+            TextInputAction.done,
+
+        style: TextStyle(
+          fontSize: 10.sp,
+          fontWeight:
+              FontWeight.w800,
+          color:
+              AppColors.textPrimary,
+        ),
+
+        decoration:
+            InputDecoration(
+          hintText:
+              'Enter Case',
+
+          hintStyle:
+              TextStyle(
+            fontSize: 8.sp,
+            fontWeight:
+                FontWeight.w500,
+            color:
+                AppColors.textSecondary,
+          ),
+
+          isDense:
+              true,
+
+          contentPadding:
+              EdgeInsets.symmetric(
+            horizontal:
+                5.w,
+            vertical:
+                8.h,
+          ),
+
+          filled:
+              true,
+
+          fillColor:
+              Colors.white,
+
+          enabledBorder:
+              OutlineInputBorder(
+            borderRadius:
+                BorderRadius.circular(
+              7.r,
+            ),
+            borderSide:
+                BorderSide(
+              color:
+                  AppColors.border,
+              width:
+                  1,
+            ),
+          ),
+
+          focusedBorder:
+              OutlineInputBorder(
+            borderRadius:
+                BorderRadius.circular(
+              7.r,
+            ),
+            borderSide:
+                BorderSide(
+              color:
+                  AppColors.primary,
+              width:
+                  1.3,
+            ),
+          ),
+
+          errorBorder:
+              OutlineInputBorder(
+            borderRadius:
+                BorderRadius.circular(
+              7.r,
+            ),
+            borderSide:
+                const BorderSide(
+              color:
+                  Colors.red,
+            ),
+          ),
+
+          focusedErrorBorder:
+              OutlineInputBorder(
+            borderRadius:
+                BorderRadius.circular(
+              7.r,
+            ),
+            borderSide:
+                const BorderSide(
+              color:
+                  Colors.red,
+              width:
+                  1.3,
+            ),
+          ),
+        ),
+
+        // ======================================================
+        // USER ENTERS QUANTITY
+        // ======================================================
+
+        onChanged: (value) {
+          final String cleanValue =
+              value.trim();
+
+          if (cleanValue.isEmpty) {
+            widget.onChanged(0);
+            return;
+          }
+
+          final int? quantity =
+              int.tryParse(
+            cleanValue,
+          );
+
+          if (quantity == null) {
+            return;
+          }
+
+          widget.onChanged(
+            quantity,
+          );
+        },
+
+        // ======================================================
+        // DONE
+        // ======================================================
+
+        onFieldSubmitted: (_) {
+          _focusNode.unfocus();
+        },
       ),
     );
   }

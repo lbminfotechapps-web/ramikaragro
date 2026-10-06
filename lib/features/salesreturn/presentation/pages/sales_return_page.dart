@@ -2979,8 +2979,8 @@ Widget _buildPreviewButton(SalesReturnState state) {
                 ),
                 SizedBox(height: 1.h),
                 Text(
-                  '${selectedCategories.length} '
-                  'categor${selectedCategories.length == 1 ? 'y' : 'ies'} • '
+                 // '${selectedCategories.length} '
+                  //'categor${selectedCategories.length == 1 ? 'y' : 'ies'} • '
                   'Total quantity: $totalQuantity',
                   style: TextStyle(
                     fontSize: 10.sp,
