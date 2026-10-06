@@ -125,9 +125,6 @@ import 'package:solufine/features/reports/presentation/bloc/not_visited_dealer_b
 import 'package:solufine/features/salesreturnhistory/presentation/bloc/sales_return_history_bloc.dart';
 import 'package:solufine/features/scheme/presentation/bloc/scheme_bloc.dart';
 
-// ============================================================
-// 🔔 CHANGED FROM StatelessWidget TO StatefulWidget
-// ============================================================
 
 class MyApp extends StatefulWidget {
   const MyApp({super.key});
@@ -137,9 +134,7 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-  // ============================================================
-  // 🔔 ADDED FOR NOTIFICATION NAVIGATION
-  // ============================================================
+ 
 
   @override
   void initState() {
@@ -148,18 +143,12 @@ class _MyAppState extends State<MyApp> {
     NotificationNavigationService.instance.setRouter(AppRouter.router);
   }
 
-  // ============================================================
-  // YOUR EXISTING BUILD
-  // ============================================================
 
   @override
   Widget build(BuildContext context) {
     return MultiBlocProvider(
       providers: [
-        // ======================================================
-        // YOUR EXISTING PROVIDERS
-        // NOTHING REMOVED
-        // ======================================================
+
         BlocProvider<QuickAcessBloc>(create: (_) => sl<QuickAcessBloc>()),
 
         BlocProvider<EmployeeActivityBloc>(
@@ -221,10 +210,7 @@ class _MyAppState extends State<MyApp> {
         BlocProvider<ExpenseBloc>(create: (_) => sl<ExpenseBloc>()),
       ],
 
-      // ========================================================
-      // YOUR EXISTING MATERIAL APP
-      // NOTHING CHANGED
-      // ========================================================
+
       child: MaterialApp.router(
         title: 'Flutter Demo',
         theme: AppColor.getLightTheme(),

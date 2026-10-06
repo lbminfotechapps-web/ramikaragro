@@ -1269,7 +1269,7 @@ class _OrderHistoryPageState extends State<OrderHistoryPage> {
                             ),
                             SizedBox(height: 2.h),
                             Text(
-                              'Order #${order.orderNo}',
+                              'Order :${order.orderNo}',
                               style: TextStyle(
                                 fontSize: 12.sp,
                                 color: Colors.grey.shade600,

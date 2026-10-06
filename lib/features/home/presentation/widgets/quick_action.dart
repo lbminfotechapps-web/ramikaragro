@@ -50,7 +50,7 @@ class QuickAccessSection extends StatefulWidget {
 }
 
 class _QuickAccessSectionState extends State<QuickAccessSection> {
-  static const int initialItemCount = 5;
+  static const int initialItemCount = 11;
   static const informationMenuIds = ['22', '23', '60', '19', '20', '56', '21'];
   int? userId;
   int visibleItemCount = initialItemCount;

@@ -1446,51 +1446,58 @@ class QuickAcessBloc extends Bloc<QuickAccessEvent, QuickAccessState> {
         debugPrint('Now cleaning local location records...');
         debugPrint('========================================');
 
-        final int? parsedUserId = int.tryParse(event.userId);
+        try {
+          final int? parsedUserId = int.tryParse(event.userId);
 
-        if (parsedUserId != null) {
-          // --------------------------------------------------------
-          // DELETE EVERYTHING EXCEPT LATEST LOCATION
-          // --------------------------------------------------------
+          if (parsedUserId != null) {
+            // --------------------------------------------------------
+            // DELETE EVERYTHING EXCEPT LATEST LOCATION
+            // --------------------------------------------------------
 
-          final int deletedCount = await repository.deleteAllExceptLastLocation(
-            parsedUserId,
-          );
-
-          debugPrint('========================================');
-          debugPrint('LOCATION CLEANUP SUCCESS');
-          debugPrint('DELETED RECORDS: $deletedCount');
-          debugPrint('LAST LOCATION KEPT');
-          debugPrint('========================================');
-
-          // --------------------------------------------------------
-          // TEMPORARY VERIFICATION
-          // --------------------------------------------------------
-
-          final remainingLocations = await repository.getAllLocations(
-            parsedUserId,
-          );
-
-          debugPrint('========================================');
-          debugPrint('REMAINING LOCATION RECORDS');
-          debugPrint('TOTAL: ${remainingLocations.length}');
-
-          for (final location in remainingLocations) {
-            debugPrint(
-              'ID: ${location.id} | '
-              'Lat: ${location.latitude} | '
-              'Lng: ${location.longitude} | '
-              'Time: ${location.capturedAt} | '
-              'Accuracy: ${location.accuracy} | '
-              'Provider: ${location.provider} | '
-              'Address: ${location.geoAddress} | '
-              'Distance: ${location.distance}',
+            final int deletedCount = await repository.deleteAllExceptLastLocation(
+              parsedUserId,
             );
+
+            debugPrint('========================================');
+            debugPrint('LOCATION CLEANUP SUCCESS');
+            debugPrint('DELETED RECORDS: $deletedCount');
+            debugPrint('LAST LOCATION KEPT');
+            debugPrint('========================================');
+
+            // --------------------------------------------------------
+            // TEMPORARY VERIFICATION
+            // --------------------------------------------------------
+
+            final remainingLocations = await repository.getAllLocations(
+              parsedUserId,
+            );
+
+            debugPrint('========================================');
+            debugPrint('REMAINING LOCATION RECORDS');
+            debugPrint('TOTAL: ${remainingLocations.length}');
+
+            for (final location in remainingLocations) {
+              debugPrint(
+                'ID: ${location.id} | '
+                'Lat: ${location.latitude} | '
+                'Lng: ${location.longitude} | '
+                'Time: ${location.capturedAt} | '
+                'Accuracy: ${location.accuracy} | '
+                'Provider: ${location.provider} | '
+                'Address: ${location.geoAddress} | '
+                'Distance: ${location.distance}',
+              );
+            }
+
+            debugPrint('========================================');
+          } else {
+            debugPrint('LOCATION CLEANUP: Invalid userId ${event.userId}');
           }
 
-          debugPrint('========================================');
-        } else {
-          debugPrint('LOCATION CLEANUP: Invalid userId ${event.userId}');
+        } catch (error, stackTrace) {
+          // The server accepted the upload; local cleanup is a separate step.
+          debugPrint('Location upload succeeded, local cleanup failed: $error');
+          debugPrint(stackTrace.toString());
         }
 
         emit(
@@ -1500,7 +1507,10 @@ class QuickAcessBloc extends Bloc<QuickAccessEvent, QuickAccessState> {
           ),
         );
       } else {
-        emit(state.copyWith(quickAccessStatus: QuickAccessStatus.failure));
+        emit(state.copyWith(
+          quickAccessStatus: QuickAccessStatus.failure,
+          errorMessage: 'Location history upload failed: ${result['message'] ?? 'Server rejected the upload'}',
+        ));
       }
     } catch (e, stackTrace) {
       debugPrint('========================================');

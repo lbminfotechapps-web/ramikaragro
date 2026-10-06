@@ -1,4 +1,4 @@
-<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android" xmlns:tools="http://schemas.android.com/tools">
 <uses-permission android:name="android.permission.INTERNET" />
 <uses-permission android:name="android.permission.RECORD_AUDIO" />
 <uses-permission android:name="android.permission.CALL_PHONE" />
@@ -8,6 +8,10 @@
 <uses-feature android:name="android.hardware.camera" android:required="false"/>
 <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
 
+<!-- Gallery selection uses the system picker; block broad permissions from plugins. -->
+<uses-permission android:name="android.permission.READ_MEDIA_IMAGES" tools:node="remove" />
+<uses-permission android:name="android.permission.READ_MEDIA_VIDEO" tools:node="remove" />
+<uses-permission android:name="android.permission.READ_MEDIA_AUDIO" tools:node="remove" />
 <!-- Location -->
 <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
 <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
@@ -17,7 +21,6 @@
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher"
         android:largeHeap="true"
-    android:requestLegacyExternalStorage="true"
         
         >
         <service

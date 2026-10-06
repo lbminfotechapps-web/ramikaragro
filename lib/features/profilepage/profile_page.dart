@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:solufine/core/router/app_router.dart';
 import 'package:solufine/core/theme/app_colors.dart';
 import 'package:solufine/core/utility/widgets/custom_appbar.dart';
 import 'package:solufine/core/utility/widgets/custom_button.dart';
@@ -167,7 +168,9 @@ class _ProfilePageState extends State<ProfilePage> {
         title: 'My Profile',
         showBackButton: true,
         onBackTap: () {
-        context.push('/home');
+     context.go(
+            AppRouter.home,
+          );
         },
       ),
       body: _isLoading

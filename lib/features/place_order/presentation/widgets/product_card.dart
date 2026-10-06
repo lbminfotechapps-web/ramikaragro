@@ -8,6 +8,7 @@ import 'package:flutter_screenutil_plus/flutter_screenutil_plus.dart';
 
 class ProductCard extends StatelessWidget {
   final ProductEntity product;
+  final Key? addButtonKey;
 
   final Map<String, int> packingQuantities;
 
@@ -30,6 +31,7 @@ class ProductCard extends StatelessWidget {
 
   const ProductCard({
     super.key,
+    this.addButtonKey,
     required this.product,
     required this.packingQuantities,
     required this.selectedRates,
@@ -465,6 +467,7 @@ class ProductCard extends StatelessWidget {
     required bool hasRates,
   }) {
     return Material(
+      key: addButtonKey,
       color: hasRates
           ? AppColors.primary
               .withOpacity(0.08)
