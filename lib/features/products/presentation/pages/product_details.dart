@@ -72,23 +72,24 @@ class _DynamicHtmlContentState extends State<DynamicHtmlContent> {
       ..loadHtmlString(_buildHtml(widget.htmlContent));
   }
 
-  // ============================================================
-  // CALCULATE HTML HEIGHT
-  // ============================================================
+  @override
+  void didUpdateWidget(covariant DynamicHtmlContent oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.htmlContent != widget.htmlContent) {
+      _webViewHeight = 1;
+      _controller.loadHtmlString(_buildHtml(widget.htmlContent));
+    }
+  }
 
   Future<void> _calculateHeight() async {
     try {
       await _controller.runJavaScript('''
         setTimeout(function() {
           var body = document.body;
-          var html = document.documentElement;
 
           var height = Math.max(
             body.scrollHeight,
-            body.offsetHeight,
-            html.clientHeight,
-            html.scrollHeight,
-            html.offsetHeight
+            body.offsetHeight
           );
 
           Height.postMessage(height.toString());
@@ -224,14 +225,10 @@ function sendHeight() {
 
   var body = document.body;
 
-  var html = document.documentElement;
 
   var height = Math.max(
     body.scrollHeight,
-    body.offsetHeight,
-    html.clientHeight,
-    html.scrollHeight,
-    html.offsetHeight
+    body.offsetHeight
   );
 
   Height.postMessage(
@@ -283,6 +280,7 @@ class ProductDetails extends StatefulWidget {
 class _ProductDetailsState extends State<ProductDetails> {
   FertilizerProductEntity? get product => widget.product;
   bool _isSharing = false;
+  ProductLanguage _selectedLanguage = ProductLanguage.english;
 
   @override
   Widget build(BuildContext context) {
@@ -294,9 +292,12 @@ class _ProductDetailsState extends State<ProductDetails> {
     // PREPARE PRODUCT CONTENT
     // ============================================================
 
-    final String productContent = _prepareProductContent(
-      product!.productContents,
-    );
+    final contents = _languageContents(product!);
+    final languages = contents.keys.toList();
+    final selected = contents.containsKey(_selectedLanguage)
+        ? _selectedLanguage
+        : (languages.isEmpty ? ProductLanguage.english : languages.first);
+    final productContent = contents[selected] ?? '';
 
     return Scaffold(
       backgroundColor: AppColors.backgroundColor,
@@ -331,6 +332,26 @@ class _ProductDetailsState extends State<ProductDetails> {
                     child: _buildProductImage(context),
                   ),
                 ),
+                if (languages.isNotEmpty)
+                  DefaultTabController(
+                    key: ValueKey(
+                      '${product!.productId}:${languages.join(',')}',
+                    ),
+                    length: languages.length,
+                    initialIndex: languages.indexOf(selected),
+                    child: TabBar(
+                      isScrollable: true,
+                      labelColor: AppColors.accentGreen,
+                      indicatorColor: AppColors.accentGreen,
+                      unselectedLabelColor: Colors.grey.shade700,
+                      onTap: (index) =>
+                          setState(() => _selectedLanguage = languages[index]),
+                      tabs: [
+                        for (final language in languages)
+                          Tab(text: _languageLabel(language)),
+                      ],
+                    ),
+                  ),
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 16),
                   child: Column(
@@ -349,42 +370,44 @@ class _ProductDetailsState extends State<ProductDetails> {
                         ),
                       ),
 
-                      const SizedBox(height: 16),
-
-                      // ======================================================
-                      // PRODUCT ENQUIRY
-                      // ======================================================
-                      SizedBox(
-                        height: 50,
+                      const SizedBox(height: 6),
+                      Container(
+                        decoration: const BoxDecoration(
+                          border: Border(
+                            bottom: BorderSide(color: AppColors.accentGreen),
+                          ),
+                        ),
                         child: Row(
                           children: [
                             Expanded(
-                              flex: 3,
-                              child: ElevatedButton.icon(
+                              child: TextButton.icon(
                                 onPressed: () => _openProductEnquiry(context),
                                 icon: const Icon(
                                   Icons.contact_support_outlined,
-                                  size: 22,
+                                  size: 18,
                                 ),
                                 label: const FittedBox(
                                   fit: BoxFit.scaleDown,
                                   child: Text('Product Enquiry'),
                                 ),
-                                style: _actionButtonStyle(),
+                                style: _actionTabStyle(),
                               ),
                             ),
-                            const SizedBox(width: 10),
+                            Container(
+                              height: 20,
+                              width: 1,
+                              color: Colors.grey.shade300,
+                            ),
                             Expanded(
-                              flex: 2,
                               child: Builder(
-                                builder: (shareContext) => OutlinedButton.icon(
+                                builder: (shareContext) => TextButton.icon(
                                   onPressed: _isSharing
                                       ? null
                                       : () => _shareProduct(shareContext),
                                   icon: _isSharing
                                       ? const SizedBox(
-                                          width: 18,
-                                          height: 18,
+                                          width: 16,
+                                          height: 16,
                                           child: CircularProgressIndicator(
                                             strokeWidth: 2,
                                             color: AppColors.accentGreen,
@@ -392,36 +415,17 @@ class _ProductDetailsState extends State<ProductDetails> {
                                         )
                                       : const Icon(
                                           Icons.share_outlined,
-                                          size: 22,
+                                          size: 18,
                                         ),
                                   label: const Text('Share'),
-                                  style: OutlinedButton.styleFrom(
-                                    backgroundColor: Colors.white,
-                                    foregroundColor: AppColors.accentGreen,
-                                    minimumSize: const Size(0, 50),
-                                    padding: const EdgeInsets.symmetric(
-                                      horizontal: 10,
-                                    ),
-                                    side: const BorderSide(
-                                      color: AppColors.accentGreen,
-                                      width: 1.5,
-                                    ),
-                                    textStyle: const TextStyle(
-                                      fontSize: 15,
-                                      fontWeight: FontWeight.w700,
-                                    ),
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(14),
-                                    ),
-                                  ),
+                                  style: _actionTabStyle(),
                                 ),
                               ),
                             ),
                           ],
                         ),
                       ),
-
-                      const SizedBox(height: 16),
+                      const SizedBox(height: 6),
                     ],
                   ),
                 ),
@@ -491,14 +495,57 @@ class _ProductDetailsState extends State<ProductDetails> {
     );
   }
 
-  ButtonStyle _actionButtonStyle() => ElevatedButton.styleFrom(
-    backgroundColor: AppColors.accentGreen,
-    foregroundColor: Colors.white,
-    minimumSize: const Size(0, 50),
-    padding: const EdgeInsets.symmetric(horizontal: 10),
-    textStyle: const TextStyle(fontSize: 15, fontWeight: FontWeight.w700),
-    elevation: 2,
-    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+  String _languageLabel(ProductLanguage language) {
+    switch (language) {
+      case ProductLanguage.english:
+        return 'English';
+      case ProductLanguage.marathi:
+        return 'मराठी';
+      case ProductLanguage.hindi:
+        return 'हिन्दी';
+      case ProductLanguage.kannada:
+        return 'ಕನ್ನಡ';
+    }
+  }
+
+  Map<ProductLanguage, String> _languageContents(
+    FertilizerProductEntity product,
+  ) {
+    final parts = product.productContents.split('*_*');
+    final contents = <ProductLanguage, String>{};
+    // API block order: English, Marathi, Hindi, Kannada.
+    for (
+      var i = 0;
+      i < parts.length && i < ProductLanguage.values.length;
+      i++
+    ) {
+      if (_normalizeHtmlForComparison(parts[i]).isNotEmpty) {
+        contents[ProductLanguage.values[i]] = parts[i].trim();
+      }
+    }
+    final separateContents = {
+      ProductLanguage.marathi: product.productContentMarathi,
+      ProductLanguage.hindi: product.productContentHindi,
+      ProductLanguage.kannada: product.productContentKannad ?? '',
+    };
+    for (final entry in separateContents.entries) {
+      if (_normalizeHtmlForComparison(entry.value).isNotEmpty) {
+        contents[entry.key] = entry.value.trim();
+      }
+    }
+    return {
+      for (final language in ProductLanguage.values)
+        if (contents.containsKey(language)) language: contents[language]!,
+    };
+  }
+
+  ButtonStyle _actionTabStyle() => TextButton.styleFrom(
+    foregroundColor: AppColors.accentGreen,
+    minimumSize: const Size(0, 36),
+    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+    visualDensity: VisualDensity.compact,
+    textStyle: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
+    shape: const RoundedRectangleBorder(),
   );
 
   String _plainText(String content) {

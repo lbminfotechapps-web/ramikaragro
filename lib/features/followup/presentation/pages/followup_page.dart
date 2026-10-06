@@ -1,3 +1,4 @@
+import 'package:url_launcher/url_launcher.dart';
 import 'package:solufine/core/utility/tab_refresh.dart';
 
 import 'package:solufine/core/router/app_router.dart';
@@ -15,9 +16,7 @@ import '../bloc/followup_event.dart';
 import '../bloc/followup_state.dart';
 
 class FollowupPage extends StatefulWidget {
-  const FollowupPage({
-    super.key,
-  });
+  const FollowupPage({super.key});
 
   @override
   State<FollowupPage> createState() => _FollowupPageState();
@@ -31,16 +30,16 @@ class _FollowupPageState extends State<FollowupPage> {
   // DateTime toDate = DateTime(2026, 9, 17);
 
   DateTime fromDate = DateTime(
-  DateTime.now().year,
-  DateTime.now().month,
-  DateTime.now().day,
-);
+    DateTime.now().year,
+    DateTime.now().month,
+    DateTime.now().day,
+  );
 
-DateTime toDate = DateTime(
-  DateTime.now().year,
-  DateTime.now().month,
-  DateTime.now().day,
-);
+  DateTime toDate = DateTime(
+    DateTime.now().year,
+    DateTime.now().month,
+    DateTime.now().day,
+  );
 
   String selectedType = 'Dealer';
 
@@ -76,8 +75,7 @@ DateTime toDate = DateTime(
 
     if (!mounted) return;
 
-    final String id =
-        userData?['user_id']?.toString() ?? '';
+    final String id = userData?['user_id']?.toString() ?? '';
 
     if (id.isEmpty) return;
 
@@ -127,13 +125,13 @@ DateTime toDate = DateTime(
     if (userId.isEmpty) return;
 
     context.read<FollowupBloc>().add(
-          GetUpcomingFollowupEvent(
-            fromDate: _formatDate(fromDate),
-            toDate: _formatDate(toDate),
-            type: selectedType,
-            userId: userId,
-          ),
-        );
+      GetUpcomingFollowupEvent(
+        fromDate: _formatDate(fromDate),
+        toDate: _formatDate(toDate),
+        type: selectedType,
+        userId: userId,
+      ),
+    );
   }
 
   // ===========================================================================
@@ -177,10 +175,7 @@ DateTime toDate = DateTime(
       firstDate: DateTime(2020),
       lastDate: DateTime(2100),
       builder: (context, child) {
-        return Theme(
-          data: _datePickerTheme(context),
-          child: child!,
-        );
+        return Theme(data: _datePickerTheme(context), child: child!);
       },
     );
 
@@ -208,10 +203,7 @@ DateTime toDate = DateTime(
       firstDate: fromDate,
       lastDate: DateTime(2100),
       builder: (context, child) {
-        return Theme(
-          data: _datePickerTheme(context),
-          child: child!,
-        );
+        return Theme(data: _datePickerTheme(context), child: child!);
       },
     );
 
@@ -234,9 +226,9 @@ DateTime toDate = DateTime(
       backgroundColor: AppColors.backgroundColor,
 
       appBar: CustomAppBar(
-      title: 'Upcoming Followup List',
-      showBackButton: true,
-      onBackTap: () => context.go(AppRouter.home),
+        title: 'Upcoming Followup List',
+        showBackButton: true,
+        onBackTap: () => context.go(AppRouter.home),
       ),
 
       body: Column(
@@ -261,9 +253,7 @@ DateTime toDate = DateTime(
                 // -------------------------------------------------------------
 
                 if (state is FollowupError) {
-                  return _buildErrorState(
-                    state.message,
-                  );
+                  return _buildErrorState(state.message);
                 }
 
                 // -------------------------------------------------------------
@@ -279,9 +269,7 @@ DateTime toDate = DateTime(
                 // -------------------------------------------------------------
 
                 if (state is FollowupSuccess) {
-                  return _buildFollowupList(
-                    state.followups,
-                  );
+                  return _buildFollowupList(state.followups);
                 }
 
                 return const SizedBox.shrink();
@@ -300,20 +288,12 @@ DateTime toDate = DateTime(
   Widget _buildTopHeader() {
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.fromLTRB(
-        16,
-        10,
-        16,
-        18,
-      ),
+      padding: const EdgeInsets.fromLTRB(16, 10, 16, 18),
       decoration: const BoxDecoration(
         gradient: LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
-          colors: [
-            AppColors.primaryGreen,
-            AppColors.darkGreen,
-          ],
+          colors: [AppColors.primaryGreen, AppColors.darkGreen],
         ),
         borderRadius: BorderRadius.only(
           bottomLeft: Radius.circular(26),
@@ -325,16 +305,13 @@ DateTime toDate = DateTime(
           // -------------------------------------------------------------------
           // ICON
           // -------------------------------------------------------------------
-
           Container(
             width: 48,
             height: 48,
             decoration: BoxDecoration(
               color: AppColors.white.withOpacity(0.15),
               borderRadius: BorderRadius.circular(15),
-              border: Border.all(
-                color: AppColors.white.withOpacity(0.10),
-              ),
+              border: Border.all(color: AppColors.white.withOpacity(0.10)),
             ),
             child: const Icon(
               Icons.event_note_rounded,
@@ -348,11 +325,9 @@ DateTime toDate = DateTime(
           // -------------------------------------------------------------------
           // TITLE
           // -------------------------------------------------------------------
-
           Expanded(
             child: Column(
-              crossAxisAlignment:
-                  CrossAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 const Text(
                   'Upcoming Followups',
@@ -381,13 +356,10 @@ DateTime toDate = DateTime(
           // -------------------------------------------------------------------
           // COUNT
           // -------------------------------------------------------------------
-
           BlocBuilder<FollowupBloc, FollowupState>(
             builder: (context, state) {
               if (state is FollowupSuccess) {
-                return _buildCountBadge(
-                  state.followups.length,
-                );
+                return _buildCountBadge(state.followups.length);
               }
 
               return const SizedBox.shrink();
@@ -404,13 +376,8 @@ DateTime toDate = DateTime(
 
   Widget _buildCountBadge(int count) {
     return Container(
-      constraints: const BoxConstraints(
-        minWidth: 54,
-      ),
-      padding: const EdgeInsets.symmetric(
-        horizontal: 10,
-        vertical: 7,
-      ),
+      constraints: const BoxConstraints(minWidth: 54),
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
       decoration: BoxDecoration(
         color: AppColors.white,
         borderRadius: BorderRadius.circular(13),
@@ -448,19 +415,12 @@ DateTime toDate = DateTime(
 
   Widget _buildFilterSection() {
     return Container(
-      margin: const EdgeInsets.fromLTRB(
-        12,
-        12,
-        12,
-        8,
-      ),
+      margin: const EdgeInsets.fromLTRB(12, 12, 12, 8),
       padding: const EdgeInsets.all(11),
       decoration: BoxDecoration(
         color: AppColors.white,
         borderRadius: BorderRadius.circular(19),
-        border: Border.all(
-          color: AppColors.borderColor,
-        ),
+        border: Border.all(color: AppColors.borderColor),
         boxShadow: [
           BoxShadow(
             color: AppColors.black.withOpacity(0.035),
@@ -474,7 +434,6 @@ DateTime toDate = DateTime(
           // =================================================================
           // FROM + TO + SEARCH
           // =================================================================
-
           Row(
             children: [
               Expanded(
@@ -508,7 +467,6 @@ DateTime toDate = DateTime(
           // =================================================================
           // DEALER / FARMER
           // =================================================================
-
           _buildTypeSelector(),
         ],
       ),
@@ -533,14 +491,10 @@ DateTime toDate = DateTime(
         borderRadius: BorderRadius.circular(13),
         child: Container(
           height: 52,
-          padding: const EdgeInsets.symmetric(
-            horizontal: 8,
-          ),
+          padding: const EdgeInsets.symmetric(horizontal: 8),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(13),
-            border: Border.all(
-              color: AppColors.white,
-            ),
+            border: Border.all(color: AppColors.white),
           ),
           child: Row(
             children: [
@@ -552,11 +506,7 @@ DateTime toDate = DateTime(
                   color: AppColors.white,
                   borderRadius: BorderRadius.circular(9),
                 ),
-                child: Icon(
-                  icon,
-                  size: 15,
-                  color: AppColors.primaryGreen,
-                ),
+                child: Icon(icon, size: 15, color: AppColors.primaryGreen),
               ),
 
               const SizedBox(width: 6),
@@ -564,10 +514,8 @@ DateTime toDate = DateTime(
               // Date
               Expanded(
                 child: Column(
-                  mainAxisAlignment:
-                      MainAxisAlignment.center,
-                  crossAxisAlignment:
-                      CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
                       title,
@@ -612,9 +560,7 @@ DateTime toDate = DateTime(
       decoration: BoxDecoration(
         color: const Color(0xFFF0F4F0),
         borderRadius: BorderRadius.circular(15),
-        border: Border.all(
-          color: const Color(0xFFE4EAE5),
-        ),
+        border: Border.all(color: const Color(0xFFE4EAE5)),
       ),
       child: Row(
         children: [
@@ -640,32 +586,23 @@ DateTime toDate = DateTime(
   // TYPE OPTION
   // ===========================================================================
 
-  Widget _buildTypeOption({
-    required String title,
-    required IconData icon,
-  }) {
-    final bool selected =
-        selectedType == title;
+  Widget _buildTypeOption({required String title, required IconData icon}) {
+    final bool selected = selectedType == title;
 
     return GestureDetector(
       onTap: () {
         _changeType(title);
       },
       child: AnimatedContainer(
-        duration: const Duration(
-          milliseconds: 220,
-        ),
+        duration: const Duration(milliseconds: 220),
         curve: Curves.easeOut,
         decoration: BoxDecoration(
-          color: selected
-              ? AppColors.primaryGreen
-              : Colors.transparent,
+          color: selected ? AppColors.primaryGreen : Colors.transparent,
           borderRadius: BorderRadius.circular(12),
           boxShadow: selected
               ? [
                   BoxShadow(
-                    color:
-                        AppColors.primaryGreen.withOpacity(0.20),
+                    color: AppColors.primaryGreen.withOpacity(0.20),
                     blurRadius: 7,
                     offset: const Offset(0, 2),
                   ),
@@ -673,8 +610,7 @@ DateTime toDate = DateTime(
               : null,
         ),
         child: Row(
-          mainAxisAlignment:
-              MainAxisAlignment.center,
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Container(
               width: 28,
@@ -683,15 +619,12 @@ DateTime toDate = DateTime(
                 color: selected
                     ? AppColors.white.withOpacity(0.16)
                     : Colors.transparent,
-                borderRadius:
-                    BorderRadius.circular(8),
+                borderRadius: BorderRadius.circular(8),
               ),
               child: Icon(
                 icon,
                 size: 15,
-                color: selected
-                    ? AppColors.white
-                    : const Color(0xFF69766E),
+                color: selected ? AppColors.white : const Color(0xFF69766E),
               ),
             ),
 
@@ -702,9 +635,7 @@ DateTime toDate = DateTime(
               style: TextStyle(
                 fontSize: 11.5,
                 fontWeight: FontWeight.w700,
-                color: selected
-                    ? AppColors.white
-                    : const Color(0xFF69766E),
+                color: selected ? AppColors.white : const Color(0xFF69766E),
               ),
             ),
           ],
@@ -718,28 +649,18 @@ DateTime toDate = DateTime(
   // ===========================================================================
 
   Widget _buildSearchButton() {
-    final bool enabled =
-        userId.isNotEmpty;
+    final bool enabled = userId.isNotEmpty;
 
     return Material(
-      color: enabled
-          ? AppColors.primaryGreen
-          : AppColors.white,
+      color: enabled ? AppColors.primaryGreen : AppColors.white,
       borderRadius: BorderRadius.circular(13),
       child: InkWell(
-        onTap: enabled
-            ? _loadFollowup
-            : null,
-        borderRadius:
-            BorderRadius.circular(13),
+        onTap: enabled ? _loadFollowup : null,
+        borderRadius: BorderRadius.circular(13),
         child: const SizedBox(
           width: 48,
           height: 52,
-          child: Icon(
-            Icons.search_rounded,
-            color: AppColors.white,
-            size: 22,
-          ),
+          child: Icon(Icons.search_rounded, color: AppColors.white, size: 22),
         ),
       ),
     );
@@ -749,29 +670,18 @@ DateTime toDate = DateTime(
   // LIST
   // ===========================================================================
 
-  Widget _buildFollowupList(
-    List<FollowupEntity> followups,
-  ) {
+  Widget _buildFollowupList(List<FollowupEntity> followups) {
     return RefreshIndicator(
       color: AppColors.primaryGreen,
       onRefresh: () async {
         _loadFollowup();
       },
       child: ListView.builder(
-        physics:
-            const AlwaysScrollableScrollPhysics(),
-        padding: const EdgeInsets.fromLTRB(
-          12,
-          5,
-          12,
-          25,
-        ),
+        physics: const AlwaysScrollableScrollPhysics(),
+        padding: const EdgeInsets.fromLTRB(12, 5, 12, 25),
         itemCount: followups.length,
         itemBuilder: (context, index) {
-          return _buildFollowupCard(
-            followups[index],
-            index,
-          );
+          return _buildFollowupCard(followups[index], index);
         },
       ),
     );
@@ -781,49 +691,35 @@ DateTime toDate = DateTime(
   // FOLLOWUP CARD
   // ===========================================================================
 
-  Widget _buildFollowupCard(
-    FollowupEntity item,
-    int index,
-  ) {
-    final bool isPhone =
-        item.followupType.toLowerCase() ==
-            'phone';
+  Widget _buildFollowupCard(FollowupEntity item, int index) {
+    final bool isPhone = item.followupType.toLowerCase() == 'phone';
 
     final bool hasFollowupDate =
-        item.followupDate.isNotEmpty &&
-        item.followupDate != item.date;
+        item.followupDate.isNotEmpty && item.followupDate != item.date;
 
     return Container(
-      margin:
-          const EdgeInsets.only(bottom: 10),
+      margin: const EdgeInsets.only(bottom: 10),
       decoration: BoxDecoration(
         color: AppColors.white,
-        borderRadius:
-            BorderRadius.circular(18),
-        border: Border.all(
-          color: const Color(0xFFE5EBE6),
-        ),
+        borderRadius: BorderRadius.circular(18),
+        border: Border.all(color: const Color(0xFFE5EBE6)),
         boxShadow: [
           BoxShadow(
-            color:
-                AppColors.black.withOpacity(0.035),
+            color: AppColors.black.withOpacity(0.035),
             blurRadius: 12,
             offset: const Offset(0, 3),
           ),
         ],
       ),
       child: ClipRRect(
-        borderRadius:
-            BorderRadius.circular(18),
+        borderRadius: BorderRadius.circular(18),
         child: IntrinsicHeight(
           child: Row(
-            crossAxisAlignment:
-                CrossAxisAlignment.stretch,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               // ---------------------------------------------------------------
               // LEFT TYPE INDICATOR
               // ---------------------------------------------------------------
-
               Container(
                 width: 4,
                 color: isPhone
@@ -833,25 +729,15 @@ DateTime toDate = DateTime(
 
               Expanded(
                 child: Padding(
-                  padding:
-                      const EdgeInsets.fromLTRB(
-                    12,
-                    12,
-                    12,
-                    11,
-                  ),
+                  padding: const EdgeInsets.fromLTRB(12, 12, 12, 11),
                   child: Column(
-                    crossAxisAlignment:
-                        CrossAxisAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       _buildCardHeader(item),
 
                       const SizedBox(height: 11),
 
-                      _buildDateTimeRow(
-                        item,
-                        hasFollowupDate,
-                      ),
+                      _buildDateTimeRow(item, hasFollowupDate),
 
                       // if (item.remark.isNotEmpty) ...[
                       //   const SizedBox(height: 9),
@@ -874,44 +760,28 @@ DateTime toDate = DateTime(
   // CARD HEADER
   // ===========================================================================
 
-  Widget _buildCardHeader(
-    FollowupEntity item,
-  ) {
-    final bool isPhone =
-        item.followupType.toLowerCase() ==
-            'phone';
+  Widget _buildCardHeader(FollowupEntity item) {
+    final bool isPhone = item.followupType.toLowerCase() == 'phone';
 
     return Row(
       children: [
         // ---------------------------------------------------------------------
         // ICON
         // ---------------------------------------------------------------------
-
         Container(
           width: 43,
           height: 43,
           decoration: BoxDecoration(
             gradient: LinearGradient(
               colors: isPhone
-                  ? const [
-                      AppColors.white,
-                      AppColors.white,
-                    ]
-                  : const [
-                      AppColors.white,
-                      AppColors.white,
-                    ],
+                  ? const [AppColors.white, AppColors.white]
+                  : const [AppColors.white, AppColors.white],
             ),
-            borderRadius:
-                BorderRadius.circular(13),
+            borderRadius: BorderRadius.circular(13),
           ),
           child: Icon(
-            isPhone
-                ? Icons.phone_in_talk_rounded
-                : Icons.storefront_rounded,
-            color: isPhone
-                ? AppColors.primaryGreen
-                : AppColors.primaryGreen,
+            isPhone ? Icons.phone_in_talk_rounded : Icons.storefront_rounded,
+            color: isPhone ? AppColors.primaryGreen : AppColors.primaryGreen,
             size: 20,
           ),
         ),
@@ -921,19 +791,14 @@ DateTime toDate = DateTime(
         // ---------------------------------------------------------------------
         // NAME
         // ---------------------------------------------------------------------
-
         Expanded(
           child: Column(
-            crossAxisAlignment:
-                CrossAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                item.name.isEmpty
-                    ? 'Unknown'
-                    : item.name,
+                item.name.isEmpty ? 'Unknown' : item.name,
                 maxLines: 1,
-                overflow:
-                    TextOverflow.ellipsis,
+                overflow: TextOverflow.ellipsis,
                 style: const TextStyle(
                   fontSize: 14,
                   color: AppColors.textDark,
@@ -955,18 +820,13 @@ DateTime toDate = DateTime(
 
                   Flexible(
                     child: Text(
-                      item.type.isEmpty
-                          ? 'Followup'
-                          : item.type,
+                      item.type.isEmpty ? 'Followup' : item.type,
                       maxLines: 1,
-                      overflow:
-                          TextOverflow.ellipsis,
+                      overflow: TextOverflow.ellipsis,
                       style: TextStyle(
                         fontSize: 10.5,
-                        color:
-                            Colors.grey.shade600,
-                        fontWeight:
-                            FontWeight.w500,
+                        color: Colors.grey.shade600,
+                        fontWeight: FontWeight.w500,
                       ),
                     ),
                   ),
@@ -981,44 +841,25 @@ DateTime toDate = DateTime(
         // ---------------------------------------------------------------------
         // TYPE CHIP
         // ---------------------------------------------------------------------
-
-        if (item.time.isNotEmpty)
-          _buildStatusChip(
-            item.time,
-            isPhone,
-          ),
+        if (item.time.isNotEmpty) _buildStatusChip(item.time, isPhone),
       ],
     );
   }
-
 
   // ===========================================================================
   // STATUS CHIP
   // ===========================================================================
 
-  Widget _buildStatusChip(
-    String type,
-    bool isPhone,
-  ) {
+  Widget _buildStatusChip(String type, bool isPhone) {
     return Container(
-      padding:
-          const EdgeInsets.symmetric(
-        horizontal: 8,
-        vertical: 6,
-      ),
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
       decoration: BoxDecoration(
-        color: isPhone
-            ? AppColors.white
-            : AppColors.white,
-        borderRadius:
-            BorderRadius.circular(20),
+        color: isPhone ? AppColors.white : AppColors.white,
+        borderRadius: BorderRadius.circular(20),
         border: Border.all(
-          color: isPhone
-              ? AppColors.white
-              : const Color(0xFFFFE8B8),
+          color: isPhone ? AppColors.white : const Color(0xFFFFE8B8),
         ),
       ),
-     
     );
   }
 
@@ -1026,30 +867,19 @@ DateTime toDate = DateTime(
   // DATE + TIME
   // ===========================================================================
 
-  Widget _buildDateTimeRow(
-    FollowupEntity item,
-    bool hasFollowupDate,
-  ) {
+  Widget _buildDateTimeRow(FollowupEntity item, bool hasFollowupDate) {
     return Container(
-      padding:
-          const EdgeInsets.symmetric(
-        horizontal: 10,
-        vertical: 9,
-      ),
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 9),
       decoration: BoxDecoration(
         color: const Color(0xFFF7F9F7),
-        borderRadius:
-            BorderRadius.circular(12),
-        border: Border.all(
-          color: const Color(0xFFEDF1ED),
-        ),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: const Color(0xFFEDF1ED)),
       ),
       child: Row(
         children: [
           // -------------------------------------------------------------------
           // DATE
           // -------------------------------------------------------------------
-
           _buildInfoItem(
             icon: Icons.calendar_today_rounded,
             label: 'DATE',
@@ -1059,46 +889,33 @@ DateTime toDate = DateTime(
           Container(
             width: 1,
             height: 29,
-            margin:
-                const EdgeInsets.symmetric(
-              horizontal: 9,
-            ),
-            color:
-                const Color(0xFFE1E6E2),
+            margin: const EdgeInsets.symmetric(horizontal: 9),
+            color: const Color(0xFFE1E6E2),
           ),
 
           // -------------------------------------------------------------------
           // TIME
           // -------------------------------------------------------------------
-
           _buildInfoItem(
-            icon:
-                Icons.mobile_friendly,
+            icon: Icons.mobile_friendly,
             label: 'Mobile',
             value: item.mobileNo,
+            onTap: item.mobileNo.trim().isEmpty
+                ? null
+                : () => _callMobile(item.mobileNo),
           ),
 
           // -------------------------------------------------------------------
           // FOLLOWUP DATE
           // -------------------------------------------------------------------
-
           if (hasFollowupDate) ...[
             const SizedBox(width: 8),
 
-            Container(
-              width: 1,
-              height: 29,
-              color:
-                  const Color(0xFFE1E6E2),
-            ),
+            Container(width: 1, height: 29, color: const Color(0xFFE1E6E2)),
 
             const SizedBox(width: 8),
 
-            Expanded(
-              child: _buildNextDate(
-                item.followupDate,
-              ),
-            ),
+            Expanded(child: _buildNextDate(item.followupDate)),
           ],
         ],
       ),
@@ -1109,60 +926,75 @@ DateTime toDate = DateTime(
   // INFO ITEM
   // ===========================================================================
 
+  Future<void> _callMobile(String mobileNo) async {
+    final number = mobileNo.trim().replaceAll(RegExp(r'[\s().-]'), '');
+    if (!RegExp(r'^\+?[0-9]+$').hasMatch(number)) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Invalid mobile number.')));
+      return;
+    }
+    try {
+      final opened = await launchUrl(
+        Uri(scheme: 'tel', path: number),
+        mode: LaunchMode.externalApplication,
+      );
+      if (opened || !mounted) return;
+    } catch (_) {
+      if (!mounted) return;
+    }
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Unable to open the phone dialer.')),
+    );
+  }
+
   Widget _buildInfoItem({
     required IconData icon,
     required String label,
     required String value,
+    VoidCallback? onTap,
   }) {
     return Expanded(
-      child: Row(
-        children: [
-          Icon(
-            icon,
-            size: 14,
-            color: AppColors.primaryGreen,
-          ),
+      child: InkWell(
+        onTap: onTap,
+        child: Row(
+          children: [
+            Icon(icon, size: 14, color: AppColors.primaryGreen),
 
-          const SizedBox(width: 6),
+            const SizedBox(width: 6),
 
-          Expanded(
-            child: Column(
-              crossAxisAlignment:
-                  CrossAxisAlignment.start,
-              children: [
-                Text(
-                  label,
-                  style: const TextStyle(
-                    fontSize: 7.5,
-                    color:
-                        Color(0xFF89958C),
-                    fontWeight:
-                        FontWeight.w700,
-                    letterSpacing: 0.5,
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    label,
+                    style: const TextStyle(
+                      fontSize: 7.5,
+                      color: Color(0xFF89958C),
+                      fontWeight: FontWeight.w700,
+                      letterSpacing: 0.5,
+                    ),
                   ),
-                ),
 
-                const SizedBox(height: 2),
+                  const SizedBox(height: 2),
 
-                Text(
-                  value.isEmpty
-                      ? '--'
-                      : value,
-                  maxLines: 1,
-                  overflow:
-                      TextOverflow.ellipsis,
-                  style: const TextStyle(
-                    fontSize: 10.5,
-                    color:
-                        Color(0xFF26332A),
-                    fontWeight:
-                        FontWeight.w700,
+                  Text(
+                    value.isEmpty ? '--' : value,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(
+                      fontSize: 10.5,
+                      color: Color(0xFF26332A),
+                      fontWeight: FontWeight.w700,
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -1171,20 +1003,12 @@ DateTime toDate = DateTime(
   // NEXT FOLLOWUP DATE
   // ===========================================================================
 
-  Widget _buildNextDate(
-    String date,
-  ) {
+  Widget _buildNextDate(String date) {
     return Container(
-      padding:
-          const EdgeInsets.symmetric(
-        horizontal: 7,
-        vertical: 5,
-      ),
+      padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 5),
       decoration: BoxDecoration(
-        color:
-            const Color(0xFFE8F7ED),
-        borderRadius:
-            BorderRadius.circular(9),
+        color: const Color(0xFFE8F7ED),
+        borderRadius: BorderRadius.circular(9),
       ),
       child: Row(
         children: [
@@ -1200,13 +1024,11 @@ DateTime toDate = DateTime(
             child: Text(
               date,
               maxLines: 1,
-              overflow:
-                  TextOverflow.ellipsis,
+              overflow: TextOverflow.ellipsis,
               style: const TextStyle(
                 fontSize: 9,
                 color: AppColors.primaryGreen,
-                fontWeight:
-                    FontWeight.w700,
+                fontWeight: FontWeight.w700,
               ),
             ),
           ),
@@ -1215,43 +1037,28 @@ DateTime toDate = DateTime(
     );
   }
 
- 
   // ===========================================================================
   // LOADING
   // ===========================================================================
 
   Widget _buildLoading() {
     return ListView.builder(
-      padding:
-          const EdgeInsets.fromLTRB(
-        12,
-        5,
-        12,
-        20,
-      ),
+      padding: const EdgeInsets.fromLTRB(12, 5, 12, 20),
       itemCount: 5,
       itemBuilder: (_, index) {
         return Container(
           height: 145,
-          margin:
-              const EdgeInsets.only(
-            bottom: 9,
-          ),
+          margin: const EdgeInsets.only(bottom: 9),
           decoration: BoxDecoration(
             color: Colors.white,
-            borderRadius:
-                BorderRadius.circular(18),
-            border: Border.all(
-              color:
-                  const Color(0xFFE7ECE8),
-            ),
+            borderRadius: BorderRadius.circular(18),
+            border: Border.all(color: const Color(0xFFE7ECE8)),
           ),
           child: const Center(
             child: SizedBox(
               width: 23,
               height: 23,
-              child:
-                  CircularProgressIndicator(
+              child: CircularProgressIndicator(
                 strokeWidth: 2.2,
                 color: AppColors.primaryGreen,
               ),
@@ -1266,9 +1073,7 @@ DateTime toDate = DateTime(
   // ERROR
   // ===========================================================================
 
-  Widget _buildErrorState(
-    String message,
-  ) {
+  Widget _buildErrorState(String message) {
     return _buildStateContent(
       icon: Icons.cloud_off_rounded,
       iconColor: Colors.red,
@@ -1306,33 +1111,22 @@ DateTime toDate = DateTime(
   }) {
     return Center(
       child: SingleChildScrollView(
-        physics:
-            const AlwaysScrollableScrollPhysics(),
-        padding:
-            const EdgeInsets.symmetric(
-          horizontal: 30,
-        ),
+        physics: const AlwaysScrollableScrollPhysics(),
+        padding: const EdgeInsets.symmetric(horizontal: 30),
         child: Column(
-          mainAxisAlignment:
-              MainAxisAlignment.center,
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
             // -----------------------------------------------------------------
             // ICON
             // -----------------------------------------------------------------
-
             Container(
               width: 82,
               height: 82,
               decoration: BoxDecoration(
-                color:
-                    iconColor.withOpacity(0.08),
+                color: iconColor.withOpacity(0.08),
                 shape: BoxShape.circle,
               ),
-              child: Icon(
-                icon,
-                size: 37,
-                color: iconColor,
-              ),
+              child: Icon(icon, size: 37, color: iconColor),
             ),
 
             const SizedBox(height: 17),
@@ -1340,16 +1134,13 @@ DateTime toDate = DateTime(
             // -----------------------------------------------------------------
             // TITLE
             // -----------------------------------------------------------------
-
             Text(
               title,
               textAlign: TextAlign.center,
               style: const TextStyle(
                 fontSize: 16,
-                color:
-                    Color(0xFF1D2921),
-                fontWeight:
-                    FontWeight.w600,
+                color: Color(0xFF1D2921),
+                fontWeight: FontWeight.w600,
               ),
             ),
 
@@ -1358,15 +1149,13 @@ DateTime toDate = DateTime(
             // -----------------------------------------------------------------
             // SUBTITLE
             // -----------------------------------------------------------------
-
             Text(
               subtitle,
               textAlign: TextAlign.center,
               style: const TextStyle(
                 fontSize: 12,
                 height: 1.45,
-                color:
-                    Color(0xFF7B867F),
+                color: Color(0xFF7B867F),
               ),
             ),
 
@@ -1375,24 +1164,19 @@ DateTime toDate = DateTime(
             // -----------------------------------------------------------------
             // BUTTON
             // -----------------------------------------------------------------
-
             Material(
               color: AppColors.primaryGreen,
-              borderRadius:
-                  BorderRadius.circular(12),
+              borderRadius: BorderRadius.circular(12),
               child: InkWell(
                 onTap: _loadFollowup,
-                borderRadius:
-                    BorderRadius.circular(12),
+                borderRadius: BorderRadius.circular(12),
                 child: Padding(
-                  padding:
-                      const EdgeInsets.symmetric(
+                  padding: const EdgeInsets.symmetric(
                     horizontal: 18,
                     vertical: 10,
                   ),
                   child: Row(
-                    mainAxisSize:
-                        MainAxisSize.min,
+                    mainAxisSize: MainAxisSize.min,
                     children: [
                       const Icon(
                         Icons.refresh_rounded,
@@ -1404,12 +1188,10 @@ DateTime toDate = DateTime(
 
                       Text(
                         buttonText,
-                        style:
-                            const TextStyle(
+                        style: const TextStyle(
                           color: AppColors.white,
                           fontSize: 11.5,
-                          fontWeight:
-                              FontWeight.w700,
+                          fontWeight: FontWeight.w700,
                         ),
                       ),
                     ],
@@ -1423,4 +1205,3 @@ DateTime toDate = DateTime(
     );
   }
 }
-
