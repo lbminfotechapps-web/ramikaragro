@@ -199,26 +199,28 @@ class BackgroundLocationService {
           debugPrint('Distance: ${distance.toStringAsFixed(2)} meters');
           debugPrint('========================================');
 
-          await database.insertLocation(
-            userId: userId!,
-            latitude: latitude,
-            longitude: longitude,
-            geoAddress: address,
-            capturedAt: DateTime.now().millisecondsSinceEpoch,
-            accuracy: position.accuracy,
-            provider: 'gps',
-            distance: distance,
-          );
-
-          debugPrint('========================================');
-          debugPrint('BACKGROUND LOCATION SAVED');
-          debugPrint('User ID: $userId');
-          debugPrint('Latitude: $latitude');
-          debugPrint('Longitude: $longitude');
-          debugPrint('Accuracy: ${position.accuracy}');
-          debugPrint('Distance: ${distance.toStringAsFixed(2)} meters');
-          debugPrint('========================================');
         }
+
+        // Save the first point too; it has no previous point and distance is zero.
+        await database.insertLocation(
+          userId: userId!,
+          latitude: latitude,
+          longitude: longitude,
+          geoAddress: address,
+          capturedAt: DateTime.now().millisecondsSinceEpoch,
+          accuracy: position.accuracy,
+          provider: 'gps',
+          distance: distance,
+        );
+
+        debugPrint('========================================');
+        debugPrint('BACKGROUND LOCATION SAVED');
+        debugPrint('User ID: $userId');
+        debugPrint('Latitude: $latitude');
+        debugPrint('Longitude: $longitude');
+        debugPrint('Accuracy: ${position.accuracy}');
+        debugPrint('Distance: ${distance.toStringAsFixed(2)} meters');
+        debugPrint('========================================');
         debugPrint('========================================');
       } catch (error, stackTrace) {
         debugPrint('BACKGROUND LOCATION ERROR: $error');

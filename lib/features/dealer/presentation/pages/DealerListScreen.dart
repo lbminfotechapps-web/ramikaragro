@@ -7,10 +7,12 @@ import 'package:solufine/core/di/auth_di.dart';
 import 'package:solufine/core/location_tracking/location_repository.dart';
 import 'package:solufine/core/secure_storage/secure_storage.dart';
 import 'package:solufine/core/theme/app_colors.dart';
+import 'package:solufine/core/utility/app_tutorial_service.dart';
 import 'package:solufine/core/utility/device_info_util.dart';
 import 'package:solufine/core/utility/location_util.dart';
 import 'package:solufine/core/utility/widgets/custom_appbar.dart';
 import 'package:solufine/core/utility/widgets/custom_loader.dart';
+import 'package:solufine/core/utility/widgets/tutorial_description.dart';
 import 'package:solufine/features/dealer/data/models/DealerListModel.dart';
 import 'package:solufine/features/dealer/presentation/bloc/dealerlist_bloc.dart';
 import 'package:solufine/features/dealer/presentation/bloc/dealerlist_event.dart';
@@ -20,6 +22,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'package:go_router/go_router.dart';
 import 'package:http/http.dart' as http;
+import 'package:tutorial_coach_mark/tutorial_coach_mark.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class DealerListScreen extends StatefulWidget {
@@ -30,6 +33,17 @@ class DealerListScreen extends StatefulWidget {
 }
 
 class _DealerListScreenState extends State<DealerListScreen> {
+  final GlobalKey _dealerPinKey = GlobalKey();
+
+  final GlobalKey _dealerCallKey = GlobalKey();
+
+  final GlobalKey _dealerEditKey = GlobalKey();
+
+  final GlobalKey _dealerMapKey = GlobalKey();
+
+  final GlobalKey _dealerWhatsAppKey = GlobalKey();
+
+  bool _dealerTutorialRequested = false;
   final TextEditingController _searchController = TextEditingController();
   bool _isInitialLoading = true;
   Timer? _searchDebounce;
@@ -48,6 +62,194 @@ class _DealerListScreenState extends State<DealerListScreen> {
 
     // Listen for search changes
     _searchController.addListener(_onSearchChanged);
+  }
+
+  void _showDealerTutorialIfNeeded() {
+    // Already requested during this screen lifecycle.
+    if (_dealerTutorialRequested) {
+      return;
+    }
+
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      if (!mounted || _dealerTutorialRequested) {
+        return;
+      }
+
+      // =========================================================
+      // IMPORTANT
+      // First dealer card must actually be rendered.
+      // =========================================================
+
+      final bool hasAnyTarget =
+          _dealerCallKey.currentContext != null ||
+          _dealerEditKey.currentContext != null ||
+          _dealerMapKey.currentContext != null ||
+          _dealerWhatsAppKey.currentContext != null ||
+          _dealerPinKey.currentContext != null;
+
+      if (!hasAnyTarget) {
+        debugPrint('Dealer tutorial: targets are not rendered yet.');
+
+        return;
+      }
+
+      _dealerTutorialRequested = true;
+
+      await AppTutorialService.showDealerListTutorial(
+        context: context,
+        targets: _buildDealerTutorialTargets(),
+      );
+    });
+  }
+
+  List<TargetFocus> _buildDealerTutorialTargets() {
+    final List<TargetFocus> targets = [];
+
+    // ============================================================
+    // PIN / LOC
+    // Only add when button currently exists.
+    // ============================================================
+
+    if (_dealerPinKey.currentContext != null) {
+      targets.add(
+        TargetFocus(
+          identify: 'dealer_pin',
+          keyTarget: _dealerPinKey,
+          shape: ShapeLightFocus.RRect,
+          radius: 10,
+          paddingFocus: 6,
+          enableOverlayTab: false,
+          enableTargetTab: false,
+          contents: [
+            TargetContent(
+              align: ContentAlign.top,
+              child: const TutorialDescription(
+                step: 'Dealer Visit',
+                title: 'Dealer Visit',
+                description:
+                    'Tap Pin to start a dealer visit. If the dealer location is not available, use LOC to save the dealer location first.',
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+
+    // ============================================================
+    // CALL
+    // ============================================================
+
+    if (_dealerCallKey.currentContext != null) {
+      targets.add(
+        TargetFocus(
+          identify: 'dealer_call',
+          keyTarget: _dealerCallKey,
+          shape: ShapeLightFocus.RRect,
+          radius: 10,
+          paddingFocus: 6,
+          enableOverlayTab: false,
+          enableTargetTab: false,
+          contents: [
+            TargetContent(
+              align: ContentAlign.top,
+              child: const TutorialDescription(
+                step: 'Call',
+                title: 'Call Dealer',
+                description:
+                    'Tap here to quickly call the selected dealer using their registered mobile number.',
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+
+    // ============================================================
+    // EDIT
+    // ============================================================
+
+    if (_dealerEditKey.currentContext != null) {
+      targets.add(
+        TargetFocus(
+          identify: 'dealer_edit',
+          keyTarget: _dealerEditKey,
+          shape: ShapeLightFocus.Circle,
+          paddingFocus: 6,
+          enableOverlayTab: false,
+          enableTargetTab: false,
+          contents: [
+            TargetContent(
+              align: ContentAlign.top,
+              child: const TutorialDescription(
+                step: 'Edit',
+                title: 'Edit Dealer',
+                description:
+                    'Use this option to view or update the dealer information.',
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+
+    // ============================================================
+    // MAP
+    // ============================================================
+
+    if (_dealerMapKey.currentContext != null) {
+      targets.add(
+        TargetFocus(
+          identify: 'dealer_map',
+          keyTarget: _dealerMapKey,
+          shape: ShapeLightFocus.Circle,
+          paddingFocus: 6,
+          enableOverlayTab: false,
+          enableTargetTab: false,
+          contents: [
+            TargetContent(
+              align: ContentAlign.bottom,
+              child: const TutorialDescription(
+                step: 'Map',
+                title: 'Dealer Location',
+                description:
+                    'Tap the Map icon to open the dealer location and get directions.',
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+
+    // ============================================================
+    // WHATSAPP
+    // ============================================================
+
+    if (_dealerWhatsAppKey.currentContext != null) {
+      targets.add(
+        TargetFocus(
+          identify: 'dealer_whatsapp',
+          keyTarget: _dealerWhatsAppKey,
+          shape: ShapeLightFocus.Circle,
+          paddingFocus: 6,
+          enableOverlayTab: false,
+          enableTargetTab: false,
+          contents: [
+            TargetContent(
+              align: ContentAlign.bottom,
+              child: const TutorialDescription(
+                step: 'WhatsApp',
+                title: 'WhatsApp Dealer',
+                description:
+                    'Tap here to quickly start a WhatsApp conversation with the dealer.',
+                isLast: true,
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+
+    return targets;
   }
 
   @override
@@ -403,9 +605,6 @@ class _DealerListScreenState extends State<DealerListScreen> {
                       });
                     }
                   }
-                  // ============================================================
-                  // ADD DEALER LOCATION SUCCESS
-                  // ============================================================
 
                   if (state.status ==
                       DealerListStatus.addDealerLocationSuccess) {
@@ -418,7 +617,6 @@ class _DealerListScreenState extends State<DealerListScreen> {
                       ),
                     );
 
-                    // Refresh dealer list after location update
                     _loadDealers(searchKey: _searchController.text.trim());
                   }
 
@@ -469,6 +667,10 @@ class _DealerListScreenState extends State<DealerListScreen> {
                   }
 
                   final dealers = state.dealerList;
+
+                  if (dealers.isNotEmpty) {
+                    _showDealerTutorialIfNeeded();
+                  }
 
                   return Column(
                     children: [
@@ -532,9 +734,29 @@ class _DealerListScreenState extends State<DealerListScreen> {
 
                                     return _DealerListItem(
                                       dealer: dealer,
+
+                                      pinKey: index == 0 ? _dealerPinKey : null,
+
+                                      callKey: index == 0
+                                          ? _dealerCallKey
+                                          : null,
+
+                                      editKey: index == 0
+                                          ? _dealerEditKey
+                                          : null,
+
+                                      mapKey: index == 0 ? _dealerMapKey : null,
+
+                                      whatsappKey: index == 0
+                                          ? _dealerWhatsAppKey
+                                          : null,
+
                                       onMapTap: _isOpeningDirections
                                           ? null
-                                          : () => _openDealerDirections(dealer),
+                                          : () {
+                                              _openDealerDirections(dealer);
+                                            },
+
                                       onLocationTap: () {
                                         _submitDealerLocation(dealer);
                                       },
@@ -591,7 +813,7 @@ class _DealerListScreenState extends State<DealerListScreen> {
             Expanded(
               child: Text(
                 hasLocation
-                    ? 'Lat ${latitude.toStringAsFixed(5)}   |   Lng ${longitude.toStringAsFixed(5)}'
+                    ? 'Lat ${latitude.toStringAsFixed(5)}   |   Long ${longitude.toStringAsFixed(5)}'
                     : 'Location unavailable',
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
@@ -765,12 +987,62 @@ class _DealerListItem extends StatelessWidget {
   final DealerListModel dealer;
   final VoidCallback onLocationTap;
   final VoidCallback? onMapTap;
-
+  final Key? pinKey;
+  final Key? callKey;
+  final Key? editKey;
+  final Key? mapKey;
+  final Key? whatsappKey;
   const _DealerListItem({
     required this.dealer,
     required this.onLocationTap,
     required this.onMapTap,
+    this.pinKey,
+    this.callKey,
+    this.editKey,
+    this.mapKey,
+    this.whatsappKey,
   });
+
+  Future<void> _openWhatsApp(BuildContext context) async {
+    String normalize(String? value) {
+      var number = (value ?? '').replaceAll(RegExp(r'[^0-9]'), '');
+      if (number.startsWith('00')) {
+        number = number.substring(2);
+      }
+      if (number.length == 11 && number.startsWith('0')) {
+        number = number.substring(1);
+      }
+      if (number.length == 10) {
+        number = '91$number';
+      }
+      return number;
+    }
+
+    bool isValid(String number) =>
+        RegExp(r'^[1-9][0-9]{10,14}$').hasMatch(number);
+    var number = normalize(dealer.outletPersonMobile);
+    if (!isValid(number)) number = normalize(dealer.outletMobile);
+    void showError(String message) {
+      if (!context.mounted) return;
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(message)));
+    }
+
+    if (!isValid(number)) {
+      showError('A valid dealer mobile number is not available.');
+      return;
+    }
+    try {
+      final opened = await launchUrl(
+        Uri.https('wa.me', '/$number'),
+        mode: LaunchMode.externalApplication,
+      );
+      if (!opened) showError('Unable to open WhatsApp. Please try again.');
+    } catch (_) {
+      showError('Unable to open WhatsApp. Please try again.');
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -896,6 +1168,7 @@ class _DealerListItem extends StatelessWidget {
               ),
               const SizedBox(width: 8),
               IconButton.outlined(
+                key: mapKey,
                 tooltip: 'Directions to dealer',
                 onPressed: onMapTap,
                 icon: Image.asset(
@@ -907,6 +1180,38 @@ class _DealerListItem extends StatelessWidget {
                 style: IconButton.styleFrom(
                   backgroundColor: const Color(0xFFF1F6FF),
                   side: const BorderSide(color: Color(0xFFD4E3FC)),
+                ),
+              ),
+              const SizedBox(width: 6),
+              IconButton.outlined(
+                key: whatsappKey,
+                tooltip: 'Chat with dealer on WhatsApp',
+                onPressed: () => _openWhatsApp(context),
+                icon: const SizedBox(
+                  width: 22,
+                  height: 22,
+                  child: Stack(
+                    alignment: Alignment.center,
+                    children: [
+                      Icon(
+                        Icons.chat_bubble_outline,
+                        size: 22,
+                        color: Color(0xFF25D366),
+                      ),
+                      Padding(
+                        padding: EdgeInsets.only(bottom: 3),
+                        child: Icon(
+                          Icons.phone,
+                          size: 13,
+                          color: Color(0xFF25D366),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                style: IconButton.styleFrom(
+                  backgroundColor: const Color(0xFFEDF9F0),
+                  side: const BorderSide(color: Color(0xFFBDE5C8)),
                 ),
               ),
             ],
@@ -955,6 +1260,7 @@ class _DealerListItem extends StatelessWidget {
               if (locationNotAvailable || showPin)
                 Expanded(
                   child: OutlinedButton.icon(
+                    key: pinKey,
                     onPressed: locationNotAvailable
                         ? onLocationTap
                         : () {
@@ -990,6 +1296,7 @@ class _DealerListItem extends StatelessWidget {
               if (locationNotAvailable || showPin) const SizedBox(width: 6),
               Expanded(
                 child: FilledButton.icon(
+                  key: callKey,
                   onPressed: mobile.isEmpty
                       ? null
                       : () {
@@ -1020,6 +1327,7 @@ class _DealerListItem extends StatelessWidget {
               ),
               const SizedBox(width: 6),
               IconButton.outlined(
+                key: editKey,
                 tooltip: 'Edit dealer',
                 onPressed: () {
                   context.push('/dealerUpdate', extra: dealer);

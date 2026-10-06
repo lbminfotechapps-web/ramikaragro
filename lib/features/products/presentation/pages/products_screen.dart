@@ -1,3 +1,4 @@
+import 'package:solufine/core/utility/tab_refresh.dart';
 import 'package:solufine/core/router/app_router.dart';
 import 'package:solufine/core/theme/app_colors.dart';
 import 'package:solufine/core/utility/widgets/custom_appbar.dart';
@@ -176,6 +177,8 @@ class _ProductCategoryScreenState extends State<ProductCategoryScreen> {
   void initState() {
     super.initState();
 
+    TabRefresh.products.addListener(_onTabRefresh);
+
     // Load categories
     context.read<ProductBloc>().add(
           const ProductListingEvent(''),
@@ -184,6 +187,7 @@ class _ProductCategoryScreenState extends State<ProductCategoryScreen> {
 
   @override
   void dispose() {
+    TabRefresh.products.removeListener(_onTabRefresh);
     _searchController.dispose();
     super.dispose();
   }
@@ -192,6 +196,12 @@ class _ProductCategoryScreenState extends State<ProductCategoryScreen> {
   // SEARCH PRODUCT
   // ============================================================
 
+  void _onTabRefresh() {
+    context.read<ProductBloc>().add(const ProductListingEvent(''));
+    if (_searchController.text.trim().isNotEmpty) {
+      _searchProducts(_searchController.text);
+    }
+  }
   void _searchProducts(String value) {
     final String query = value.trim();
 

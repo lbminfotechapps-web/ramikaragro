@@ -1,3 +1,4 @@
+import 'package:solufine/core/utility/tab_refresh.dart';
 
 import 'package:solufine/core/router/app_router.dart';
 import 'package:solufine/core/theme/app_colors.dart';
@@ -53,6 +54,7 @@ DateTime toDate = DateTime(
   void initState() {
     super.initState();
 
+    TabRefresh.followup.addListener(_onTabRefresh);
     _initializePage();
   }
 
@@ -60,6 +62,15 @@ DateTime toDate = DateTime(
   // INITIALIZE
   // ===========================================================================
 
+  void _onTabRefresh() {
+    _initializePage();
+  }
+
+  @override
+  void dispose() {
+    TabRefresh.followup.removeListener(_onTabRefresh);
+    super.dispose();
+  }
   Future<void> _initializePage() async {
     final userData = await SecureStorage.instance.getUserData();
 

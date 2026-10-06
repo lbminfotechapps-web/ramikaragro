@@ -1,3 +1,4 @@
+import 'package:solufine/core/utility/tab_refresh.dart';
 import 'dart:async';
 import 'dart:convert';
 
@@ -136,6 +137,8 @@ class _HomeState extends State<Home> {
 
     _authProvider.addListener(_onAuthChanged);
 
+    TabRefresh.home.addListener(_onTabRefresh);
+
     // Initial user load
     _loadUserData();
 
@@ -179,6 +182,10 @@ class _HomeState extends State<Home> {
     });
   }
 
+  void _onTabRefresh() {
+    _loadUserData();
+  }
+
   Future<void> _onAuthChanged() async {
     await _loadUserData();
   }
@@ -218,6 +225,7 @@ class _HomeState extends State<Home> {
 
   @override
   void dispose() {
+    TabRefresh.home.removeListener(_onTabRefresh);
     _authProvider.removeListener(_onAuthChanged);
 
     _appBarTimer?.cancel();

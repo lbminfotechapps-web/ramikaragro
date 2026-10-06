@@ -47,7 +47,7 @@ class QuickAccessState extends Equatable {
       vehicleList: vehicleList ?? this.vehicleList,
       selectedVehicle: selectedVehicle ?? this.selectedVehicle,
       punchStatus: punchStatus ?? this.punchStatus,
-      dailyTranId: dailyTranId ?? dailyTranId,
+      dailyTranId: dailyTranId ?? this.dailyTranId,
     );
   }
 
