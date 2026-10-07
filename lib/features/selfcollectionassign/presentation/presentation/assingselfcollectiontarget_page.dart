@@ -8,17 +8,17 @@ import 'package:solufine/core/router/app_router.dart';
 import 'package:solufine/core/secure_storage/secure_storage.dart';
 import '../../data/datasource/monthly_collection_remote_datasource.dart';
 
-// Dealer
+
 import '../bloc/dealer_bloc.dart';
 import '../bloc/dealer_event.dart';
 import '../bloc/dealer_state.dart';
 
-// Collection Type
+
 import '../bloc/collection_type_bloc.dart';
 import '../bloc/collection_type_event.dart';
 import '../bloc/collection_type_state.dart';
 
-// Entity
+
 import '../../domain/entities/collection_type_entity.dart';
 
 class AssignSelfCollectionTargetPage extends StatefulWidget {
@@ -31,30 +31,12 @@ class AssignSelfCollectionTargetPage extends StatefulWidget {
 
 class _AssignSelfCollectionTargetPageState
     extends State<AssignSelfCollectionTargetPage> {
-  // ============================================================
-  // BLOCS
-  // ============================================================
+
 
   late final DealerBloc _dealerBloc;
   late final CollectionTypeBloc _collectionTypeBloc;
 
-  // ============================================================
-  // TARGET VALUES
-  //
-  // Structure:
-  //
-  // dealerId -> collectionTypeId -> target value
-  //
-  // Example:
-  //
-  // {
-  //   "621": {
-  //      "1": "10000",
-  //      "3": "15000"
-  //   }
-  // }
-  //
-  // ============================================================
+ 
 
   final Map<String, Map<String, String>> _targetValues = {};
   late final List<DateTime> _availableMonths;
@@ -77,18 +59,13 @@ class _AssignSelfCollectionTargetPageState
   String _monthValue(DateTime month) =>
       '${month.month.toString().padLeft(2, '0')}-${month.year}';
 
-  // ============================================================
-  // USER
-  // ============================================================
 
   int userId = 0;
 
   bool _isUserLoaded = false;
   bool _isSubmitting = false;
 
-  // ============================================================
-  // INIT
-  // ============================================================
+
 
   @override
   void initState() {
@@ -105,22 +82,15 @@ class _AssignSelfCollectionTargetPageState
 
     _collectionTypeBloc = sl<CollectionTypeBloc>();
 
-    // ============================================================
-    // GET COLLECTION TYPES
-    // ============================================================
 
     _collectionTypeBloc.add(const GetCollectionTypeEvent());
 
-    // ============================================================
-    // GET USER
-    // ============================================================
+
 
     _loadUser();
   }
 
-  // ============================================================
-  // LOAD USER
-  // ============================================================
+ 
 
   Future<void> _loadUser() async {
     try {
@@ -155,9 +125,7 @@ class _AssignSelfCollectionTargetPageState
     }
   }
 
-  // ============================================================
-  // GET DEALERS
-  // ============================================================
+  
 
   void _fetchDealerList() {
     if (userId <= 0) {
@@ -167,9 +135,6 @@ class _AssignSelfCollectionTargetPageState
     _dealerBloc.add(GetDealerListEvent(userId: userId));
   }
 
-  // ============================================================
-  // REFRESH DEALERS
-  // ============================================================
 
   Future<void> _refreshDealerList() async {
     if (userId <= 0) {
@@ -179,17 +144,13 @@ class _AssignSelfCollectionTargetPageState
     _dealerBloc.add(RefreshDealerListEvent(userId: userId));
   }
 
-  // ============================================================
-  // REFRESH COLLECTION TYPES
-  // ============================================================
+
 
   Future<void> _refreshCollectionTypes() async {
     _collectionTypeBloc.add(const RefreshCollectionTypeEvent());
   }
 
-  // ============================================================
-  // GET TARGET VALUE
-  // ============================================================
+
 
   String _getTargetValue({
     required String dealerId,
@@ -198,9 +159,7 @@ class _AssignSelfCollectionTargetPageState
     return _targetValues[dealerId]?[collectionTypeId] ?? '';
   }
 
-  // ============================================================
-  // SET TARGET VALUE
-  // ============================================================
+
 
   void _setTargetValue({
     required String dealerId,
@@ -212,9 +171,7 @@ class _AssignSelfCollectionTargetPageState
     _targetValues[dealerId]![collectionTypeId] = value;
   }
 
-  // ============================================================
-  // SUBMIT TARGET
-  // ============================================================
+
 
   Future<void> _submitTargets() async {
     if (_isSubmitting) return;
@@ -226,9 +183,6 @@ class _AssignSelfCollectionTargetPageState
 
     final collectionTypes = _collectionTypeBloc.state.collectionTypes;
 
-    // ============================================================
-    // VALIDATE COLLECTION TYPE
-    // ============================================================
 
     if (collectionTypes.isEmpty) {
       _showSubmitMessage('Collection types not available.');
@@ -238,21 +192,10 @@ class _AssignSelfCollectionTargetPageState
 
     final List<Map<String, dynamic>> targets = [];
 
-    // ============================================================
-    // LOOP DEALERS
-    // ============================================================
+
 
     for (final dealer in _dealerBloc.state.dealers) {
-      // ============================================================
-      // LOOP COLLECTION TYPES
-      //
-      // API:
-      //
-      // 1 = Last Year
-      // 3 = Current Year
-      //
-      // No static checking here.
-      // ============================================================
+
 
       for (final collectionType in collectionTypes) {
         final String value = _getTargetValue(
@@ -267,9 +210,6 @@ class _AssignSelfCollectionTargetPageState
 
         final double? amount = double.tryParse(value);
 
-        // ============================================================
-        // VALIDATE AMOUNT
-        // ============================================================
 
         if (amount == null || !amount.isFinite) {
           _showSubmitMessage(
@@ -280,9 +220,6 @@ class _AssignSelfCollectionTargetPageState
           return;
         }
 
-        // ============================================================
-        // ADD TARGET
-        // ============================================================
 
         targets.add({
           'fld_outlet_id': dealer.outletId,
@@ -295,9 +232,6 @@ class _AssignSelfCollectionTargetPageState
       }
     }
 
-    // ============================================================
-    // VALIDATE EMPTY
-    // ============================================================
 
     if (targets.isEmpty) {
       _showSubmitMessage('Enter targets for at least one dealer.');
@@ -305,9 +239,7 @@ class _AssignSelfCollectionTargetPageState
       return;
     }
 
-    // ============================================================
-    // SUBMIT TARGETS
-    // ============================================================
+
 
     setState(() => _isSubmitting = true);
     try {
@@ -344,9 +276,6 @@ class _AssignSelfCollectionTargetPageState
     }
   }
 
-  // ============================================================
-  // MESSAGE
-  // ============================================================
 void _showSubmitMessage(String message) {
   ScaffoldMessenger.of(context)
     ..hideCurrentSnackBar()
@@ -364,9 +293,7 @@ void _showSubmitMessage(String message) {
     );
 }
 
-  // ============================================================
-  // DISPOSE
-  // ============================================================
+
 
   @override
   void dispose() {
@@ -377,30 +304,21 @@ void _showSubmitMessage(String message) {
     super.dispose();
   }
 
-  // ============================================================
-  // BUILD
-  // ============================================================
+
 
   @override
   Widget build(BuildContext context) {
     return MultiBlocProvider(
       providers: [
-        // ============================================================
-        // DEALER BLOC
-        // ============================================================
+
         BlocProvider<DealerBloc>.value(value: _dealerBloc),
 
-        // ============================================================
-        // COLLECTION TYPE BLOC
-        // ============================================================
+    
         BlocProvider<CollectionTypeBloc>.value(value: _collectionTypeBloc),
       ],
       child: Scaffold(
         backgroundColor: const Color(0xFFF4F7F5),
 
-        // ============================================================
-        // APP BAR
-        // ============================================================
         appBar: AppBar(
           title: const Text(
             'Add Collectionwise Target',
@@ -413,9 +331,6 @@ void _showSubmitMessage(String message) {
           elevation: 0,
         ),
 
-        // ============================================================
-        // SUBMIT BUTTON
-        // ============================================================
         bottomNavigationBar:
             BlocBuilder<CollectionTypeBloc, CollectionTypeState>(
               builder: (context, collectionState) {
@@ -475,9 +390,7 @@ void _showSubmitMessage(String message) {
               },
             ),
 
-        // ============================================================
-        // BODY
-        // ============================================================
+
         body: !_isUserLoaded
             ? const Center(child: CircularProgressIndicator())
             : userId <= 0
@@ -489,18 +402,14 @@ void _showSubmitMessage(String message) {
               )
             : BlocBuilder<CollectionTypeBloc, CollectionTypeState>(
                 builder: (context, collectionState) {
-                  // ============================================================
-                  // COLLECTION TYPE LOADING
-                  // ============================================================
+        
 
                   if (collectionState.status == CollectionTypeStatus.loading ||
                       collectionState.status == CollectionTypeStatus.initial) {
                     return const Center(child: CircularProgressIndicator());
                   }
 
-                  // ============================================================
-                  // COLLECTION TYPE ERROR
-                  // ============================================================
+             
 
                   if (collectionState.status == CollectionTypeStatus.failure) {
                     return _ErrorView(
@@ -511,9 +420,6 @@ void _showSubmitMessage(String message) {
                     );
                   }
 
-                  // ============================================================
-                  // COLLECTION TYPE EMPTY
-                  // ============================================================
 
                   if (collectionState.collectionTypes.isEmpty) {
                     return RefreshIndicator(
@@ -536,23 +442,16 @@ void _showSubmitMessage(String message) {
                     );
                   }
 
-                  // ============================================================
-                  // DEALER BLOC
-                  // ============================================================
+  
 
                   return BlocBuilder<DealerBloc, DealerState>(
                     builder: (context, dealerState) {
-                      // ============================================================
-                      // DEALER LOADING
-                      // ============================================================
+    
 
                       if (dealerState.status == DealerStatus.loading) {
                         return const Center(child: CircularProgressIndicator());
                       }
 
-                      // ============================================================
-                      // DEALER FAILURE
-                      // ============================================================
 
                       if (dealerState.status == DealerStatus.failure) {
                         return _ErrorView(
@@ -561,9 +460,7 @@ void _showSubmitMessage(String message) {
                         );
                       }
 
-                      // ============================================================
-                      // NO DEALER
-                      // ============================================================
+      
 
                       if (dealerState.dealers.isEmpty) {
                         return RefreshIndicator(
@@ -586,17 +483,13 @@ void _showSubmitMessage(String message) {
                         );
                       }
 
-                      // ============================================================
-                      // MAIN UI
-                      // ============================================================
+                    
 
                       return SafeArea(
                         top: false,
                         child: Column(
                           children: [
-                            // ============================================================
-                            // TOP CARD
-                            // ============================================================
+ 
                             Container(
                               width: double.infinity,
                               margin: const EdgeInsets.fromLTRB(16, 12, 16, 16),
@@ -685,9 +578,7 @@ void _showSubmitMessage(String message) {
                               ),
                             ),
 
-                            // ============================================================
-                            // MONTH SELECTION
-                            // ============================================================
+                         
                             Padding(
                               padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
                               child: DropdownButtonFormField<String>(
@@ -716,13 +607,7 @@ void _showSubmitMessage(String message) {
                               ),
                             ),
 
-                            // ============================================================
-                            // DYNAMIC HEADER
-                            //
-                            // Dealer | Last Year | Current Year
-                            //
-                            // Values are coming from API.
-                            // ============================================================
+                          
                             Expanded(
                               child: LayoutBuilder(
                                 builder: (context, constraints) {
@@ -775,9 +660,7 @@ void _showSubmitMessage(String message) {
                                             ),
                                           ),
 
-                                          // ============================================================
-                                          // DEALER LIST
-                                          // ============================================================
+                                         
                                           Expanded(
                                             child: RefreshIndicator(
                                               onRefresh: _refreshDealerList,
@@ -807,16 +690,11 @@ void _showSubmitMessage(String message) {
 
                                                     dealer: dealer.outletName+"\n(${dealer.outletMobile})",
 
-                                                    // ============================================================
-                                                    // API COLLECTION TYPES
-                                                    // ============================================================
+                                                  
                                                     collectionTypes:
                                                         collectionState
                                                             .collectionTypes,
 
-                                                    // ============================================================
-                                                    // GET CURRENT VALUE
-                                                    // ============================================================
                                                     getTargetValue:
                                                         (collectionTypeId) {
                                                           return _getTargetValue(
@@ -827,9 +705,6 @@ void _showSubmitMessage(String message) {
                                                           );
                                                         },
 
-                                                    // ============================================================
-                                                    // SAVE VALUE
-                                                    // ============================================================
                                                     onTargetChanged:
                                                         (
                                                           collectionTypeId,
@@ -867,14 +742,12 @@ void _showSubmitMessage(String message) {
   }
 }
 
-// ============================================================================
-// DEALER TARGET ROW
-// ============================================================================
+
 
 class _DealerTargetRow extends StatelessWidget {
   final String dealer;
 
-  // Dynamic collection types from API
+
   final List<CollectionTypeEntity> collectionTypes;
 
   final bool isHeader;
@@ -913,9 +786,7 @@ class _DealerTargetRow extends StatelessWidget {
         ),
         child: Row(
           children: [
-            // ============================================================
-            // DEALER NAME
-            // ============================================================
+        
             Expanded(
               flex: 4,
               child: Text(
@@ -927,24 +798,14 @@ class _DealerTargetRow extends StatelessWidget {
 
             const SizedBox(width: 4),
 
-            // ============================================================
-            // DYNAMIC COLLECTION TYPE COLUMNS
-            //
-            // Example API:
-            //
-            // Last Year
-            // Current Year
-            //
-            // ============================================================
+        
             ...collectionTypes.map((collectionType) {
               return Expanded(
                 flex: 3,
                 child: Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 4),
                   child: isHeader
-                      // ====================================================
-                      // HEADER
-                      // ====================================================
+      
                       ? Text(
                           '${collectionType.collectionType} Target',
                           textAlign: TextAlign.center,
@@ -952,9 +813,7 @@ class _DealerTargetRow extends StatelessWidget {
                           softWrap: false,
                           overflow: TextOverflow.ellipsis,
                         )
-                      // ====================================================
-                      // INPUT FIELD
-                      // ====================================================
+                      
                       : _targetField(
                           getTargetValue?.call(
                                 collectionType.collectionTypeId,
@@ -977,9 +836,7 @@ class _DealerTargetRow extends StatelessWidget {
     );
   }
 
-  // ============================================================================
-  // TARGET FIELD
-  // ============================================================================
+
 
   Widget _targetField(
     String value,
@@ -1005,9 +862,7 @@ class _DealerTargetRow extends StatelessWidget {
           color: Color(0xFF183D30),
         ),
 
-        // ============================================================
-        // ONLY NUMBER + DECIMAL
-        // ============================================================
+   
         inputFormatters: [
           TextInputFormatter.withFunction((oldValue, newValue) {
             final RegExp regex = RegExp(r'^\d*\.?\d*$');
@@ -1050,9 +905,6 @@ class _DealerTargetRow extends StatelessWidget {
   }
 }
 
-// ============================================================================
-// ERROR VIEW
-// ============================================================================
 
 class _ErrorView extends StatelessWidget {
   final String message;

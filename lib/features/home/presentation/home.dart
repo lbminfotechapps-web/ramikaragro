@@ -616,9 +616,7 @@ class _HomeState extends State<Home> {
           child: SingleChildScrollView(
             child: Column(
               children: [
-                // ========================================================
-                // USER DATA STILL LOADING
-                // ========================================================
+                  SizedBox(height: 12.h),
                 if (_userId == null)
                   const Padding(
                     padding: EdgeInsets.all(30),

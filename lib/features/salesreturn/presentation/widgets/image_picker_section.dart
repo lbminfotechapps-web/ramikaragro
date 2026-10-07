@@ -19,9 +19,7 @@ class ImagePickerSection extends StatelessWidget {
   Future<void> _pickImage(BuildContext context) async {
     final ImagePicker picker = ImagePicker();
 
-    // ------------------------------------------------------
-    // SELECT CAMERA OR GALLERY
-    // ------------------------------------------------------
+
 
     final ImageSource? source =
         await showModalBottomSheet<ImageSource>(
@@ -108,10 +106,7 @@ class ImagePickerSection extends StatelessWidget {
       return;
     }
 
-  // ------------------------------------------------------
-  // PICK IMAGE
-  // ------------------------------------------------------
-
+  
   final XFile? image = await picker.pickImage(
     source: source,
     imageQuality: 100,
@@ -122,9 +117,7 @@ class ImagePickerSection extends StatelessWidget {
     return;
   }
 
-  // ========================================================
-  // ORIGINAL IMAGE
-  // ========================================================
+
 
   final File originalFile = File(image.path);
 
@@ -144,10 +137,7 @@ class ImagePickerSection extends StatelessWidget {
     '${(await originalFile.length() / 1024).toStringAsFixed(2)} KB',
   );
 
-  // ========================================================
-  // COMPRESS IMAGE
-  // ========================================================
-
+ 
   final File? compressedFile =
       await ImageCompression.compressImage(
     originalFile,
@@ -156,9 +146,7 @@ class ImagePickerSection extends StatelessWidget {
     quality: 45,
   );
 
-  // ========================================================
-  // USE COMPRESSED IMAGE IF SUCCESS
-  // ========================================================
+ 
 
   if (compressedFile != null &&
       await compressedFile.exists()) {
@@ -174,13 +162,10 @@ class ImagePickerSection extends StatelessWidget {
       '${(await compressedFile.length() / 1024).toStringAsFixed(2)} KB',
     );
 
-    // This path goes into:
-    // imagePath = path;
+   
     onChanged(compressedFile.path);
   } else {
-    // ========================================================
-    // FALLBACK ORIGINAL IMAGE
-    // ========================================================
+
 
     debugPrint(
       'COMPRESSION FAILED - USING ORIGINAL IMAGE',
@@ -227,10 +212,7 @@ class ImagePickerSection extends StatelessWidget {
         child: hasImage
             ? Stack(
                 children: [
-                  // --------------------------------------------------
-                  // SELECTED IMAGE
-                  // --------------------------------------------------
-
+                 
                   Positioned.fill(
                     child: ClipRRect(
                       borderRadius: BorderRadius.circular(11.r),
@@ -241,9 +223,7 @@ class ImagePickerSection extends StatelessWidget {
                     ),
                   ),
 
-                  // --------------------------------------------------
-                  // CAMERA + DELETE BUTTONS
-                  // --------------------------------------------------
+                
 
                   Positioned(
                     top: 6.h,
@@ -268,9 +248,7 @@ class ImagePickerSection extends StatelessWidget {
                     ),
                   ),
 
-                  // --------------------------------------------------
-                  // SELECTED LABEL
-                  // --------------------------------------------------
+             
 
                   Positioned(
                     left: 6.w,
@@ -310,10 +288,7 @@ class ImagePickerSection extends StatelessWidget {
                 ],
               )
 
-            // --------------------------------------------------------
-            // NO IMAGE
-            // --------------------------------------------------------
-
+       
             : InkWell(
                 onTap: () => _pickImage(context),
                 borderRadius: BorderRadius.circular(11.r),
@@ -377,9 +352,7 @@ class ImagePickerSection extends StatelessWidget {
   }
 }
 
-// ============================================================
-// IMAGE SOURCE BUTTON
-// ============================================================
+
 
 class _ImageSourceButton extends StatelessWidget {
   final IconData icon;
@@ -433,9 +406,7 @@ class _ImageSourceButton extends StatelessWidget {
   }
 }
 
-// ============================================================
-// ACTION BUTTON
-// ============================================================
+
 
 class _ActionButton extends StatelessWidget {
   final IconData icon;

@@ -9,9 +9,7 @@ abstract class SalesReturnEvent extends Equatable {
   List<Object?> get props => [];
 }
 
-// ============================================================
-// INITIAL LOAD
-// ============================================================
+
 
 class LoadSalesReturnEvent extends SalesReturnEvent {
   final int userId;
@@ -24,9 +22,7 @@ class LoadSalesReturnEvent extends SalesReturnEvent {
   List<Object?> get props => [userId];
 }
 
-// ============================================================
-// SEARCH DEALER
-// ============================================================
+
 
 class SearchDealerEvent extends SalesReturnEvent {
   final int userId;
@@ -44,9 +40,7 @@ class SearchDealerEvent extends SalesReturnEvent {
       ];
 }
 
-// ============================================================
-// GET PRODUCTS FOR CATEGORY
-// ============================================================
+
 
 class GetProductsEvent extends SalesReturnEvent {
   final String categoryId;
@@ -59,9 +53,6 @@ class GetProductsEvent extends SalesReturnEvent {
   List<Object?> get props => [categoryId];
 }
 
-// ============================================================
-// REMOVE CATEGORY
-// ============================================================
 
 class RemoveCategoryProductsEvent extends SalesReturnEvent {
   final String categoryId;
@@ -74,9 +65,7 @@ class RemoveCategoryProductsEvent extends SalesReturnEvent {
   List<Object?> get props => [categoryId];
 }
 
-// ============================================================
-// ADD PRODUCT
-// ============================================================
+
 
 class AddProductEvent extends SalesReturnEvent {
   final ProductEntity product;
@@ -89,9 +78,6 @@ class AddProductEvent extends SalesReturnEvent {
   List<Object?> get props => [product];
 }
 
-// ============================================================
-// CHANGE PRODUCT QUANTITY
-// ============================================================
 
 class ChangeProductQuantityEvent extends SalesReturnEvent {
   final String productId;
@@ -109,9 +95,6 @@ class ChangeProductQuantityEvent extends SalesReturnEvent {
       ];
 }
 
-// ============================================================
-// INCREASE PACKING QUANTITY
-// ============================================================
 
 class IncreasePackingQuantityEvent extends SalesReturnEvent {
   final String productId;
@@ -129,9 +112,6 @@ class IncreasePackingQuantityEvent extends SalesReturnEvent {
       ];
 }
 
-// ============================================================
-// DECREASE PACKING QUANTITY
-// ============================================================
 
 class DecreasePackingQuantityEvent extends SalesReturnEvent {
   final String productId;
@@ -149,9 +129,7 @@ class DecreasePackingQuantityEvent extends SalesReturnEvent {
       ];
 }
 
-// ============================================================
-// SET PACKING QUANTITY
-// ============================================================
+
 
 class SetPackingQuantityEvent extends SalesReturnEvent {
   final String productId;
@@ -172,9 +150,7 @@ class SetPackingQuantityEvent extends SalesReturnEvent {
       ];
 }
 
-// ============================================================
-// REMOVE PRODUCT
-// ============================================================
+
 
 class RemoveProductEvent extends SalesReturnEvent {
   final String productId;
@@ -187,9 +163,7 @@ class RemoveProductEvent extends SalesReturnEvent {
   List<Object?> get props => [productId];
 }
 
-// ============================================================
-// SUBMIT SALES RETURN
-// ============================================================
+
 
 class SubmitSalesReturnEvent extends SalesReturnEvent {
   final int userId;

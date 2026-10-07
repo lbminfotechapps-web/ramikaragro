@@ -23,13 +23,11 @@ class MultiProductRateBottomSheet extends StatefulWidget {
 
   final String dealerId;
 
-  /// Product ID -> selected rates
+  
   final Map<String, List<ProductRateEntity>> existingRates;
 
-  /// Product ID -> Product Details ID -> Quantity
   final Map<String, Map<String, int>> existingPackingQuantities;
 
-  /// Product which should be displayed initially.
   final String? initialProductId;
 
   final GetProductDetailRatesUseCase getRatesUseCase;
@@ -51,9 +49,7 @@ class MultiProductRateBottomSheet extends StatefulWidget {
 
 class _MultiProductRateBottomSheetState
     extends State<MultiProductRateBottomSheet> {
-  // ===========================================================================
-  // DATA
-  // ===========================================================================
+
 
   late Map<String, List<ProductRateEntity>> _selectedRates;
 
@@ -67,35 +63,25 @@ class _MultiProductRateBottomSheetState
 
   String? _errorMessage;
 
-  // ===========================================================================
-  // INIT
-  // ===========================================================================
-
   @override
   void initState() {
     super.initState();
 
-    // -------------------------------------------------------------------------
-    // COPY EXISTING SELECTED RATES
-    // -------------------------------------------------------------------------
+   
 
     _selectedRates = {
       for (final entry in widget.existingRates.entries)
         entry.key: List<ProductRateEntity>.from(entry.value),
     };
 
-    // -------------------------------------------------------------------------
-    // COPY EXISTING QUANTITIES
-    // -------------------------------------------------------------------------
+  
 
     _packingQuantities = {
       for (final entry in widget.existingPackingQuantities.entries)
         entry.key: Map<String, int>.from(entry.value),
     };
 
-    // -------------------------------------------------------------------------
-    // SELECT INITIAL PRODUCT
-    // -------------------------------------------------------------------------
+
 
     if (widget.initialProductId != null &&
         widget.products.any(
@@ -108,9 +94,7 @@ class _MultiProductRateBottomSheetState
           widget.products.first.id.toString();
     }
 
-    // -------------------------------------------------------------------------
-    // LOAD RATES
-    // -------------------------------------------------------------------------
+    
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted) {
@@ -119,9 +103,6 @@ class _MultiProductRateBottomSheetState
     });
   }
 
-  // ===========================================================================
-  // CURRENT PRODUCT
-  // ===========================================================================
 
   ProductEntity? get _selectedProduct {
     if (_selectedProductId == null) {
@@ -137,9 +118,7 @@ class _MultiProductRateBottomSheetState
     return null;
   }
 
-  // ===========================================================================
-  // LOAD RATES
-  // ===========================================================================
+ 
 
   Future<void> _loadRates() async {
     final productId = _selectedProductId;
@@ -217,9 +196,6 @@ class _MultiProductRateBottomSheetState
     }
   }
 
-  // ===========================================================================
-  // SELECTED COUNT
-  // ===========================================================================
 
   int _selectedCount(String productId) {
     return _selectedRates[productId]?.length ?? 0;
@@ -235,16 +211,7 @@ class _MultiProductRateBottomSheetState
     return count;
   }
 
-  // ===========================================================================
-  // QUANTITY
-  // ===========================================================================
-
-  // int _quantity(
-  //   String productId,
-  //   String productDetailsId,
-  // ) {
-  //   return _packingQuantities[productId]?[productDetailsId] ?? 1;
-  // }
+ 
 
   int _quantity(
   String productId,
@@ -253,9 +220,6 @@ class _MultiProductRateBottomSheetState
   return _packingQuantities[productId]?[productDetailsId] ?? 0;
 }
 
-// ===========================================================================
-// SET CASE QUANTITY
-// ===========================================================================
 
 void _setQuantity(
   String productId,
@@ -282,74 +246,9 @@ void _setQuantity(
 }
 
 
-  // ===========================================================================
-  // INCREASE QUANTITY
-  // ===========================================================================
 
-  void _increaseQuantity(
-    String productId,
-    String productDetailsId,
-  ) {
-    final productQuantities =
-        _packingQuantities.putIfAbsent(
-      productId,
-      () => <String, int>{},
-    );
 
-    final currentQuantity =
-        productQuantities[productDetailsId] ?? 1;
 
-    setState(() {
-      productQuantities[productDetailsId] =
-          currentQuantity + 1;
-    });
-
-    debugPrint(
-      'Packing quantity increased: '
-      'product=$productId '
-      'details=$productDetailsId '
-      'quantity=${productQuantities[productDetailsId]}',
-    );
-  }
-
-  // ===========================================================================
-  // DECREASE QUANTITY
-  // ===========================================================================
-
-  void _decreaseQuantity(
-    String productId,
-    String productDetailsId,
-  ) {
-    final productQuantities =
-        _packingQuantities[productId];
-
-    if (productQuantities == null) {
-      return;
-    }
-
-    final currentQuantity =
-        productQuantities[productDetailsId] ?? 1;
-
-    if (currentQuantity <= 1) {
-      return;
-    }
-
-    setState(() {
-      productQuantities[productDetailsId] =
-          currentQuantity - 1;
-    });
-
-    debugPrint(
-      'Packing quantity decreased: '
-      'product=$productId '
-      'details=$productDetailsId '
-      'quantity=${productQuantities[productDetailsId]}',
-    );
-  }
-
-  // ===========================================================================
-  // CHECK RATE
-  // ===========================================================================
 
   bool _isRateSelected(
     String productId,
@@ -368,9 +267,6 @@ void _setQuantity(
     );
   }
 
-  // ===========================================================================
-  // TOGGLE RATE
-  // ===========================================================================
 
   void _toggleRate(
     String productId,
@@ -387,9 +283,6 @@ void _setQuantity(
           rate.productDetailsId,
     );
 
-    // -------------------------------------------------------------------------
-    // REMOVE
-    // -------------------------------------------------------------------------
 
     if (existingIndex >= 0) {
       current.removeAt(existingIndex);
@@ -408,9 +301,7 @@ void _setQuantity(
       }
     }
 
-    // -------------------------------------------------------------------------
-    // ADD
-    // -------------------------------------------------------------------------
+  
 
     else {
       current.add(rate);
@@ -446,9 +337,7 @@ void _setQuantity(
     setState(() {});
   }
 
-  // ===========================================================================
-  // CLEAR
-  // ===========================================================================
+
 
   void _clearProductRates(
     String productId,
@@ -459,9 +348,6 @@ void _setQuantity(
     });
   }
 
-  // ===========================================================================
-  // DONE
-  // ===========================================================================
 
   void _done() {
     debugPrint('========================================');
@@ -494,9 +380,7 @@ void _setQuantity(
     Navigator.of(context).pop(result);
   }
 
-  // ===========================================================================
-  // BUILD
-  // ===========================================================================
+
 
   @override
   Widget build(BuildContext context) {
@@ -525,9 +409,7 @@ void _setQuantity(
     );
   }
 
-  // ===========================================================================
-  // HEADER
-  // ===========================================================================
+ 
 
   Widget _buildHeader() {
     return Container(
@@ -584,7 +466,7 @@ void _setQuantity(
                       CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Select Product Rates',
+                      'Select Products',
                       style: TextStyle(
                         fontSize: 15.sp,
                         fontWeight:
@@ -628,9 +510,7 @@ void _setQuantity(
     );
   }
 
-  // ===========================================================================
-  // SELECTED PRODUCT
-  // ===========================================================================
+
 
   Widget _buildSelectedProduct() {
     final product = _selectedProduct;
@@ -722,9 +602,7 @@ void _setQuantity(
     );
   }
 
-  // ===========================================================================
-  // RATES AREA
-  // ===========================================================================
+  
 
   Widget _buildRatesArea() {
     if (_selectedProductId == null) {

@@ -62,10 +62,24 @@ class HomeShellState extends State<HomeShell> {
   // ============================================================
 
   static const _tabs = [
-    (path: AppRouter.home, icon: Icons.home, label: 'Home'),
-    (path: AppRouter.reports, icon: Icons.report, label: 'Follow up'),
-    // (path: AppRouter.visits, icon: Icons.location_city, label: 'Visits'),
-    (path: AppRouter.products, icon: Icons.storage, label: 'Products'),
+    (
+      path: AppRouter.home,
+      icon: Icons.home_outlined,
+      selectedIcon: Icons.home_rounded,
+      label: 'Home',
+    ),
+    (
+      path: AppRouter.reports,
+      icon: Icons.assignment_outlined,
+      selectedIcon: Icons.assignment_rounded,
+      label: 'Follow up',
+    ),
+    (
+      path: AppRouter.products,
+      icon: Icons.inventory_2_outlined,
+      selectedIcon: Icons.inventory_2_rounded,
+      label: 'Products',
+    ),
   ];
 
   // ============================================================
@@ -475,31 +489,161 @@ class HomeShellState extends State<HomeShell> {
         // ======================================================
         // BOTTOM NAVIGATION
         // ======================================================
-        bottomNavigationBar: SafeArea(
-          top: false,
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              MediaQuery.removePadding(
-                context: context,
-                removeBottom: true,
-                child: BottomNavigationBar(
-                  currentIndex: selectedIndex < 0 ? 0 : selectedIndex,
-
-                  type: BottomNavigationBarType.fixed,
-
-                  onTap: _onTabTapped,
-
-                  items: visibleTabIndices.map((index) {
-                    final tab = _tabs[index];
-                    return BottomNavigationBarItem(
-                      icon: Icon(tab.icon),
-                      label: tab.label,
-                    );
-                  }).toList(),
-                ),
+        bottomNavigationBar: ColoredBox(
+          color: AppColors.backgroundColor,
+          child: SafeArea(
+            top: false,
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
+              child: LayoutBuilder(
+                builder: (context, constraints) {
+                  final active = selectedIndex < 0 ? 0 : selectedIndex;
+                  final tabWidth =
+                      constraints.maxWidth / visibleTabIndices.length;
+                  return TweenAnimationBuilder<double>(
+                    tween: Tween<double>(
+                      begin: active.toDouble(),
+                      end: active.toDouble(),
+                    ),
+                    duration: const Duration(milliseconds: 260),
+                    curve: Curves.easeOutCubic,
+                    builder: (context, animatedIndex, child) {
+                      final center = tabWidth * (animatedIndex + 0.5);
+                      return SizedBox(
+                        height: 82,
+                        child: Stack(
+                          clipBehavior: Clip.none,
+                          children: [
+                            Positioned.fill(
+                              child: CustomPaint(
+                                painter: _CurvedNavigationPainter(center),
+                              ),
+                            ),
+                            Positioned(
+                              top: 28,
+                              left: 0,
+                              right: 0,
+                              height: 48,
+                              child: Row(
+                                children: List.generate(
+                                  visibleTabIndices.length,
+                                  (position) {
+                                    final tab =
+                                        _tabs[visibleTabIndices[position]];
+                                    final selected = position == active;
+                                    return Expanded(
+                                      child: Semantics(
+                                        label: tab.label,
+                                        button: true,
+                                        selected: selected,
+                                        child: Tooltip(
+                                          message: tab.label,
+                                          child: Material(
+                                            color: Colors.transparent,
+                                            child: InkResponse(
+                                              onTap: () =>
+                                                  _onTabTapped(position),
+                                              radius: 24,
+                                              child: SizedBox.expand(
+                                                child: Center(
+                                                  child: ExcludeSemantics(
+                                                    child: Column(
+                                                      mainAxisSize:
+                                                          MainAxisSize.min,
+                                                      mainAxisAlignment:
+                                                          MainAxisAlignment
+                                                              .center,
+                                                      children: [
+                                                        Opacity(
+                                                          opacity: selected
+                                                              ? 0
+                                                              : 1,
+                                                          child: Icon(
+                                                            tab.icon,
+                                                            size: 25,
+                                                            color: AppColors
+                                                                .textGrey,
+                                                          ),
+                                                        ),
+                                                        const SizedBox(
+                                                          height: 4,
+                                                        ),
+                                                        Text(
+                                                          tab.label,
+                                                          maxLines: 1,
+                                                          overflow: TextOverflow
+                                                              .ellipsis,
+                                                          style: TextStyle(
+                                                            color: selected
+                                                                ? AppColors
+                                                                      .primaryGreen
+                                                                : AppColors
+                                                                      .textGrey,
+                                                            fontSize: 11,
+                                                            height: 1.1,
+                                                            fontWeight: selected
+                                                                ? FontWeight
+                                                                      .w700
+                                                                : FontWeight
+                                                                      .w500,
+                                                          ),
+                                                        ),
+                                                      ],
+                                                    ),
+                                                  ),
+                                                ),
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    );
+                                  },
+                                ),
+                              ),
+                            ),
+                            Positioned(
+                              top: 4,
+                              left: center - 24,
+                              width: 48,
+                              height: 48,
+                              child: ExcludeSemantics(
+                                child: Tooltip(
+                                  message:
+                                      _tabs[visibleTabIndices[active]].label,
+                                  child: Material(
+                                    color: const Color(0xFFE8F5EC),
+                                    elevation: 3,
+                                    shadowColor: const Color(0x33178A45),
+                                    shape: const CircleBorder(
+                                      side: BorderSide(
+                                        color: AppColors.primaryGreen,
+                                        width: 1.5,
+                                      ),
+                                    ),
+                                    clipBehavior: Clip.antiAlias,
+                                    child: InkWell(
+                                      customBorder: const CircleBorder(),
+                                      onTap: () => _onTabTapped(active),
+                                      child: Icon(
+                                        _tabs[visibleTabIndices[active]]
+                                            .selectedIcon,
+                                        color: AppColors.primaryGreen,
+                                        size: 25,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      );
+                    },
+                  );
+                },
               ),
-            ],
+            ),
           ),
         ),
       ),
@@ -507,328 +651,39 @@ class HomeShellState extends State<HomeShell> {
   }
 }
 
-/*
-class HomeShell extends StatefulWidget {
-  const HomeShell({super.key, required this.navigationShell});
-
-  final StatefulNavigationShell navigationShell;
+class _CurvedNavigationPainter extends CustomPainter {
+  final double selectedCenter;
+  const _CurvedNavigationPainter(this.selectedCenter);
 
   @override
-  State<HomeShell> createState() => _HomeShellState();
-}
-
-class _HomeShellState extends State<HomeShell> {
-  int _lastActiveIndex = -1;
-
-  int _userId = 0;
-  bool _isUserLoaded = false;
-  String _username = 'user';
-
-  static const _tabs = [
-    (path: AppRouter.home, icon: Icons.home, label: 'Home'),
-    (path: AppRouter.reports, icon: Icons.report, label: 'Follow up'),
-    (path: AppRouter.visits, icon: Icons.location_city, label: 'Visits'),
-    (path: AppRouter.products, icon: Icons.storage, label: 'Products'),
-  ];
-  void refreshHome() {
-    _refreshHome();
-  }
-
-  Future<void> _refreshHome() async {
-    try {
-      final userData = await SecureStorage.instance.getUserData();
-
-      // --------------------------------------------------------
-      // USER ID
-      //
-      // No user / empty user_id / invalid user_id = 0
-      // Logged-in user = actual user ID
-      // --------------------------------------------------------
-
-      final userId = int.tryParse(userData?['user_id']?.toString() ?? '') ?? 0;
-
-      final userName = userData?['user_name']?.toString() ?? 'user';
-
-      if (!mounted) return;
-
-      // --------------------------------------------------------
-      // UPDATE SHELL STATE FIRST
-      // --------------------------------------------------------
-
-      setState(() {
-        _userId = userId;
-        _username = userName.trim().isNotEmpty ? userName : 'user';
-
-        _isUserLoaded = true;
-      });
-
-      // --------------------------------------------------------
-      // LOGIN STATUS
-      //
-      // 0 = not logged in
-      // 1 = logged in
-      // --------------------------------------------------------
-
-      final loginStatus = userId == 0 ? '0' : '1';
-
-      debugPrint('====================================');
-      debugPrint('HOME REFRESH');
-      debugPrint('USER ID: $userId');
-      debugPrint('USER NAME: $_username');
-      debugPrint('LOGIN STATUS: $loginStatus');
-      debugPrint('====================================');
-
-      // ========================================================
-      // MENU API
-      //
-      // This API runs for BOTH guest and logged-in users.
-      // ========================================================
-
-      context.read<HomeBloc>().add(GetMenuEvent(userId, loginStatus));
-
-      // ========================================================
-      // GUEST USER
-      //
-      // Don't call logged-in APIs.
-      // ========================================================
-
-      if (userId == 0) {
-        debugPrint('Guest user -> skipping logged-in home APIs');
-
-        return;
-      }
-
-      // ========================================================
-      // LOGGED-IN USER APIs
-      // ========================================================
-
-      final now = DateTime.now();
-
-      final startDate = DateTime(now.year, now.month - 1, now.day);
-
-      final searchFromDate = DateFormat('yyyy-MM-dd').format(startDate);
-
-      final searchToDate = DateFormat('yyyy-MM-dd').format(now);
-
-      context.read<HomeBloc>().add(GetHomeVisitEvent(userId.toString()));
-
-      context.read<QuickAcessBloc>().add(PunchStatEvent(userId));
-
-      context.read<HomeBloc>().add(
-        VisitGraphCountEvent(userId, searchFromDate, searchToDate),
+  void paint(Canvas canvas, Size size) {
+    final surface = Path()
+      ..addRRect(
+        RRect.fromRectAndCorners(
+          Rect.fromLTRB(0, 28, size.width, size.height),
+          topLeft: const Radius.circular(10),
+          topRight: const Radius.circular(10),
+          bottomLeft: const Radius.circular(22),
+          bottomRight: const Radius.circular(22),
+        ),
       );
-
-      context.read<HomeBloc>().add(
-        GetInpunchPendingEvent(userId: userId.toString()),
+    final notch = Path()
+      ..addOval(
+        Rect.fromCircle(center: Offset(selectedCenter, 28), radius: 30),
       );
-    } catch (e, stackTrace) {
-      debugPrint('HOME REFRESH ERROR: $e');
-      debugPrint('$stackTrace');
-
-      // Even if SecureStorage fails, don't keep loader forever.
-      if (mounted) {
-        setState(() {
-          _userId = 0;
-          _username = 'user';
-          _isUserLoaded = true;
-        });
-      }
-    }
-  }
-
-  Future<void> _handleBack() async {
-    final currentIndex = widget.navigationShell.currentIndex;
-
-    debugPrint('Current bottom tab: $currentIndex');
-
-    // ----------------------------------------------------------
-    // NOT HOME -> GO HOME
-    // ----------------------------------------------------------
-
-    if (currentIndex != 0) {
-      widget.navigationShell.goBranch(0, initialLocation: true);
-
-      return;
-    }
-
-    // ----------------------------------------------------------
-    // ALREADY HOME -> EXIT DIALOG
-    // ----------------------------------------------------------
-
-    final shouldExit = await _showExitDialog();
-
-    if (shouldExit) {
-      SystemNavigator.pop();
-    }
-  }
-
-  // ============================================================
-  // EXIT DIALOG
-  // ============================================================
-
-  Future<bool> _showExitDialog() async {
-    final result = await showDialog<bool>(
-      context: context,
-      barrierDismissible: false,
-      builder: (context) {
-        return AlertDialog(
-          title: const Text('Exit'),
-          content: const Text('Do you want to exit the app?'),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop(false);
-              },
-              child: const Text('CANCEL'),
-            ),
-            ElevatedButton(
-              onPressed: () {
-                Navigator.of(context).pop(true);
-              },
-              child: const Text('OK'),
-            ),
-          ],
-        );
-      },
+    final bar = Path.combine(PathOperation.difference, surface, notch);
+    canvas.drawShadow(bar, const Color(0x261B4332), 3, false);
+    canvas.drawPath(bar, Paint()..color = Colors.white);
+    canvas.drawPath(
+      bar,
+      Paint()
+        ..color = const Color(0xFFDDEBE1)
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 1,
     );
-
-    return result ?? false;
   }
 
   @override
-  Widget build(BuildContext context) {
-
-
-        if (!_isUserLoaded) {
-      return const Scaffold(
-        backgroundColor: AppColors.backgroundColor,
-        body: Center(
-          child: CircularProgressIndicator(),
-        ),
-      );
-    }
-
-
-
-    final activeIndex = widget.navigationShell.currentIndex;
-
-    // if (activeIndex != _lastActiveIndex) {
-    //   _lastActiveIndex = activeIndex;
-
-    //   if (activeIndex == 0) {
-    //     WidgetsBinding.instance.addPostFrameCallback((_) {
-    //       if (mounted) {
-    //         _refreshHome();
-    //       }
-    //     });
-    //   }
-    // }
-
-    if (activeIndex == 0) {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (mounted) {
-          _refreshHome();
-        }
-      });
-    }
-
-    _lastActiveIndex = activeIndex;
-
-    return PopScope(
-      canPop: false,
-      onPopInvokedWithResult: (bool didPop, Object? result) async {
-        if (didPop) return;
-
-        await _handleBack();
-      },
-      child: Scaffold(
-        backgroundColor: Colors.white,
-
-        body: widget.navigationShell,
-
-        bottomNavigationBar: SafeArea(
-          top: false,
-          minimum: const EdgeInsets.only(left: 12, right: 12, bottom: 8),
-          child: Material(
-            color: Colors.white,
-            elevation: 4,
-            shadowColor: Colors.black.withOpacity(0.06),
-            borderRadius: BorderRadius.circular(18),
-            child: Container(
-              height: 68,
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(18),
-                border: Border.all(color: Colors.grey.shade200, width: 1),
-              ),
-              child: NavigationBarTheme(
-                data: NavigationBarThemeData(
-                  backgroundColor: Colors.transparent,
-                  surfaceTintColor: Colors.transparent,
-                  indicatorColor: Colors.transparent,
-                  shadowColor: Colors.transparent,
-
-                  // Prevent icons/text from becoming too large
-                  iconTheme: WidgetStateProperty.resolveWith<IconThemeData>((
-                    states,
-                  ) {
-                    final selected = states.contains(WidgetState.selected);
-
-                    return IconThemeData(
-                      color: selected
-                          ? AppColors.gradientStartColor
-                          : AppColors.textSecondaryColor,
-                      size: 23,
-                    );
-                  }),
-
-                  labelTextStyle: WidgetStateProperty.resolveWith<TextStyle>((
-                    states,
-                  ) {
-                    final selected = states.contains(WidgetState.selected);
-
-                    return TextStyle(
-                      fontSize: 11,
-                      height: 1.1,
-                      color: selected
-                          ? AppColors.gradientStartColor
-                          : AppColors.textSecondaryColor,
-                      fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
-                    );
-                  }),
-                ),
-
-                child: NavigationBar(
-                  height: 68,
-                  selectedIndex: widget.navigationShell.currentIndex,
-
-                  // Important for preventing extra vertical movement
-                  labelBehavior: NavigationDestinationLabelBehavior.alwaysShow,
-
-                  onDestinationSelected: (index) {
-                    widget.navigationShell.goBranch(
-                      index,
-                      initialLocation:
-                          index == widget.navigationShell.currentIndex,
-                    );
-                  },
-
-                  destinations: [
-                    for (final tab in _tabs)
-                      NavigationDestination(
-                        icon: Icon(tab.icon),
-                        selectedIcon: Icon(tab.icon),
-                        label: tab.label,
-                      ),
-                  ],
-                ),
-              ),
-            ),
-          ),
-        ),
-
-             ),
-    );
-  }
+  bool shouldRepaint(_CurvedNavigationPainter oldDelegate) =>
+      oldDelegate.selectedCenter != selectedCenter;
 }
-*/

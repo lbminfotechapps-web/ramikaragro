@@ -22,7 +22,7 @@ class ProductRateRemoteDataSource {
         'productId': productId,
         'dealerId': dealerId,
       });
-
+   
       final response = await dioClient.client.post(
         ApiClient.getProductDetailRatesKvat,
         data: formData,

@@ -1,3 +1,4 @@
+import 'package:solufine/core/utility/case_amount.dart';
 import 'dart:convert';
 import 'dart:io';
 
@@ -16,9 +17,7 @@ class SalesReturnRemoteDataSource {
 
   SalesReturnRemoteDataSource(this.dioClient);
 
-  // ============================================================
-  // DEALERS
-  // ============================================================
+
 
   Future<List<DealerModel>> getDealers({
     required int userId,
@@ -61,9 +60,7 @@ class SalesReturnRemoteDataSource {
     }
   }
 
-  // ============================================================
-  // GODOWN
-  // ============================================================
+
 
   Future<List<GodownModel>> getGodowns({required int userId}) async {
     try {
@@ -112,9 +109,7 @@ class SalesReturnRemoteDataSource {
     }
   }
 
-  // ============================================================
-  // CATEGORY
-  // ============================================================
+  
 
   Future<List<CategoryModel>> getCategories() async {
     try {
@@ -154,9 +149,7 @@ class SalesReturnRemoteDataSource {
     }
   }
 
-  // ============================================================
-  // PRODUCTS
-  // ============================================================
+ 
 
   Future<List<ProductModel>> getProducts({
     required String categoryId,
@@ -199,20 +192,7 @@ class SalesReturnRemoteDataSource {
     }
   }
 
-  // ============================================================
-  // UPLOAD SIGNATURE
-  // ============================================================
-  //
-  // Android:
-  //
-  // POST upload_sign
-  // multipart field = file
-  //
-  // This API uploads the signature separately.
-  // It returns the server filename.
-  //
-  // ============================================================
-
+ 
   Future<String> uploadSignature({required String signaturePath}) async {
     try {
       print('');
@@ -220,9 +200,7 @@ class SalesReturnRemoteDataSource {
       print('UPLOAD SIGNATURE');
       print('========================================');
 
-      // ============================================================
-      // VALIDATE PATH
-      // ============================================================
+    
 
       final String cleanPath = signaturePath.trim();
 
@@ -230,9 +208,7 @@ class SalesReturnRemoteDataSource {
         throw Exception('Signature path is empty');
       }
 
-      // ============================================================
-      // CHECK FILE
-      // ============================================================
+    
 
       final File signatureFile = File(cleanPath);
 
@@ -246,39 +222,26 @@ class SalesReturnRemoteDataSource {
         throw Exception('Signature file is empty');
       }
 
-      // ============================================================
-      // CREATE SERVER FILENAME
-      // ============================================================
+    
 
       final String timestamp = DateTime.now().millisecondsSinceEpoch.toString();
 
       final String fileName = 'Signature_$timestamp.png';
 
-      // ============================================================
-      // CREATE MULTIPART FILE
-      // ============================================================
+     
 
       final MultipartFile multipartFile = await MultipartFile.fromFile(
         signatureFile.path,
         filename: fileName,
       );
 
-      // ============================================================
-      // FORM DATA
-      // ============================================================
 
       final FormData formData = FormData();
 
-      // Android:
-      // addFormDataPart("file", ...)
-      //
-      // Therefore field name MUST be "file"
-
+    
       formData.files.add(MapEntry('file', multipartFile));
 
-      // ============================================================
-      // DEBUG
-      // ============================================================
+
 
       print('API: upload_sign');
       print('Multipart field: file');
@@ -286,19 +249,14 @@ class SalesReturnRemoteDataSource {
       print('Filename: $fileName');
       print('File size: $signatureSize bytes');
 
-      // ============================================================
-      // API CALL
-      // ============================================================
-
+    
       final response = await dioClient.client.post(
         ApiClient.upload_sign,
         data: formData,
         options: Options(responseType: ResponseType.plain),
       );
 
-      // ============================================================
-      // RESPONSE
-      // ============================================================
+     
 
       print('');
       print('========================================');
@@ -313,9 +271,6 @@ class SalesReturnRemoteDataSource {
         throw Exception('Invalid upload_sign response');
       }
 
-      // ============================================================
-      // CHECK STATUS
-      // ============================================================
 
       final String status = '${decoded['status'] ?? ''}'.toLowerCase();
 
@@ -326,10 +281,6 @@ class SalesReturnRemoteDataSource {
           decoded['message']?.toString() ?? 'Signature upload failed',
         );
       }
-
-      // ============================================================
-      // TRY TO GET FILENAME FROM SERVER RESPONSE
-      // ============================================================
 
       String uploadedFileName = '';
 
@@ -347,29 +298,11 @@ class SalesReturnRemoteDataSource {
         uploadedFileName = decoded['signature']?.toString() ?? '';
       }
 
-      // ============================================================
-      // IMPORTANT
-      //
-      // Your API currently returns:
-      //
-      // {"status":"success"}
-      //
-      // Therefore there is no filename in response.
-      //
-      // We already know the filename that was uploaded:
-      //
-      // Signature_xxxxxxxxx.png
-      //
-      // So use that filename.
-      // ============================================================
-
+     
       if (uploadedFileName.isEmpty) {
         uploadedFileName = fileName;
       }
 
-      // ============================================================
-      // FINAL VALIDATION
-      // ============================================================
 
       if (uploadedFileName.trim().isEmpty) {
         throw Exception(
@@ -413,9 +346,6 @@ class SalesReturnRemoteDataSource {
     }
   }
 
-  // ============================================================
-  // ORDER
-  // ============================================================
 
   Future<void> submitOrder({
     required int userId,
@@ -436,9 +366,7 @@ class SalesReturnRemoteDataSource {
         throw Exception('Please select at least one product');
       }
 
-      // --------------------------------------------------------
-      // CALCULATE TOTALS
-      // --------------------------------------------------------
+  
 
       int totalQuantity = 0;
       double grandTotal = 0.0;
@@ -450,7 +378,11 @@ class SalesReturnRemoteDataSource {
 
         final double price = double.tryParse('${product['price'] ?? 0}') ?? 0.0;
 
-        final double totalAmount = quantity * price;
+        final double totalAmount = calculateCaseAmount(
+          quantity: quantity,
+          unitsPerCase: '${product['unitsPerCase'] ?? 0}',
+          rate: price,
+        );
 
         totalQuantity += quantity;
         grandTotal += totalAmount;
@@ -508,9 +440,7 @@ class SalesReturnRemoteDataSource {
 
       final String productJsonString = jsonEncode(apiProducts);
 
-      // --------------------------------------------------------
-      // FORM DATA
-      // --------------------------------------------------------
+    
 
       final FormData formData = FormData();
 
@@ -538,9 +468,7 @@ class SalesReturnRemoteDataSource {
 
       formData.fields.add(const MapEntry('subdealerId', ''));
 
-      // --------------------------------------------------------
-      // SIGNATURE FILENAME
-      // --------------------------------------------------------
+    
 
       final String cleanSignatureFileName = signatureFileName.trim();
 
@@ -548,10 +476,7 @@ class SalesReturnRemoteDataSource {
         throw Exception('Uploaded signature filename is empty');
       }
 
-      // IMPORTANT:
-      // upload_sign already uploaded the actual file.
-      //
-      // Here we only send the returned filename.
+    
       formData.fields.add(MapEntry('digitalSignature', cleanSignatureFileName));
 
       print('');
@@ -561,9 +486,8 @@ class SalesReturnRemoteDataSource {
         '$cleanSignatureFileName',
       );
 
-      // --------------------------------------------------------
-      // ORDER IMAGE
-      // --------------------------------------------------------
+    
+   
 
       if (imagePaths.isEmpty || imagePaths.first.trim().isEmpty) {
         throw Exception('Please select order image');
@@ -616,10 +540,7 @@ class SalesReturnRemoteDataSource {
       print('Filename: $orderImageFileName');
       print('Size: $imageSize bytes');
 
-      // --------------------------------------------------------
-      // DEBUG FORM FIELDS
-      // --------------------------------------------------------
-
+    
       print('');
       print('========================================');
       print('SALES RETURN  FORM FIELDS');
@@ -629,9 +550,7 @@ class SalesReturnRemoteDataSource {
         print('${field.key}: ${field.value}');
       }
 
-      // --------------------------------------------------------
-      // DEBUG FILES
-      // --------------------------------------------------------
+   
 
       print('');
       print('========================================');
@@ -646,9 +565,7 @@ class SalesReturnRemoteDataSource {
         print('TYPE: ${file.value.contentType}');
       }
 
-      // --------------------------------------------------------
-      // API
-      // --------------------------------------------------------
+     
 
       print('');
       print('========================================');
@@ -666,9 +583,6 @@ class SalesReturnRemoteDataSource {
         options: Options(responseType: ResponseType.plain),
       );
 
-      // --------------------------------------------------------
-      // RESPONSE
-      // --------------------------------------------------------
 
       print('');
       print('========================================');
@@ -721,9 +635,6 @@ class SalesReturnRemoteDataSource {
     }
   }
 
-  // ============================================================
-  // RESPONSE DECODER
-  // ============================================================
 
   dynamic _decodeResponse(dynamic responseData) {
     if (responseData == null) {

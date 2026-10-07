@@ -22,9 +22,7 @@ class SchemeScreen extends StatefulWidget {
 }
 
 class _SchemeScreenState extends State<SchemeScreen> {
-  // ============================================================
-  // MONTH
-  // ============================================================
+
 
   final List<String> months = List.generate(
     12,
@@ -33,17 +31,12 @@ class _SchemeScreenState extends State<SchemeScreen> {
 
   late String selectedMonth;
 
-  // ============================================================
-  // YEAR
-  // ============================================================
 
   late List<String> years;
 
   late String selectedYear;
 
-  // ============================================================
-  // STATE
-  // ============================================================
+
 
   Statedata? selectedState;
 
@@ -69,9 +62,6 @@ class _SchemeScreenState extends State<SchemeScreen> {
     super.dispose();
   }
 
-  // ============================================================
-  // BUILD
-  // ============================================================
 
   @override
   Widget build(BuildContext context) {
@@ -87,9 +77,7 @@ class _SchemeScreenState extends State<SchemeScreen> {
 
       body: BlocConsumer<SchemeBloc, SchemeState>(
         listener: (context, state) {
-          // ----------------------------------------------------
-          // STATES LOADED
-          // ----------------------------------------------------
+
 
           if (state is SchemeStatesLoaded) {
             setState(() {
@@ -99,9 +87,6 @@ class _SchemeScreenState extends State<SchemeScreen> {
             });
           }
 
-          // ----------------------------------------------------
-          // SCHEME ERROR
-          // ----------------------------------------------------
 
           if (state is SchemeError) {
             ScaffoldMessenger.of(
@@ -109,9 +94,7 @@ class _SchemeScreenState extends State<SchemeScreen> {
             ).showSnackBar(SnackBar(content: Text(state.message)));
           }
 
-          // ----------------------------------------------------
-          // NO RECORD
-          // ----------------------------------------------------
+
 
           if (state is SchemeLoaded && state.schemes.isEmpty) {
             ScaffoldMessenger.of(
@@ -128,9 +111,7 @@ class _SchemeScreenState extends State<SchemeScreen> {
                 SizedBox(height: 14.h),
                 _buildFilter(state),
 
-                // =================================================
-                // LIST
-                // =================================================
+               
                 Expanded(child: _buildSchemeList(state)),
               ],
             ),
@@ -140,9 +121,7 @@ class _SchemeScreenState extends State<SchemeScreen> {
     );
   }
 
-  // ============================================================
-  // FILTER
-  // ============================================================
+
 
   Widget _buildFilter(SchemeState state) {
     final bool stateLoading = state is SchemeStatesLoading;
@@ -153,9 +132,7 @@ class _SchemeScreenState extends State<SchemeScreen> {
       child: _buildCard(
         child: Column(
           children: [
-            // ==================================================
-            // MONTH + YEAR
-            // ==================================================
+    
             Row(
               children: [
                 Expanded(
@@ -198,16 +175,11 @@ class _SchemeScreenState extends State<SchemeScreen> {
 
             const SizedBox(height: 10),
 
-            // ==================================================
-            // STATE
-            // ==================================================
+          
             stateLoading ? _buildStateLoading() : _buildStateDropdown(),
 
             const SizedBox(height: 12),
 
-            // ==================================================
-            // SEARCH BUTTON
-            // ==================================================
             SizedBox(
               width: double.infinity,
               height: 45,
@@ -235,9 +207,6 @@ class _SchemeScreenState extends State<SchemeScreen> {
     );
   }
 
-  // ============================================================
-  // SEARCH
-  // ============================================================
 
   void _onSearch() {
     final String? stateId = selectedState?.stateId;
@@ -252,7 +221,7 @@ class _SchemeScreenState extends State<SchemeScreen> {
       return;
     }
 
-    // Month name -> month number
+   
     final int month = months.indexOf(selectedMonth) + 1;
 
     print('Search Scheme:');
@@ -272,9 +241,6 @@ class _SchemeScreenState extends State<SchemeScreen> {
     );
   }
 
-  // ============================================================
-  // STATE DROPDOWN
-  // ============================================================
 
   Widget _buildStateDropdown() {
     return Container(
@@ -331,9 +297,7 @@ class _SchemeScreenState extends State<SchemeScreen> {
     );
   }
 
-  // ============================================================
-  // STATE LOADING
-  // ============================================================
+
 
   Widget _buildStateLoading() {
     return Container(
@@ -365,9 +329,7 @@ class _SchemeScreenState extends State<SchemeScreen> {
     );
   }
 
-  // ============================================================
-  // MONTH / YEAR DROPDOWN
-  // ============================================================
+  
 
   Widget _buildDropdownn({
     required IconData icon,
@@ -413,22 +375,16 @@ class _SchemeScreenState extends State<SchemeScreen> {
     );
   }
 
-  // ============================================================
-  // SCHEME LIST
-  // ============================================================
+ 
 
   Widget _buildSchemeList(SchemeState state) {
-    // ----------------------------------------------------------
-    // LOADING
-    // ----------------------------------------------------------
+
 
     if (state is SchemeLoading) {
       return const Center(child: CircularProgressIndicator());
     }
 
-    // ----------------------------------------------------------
-    // ERROR
-    // ----------------------------------------------------------
+   
 
     if (state is SchemeError) {
       return Center(
@@ -436,9 +392,7 @@ class _SchemeScreenState extends State<SchemeScreen> {
       );
     }
 
-    // ----------------------------------------------------------
-    // LOADED
-    // ----------------------------------------------------------
+
 
     if (state is SchemeLoaded) {
       if (state.schemes.isEmpty) {
@@ -463,9 +417,7 @@ class _SchemeScreenState extends State<SchemeScreen> {
       );
     }
 
-    // ----------------------------------------------------------
-    // INITIAL / OTHER
-    // ----------------------------------------------------------
+   
 
     return const Center(
       child: Text(
@@ -475,9 +427,7 @@ class _SchemeScreenState extends State<SchemeScreen> {
     );
   }
 
-  // ============================================================
-  // SCHEME CARD
-  // ============================================================
+ 
 
   Widget _buildSchemeCard(SchemeEntity item) {
     final String image = item.fldImage ?? '';
@@ -507,9 +457,7 @@ class _SchemeScreenState extends State<SchemeScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
 
         children: [
-          // ====================================================
-          // IMAGE / PDF
-          // ====================================================
+         
           GestureDetector(
             onTap: () {
               if (image.isEmpty) {
@@ -574,9 +522,7 @@ class _SchemeScreenState extends State<SchemeScreen> {
             ),
           ),
 
-          // ====================================================
-          // DETAILS
-          // ====================================================
+       
           Padding(
             padding: const EdgeInsets.all(12),
 
@@ -584,34 +530,14 @@ class _SchemeScreenState extends State<SchemeScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
 
               children: [
-                Text(
-                  item.fldOutletName ?? '',
-                  style: const TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-
-                const SizedBox(height: 5),
-
+            
                 Text(
                   item.fldRemark ?? '',
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(color: Colors.grey),
+                  style: const TextStyle(color: Colors.black),
                 ),
 
-                // Optional dates
-                if ((item.fldFromDate ?? '').isNotEmpty ||
-                    (item.fldToDate ?? '').isNotEmpty) ...[
-                  const SizedBox(height: 8),
-
-                  Text(
-                    '${item.fldFromDate ?? ''} - '
-                    '${item.fldToDate ?? ''}',
-                    style: const TextStyle(fontSize: 12, color: Colors.grey),
-                  ),
-                ],
               ],
             ),
           ),
@@ -620,9 +546,6 @@ class _SchemeScreenState extends State<SchemeScreen> {
     );
   }
 
-  // ============================================================
-  // FILE URL
-  // ============================================================
 
   String fileUrl(String file) {
     final String value = file.trim();
@@ -634,17 +557,12 @@ class _SchemeScreenState extends State<SchemeScreen> {
     return '${ApiClient.imageBaseUrl}Scheme/$value';
   }
 
-  // ============================================================
-  // PDF CHECK
-  // ============================================================
+  
 
   bool isPdf(String url) {
     return url.toLowerCase().endsWith('.pdf');
   }
 
-  // ============================================================
-  // CARD
-  // ============================================================
 
   Widget _buildCard({required Widget child}) {
     return Container(

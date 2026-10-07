@@ -85,7 +85,7 @@ class AboutUsPage extends StatelessWidget {
   Widget _buildHeader(BuildContext context) {
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.fromLTRB(18, 12, 18, 24),
+      padding: const EdgeInsets.fromLTRB(18, 12, 18, 12),
       decoration: const BoxDecoration(
         color: primaryGreen,
         // gradient: LinearGradient(
@@ -100,7 +100,7 @@ class AboutUsPage extends StatelessWidget {
       ),
       child: Column(
         children: [
-          const SizedBox(height: 18),
+          // const SizedBox(height: 18),
 
           Container(
             width: 58,
@@ -173,30 +173,27 @@ class AboutUsPage extends StatelessWidget {
   // ------------------------------------------------------------
 
   Widget _buildContent(String html) {
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(14, 14, 14, 14),
-      child: Container(
-        width: double.infinity,
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(24),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.06),
-              blurRadius: 20,
-              spreadRadius: 1,
-              offset: const Offset(0, 6),
-            ),
-          ],
-        ),
-        clipBehavior: Clip.antiAlias,
-        child: Column(
-          children: [
-            _buildContentHeader(),
-
-            Expanded(child: OrganizationWebView(html: html)),
-          ],
-        ),
+    return Container(
+      width: double.infinity,
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(24),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.06),
+            blurRadius: 20,
+            spreadRadius: 1,
+            offset: const Offset(0, 6),
+          ),
+        ],
+      ),
+      clipBehavior: Clip.antiAlias,
+      child: Column(
+        children: [
+          _buildContentHeader(),
+    
+          Expanded(child: OrganizationWebView(html: html)),
+        ],
       ),
     );
   }

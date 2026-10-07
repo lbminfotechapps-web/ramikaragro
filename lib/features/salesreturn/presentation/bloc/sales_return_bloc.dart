@@ -53,9 +53,6 @@ class SalesReturnBloc
     on<SubmitSalesReturnEvent>(_submitOrder);
   }
 
-  // ============================================================
-  // LOAD DEALERS + GODOWNS + CATEGORIES
-  // ============================================================
 
   Future<void> _loadSalesReturn(
     LoadSalesReturnEvent event,
@@ -99,9 +96,7 @@ class SalesReturnBloc
     }
   }
 
-  // ============================================================
-  // SEARCH DEALER
-  // ============================================================
+ 
 
   Future<void> _searchDealer(
     SearchDealerEvent event,
@@ -130,9 +125,7 @@ class SalesReturnBloc
     }
   }
 
-  // ============================================================
-  // GET PRODUCTS FOR CATEGORY
-  // ============================================================
+ 
 
   Future<void> _getProducts(
     GetProductsEvent event,
@@ -168,9 +161,6 @@ class SalesReturnBloc
         searchText: '',
       );
 
-      // ----------------------------------------------------------
-      // COPY EXISTING CATEGORY-WISE PRODUCTS
-      // ----------------------------------------------------------
 
       final Map<String, List<ProductEntity>>
           updatedProductsByCategory = {};
@@ -183,17 +173,12 @@ class SalesReturnBloc
         );
       }
 
-      // ----------------------------------------------------------
-      // SAVE PRODUCTS FOR THIS CATEGORY
-      // ----------------------------------------------------------
-
+     
       updatedProductsByCategory[event.categoryId] =
           List<ProductEntity>.from(products);
 
-      // ----------------------------------------------------------
-      // MERGE PRODUCTS FROM ALL CATEGORIES
-      // ----------------------------------------------------------
-
+    
+  
       final List<ProductEntity> mergedProducts =
           _mergeProducts(
         updatedProductsByCategory,
@@ -237,9 +222,7 @@ class SalesReturnBloc
     }
   }
 
-  // ============================================================
-  // MERGE PRODUCTS
-  // ============================================================
+
 
   List<ProductEntity> _mergeProducts(
     Map<String, List<ProductEntity>>
@@ -260,9 +243,6 @@ class SalesReturnBloc
     return uniqueProducts.values.toList();
   }
 
-  // ============================================================
-  // REMOVE CATEGORY
-  // ============================================================
 
   void _removeCategoryProducts(
     RemoveCategoryProductsEvent event,
@@ -284,7 +264,7 @@ class SalesReturnBloc
       event.categoryId,
     );
 
-    // Rebuild merged products
+    
     final List<ProductEntity> mergedProducts =
         _mergeProducts(
       updatedProductsByCategory,
@@ -311,11 +291,7 @@ class SalesReturnBloc
       '========================================',
     );
 
-    // ----------------------------------------------------------
-    // ALSO REMOVE QUANTITIES / RATES ARE HANDLED BY PAGE.
-    //
-    // Here we only manage product lists.
-    // ----------------------------------------------------------
+   
 
     emit(
       state.copyWith(
@@ -328,9 +304,7 @@ class SalesReturnBloc
     );
   }
 
-  // ============================================================
-  // ADD PRODUCT
-  // ============================================================
+  
 
   void _addProduct(
     AddProductEvent event,
@@ -357,9 +331,8 @@ class SalesReturnBloc
     );
   }
 
-  // ============================================================
-  // CHANGE PRODUCT QUANTITY
-  // ============================================================
+
+  
 
   void _changeQuantity(
     ChangeProductQuantityEvent event,
@@ -386,9 +359,7 @@ class SalesReturnBloc
     );
   }
 
-  // ============================================================
-  // INCREASE PACKING QUANTITY
-  // ============================================================
+  
 
   void _increasePackingQuantity(
     IncreasePackingQuantityEvent event,
@@ -443,10 +414,7 @@ class SalesReturnBloc
     );
   }
 
-  // ============================================================
-  // DECREASE PACKING QUANTITY
-  // ============================================================
-
+  
   void _decreasePackingQuantity(
     DecreasePackingQuantityEvent event,
     Emitter<SalesReturnState> emit,
@@ -497,9 +465,7 @@ class SalesReturnBloc
     );
   }
 
-  // ============================================================
-  // SET PACKING QUANTITY
-  // ============================================================
+  
 
   void _setPackingQuantity(
     SetPackingQuantityEvent event,
@@ -544,9 +510,7 @@ class SalesReturnBloc
     );
   }
 
-  // ============================================================
-  // REMOVE PRODUCT
-  // ============================================================
+ 
 
   void _removeProduct(
     RemoveProductEvent event,
@@ -583,9 +547,7 @@ class SalesReturnBloc
     );
   }
 
-  // ============================================================
-  // SUBMIT ORDER
-  // ============================================================
+ 
 
   Future<void> _submitOrder(
     SubmitSalesReturnEvent event,

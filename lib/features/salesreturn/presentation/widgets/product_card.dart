@@ -9,22 +9,21 @@ import 'package:solufine/features/salesreturn/domain/entities/product_rate_entit
 class ProductCard extends StatelessWidget {
   final ProductEntity product;
 
-  /// productDetailsId -> quantity
+
   final Map<String, int> packingQuantities;
 
-  /// Selected packings/rates for this product
   final List<ProductRateEntity> selectedRates;
 
-  /// Select packing initially
+
   final VoidCallback onAdd;
 
-  /// Add another packing
+
   final VoidCallback onAddMore;
 
-  /// Delete complete product
+
   final VoidCallback onDelete;
 
-  /// Direct Case Quantity
+
   final void Function(
     ProductRateEntity rate,
     int quantity,
@@ -94,17 +93,13 @@ class ProductCard extends StatelessWidget {
         crossAxisAlignment:
             CrossAxisAlignment.start,
         children: [
-          // =====================================================
-          // PRODUCT HEADER
-          // =====================================================
+ 
 
           Row(
             crossAxisAlignment:
                 CrossAxisAlignment.center,
             children: [
-              // =================================================
-              // PRODUCT ICON
-              // =================================================
+          
 
               Container(
                 width: 34.w,
@@ -130,10 +125,7 @@ class ProductCard extends StatelessWidget {
                 width: 8.w,
               ),
 
-              // =================================================
-              // PRODUCT NAME
-              // =================================================
-
+             
               Expanded(
                 child: Column(
                   crossAxisAlignment:
@@ -215,9 +207,7 @@ class ProductCard extends StatelessWidget {
                 width: 5.w,
               ),
 
-              // =================================================
-              // ADD / MORE
-              // =================================================
+          
 
               _buildCompactActionButton(
                 hasRates:
@@ -228,19 +218,14 @@ class ProductCard extends StatelessWidget {
                 width: 4.w,
               ),
 
-              // =================================================
-              // DELETE PRODUCT
-              // =================================================
-
+           
               _buildDeleteButton(
                 onTap: onDelete,
               ),
             ],
           ),
 
-          // =====================================================
-          // SELECTED PACKINGS
-          // =====================================================
+        
 
           if (hasRates) ...[
             SizedBox(
@@ -313,9 +298,7 @@ class ProductCard extends StatelessWidget {
     );
   }
 
-  // ============================================================
-  // PACKING ROW
-  // ============================================================
+ 
 
   Widget _buildPackingRow(
     ProductRateEntity rate,
@@ -324,11 +307,7 @@ class ProductCard extends StatelessWidget {
         rate.productDetailsId
             .toString();
 
-    // ==========================================================
-    // IMPORTANT
-    // If quantity doesn't exist, keep it 0.
-    // Field will display empty.
-    // ==========================================================
+
 
     final int quantity =
         packingQuantities[
@@ -345,9 +324,7 @@ class ProductCard extends StatelessWidget {
         crossAxisAlignment:
             CrossAxisAlignment.center,
         children: [
-          // =====================================================
-          // SELECTED ICON
-          // =====================================================
+         
 
           Container(
             width: 20.w,
@@ -373,9 +350,7 @@ class ProductCard extends StatelessWidget {
             width: 5.w,
           ),
 
-          // =====================================================
-          // PACKING INFORMATION
-          // =====================================================
+        
 
           Expanded(
             child: Column(
@@ -433,7 +408,7 @@ class ProductCard extends StatelessWidget {
                   height: 2.h,
                 ),
 
-                // CASE INFORMATION
+              
 
                 Container(
                   padding:
@@ -480,9 +455,7 @@ class ProductCard extends StatelessWidget {
             width: 5.w,
           ),
 
-          // =====================================================
-          // ENTER CASE
-          // =====================================================
+
 
           _buildQuantityControl(
             rate: rate,
@@ -494,9 +467,7 @@ class ProductCard extends StatelessWidget {
             width: 4.w,
           ),
 
-          // =====================================================
-          // DELETE PACKING
-          // =====================================================
+     
 
           _buildDeletePackingButton(
             onTap: () {
@@ -510,28 +481,7 @@ class ProductCard extends StatelessWidget {
     );
   }
 
-  // ============================================================
-  // CASE QUANTITY
-  // ============================================================
-  //
-  // IMPORTANT:
-  //
-  // OLD:
-  //
-  // TextFormField(
-  //   initialValue: quantity.toString()
-  // )
-  //
-  // PROBLEM:
-  //
-  // initialValue is only applied when TextFormField State is
-  // created. If quantity changes externally after Add More,
-  // old visible value may remain.
-  //
-  // NEW:
-  //
-  // Controller based StatefulWidget.
-  // ============================================================
+  
 
   Widget _buildQuantityControl({
     required ProductRateEntity rate,
@@ -555,9 +505,7 @@ class ProductCard extends StatelessWidget {
     );
   }
 
-  // ============================================================
-  // ADD / MORE BUTTON
-  // ============================================================
+ 
 
   Widget _buildCompactActionButton({
     required bool hasRates,
@@ -647,9 +595,7 @@ class ProductCard extends StatelessWidget {
     );
   }
 
-  // ============================================================
-  // COMPLETE PRODUCT DELETE
-  // ============================================================
+
 
   Widget _buildDeleteButton({
     required VoidCallback onTap,
@@ -691,9 +637,7 @@ class ProductCard extends StatelessWidget {
     );
   }
 
-  // ============================================================
-  // PARTICULAR PACKING DELETE
-  // ============================================================
+
 
   Widget _buildDeletePackingButton({
     required VoidCallback onTap,
@@ -735,296 +679,6 @@ class ProductCard extends StatelessWidget {
   }
 }
 
-// ============================================================================
-// PRODUCT QUANTITY FIELD
-// ============================================================================
-//
-// This StatefulWidget is required because ProductCard itself can remain
-// StatelessWidget while each quantity field owns a TextEditingController.
-//
-// When Bloc quantity changes:
-// old quantity = 2
-// new quantity = 5
-//
-// didUpdateWidget() updates controller text to 5.
-//
-// ============================================================================
-
-// class _ProductQuantityField
-//     extends StatefulWidget {
-//   final int quantity;
-
-//   final ValueChanged<int>
-//       onChanged;
-
-//   const _ProductQuantityField({
-//     super.key,
-//     required this.quantity,
-//     required this.onChanged,
-//   });
-
-//   @override
-//   State<_ProductQuantityField>
-//       createState() =>
-//           _ProductQuantityFieldState();
-// }
-
-// class _ProductQuantityFieldState
-//     extends State<
-//         _ProductQuantityField> {
-//   late final TextEditingController
-//       _controller;
-
-//   // ============================================================
-//   // INIT
-//   // ============================================================
-
-//   @override
-//   void initState() {
-//     super.initState();
-
-//     _controller =
-//         TextEditingController(
-//       text: widget.quantity > 0
-//           ? widget.quantity
-//               .toString()
-//           : '',
-//     );
-//   }
-
-//   // ============================================================
-//   // UPDATE EXTERNAL QUANTITY
-//   // ============================================================
-
-//   @override
-//   void didUpdateWidget(
-//     covariant _ProductQuantityField
-//         oldWidget,
-//   ) {
-//     super.didUpdateWidget(
-//       oldWidget,
-//     );
-
-//     // No quantity change
-//     if (oldWidget.quantity ==
-//         widget.quantity) {
-//       return;
-//     }
-
-//     final String newText =
-//         widget.quantity > 0
-//             ? widget.quantity
-//                 .toString()
-//             : '';
-
-//     // Don't reset cursor unnecessarily
-//     if (_controller.text ==
-//         newText) {
-//       return;
-//     }
-
-//     _controller.value =
-//         TextEditingValue(
-//       text: newText,
-
-//       selection:
-//           TextSelection.collapsed(
-//         offset:
-//             newText.length,
-//       ),
-//     );
-//   }
-
-//   // ============================================================
-//   // DISPOSE
-//   // ============================================================
-
-//   @override
-//   void dispose() {
-//     _controller.dispose();
-
-//     super.dispose();
-//   }
-
-//   // ============================================================
-//   // BUILD
-//   // ============================================================
-
-//   @override
-//   Widget build(
-//     BuildContext context,
-//   ) {
-//     return SizedBox(
-//       width: 95.w,
-//       height: 34.h,
-
-//       child: TextFormField(
-//         controller:
-//             _controller,
-
-//         // ======================================================
-//         // NUMBER KEYBOARD
-//         // ======================================================
-
-//         keyboardType:
-//             TextInputType.number,
-
-//         inputFormatters: [
-//           FilteringTextInputFormatter
-//               .digitsOnly,
-//         ],
-
-//         textInputAction:
-//             TextInputAction.done,
-
-//         textAlign:
-//             TextAlign.center,
-
-//         // ======================================================
-//         // TEXT STYLE
-//         // ======================================================
-
-//         style: TextStyle(
-//           fontSize:
-//               10.sp,
-
-//           fontWeight:
-//               FontWeight.w800,
-
-//           color:
-//               AppColors.textPrimary,
-//         ),
-
-//         // ======================================================
-//         // DESIGN
-//         // ======================================================
-
-//         decoration:
-//             InputDecoration(
-//           hintText:
-//               'Enter Case',
-
-//           hintStyle:
-//               TextStyle(
-//             fontSize:
-//                 8.sp,
-
-//             fontWeight:
-//                 FontWeight.w500,
-
-//             color:
-//                 AppColors
-//                     .textSecondary,
-//           ),
-
-//           isDense:
-//               true,
-
-//           contentPadding:
-//               EdgeInsets.symmetric(
-//             horizontal:
-//                 5.w,
-//             vertical:
-//                 7.h,
-//           ),
-
-//           filled:
-//               true,
-
-//           fillColor:
-//               Colors.white,
-
-//           enabledBorder:
-//               OutlineInputBorder(
-//             borderRadius:
-//                 BorderRadius.circular(
-//               7.r,
-//             ),
-
-//             borderSide:
-//                 BorderSide(
-//               color:
-//                   AppColors.primary
-//                       .withOpacity(
-//                 0.18,
-//               ),
-//             ),
-//           ),
-
-//           focusedBorder:
-//               OutlineInputBorder(
-//             borderRadius:
-//                 BorderRadius.circular(
-//               7.r,
-//             ),
-
-//             borderSide:
-//                 BorderSide(
-//               color:
-//                   AppColors.primary,
-
-//               width:
-//                   1.2,
-//             ),
-//           ),
-//         ),
-
-//         // ======================================================
-//         // QUANTITY CHANGED
-//         // ======================================================
-
-//         onChanged:
-//             (value) {
-//           final String
-//               cleanedValue =
-//               value.trim();
-
-//           // Empty field
-//           if (cleanedValue
-//               .isEmpty) {
-//             widget.onChanged(
-//               0,
-//             );
-
-//             return;
-//           }
-
-//           final int?
-//               enteredQuantity =
-//               int.tryParse(
-//             cleanedValue,
-//           );
-
-//           if (enteredQuantity ==
-//               null) {
-//             widget.onChanged(
-//               0,
-//             );
-
-//             return;
-//           }
-
-//           widget.onChanged(
-//             enteredQuantity,
-//           );
-//         },
-
-//         // ======================================================
-//         // DONE
-//         // ======================================================
-
-//         onFieldSubmitted:
-//             (_) {
-//           FocusManager
-//               .instance
-//               .primaryFocus
-//               ?.unfocus();
-//         },
-//       ),
-//     );
-//   }
-// }
-
 
 class _ProductQuantityField
     extends StatefulWidget {
@@ -1051,9 +705,7 @@ class _ProductQuantityFieldState
   late final FocusNode
       _focusNode;
 
-  // ============================================================
-  // INIT
-  // ============================================================
+
 
   @override
   void initState() {
@@ -1074,27 +726,21 @@ class _ProductQuantityFieldState
     );
   }
 
-  // ============================================================
-  // FOCUS CHANGE
-  // ============================================================
+  
 
   void _handleFocusChange() {
-    // User is currently typing.
-    // Never overwrite controller.
+ 
     if (_focusNode.hasFocus) {
       return;
     }
 
-    // User finished editing.
-    // Sync latest Bloc/parent value.
+   
     _syncController(
       widget.quantity,
     );
   }
 
-  // ============================================================
-  // UPDATE FROM BLOC / PARENT
-  // ============================================================
+  
 
   @override
   void didUpdateWidget(
@@ -1111,19 +757,6 @@ class _ProductQuantityFieldState
       return;
     }
 
-    // ==========================================================
-    // IMPORTANT FIX
-    //
-    // User may be doing:
-    //
-    // 22
-    // backspace -> 2
-    // type 1 -> 21
-    //
-    // Bloc rebuild happens after every key.
-    //
-    // Do NOT overwrite controller while focused.
-    // ==========================================================
 
     if (_focusNode.hasFocus) {
       return;
@@ -1134,9 +767,6 @@ class _ProductQuantityFieldState
     );
   }
 
-  // ============================================================
-  // SYNC CONTROLLER
-  // ============================================================
 
   void _syncController(
     int quantity,
@@ -1161,9 +791,7 @@ class _ProductQuantityFieldState
     );
   }
 
-  // ============================================================
-  // DISPOSE
-  // ============================================================
+ 
 
   @override
   void dispose() {
@@ -1177,9 +805,7 @@ class _ProductQuantityFieldState
     super.dispose();
   }
 
-  // ============================================================
-  // BUILD
-  // ============================================================
+  
 
   @override
   Widget build(
@@ -1195,9 +821,7 @@ class _ProductQuantityFieldState
         focusNode:
             _focusNode,
 
-        // ======================================================
-        // INPUT
-        // ======================================================
+    
 
         keyboardType:
             TextInputType.number,
@@ -1213,9 +837,6 @@ class _ProductQuantityFieldState
         textAlign:
             TextAlign.center,
 
-        // ======================================================
-        // STYLE
-        // ======================================================
 
         style: TextStyle(
           fontSize: 10.sp,
@@ -1283,15 +904,13 @@ class _ProductQuantityFieldState
           ),
         ),
 
-        // ======================================================
-        // QUANTITY CHANGE
-        // ======================================================
+     
 
         onChanged: (value) {
           final String cleanValue =
               value.trim();
 
-          // Field empty
+    
           if (cleanValue.isEmpty) {
             widget.onChanged(0);
             return;
@@ -1311,17 +930,13 @@ class _ProductQuantityFieldState
           );
         },
 
-        // ======================================================
-        // DONE
-        // ======================================================
+      
 
         onFieldSubmitted: (_) {
           _focusNode.unfocus();
         },
 
-        // ======================================================
-        // TAP OUTSIDE
-        // ======================================================
+      
 
         onTapOutside: (_) {
           _focusNode.unfocus();

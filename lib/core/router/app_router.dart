@@ -1,3 +1,5 @@
+import 'package:solufine/features/quickchartreport/presentation/bloc/gallerybloc.dart'
+    as quick_chart;
 import 'package:solufine/core/utility/widgets/bottom_navigation.dart';
 import 'package:solufine/core/di/auth_di.dart';
 import 'package:solufine/features/addexpense/presentation/pages/add_expense_page.dart';
@@ -45,6 +47,7 @@ import 'package:solufine/features/products/presentation/pages/product_details.da
 import 'package:solufine/features/products/presentation/pages/product_list.dart';
 import 'package:solufine/features/products/presentation/pages/products_screen.dart';
 import 'package:solufine/features/profilepage/profile_page.dart';
+import 'package:solufine/features/quickchartreport/presentation/pages/quick_referance_page.dart';
 import 'package:solufine/features/reports/presentation/bloc/employee_activity_bloc.dart';
 import 'package:solufine/features/reports/presentation/pages/about_us_page.dart';
 import 'package:solufine/features/reports/presentation/pages/contact_us_page.dart';
@@ -93,7 +96,7 @@ class AppRouter {
   static const String visitSummaryReport = '/visitSummaryReport';
 
   static const String aboutUs = '/aboutUs';
-   static const String changePassword = '/changePassword';
+  static const String changePassword = '/changePassword';
   static const String contactUs = '/contactUs';
   static const String userGuide = '/userGuide';
   static const String notification = '/notification';
@@ -132,6 +135,7 @@ class AppRouter {
   static const String selfcollectionTarget = '/selfcollectionTarget';
 
   static const String selfAssignTargetPointWise = '/selfAssignTargetPointWise';
+  static const String quickReferance = '/quickReferance';
 
   static final GoRouter router = GoRouter(
     initialLocation: splash,
@@ -160,8 +164,18 @@ class AppRouter {
           return const ProfilePage();
         },
       ),
+      GoRoute(
+        path: quickReferance,
+        name: 'quickReferance',
+        builder: (context, state) {
+          return BlocProvider<quick_chart.GalleryBloc>(
+            create: (_) => sl<quick_chart.GalleryBloc>(),
+            child: const QuickReferencePage(),
+          );
+        },
+      ),
 
-         GoRoute(
+      GoRoute(
         path: changePassword,
         name: 'changePassword',
         builder: (context, state) {

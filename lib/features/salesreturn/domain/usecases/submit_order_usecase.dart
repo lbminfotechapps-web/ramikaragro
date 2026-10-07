@@ -17,17 +17,12 @@ class SubmitOrderUseCase {
     required List<String> imagePaths,
     required String signaturePath,
   }) async {
-    // ============================================================
-    // 1. UPLOAD SIGNATURE
-    // ============================================================
+
 
     final signatureFileName = await repository.uploadSignature(
       signaturePath: signaturePath,
     );
 
-    // ============================================================
-    // 2. SUBMIT ORDER
-    // ============================================================
 
     await repository.submitOrder(
       userId: userId,

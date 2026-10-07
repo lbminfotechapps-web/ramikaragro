@@ -83,7 +83,7 @@ class OrderPreviewSheet extends StatelessWidget {
         final quantity =
             quantities[detailsId] ?? 1;
 
-        total += rate.price.toDouble() * quantity;
+        total += rate.amountForCases(quantity);
       }
     }
 
@@ -655,7 +655,7 @@ class OrderPreviewSheet extends StatelessWidget {
       productQuantity += quantity;
 
       productTotal +=
-          rate.price.toDouble() * quantity;
+          rate.amountForCases(quantity);
     }
 
     return Container(
@@ -902,7 +902,7 @@ class OrderPreviewSheet extends StatelessWidget {
   // }) {
   //   final price = rate.price.toDouble();
 
-  //   final total = price * quantity;
+  //   final total = rate.amountForCases(quantity);
 
   //   return Padding(
   //     padding: EdgeInsets.symmetric(
@@ -996,7 +996,7 @@ class OrderPreviewSheet extends StatelessWidget {
   required int quantity,
 }) {
   final price = rate.price.toDouble();
-  final total = price * quantity;
+  final total = rate.amountForCases(quantity);
 
   return Padding(
     padding: EdgeInsets.symmetric(vertical: 3.h),

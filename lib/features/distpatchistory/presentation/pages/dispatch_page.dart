@@ -674,13 +674,6 @@ class _DispatchPageState extends State<DispatchPage> {
                 ),
               ),
 
-              // ==================================================
-              // ORDER INFORMATION
-              //
-              // IMPORTANT:
-              // This is OUTSIDE ListView.builder.
-              // Therefore Order No and Order Date display once.
-              // ==================================================
               Container(
                 width: double.infinity,
                 margin: EdgeInsets.symmetric(horizontal: 12.w),
@@ -692,6 +685,10 @@ class _DispatchPageState extends State<DispatchPage> {
                 ),
                 child: Column(
                   children: [
+                    _dispatchHeaderRow(
+                      title: 'Dealer Name',
+                      value: dispatch.outletName?.toString() ?? '',
+                    ),
                     _dispatchHeaderRow(
                       title: 'Order No',
                       value: dispatch.orderNo?.toString() ?? '',

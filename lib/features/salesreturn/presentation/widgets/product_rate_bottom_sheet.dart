@@ -35,9 +35,6 @@ class _ProductRateBottomSheetState
     }
   }
 
-  // ===========================================================================
-  // PRODUCT IMAGE URL
-  // ===========================================================================
 
   String _imageUrl() {
     final image = widget.product.image.trim();
@@ -57,9 +54,6 @@ class _ProductRateBottomSheetState
     return '${ApiClient.imageBaseUrl}$cleanImage';
   }
 
-  // ===========================================================================
-  // BUILD
-  // ===========================================================================
 
   @override
   Widget build(BuildContext context) {
@@ -117,9 +111,7 @@ class _ProductRateBottomSheetState
     );
   }
 
-  // ===========================================================================
-  // HEADER
-  // ===========================================================================
+ 
 
   Widget _buildHeader() {
     return Container(
@@ -209,9 +201,7 @@ class _ProductRateBottomSheetState
     );
   }
 
-  // ===========================================================================
-  // PRODUCT HEADER
-  // ===========================================================================
+
 
   Widget _buildProductHeader() {
     final imageUrl = _imageUrl();
@@ -366,9 +356,7 @@ class _ProductRateBottomSheetState
     );
   }
 
-  // ===========================================================================
-  // IMAGE PLACEHOLDER
-  // ===========================================================================
+
 
   Widget _buildImagePlaceholder() {
     return Container(
@@ -382,10 +370,7 @@ class _ProductRateBottomSheetState
     );
   }
 
-  // ===========================================================================
-  // SELECTION HEADER
-  // ===========================================================================
-
+ 
   Widget _buildSelectionHeader() {
     return Row(
       children: [
@@ -435,9 +420,6 @@ class _ProductRateBottomSheetState
     );
   }
 
-  // ===========================================================================
-  // RATE CARD
-  // ===========================================================================
 
   Widget _buildRateCard(
     ProductRateEntity rate,
@@ -446,7 +428,7 @@ class _ProductRateBottomSheetState
         selectedRate?.productDetailsId ==
             rate.productDetailsId;
 
-    // Debug: should print 10 and 5 with your API response.
+   
     debugPrint(
       'RATE => '
       'ID: ${rate.productDetailsId}, '
@@ -499,9 +481,7 @@ class _ProductRateBottomSheetState
         ),
         child: Row(
           children: [
-            // ===============================================================
-            // SELECTION ICON
-            // ===============================================================
+       
 
             AnimatedContainer(
               duration:
@@ -529,9 +509,7 @@ class _ProductRateBottomSheetState
 
             SizedBox(width: 9.w),
 
-            // ===============================================================
-            // DETAILS
-            // ===============================================================
+         
 
             Expanded(
               child: Column(
@@ -584,9 +562,6 @@ class _ProductRateBottomSheetState
 
             SizedBox(width: 7.w),
 
-            // ===============================================================
-            // RATE
-            // ===============================================================
 
             Column(
               crossAxisAlignment:
@@ -620,9 +595,7 @@ class _ProductRateBottomSheetState
     );
   }
 
-  // ===========================================================================
-  // INFO BADGE
-  // ===========================================================================
+ 
 
   Widget _infoBadge({
     required IconData icon,
@@ -683,9 +656,6 @@ class _ProductRateBottomSheetState
     );
   }
 
-  // ===========================================================================
-  // PACKING TEXT
-  // ===========================================================================
 
   String _packingText(
     ProductRateEntity rate,
@@ -712,9 +682,6 @@ class _ProductRateBottomSheetState
     return '$packing $unit';
   }
 
-  // ===========================================================================
-  // EMPTY RATE
-  // ===========================================================================
 
   Widget _buildEmptyRates() {
     return Container(
@@ -777,9 +744,6 @@ class _ProductRateBottomSheetState
     );
   }
 
-  // ===========================================================================
-  // BOTTOM BUTTON
-  // ===========================================================================
 
   Widget _buildBottomButton() {
     final bool enabled =
@@ -810,9 +774,8 @@ class _ProductRateBottomSheetState
           mainAxisSize:
               MainAxisSize.min,
           children: [
-            // ===============================================================
-            // SELECTED RATE
-            // ===============================================================
+  
+
 
             if (selectedRate != null)
               Container(
@@ -955,10 +918,7 @@ class _ProductRateBottomSheetState
                 ),
               ),
 
-            // ===============================================================
-            // ADD BUTTON
-            // ===============================================================
-
+           
             SizedBox(
               width: double.infinity,
               height: 46.h,
@@ -1008,23 +968,14 @@ class _ProductRateBottomSheetState
     );
   }
 
-  // ===========================================================================
-  // ADD PRODUCT TO CART
-  // ===========================================================================
+  
 
   void _addProductToCart() {
     if (selectedRate == null) {
       return;
     }
 
-    // Do NOT add product to Bloc here.
-    //
-    // Return selected ProductRateEntity
-    // to PlaceOrderPage.
-    //
-    // PlaceOrderPage will:
-    // 1. Save selected rate
-    // 2. Add product to Bloc/cart
+  
 
     Navigator.pop(
       context,

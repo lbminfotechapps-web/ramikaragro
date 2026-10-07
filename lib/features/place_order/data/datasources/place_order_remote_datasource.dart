@@ -1,3 +1,4 @@
+import '../../domain/entities/order_amount.dart';
 import 'dart:convert';
 import 'dart:io';
 
@@ -451,7 +452,11 @@ class PlaceOrderRemoteDataSource {
 
         final double price = double.tryParse('${product['price'] ?? 0}') ?? 0.0;
 
-        final double totalAmount = quantity * price;
+        final double totalAmount = calculateCaseAmount(
+          quantity: quantity,
+          unitsPerCase: '${product['unitsPerCase'] ?? 0}',
+          rate: price,
+        );
 
         totalQuantity += quantity;
         grandTotal += totalAmount;

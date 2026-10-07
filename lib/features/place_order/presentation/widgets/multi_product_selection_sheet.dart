@@ -601,7 +601,7 @@ void _setQuantity(
                       CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Select Product Rates',
+                      'Select Products',
                       style: TextStyle(
                         fontSize: 15.sp,
                         fontWeight:

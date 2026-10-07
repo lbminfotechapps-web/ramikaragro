@@ -51,9 +51,11 @@ class QuickAccessSection extends StatefulWidget {
 
 class _QuickAccessSectionState extends State<QuickAccessSection> {
   static const int initialItemCount = 11;
+  static const reportMenuIds = ['32', '63', '65', '64', '57', '86', '87', '89'];
   static const informationMenuIds = ['22', '23', '60', '19', '20', '56', '21'];
   int? userId;
   int visibleItemCount = initialItemCount;
+  bool _showAllReports = false;
 
   // ============================================================
   // SEARCH
@@ -271,6 +273,7 @@ class _QuickAccessSectionState extends State<QuickAccessSection> {
 
     if (oldWidget.menus != widget.menus) {
       visibleItemCount = initialItemCount;
+      _showAllReports = false;
     }
   }
 
@@ -359,7 +362,11 @@ class _QuickAccessSectionState extends State<QuickAccessSection> {
     }
 
     final actionMenus = widget.menus
-        .where((menu) => !informationMenuIds.contains(menu.menuId))
+        .where(
+          (menu) =>
+              !informationMenuIds.contains(menu.menuId) &&
+              !reportMenuIds.contains(menu.menuId),
+        )
         .toList();
     final informationMenus =
         widget.menus
@@ -369,6 +376,15 @@ class _QuickAccessSectionState extends State<QuickAccessSection> {
             (a, b) => informationMenuIds
                 .indexOf(a.menuId)
                 .compareTo(informationMenuIds.indexOf(b.menuId)),
+          );
+    final reportMenus =
+        widget.menus
+            .where((menu) => reportMenuIds.contains(menu.menuId))
+            .toList()
+          ..sort(
+            (a, b) => reportMenuIds
+                .indexOf(a.menuId)
+                .compareTo(reportMenuIds.indexOf(b.menuId)),
           );
     final hasMore = visibleItemCount < actionMenus.length;
 
@@ -581,10 +597,18 @@ class _QuickAccessSectionState extends State<QuickAccessSection> {
                 final filteredInformation = informationMenus
                     .where(matchesSearch)
                     .toList();
+                final filteredReports = reportMenus
+                    .where(matchesSearch)
+                    .toList();
+                final visibleReports = _searchText.isNotEmpty || _showAllReports
+                    ? filteredReports
+                    : filteredReports.take(5).toList();
                 final visibleActions = _searchText.isNotEmpty
                     ? filteredActions
                     : filteredActions.take(visibleItemCount).toList();
-                if (visibleActions.isEmpty && filteredInformation.isEmpty) {
+                if (visibleActions.isEmpty &&
+                    filteredReports.isEmpty &&
+                    filteredInformation.isEmpty) {
                   return Padding(
                     padding: EdgeInsets.symmetric(vertical: 30.h),
                     child: const Center(child: Text('No menu found')),
@@ -601,8 +625,33 @@ class _QuickAccessSectionState extends State<QuickAccessSection> {
                         showMore: _searchText.isEmpty && hasMore,
                       ),
                     ],
+                    if (filteredReports.isNotEmpty) ...[
+                      SizedBox(height: 18.h),
+                      const Divider(color: Color(0xFFE5E7EB)),
+                      SizedBox(height: 10.h),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          _groupTitle('Reports'),
+                          if (_searchText.isEmpty && filteredReports.length > 5)
+                            Padding(
+                              padding: EdgeInsets.only(bottom: 12.h),
+                              child: TextButton(
+                                onPressed: () => setState(() {
+                                  _showAllReports = !_showAllReports;
+                                }),
+                                child: Text(
+                                  _showAllReports ? 'See less' : 'See all',
+                                ),
+                              ),
+                            ),
+                        ],
+                      ),
+                      _menuGrid(visibleReports, crossAxisCount),
+                    ],
                     if (filteredInformation.isNotEmpty) ...[
-                      if (visibleActions.isNotEmpty) ...[
+                      if (visibleActions.isNotEmpty ||
+                          filteredReports.isNotEmpty) ...[
                         SizedBox(height: 18.h),
                         const Divider(color: Color(0xFFE5E7EB)),
                         SizedBox(height: 10.h),
@@ -663,6 +712,13 @@ class _QuickAccessSectionState extends State<QuickAccessSection> {
   }
 
   Future<void> _onMenuTap(BuildContext context, MenuEntity menu) async {
+    FocusScope.of(context).unfocus();
+    _searchController.clear();
+    if (_searchText.isNotEmpty) {
+      setState(() {
+        _searchText = '';
+      });
+    }
     debugPrint(
       'Menu clicked: '
       'ID=${menu.menuId}, '
@@ -799,9 +855,15 @@ class _QuickAccessSectionState extends State<QuickAccessSection> {
       context.push('/addExpense');
     } else if (menu.menuId == '85') {
       context.push('/selfcollectionTarget');
-    } else if (menu.menuId == '84') {
+    }
+     else if (menu.menuId == '84') {
       context.push('/selfAssignTargetPointWise');
-    } else if (menu.menuId == '57' ||
+    }
+      else if (menu.menuId == '88') {
+      context.push('/quickReferance');
+    }
+    
+     else if (menu.menuId == '57' ||
         menu.menuId == '63' ||
         menu.menuId == '32') {
       final userData = await SecureStorage.instance.getUserData();
@@ -1119,8 +1181,8 @@ class _MenuShortcut extends StatelessWidget {
         child: Column(
           children: [
             Container(
-              width: 72.w,
-              height: 72.w,
+              width: 65.w,
+              height: 65.w,
               padding: EdgeInsets.all(17.w),
               decoration: BoxDecoration(
                 color: accent.withValues(alpha: 0.08),
