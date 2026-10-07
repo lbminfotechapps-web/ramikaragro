@@ -1,17 +1,24 @@
 class ApiClient {
-  static const String baseUrl =
-      "https://agroaicrm.com/solufine_agritech/mobileapi/Mobile_app_for_businessplus_kotlin_new";
-  static const String imageBaseUrl =
-      "https://agroaicrm.com/solufine_agritech/uploads/";
-  static const String imageGalleryUrl =
-      "https://agroaicrm.com/solufine_agritech/uploads/gallery/";
 
-  static const String imageCropscheduleUrl =
-      "https://agroaicrm.com/solufine_agritech/uploads/crop_schedule/";
-  static const String imageEmployeeActivityReportUrl =
-      "https://agroaicrm.com/solufine_agritech/uploads/selfie/";
-  static const String imageExpensetUrl =
-      "https://agroaicrm.com/solufine_agritech/uploads/Expense_Images/";
+  //=========================== For Live ===================================================================================
+  static const String baseUrl ="https://agroaicrm.com/solufine_agritech/mobileapi/Mobile_app_for_businessplus_kotlin_new";
+  static const String imageBaseUrl ="https://agroaicrm.com/solufine_agritech/uploads/";
+  static const String imageGalleryUrl ="https://agroaicrm.com/solufine_agritech/uploads/gallery/";
+  static const String imageCropscheduleUrl ="https://agroaicrm.com/solufine_agritech/uploads/crop_schedule/";
+  static const String imageEmployeeActivityReportUrl ="https://agroaicrm.com/solufine_agritech/uploads/selfie/";
+  static const String imageExpensetUrl ="https://agroaicrm.com/solufine_agritech/uploads/Expense_Images/";
+
+
+//  //=========================== For Local ===================================================================================
+//   static const String baseUrl ="http://192.168.1.253:85/solufine_agritech/mobileapi/Mobile_app_for_businessplus_kotlin_new";
+//   static const String imageBaseUrl ="http://192.168.1.253:85/solufine_agritech/uploads/";
+//   static const String imageGalleryUrl ="http://192.168.1.253:85/solufine_agritech/uploads/gallery/";
+//   static const String imageCropscheduleUrl ="http://192.168.1.253:85/solufine_agritech/uploads/crop_schedule/";
+//   static const String imageEmployeeActivityReportUrl ="http://192.168.1.253:85/solufine_agritech/uploads/selfie/";
+//   static const String imageExpensetUrl ="http://192.168.1.253:85/solufine_agritech/uploads/Expense_Images/";
+
+
+
   static const String login = "/user_login";
   static const String getLastThirtyNotVisited = "/getLastThiertyNotVisited";
   static const String getNearByOutlets = "/getNearByOutlets";
@@ -123,4 +130,15 @@ class ApiClient {
   static const String getCollectionType = '/get_collection_type';
 
   static const String changePassword = '/changePassword';
+
+
+  static const String getReportFinancialYears ='/getReportFinancialYears';
+  // Replace this with your real monthly report endpoint
+  static const String getMonthlyPerformance ='/getReportStatMonthlyDetails';
+  static const String getDailyPerformance ='/getStatDailyDetails';
+  static const String getHourlyPerformance ='/getStatHourlyDetails';
+  static const String getAreaPerformance = '/getStatAreaDetails';
+  static const String getTopDealers = '/getStatTopDealers';
+  static const String getExpensePerformance ='/getStatExpenseDetails';
+
 }
