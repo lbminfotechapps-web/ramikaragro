@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:permission_handler/permission_handler.dart';
 
 class LocationPermissionDialog extends StatelessWidget {
-  const LocationPermissionDialog({super.key, required this.onPermissionResult});
+  const LocationPermissionDialog({super.key, required this.onUseLocation});
 
-  final VoidCallback onPermissionResult;
+  final Future<void> Function() onUseLocation;
 
   @override
   Widget build(BuildContext context) {
@@ -18,7 +17,6 @@ class LocationPermissionDialog extends StatelessWidget {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              // Location icon
               SizedBox(
                 height: 70,
                 width: double.infinity,
@@ -71,7 +69,7 @@ class LocationPermissionDialog extends StatelessWidget {
                   Expanded(
                     child: TextButton(
                       onPressed: () {
-                        Navigator.pop(context);
+                        Navigator.of(context).pop();
                       },
                       child: const Text(
                         'No Thanks',
@@ -86,12 +84,7 @@ class LocationPermissionDialog extends StatelessWidget {
                   Expanded(
                     child: TextButton(
                       onPressed: () async {
-                        final status = await Permission.location.request();
-
-                        if (context.mounted) {
-                          Navigator.pop(context);
-                          onPermissionResult();
-                        }
+                        await onUseLocation();
                       },
                       child: const Text(
                         'Use Location',

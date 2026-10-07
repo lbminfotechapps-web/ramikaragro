@@ -1,57 +1,93 @@
-//=======================================notification24-09-2026===============================================
-
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
-
-import 'fcm_token_service.dart';
-import 'local_notification_service.dart';
-import 'notification_navigation_service.dart';
+import 'package:solufine/core/notifications/fcm_token_service.dart';
+import 'package:solufine/core/notifications/local_notification_service.dart';
+import 'package:solufine/core/notifications/notification_navigation_service.dart';
 
 class FcmService {
   FcmService._();
 
   static final FcmService instance = FcmService._();
 
-  final FirebaseMessaging _messaging =
-      FirebaseMessaging.instance;
+  final FirebaseMessaging _messaging = FirebaseMessaging.instance;
+
+  bool _initialized = false;
 
   // ============================================================
   // INITIALIZE
   // ============================================================
 
   Future<void> initialize() async {
+    // Prevent duplicate listeners if initialize() is called again.
+    if (_initialized) {
+      debugPrint('FCM SERVICE ALREADY INITIALIZED');
+      return;
+    }
+
+    _initialized = true;
+
     debugPrint('======================================');
     debugPrint('FCM SERVICE INITIALIZING');
     debugPrint('======================================');
 
-    // 1. Ask permission
-    await _requestPermission();
+    // ============================================================
+    // 1. TOKEN REFRESH LISTENER
+    // IMPORTANT:
+    // Start this before fetching the current token.
+    // ============================================================
 
-    // 2. Get/save current token
-    await FcmTokenService.instance.saveCurrentToken();
-
-    // 3. Listen token refresh
     FcmTokenService.instance.listenTokenRefresh();
 
-    // 4. Listen foreground messages
+    // ============================================================
+    // 2. REQUEST NOTIFICATION PERMISSION
+    // ============================================================
+
+    final NotificationSettings settings = await _requestPermission();
+
+    // ============================================================
+    // 3. GET / SAVE CURRENT TOKEN
+    // ============================================================
+
+    if (settings.authorizationStatus == AuthorizationStatus.authorized ||
+        settings.authorizationStatus == AuthorizationStatus.provisional) {
+      await FcmTokenService.instance.saveCurrentToken();
+    } else {
+      debugPrint('======================================');
+      debugPrint('NOTIFICATION PERMISSION NOT GRANTED');
+      debugPrint('FCM TOKEN REQUEST SKIPPED');
+      debugPrint('======================================');
+    }
+
+    // ============================================================
+    // 4. FOREGROUND MESSAGE LISTENER
+    // ============================================================
+
     _listenForegroundMessages();
 
-    // 5. Notification clicked from background
+    // ============================================================
+    // 5. BACKGROUND NOTIFICATION CLICK
+    // ============================================================
+
     _listenNotificationClick();
 
-    // 6. Local notification clicked
+    // ============================================================
+    // 6. LOCAL NOTIFICATION CLICK
+    // ============================================================
+
     LocalNotificationService.instance.onNotificationTap =
         (Map<String, dynamic> data) {
-      debugPrint('======================================');
-      debugPrint('LOCAL NOTIFICATION CLICKED');
-      debugPrint('DATA: $data');
-      debugPrint('======================================');
+          debugPrint('======================================');
+          debugPrint('LOCAL NOTIFICATION CLICKED');
+          debugPrint('DATA: $data');
+          debugPrint('======================================');
 
-      NotificationNavigationService.instance
-          .handleNotification(data);
-    };
+          NotificationNavigationService.instance.handleNotification(data);
+        };
 
-    // 7. App opened from terminated notification
+    // ============================================================
+    // 7. TERMINATED APP NOTIFICATION
+    // ============================================================
+
     await _checkInitialNotification();
 
     debugPrint('======================================');
@@ -63,20 +99,25 @@ class FcmService {
   // PERMISSION
   // ============================================================
 
-  Future<void> _requestPermission() async {
-    final NotificationSettings settings =
-        await _messaging.requestPermission(
+  Future<NotificationSettings> _requestPermission() async {
+    final NotificationSettings settings = await _messaging.requestPermission(
       alert: true,
       badge: true,
       sound: true,
+
+      // You can enable if required
+      // announcement: false,
+      // carPlay: false,
+      // criticalAlert: false,
+      // provisional: false,
     );
 
     debugPrint('======================================');
     debugPrint('NOTIFICATION PERMISSION');
-    debugPrint(
-      'STATUS: ${settings.authorizationStatus}',
-    );
+    debugPrint('STATUS: ${settings.authorizationStatus}');
     debugPrint('======================================');
+
+    return settings;
   }
 
   // ============================================================
@@ -93,28 +134,29 @@ class FcmService {
         debugPrint('======================================');
 
         // ======================================================
-        // SAME AS YOUR KOTLIN:
-        //
-        // remoteMessage.data["notificationTitle"]
-        // remoteMessage.data["notificationMessage"]
+        // TITLE
         // ======================================================
 
         final String title =
-            message.data['notificationTitle']
-                    ?.toString() ??
-                message.notification?.title ??
-                'Solufine';
+            message.data['notificationTitle']?.toString() ??
+            message.notification?.title ??
+            'Solufine';
+
+        // ======================================================
+        // BODY
+        // ======================================================
 
         final String body =
-            message.data['notificationMessage']
-                    ?.toString() ??
-                message.notification?.body ??
-                '';
+            message.data['notificationMessage']?.toString() ??
+            message.notification?.body ??
+            '';
+
+        // ======================================================
+        // TYPE
+        // ======================================================
 
         final String notificationType =
-            message.data['notificationType']
-                    ?.toString() ??
-                '';
+            message.data['notificationType']?.toString() ?? '';
 
         debugPrint('======================================');
         debugPrint('PARSED NOTIFICATION');
@@ -123,19 +165,19 @@ class FcmService {
         debugPrint('TYPE    : $notificationType');
         debugPrint('======================================');
 
-        if (body.isEmpty) {
+        if (body.trim().isEmpty) {
           debugPrint(
-            'Notification message empty. Not displaying.',
+            'Notification message empty. '
+            'Not displaying.',
           );
           return;
         }
 
         // ======================================================
-        // SAME PURPOSE AS Kotlin sendNotification()
+        // SHOW LOCAL NOTIFICATION
         // ======================================================
 
-        await LocalNotificationService.instance
-            .showNotification(
+        await LocalNotificationService.instance.showNotification(
           title: title,
           body: body,
           data: message.data,
@@ -143,7 +185,8 @@ class FcmService {
 
         debugPrint('======================================');
         debugPrint(
-          'LOCAL NOTIFICATION DISPLAY REQUEST COMPLETE',
+          'LOCAL NOTIFICATION DISPLAY '
+          'REQUEST COMPLETE',
         );
         debugPrint('======================================');
       },
@@ -157,24 +200,19 @@ class FcmService {
   }
 
   // ============================================================
-  // BACKGROUND -> USER CLICKS FCM NOTIFICATION
+  // BACKGROUND -> USER CLICKS NOTIFICATION
   // ============================================================
 
   void _listenNotificationClick() {
-    FirebaseMessaging.onMessageOpenedApp.listen(
-      (RemoteMessage message) {
-        debugPrint('======================================');
-        debugPrint('FCM NOTIFICATION CLICKED');
-        debugPrint('STATE: BACKGROUND');
-        debugPrint('DATA: ${message.data}');
-        debugPrint('======================================');
+    FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
+      debugPrint('======================================');
+      debugPrint('FCM NOTIFICATION CLICKED');
+      debugPrint('STATE: BACKGROUND');
+      debugPrint('DATA: ${message.data}');
+      debugPrint('======================================');
 
-        NotificationNavigationService.instance
-            .handleNotification(
-          message.data,
-        );
-      },
-    );
+      NotificationNavigationService.instance.handleNotification(message.data);
+    });
   }
 
   // ============================================================
@@ -182,8 +220,7 @@ class FcmService {
   // ============================================================
 
   Future<void> _checkInitialNotification() async {
-    final RemoteMessage? message =
-        await _messaging.getInitialMessage();
+    final RemoteMessage? message = await _messaging.getInitialMessage();
 
     if (message == null) {
       return;
@@ -195,14 +232,10 @@ class FcmService {
     debugPrint('DATA: ${message.data}');
     debugPrint('======================================');
 
-    Future.delayed(
-      const Duration(seconds: 1),
-      () {
-        NotificationNavigationService.instance
-            .handleNotification(
-          message.data,
-        );
-      },
-    );
+    // Router may not be ready immediately
+    // when application starts.
+    Future.delayed(const Duration(seconds: 1), () {
+      NotificationNavigationService.instance.handleNotification(message.data);
+    });
   }
 }

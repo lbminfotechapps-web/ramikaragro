@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:solufine/core/notifiations/fcm_token_service.dart';
 import 'package:solufine/core/utility/device_info_util.dart';
 import 'package:solufine/features/auth/domain/entity/login_entity.dart';
@@ -12,21 +13,49 @@ class LoginUsecase {
 
   Future<UserLoginEntity> loginUser(String username, String password) async {
     try {
-      final fcmToken = await fcmTokenService.getFcmToken();
+      // ==========================================================
+      // GET FCM TOKEN
+      // ==========================================================
+
+      final String? fcmToken = await FcmTokenService.instance.getFcmToken();
+
+      // ==========================================================
+      // DEVICE INFO
+      // ==========================================================
 
       final deviceInfo = await deviceInfoUtil.getDeviceInfo();
 
-      final mobileInfo = deviceInfo['mobileInfo'] ?? '';
-      final macAddress = deviceInfo['macAddress'] ?? '';
+      final String mobileInfo = deviceInfo['mobileInfo'] ?? '';
 
-      print('FCM Token: $fcmToken');
-      print('Mobile Info: $mobileInfo');
-      print('MAC Address: $macAddress');
+      final String macAddress = deviceInfo['macAddress'] ?? '';
+
+      // ==========================================================
+      // DEBUG
+      // ==========================================================
+
+      debugPrint('======================================');
+
+      debugPrint('LOGIN REQUEST DATA');
+
+      debugPrint('FCM TOKEN: ${fcmToken ?? 'EMPTY'}');
+
+      debugPrint('MOBILE INFO: $mobileInfo');
+
+      debugPrint('MAC ADDRESS: $macAddress');
+
+      debugPrint('======================================');
+
+      // ==========================================================
+      // LOGIN
+      // ==========================================================
 
       final response = await loginRepository.loginUser(
         username,
         password,
-        fcmToken.toString(),
+
+        // IMPORTANT
+        fcmToken ?? '',
+
         mobileInfo,
         macAddress,
       );

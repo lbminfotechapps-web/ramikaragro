@@ -26,17 +26,22 @@
 	<string>$(FLUTTER_BUILD_NUMBER)</string>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
-    <key>NSMicrophoneUsageDescription</key>
-    <string>Use the microphone to open menus with your voice.</string>
-    <key>NSSpeechRecognitionUsageDescription</key>
-    <string>Recognize spoken menu names to navigate the app.</string>
-	    <key>NSCameraUsageDescription</key>
-    <string>This app uses the camera to capture punch and vehicle images.</string>
-
-    <key>NSLocationWhenInUseUsageDescription</key>
-    <string>This app uses your location to record your punch location and address.</string>
+	<key>NSCameraUsageDescription</key>
+	<string>This app uses the camera to capture punch and vehicle images.</string>
+	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+	<string>
+We use your location during field activities to record visits and work-related travel, including when the app is running in the background.
+</string>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>
+We use your location to record visits, attendance and field activities.
+</string>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>Use the microphone to open menus with your voice.</string>
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>This app uses your photo library to select expense images.</string>
+	<key>NSSpeechRecognitionUsageDescription</key>
+	<string>Recognize spoken menu names to navigate the app.</string>
 	<key>UIApplicationSceneManifest</key>
 	<dict>
 		<key>UIApplicationSupportsMultipleScenes</key>
@@ -60,6 +65,12 @@
 	</dict>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
+	<key>UIBackgroundModes</key>
+	<array>
+		<string>location</string>
+		<string>fetch</string>
+		<string>remote-notification</string>
+	</array>
 	<key>UILaunchStoryboardName</key>
 	<string>LaunchScreen</string>
 	<key>UIMainStoryboardFile</key>
@@ -77,7 +88,5 @@
 		<string>UIInterfaceOrientationLandscapeLeft</string>
 		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>
-
-
 </dict>
 </plist>

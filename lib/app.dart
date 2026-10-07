@@ -125,7 +125,6 @@ import 'package:solufine/features/reports/presentation/bloc/not_visited_dealer_b
 import 'package:solufine/features/salesreturnhistory/presentation/bloc/sales_return_history_bloc.dart';
 import 'package:solufine/features/scheme/presentation/bloc/scheme_bloc.dart';
 
-
 class MyApp extends StatefulWidget {
   const MyApp({super.key});
 
@@ -134,8 +133,6 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
- 
-
   @override
   void initState() {
     super.initState();
@@ -143,12 +140,10 @@ class _MyAppState extends State<MyApp> {
     NotificationNavigationService.instance.setRouter(AppRouter.router);
   }
 
-
   @override
   Widget build(BuildContext context) {
     return MultiBlocProvider(
       providers: [
-
         BlocProvider<QuickAcessBloc>(create: (_) => sl<QuickAcessBloc>()),
 
         BlocProvider<EmployeeActivityBloc>(
@@ -209,7 +204,6 @@ class _MyAppState extends State<MyApp> {
 
         BlocProvider<ExpenseBloc>(create: (_) => sl<ExpenseBloc>()),
       ],
-
 
       child: MaterialApp.router(
         title: 'Flutter Demo',
