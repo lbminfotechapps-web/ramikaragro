@@ -48,11 +48,14 @@ import 'package:solufine/features/products/presentation/pages/product_list.dart'
 import 'package:solufine/features/products/presentation/pages/products_screen.dart';
 import 'package:solufine/features/profilepage/profile_page.dart';
 import 'package:solufine/features/quickchartreport/presentation/pages/quick_referance_page.dart';
+import 'package:solufine/features/report_home_page/report_home_page.dart';
 import 'package:solufine/features/reports/presentation/bloc/employee_activity_bloc.dart';
+import 'package:solufine/features/reports/presentation/bloc/monthly_performance_bloc.dart';
 import 'package:solufine/features/reports/presentation/pages/about_us_page.dart';
 import 'package:solufine/features/reports/presentation/pages/contact_us_page.dart';
 import 'package:solufine/features/reports/presentation/pages/employee_activity_report_page.dart';
 import 'package:solufine/features/reports/presentation/pages/employee_output_report_page.dart';
+import 'package:solufine/features/reports/presentation/pages/monthly_performance_report_page.dart';
 import 'package:solufine/features/reports/presentation/pages/not_visited_dealer_page.dart';
 import 'package:solufine/features/reports/presentation/pages/notification_page.dart';
 
@@ -82,9 +85,13 @@ class AppRouter {
   static const String noVisitDealer = '/notVisitDealer';
 
   static const String home = '/home';
-  static const String reports = '/reports';
+  static const String followup = '/followup';
   static const String visits = '/visits';
   static const String products = '/products';
+  static const String monthlyPerformanceReport = '/monthlyPerformanceReport';
+
+   static const String reportPage = '/reportPage';
+
   static const String productList = '/productList';
   static const String productDetails = '/productDetails';
   static const String farmers = '/farmers';
@@ -513,6 +520,36 @@ class AppRouter {
           );
         },
       ),
+
+
+
+          GoRoute(
+            path: monthlyPerformanceReport,
+            name: 'monthlyPerformanceReport',
+            builder: (context, state) {
+              final String userId = state.extra is String
+                  ? state.extra as String
+                  : '';
+
+              return MultiBlocProvider(
+                        providers: [
+                          BlocProvider<MonthlyPerformanceBloc>(
+                            create: (_) =>
+                                sl<MonthlyPerformanceBloc>(),
+                          ),
+
+                          BlocProvider<EmployeeOutputBloc>(
+                            create: (_) =>
+                                sl<EmployeeOutputBloc>(),
+                          ),
+                        ],
+                        child: const MonthlyPerformanceReportPage(),
+                      );
+            },
+          ),
+
+
+
       GoRoute(
         path: dealrFollowUpAdd,
         name: 'dealrFollowUpAdd',
@@ -662,25 +699,56 @@ class AppRouter {
           StatefulShellBranch(
             routes: [
               GoRoute(
-                path: reports,
-                name: 'reports',
+                path: followup,
+                name: 'followup',
                 builder: (context, state) {
                   return const FollowupPage();
                 },
               ),
             ],
           ),
-          // StatefulShellBranch(
+         
+
+           StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: reportPage,
+                name: 'reportPage',
+                builder: (context, state) {
+                  return const ReportsHomePage();
+                },
+              ),
+            ],
+          ),
+         
+    
+
+          //   StatefulShellBranch(
           //   routes: [
           //     GoRoute(
-          //       path: visits,
-          //       name: 'visits',
+          //       path: monthlyPerformanceReport,
+          //       name: 'monthlyPerformanceReport',
           //       builder: (context, state) {
-          //         return const DealerListScreen();
+          //         return MultiBlocProvider(
+          //           providers: [
+          //             BlocProvider<MonthlyPerformanceBloc>(
+          //               create: (_) =>
+          //                   sl<MonthlyPerformanceBloc>(),
+          //             ),
+
+          //             BlocProvider<EmployeeOutputBloc>(
+          //               create: (_) =>
+          //                   sl<EmployeeOutputBloc>(),
+          //             ),
+          //           ],
+          //           child: const MonthlyPerformanceReportPage(),
+          //         );
           //       },
           //     ),
           //   ],
           // ),
+
+
           StatefulShellBranch(
             routes: [
               GoRoute(
@@ -692,6 +760,10 @@ class AppRouter {
               ),
             ],
           ),
+         
+
+
+
         ],
       ),
     ],
