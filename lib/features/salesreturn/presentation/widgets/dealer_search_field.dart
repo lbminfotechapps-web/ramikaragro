@@ -30,7 +30,7 @@ class DealerSearchField extends StatelessWidget {
       builder: (context, value, child) {
         final query = value.text.trim();
 
-        // Show dealer list ONLY when user is typing
+   
         final bool showDealers =
             query.isNotEmpty &&
             dealers.isNotEmpty &&
@@ -116,7 +116,7 @@ class DealerSearchField extends StatelessWidget {
               ),
             ),
 
-            // Dealer result list
+    
             if (showDealers) ...[
               SizedBox(height: 8.h),
 
@@ -228,7 +228,7 @@ class DealerSearchField extends StatelessWidget {
               ),
             ],
 
-            // Selected dealer
+    
             if (selectedDealer != null) ...[
               SizedBox(height: 10.h),
 

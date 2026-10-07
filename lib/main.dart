@@ -12,7 +12,7 @@ import 'package:solufine/core/notifications/local_notification_service.dart';
 
 @pragma('vm:entry-point')
 Future<void> firebaseMessagingBackgroundHandler(RemoteMessage message) async {
-  // Background isolate needs Firebase initialization.
+
   await Firebase.initializeApp();
 }
 

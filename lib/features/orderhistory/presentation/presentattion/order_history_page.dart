@@ -985,7 +985,7 @@ class _OrderHistoryPageState extends State<OrderHistoryPage> {
 
                   _infoRow('Godown', order.godownName),
 
-                  _infoRow('Total Qty', order.totalQty),
+                  _infoRow('Total Case Qty', order.totalQty),
 
                   _infoRow('Grand Total', order.grandTotal),
 
@@ -1272,7 +1272,7 @@ class _OrderHistoryPageState extends State<OrderHistoryPage> {
                               'Order :${order.orderNo}',
                               style: TextStyle(
                                 fontSize: 12.sp,
-                                color: Colors.grey.shade600,
+                                color: Colors.black,
                               ),
                             ),
                           ],

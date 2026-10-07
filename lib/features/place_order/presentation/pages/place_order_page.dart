@@ -1928,27 +1928,7 @@ class _PlaceOrderViewState extends State<_PlaceOrderView> {
                       ],
                     ),
                     SizedBox(height: 9.h),
-                    Row(
-                      children: [
-                        Icon(
-                          Icons.inventory_2_rounded,
-                          size: 18.sp,
-                          color: AppColors.primary,
-                        ),
-                        SizedBox(width: 8.w),
-                        Expanded(
-                          child: Text(
-                            '${selectedProductPayload.length} rate line${selectedProductPayload.length == 1 ? '' : 's'}',
-                            style: TextStyle(
-                              fontSize: 13.sp,
-                              fontWeight: FontWeight.w700,
-                              color: AppColors.textPrimary,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                    SizedBox(height: 9.h),
+                  
                     Row(
                       children: [
                         Icon(
@@ -2632,69 +2612,7 @@ class _PlaceOrderViewState extends State<_PlaceOrderView> {
                             ),
 
                             SizedBox(width: 5.w),
-
-                            // =========================================
-                            // ADD MULTIPLE PRODUCTS
-                            // =========================================
-
-                            // Material(
-                            //   color:
-                            //       allCategoryProducts
-                            //               .isEmpty ||
-                            //           isOpeningRateSelector
-                            //       ? Colors.grey.shade400
-                            //       : AppColors.primary,
-
-                            //   borderRadius:
-                            //       BorderRadius.circular(
-                            //         8.r,
-                            //       ),
-
-                            //   child: InkWell(
-                            //     onTap:
-                            //         allCategoryProducts
-                            //                 .isEmpty ||
-                            //             isOpeningRateSelector
-                            //         ? null
-                            //         : () {
-                            //             _openMultiProductSelector();
-                            //           },
-
-                            //     borderRadius:
-                            //         BorderRadius.circular(
-                            //           8.r,
-                            //         ),
-
-                            //     child: SizedBox(
-                            //       width: 36.w,
-                            //       height: 34.h,
-
-                            //       child: Center(
-                            //         child:
-                            //             isOpeningRateSelector
-                            //             ? SizedBox(
-                            //                 width: 15.w,
-                            //                 height: 15.w,
-
-                            //                 child:
-                            //                     const CircularProgressIndicator(
-                            //                       strokeWidth:
-                            //                           2,
-                            //                       color:
-                            //                           Colors.white,
-                            //                     ),
-                            //               )
-                            //             : Icon(
-                            //                 Icons
-                            //                     .playlist_add_rounded,
-                            //                 size: 19.sp,
-                            //                 color:
-                            //                     Colors.white,
-                            //               ),
-                            //       ),
-                            //     ),
-                            //   ),
-                            // ),
+                     
                           ],
                         ),
 
@@ -2873,10 +2791,7 @@ class _PlaceOrderViewState extends State<_PlaceOrderView> {
 
         totalQuantity += quantity;
 
-        final double rateValue =
-            double.tryParse(rate.rateWithGst.toString()) ?? 0.0;
-
-        totalAmount += rateValue * quantity;
+        totalAmount += rate.amountForCases(quantity);
       }
     }
 

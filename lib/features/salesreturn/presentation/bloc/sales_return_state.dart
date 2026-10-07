@@ -21,26 +21,18 @@ class SalesReturnState extends Equatable {
   final List<GodownEntity> godowns;
   final List<CategoryEntity> categories;
 
-  // ============================================================
-  // MERGED PRODUCTS FROM ALL SELECTED CATEGORIES
-  // ============================================================
+
 
   final List<ProductEntity> products;
 
-  // ============================================================
-  // PRODUCTS STORED CATEGORY-WISE
-  // categoryId -> products
-  // ============================================================
 
   final Map<String, List<ProductEntity>> productsByCategory;
 
-  // ============================================================
-  // PRODUCT QUANTITIES
-  // ============================================================
+
 
   final Map<String, int> quantities;
 
-  // productId -> productDetailsId -> quantity
+
   final Map<String, Map<String, int>> packingQuantities;
 
   final String errorMessage;

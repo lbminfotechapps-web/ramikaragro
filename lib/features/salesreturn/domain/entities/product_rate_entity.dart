@@ -1,3 +1,5 @@
+import 'package:solufine/core/utility/case_amount.dart';
+
 class ProductRateEntity {
   final String productDetailsId;
   final String qty;
@@ -39,6 +41,11 @@ class ProductRateEntity {
     return double.tryParse(rateWithGst) ?? 0;
   }
 
+  double amountForCases(int quantity) => calculateCaseAmount(
+    quantity: quantity,
+    unitsPerCase: unitsPerCase,
+    rate: price,
+  );
   String get displayPacking {
     if (packing.trim().isEmpty) {
       return '-';

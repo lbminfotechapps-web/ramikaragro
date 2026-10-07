@@ -49,7 +49,7 @@ class DispatchDetailCard extends StatelessWidget {
                 // QUANTITY
                 // =========================================================
                 _detailRow(
-                  title: 'Quantity',
+                  title: 'Case Quantity',
                   value: detail.productQty,
                 ),
 
@@ -57,7 +57,7 @@ class DispatchDetailCard extends StatelessWidget {
                 // DISPATCH QUANTITY
                 // =========================================================
                 _detailRow(
-                  title: 'Dispatch Quantity',
+                  title: 'Dispatch Case Quantity',
                   value: detail.actualDispatchQty,
                 ),
 
@@ -65,7 +65,7 @@ class DispatchDetailCard extends StatelessWidget {
                 // REMAINING QUANTITY
                 // =========================================================
                 _detailRow(
-                  title: 'Remaining Quantity',
+                  title: 'Remaining Case Quantity',
                   value: detail.remainingDispatchQty,
                 ),
 

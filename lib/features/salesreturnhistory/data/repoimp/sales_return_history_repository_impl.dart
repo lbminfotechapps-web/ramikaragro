@@ -21,11 +21,11 @@ class SalesReturnHistoryRepositoryImpl implements SalesReturnHistoryRepository {
     return datasource.getSalesReturnHistory(
       params: {
         'userId': userId,
-        'outlet_id': outletId,
+        'outletId': outletId,
         'fromDate': fromDate,
         'toDate': toDate,
         'startLimit': startLimit,
-        if (status.isNotEmpty) 'status': status,
+        'status': status,
       },
     );
   }

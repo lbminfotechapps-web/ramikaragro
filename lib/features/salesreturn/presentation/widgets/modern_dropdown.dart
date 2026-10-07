@@ -26,10 +26,7 @@ class ModernDropdown<T> extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // ==========================================================
-        // LABEL
-        // ==========================================================
-
+       
         Row(
           children: [
             Icon(
@@ -51,9 +48,6 @@ class ModernDropdown<T> extends StatelessWidget {
 
         SizedBox(height: 8.h),
 
-        // ==========================================================
-        // DROPDOWN
-        // ==========================================================
 
         DropdownButtonFormField<T>(
           initialValue: value,

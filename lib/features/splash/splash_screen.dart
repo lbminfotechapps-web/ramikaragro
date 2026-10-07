@@ -42,7 +42,7 @@ Future<void> _checkLogin() async {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      // backgroundColor: AppColors.successColor,
+    
       body: Container(
         width: double.infinity,
         height: double.infinity,

@@ -137,8 +137,8 @@ class _SalesReturnHistoryPageState extends State<SalesReturnHistoryPage> {
     if (date == null) return;
 
     fromDateController.text =
-        '${date.day.toString().padLeft(2, '0')}/'
-        '${date.month.toString().padLeft(2, '0')}/'
+        '${date.day.toString().padLeft(2, '0')}-'
+        '${date.month.toString().padLeft(2, '0')}-'
         '${date.year}';
 
     setState(() {});
@@ -163,8 +163,8 @@ class _SalesReturnHistoryPageState extends State<SalesReturnHistoryPage> {
     if (date == null) return;
 
     toDateController.text =
-        '${date.day.toString().padLeft(2, '0')}/'
-        '${date.month.toString().padLeft(2, '0')}/'
+        '${date.day.toString().padLeft(2, '0')}-'
+        '${date.month.toString().padLeft(2, '0')}-'
         '${date.year}';
 
     setState(() {});

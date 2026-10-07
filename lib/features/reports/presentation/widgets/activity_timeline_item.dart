@@ -260,22 +260,6 @@ class ActivityTimelineItem extends StatelessWidget {
                     ),
                   ],
 
-                  // ==================================================
-                  // TRANSACTION
-                  // ==================================================
-
-                  // if (activity.dailyTranId.trim().isNotEmpty) ...[
-                  //   const SizedBox(height: 6),
-                  //   _DetailRow(
-                  //     icon: Icons.receipt_long_outlined,
-                  //     title: 'Transaction',
-                  //     value: activity.dailyTranId,
-                  //   ),
-                  // ],
-
-                  // ==================================================
-                  // EMPLOYEE
-                  // ==================================================
 
                   if (activity.adminName.trim().isNotEmpty) ...[
                     const SizedBox(height: 6),
@@ -285,6 +269,7 @@ class ActivityTimelineItem extends StatelessWidget {
                       value: activity.adminName,
                     ),
                   ],
+                  
 
                   // ==================================================
                   // SELFIE
@@ -565,8 +550,7 @@ class _SelfieImage extends StatelessWidget {
     final imageUrl =
         '${ApiClient.imageEmployeeActivityReportUrl}$imageName';
 
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(10),
+    return ClipOval(
       child: Stack(
         children: [
           // ================================================================
@@ -574,8 +558,8 @@ class _SelfieImage extends StatelessWidget {
           // ================================================================
 
           SizedBox(
-            height: 120,
-            width: double.infinity,
+            height: 100,
+            width: 100,
             child: Image.network(
               imageUrl,
               fit: BoxFit.cover,
@@ -646,8 +630,8 @@ class _SelfieImage extends StatelessWidget {
           // ================================================================
 
           Positioned(
-            right: 8,
-            bottom: 8,
+            right: 16,
+            bottom: 16,
             child: Container(
               padding: const EdgeInsets.all(5),
               decoration: BoxDecoration(

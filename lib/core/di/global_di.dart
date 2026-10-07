@@ -1,3 +1,5 @@
+import 'package:solufine/core/di/quick_referance_di.dart'
+    show initQuickReferenceDi;
 import 'package:solufine/core/di/auth_di.dart';
 import 'package:solufine/core/di/collection_di.dart';
 import 'package:solufine/core/di/collection_list_di.dart';
@@ -46,6 +48,7 @@ Future<void> initGlobalDi() async {
 
   await initFarmerDi();
   await initGalleryDi();
+  await initQuickReferenceDi();
   await initSchemeDi();
   await initDealerDi();
   await initEmployeeActivityDi();

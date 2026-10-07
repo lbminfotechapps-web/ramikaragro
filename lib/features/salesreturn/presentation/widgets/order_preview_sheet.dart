@@ -5,7 +5,7 @@ import 'package:solufine/core/theme/app_colors.dart';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil_plus/flutter_screenutil_plus.dart';
-import 'package:solufine/features/salesreturn/domain/entities/category_entity.dart';
+
 import 'package:solufine/features/salesreturn/domain/entities/dealer_entity.dart';
 import 'package:solufine/features/salesreturn/domain/entities/godown_entity.dart';
 import 'package:solufine/features/salesreturn/domain/entities/product_entity.dart';
@@ -14,7 +14,7 @@ import 'package:solufine/features/salesreturn/domain/entities/product_rate_entit
 class OrderPreviewSheet extends StatelessWidget {
   final DealerEntity dealer;
   final GodownEntity godown;
- // final CategoryEntity category;
+
   final List<ProductEntity> products;
 
   final Map<String, Map<String, int>> packingQuantities;
@@ -30,7 +30,7 @@ class OrderPreviewSheet extends StatelessWidget {
     super.key,
     required this.dealer,
     required this.godown,
-   // required this.category,
+
     required this.products,
     required this.packingQuantities,
     required this.selectedRates,
@@ -39,10 +39,6 @@ class OrderPreviewSheet extends StatelessWidget {
     required this.remark,
     required this.onConfirm,
   });
-
-  // ============================================================
-  // TOTAL QUANTITY
-  // ============================================================
 
   int get totalQuantity {
     int total = 0;
@@ -61,9 +57,6 @@ class OrderPreviewSheet extends StatelessWidget {
     return total;
   }
 
-  // ============================================================
-  // TOTAL AMOUNT
-  // ============================================================
 
   double get totalAmount {
     double total = 0;
@@ -84,16 +77,14 @@ class OrderPreviewSheet extends StatelessWidget {
         final quantity =
             quantities[detailsId] ?? 1;
 
-        total += rate.price.toDouble() * quantity;
+        total += rate.amountForCases(quantity);
       }
     }
 
     return total;
   }
 
-  // ============================================================
-  // BUILD
-  // ============================================================
+  
 
   @override
   Widget build(BuildContext context) {
@@ -133,17 +124,13 @@ class OrderPreviewSheet extends StatelessWidget {
                 crossAxisAlignment:
                     CrossAxisAlignment.start,
                 children: [
-                  // ==================================================
-                  // DEALER + ORDER INFORMATION
-                  // ==================================================
+                 
 
                   _buildOrderOverview(),
 
                   SizedBox(height: 12.h),
 
-                  // ==================================================
-                  // PRODUCTS
-                  // ==================================================
+               
 
                   _buildSectionHeader(
                     Icons.shopping_bag_outlined,
@@ -168,15 +155,10 @@ class OrderPreviewSheet extends StatelessWidget {
 
                   SizedBox(height: 3.h),
 
-                  // ==================================================
-                  // TOTAL SUMMARY
-                  // ==================================================
+             
 
                   _buildTotalSummary(),
 
-                  // ==================================================
-                  // DEALER PHOTO + SIGNATURE
-                  // ==================================================
 
                   if (hasPhoto || hasSignature) ...[
                     SizedBox(height: 12.h),
@@ -195,10 +177,7 @@ class OrderPreviewSheet extends StatelessWidget {
                     ),
                   ],
 
-                  // ==================================================
-                  // REMARK
-                  // ==================================================
-
+              
                   if (remark.trim().isNotEmpty) ...[
                     SizedBox(height: 12.h),
 
@@ -219,9 +198,7 @@ class OrderPreviewSheet extends StatelessWidget {
             ),
           ),
 
-          // ========================================================
-          // BOTTOM BUTTONS
-          // ========================================================
+        
 
           _buildBottomButtons(context),
         ],
@@ -229,9 +206,7 @@ class OrderPreviewSheet extends StatelessWidget {
     );
   }
 
-  // ============================================================
-  // HEADER
-  // ============================================================
+ 
 
   Widget _buildHeader(BuildContext context) {
     return Container(
@@ -335,10 +310,6 @@ class OrderPreviewSheet extends StatelessWidget {
     );
   }
 
-  // ============================================================
-  // SECTION HEADER
-  // ============================================================
-
   Widget _buildSectionHeader(
     IconData icon,
     String title,
@@ -399,9 +370,6 @@ class OrderPreviewSheet extends StatelessWidget {
     );
   }
 
-  // ============================================================
-  // ORDER OVERVIEW
-  // ============================================================
 
   Widget _buildOrderOverview() {
     return Container(
@@ -417,9 +385,7 @@ class OrderPreviewSheet extends StatelessWidget {
       ),
       child: Column(
         children: [
-          // ------------------------------------------------------
-          // DEALER
-          // ------------------------------------------------------
+      
 
           Row(
             crossAxisAlignment:
@@ -549,9 +515,7 @@ class OrderPreviewSheet extends StatelessWidget {
 
           SizedBox(height: 10.h),
 
-          // ------------------------------------------------------
-          // GODOWN + CATEGORY
-          // ------------------------------------------------------
+       
 
           Row(
             children: [
@@ -572,9 +536,7 @@ class OrderPreviewSheet extends StatelessWidget {
     );
   }
 
-  // ============================================================
-  // COMPACT INFO
-  // ============================================================
+
 
   Widget _compactInfo({
     required IconData icon,
@@ -626,9 +588,6 @@ class OrderPreviewSheet extends StatelessWidget {
     );
   }
 
-  // ============================================================
-  // PRODUCT CARD
-  // ============================================================
 
   Widget _buildProductCard(
     ProductEntity product,
@@ -656,7 +615,7 @@ class OrderPreviewSheet extends StatelessWidget {
       productQuantity += quantity;
 
       productTotal +=
-          rate.price.toDouble() * quantity;
+          rate.amountForCases(quantity);
     }
 
     return Container(
@@ -672,17 +631,13 @@ class OrderPreviewSheet extends StatelessWidget {
       ),
       child: Column(
         children: [
-          // ======================================================
-          // PRODUCT TOP
-          // ======================================================
+      
 
           Row(
             crossAxisAlignment:
                 CrossAxisAlignment.start,
             children: [
-              // --------------------------------------------------
-              // IMAGE
-              // --------------------------------------------------
+            
 
               Container(
                 height: 52.w,
@@ -714,9 +669,7 @@ class OrderPreviewSheet extends StatelessWidget {
 
               SizedBox(width: 9.w),
 
-              // --------------------------------------------------
-              // PRODUCT NAME
-              // --------------------------------------------------
+          
 
               Expanded(
                 child: Column(
@@ -753,19 +706,7 @@ class OrderPreviewSheet extends StatelessWidget {
                           5.r,
                         ),
                       ),
-                      // child: Text(
-                      //   category.name,
-                      //   maxLines: 1,
-                      //   overflow:
-                      //       TextOverflow.ellipsis,
-                      //   style: TextStyle(
-                      //     fontSize: 8.5.sp,
-                      //     fontWeight:
-                      //         FontWeight.w700,
-                      //     color:
-                      //         AppColors.primary,
-                      //   ),
-                      // ),
+                     
                     ),
                   ],
                 ),
@@ -773,9 +714,7 @@ class OrderPreviewSheet extends StatelessWidget {
 
               SizedBox(width: 7.w),
 
-              // --------------------------------------------------
-              // PRODUCT TOTAL
-              // --------------------------------------------------
+             
 
               Column(
                 crossAxisAlignment:
@@ -807,9 +746,7 @@ class OrderPreviewSheet extends StatelessWidget {
             ],
           ),
 
-          // ======================================================
-          // RATES
-          // ======================================================
+
 
           if (rates.isNotEmpty) ...[
             SizedBox(height: 8.h),
@@ -881,9 +818,7 @@ class OrderPreviewSheet extends StatelessWidget {
     );
   }
 
-  // ============================================================
-  // PRODUCT ICON
-  // ============================================================
+ 
 
   Widget _productIcon() {
     return Icon(
@@ -893,111 +828,13 @@ class OrderPreviewSheet extends StatelessWidget {
     );
   }
 
-  // ============================================================
-  // RATE ROW
-  // ============================================================
-
-  // Widget _buildRateRow({
-  //   required ProductRateEntity rate,
-  //   required int quantity,
-  // }) {
-  //   final price = rate.price.toDouble();
-
-  //   final total = price * quantity;
-
-  //   return Padding(
-  //     padding: EdgeInsets.symmetric(
-  //       vertical: 3.h,
-  //     ),
-  //     child: Row(
-  //       children: [
-  //         Icon(
-  //           Icons.inventory_2_outlined,
-  //           size: 12.sp,
-  //           color: AppColors.primary,
-  //         ),
-
-  //         SizedBox(width: 5.w),
-
-  //         Expanded(
-  //           child: Text(
-  //             rate.displayPacking,
-  //             maxLines: 1,
-  //             overflow:
-  //                 TextOverflow.ellipsis,
-  //             style: TextStyle(
-  //               fontSize: 9.5.sp,
-  //               fontWeight: FontWeight.w700,
-  //               color: AppColors.textPrimary,
-  //             ),
-  //           ),
-  //         ),
-
-  //         SizedBox(width: 5.w),
-
-  //         Text(
-  //           '₹${price.toStringAsFixed(2)}',
-  //           style: TextStyle(
-  //             fontSize: 9.sp,
-  //             color: AppColors.primary,
-  //             fontWeight: FontWeight.w700,
-  //           ),
-  //         ),
-
-  //         SizedBox(width: 5.w),
-
-  //         Container(
-  //           padding:
-  //               EdgeInsets.symmetric(
-  //             horizontal: 5.w,
-  //             vertical: 2.h,
-  //           ),
-  //           decoration: BoxDecoration(
-  //             color: Colors.white,
-  //             borderRadius:
-  //                 BorderRadius.circular(5.r),
-  //           ),
-  //           child: Text(
-  //             '× $quantity',
-  //             style: TextStyle(
-  //               fontSize: 8.sp,
-  //               fontWeight:
-  //                   FontWeight.w700,
-  //               color:
-  //                   AppColors.textSecondary,
-  //             ),
-  //           ),
-  //         ),
-
-  //         SizedBox(width: 6.w),
-
-  //         SizedBox(
-  //           width: 58.w,
-  //           child: Text(
-  //             '₹${total.toStringAsFixed(2)}',
-  //             textAlign: TextAlign.end,
-  //             style: TextStyle(
-  //               fontSize: 9.5.sp,
-  //               fontWeight:
-  //                   FontWeight.w800,
-  //               color:
-  //                   AppColors.textPrimary,
-  //             ),
-  //           ),
-  //         ),
-  //       ],
-  //     ),
-  //   );
-  // }
-
-
-
+  
   Widget _buildRateRow({
   required ProductRateEntity rate,
   required int quantity,
 }) {
   final price = rate.price.toDouble();
-  final total = price * quantity;
+  final total = rate.amountForCases(quantity);
 
   return Padding(
     padding: EdgeInsets.symmetric(vertical: 3.h),
@@ -1093,9 +930,6 @@ class OrderPreviewSheet extends StatelessWidget {
 }
 
 
-  // ============================================================
-  // EMPTY PRODUCTS
-  // ============================================================
 
   Widget _buildEmptyProducts() {
     return Container(
@@ -1134,10 +968,7 @@ class OrderPreviewSheet extends StatelessWidget {
     );
   }
 
-  // ============================================================
-  // TOTAL SUMMARY
-  // ============================================================
-
+ 
   Widget _buildTotalSummary() {
     return Container(
       width: double.infinity,
@@ -1219,9 +1050,7 @@ class OrderPreviewSheet extends StatelessWidget {
     );
   }
 
-  // ============================================================
-  // TOTAL ITEM
-  // ============================================================
+
 
   Widget _totalItem(
     IconData icon,
@@ -1278,10 +1107,7 @@ class OrderPreviewSheet extends StatelessWidget {
     );
   }
 
-  // ============================================================
-  // DEALER VERIFICATION
-  // PHOTO + SIGNATURE IN ONE CARD
-  // ============================================================
+  
 
   Widget _buildDealerVerification({
     required bool hasPhoto,
@@ -1302,9 +1128,7 @@ class OrderPreviewSheet extends StatelessWidget {
         crossAxisAlignment:
             CrossAxisAlignment.start,
         children: [
-          // ======================================================
-          // PHOTO
-          // ======================================================
+         
 
           if (hasPhoto)
             Expanded(
@@ -1351,16 +1175,11 @@ class OrderPreviewSheet extends StatelessWidget {
               ),
             ),
 
-          // ======================================================
-          // GAP
-          // ======================================================
-
+       
           if (hasPhoto && hasSignature)
             SizedBox(width: 9.w),
 
-          // ======================================================
-          // SIGNATURE
-          // ======================================================
+
 
           if (hasSignature)
             Expanded(
@@ -1400,9 +1219,7 @@ class OrderPreviewSheet extends StatelessWidget {
     );
   }
 
-  // ============================================================
-  // VERIFICATION ITEM
-  // ============================================================
+
 
   Widget _verificationItem({
     required IconData icon,
@@ -1443,9 +1260,6 @@ class OrderPreviewSheet extends StatelessWidget {
     );
   }
 
-  // ============================================================
-  // REMARK
-  // ============================================================
 
   Widget _buildRemark() {
     return Container(
@@ -1499,9 +1313,6 @@ class OrderPreviewSheet extends StatelessWidget {
     );
   }
 
-  // ============================================================
-  // BOTTOM BUTTONS
-  // ============================================================
 
   Widget _buildBottomButtons(
     BuildContext context,
@@ -1528,9 +1339,7 @@ class OrderPreviewSheet extends StatelessWidget {
         top: false,
         child: Row(
           children: [
-            // ==================================================
-            // EDIT
-            // ==================================================
+           
 
             Expanded(
               child: OutlinedButton(
@@ -1569,9 +1378,7 @@ class OrderPreviewSheet extends StatelessWidget {
 
             SizedBox(width: 9.w),
 
-            // ==================================================
-            // CONFIRM
-            // ==================================================
+
 
             Expanded(
               child: ElevatedButton(
