@@ -31,7 +31,7 @@ class HomeShellState extends State<HomeShell> {
   GoRouterDelegate? _routerDelegate;
   late final AuthProvider _authProvider;
 
-  List<int> get _visibleTabIndices => _userId > 0 ? [0, 1, 2] : [0, 2];
+  List<int> get _visibleTabIndices => _userId > 0 ? [0, 1, 2, 3] : [0, 3];
 
   int _userId = 0;
   String _username = 'user';
@@ -61,12 +61,50 @@ class HomeShellState extends State<HomeShell> {
   // TABS
   // ============================================================
 
-  static const _tabs = [
-    (path: AppRouter.home, icon: Icons.home, label: 'Home'),
-    (path: AppRouter.reports, icon: Icons.report, label: 'Follow up'),
-    // (path: AppRouter.visits, icon: Icons.location_city, label: 'Visits'),
-    (path: AppRouter.products, icon: Icons.storage, label: 'Products'),
-  ];
+  // static const _tabs = [
+  //   (path: AppRouter.home, icon: Icons.home, label: 'Home'),
+  //   (path: AppRouter.followup, icon: Icons.report, label: 'Follow up'),
+  //   (path: AppRouter.products, icon: Icons.storage, label: 'Products'),
+  //   (path: AppRouter.monthlyPerformanceReport, icon: Icons.location_city, label: 'Report'),
+  // ];
+
+
+
+
+static const _tabs = [
+  // INDEX 0
+  (
+    path: AppRouter.home,
+    icon: Icons.home_rounded,
+    label: 'Home',
+  ),
+
+  // INDEX 1
+  (
+    path: AppRouter.followup,
+    icon: Icons.assignment_rounded,
+    label: 'Follow up',
+  ),
+
+  // INDEX 2
+  (
+    // path: AppRouter.monthlyPerformanceReport,
+    // icon: Icons.bar_chart_rounded,
+    // label: 'Report',
+    path: AppRouter.reportPage,
+    icon: Icons.bar_chart_rounded,
+    label: 'Report',
+
+  ),
+
+  // INDEX 3
+  (
+    path: AppRouter.products,
+    icon: Icons.inventory_2_rounded,
+    label: 'Products',
+  ),
+];
+
 
   // ============================================================
   // INIT
