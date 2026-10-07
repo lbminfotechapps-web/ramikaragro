@@ -28,10 +28,7 @@ import 'package:solufine/features/home/presentation/quick_aceess_bloc/quick_acce
 class PunchScreen extends StatefulWidget {
   final PunchStatEntity? punchStat;
 
-  const PunchScreen({
-    super.key,
-    this.punchStat,
-  });
+  const PunchScreen({super.key, this.punchStat});
 
   @override
   State<PunchScreen> createState() => _PunchScreenState();
@@ -45,17 +42,13 @@ class _PunchScreenState extends State<PunchScreen> {
 
   File? _uploadedImage;
 
-  final TextEditingController openingKmController =
-      TextEditingController();
+  final TextEditingController openingKmController = TextEditingController();
 
-  final TextEditingController closingKmController =
-      TextEditingController();
+  final TextEditingController closingKmController = TextEditingController();
 
-  final TextEditingController routeController =
-      TextEditingController();
+  final TextEditingController routeController = TextEditingController();
 
-  final TextEditingController remarkController =
-      TextEditingController();
+  final TextEditingController remarkController = TextEditingController();
 
   String? selectedVehicleId;
 
@@ -85,27 +78,17 @@ class _PunchScreenState extends State<PunchScreen> {
   // ===========================================================================
 
   Future<void> _loadVehicleTypes() async {
-    final userData =
-        await SecureStorage.instance.getUserData();
+    final userData = await SecureStorage.instance.getUserData();
 
-    final userId = int.tryParse(
-      userData?['user_id']?.toString() ?? '',
-    );
+    final userId = int.tryParse(userData?['user_id']?.toString() ?? '');
 
     if (!mounted || userId == null) {
       return;
     }
 
     context.read<QuickAcessBloc>().add(
-          VehicleTypeEvent(
-            userId,
-            DateFormat(
-              'yyyy-MM-dd',
-            ).format(
-              DateTime.now(),
-            ),
-          ),
-        );
+      VehicleTypeEvent(userId, DateFormat('yyyy-MM-dd').format(DateTime.now())),
+    );
   }
 
   // ===========================================================================
@@ -143,127 +126,102 @@ class _PunchScreenState extends State<PunchScreen> {
   //   }
   // }
 
+  Future<void> _captureImage() async {
+    try {
+      // ============================================================
+      // 1. CAPTURE ORIGINAL IMAGE
+      // ============================================================
 
- Future<void> _captureImage() async {
-  try {
-    // ============================================================
-    // 1. CAPTURE ORIGINAL IMAGE
-    // ============================================================
+      final File? originalImage = await AppImagePicker.instance
+          .pickFromCamera();
 
-    final File? originalImage =
-        await AppImagePicker.instance.pickFromCamera();
+      if (originalImage == null) {
+        return;
+      }
 
-    if (originalImage == null) {
-      return;
-    }
+      if (!await originalImage.exists()) {
+        debugPrint('ORIGINAL IMAGE NOT FOUND');
 
-    if (!await originalImage.exists()) {
-      debugPrint(
-        'ORIGINAL IMAGE NOT FOUND',
-      );
+        return;
+      }
 
-      return;
-    }
+      // ============================================================
+      // 2. ORIGINAL IMAGE SIZE
+      // ============================================================
 
-    // ============================================================
-    // 2. ORIGINAL IMAGE SIZE
-    // ============================================================
+      final int originalSize = await originalImage.length();
 
-    final int originalSize =
-        await originalImage.length();
+      debugPrint('========================================');
 
-    debugPrint(
-      '========================================',
-    );
-
-    debugPrint(
-      'ORIGINAL IMAGE PATH: ${originalImage.path}',
-    );
-
-    debugPrint(
-      'ORIGINAL IMAGE SIZE: '
-      '${(originalSize / 1024).toStringAsFixed(2)} KB',
-    );
-
-    // ============================================================
-    // 3. COMPRESS IMAGE
-    // ============================================================
-
-    final File? compressedImage =
-        await ImageCompression.compressImage(
-      originalImage,
-      maxWidth: 450,
-      maxHeight: 450,
-      quality: 45,
-    );
-
-    // ============================================================
-    // 4. USE COMPRESSED IMAGE
-    // ============================================================
-
-    File finalImage = originalImage;
-
-    if (compressedImage != null &&
-        await compressedImage.exists()) {
-      finalImage = compressedImage;
-
-      final compressedSize =
-          await compressedImage.length();
+      debugPrint('ORIGINAL IMAGE PATH: ${originalImage.path}');
 
       debugPrint(
-        'COMPRESSED IMAGE PATH: '
-        '${compressedImage.path}',
+        'ORIGINAL IMAGE SIZE: '
+        '${(originalSize / 1024).toStringAsFixed(2)} KB',
       );
 
-      debugPrint(
-        'COMPRESSED IMAGE SIZE: '
-        '${(compressedSize / 1024).toStringAsFixed(2)} KB',
+      // ============================================================
+      // 3. COMPRESS IMAGE
+      // ============================================================
+
+      final File? compressedImage = await ImageCompression.compressImage(
+        originalImage,
+        maxWidth: 450,
+        maxHeight: 450,
+        quality: 45,
       );
-    } else {
-      debugPrint(
-        'COMPRESSION FAILED - USING ORIGINAL IMAGE',
-      );
+
+      // ============================================================
+      // 4. USE COMPRESSED IMAGE
+      // ============================================================
+
+      File finalImage = originalImage;
+
+      if (compressedImage != null && await compressedImage.exists()) {
+        finalImage = compressedImage;
+
+        final compressedSize = await compressedImage.length();
+
+        debugPrint(
+          'COMPRESSED IMAGE PATH: '
+          '${compressedImage.path}',
+        );
+
+        debugPrint(
+          'COMPRESSED IMAGE SIZE: '
+          '${(compressedSize / 1024).toStringAsFixed(2)} KB',
+        );
+      } else {
+        debugPrint('COMPRESSION FAILED - USING ORIGINAL IMAGE');
+      }
+
+      debugPrint('========================================');
+
+      // ============================================================
+      // 5. SAVE FINAL IMAGE
+      // ============================================================
+
+      if (!mounted) {
+        return;
+      }
+
+      setState(() {
+        _uploadedImage = finalImage;
+      });
+    } catch (e, stackTrace) {
+      debugPrint('CAPTURE IMAGE ERROR: $e');
+
+      debugPrint('$stackTrace');
+
+      if (!mounted) {
+        return;
+      }
+
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Failed to capture image')));
     }
-
-    debugPrint(
-      '========================================',
-    );
-
-    // ============================================================
-    // 5. SAVE FINAL IMAGE
-    // ============================================================
-
-    if (!mounted) {
-      return;
-    }
-
-    setState(() {
-      _uploadedImage = finalImage;
-    });
-  } catch (e, stackTrace) {
-    debugPrint(
-      'CAPTURE IMAGE ERROR: $e',
-    );
-
-    debugPrint(
-      '$stackTrace',
-    );
-
-    if (!mounted) {
-      return;
-    }
-
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text(
-          'Failed to capture image',
-        ),
-      ),
-    );
   }
-}  
-
-
 
   // ===========================================================================
   // SUBMIT PUNCH
@@ -271,89 +229,60 @@ class _PunchScreenState extends State<PunchScreen> {
 
   Future<void> _submitPunch() async {
     if (isLoading) {
-      debugPrint(
-        'PUNCH IN: Already loading, submit ignored',
-      );
+      debugPrint('PUNCH IN: Already loading, submit ignored');
 
       return;
     }
 
     if (!_formKey.currentState!.validate()) {
-      debugPrint(
-        'PUNCH IN: Form validation failed',
-      );
+      debugPrint('PUNCH IN: Form validation failed');
 
       return;
     }
 
-    final userData =
-        await SecureStorage.instance.getUserData();
+    final userData = await SecureStorage.instance.getUserData();
 
-    debugPrint(
-      '========== PUNCH IN SUBMIT ==========',
-    );
+    debugPrint('========== PUNCH IN SUBMIT ==========');
 
-    debugPrint(
-      'User data: $userData',
-    );
+    debugPrint('User data: $userData');
 
-    final userId = int.tryParse(
-      userData?['user_id']?.toString() ?? '',
-    );
+    final userId = int.tryParse(userData?['user_id']?.toString() ?? '');
 
     if (userId == null) {
-      debugPrint(
-        'PUNCH IN ERROR: User ID not found',
-      );
+      debugPrint('PUNCH IN ERROR: User ID not found');
 
       if (!mounted) {
         return;
       }
 
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text(
-            'User information not found',
-          ),
-        ),
+        const SnackBar(content: Text('User information not found')),
       );
 
       return;
     }
 
-    debugPrint(
-      'User ID: $userId',
-    );
+    debugPrint('User ID: $userId');
 
     _punchInUserId = userId;
 
-    final vehicleTypeId =
-        selectedVehicleId;
+    final vehicleTypeId = selectedVehicleId;
 
-    if (vehicleTypeId == null ||
-        vehicleTypeId.isEmpty) {
-      debugPrint(
-        'PUNCH IN ERROR: Vehicle type not selected',
-      );
+    if (vehicleTypeId == null || vehicleTypeId.isEmpty) {
+      debugPrint('PUNCH IN ERROR: Vehicle type not selected');
 
       if (!mounted) {
         return;
       }
 
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text(
-            'Please select a vehicle type',
-          ),
-        ),
+        const SnackBar(content: Text('Please select a vehicle type')),
       );
 
       return;
     }
 
-    debugPrint(
-      'Vehicle Type ID: $vehicleTypeId',
-    );
+    debugPrint('Vehicle Type ID: $vehicleTypeId');
 
     setState(() {
       isLoading = true;
@@ -365,72 +294,51 @@ class _PunchScreenState extends State<PunchScreen> {
       // BATTERY
       // -----------------------------------------------------------------------
 
-      final batteryInfo =
-          await DeviceInfoUtil.instance.getBatteryInfo();
+      final batteryInfo = await DeviceInfoUtil.instance.getBatteryInfo();
 
-      debugPrint(
-        'Battery Info: $batteryInfo',
-      );
+      debugPrint('Battery Info: $batteryInfo');
 
       // -----------------------------------------------------------------------
       // NETWORK
       // -----------------------------------------------------------------------
 
-      final networkInfo =
-          await DeviceInfoUtil.instance.getNetworkInfo();
+      final networkInfo = await DeviceInfoUtil.instance.getNetworkInfo();
 
-      debugPrint(
-        'Network Info: $networkInfo',
-      );
+      debugPrint('Network Info: $networkInfo');
 
       // -----------------------------------------------------------------------
       // LOCATION
       // -----------------------------------------------------------------------
 
-      final position =
-          await LocationUtil.instance.getCurrentLocation();
+      final position = await LocationUtil.instance.getCurrentLocation();
 
       if (position != null) {
         _punchInPosition = position;
 
-        latitude =
-            position.latitude.toString();
+        latitude = position.latitude.toString();
 
-        longitude =
-            position.longitude.toString();
+        longitude = position.longitude.toString();
 
-        debugPrint(
-          'Latitude: $latitude',
-        );
+        debugPrint('Latitude: $latitude');
 
-        debugPrint(
-          'Longitude: $longitude',
-        );
+        debugPrint('Longitude: $longitude');
 
-        debugPrint(
-          'Accuracy: ${position.accuracy}',
-        );
+        debugPrint('Accuracy: ${position.accuracy}');
 
-        address =
-            await LocationUtil.instance.getAddress(
+        address = await LocationUtil.instance.getAddress(
           position.latitude,
           position.longitude,
         );
 
-        _punchInAddress =
-            address;
+        _punchInAddress = address;
 
-        debugPrint(
-          'Geo Address: $address',
-        );
+        debugPrint('Geo Address: $address');
       } else {
         _punchInPosition = null;
 
         _punchInAddress = '';
 
-        debugPrint(
-          'Location: NOT AVAILABLE',
-        );
+        debugPrint('Location: NOT AVAILABLE');
       }
 
       // -----------------------------------------------------------------------
@@ -440,59 +348,42 @@ class _PunchScreenState extends State<PunchScreen> {
       String? startingImageBase64;
 
       if (_uploadedImage != null) {
-        debugPrint(
-          'Starting image path: ${_uploadedImage!.path}',
-        );
+        debugPrint('Starting image path: ${_uploadedImage!.path}');
 
         if (await _uploadedImage!.exists()) {
-          final imageBytes =
-              await _uploadedImage!.readAsBytes();
+          final imageBytes = await _uploadedImage!.readAsBytes();
 
-          startingImageBase64 =
-              base64Encode(
-            imageBytes,
-          );
+          startingImageBase64 = base64Encode(imageBytes);
 
           debugPrint(
             'Starting image Base64 length: '
             '${startingImageBase64.length}',
           );
         } else {
-          debugPrint(
-            'Starting image file does not exist',
-          );
+          debugPrint('Starting image file does not exist');
         }
       } else {
-        debugPrint(
-          'Starting image: NOT SELECTED',
-        );
+        debugPrint('Starting image: NOT SELECTED');
       }
 
       // -----------------------------------------------------------------------
       // FORM DATA
       // -----------------------------------------------------------------------
 
-      final pinRemark =
-          remarkController.text.trim();
+      final pinRemark = remarkController.text.trim();
 
-      final startingClosingKmAmount =
-          openingKmController.text.trim();
+      final startingClosingKmAmount = openingKmController.text.trim();
 
-      final route =
-          routeController.text.trim();
+      final route = routeController.text.trim();
 
-      debugPrint(
-        'Pin Remark: $pinRemark',
-      );
+      debugPrint('Pin Remark: $pinRemark');
 
       debugPrint(
         'Starting KM Amount: '
         '$startingClosingKmAmount',
       );
 
-      debugPrint(
-        'Route: $route',
-      );
+      debugPrint('Route: $route');
 
       // -----------------------------------------------------------------------
       // DEBUG
@@ -503,127 +394,72 @@ class _PunchScreenState extends State<PunchScreen> {
         '${widget.punchStat?.inOutStatus}',
       );
 
-      debugPrint(
-        'Current Action: PUNCH IN',
-      );
+      debugPrint('Current Action: PUNCH IN');
 
-      debugPrint(
-        'In/Out Status: 1',
-      );
+      debugPrint('In/Out Status: 1');
 
-      debugPrint(
-        'Activity ID: 3',
-      );
+      debugPrint('Activity ID: 3');
 
-      debugPrint(
-        '========== FINAL PUNCH IN DATA ==========',
-      );
+      debugPrint('========== FINAL PUNCH IN DATA ==========');
 
-      debugPrint(
-        'user_id: $userId',
-      );
+      debugPrint('user_id: $userId');
 
-      debugPrint(
-        'in_out_status: 1',
-      );
+      debugPrint('in_out_status: 1');
 
-      debugPrint(
-        'differenceByAndroid: 0.0',
-      );
+      debugPrint('differenceByAndroid: 0.0');
 
-      debugPrint(
-        'locationHistoryString:',
-      );
+      debugPrint('locationHistoryString:');
 
-      debugPrint(
-        'strBatteryInfo: $batteryInfo',
-      );
+      debugPrint('strBatteryInfo: $batteryInfo');
 
-      debugPrint(
-        'strNetworkInfo: $networkInfo',
-      );
+      debugPrint('strNetworkInfo: $networkInfo');
 
-      debugPrint(
-        'pinRemark: $pinRemark',
-      );
+      debugPrint('pinRemark: $pinRemark');
 
       debugPrint(
         'strStartingClosingKmAmount: '
         '$startingClosingKmAmount',
       );
 
-      debugPrint(
-        'strVehicleTypeId: $vehicleTypeId',
-      );
+      debugPrint('strVehicleTypeId: $vehicleTypeId');
 
-      debugPrint(
-        'route: $route',
-      );
+      debugPrint('route: $route');
 
-      debugPrint(
-        'latitude: $latitude',
-      );
+      debugPrint('latitude: $latitude');
 
-      debugPrint(
-        'longitude: $longitude',
-      );
+      debugPrint('longitude: $longitude');
 
-      debugPrint(
-        'networkLatitude: $latitude',
-      );
+      debugPrint('networkLatitude: $latitude');
 
-      debugPrint(
-        'networkLongitude: $longitude',
-      );
+      debugPrint('networkLongitude: $longitude');
 
-      debugPrint(
-        'gpsLatitude: $latitude',
-      );
+      debugPrint('gpsLatitude: $latitude');
 
-      debugPrint(
-        'gpsLongitude: $longitude',
-      );
+      debugPrint('gpsLongitude: $longitude');
 
-      debugPrint(
-        'geoAddress: $address',
-      );
+      debugPrint('geoAddress: $address');
 
-      debugPrint(
-        'activityId: 3',
-      );
+      debugPrint('activityId: 3');
 
-      if (startingImageBase64 != null &&
-          startingImageBase64.isNotEmpty) {
+      if (startingImageBase64 != null && startingImageBase64.isNotEmpty) {
         debugPrint(
           'startingKmImage: '
           '${startingImageBase64.length} '
           'Base64 characters',
         );
       } else {
-        debugPrint(
-          'startingKmImage: NOT SENT',
-        );
+        debugPrint('startingKmImage: NOT SENT');
       }
 
-      debugPrint(
-        'date: NOT SENT',
-      );
+      debugPrint('date: NOT SENT');
 
-      debugPrint(
-        'time: NOT SENT',
-      );
+      debugPrint('time: NOT SENT');
 
-      debugPrint(
-        'closingKmImage: NOT SENT',
-      );
+      debugPrint('closingKmImage: NOT SENT');
 
-      debugPrint(
-        'isForceOutPunch: NOT SENT',
-      );
+      debugPrint('isForceOutPunch: NOT SENT');
 
-      debugPrint(
-        '==========================================',
-      );
+      debugPrint('==========================================');
 
       if (!mounted) {
         return;
@@ -634,90 +470,60 @@ class _PunchScreenState extends State<PunchScreen> {
       // -----------------------------------------------------------------------
 
       context.read<QuickAcessBloc>().add(
-            PunchInOutDetailsAddEvent(
-              userId: userId,
+        PunchInOutDetailsAddEvent(
+          userId: userId,
 
-              inOutStatus:
-                  '1',
+          inOutStatus: '1',
 
-              differenceByAndroid:
-                  '0.0',
+          differenceByAndroid: '0.0',
 
-              locationHistoryString:
-                  '',
+          locationHistoryString: '',
 
-              batteryInfo:
-                  batteryInfo,
+          batteryInfo: batteryInfo,
 
-              networkInfo:
-                  networkInfo,
+          networkInfo: networkInfo,
 
-              pinRemark:
-                  pinRemark,
+          pinRemark: pinRemark,
 
-              startingClosingKmAmount:
-                  startingClosingKmAmount,
+          startingClosingKmAmount: startingClosingKmAmount,
 
-              vehicleTypeId:
-                  vehicleTypeId,
+          vehicleTypeId: vehicleTypeId,
 
-              route:
-                  route,
+          route: route,
 
-              latitude:
-                  latitude,
+          latitude: latitude,
 
-              longitude:
-                  longitude,
+          longitude: longitude,
 
-              networkLatitude:
-                  latitude,
+          networkLatitude: latitude,
 
-              networkLongitude:
-                  longitude,
+          networkLongitude: longitude,
 
-              gpsLatitude:
-                  latitude,
+          gpsLatitude: latitude,
 
-              gpsLongitude:
-                  longitude,
+          gpsLongitude: longitude,
 
-              geoAddress:
-                  address,
+          geoAddress: address,
 
-              startingKmImage:
-                  startingImageBase64,
+          startingKmImage: startingImageBase64,
 
-              activityId:
-                  '3',
-            ),
-          );
+          activityId: '3',
+        ),
+      );
 
       _submissionSent = true;
 
-      debugPrint(
-        'PUNCH IN EVENT DISPATCHED SUCCESSFULLY',
-      );
+      debugPrint('PUNCH IN EVENT DISPATCHED SUCCESSFULLY');
 
-      debugPrint(
-        '========================================',
-      );
+      debugPrint('========================================');
     } catch (e, stackTrace) {
-      debugPrint(
-        '========== PUNCH IN ERROR ==========',
-      );
+      debugPrint('========== PUNCH IN ERROR ==========');
 
-      debugPrint(
-        'Error: $e',
-      );
+      debugPrint('Error: $e');
 
-      debugPrint(
-        'StackTrace: $stackTrace',
-      );
+      debugPrint('StackTrace: $stackTrace');
 
-      debugPrint(
-        '====================================',
-      );
+      debugPrint('====================================');
 
       if (!mounted) {
         return;
@@ -728,13 +534,9 @@ class _PunchScreenState extends State<PunchScreen> {
         _submissionSent = false;
       });
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            e.toString(),
-          ),
-        ),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(e.toString())));
     }
   }
 
@@ -759,107 +561,62 @@ class _PunchScreenState extends State<PunchScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor:
-          const Color(
-        0xFFF4F7F5,
-      ),
+      backgroundColor: const Color(0xFFF4F7F5),
 
       appBar: CustomAppBar(
-        title:
-            'Punch In',
+        title: 'Punch In',
 
-        showBackButton:
-            true,
+        showBackButton: true,
 
         onBackTap: () {
-          context.go(
-            AppRouter.home,
-          );
+          context.go(AppRouter.home);
         },
       ),
 
       body: SafeArea(
-        child: BlocConsumer<
-            QuickAcessBloc,
-            QuickAccessState>(
+        child: BlocConsumer<QuickAcessBloc, QuickAccessState>(
           // ===================================================================
           // LISTENER
           // ===================================================================
-
-          listener:
-              (context, state) async {
-            if (!isLoading ||
-                !_submissionSent) {
+          listener: (context, state) async {
+            if (!isLoading || !_submissionSent) {
               return;
             }
 
             if (state.quickAccessStatus ==
-                QuickAccessStatus
-                    .punchStatusSuccess) {
-              debugPrint(
-                '========================================',
-              );
+                QuickAccessStatus.punchStatusSuccess) {
+              debugPrint('========================================');
 
-              debugPrint(
-                'PUNCH API SUCCESS',
-              );
+              debugPrint('PUNCH API SUCCESS');
 
-              debugPrint(
-                'NOW SAVING LOCATION TO LOCAL DB',
-              );
+              debugPrint('NOW SAVING LOCATION TO LOCAL DB');
 
-              debugPrint(
-                '========================================',
-              );
+              debugPrint('========================================');
 
-              if (_punchInUserId != null &&
-                  _punchInPosition != null) {
-                context
-                    .read<QuickAcessBloc>()
-                    .add(
-                      SavePunchInLocationEvent(
-                        userId:
-                            _punchInUserId!,
+              if (_punchInUserId != null && _punchInPosition != null) {
+                context.read<QuickAcessBloc>().add(
+                  SavePunchInLocationEvent(
+                    userId: _punchInUserId!,
 
-                        latitude:
-                            _punchInPosition!
-                                .latitude
-                                .toString(),
+                    latitude: _punchInPosition!.latitude.toString(),
 
-                        longitude:
-                            _punchInPosition!
-                                .longitude
-                                .toString(),
+                    longitude: _punchInPosition!.longitude.toString(),
 
-                        geoAddress:
-                            _punchInAddress,
+                    geoAddress: _punchInAddress,
 
-                        capturedAt:
-                            DateTime.now()
-                                .millisecondsSinceEpoch,
+                    capturedAt: DateTime.now().millisecondsSinceEpoch,
 
-                        accuracy:
-                            _punchInPosition!
-                                .accuracy,
+                    accuracy: _punchInPosition!.accuracy,
 
-                        provider:
-                            'gps',
-                      ),
-                    );
-
-                await BackgroundLocationService
-                    .start(
-                  userId:
-                      _punchInUserId!,
+                    provider: 'gps',
+                  ),
                 );
 
-                debugPrint(
-                  'SavePunchInLocationEvent DISPATCHED',
-                );
+                await BackgroundLocationService.start(userId: _punchInUserId!);
+
+                debugPrint('SavePunchInLocationEvent DISPATCHED');
               } else {
-                debugPrint(
-                  'PUNCH SUCCESS BUT LOCATION DATA NOT AVAILABLE',
-                );
+                debugPrint('PUNCH SUCCESS BUT LOCATION DATA NOT AVAILABLE');
               }
 
               if (!mounted) {
@@ -867,35 +624,24 @@ class _PunchScreenState extends State<PunchScreen> {
               }
 
               setState(() {
-                isLoading =
-                    false;
+                isLoading = false;
 
-                _submissionSent =
-                    false;
+                _submissionSent = false;
               });
 
               AppDialog.show(
-                context:
-                    context,
+                context: context,
 
-                type:
-                    DialogType.success,
+                type: DialogType.success,
 
-                title:
-                    'Punch In Successful',
+                title: 'Punch In Successful',
 
-                message:
-                    'Your punch in has been submitted successfully.',
+                message: 'Your punch in has been submitted successfully.',
 
-                buttonText:
-                    'OK',
+                buttonText: 'OK',
 
-                onButtonPressed:
-                    () {
-                  Navigator.pop(
-                    context,
-                    true,
-                  );
+                onButtonPressed: () {
+                  Navigator.pop(context, true);
                 },
               );
             }
@@ -904,135 +650,80 @@ class _PunchScreenState extends State<PunchScreen> {
           // ===================================================================
           // BUILDER
           // ===================================================================
-
-          builder:
-              (context, vehicleState) {
-            final selectedVehicle =
-                _selectedVehicle(
-              vehicleState,
-            );
+          builder: (context, vehicleState) {
+            final selectedVehicle = _selectedVehicle(vehicleState);
 
             return Form(
-              key:
-                  _formKey,
+              key: _formKey,
 
               child: Column(
                 children: [
                   // -----------------------------------------------------------
                   // SCROLLABLE CONTENT
                   // -----------------------------------------------------------
-
                   Expanded(
-                    child:
-                        SingleChildScrollView(
-                      physics:
-                          const BouncingScrollPhysics(),
+                    child: SingleChildScrollView(
+                      physics: const BouncingScrollPhysics(),
 
                       keyboardDismissBehavior:
-                          ScrollViewKeyboardDismissBehavior
-                              .onDrag,
+                          ScrollViewKeyboardDismissBehavior.onDrag,
 
-                      padding:
-                          EdgeInsets.fromLTRB(
-                        14.w,
-                        10.h,
-                        14.w,
-                        14.h,
-                      ),
+                      padding: EdgeInsets.fromLTRB(14.w, 10.h, 14.w, 14.h),
 
-                      child:
-                          Column(
-                        crossAxisAlignment:
-                            CrossAxisAlignment
-                                .start,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
 
                         children: [
                           // ---------------------------------------------------
                           // HEADER
                           // ---------------------------------------------------
-
                           _compactHeader(),
 
-                          SizedBox(
-                            height:
-                                14.h,
-                          ),
+                          SizedBox(height: 14.h),
 
                           // ---------------------------------------------------
                           // VEHICLE SECTION
                           // ---------------------------------------------------
-
                           _compactSectionTitle(
-                            icon:
-                                Icons
-                                    .directions_car_filled_rounded,
+                            icon: Icons.directions_car_filled_rounded,
 
-                            title:
-                                'Vehicle Details',
+                            title: 'Vehicle Details',
                           ),
 
-                          SizedBox(
-                            height:
-                                8.h,
-                          ),
+                          SizedBox(height: 8.h),
 
                           _compactCard(
-                            child:
-                                Column(
+                            child: Column(
                               children: [
-                                _vehicleDropdown(
-                                  vehicleState,
-                                ),
+                                _vehicleDropdown(vehicleState),
 
-                                if (selectedVehicle
-                                        ?.openingClosingKm !=
+                                if (selectedVehicle?.openingClosingKm !=
                                     '0') ...[
-                                  SizedBox(
-                                    height:
-                                        10.h,
-                                  ),
+                                  SizedBox(height: 10.h),
 
                                   _kmField(
-                                    controller:
-                                        openingKmController,
+                                    controller: openingKmController,
 
-                                    hintText:
-                                        'Opening KM *',
+                                    hintText: 'Opening KM *',
 
-                                    enabled:
-                                        true,
+                                    enabled: true,
 
-                                    validator:
-                                        (value) =>
-                                            _validateKm(
-                                      value,
-                                      'Opening KM',
-                                    ),
+                                    validator: (value) =>
+                                        _validateKm(value, 'Opening KM'),
                                   ),
                                 ],
 
-                                SizedBox(
-                                  height:
-                                      10.h,
-                                ),
+                                SizedBox(height: 10.h),
 
                                 _textField(
-                                  controller:
-                                      routeController,
+                                  controller: routeController,
 
-                                  hintText:
-                                      'Enter Route *',
+                                  hintText: 'Enter Route *',
 
-                                  icon:
-                                      Icons.route_rounded,
+                                  icon: Icons.route_rounded,
 
-                                  validator:
-                                      (value) {
-                                    if (value ==
-                                            null ||
-                                        value
-                                            .trim()
-                                            .isEmpty) {
+                                  validator: (value) {
+                                    if (value == null || value.trim().isEmpty) {
                                       return 'Please enter route';
                                     }
 
@@ -1040,85 +731,56 @@ class _PunchScreenState extends State<PunchScreen> {
                                   },
                                 ),
 
-                                SizedBox(
-                                  height:
-                                      10.h,
-                                ),
+                                SizedBox(height: 10.h),
 
                                 _textField(
-                                  controller:
-                                      remarkController,
+                                  controller: remarkController,
 
-                                  hintText:
-                                      'Enter Remark',
+                                  hintText: 'Enter Remark',
 
-                                  icon:
-                                      Icons.edit_note_rounded,
+                                  icon: Icons.edit_note_rounded,
 
-                                  maxLines:
-                                      1,
+                                  maxLines: 1,
                                 ),
                               ],
                             ),
                           ),
 
-                          SizedBox(
-                            height:
-                                14.h,
-                          ),
+                          SizedBox(height: 14.h),
 
                           // ---------------------------------------------------
                           // PHOTO SECTION
                           // ---------------------------------------------------
-
                           _compactSectionTitle(
-                            icon:
-                                Icons.photo_camera_rounded,
+                            icon: Icons.photo_camera_rounded,
 
-                            title:
-                                'Verification Photo *',
+                            title: 'Verification Photo *',
                           ),
 
-                          SizedBox(
-                            height:
-                                8.h,
-                          ),
+                          SizedBox(height: 8.h),
 
                           FormField<bool>(
-                            initialValue:
-                                _uploadedImage !=
-                                    null,
+                            initialValue: _uploadedImage != null,
 
-                            validator:
-                                (_) {
-                              if (_uploadedImage ==
-                                  null) {
+                            validator: (_) {
+                              if (_uploadedImage == null) {
                                 return 'Please upload an image';
                               }
 
                               return null;
                             },
 
-                            builder:
-                                (field) {
+                            builder: (field) {
                               return Column(
-                                crossAxisAlignment:
-                                    CrossAxisAlignment
-                                        .start,
+                                crossAxisAlignment: CrossAxisAlignment.start,
 
                                 children: [
                                   _uploadPhotoCard(),
 
-                                  if (field
-                                      .hasError) ...[
-                                    SizedBox(
-                                      height:
-                                          5.h,
-                                    ),
+                                  if (field.hasError) ...[
+                                    SizedBox(height: 5.h),
 
-                                    _errorMessage(
-                                      field.errorText!,
-                                    ),
+                                    _errorMessage(field.errorText!),
                                   ],
                                 ],
                               );
@@ -1132,7 +794,6 @@ class _PunchScreenState extends State<PunchScreen> {
                   // -----------------------------------------------------------
                   // FIXED BOTTOM SUBMIT
                   // -----------------------------------------------------------
-
                   _bottomSubmitSection(),
                 ],
               ),
@@ -1149,91 +810,48 @@ class _PunchScreenState extends State<PunchScreen> {
 
   Widget _compactHeader() {
     return Container(
-      width:
-          double.infinity,
+      width: double.infinity,
 
-      padding:
-          EdgeInsets.symmetric(
-        horizontal:
-            14.w,
-        vertical:
-            12.h,
-      ),
+      padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 12.h),
 
-      decoration:
-          BoxDecoration(
-        gradient:
-            const LinearGradient(
-          begin:
-              Alignment.topLeft,
+      decoration: BoxDecoration(
+        gradient: const LinearGradient(
+          begin: Alignment.topLeft,
 
-          end:
-              Alignment.bottomRight,
+          end: Alignment.bottomRight,
 
-          colors: [
-            Color(
-              0xFF08783D,
-            ),
-            Color(
-              0xFF13A252,
-            ),
-          ],
+          colors: [Color(0xFF08783D), Color(0xFF13A252)],
         ),
 
-        borderRadius:
-            BorderRadius.circular(
-          18.r,
-        ),
+        borderRadius: BorderRadius.circular(18.r),
 
         boxShadow: [
           BoxShadow(
-            color:
-                const Color(
-              0xFF11934A,
-            ).withOpacity(
-              0.16,
-            ),
+            color: const Color(0xFF11934A).withOpacity(0.16),
 
-            blurRadius:
-                14,
+            blurRadius: 14,
 
-            offset:
-                const Offset(
-              0,
-              5,
-            ),
+            offset: const Offset(0, 5),
           ),
         ],
       ),
 
-      child:
-          Stack(
+      child: Stack(
         children: [
           Positioned(
-            right:
-                -25.w,
+            right: -25.w,
 
-            top:
-                -30.h,
+            top: -30.h,
 
-            child:
-                Container(
-              width:
-                  90.w,
+            child: Container(
+              width: 90.w,
 
-              height:
-                  90.w,
+              height: 90.w,
 
-              decoration:
-                  BoxDecoration(
-                color:
-                    Colors.white
-                        .withOpacity(
-                  0.06,
-                ),
+              decoration: BoxDecoration(
+                color: Colors.white.withOpacity(0.06),
 
-                shape:
-                    BoxShape.circle,
+                shape: BoxShape.circle,
               ),
             ),
           ),
@@ -1241,167 +859,101 @@ class _PunchScreenState extends State<PunchScreen> {
           Row(
             children: [
               Container(
-                width:
-                    45.w,
+                width: 45.w,
 
-                height:
-                    45.w,
+                height: 45.w,
 
-                decoration:
-                    BoxDecoration(
-                  color:
-                      Colors.white
-                          .withOpacity(
-                    0.15,
-                  ),
+                decoration: BoxDecoration(
+                  color: Colors.white.withOpacity(0.15),
 
-                  borderRadius:
-                      BorderRadius.circular(
-                    13.r,
-                  ),
+                  borderRadius: BorderRadius.circular(13.r),
                 ),
 
-                child:
-                    Icon(
-                  Icons
-                      .fingerprint_rounded,
+                child: Icon(
+                  Icons.fingerprint_rounded,
 
-                  color:
-                      Colors.white,
+                  color: Colors.white,
 
-                  size:
-                      23.sp,
+                  size: 23.sp,
                 ),
               ),
 
-              SizedBox(
-                width:
-                    11.w,
-              ),
+              SizedBox(width: 11.w),
 
               Expanded(
-                child:
-                    Column(
-                  crossAxisAlignment:
-                      CrossAxisAlignment.start,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
 
                   children: [
                     Text(
                       'Ready to start?',
 
-                      style:
-                          TextStyle(
-                        color:
-                            Colors.white,
+                      style: TextStyle(
+                        color: Colors.white,
 
-                        fontSize:
-                            16.sp,
+                        fontSize: 16.sp,
 
-                        fontWeight:
-                            FontWeight.w700,
+                        fontWeight: FontWeight.w700,
                       ),
                     ),
 
-                    SizedBox(
-                      height:
-                          2.h,
-                    ),
+                    SizedBox(height: 2.h),
 
                     Text(
                       'Enter trip details and punch in',
 
-                      maxLines:
-                          1,
+                      maxLines: 1,
 
-                      overflow:
-                          TextOverflow.ellipsis,
+                      overflow: TextOverflow.ellipsis,
 
-                      style:
-                          TextStyle(
-                        color:
-                            Colors.white.withOpacity(
-                          0.80,
-                        ),
+                      style: TextStyle(
+                        color: Colors.white.withOpacity(0.80),
 
-                        fontSize:
-                            10.5.sp,
+                        fontSize: 10.5.sp,
                       ),
                     ),
                   ],
                 ),
               ),
 
-              SizedBox(
-                width:
-                    8.w,
-              ),
+              SizedBox(width: 8.w),
 
               Container(
-                padding:
-                    EdgeInsets.symmetric(
-                  horizontal:
-                      9.w,
+                padding: EdgeInsets.symmetric(horizontal: 9.w, vertical: 5.h),
 
-                  vertical:
-                      5.h,
+                decoration: BoxDecoration(
+                  color: Colors.white.withOpacity(0.15),
+
+                  borderRadius: BorderRadius.circular(20.r),
                 ),
 
-                decoration:
-                    BoxDecoration(
-                  color:
-                      Colors.white.withOpacity(
-                    0.15,
-                  ),
-
-                  borderRadius:
-                      BorderRadius.circular(
-                    20.r,
-                  ),
-                ),
-
-                child:
-                    Row(
-                  mainAxisSize:
-                      MainAxisSize.min,
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
 
                   children: [
                     Container(
-                      width:
-                          6.w,
+                      width: 6.w,
 
-                      height:
-                          6.w,
+                      height: 6.w,
 
-                      decoration:
-                          const BoxDecoration(
-                        color:
-                            Color(
-                          0xFFB9F6CA,
-                        ),
+                      decoration: const BoxDecoration(
+                        color: Color(0xFFB9F6CA),
 
-                        shape:
-                            BoxShape.circle,
+                        shape: BoxShape.circle,
                       ),
                     ),
 
-                    SizedBox(
-                      width:
-                          5.w,
-                    ),
+                    SizedBox(width: 5.w),
 
                     Text(
                       'IN',
 
-                      style:
-                          TextStyle(
-                        color:
-                            Colors.white,
+                      style: TextStyle(
+                        color: Colors.white,
 
-                        fontSize:
-                            9.sp,
+                        fontSize: 9.sp,
 
-                        fontWeight:
-                            FontWeight.w700,
+                        fontWeight: FontWeight.w700,
                       ),
                     ),
                   ],
@@ -1418,66 +970,34 @@ class _PunchScreenState extends State<PunchScreen> {
   // SECTION TITLE
   // ===========================================================================
 
-  Widget _compactSectionTitle({
-    required IconData icon,
-    required String title,
-  }) {
+  Widget _compactSectionTitle({required IconData icon, required String title}) {
     return Row(
       children: [
         Container(
-          width:
-              30.w,
+          width: 30.w,
 
-          height:
-              30.w,
+          height: 30.w,
 
-          decoration:
-              BoxDecoration(
-            color:
-                const Color(
-              0xFFE7F6EC,
-            ),
+          decoration: BoxDecoration(
+            color: const Color(0xFFE7F6EC),
 
-            borderRadius:
-                BorderRadius.circular(
-              9.r,
-            ),
+            borderRadius: BorderRadius.circular(9.r),
           ),
 
-          child:
-              Icon(
-            icon,
-
-            color:
-                const Color(
-              0xFF11934A,
-            ),
-
-            size:
-                16.sp,
-          ),
+          child: Icon(icon, color: const Color(0xFF11934A), size: 16.sp),
         ),
 
-        SizedBox(
-          width:
-              8.w,
-        ),
+        SizedBox(width: 8.w),
 
         Text(
           title,
 
-          style:
-              TextStyle(
-            color:
-                const Color(
-              0xFF1D2521,
-            ),
+          style: TextStyle(
+            color: const Color(0xFF1D2521),
 
-            fontSize:
-                13.5.sp,
+            fontSize: 13.5.sp,
 
-            fontWeight:
-                FontWeight.w700,
+            fontWeight: FontWeight.w700,
           ),
         ),
       ],
@@ -1488,57 +1008,31 @@ class _PunchScreenState extends State<PunchScreen> {
   // COMPACT CARD
   // ===========================================================================
 
-  Widget _compactCard({
-    required Widget child,
-  }) {
+  Widget _compactCard({required Widget child}) {
     return Container(
-      width:
-          double.infinity,
+      width: double.infinity,
 
-      padding:
-          EdgeInsets.all(
-        11.w,
-      ),
+      padding: EdgeInsets.all(11.w),
 
-      decoration:
-          BoxDecoration(
-        color:
-            Colors.white,
+      decoration: BoxDecoration(
+        color: Colors.white,
 
-        borderRadius:
-            BorderRadius.circular(
-          16.r,
-        ),
+        borderRadius: BorderRadius.circular(16.r),
 
-        border:
-            Border.all(
-          color:
-              const Color(
-            0xFFE9ECEB,
-          ),
-        ),
+        border: Border.all(color: const Color(0xFFE9ECEB)),
 
         boxShadow: [
           BoxShadow(
-            color:
-                Colors.black.withOpacity(
-              0.025,
-            ),
+            color: Colors.black.withOpacity(0.025),
 
-            blurRadius:
-                10,
+            blurRadius: 10,
 
-            offset:
-                const Offset(
-              0,
-              3,
-            ),
+            offset: const Offset(0, 3),
           ),
         ],
       ),
 
-      child:
-          child,
+      child: child,
     );
   }
 
@@ -1546,9 +1040,7 @@ class _PunchScreenState extends State<PunchScreen> {
   // SELECTED VEHICLE
   // ===========================================================================
 
-  VehicleTypeEntity? _selectedVehicle(
-    QuickAccessState state,
-  ) {
+  VehicleTypeEntity? _selectedVehicle(QuickAccessState state) {
     if (state.vehicleList.isEmpty) {
       return state.selectedVehicle;
     }
@@ -1556,9 +1048,7 @@ class _PunchScreenState extends State<PunchScreen> {
     if (selectedVehicleId != null) {
       try {
         return state.vehicleList.firstWhere(
-          (vehicle) =>
-              vehicle.vehicleTypeId ==
-              selectedVehicleId,
+          (vehicle) => vehicle.vehicleTypeId == selectedVehicleId,
         );
       } catch (_) {}
     }
@@ -1574,42 +1064,31 @@ class _PunchScreenState extends State<PunchScreen> {
   // VEHICLE DROPDOWN
   // ===========================================================================
 
-  Widget _vehicleDropdown(
-    QuickAccessState state,
-  ) {
-    if (state.vehicleList.isNotEmpty &&
-        selectedVehicleId == null) {
-      WidgetsBinding.instance
-          .addPostFrameCallback(
-        (_) {
-          if (!mounted) {
-            return;
-          }
+  Widget _vehicleDropdown(QuickAccessState state) {
+    if (state.vehicleList.isNotEmpty && selectedVehicleId == null) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!mounted) {
+          return;
+        }
 
-          final firstVehicle =
-              state.vehicleList.first;
+        final firstVehicle = state.vehicleList.first;
 
-          setState(() {
-            selectedVehicleId =
-                firstVehicle.vehicleTypeId;
-          });
+        setState(() {
+          selectedVehicleId = firstVehicle.vehicleTypeId;
+        });
 
-          debugPrint(
-            'Default vehicle selected: '
-            '${firstVehicle.vehicleTypeId}',
-          );
-        },
-      );
+        debugPrint(
+          'Default vehicle selected: '
+          '${firstVehicle.vehicleTypeId}',
+        );
+      });
     }
 
-    VehicleTypeEntity?
-        selectedVehicle;
+    VehicleTypeEntity? selectedVehicle;
 
     if (selectedVehicleId != null) {
-      for (final vehicle
-          in state.vehicleList) {
-        if (vehicle.vehicleTypeId ==
-            selectedVehicleId) {
+      for (final vehicle in state.vehicleList) {
+        if (vehicle.vehicleTypeId == selectedVehicleId) {
           selectedVehicle = vehicle;
 
           break;
@@ -1617,195 +1096,113 @@ class _PunchScreenState extends State<PunchScreen> {
       }
     }
 
-    selectedVehicle ??=
-        state.vehicleList.isNotEmpty
-            ? state.vehicleList.first
-            : null;
+    selectedVehicle ??= state.vehicleList.isNotEmpty
+        ? state.vehicleList.first
+        : null;
 
     return Column(
-      crossAxisAlignment:
-          CrossAxisAlignment.start,
+      crossAxisAlignment: CrossAxisAlignment.start,
 
       children: [
-        _fieldLabel(
-          'Vehicle Type',
-          required: true,
-        ),
+        _fieldLabel('Vehicle Type', required: true),
 
-        SizedBox(
-          height: 4.h,
-        ),
+        SizedBox(height: 4.h),
 
         Container(
-          height:
-              52.h,
+          height: 52.h,
 
-          padding:
-              EdgeInsets.symmetric(
-            horizontal:
-                11.w,
+          padding: EdgeInsets.symmetric(horizontal: 11.w),
+
+          decoration: BoxDecoration(
+            color: const Color(0xFFF8FAF9),
+
+            borderRadius: BorderRadius.circular(13.r),
+
+            border: Border.all(color: const Color(0xFFE2E9E5)),
           ),
 
-          decoration:
-              BoxDecoration(
-            color:
-                const Color(
-              0xFFF8FAF9,
-            ),
-
-            borderRadius:
-                BorderRadius.circular(
-              13.r,
-            ),
-
-            border:
-                Border.all(
-              color:
-                  const Color(
-                0xFFE2E9E5,
-              ),
-            ),
-          ),
-
-          child:
-              Row(
+          child: Row(
             children: [
               Container(
-                width:
-                    34.w,
+                width: 34.w,
 
-                height:
-                    34.w,
+                height: 34.w,
 
-                decoration:
-                    BoxDecoration(
-                  color:
-                      const Color(
-                    0xFFE5F6EC,
-                  ),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFE5F6EC),
 
-                  borderRadius:
-                      BorderRadius.circular(
-                    9.r,
-                  ),
+                  borderRadius: BorderRadius.circular(9.r),
                 ),
 
-                child:
-                    Icon(
-                  Icons
-                      .directions_car_filled_outlined,
+                child: Icon(
+                  Icons.directions_car_filled_outlined,
 
-                  color:
-                      const Color(
-                    0xFF0D984A,
-                  ),
+                  color: const Color(0xFF0D984A),
 
-                  size:
-                      18.sp,
+                  size: 18.sp,
                 ),
               ),
 
-              SizedBox(
-                width:
-                    9.w,
-              ),
+              SizedBox(width: 9.w),
 
               Expanded(
-                child:
-                    DropdownButtonHideUnderline(
-                  child:
-                      DropdownButton<String>(
-                    value:
-                        selectedVehicle
-                            ?.vehicleTypeId,
+                child: DropdownButtonHideUnderline(
+                  child: DropdownButton<String>(
+                    value: selectedVehicle?.vehicleTypeId,
 
-                    isExpanded:
-                        true,
+                    isExpanded: true,
 
-                    borderRadius:
-                        BorderRadius.circular(
-                      14.r,
-                    ),
+                    borderRadius: BorderRadius.circular(14.r),
 
-                    dropdownColor:
-                        Colors.white,
+                    dropdownColor: Colors.white,
 
-                    hint:
-                        Text(
+                    hint: Text(
                       'Select Vehicle Type',
 
-                      style:
-                          TextStyle(
-                        color:
-                            const Color(
-                          0xFF9AA29E,
+                      style: TextStyle(
+                        color: const Color(0xFF9AA29E),
+
+                        fontSize: 12.5.sp,
+                      ),
+                    ),
+
+                    icon: Icon(
+                      Icons.keyboard_arrow_down_rounded,
+
+                      color: const Color(0xFF67706B),
+
+                      size: 22.sp,
+                    ),
+
+                    style: TextStyle(
+                      color: const Color(0xFF252B28),
+
+                      fontSize: 12.5.sp,
+
+                      fontWeight: FontWeight.w600,
+                    ),
+
+                    items: state.vehicleList.map((vehicle) {
+                      return DropdownMenuItem<String>(
+                        value: vehicle.vehicleTypeId,
+
+                        child: Text(
+                          vehicle.vehicleType,
+
+                          overflow: TextOverflow.ellipsis,
                         ),
+                      );
+                    }).toList(),
 
-                        fontSize:
-                            12.5.sp,
-                      ),
-                    ),
-
-                    icon:
-                        Icon(
-                      Icons
-                          .keyboard_arrow_down_rounded,
-
-                      color:
-                          const Color(
-                        0xFF67706B,
-                      ),
-
-                      size:
-                          22.sp,
-                    ),
-
-                    style:
-                        TextStyle(
-                      color:
-                          const Color(
-                        0xFF252B28,
-                      ),
-
-                      fontSize:
-                          12.5.sp,
-
-                      fontWeight:
-                          FontWeight.w600,
-                    ),
-
-                    items:
-                        state.vehicleList.map(
-                      (vehicle) {
-                        return DropdownMenuItem<
-                            String>(
-                          value:
-                              vehicle.vehicleTypeId,
-
-                          child:
-                              Text(
-                            vehicle.vehicleType,
-
-                            overflow:
-                                TextOverflow.ellipsis,
-                          ),
-                        );
-                      },
-                    ).toList(),
-
-                    onChanged:
-                        (value) {
+                    onChanged: (value) {
                       if (value == null) {
                         return;
                       }
 
-                      debugPrint(
-                        'Vehicle selected from dropdown: $value',
-                      );
+                      debugPrint('Vehicle selected from dropdown: $value');
 
                       setState(() {
-                        selectedVehicleId =
-                            value;
+                        selectedVehicleId = value;
                       });
                     },
                   ),
@@ -1822,49 +1219,28 @@ class _PunchScreenState extends State<PunchScreen> {
   // FIELD LABEL
   // ===========================================================================
 
-  Widget _fieldLabel(
-    String title, {
-    bool required = false,
-  }) {
+  Widget _fieldLabel(String title, {bool required = false}) {
     return Padding(
-      padding:
-          EdgeInsets.only(
-        left:
-            2.w,
-      ),
+      padding: EdgeInsets.only(left: 2.w),
 
-      child:
-          RichText(
-        text:
-            TextSpan(
-          text:
-              title,
+      child: RichText(
+        text: TextSpan(
+          text: title,
 
-          style:
-              TextStyle(
-            fontSize:
-                10.5.sp,
+          style: TextStyle(
+            fontSize: 10.5.sp,
 
-            color:
-                const Color(
-              0xFF606864,
-            ),
+            color: const Color(0xFF606864),
 
-            fontWeight:
-                FontWeight.w600,
+            fontWeight: FontWeight.w600,
           ),
 
           children: [
             if (required)
               TextSpan(
-                text:
-                    ' *',
+                text: ' *',
 
-                style:
-                    TextStyle(
-                  color:
-                      Colors.red.shade500,
-                ),
+                style: TextStyle(color: Colors.red.shade500),
               ),
           ],
         ),
@@ -1883,32 +1259,22 @@ class _PunchScreenState extends State<PunchScreen> {
 
     required bool enabled,
 
-    required String? Function(String?)
-        validator,
+    required String? Function(String?) validator,
   }) {
     return CustomTextFormField(
-      controller:
-          controller,
+      controller: controller,
 
-      hintText:
-          hintText,
+      hintText: hintText,
 
-      labelText:
-          hintText,
+      labelText: hintText,
 
-      prefixIcon:
-          Icons.speed_rounded,
+      prefixIcon: Icons.speed_rounded,
 
-      keyboardType:
-          TextInputType.number,
+      keyboardType: TextInputType.number,
 
-      enabled:
-          enabled,
+      enabled: enabled,
 
-      validator:
-          enabled
-              ? validator
-              : null,
+      validator: enabled ? validator : null,
     );
   }
 
@@ -1916,24 +1282,16 @@ class _PunchScreenState extends State<PunchScreen> {
   // KM VALIDATION
   // ===========================================================================
 
-  String? _validateKm(
-    String? value,
-    String fieldName,
-  ) {
-    final text =
-        value?.trim() ?? '';
+  String? _validateKm(String? value, String fieldName) {
+    final text = value?.trim() ?? '';
 
-    final km =
-        double.tryParse(
-      text,
-    );
+    final km = double.tryParse(text);
 
     if (text.isEmpty) {
       return '$fieldName is required';
     }
 
-    if (km == null ||
-        km < 0) {
+    if (km == null || km < 0) {
       return 'Enter a valid $fieldName';
     }
 
@@ -1956,23 +1314,17 @@ class _PunchScreenState extends State<PunchScreen> {
     int maxLines = 1,
   }) {
     return CustomTextFormField(
-      controller:
-          controller,
+      controller: controller,
 
-      hintText:
-          hintText,
+      hintText: hintText,
 
-      labelText:
-          hintText,
+      labelText: hintText,
 
-      prefixIcon:
-          icon,
+      prefixIcon: icon,
 
-      maxLines:
-          maxLines,
+      maxLines: maxLines,
 
-      validator:
-          validator,
+      validator: validator,
     );
   }
 
@@ -1982,55 +1334,29 @@ class _PunchScreenState extends State<PunchScreen> {
 
   Widget _uploadPhotoCard() {
     return Container(
-      width:
-          double.infinity,
+      width: double.infinity,
 
-      padding:
-          EdgeInsets.all(
-        10.w,
-      ),
+      padding: EdgeInsets.all(10.w),
 
-      decoration:
-          BoxDecoration(
-        color:
-            Colors.white,
+      decoration: BoxDecoration(
+        color: Colors.white,
 
-        borderRadius:
-            BorderRadius.circular(
-          16.r,
-        ),
+        borderRadius: BorderRadius.circular(16.r),
 
-        border:
-            Border.all(
-          color:
-              const Color(
-            0xFFE9EEEB,
-          ),
-        ),
+        border: Border.all(color: const Color(0xFFE9EEEB)),
 
         boxShadow: [
           BoxShadow(
-            color:
-                Colors.black.withOpacity(
-              0.025,
-            ),
+            color: Colors.black.withOpacity(0.025),
 
-            blurRadius:
-                10,
+            blurRadius: 10,
 
-            offset:
-                const Offset(
-              0,
-              3,
-            ),
+            offset: const Offset(0, 3),
           ),
         ],
       ),
 
-      child:
-          _uploadedImage == null
-              ? _emptyPhotoView()
-              : _selectedPhotoView(),
+      child: _uploadedImage == null ? _emptyPhotoView() : _selectedPhotoView(),
     );
   }
 
@@ -2040,179 +1366,99 @@ class _PunchScreenState extends State<PunchScreen> {
 
   Widget _emptyPhotoView() {
     return InkWell(
-      onTap:
-          _captureImage,
+      onTap: _captureImage,
 
-      borderRadius:
-          BorderRadius.circular(
-        13.r,
-      ),
+      borderRadius: BorderRadius.circular(13.r),
 
-      child:
-          Container(
-        height:
-            180.h,
+      child: Container(
+        height: 180.h,
 
-        width:
-            double.infinity,
+        width: double.infinity,
 
-        decoration:
-            BoxDecoration(
-          color:
-              const Color(
-            0xFFF8FAF9,
-          ),
+        decoration: BoxDecoration(
+          color: const Color(0xFFF8FAF9),
 
-          borderRadius:
-              BorderRadius.circular(
-            13.r,
-          ),
+          borderRadius: BorderRadius.circular(13.r),
 
-          border:
-              Border.all(
-            color:
-                const Color(
-              0xFFDDE7E1,
-            ),
-          ),
+          border: Border.all(color: const Color(0xFFDDE7E1)),
         ),
 
-        child:
-            Row(
-          mainAxisAlignment:
-              MainAxisAlignment.center,
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
 
           children: [
             Container(
-              width:
-                  48.w,
+              width: 48.w,
 
-              height:
-                  48.w,
+              height: 48.w,
 
-              decoration:
-                  BoxDecoration(
-                color:
-                    const Color(
-                  0xFFE4F7EC,
-                ),
+              decoration: BoxDecoration(
+                color: const Color(0xFFE4F7EC),
 
-                borderRadius:
-                    BorderRadius.circular(
-                  14.r,
-                ),
+                borderRadius: BorderRadius.circular(14.r),
               ),
 
-              child:
-                  Icon(
-                Icons
-                    .add_a_photo_rounded,
+              child: Icon(
+                Icons.add_a_photo_rounded,
 
-                color:
-                    const Color(
-                  0xFF0D984A,
-                ),
+                color: const Color(0xFF0D984A),
 
-                size:
-                    23.sp,
+                size: 23.sp,
               ),
             ),
 
-            SizedBox(
-              width:
-                  12.w,
-            ),
+            SizedBox(width: 12.w),
 
             Column(
-              mainAxisAlignment:
-                  MainAxisAlignment.center,
+              mainAxisAlignment: MainAxisAlignment.center,
 
-              crossAxisAlignment:
-                  CrossAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.start,
 
               children: [
                 Text(
                   'Capture Photo',
 
-                  style:
-                      TextStyle(
-                    color:
-                        const Color(
-                      0xFF27302B,
-                    ),
+                  style: TextStyle(
+                    color: const Color(0xFF27302B),
 
-                    fontSize:
-                        13.sp,
+                    fontSize: 13.sp,
 
-                    fontWeight:
-                        FontWeight.w700,
+                    fontWeight: FontWeight.w700,
                   ),
                 ),
 
-                SizedBox(
-                  height:
-                      3.h,
-                ),
+                SizedBox(height: 3.h),
 
                 Text(
                   'Tap to open camera',
 
-                  style:
-                      TextStyle(
-                    color:
-                        const Color(
-                      0xFF929B96,
-                    ),
+                  style: TextStyle(
+                    color: const Color(0xFF929B96),
 
-                    fontSize:
-                        10.5.sp,
+                    fontSize: 10.5.sp,
                   ),
                 ),
 
-                SizedBox(
-                  height:
-                      6.h,
-                ),
+                SizedBox(height: 6.h),
 
                 Container(
-                  padding:
-                      EdgeInsets.symmetric(
-                    horizontal:
-                        9.w,
+                  padding: EdgeInsets.symmetric(horizontal: 9.w, vertical: 4.h),
 
-                    vertical:
-                        4.h,
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFE8F7EE),
+
+                    borderRadius: BorderRadius.circular(10.r),
                   ),
 
-                  decoration:
-                      BoxDecoration(
-                    color:
-                        const Color(
-                      0xFFE8F7EE,
-                    ),
-
-                    borderRadius:
-                        BorderRadius.circular(
-                      10.r,
-                    ),
-                  ),
-
-                  child:
-                      Text(
+                  child: Text(
                     'OPEN CAMERA',
 
-                    style:
-                        TextStyle(
-                      color:
-                          const Color(
-                        0xFF0D9147,
-                      ),
+                    style: TextStyle(
+                      color: const Color(0xFF0D9147),
 
-                      fontSize:
-                          8.5.sp,
+                      fontSize: 8.5.sp,
 
-                      fontWeight:
-                          FontWeight.w700,
+                      fontWeight: FontWeight.w700,
                     ),
                   ),
                 ),
@@ -2234,94 +1480,56 @@ class _PunchScreenState extends State<PunchScreen> {
         Stack(
           children: [
             ClipRRect(
-              borderRadius:
-                  BorderRadius.circular(
-                13.r,
-              ),
+              borderRadius: BorderRadius.circular(13.r),
 
-              child:
-                  Image.file(
+              child: Image.file(
                 _uploadedImage!,
 
-                width:
-                    double.infinity,
+                width: double.infinity,
 
-                height:
-                    180.h,
+                height: 180.h,
 
-                fit:
-                    BoxFit.cover,
+                fit: BoxFit.cover,
               ),
             ),
 
             Positioned(
-              top:
-                  8.h,
+              top: 8.h,
 
-              left:
-                  8.w,
+              left: 8.w,
 
-              child:
-                  Container(
-                padding:
-                    EdgeInsets.symmetric(
-                  horizontal:
-                      8.w,
+              child: Container(
+                padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 4.h),
 
-                  vertical:
-                      4.h,
+                decoration: BoxDecoration(
+                  color: Colors.black.withOpacity(0.55),
+
+                  borderRadius: BorderRadius.circular(15.r),
                 ),
 
-                decoration:
-                    BoxDecoration(
-                  color:
-                      Colors.black.withOpacity(
-                    0.55,
-                  ),
-
-                  borderRadius:
-                      BorderRadius.circular(
-                    15.r,
-                  ),
-                ),
-
-                child:
-                    Row(
-                  mainAxisSize:
-                      MainAxisSize.min,
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
 
                   children: [
                     Icon(
-                      Icons
-                          .check_circle_rounded,
+                      Icons.check_circle_rounded,
 
-                      color:
-                          const Color(
-                        0xFF7DFFA9,
-                      ),
+                      color: const Color(0xFF7DFFA9),
 
-                      size:
-                          13.sp,
+                      size: 13.sp,
                     ),
 
-                    SizedBox(
-                      width:
-                          4.w,
-                    ),
+                    SizedBox(width: 4.w),
 
                     Text(
                       'Photo Added',
 
-                      style:
-                          TextStyle(
-                        color:
-                            Colors.white,
+                      style: TextStyle(
+                        color: Colors.white,
 
-                        fontSize:
-                            9.5.sp,
+                        fontSize: 9.5.sp,
 
-                        fontWeight:
-                            FontWeight.w600,
+                        fontWeight: FontWeight.w600,
                       ),
                     ),
                   ],
@@ -2330,45 +1538,30 @@ class _PunchScreenState extends State<PunchScreen> {
             ),
 
             Positioned(
-              top:
-                  8.h,
+              top: 8.h,
 
-              right:
-                  8.w,
+              right: 8.w,
 
-              child:
-                  InkWell(
-                onTap:
-                    _captureImage,
+              child: InkWell(
+                onTap: _captureImage,
 
-                child:
-                    Container(
-                  width:
-                      32.w,
+                child: Container(
+                  width: 32.w,
 
-                  height:
-                      32.w,
+                  height: 32.w,
 
-                  decoration:
-                      BoxDecoration(
-                    color:
-                        Colors.black.withOpacity(
-                      0.55,
-                    ),
+                  decoration: BoxDecoration(
+                    color: Colors.black.withOpacity(0.55),
 
-                    shape:
-                        BoxShape.circle,
+                    shape: BoxShape.circle,
                   ),
 
-                  child:
-                      Icon(
+                  child: Icon(
                     Icons.camera_alt_rounded,
 
-                    color:
-                        Colors.white,
+                    color: Colors.white,
 
-                    size:
-                        16.sp,
+                    size: 16.sp,
                   ),
                 ),
               ),
@@ -2376,82 +1569,47 @@ class _PunchScreenState extends State<PunchScreen> {
           ],
         ),
 
-        SizedBox(
-          height:
-              7.h,
-        ),
+        SizedBox(height: 7.h),
 
         InkWell(
-          onTap:
-              _captureImage,
+          onTap: _captureImage,
 
-          borderRadius:
-              BorderRadius.circular(
-            11.r,
-          ),
+          borderRadius: BorderRadius.circular(11.r),
 
-          child:
-              Container(
-            width:
-                double.infinity,
+          child: Container(
+            width: double.infinity,
 
-            padding:
-                EdgeInsets.symmetric(
-              vertical:
-                  7.h,
+            padding: EdgeInsets.symmetric(vertical: 7.h),
+
+            decoration: BoxDecoration(
+              color: const Color(0xFFE8F7EE),
+
+              borderRadius: BorderRadius.circular(11.r),
             ),
 
-            decoration:
-                BoxDecoration(
-              color:
-                  const Color(
-                0xFFE8F7EE,
-              ),
-
-              borderRadius:
-                  BorderRadius.circular(
-                11.r,
-              ),
-            ),
-
-            child:
-                Row(
-              mainAxisAlignment:
-                  MainAxisAlignment.center,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
 
               children: [
                 Icon(
                   Icons.refresh_rounded,
 
-                  color:
-                      const Color(
-                    0xFF0C9548,
-                  ),
+                  color: const Color(0xFF0C9548),
 
-                  size:
-                      16.sp,
+                  size: 16.sp,
                 ),
 
-                SizedBox(
-                  width:
-                      5.w,
-                ),
+                SizedBox(width: 5.w),
 
                 Text(
                   'Retake Photo',
 
-                  style:
-                      TextStyle(
-                    color:
-                        const Color(
-                      0xFF0C9548,
-                    ),
+                  style: TextStyle(
+                    color: const Color(0xFF0C9548),
 
-                    fontSize:
-                        10.5.sp,
+                    fontSize: 10.5.sp,
 
-                    fontWeight:
-                        FontWeight.w700,
+                    fontWeight: FontWeight.w700,
                   ),
                 ),
               ],
@@ -2466,80 +1624,42 @@ class _PunchScreenState extends State<PunchScreen> {
   // ERROR MESSAGE
   // ===========================================================================
 
-  Widget _errorMessage(
-    String message,
-  ) {
+  Widget _errorMessage(String message) {
     return Container(
-      width:
-          double.infinity,
+      width: double.infinity,
 
-      padding:
-          EdgeInsets.symmetric(
-        horizontal:
-            9.w,
+      padding: EdgeInsets.symmetric(horizontal: 9.w, vertical: 6.h),
 
-        vertical:
-            6.h,
+      decoration: BoxDecoration(
+        color: const Color(0xFFFFF3F3),
+
+        borderRadius: BorderRadius.circular(8.r),
+
+        border: Border.all(color: const Color(0xFFFFDADA)),
       ),
 
-      decoration:
-          BoxDecoration(
-        color:
-            const Color(
-          0xFFFFF3F3,
-        ),
-
-        borderRadius:
-            BorderRadius.circular(
-          8.r,
-        ),
-
-        border:
-            Border.all(
-          color:
-              const Color(
-            0xFFFFDADA,
-          ),
-        ),
-      ),
-
-      child:
-          Row(
+      child: Row(
         children: [
           Icon(
             Icons.error_outline_rounded,
 
-            color:
-                const Color(
-              0xFFD94343,
-            ),
+            color: const Color(0xFFD94343),
 
-            size:
-                14.sp,
+            size: 14.sp,
           ),
 
-          SizedBox(
-            width:
-                5.w,
-          ),
+          SizedBox(width: 5.w),
 
           Expanded(
-            child:
-                Text(
+            child: Text(
               message,
 
-              style:
-                  TextStyle(
-                color:
-                    const Color(
-                  0xFFD94343,
-                ),
+              style: TextStyle(
+                color: const Color(0xFFD94343),
 
-                fontSize:
-                    10.sp,
+                fontSize: 10.sp,
 
-                fontWeight:
-                    FontWeight.w500,
+                fontWeight: FontWeight.w500,
               ),
             ),
           ),
@@ -2554,170 +1674,90 @@ class _PunchScreenState extends State<PunchScreen> {
 
   Widget _bottomSubmitSection() {
     return Container(
-      padding:
-          EdgeInsets.fromLTRB(
-        14.w,
-        7.h,
-        14.w,
-        8.h,
-      ),
+      padding: EdgeInsets.fromLTRB(14.w, 7.h, 14.w, 8.h),
 
-      decoration:
-          BoxDecoration(
-        color:
-            Colors.white,
+      decoration: BoxDecoration(
+        color: Colors.white,
 
-        border:
-            const Border(
-          top:
-              BorderSide(
-            color:
-                Color(
-              0xFFE8ECEA,
-            ),
-          ),
-        ),
+        border: const Border(top: BorderSide(color: Color(0xFFE8ECEA))),
 
         boxShadow: [
           BoxShadow(
-            color:
-                Colors.black.withOpacity(
-              0.035,
-            ),
+            color: Colors.black.withOpacity(0.035),
 
-            blurRadius:
-                10,
+            blurRadius: 10,
 
-            offset:
-                const Offset(
-              0,
-              -3,
-            ),
+            offset: const Offset(0, -3),
           ),
         ],
       ),
 
-      child:
-          SafeArea(
-        top:
-            false,
+      child: SafeArea(
+        top: false,
 
-        child:
-            SizedBox(
-          width:
-              double.infinity,
+        child: SizedBox(
+          width: double.infinity,
 
-          height:
-              48.h,
+          height: 48.h,
 
-          child:
-              ElevatedButton(
-            onPressed:
-                isLoading
-                    ? null
-                    : _submitPunch,
+          child: ElevatedButton(
+            onPressed: isLoading ? null : _submitPunch,
 
-            style:
-                ElevatedButton.styleFrom(
-              elevation:
-                  0,
+            style: ElevatedButton.styleFrom(
+              elevation: 0,
 
-              backgroundColor:
-                  const Color(
+              backgroundColor: const Color(0xFF0B9848),
+
+              disabledBackgroundColor: const Color(
                 0xFF0B9848,
+              ).withOpacity(0.60),
+
+              foregroundColor: Colors.white,
+
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(14.r),
               ),
 
-              disabledBackgroundColor:
-                  const Color(
-                0xFF0B9848,
-              ).withOpacity(
-                0.60,
-              ),
-
-              foregroundColor:
-                  Colors.white,
-
-              shape:
-                  RoundedRectangleBorder(
-                borderRadius:
-                    BorderRadius.circular(
-                  14.r,
-                ),
-              ),
-
-              padding:
-                  EdgeInsets.zero,
+              padding: EdgeInsets.zero,
             ),
 
-            child:
-                isLoading
-                    ? SizedBox(
-                        width:
-                            20.w,
+            child: isLoading
+                ? SizedBox(
+                    width: 20.w,
 
-                        height:
-                            20.w,
+                    height: 20.w,
 
-                        child:
-                            const CircularProgressIndicator(
-                          strokeWidth:
-                              2.2,
+                    child: const CircularProgressIndicator(
+                      strokeWidth: 2.2,
 
-                          valueColor:
-                              AlwaysStoppedAnimation<
-                                  Color>(
-                            Colors.white,
-                          ),
+                      valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                    ),
+                  )
+                : Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+
+                    children: [
+                      Icon(Icons.fingerprint_rounded, size: 18.sp),
+
+                      SizedBox(width: 7.w),
+
+                      Text(
+                        'PUNCH IN',
+
+                        style: TextStyle(
+                          fontSize: 12.5.sp,
+
+                          fontWeight: FontWeight.w700,
+
+                          letterSpacing: 0.3,
                         ),
-                      )
-                    : Row(
-                        mainAxisAlignment:
-                            MainAxisAlignment.center,
-
-                        children: [
-                          Icon(
-                            Icons
-                                .fingerprint_rounded,
-
-                            size:
-                                18.sp,
-                          ),
-
-                          SizedBox(
-                            width:
-                                7.w,
-                          ),
-
-                          Text(
-                            'PUNCH IN',
-
-                            style:
-                                TextStyle(
-                              fontSize:
-                                  12.5.sp,
-
-                              fontWeight:
-                                  FontWeight.w700,
-
-                              letterSpacing:
-                                  0.3,
-                            ),
-                          ),
-
-                          SizedBox(
-                            width:
-                                6.w,
-                          ),
-
-                          Icon(
-                            Icons
-                                .arrow_forward_rounded,
-
-                            size:
-                                17.sp,
-                          ),
-                        ],
                       ),
+
+                      SizedBox(width: 6.w),
+
+                      Icon(Icons.arrow_forward_rounded, size: 17.sp),
+                    ],
+                  ),
           ),
         ),
       ),

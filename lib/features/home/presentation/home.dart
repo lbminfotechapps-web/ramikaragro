@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:solufine/core/utility/tab_refresh.dart';
 import 'dart:async';
 import 'dart:convert';
@@ -139,7 +141,6 @@ class _HomeState extends State<Home> {
 
     TabRefresh.home.addListener(_onTabRefresh);
 
-    // Initial user load
     _loadUserData();
 
     // ------------------------------------------------------------
@@ -347,26 +348,134 @@ class _HomeState extends State<Home> {
     return result ?? false;
   }
 
+  // Future<void> _checkLocationAndGps() async {
+  //   // ============================================================
+  //   // 1. CHECK LOCATION PERMISSION
+  //   // ============================================================
+
+  //   final PermissionStatus permissionStatus = await Permission.location.status;
+
+  //   if (!permissionStatus.isGranted) {
+  //     if (!mounted) return;
+
+  //     await checkLocationPermission(context);
+
+  //     return;
+  //   }
+
+  //   // ============================================================
+  //   // 2. CHECK GPS / LOCATION SERVICE
+  //   // ============================================================
+
+  //   final bool gpsEnabled = await Geolocator.isLocationServiceEnabled();
+
+  //   if (!gpsEnabled) {
+  //     if (!mounted) return;
+
+  //     await _showGpsOffDialog();
+  //   }
+  // }
+
   Future<void> _checkLocationAndGps() async {
+    if (!mounted) return;
+
+    final PermissionStatus status = await _locationPermissionStatus();
+
+    debugPrint('LOCATION STATUS = $status');
+
     // ============================================================
-    // 1. CHECK LOCATION PERMISSION
+    // PERMISSION GRANTED
     // ============================================================
-
-    final PermissionStatus permissionStatus = await Permission.location.status;
-
-    if (!permissionStatus.isGranted) {
-      if (!mounted) return;
-
-      await checkLocationPermission(context);
-
+    if (status.isGranted || status.isLimited) {
+      await _checkGpsService();
       return;
     }
 
     // ============================================================
-    // 2. CHECK GPS / LOCATION SERVICE
+    // FIRST TIME / CAN STILL ASK
     // ============================================================
+    if (status.isDenied) {
+      if (!mounted) return;
+
+      await _showLocationPermissionDialog();
+      return;
+    }
+
+    // ============================================================
+    // USER HAS DENIED PERMISSION PERMANENTLY
+    // iOS will NOT show the native popup again.
+    // User has to open Settings.
+    // ============================================================
+    if (status.isPermanentlyDenied || status.isRestricted) {
+      if (!mounted) return;
+
+      await _showLocationSettingsDialog();
+      return;
+    }
+  }
+
+  Future<PermissionStatus> _locationPermissionStatus({
+    bool request = false,
+  }) async {
+    if (!Platform.isIOS) {
+      return request
+          ? await Permission.location.request()
+          : await Permission.location.status;
+    }
+
+    final locationPermission = request
+        ? await Geolocator.requestPermission()
+        : await Geolocator.checkPermission();
+    debugPrint('IOS LOCATION AUTHORIZATION = $locationPermission');
+
+    switch (locationPermission) {
+      case LocationPermission.whileInUse:
+      case LocationPermission.always:
+        return PermissionStatus.granted;
+      case LocationPermission.deniedForever:
+        return PermissionStatus.permanentlyDenied;
+      case LocationPermission.denied:
+      case LocationPermission.unableToDetermine:
+        return PermissionStatus.denied;
+    }
+  }
+
+  Future<void> _showLocationPermissionDialog() async {
+    if (!mounted) return;
+
+    await showDialog<void>(
+      context: context,
+      barrierDismissible: false,
+      builder: (dialogContext) {
+        return LocationPermissionDialog(
+          onUseLocation: () async {
+            Navigator.of(dialogContext).pop();
+
+            final PermissionStatus result = await _locationPermissionStatus(
+              request: true,
+            );
+
+            debugPrint('LOCATION PERMISSION RESULT = $result');
+
+            if (!mounted) return;
+
+            if (result.isGranted || result.isLimited) {
+              await _checkGpsService();
+            } else if (result.isPermanentlyDenied || result.isRestricted) {
+              await _showLocationSettingsDialog();
+            }
+          },
+        );
+      },
+    );
+  }
+
+  Future<void> _checkGpsService() async {
+    if (!mounted) return;
 
     final bool gpsEnabled = await Geolocator.isLocationServiceEnabled();
+
+    debugPrint('LOCATION SERVICE = $gpsEnabled');
 
     if (!gpsEnabled) {
       if (!mounted) return;
@@ -375,23 +484,73 @@ class _HomeState extends State<Home> {
     }
   }
 
-  Future<void> checkLocationPermission(BuildContext context) async {
-    final status = await Permission.location.status;
+  Future<void> _showLocationSettingsDialog() async {
+    if (!mounted) return;
 
-    if (status.isGranted) {
-      return;
-    }
-
-    if (!context.mounted) return;
-
-    showDialog(
+    await showDialog<void>(
       context: context,
       barrierDismissible: false,
-      builder: (_) {
-        return LocationPermissionDialog(onPermissionResult: () {});
+      builder: (dialogContext) {
+        return AlertDialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(18),
+          ),
+          title: const Row(
+            children: [
+              Icon(Icons.location_off_rounded, color: Colors.orange, size: 28),
+              SizedBox(width: 12),
+              Expanded(
+                child: Text(
+                  'Location Permission Required',
+                  style: TextStyle(fontSize: 19, fontWeight: FontWeight.bold),
+                ),
+              ),
+            ],
+          ),
+          content: const Text(
+            'Location permission is disabled for this app. '
+            'Please enable location permission from Settings.',
+            style: TextStyle(fontSize: 14, height: 1.5),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(dialogContext).pop();
+              },
+              child: const Text('CANCEL'),
+            ),
+
+            ElevatedButton.icon(
+              onPressed: () async {
+                Navigator.of(dialogContext).pop();
+
+                await openAppSettings();
+              },
+              icon: const Icon(Icons.settings, size: 18),
+              label: const Text('OPEN SETTINGS'),
+            ),
+          ],
+        );
       },
     );
   }
+  // Future<void> checkLocationPermission(BuildContext context) async {
+  //   final status = await Permission.location.status;
+
+  //   if (status.isGranted) {
+  //     return;
+  //   }
+
+  //   if (!context.mounted) return;
+
+  //   showDialog(
+  //     context: context,
+  //     barrierDismissible: false,
+  //     builder: (_) {
+  //       return LocationPermissionDialog(onPermissionResult: () {});
+  //     },
+  //   );
+  // }
 
   Future<void> _showGpsOffDialog() async {
     if (!mounted) return;
