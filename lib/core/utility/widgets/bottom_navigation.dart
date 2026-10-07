@@ -68,43 +68,34 @@ class HomeShellState extends State<HomeShell> {
   //   (path: AppRouter.monthlyPerformanceReport, icon: Icons.location_city, label: 'Report'),
   // ];
 
+  static const _tabs = [
+    // INDEX 0
+    (path: AppRouter.home, icon: Icons.home_rounded, label: 'Home'),
 
+    // INDEX 1
+    (
+      path: AppRouter.followup,
+      icon: Icons.assignment_rounded,
+      label: 'Follow up',
+    ),
 
+    // INDEX 2
+    (
+      // path: AppRouter.monthlyPerformanceReport,
+      // icon: Icons.bar_chart_rounded,
+      // label: 'Report',
+      path: AppRouter.reportPage,
+      icon: Icons.bar_chart_rounded,
+      label: 'Report',
+    ),
 
-static const _tabs = [
-  // INDEX 0
-  (
-    path: AppRouter.home,
-    icon: Icons.home_rounded,
-    label: 'Home',
-  ),
-
-  // INDEX 1
-  (
-    path: AppRouter.followup,
-    icon: Icons.assignment_rounded,
-    label: 'Follow up',
-  ),
-
-  // INDEX 2
-  (
-    // path: AppRouter.monthlyPerformanceReport,
-    // icon: Icons.bar_chart_rounded,
-    // label: 'Report',
-    path: AppRouter.reportPage,
-    icon: Icons.bar_chart_rounded,
-    label: 'Report',
-
-  ),
-
-  // INDEX 3
-  (
-    path: AppRouter.products,
-    icon: Icons.inventory_2_rounded,
-    label: 'Products',
-  ),
-];
-
+    // INDEX 3
+    (
+      path: AppRouter.products,
+      icon: Icons.inventory_2_rounded,
+      label: 'Products',
+    ),
+  ];
 
   // ============================================================
   // INIT
@@ -650,8 +641,7 @@ static const _tabs = [
                                       customBorder: const CircleBorder(),
                                       onTap: () => _onTabTapped(active),
                                       child: Icon(
-                                        _tabs[visibleTabIndices[active]]
-                                            .selectedIcon,
+                                        _tabs[visibleTabIndices[active]].icon,
                                         color: AppColors.primaryGreen,
                                         size: 25,
                                       ),
