@@ -261,8 +261,7 @@ class _DispatchPageState extends State<DispatchPage> {
               DropdownMenuItem(value: '1', child: Text('Approved')),
               DropdownMenuItem(value: '2', child: Text('Partially Dispatched')),
               DropdownMenuItem(value: '3', child: Text('Cancelled')),
-              DropdownMenuItem(value: '4', child: Text('Hold')),
-              DropdownMenuItem(value: '5', child: Text('Dispatched')),
+              DropdownMenuItem(value: '4', child: Text('Dispatched')),
             ],
             onChanged: (value) {
               setState(() {
@@ -319,6 +318,10 @@ class _DispatchPageState extends State<DispatchPage> {
                   onPressed: _search,
                   icon: const Icon(Icons.search),
                   label: const Text('Search'),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppColors.primaryGreen,
+                    foregroundColor: Colors.white,
+                  ),
                 ),
               ),
             ],

@@ -9,6 +9,7 @@ enum QuickAccessStatus {
   failure,
   punchStatusSuccess,
   locationAddedSucces,
+  locationHistoryUploaded,
   locationTrackingSucess,
 }
 
