@@ -1,3 +1,5 @@
+import 'package:solufine/features/growth_report/presentation/bloc/growth_report_bloc.dart';
+import 'package:solufine/features/growth_report/presentation/pages/growth_report_page.dart';
 import 'package:solufine/features/quickchartreport/presentation/bloc/gallerybloc.dart'
     as quick_chart;
 import 'package:solufine/core/utility/widgets/bottom_navigation.dart';
@@ -143,6 +145,7 @@ class AppRouter {
 
   static const String selfAssignTargetPointWise = '/selfAssignTargetPointWise';
   static const String quickReferance = '/quickReferance';
+  static const String growthReport ='/growthReport';
 
   static final GoRouter router = GoRouter(
     initialLocation: splash,
@@ -549,6 +552,18 @@ class AppRouter {
           ),
 
 
+                       GoRoute(
+                          path: growthReport,
+                          name: 'growthReport',
+                          builder: (context, state) {
+                            return BlocProvider<GrowthReportBloc>(
+                              create: (_) => sl<GrowthReportBloc>(),
+                              child: const GrowthReportPage(),
+                            );
+                          },
+                        ),
+
+         
 
       GoRoute(
         path: dealrFollowUpAdd,
@@ -722,7 +737,7 @@ class AppRouter {
           ),
          
     
-
+             
           //   StatefulShellBranch(
           //   routes: [
           //     GoRoute(

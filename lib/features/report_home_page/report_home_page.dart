@@ -28,6 +28,8 @@ class ReportsHomePage extends StatelessWidget {
     '64',
     '86',
     '87',
+
+    // Dealer Growth / De-Growth
     '89',
   ];
 
@@ -84,6 +86,9 @@ class ReportsHomePage extends StatelessWidget {
     '65': AppRouter.noVisitDealer,
     '57': AppRouter.visitSummaryReport,
     '64': AppRouter.topTenDealer,
+
+    // Growth / De-Growth
+    '89': AppRouter.growthReport,
   };
 
   // ============================================================
@@ -124,6 +129,9 @@ class ReportsHomePage extends StatelessWidget {
   String? _routeForMenu(
     MenuEntity menu,
   ) {
+    final String menuId =
+        menu.menuId.trim();
+
     final String name =
         menu.menuName
             .toLowerCase()
@@ -133,6 +141,58 @@ class ReportsHomePage extends StatelessWidget {
               ),
               '',
             );
+
+    debugPrint(
+      '============================================',
+    );
+
+    debugPrint(
+      'REPORT MENU CLICK',
+    );
+
+    debugPrint(
+      'ID         => $menuId',
+    );
+
+    debugPrint(
+      'NAME       => ${menu.menuName}',
+    );
+
+    debugPrint(
+      'NORMALIZED => $name',
+    );
+
+    debugPrint(
+      '============================================',
+    );
+
+    // ==========================================================
+    // GROWTH / DE-GROWTH
+    // MENU ID = 89
+    // ==========================================================
+
+    if (menuId == '89') {
+      return AppRouter.growthReport;
+    }
+
+    if (name.contains(
+          'growth',
+        ) ||
+        name.contains(
+          'degrowth',
+        ) ||
+        name.contains(
+          'dealergrowth',
+        ) ||
+        name.contains(
+          'growthreport',
+        )) {
+      return AppRouter.growthReport;
+    }
+
+    // ==========================================================
+    // MONTHLY PERFORMANCE
+    // ==========================================================
 
     if (name.contains(
           'salespersonstat',
@@ -150,6 +210,10 @@ class ReportsHomePage extends StatelessWidget {
           .monthlyPerformanceReport;
     }
 
+    // ==========================================================
+    // EMPLOYEE ACTIVITY
+    // ==========================================================
+
     if (name.contains(
           'employeeactivity',
         ) ||
@@ -159,6 +223,10 @@ class ReportsHomePage extends StatelessWidget {
       return AppRouter
           .empActivityReport;
     }
+
+    // ==========================================================
+    // EMPLOYEE OUTPUT
+    // ==========================================================
 
     if (name.contains(
           'employeeoutput',
@@ -170,12 +238,20 @@ class ReportsHomePage extends StatelessWidget {
           .empOutputReport;
     }
 
+    // ==========================================================
+    // VISIT SUMMARY
+    // ==========================================================
+
     if (name.contains(
       'visitsummary',
     )) {
       return AppRouter
           .visitSummaryReport;
     }
+
+    // ==========================================================
+    // NOT VISITED DEALER
+    // ==========================================================
 
     if (name.contains(
           'notvisitdealer',
@@ -190,6 +266,10 @@ class ReportsHomePage extends StatelessWidget {
           .noVisitDealer;
     }
 
+    // ==========================================================
+    // TOP TEN DEALER
+    // ==========================================================
+
     if (name.contains(
           'toptendealer',
         ) ||
@@ -200,8 +280,12 @@ class ReportsHomePage extends StatelessWidget {
           .topTenDealer;
     }
 
+    // ==========================================================
+    // FALLBACK
+    // ==========================================================
+
     return _routes[
-      menu.menuId.trim()
+      menuId
     ];
   }
 
@@ -233,6 +317,14 @@ class ReportsHomePage extends StatelessWidget {
       return;
     }
 
+    debugPrint(
+      'OPENING REPORT ROUTE => $route',
+    );
+
+    // ==========================================================
+    // ROUTES THAT REQUIRE USER ID
+    // ==========================================================
+
     if ([
       AppRouter.empActivityReport,
       AppRouter.empOutputReport,
@@ -254,6 +346,11 @@ class ReportsHomePage extends StatelessWidget {
                 '',
       );
     } else {
+      // Growth report comes here.
+      //
+      // GrowthReportPage itself reads logged-in user ID
+      // from SecureStorage.
+
       context.push(
         route,
       );
@@ -299,20 +396,22 @@ class ReportsHomePage extends StatelessWidget {
             context,
             state,
           ) {
+            // ==================================================
+            // FILTER ONLY REQUIRED REPORT MENUS
+            // ==================================================
+
             final Map<String, MenuEntity>
                 menusById = {
               for (final menu
                   in state.menus)
-                if (_menuIds
-                    .contains(
-                  menu.menuId
-                      .trim(),
+                if (_menuIds.contains(
+                  menu.menuId.trim(),
                 ))
-                  menu.menuId
-                          .trim():
+                  menu.menuId.trim():
                       menu,
             };
 
+            // Keep same order as _menuIds
             final List<MenuEntity>
                 menus = [
               for (final String id
@@ -323,6 +422,10 @@ class ReportsHomePage extends StatelessWidget {
                 ))
                   menusById[id]!,
             ];
+
+            // ==================================================
+            // LOADING
+            // ==================================================
 
             if (state.status ==
                     HomeStatus.loading &&
@@ -338,6 +441,10 @@ class ReportsHomePage extends StatelessWidget {
               );
             }
 
+            // ==================================================
+            // ERROR
+            // ==================================================
+
             if (state.status ==
                     HomeStatus.failure &&
                 state.menus.isEmpty) {
@@ -345,6 +452,10 @@ class ReportsHomePage extends StatelessWidget {
                 context,
               );
             }
+
+            // ==================================================
+            // CONTENT
+            // ==================================================
 
             return RefreshIndicator(
               color:
@@ -395,43 +506,12 @@ class ReportsHomePage extends StatelessWidget {
                     child:
                         SizedBox(
                       height:
-                          10,
+                          11,
                     ),
                   ),
 
                   // ============================================
-                  // QUICK ACCESS
-                  // ============================================
-
-                  if (menus.isNotEmpty)
-                    SliverPadding(
-                      padding:
-                          const EdgeInsets.symmetric(
-                        horizontal:
-                            10,
-                      ),
-
-                      // sliver:
-                      //     SliverToBoxAdapter(
-                      //   child:
-                      //       _quickAccess(
-                      //     context,
-                      //     menus,
-                      //   ),
-                      // ),
-                    ),
-
-                  if (menus.isNotEmpty)
-                    const SliverToBoxAdapter(
-                      child:
-                          SizedBox(
-                        height:
-                            11,
-                      ),
-                    ),
-
-                  // ============================================
-                  // TITLE
+                  // REPORT HEADER
                   // ============================================
 
                   SliverPadding(
@@ -504,18 +584,21 @@ class ReportsHomePage extends StatelessWidget {
                               1100) {
                             columns =
                                 5;
+
                             ratio =
                                 1.70;
                           } else if (width >=
                               850) {
                             columns =
                                 4;
+
                             ratio =
                                 1.62;
                           } else if (width >=
                               600) {
                             columns =
                                 3;
+
                             ratio =
                                 1.52;
                           }
@@ -542,10 +625,13 @@ class ReportsHomePage extends StatelessWidget {
                                 SliverGridDelegateWithFixedCrossAxisCount(
                               crossAxisCount:
                                   columns,
+
                               crossAxisSpacing:
                                   8,
+
                               mainAxisSpacing:
                                   8,
+
                               childAspectRatio:
                                   ratio,
                             ),
@@ -587,8 +673,10 @@ class ReportsHomePage extends StatelessWidget {
               0xFF179151,
             ),
           ],
+
           begin:
               Alignment.topLeft,
+
           end:
               Alignment.bottomRight,
         ),
@@ -605,8 +693,10 @@ class ReportsHomePage extends StatelessWidget {
                     .withOpacity(
               .13,
             ),
+
             blurRadius:
                 14,
+
             offset:
                 const Offset(
               0,
@@ -622,14 +712,18 @@ class ReportsHomePage extends StatelessWidget {
           Positioned(
             right:
                 -20,
+
             top:
                 -25,
+
             child:
                 Container(
               width:
                   100,
+
               height:
                   100,
+
               decoration:
                   BoxDecoration(
                 color:
@@ -637,6 +731,7 @@ class ReportsHomePage extends StatelessWidget {
                         .withOpacity(
                   .05,
                 ),
+
                 shape:
                     BoxShape.circle,
               ),
@@ -646,14 +741,18 @@ class ReportsHomePage extends StatelessWidget {
           Positioned(
             right:
                 25,
+
             bottom:
                 -45,
+
             child:
                 Container(
               width:
                   85,
+
               height:
                   85,
+
               decoration:
                   BoxDecoration(
                 color:
@@ -661,6 +760,7 @@ class ReportsHomePage extends StatelessWidget {
                         .withOpacity(
                   .04,
                 ),
+
                 shape:
                     BoxShape.circle,
               ),
@@ -672,8 +772,10 @@ class ReportsHomePage extends StatelessWidget {
               Container(
                 width:
                     42,
+
                 height:
                     42,
+
                 decoration:
                     BoxDecoration(
                   color:
@@ -681,17 +783,21 @@ class ReportsHomePage extends StatelessWidget {
                           .withOpacity(
                     .14,
                   ),
+
                   borderRadius:
                       BorderRadius.circular(
                     12,
                   ),
                 ),
+
                 child:
                     const Icon(
                   Icons
                       .dashboard_customize_outlined,
+
                   color:
                       Colors.white,
+
                   size:
                       22,
                 ),
@@ -707,37 +813,48 @@ class ReportsHomePage extends StatelessWidget {
                     Column(
                   crossAxisAlignment:
                       CrossAxisAlignment.start,
+
                   children: [
                     Text(
                       'All Reports',
+
                       style:
                           TextStyle(
                         color:
                             Colors.white,
+
                         fontSize:
                             15,
+
                         fontWeight:
                             FontWeight.w900,
                       ),
                     ),
+
                     SizedBox(
                       height:
                           2,
                     ),
+
                     Text(
                       'Track performance, productivity and field activity',
+
                       maxLines:
                           2,
+
                       overflow:
                           TextOverflow.ellipsis,
+
                       style:
                           TextStyle(
                         color:
                             Color(
                           0xFFDDF1E5,
                         ),
+
                         fontSize:
                             7.7,
+
                         height:
                             1.25,
                       ),
@@ -756,9 +873,11 @@ class ReportsHomePage extends StatelessWidget {
                     const EdgeInsets.symmetric(
                   horizontal:
                       9,
+
                   vertical:
                       6,
                 ),
+
                 decoration:
                     BoxDecoration(
                   color:
@@ -766,42 +885,54 @@ class ReportsHomePage extends StatelessWidget {
                           .withOpacity(
                     .13,
                   ),
+
                   borderRadius:
                       BorderRadius.circular(
                     20,
                   ),
                 ),
+
                 child:
                     Column(
                   mainAxisSize:
                       MainAxisSize.min,
+
                   children: [
                     Text(
                       '$reportCount',
+
                       style:
                           const TextStyle(
                         color:
                             Colors.white,
+
                         fontSize:
                             14,
+
                         fontWeight:
                             FontWeight.w900,
+
                         height:
                             1,
                       ),
                     ),
+
                     const SizedBox(
                       height:
                           2,
                     ),
+
                     const Text(
                       'Reports',
+
                       style:
                           TextStyle(
                         color:
                             Colors.white70,
+
                         fontSize:
                             6.5,
+
                         fontWeight:
                             FontWeight.w600,
                       ),
@@ -817,13 +948,7 @@ class ReportsHomePage extends StatelessWidget {
   }
 
   // ============================================================
-  // QUICK ACCESS
-  // ============================================================
-
-
-
-  // ============================================================
-  // REPORTS HEADER
+  // REPORT HEADER
   // ============================================================
 
   Widget _reportsHeader(
@@ -836,29 +961,16 @@ class ReportsHomePage extends StatelessWidget {
               Column(
             crossAxisAlignment:
                 CrossAxisAlignment.start,
+
             children: [
-              // Text(
-              //   'All Reports',
-              //   style:
-              //       TextStyle(
-              //     color:
-              //         _text,
-              //     fontSize:
-              //         12,
-              //     fontWeight:
-              //         FontWeight.w900,
-              //   ),
-              // ),
-              // SizedBox(
-              //   height:
-              //       1,
-              // ),
               Text(
                 'Explore all available report modules',
+
                 style:
                     TextStyle(
                   color:
                       _secondaryText,
+
                   fontSize:
                       7,
                 ),
@@ -872,29 +984,36 @@ class ReportsHomePage extends StatelessWidget {
               const EdgeInsets.symmetric(
             horizontal:
                 7,
+
             vertical:
                 3,
           ),
+
           decoration:
               BoxDecoration(
             color:
                 const Color(
               0xFFEAF5EF,
             ),
+
             borderRadius:
                 BorderRadius.circular(
               16,
             ),
           ),
+
           child:
               Text(
             '$count available',
+
             style:
                 const TextStyle(
               color:
                   _primaryDark,
+
               fontSize:
                   6.7,
+
               fontWeight:
                   FontWeight.w800,
             ),
@@ -944,17 +1063,21 @@ class ReportsHomePage extends StatelessWidget {
               BoxDecoration(
             color:
                 _surface,
+
             borderRadius:
                 BorderRadius.circular(
               14,
             ),
+
             border:
                 Border.all(
               color:
                   _border,
+
               width:
                   .8,
             ),
+
             boxShadow: [
               BoxShadow(
                 color:
@@ -962,8 +1085,10 @@ class ReportsHomePage extends StatelessWidget {
                         .withOpacity(
                   .018,
                 ),
+
                 blurRadius:
                     6,
+
                 offset:
                     const Offset(
                   0,
@@ -976,17 +1101,19 @@ class ReportsHomePage extends StatelessWidget {
           child:
               Column(
             children: [
-              // ============================================
-              // ACCENT
-              // ============================================
+              // ================================================
+              // TOP ACCENT
+              // ================================================
 
               Container(
                 height:
                     3.5,
+
                 decoration:
                     BoxDecoration(
                   color:
                       style.color,
+
                   borderRadius:
                       const BorderRadius.vertical(
                     top:
@@ -1012,14 +1139,17 @@ class ReportsHomePage extends StatelessWidget {
                       Column(
                     crossAxisAlignment:
                         CrossAxisAlignment.start,
+
                     children: [
                       Row(
                         children: [
                           Container(
                             width:
                                 34,
+
                             height:
                                 34,
+
                             decoration:
                                 BoxDecoration(
                               color:
@@ -1027,19 +1157,23 @@ class ReportsHomePage extends StatelessWidget {
                                       .withOpacity(
                                 .08,
                               ),
+
                               borderRadius:
                                   BorderRadius.circular(
                                 9,
                               ),
                             ),
+
                             child:
                                 menu.iconImage
                                         .trim()
                                         .isEmpty
                                     ? Icon(
                                         style.icon,
+
                                         color:
                                             style.color,
+
                                         size:
                                             18,
                                       )
@@ -1048,11 +1182,14 @@ class ReportsHomePage extends StatelessWidget {
                                             const EdgeInsets.all(
                                           7,
                                         ),
+
                                         child:
                                             Image.network(
                                           menu.iconImage,
+
                                           fit:
                                               BoxFit.contain,
+
                                           errorBuilder:
                                               (
                                             context,
@@ -1061,8 +1198,10 @@ class ReportsHomePage extends StatelessWidget {
                                           ) {
                                             return Icon(
                                               style.icon,
+
                                               color:
                                                   style.color,
+
                                               size:
                                                   18,
                                             );
@@ -1076,8 +1215,10 @@ class ReportsHomePage extends StatelessWidget {
                           Container(
                             width:
                                 26,
+
                             height:
                                 26,
+
                             decoration:
                                 BoxDecoration(
                               color:
@@ -1085,15 +1226,19 @@ class ReportsHomePage extends StatelessWidget {
                                       .withOpacity(
                                 .055,
                               ),
+
                               shape:
                                   BoxShape.circle,
                             ),
+
                             child:
                                 Icon(
                               Icons
                                   .north_east_rounded,
+
                               size:
                                   12,
+
                               color:
                                   style.color,
                             ),
@@ -1105,18 +1250,24 @@ class ReportsHomePage extends StatelessWidget {
 
                       Text(
                         menu.menuName,
+
                         maxLines:
                             2,
+
                         overflow:
                             TextOverflow.ellipsis,
+
                         style:
                             const TextStyle(
                           color:
                               _text,
+
                           fontSize:
                               10,
+
                           height:
                               1.15,
+
                           fontWeight:
                               FontWeight.w900,
                         ),
@@ -1131,16 +1282,21 @@ class ReportsHomePage extends StatelessWidget {
                         _descriptionForMenu(
                           menu,
                         ),
+
                         maxLines:
                             1,
+
                         overflow:
                             TextOverflow.ellipsis,
+
                         style:
                             const TextStyle(
                           color:
                               _secondaryText,
+
                           fontSize:
                               6.5,
+
                           fontWeight:
                               FontWeight.w500,
                         ),
@@ -1158,9 +1314,11 @@ class ReportsHomePage extends StatelessWidget {
                                 const EdgeInsets.symmetric(
                               horizontal:
                                   6,
+
                               vertical:
                                   2,
                             ),
+
                             decoration:
                                 BoxDecoration(
                               color:
@@ -1168,22 +1326,27 @@ class ReportsHomePage extends StatelessWidget {
                                       .withOpacity(
                                 .07,
                               ),
+
                               borderRadius:
                                   BorderRadius.circular(
                                 12,
                               ),
                             ),
+
                             child:
                                 Text(
                               _tagForMenu(
                                 menu,
                               ),
+
                               style:
                                   TextStyle(
                                 color:
                                     style.color,
+
                                 fontSize:
                                     6,
+
                                 fontWeight:
                                     FontWeight.w800,
                               ),
@@ -1195,8 +1358,10 @@ class ReportsHomePage extends StatelessWidget {
                           Icon(
                             Icons
                                 .chevron_right_rounded,
+
                             color:
                                 style.color,
+
                             size:
                                 15,
                           ),
@@ -1220,9 +1385,26 @@ class ReportsHomePage extends StatelessWidget {
   String _tagForMenu(
     MenuEntity menu,
   ) {
-    final name =
+    final String menuId =
+        menu.menuId.trim();
+
+    final String name =
         menu.menuName
             .toLowerCase();
+
+    // Growth / De-Growth
+    if (menuId == '89' ||
+        name.contains(
+          'growth',
+        ) ||
+        name.contains(
+          'de-growth',
+        ) ||
+        name.contains(
+          'degrowth',
+        )) {
+      return 'GROWTH';
+    }
 
     if (name.contains(
           'performance',
@@ -1268,9 +1450,41 @@ class ReportsHomePage extends StatelessWidget {
     MenuEntity menu,
     int index,
   ) {
+    final String menuId =
+        menu.menuId.trim();
+
     final String name =
         menu.menuName
             .toLowerCase();
+
+    // ==========================================================
+    // GROWTH / DE-GROWTH
+    // ==========================================================
+
+    if (menuId == '89' ||
+        name.contains(
+          'growth',
+        ) ||
+        name.contains(
+          'de-growth',
+        ) ||
+        name.contains(
+          'degrowth',
+        )) {
+      return const _ReportStyle(
+        color:
+            Color(
+          0xFF14804A,
+        ),
+
+        icon:
+            Icons.trending_up_rounded,
+      );
+    }
+
+    // ==========================================================
+    // PERFORMANCE
+    // ==========================================================
 
     if (name.contains(
           'performance',
@@ -1284,10 +1498,15 @@ class ReportsHomePage extends StatelessWidget {
       return const _ReportStyle(
         color:
             _blue,
+
         icon:
             Icons.insights_rounded,
       );
     }
+
+    // ==========================================================
+    // EMPLOYEE ACTIVITY
+    // ==========================================================
 
     if (name.contains(
       'employee activity',
@@ -1295,10 +1514,15 @@ class ReportsHomePage extends StatelessWidget {
       return const _ReportStyle(
         color:
             _purple,
+
         icon:
             Icons.badge_outlined,
       );
     }
+
+    // ==========================================================
+    // EMPLOYEE OUTPUT
+    // ==========================================================
 
     if (name.contains(
       'employee output',
@@ -1306,10 +1530,15 @@ class ReportsHomePage extends StatelessWidget {
       return const _ReportStyle(
         color:
             _orange,
+
         icon:
             Icons.trending_up_rounded,
       );
     }
+
+    // ==========================================================
+    // VISIT SUMMARY
+    // ==========================================================
 
     if (name.contains(
       'visit summary',
@@ -1317,10 +1546,15 @@ class ReportsHomePage extends StatelessWidget {
       return const _ReportStyle(
         color:
             _primary,
+
         icon:
             Icons.route_outlined,
       );
     }
+
+    // ==========================================================
+    // NOT VISITED
+    // ==========================================================
 
     if (name.contains(
           'not visit',
@@ -1331,10 +1565,15 @@ class ReportsHomePage extends StatelessWidget {
       return const _ReportStyle(
         color:
             _red,
+
         icon:
             Icons.location_off_outlined,
       );
     }
+
+    // ==========================================================
+    // TOP TEN
+    // ==========================================================
 
     if (name.contains(
           'top ten',
@@ -1345,10 +1584,15 @@ class ReportsHomePage extends StatelessWidget {
       return const _ReportStyle(
         color:
             _teal,
+
         icon:
             Icons.emoji_events_outlined,
       );
     }
+
+    // ==========================================================
+    // FALLBACK
+    // ==========================================================
 
     const List<Color> colors = [
       _primary,
@@ -1370,13 +1614,14 @@ class ReportsHomePage extends StatelessWidget {
       Icons.timeline_rounded,
     ];
 
-    final position =
+    final int position =
         index %
             colors.length;
 
     return _ReportStyle(
       color:
           colors[position],
+
       icon:
           icons[position],
     );
@@ -1389,9 +1634,26 @@ class ReportsHomePage extends StatelessWidget {
   String _descriptionForMenu(
     MenuEntity menu,
   ) {
-    final name =
+    final String menuId =
+        menu.menuId.trim();
+
+    final String name =
         menu.menuName
             .toLowerCase();
+
+    // Growth
+    if (menuId == '89' ||
+        name.contains(
+          'growth',
+        ) ||
+        name.contains(
+          'de-growth',
+        ) ||
+        name.contains(
+          'degrowth',
+        )) {
+      return 'Dealer year-wise growth / de-growth';
+    }
 
     if (name.contains(
           'performance',
@@ -1460,12 +1722,15 @@ class ReportsHomePage extends StatelessWidget {
             Column(
           mainAxisSize:
               MainAxisSize.min,
+
           children: [
             Container(
               width:
                   52,
+
               height:
                   52,
+
               decoration:
                   BoxDecoration(
                 color:
@@ -1473,15 +1738,19 @@ class ReportsHomePage extends StatelessWidget {
                         .withOpacity(
                   .06,
                 ),
+
                 shape:
                     BoxShape.circle,
               ),
+
               child:
                   const Icon(
                 Icons
                     .error_outline_rounded,
+
                 color:
                     Colors.redAccent,
+
                 size:
                     25,
               ),
@@ -1494,12 +1763,15 @@ class ReportsHomePage extends StatelessWidget {
 
             const Text(
               'Unable to load reports',
+
               style:
                   TextStyle(
                 color:
                     _text,
+
                 fontSize:
                     12,
+
                 fontWeight:
                     FontWeight.w800,
               ),
@@ -1512,12 +1784,15 @@ class ReportsHomePage extends StatelessWidget {
 
             const Text(
               'Please check your connection and try again.',
+
               textAlign:
                   TextAlign.center,
+
               style:
                   TextStyle(
                 color:
                     _secondaryText,
+
                 fontSize:
                     7.5,
               ),
@@ -1536,36 +1811,45 @@ class ReportsHomePage extends StatelessWidget {
                   context,
                 );
               },
+
               icon:
                   const Icon(
                 Icons.refresh_rounded,
+
                 size:
                     14,
               ),
+
               label:
                   const Text(
                 'Retry',
               ),
+
               style:
                   OutlinedButton.styleFrom(
                 foregroundColor:
                     _primary,
+
                 side:
                     const BorderSide(
                   color:
                       _primary,
                 ),
+
                 padding:
                     const EdgeInsets.symmetric(
                   horizontal:
                       14,
+
                   vertical:
                       8,
                 ),
+
                 textStyle:
                     const TextStyle(
                   fontSize:
                       8.5,
+
                   fontWeight:
                       FontWeight.w700,
                 ),
@@ -1582,7 +1866,8 @@ class ReportsHomePage extends StatelessWidget {
 // EMPTY
 // ============================================================
 
-class _EmptyReports extends StatelessWidget {
+class _EmptyReports
+    extends StatelessWidget {
   const _EmptyReports();
 
   @override
@@ -1601,28 +1886,35 @@ class _EmptyReports extends StatelessWidget {
             Column(
           mainAxisSize:
               MainAxisSize.min,
+
           children: [
             Container(
               width:
                   58,
+
               height:
                   58,
+
               decoration:
                   const BoxDecoration(
                 color:
                     Color(
                   0xFFEAF5EF,
                 ),
+
                 shape:
                     BoxShape.circle,
               ),
+
               child:
                   const Icon(
                 Icons
                     .dashboard_customize_outlined,
+
                 color:
                     ReportsHomePage
                         ._primary,
+
                 size:
                     28,
               ),
@@ -1635,13 +1927,16 @@ class _EmptyReports extends StatelessWidget {
 
             const Text(
               'No Reports Available',
+
               style:
                   TextStyle(
                 color:
                     ReportsHomePage
                         ._text,
+
                 fontSize:
                     12,
+
                 fontWeight:
                     FontWeight.w800,
               ),
@@ -1654,13 +1949,16 @@ class _EmptyReports extends StatelessWidget {
 
             const Text(
               'No report menus are assigned to your account.',
+
               textAlign:
                   TextAlign.center,
+
               style:
                   TextStyle(
                 color:
                     ReportsHomePage
                         ._secondaryText,
+
                 fontSize:
                     7.5,
               ),

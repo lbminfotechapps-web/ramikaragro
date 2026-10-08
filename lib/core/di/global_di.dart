@@ -1,3 +1,4 @@
+import 'package:solufine/core/di/growth_report_di.dart';
 import 'package:solufine/core/di/quick_referance_di.dart'
     show initQuickReferenceDi;
 import 'package:solufine/core/di/auth_di.dart';
@@ -81,4 +82,5 @@ Future<void> initGlobalDi() async {
   // await initLocationTrackingDi();
   await initSelfTargetDi();
   await initMonthlyPerformanceDi();
+  await initGrowthReportDi();
 }

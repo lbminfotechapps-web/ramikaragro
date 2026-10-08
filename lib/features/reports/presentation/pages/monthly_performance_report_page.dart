@@ -2643,7 +2643,6 @@ class _MonthlyPerformanceReportPageState
     );
   }
 
-
   // ============================================================
   // EXPENSE PERFORMANCE
   // ============================================================
@@ -2654,9 +2653,7 @@ class _MonthlyPerformanceReportPageState
     }
 
     if (state.expenseStatus == ExpensePerformanceStatus.failure) {
-      return _errorCard(
-        state.expenseError ?? 'Unable to load expense report',
-      );
+      return _errorCard(state.expenseError ?? 'Unable to load expense report');
     }
 
     if (state.expenseReport == null) {
@@ -2685,8 +2682,7 @@ class _MonthlyPerformanceReportPageState
 
           const SizedBox(height: 7),
 
-         // _expenseTotalCard(report),
-
+          // _expenseTotalCard(report),
           const SizedBox(height: 8),
 
           LayoutBuilder(
@@ -2695,15 +2691,9 @@ class _MonthlyPerformanceReportPageState
                 return Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Expanded(
-                      flex: 5,
-                      child: _expenseChartPanel(report),
-                    ),
+                    Expanded(flex: 5, child: _expenseChartPanel(report)),
                     const SizedBox(width: 8),
-                    Expanded(
-                      flex: 6,
-                      child: _expenseTable(report),
-                    ),
+                    Expanded(flex: 6, child: _expenseTable(report)),
                   ],
                 );
               }
@@ -2720,7 +2710,7 @@ class _MonthlyPerformanceReportPageState
 
           const SizedBox(height: 8),
 
-        //  _expenseSummaryStrip(report),
+          //  _expenseSummaryStrip(report),
         ],
       ),
     );
@@ -2729,23 +2719,15 @@ class _MonthlyPerformanceReportPageState
   Widget _expenseTotalCard(ExpensePerformance report) {
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.symmetric(
-        horizontal: 10,
-        vertical: 8,
-      ),
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
       decoration: BoxDecoration(
         gradient: const LinearGradient(
-          colors: [
-            Color(0xFFFFF9EF),
-            Color(0xFFFFFCF7),
-          ],
+          colors: [Color(0xFFFFF9EF), Color(0xFFFFFCF7)],
           begin: Alignment.centerLeft,
           end: Alignment.centerRight,
         ),
         borderRadius: BorderRadius.circular(11),
-        border: Border.all(
-          color: const Color(0xFFF1E4CC),
-        ),
+        border: Border.all(color: const Color(0xFFF1E4CC)),
       ),
       child: Row(
         children: [
@@ -2899,30 +2881,25 @@ class _MonthlyPerformanceReportPageState
                     centerSpaceRadius: 41,
                     sectionsSpace: 2,
                     startDegreeOffset: -90,
-                    sections: List.generate(
-                      data.length,
-                      (index) {
-                        final ExpensePerformanceItem item = data[index];
+                    sections: List.generate(data.length, (index) {
+                      final ExpensePerformanceItem item = data[index];
 
-                        final double share = totalAmount <= 0
-                            ? 0
-                            : (item.amount / totalAmount) * 100;
+                      final double share = totalAmount <= 0
+                          ? 0
+                          : (item.amount / totalAmount) * 100;
 
-                        return PieChartSectionData(
-                          value: item.amount,
-                          color: _expenseColor(index),
-                          radius: 42,
-                          title: share >= 8
-                              ? '${share.toStringAsFixed(0)}%'
-                              : '',
-                          titleStyle: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 8,
-                            fontWeight: FontWeight.w800,
-                          ),
-                        );
-                      },
-                    ),
+                      return PieChartSectionData(
+                        value: item.amount,
+                        color: _expenseColor(index),
+                        radius: 42,
+                        title: share >= 8 ? '${share.toStringAsFixed(0)}%' : '',
+                        titleStyle: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 8,
+                          fontWeight: FontWeight.w800,
+                        ),
+                      );
+                    }),
                   ),
                 ),
 
@@ -3023,10 +3000,7 @@ class _MonthlyPerformanceReportPageState
         header: _expenseHeader(),
         rows: List.generate(
           report.expenses.length,
-          (index) => _expenseRow(
-            report.expenses[index],
-            index,
-          ),
+          (index) => _expenseRow(report.expenses[index], index),
         ),
         total: _expenseTotalRow(report),
       ),
@@ -3039,45 +3013,22 @@ class _MonthlyPerformanceReportPageState
       color: const Color(0xFFF1F5F8),
       child: Row(
         children: [
-          _headerCell(
-            'EXPENSE PARAMETER',
-            _expenseParameterWidth,
-          ),
-          _headerCell(
-            'AMOUNT',
-            _expenseAmountWidth,
-            center: true,
-          ),
-          _headerCell(
-            'ENTRIES',
-            _expenseEntryWidth,
-            center: true,
-          ),
-          _headerCell(
-            'SHARE',
-            _expenseShareWidth,
-            center: true,
-          ),
+          _headerCell('EXPENSE PARAMETER', _expenseParameterWidth),
+          _headerCell('AMOUNT', _expenseAmountWidth, center: true),
+          _headerCell('ENTRIES', _expenseEntryWidth, center: true),
+          _headerCell('SHARE', _expenseShareWidth, center: true),
         ],
       ),
     );
   }
 
-  Widget _expenseRow(
-    ExpensePerformanceItem item,
-    int index,
-  ) {
+  Widget _expenseRow(ExpensePerformanceItem item, int index) {
     return Container(
       height: 34 * MediaQuery.textScalerOf(context).scale(1),
       decoration: BoxDecoration(
-        color: index.isEven
-            ? Colors.white
-            : const Color(0xFFFAFBFC),
+        color: index.isEven ? Colors.white : const Color(0xFFFAFBFC),
         border: const Border(
-          bottom: BorderSide(
-            color: Color(0xFFF0F2F4),
-            width: .6,
-          ),
+          bottom: BorderSide(color: Color(0xFFF0F2F4), width: .6),
         ),
       ),
       child: Row(
@@ -3093,40 +3044,24 @@ class _MonthlyPerformanceReportPageState
             _expenseAmountWidth,
             center: true,
             bold: item.amount > 0,
-            valueColor:
-                item.amount > 0
-                    ? _orange
-                    : _secondaryText,
+            valueColor: item.amount > 0 ? _orange : _secondaryText,
           ),
 
-          _bodyCell(
-            '${item.entryCount}',
-            _expenseEntryWidth,
-            center: true,
-          ),
+          _bodyCell('${item.entryCount}', _expenseEntryWidth, center: true),
 
-          _percentageCell(
-            item.sharePercent,
-            _expenseShareWidth,
-          ),
+          _percentageCell(item.sharePercent, _expenseShareWidth),
         ],
       ),
     );
   }
 
-  Widget _expenseTotalRow(
-    ExpensePerformance report,
-  ) {
+  Widget _expenseTotalRow(ExpensePerformance report) {
     return Container(
       height: 34 * MediaQuery.textScalerOf(context).scale(1),
       color: const Color(0xFFFFF5E8),
       child: Row(
         children: [
-          _bodyCell(
-            'TOTAL',
-            _expenseParameterWidth,
-            bold: true,
-          ),
+          _bodyCell('TOTAL', _expenseParameterWidth, bold: true),
 
           _bodyCell(
             '₹${_number(report.totalExpense)}',
@@ -3154,8 +3089,6 @@ class _MonthlyPerformanceReportPageState
     );
   }
 
- 
-
   Widget _expenseSummaryItem({
     required String title,
     required String value,
@@ -3168,9 +3101,7 @@ class _MonthlyPerformanceReportPageState
       decoration: BoxDecoration(
         color: color.withOpacity(.05),
         borderRadius: BorderRadius.circular(9),
-        border: Border.all(
-          color: color.withOpacity(.10),
-        ),
+        border: Border.all(color: color.withOpacity(.10)),
       ),
       child: Row(
         children: [
@@ -3181,11 +3112,7 @@ class _MonthlyPerformanceReportPageState
               color: color.withOpacity(.10),
               borderRadius: BorderRadius.circular(7),
             ),
-            child: Icon(
-              icon,
-              color: color,
-              size: 13,
-            ),
+            child: Icon(icon, color: color, size: 13),
           ),
 
           const SizedBox(width: 5),
@@ -3279,8 +3206,10 @@ class _MonthlyPerformanceReportPageState
     bool hourly = false,
   }) {
     if (labels.isEmpty) return _emptyChart();
-    final visitMax =
-        _visitMax(values.first.reduce((a, b) => a > b ? a : b).ceil()) * 1.2;
+    final visitPeak = values.first.reduce((a, b) => a > b ? a : b);
+    final visitMax = ((visitPeak * 1.2 / 5).ceil().clamp(1, 1000000000) * 5)
+        .toDouble();
+    const visitInterval = 5.0;
     final amountMax =
         _amountMax(
           values.skip(1).expand((e) => e).reduce((a, b) => a > b ? a : b),
@@ -3292,74 +3221,117 @@ class _MonthlyPerformanceReportPageState
       pointCount: labels.length,
       pointWidth: hourly ? 72 : 42,
       axisHint: 'Left: visits  •  Right: amount (₹)',
-      child: LineChart(
-        LineChartData(
-          minX: -.5,
-          maxX: labels.length - .5,
-          minY: 0,
-          maxY: visitMax,
-          titlesData: _readableChartAxes(
-            labels,
-            visitMax,
-            amountMax: amountMax,
-          ),
-          gridData: _chartGrid(visitMax),
-          borderData: FlBorderData(show: false),
-          lineTouchData: LineTouchData(
-            touchTooltipData: LineTouchTooltipData(
-              fitInsideHorizontally: true,
-              fitInsideVertically: true,
-              getTooltipItems: (spots) => spots.map((spot) {
-                final index = spot.x.round();
-                final series = spot.barIndex;
-                final value = values[series][index];
-                return LineTooltipItem(
-                  '${labels[index]} · ${_seriesNames[series]}\n${series == 0 ? value.toInt().toString() : '₹${_number(value)}'}',
-                  TextStyle(
-                    color: _seriesColors[series],
-                    fontSize: 12,
-                    fontWeight: FontWeight.w700,
+      child: Stack(
+        fit: StackFit.expand,
+        children: [
+          if (!hourly)
+            IgnorePointer(
+              child: BarChart(
+                BarChartData(
+                  minY: 0,
+                  maxY: visitMax,
+                  alignment: BarChartAlignment.spaceAround,
+                  titlesData: _readableChartAxes(
+                    labels,
+                    visitMax,
+                    amountMax: amountMax,
+                    interval: visitInterval,
+                    hideLabels: true,
                   ),
-                );
-              }).toList(),
-            ),
-          ),
-          lineBarsData: List.generate(
-            values.length,
-            (series) => LineChartBarData(
-              spots: List.generate(
-                labels.length,
-                (i) => FlSpot(
-                  i.toDouble(),
-                  series == 0
-                      ? values[series][i]
-                      : _normalizeAmount(
-                          values[series][i],
-                          amountMax,
-                          visitMax,
+                  gridData: const FlGridData(show: false),
+                  borderData: FlBorderData(show: false),
+                  barTouchData: BarTouchData(enabled: false),
+                  barGroups: List.generate(
+                    labels.length,
+                    (i) => BarChartGroupData(
+                      x: i,
+                      barRods: [
+                        BarChartRodData(
+                          toY: values.first[i],
+                          width: 16,
+                          color: _blue,
+                          borderRadius: BorderRadius.zero,
                         ),
+                      ],
+                    ),
+                  ),
                 ),
               ),
-              isCurved: false,
-              color: _seriesColors[series],
-              barWidth: series == 0 ? 3 : 2.5,
-              isStrokeCapRound: true,
-              belowBarData: BarAreaData(
-                show: series == 0,
-                color: _blue.withValues(alpha: .06),
+            ),
+          LineChart(
+            LineChartData(
+              minX: -.5,
+              maxX: labels.length - .5,
+              minY: 0,
+              maxY: visitMax,
+              titlesData: _readableChartAxes(
+                labels,
+                visitMax,
+                amountMax: amountMax,
+                interval: visitInterval,
               ),
-              dotData: FlDotData(
-                getDotPainter: (spot, percent, bar, index) =>
-                    FlDotCirclePainter(
-                      radius: 3,
-                      color: _seriesColors[series],
-                      strokeWidth: 1.5,
-                      strokeColor: Colors.white,
+              gridData: _chartGrid(visitMax, interval: visitInterval),
+              borderData: FlBorderData(show: false),
+              lineTouchData: LineTouchData(
+                touchTooltipData: LineTouchTooltipData(
+                  fitInsideHorizontally: true,
+                  fitInsideVertically: true,
+                  getTooltipItems: (spots) => spots.map((spot) {
+                    final index = spot.x.round();
+                    final series = spot.barIndex;
+                    final value = values[series][index];
+                    return LineTooltipItem(
+                      '${labels[index]} · ${_seriesNames[series]}\n${series == 0 ? value.toInt().toString() : '₹${_number(value)}'}',
+                      TextStyle(
+                        color: _seriesColors[series],
+                        fontSize: 12,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    );
+                  }).toList(),
+                ),
+              ),
+              lineBarsData: List.generate(
+                values.length,
+                (series) => LineChartBarData(
+                  spots: List.generate(
+                    labels.length,
+                    (i) => FlSpot(
+                      i.toDouble(),
+                      series == 0
+                          ? values[series][i]
+                          : _normalizeAmount(
+                              values[series][i],
+                              amountMax,
+                              visitMax,
+                            ),
                     ),
+                  ),
+                  isCurved: false,
+                  color: series == 0 && !hourly
+                      ? Colors.transparent
+                      : _seriesColors[series],
+                  barWidth: series == 0 ? 3 : 2.5,
+                  isStrokeCapRound: true,
+                  belowBarData: BarAreaData(
+                    show: series == 0 && hourly,
+                    color: _blue.withValues(alpha: .06),
+                  ),
+                  dotData: FlDotData(
+                    show: series != 0 || hourly,
+                    getDotPainter: (spot, percent, bar, index) =>
+                        FlDotCirclePainter(
+                          radius: 3,
+                          color: _seriesColors[series],
+                          strokeWidth: 1.5,
+                          strokeColor: Colors.white,
+                        ),
+                  ),
+                ),
               ),
             ),
           ),
-        ),
+        ],
       ),
     );
   }
@@ -3453,9 +3425,9 @@ class _MonthlyPerformanceReportPageState
     );
   }
 
-  FlGridData _chartGrid(double maxY) => FlGridData(
+  FlGridData _chartGrid(double maxY, {double? interval}) => FlGridData(
     drawVerticalLine: false,
-    horizontalInterval: maxY / 4,
+    horizontalInterval: interval ?? maxY / 4,
     getDrawingHorizontalLine: (value) => const FlLine(
       color: Color(0xFFE3E9F2),
       strokeWidth: 1,
@@ -3468,33 +3440,37 @@ class _MonthlyPerformanceReportPageState
     double maxY, {
     double? amountMax,
     bool money = false,
+    double? interval,
+    bool hideLabels = false,
   }) {
     final textScale = MediaQuery.textScalerOf(context).scale(1);
-    Widget tick(String text, TitleMeta meta) => SideTitleWidget(
-      meta: meta,
-      space: 5,
-      fitInside: SideTitleFitInsideData.fromTitleMeta(
-        meta,
-        distanceFromEdge: 4,
-      ),
-      child: Text(
-        text,
-        maxLines: 1,
-        style: const TextStyle(
-          fontSize: 11,
-          height: 1.2,
-          fontWeight: FontWeight.w600,
-          color: Color(0xFF526174),
-        ),
-      ),
-    );
+    Widget tick(String text, TitleMeta meta) => hideLabels
+        ? const SizedBox.shrink()
+        : SideTitleWidget(
+            meta: meta,
+            space: 5,
+            fitInside: SideTitleFitInsideData.fromTitleMeta(
+              meta,
+              distanceFromEdge: 4,
+            ),
+            child: Text(
+              text,
+              maxLines: 1,
+              style: const TextStyle(
+                fontSize: 11,
+                height: 1.2,
+                fontWeight: FontWeight.w600,
+                color: Color(0xFF526174),
+              ),
+            ),
+          );
     return FlTitlesData(
       topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
       leftTitles: AxisTitles(
         sideTitles: SideTitles(
           showTitles: true,
           reservedSize: (money ? 62 : 40) * textScale,
-          interval: maxY / 4,
+          interval: interval ?? maxY / 4,
           minIncluded: true,
           maxIncluded: true,
           getTitlesWidget: (value, meta) =>
@@ -3505,7 +3481,7 @@ class _MonthlyPerformanceReportPageState
         sideTitles: SideTitles(
           showTitles: amountMax != null,
           reservedSize: 62 * textScale,
-          interval: maxY / 4,
+          interval: interval ?? maxY / 4,
           minIncluded: true,
           maxIncluded: true,
           getTitlesWidget: (value, meta) =>
@@ -3992,57 +3968,54 @@ class _MonthlyPerformanceReportPageState
     // );
 
     return SizedBox(
-  width: width,
-  child: Tooltip(
-    message: '${_number(amount)} / $count',
-    child: Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 3),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Flexible(
-            child: Text(
-              _number(amount),
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: TextStyle(
-                color: amount > 0 ? color : _secondaryText,
-                fontSize: 10.5,
-                fontWeight: FontWeight.w700,
+      width: width,
+      child: Tooltip(
+        message: '${_number(amount)} / $count',
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 3),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Flexible(
+                child: Text(
+                  _number(amount),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    color: amount > 0 ? color : _secondaryText,
+                    fontSize: 10.5,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
               ),
-            ),
+
+              const SizedBox(width: 3),
+
+              const Text(
+                '/',
+                style: TextStyle(
+                  color: _secondaryText,
+                  fontSize: 10,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+
+              const SizedBox(width: 3),
+
+              Text(
+                '$count',
+                maxLines: 1,
+                style: const TextStyle(
+                  color: _secondaryText,
+                  fontSize: 9.5,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ],
           ),
-
-          const SizedBox(width: 3),
-
-          const Text(
-            '/',
-            style: TextStyle(
-              color: _secondaryText,
-              fontSize: 10,
-              fontWeight: FontWeight.w600,
-            ),
-          ),
-
-          const SizedBox(width: 3),
-
-          Text(
-            '$count',
-            maxLines: 1,
-            style: const TextStyle(
-              color: _secondaryText,
-              fontSize: 9.5,
-              fontWeight: FontWeight.w600,
-            ),
-          ),
-        ],
+        ),
       ),
-    ),
-  ),
-);
-
-
-
+    );
   }
 
   Widget _percentageCell(double value, double width) {
@@ -4436,7 +4409,10 @@ class _MonthlyPerformanceReportPageState
         )
         .toList();
     final peak = values.expand((e) => e).reduce((a, b) => a > b ? a : b);
-    final maxY = (amount ? _amountMax(peak) : _visitMax(peak.ceil())) * 1.2;
+    final maxY = amount
+        ? ((peak * 1.2 / 10000).ceil().clamp(1, 1000000000) * 10000).toDouble()
+        : _visitMax(peak.ceil()) * 1.2;
+    final interval = amount ? 10000.0 : maxY / 4;
     final colors = amount ? [_red, _dispatchColor, _collectionColor] : [_blue];
     final names = amount ? ['Orders', 'Dispatch', 'Collection'] : ['Visits'];
     return _chartSurface(
@@ -4450,9 +4426,14 @@ class _MonthlyPerformanceReportPageState
           minY: 0,
           maxY: maxY,
           alignment: BarChartAlignment.spaceAround,
-          gridData: _chartGrid(maxY),
+          gridData: _chartGrid(maxY, interval: interval),
           borderData: FlBorderData(show: false),
-          titlesData: _readableChartAxes(labels, maxY, money: amount),
+          titlesData: _readableChartAxes(
+            labels,
+            maxY,
+            money: amount,
+            interval: interval,
+          ),
           barTouchData: BarTouchData(
             touchTooltipData: BarTouchTooltipData(
               fitInsideHorizontally: true,
