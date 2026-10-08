@@ -862,6 +862,14 @@ class _QuickAccessSectionState extends State<QuickAccessSection> {
       else if (menu.menuId == '88') {
       context.push('/quickReferance');
     }
+
+    else if (menu.menuId == '86') {
+      context.push('/monthlyPerformanceReport');
+    }
+
+    else if (menu.menuId == '89') {
+      context.push('/growthReport');
+    }
     
      else if (menu.menuId == '57' ||
         menu.menuId == '63' ||

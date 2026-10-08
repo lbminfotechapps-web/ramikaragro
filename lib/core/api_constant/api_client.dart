@@ -140,5 +140,6 @@ class ApiClient {
   static const String getAreaPerformance = '/getStatAreaDetails';
   static const String getTopDealers = '/getStatTopDealers';
   static const String getExpensePerformance ='/getStatExpenseDetails';
+  static const String getGrowthReport ='/getGrowthReport';
 
 }
