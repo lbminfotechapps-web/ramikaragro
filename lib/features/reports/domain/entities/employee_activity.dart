@@ -3,6 +3,7 @@ import 'package:equatable/equatable.dart';
 class EmployeeActivity extends Equatable {
   final String activityName;
   final String visitTo;
+  final String address;
   final String dailyTranId;
   final String farmerName;
   final String outletName;
@@ -16,6 +17,7 @@ class EmployeeActivity extends Equatable {
   const EmployeeActivity({
     required this.activityName,
     required this.visitTo,
+    required this.address,
     required this.dailyTranId,
     this.farmerName = '',
     this.outletName = '',
@@ -29,16 +31,17 @@ class EmployeeActivity extends Equatable {
 
   @override
   List<Object?> get props => [
-        activityName,
-        visitTo,
-        dailyTranId,
-        farmerName,
-        outletName,
-        time,
-        userId,
-        selfieImage,
-        adminName,
-        adminMobile,
-        isMaxVisited,
-      ];
+    activityName,
+    visitTo,
+    address,
+    dailyTranId,
+    farmerName,
+    outletName,
+    time,
+    userId,
+    selfieImage,
+    adminName,
+    adminMobile,
+    isMaxVisited,
+  ];
 }

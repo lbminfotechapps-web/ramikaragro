@@ -232,6 +232,15 @@ class ActivityTimelineItem extends StatelessWidget {
                     ),
                   ],
 
+                  if (activity.address.trim().isNotEmpty) ...[
+                    const SizedBox(height: 9),
+                    _DetailRow(
+                      icon: Icons.person_outline_rounded,
+                      title: 'Address',
+                      value: activity.address.trim(),
+                    ),
+                  ],
+
                   // ==================================================
                   // FARMER
                   // ==================================================

@@ -13,46 +13,36 @@ class EmployeeActivityModel extends EmployeeActivity {
     required super.adminName,
     required super.adminMobile,
     required super.isMaxVisited,
+    required super.address,
   });
 
-  factory EmployeeActivityModel.fromJson(
-    Map<String, dynamic> json,
-  ) {
+  factory EmployeeActivityModel.fromJson(Map<String, dynamic> json) {
     return EmployeeActivityModel(
-      activityName:
-          json['fld_activity_name']?.toString() ?? '',
+      activityName: json['fld_activity_name']?.toString() ?? '',
 
-      visitTo:
-          json['fld_visit_to']?.toString() ?? '',
+      visitTo: json['fld_visit_to']?.toString() ?? '',
 
-      dailyTranId:
-          json['fld_daily_tran_id']?.toString() ?? '',
+      address: json['fld_address']?.toString() ?? '',
 
-      // null → ''
-      farmerName:
-          json['fld_farmer_name']?.toString() ?? '',
+      dailyTranId: json['fld_daily_tran_id']?.toString() ?? '',
 
       // null → ''
-      outletName:
-          json['fld_outlet_name']?.toString() ?? '',
+      farmerName: json['fld_farmer_name']?.toString() ?? '',
 
-      time:
-          json['fld_time']?.toString() ?? '',
+      // null → ''
+      outletName: json['fld_outlet_name']?.toString() ?? '',
 
-      userId:
-          json['fld_user_id']?.toString() ?? '',
+      time: json['fld_time']?.toString() ?? '',
 
-      selfieImage:
-          json['fld_selfie_image']?.toString() ?? '',
+      userId: json['fld_user_id']?.toString() ?? '',
 
-      adminName:
-          json['fld_adm_name']?.toString() ?? '',
+      selfieImage: json['fld_selfie_image']?.toString() ?? '',
 
-      adminMobile:
-          json['admin_mobile']?.toString() ?? '',
+      adminName: json['fld_adm_name']?.toString() ?? '',
 
-      isMaxVisited:
-          json['fld_is_max_visited']?.toString() ?? '0',
+      adminMobile: json['admin_mobile']?.toString() ?? '',
+
+      isMaxVisited: json['fld_is_max_visited']?.toString() ?? '0',
     );
   }
 }
