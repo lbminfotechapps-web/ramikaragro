@@ -866,17 +866,10 @@ class _QuickAccessSectionState extends State<QuickAccessSection> {
       context.push('/selfAssignTargetPointWise');
     } else if (menu.menuId == '88') {
       context.push('/quickReferance');
-    }
-
-    else if (menu.menuId == '86') {
+    } else if (menu.menuId == '86') {
       context.push('/monthlyPerformanceReport');
-    }
-
-    else if (menu.menuId == '89') {
+    } else if (menu.menuId == '89') {
       context.push('/growthReport');
-    }
-    
-     else if (menu.menuId == '57' ||
     } else if (menu.menuId == '57' ||
         menu.menuId == '63' ||
         menu.menuId == '32') {
