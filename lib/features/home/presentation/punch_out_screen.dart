@@ -30,10 +30,7 @@ import 'package:solufine/features/home/presentation/quick_aceess_bloc/quick_aces
 class PunchOutScreen extends StatefulWidget {
   final PunchStatEntity? punchStat;
 
-  const PunchOutScreen(
-    this.punchStat, {
-    super.key,
-  });
+  const PunchOutScreen(this.punchStat, {super.key});
 
   @override
   State<PunchOutScreen> createState() => _PunchOutScreenState();
@@ -44,20 +41,15 @@ class _PunchOutScreenState extends State<PunchOutScreen> {
 
   File? _uploadedImage;
 
-  final TextEditingController openingKmController =
-      TextEditingController();
+  final TextEditingController openingKmController = TextEditingController();
 
-  final TextEditingController closingKmController =
-      TextEditingController();
+  final TextEditingController closingKmController = TextEditingController();
 
-  final TextEditingController routeController =
-      TextEditingController();
+  final TextEditingController routeController = TextEditingController();
 
-  final TextEditingController remarkController =
-      TextEditingController();
+  final TextEditingController remarkController = TextEditingController();
 
-  final TextEditingController vehicleController =
-      TextEditingController();
+  final TextEditingController vehicleController = TextEditingController();
 
   String? userId;
 
@@ -79,8 +71,7 @@ class _PunchOutScreenState extends State<PunchOutScreen> {
 
     getUserId();
 
-    openingKmController.text =
-        widget.punchStat?.startingKm?.trim() ?? '';
+    openingKmController.text = widget.punchStat?.startingKm?.trim() ?? '';
 
     _loadVehicleTypes();
   }
@@ -91,29 +82,21 @@ class _PunchOutScreenState extends State<PunchOutScreen> {
 
   Future<void> getUserId() async {
     try {
-      final userData =
-          await SecureStorage.instance.getUserData();
+      final userData = await SecureStorage.instance.getUserData();
 
-      debugPrint(
-        'USER DATA: $userData',
-      );
+      debugPrint('USER DATA: $userData');
 
       if (!mounted) {
         return;
       }
 
       setState(() {
-        userId =
-            userData?['user_id']?.toString();
+        userId = userData?['user_id']?.toString();
       });
 
-      debugPrint(
-        'LOGGED IN USER ID: $userId',
-      );
+      debugPrint('LOGGED IN USER ID: $userId');
     } catch (e) {
-      debugPrint(
-        'GET USER DATA ERROR: $e',
-      );
+      debugPrint('GET USER DATA ERROR: $e');
 
       if (!mounted) {
         return;
@@ -131,42 +114,26 @@ class _PunchOutScreenState extends State<PunchOutScreen> {
 
   Future<String> _getStoredLocations() async {
     try {
-      final int? parsedUserId =
-          int.tryParse(
-        userId.toString(),
-      );
+      final int? parsedUserId = int.tryParse(userId.toString());
 
       if (parsedUserId == null) {
-        debugPrint(
-          'LOCATION: Invalid userId = $userId',
-        );
+        debugPrint('LOCATION: Invalid userId = $userId');
 
         throw StateError('Invalid user ID for stored locations');
       }
 
-      final LocationRepository repository =
-          sl<LocationRepository>();
+      final LocationRepository repository = sl<LocationRepository>();
 
-      final List<LocationHistoryData> locations =
-          await repository.getAllLocations(
-        parsedUserId,
-      );
+      final List<LocationHistoryData> locations = await repository
+          .getAllLocations(parsedUserId);
 
-      debugPrint(
-        '========================================',
-      );
+      debugPrint('========================================');
 
-      debugPrint(
-        'DEALER VISIT - STORED LOCATIONS',
-      );
+      debugPrint('DEALER VISIT - STORED LOCATIONS');
 
-      debugPrint(
-        'TOTAL LOCATIONS: ${locations.length}',
-      );
+      debugPrint('TOTAL LOCATIONS: ${locations.length}');
 
-      debugPrint(
-        '========================================',
-      );
+      debugPrint('========================================');
 
       for (final location in locations) {
         debugPrint(
@@ -181,80 +148,47 @@ class _PunchOutScreenState extends State<PunchOutScreen> {
         );
       }
 
-      final List<Map<String, dynamic>> locationList =
-          locations.map(
-        (location) {
-          return {
-            'latitude':
-                location.latitude,
+      final List<Map<String, dynamic>> locationList = locations.map((location) {
+        return {
+          'latitude': location.latitude,
 
-            'longitude':
-                location.longitude,
+          'longitude': location.longitude,
 
-            'time':
-                location.capturedAt,
+          'time': location.capturedAt,
 
-            'accuracy':
-                location.accuracy,
+          'accuracy': location.accuracy,
 
-            'provider':
-                location.provider,
+          'provider': location.provider,
 
-            'address':
-                location.geoAddress,
+          'address': location.geoAddress,
 
-            'distance':
-                location.distance,
-          };
-        },
-      ).toList();
+          'distance': location.distance,
+        };
+      }).toList();
 
-      final String strAllLocations =
-          jsonEncode(
-        locationList,
-      );
+      final String strAllLocations = jsonEncode(locationList);
 
-      debugPrint(
-        '========================================',
-      );
+      debugPrint('========================================');
 
-      debugPrint(
-        'STR ALL LOCATIONS',
-      );
+      debugPrint('STR ALL LOCATIONS');
 
-      debugPrint(
-        'TOTAL: ${locations.length}',
-      );
+      debugPrint('TOTAL: ${locations.length}');
 
-      debugPrint(
-        strAllLocations,
-      );
+      debugPrint(strAllLocations);
 
-      debugPrint(
-        '========================================',
-      );
+      debugPrint('========================================');
 
       return strAllLocations;
     } catch (e, stackTrace) {
-      debugPrint(
-        '========================================',
-      );
+      debugPrint('========================================');
 
-      debugPrint(
-        'GET STORED LOCATIONS ERROR',
-      );
+      debugPrint('GET STORED LOCATIONS ERROR');
 
-      debugPrint(
-        '$e',
-      );
+      debugPrint('$e');
 
-      debugPrint(
-        '$stackTrace',
-      );
+      debugPrint('$stackTrace');
 
-      debugPrint(
-        '========================================',
-      );
+      debugPrint('========================================');
 
       rethrow;
     }
@@ -265,43 +199,30 @@ class _PunchOutScreenState extends State<PunchOutScreen> {
   // ===========================================================================
 
   Future<void> _loadVehicleTypes() async {
-    final userData =
-        await SecureStorage.instance.getUserData();
+    final userData = await SecureStorage.instance.getUserData();
 
-    final userId = int.tryParse(
-      userData?['user_id']?.toString() ?? '',
-    );
+    final userId = int.tryParse(userData?['user_id']?.toString() ?? '');
 
     if (!mounted || userId == null) {
       return;
     }
 
     context.read<QuickAcessBloc>().add(
-          VehicleTypeEvent(
-            userId,
-            DateFormat(
-              'yyyy-MM-dd',
-            ).format(
-              DateTime.now(),
-            ),
-          ),
-        );
+      VehicleTypeEvent(userId, DateFormat('yyyy-MM-dd').format(DateTime.now())),
+    );
   }
 
   // ===========================================================================
   // MATCH VEHICLE
   // ===========================================================================
 
-  VehicleTypeEntity? _getMatchedVehicle(
-    QuickAccessState state,
-  ) {
+  VehicleTypeEntity? _getMatchedVehicle(QuickAccessState state) {
     try {
       return state.vehicleList.firstWhere(
         (vehicle) =>
             vehicle.vehicleTypeId.isNotEmpty &&
             vehicle.vehicleTypeId != '0' &&
-            vehicle.vehicleTypeId ==
-                vehicle.vehicleTypeIdValue,
+            vehicle.vehicleTypeId == vehicle.vehicleTypeIdValue,
       );
     } catch (_) {
       return null;
@@ -312,13 +233,8 @@ class _PunchOutScreenState extends State<PunchOutScreen> {
   // SET VEHICLE + ROUTE
   // ===========================================================================
 
-  void _setMatchedVehicleAndRoute(
-    QuickAccessState state,
-  ) {
-    final vehicle =
-        _getMatchedVehicle(
-      state,
-    );
+  void _setMatchedVehicleAndRoute(QuickAccessState state) {
+    final vehicle = _getMatchedVehicle(state);
 
     if (vehicle == null) {
       return;
@@ -329,24 +245,16 @@ class _PunchOutScreenState extends State<PunchOutScreen> {
     }
 
     setState(() {
-      vehicleController.text =
-          vehicle.vehicleType;
+      vehicleController.text = vehicle.vehicleType;
 
-      routeController.text =
-          vehicle.todaysRoute;
+      routeController.text = vehicle.todaysRoute;
     });
 
-    debugPrint(
-      'Matched Vehicle: ${vehicle.vehicleType}',
-    );
+    debugPrint('Matched Vehicle: ${vehicle.vehicleType}');
 
-    debugPrint(
-      'Matched Vehicle ID: ${vehicle.vehicleTypeId}',
-    );
+    debugPrint('Matched Vehicle ID: ${vehicle.vehicleTypeId}');
 
-    debugPrint(
-      'Matched Route: ${vehicle.todaysRoute}',
-    );
+    debugPrint('Matched Route: ${vehicle.todaysRoute}');
   }
 
   // ===========================================================================
@@ -385,125 +293,101 @@ class _PunchOutScreenState extends State<PunchOutScreen> {
   // }
 
   Future<void> _captureImage() async {
-  try {
-    // ============================================================
-    // 1. CAPTURE ORIGINAL IMAGE
-    // ============================================================
+    try {
+      // ============================================================
+      // 1. CAPTURE ORIGINAL IMAGE
+      // ============================================================
 
-    final File? originalImage =
-        await AppImagePicker.instance.pickFromCamera();
+      final File? originalImage = await AppImagePicker.instance
+          .pickFromCamera();
 
-    if (originalImage == null) {
-      return;
-    }
+      if (originalImage == null) {
+        return;
+      }
 
-    if (!await originalImage.exists()) {
-      debugPrint(
-        'ORIGINAL IMAGE NOT FOUND',
-      );
+      if (!await originalImage.exists()) {
+        debugPrint('ORIGINAL IMAGE NOT FOUND');
 
-      return;
-    }
+        return;
+      }
 
-    // ============================================================
-    // 2. ORIGINAL IMAGE SIZE
-    // ============================================================
+      // ============================================================
+      // 2. ORIGINAL IMAGE SIZE
+      // ============================================================
 
-    final int originalSize =
-        await originalImage.length();
+      final int originalSize = await originalImage.length();
 
-    debugPrint(
-      '========================================',
-    );
+      debugPrint('========================================');
 
-    debugPrint(
-      'ORIGINAL IMAGE PATH: ${originalImage.path}',
-    );
-
-    debugPrint(
-      'ORIGINAL IMAGE SIZE: '
-      '${(originalSize / 1024).toStringAsFixed(2)} KB',
-    );
-
-    // ============================================================
-    // 3. COMPRESS IMAGE
-    // ============================================================
-
-    final File? compressedImage =
-        await ImageCompression.compressImage(
-      originalImage,
-      maxWidth: 450,
-      maxHeight: 450,
-      quality: 45,
-    );
-
-    // ============================================================
-    // 4. USE COMPRESSED IMAGE
-    // ============================================================
-
-    File finalImage = originalImage;
-
-    if (compressedImage != null &&
-        await compressedImage.exists()) {
-      finalImage = compressedImage;
-
-      final compressedSize =
-          await compressedImage.length();
+      debugPrint('ORIGINAL IMAGE PATH: ${originalImage.path}');
 
       debugPrint(
-        'COMPRESSED IMAGE PATH: '
-        '${compressedImage.path}',
+        'ORIGINAL IMAGE SIZE: '
+        '${(originalSize / 1024).toStringAsFixed(2)} KB',
       );
 
-      debugPrint(
-        'COMPRESSED IMAGE SIZE: '
-        '${(compressedSize / 1024).toStringAsFixed(2)} KB',
+      // ============================================================
+      // 3. COMPRESS IMAGE
+      // ============================================================
+
+      final File? compressedImage = await ImageCompression.compressImage(
+        originalImage,
+        maxWidth: 450,
+        maxHeight: 450,
+        quality: 45,
       );
-    } else {
-      debugPrint(
-        'COMPRESSION FAILED - USING ORIGINAL IMAGE',
-      );
+
+      // ============================================================
+      // 4. USE COMPRESSED IMAGE
+      // ============================================================
+
+      File finalImage = originalImage;
+
+      if (compressedImage != null && await compressedImage.exists()) {
+        finalImage = compressedImage;
+
+        final compressedSize = await compressedImage.length();
+
+        debugPrint(
+          'COMPRESSED IMAGE PATH: '
+          '${compressedImage.path}',
+        );
+
+        debugPrint(
+          'COMPRESSED IMAGE SIZE: '
+          '${(compressedSize / 1024).toStringAsFixed(2)} KB',
+        );
+      } else {
+        debugPrint('COMPRESSION FAILED - USING ORIGINAL IMAGE');
+      }
+
+      debugPrint('========================================');
+
+      // ============================================================
+      // 5. SAVE FINAL IMAGE
+      // ============================================================
+
+      if (!mounted) {
+        return;
+      }
+
+      setState(() {
+        _uploadedImage = finalImage;
+      });
+    } catch (e, stackTrace) {
+      debugPrint('CAPTURE IMAGE ERROR: $e');
+
+      debugPrint('$stackTrace');
+
+      if (!mounted) {
+        return;
+      }
+
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Failed to capture image')));
     }
-
-    debugPrint(
-      '========================================',
-    );
-
-    // ============================================================
-    // 5. SAVE FINAL IMAGE
-    // ============================================================
-
-    if (!mounted) {
-      return;
-    }
-
-    setState(() {
-      _uploadedImage = finalImage;
-    });
-  } catch (e, stackTrace) {
-    debugPrint(
-      'CAPTURE IMAGE ERROR: $e',
-    );
-
-    debugPrint(
-      '$stackTrace',
-    );
-
-    if (!mounted) {
-      return;
-    }
-
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text(
-          'Failed to capture image',
-        ),
-      ),
-    );
   }
-}
-
-
 
   // ===========================================================================
   // SUBMIT PUNCH
@@ -543,6 +427,7 @@ class _PunchOutScreenState extends State<PunchOutScreen> {
       },
     );
   }
+
   Future<void> _submitPunch() async {
     if (isLoading || _punchOutSaved) {
       return;
@@ -552,36 +437,25 @@ class _PunchOutScreenState extends State<PunchOutScreen> {
       return;
     }
 
-    final vehicleState =
-        context.read<QuickAcessBloc>().state;
+    final vehicleState = context.read<QuickAcessBloc>().state;
 
-    final matchedVehicle =
-        _getMatchedVehicle(
-      vehicleState,
-    );
+    final matchedVehicle = _getMatchedVehicle(vehicleState);
 
     if (matchedVehicle == null) {
       if (!mounted) {
         return;
       }
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text(
-            'Vehicle type not found',
-          ),
-        ),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Vehicle type not found')));
 
       return;
     }
 
-    final userData =
-        await SecureStorage.instance.getUserData();
+    final userData = await SecureStorage.instance.getUserData();
 
-    final userId = int.tryParse(
-      userData?['user_id']?.toString() ?? '',
-    );
+    final userId = int.tryParse(userData?['user_id']?.toString() ?? '');
 
     if (userId == null) {
       if (!mounted) {
@@ -589,11 +463,7 @@ class _PunchOutScreenState extends State<PunchOutScreen> {
       }
 
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text(
-            'User information not found',
-          ),
-        ),
+        const SnackBar(content: Text('User information not found')),
       );
 
       return;
@@ -610,22 +480,19 @@ class _PunchOutScreenState extends State<PunchOutScreen> {
       // BATTERY
       // -----------------------------------------------------------------------
 
-      final batteryInfo =
-          await DeviceInfoUtil.instance.getBatteryInfo();
+      final batteryInfo = await DeviceInfoUtil.instance.getBatteryInfo();
 
       // -----------------------------------------------------------------------
       // NETWORK
       // -----------------------------------------------------------------------
 
-      final networkInfo =
-          await DeviceInfoUtil.instance.getNetworkInfo();
+      final networkInfo = await DeviceInfoUtil.instance.getNetworkInfo();
 
       // -----------------------------------------------------------------------
       // LOCATION
       // -----------------------------------------------------------------------
 
-      final position =
-          await LocationUtil.instance.getCurrentLocation();
+      final position = await LocationUtil.instance.getCurrentLocation();
 
       String latitude = '';
 
@@ -634,14 +501,11 @@ class _PunchOutScreenState extends State<PunchOutScreen> {
       String address = '';
 
       if (position != null) {
-        latitude =
-            position.latitude.toString();
+        latitude = position.latitude.toString();
 
-        longitude =
-            position.longitude.toString();
+        longitude = position.longitude.toString();
 
-        address =
-            await LocationUtil.instance.getAddress(
+        address = await LocationUtil.instance.getAddress(
           position.latitude,
           position.longitude,
         );
@@ -658,32 +522,22 @@ class _PunchOutScreenState extends State<PunchOutScreen> {
       String? closingImageBase64;
 
       if (_uploadedImage != null) {
-        debugPrint(
-          'Closing image path: ${_uploadedImage!.path}',
-        );
+        debugPrint('Closing image path: ${_uploadedImage!.path}');
 
         if (await _uploadedImage!.exists()) {
-          final imageBytes =
-              await _uploadedImage!.readAsBytes();
+          final imageBytes = await _uploadedImage!.readAsBytes();
 
-          closingImageBase64 =
-              base64Encode(
-            imageBytes,
-          );
+          closingImageBase64 = base64Encode(imageBytes);
 
           debugPrint(
             'Closing image Base64 length: '
             '${closingImageBase64.length}',
           );
         } else {
-          debugPrint(
-            'Closing image file does not exist',
-          );
+          debugPrint('Closing image file does not exist');
         }
       } else {
-        debugPrint(
-          'Closing image: NOT SELECTED',
-        );
+        debugPrint('Closing image: NOT SELECTED');
       }
 
       // -----------------------------------------------------------------------
@@ -691,65 +545,46 @@ class _PunchOutScreenState extends State<PunchOutScreen> {
       // -----------------------------------------------------------------------
 
       context.read<QuickAcessBloc>().add(
-            PunchInOutDetailsAddEvent(
-              userId:
-                  userId,
+        PunchInOutDetailsAddEvent(
+          userId: userId,
 
-              inOutStatus:
-                  '2',
+          inOutStatus: '2',
 
-              differenceByAndroid:
-                  '0.0',
+          differenceByAndroid: '0.0',
 
-              locationHistoryString:
-                  '',
+          locationHistoryString: '',
 
-              batteryInfo:
-                  batteryInfo,
+          batteryInfo: batteryInfo,
 
-              networkInfo:
-                  networkInfo,
+          networkInfo: networkInfo,
 
-              pinRemark:
-                  remarkController.text.trim(),
+          pinRemark: remarkController.text.trim(),
 
-              startingClosingKmAmount:
-                  closingKmController.text.trim(),
+          startingClosingKmAmount: closingKmController.text.trim(),
 
-              vehicleTypeId:
-                  matchedVehicle.vehicleTypeId,
+          vehicleTypeId: matchedVehicle.vehicleTypeId,
 
-              route:
-                  routeController.text.trim(),
+          route: routeController.text.trim(),
 
-              latitude:
-                  latitude,
+          latitude: latitude,
 
-              longitude:
-                  longitude,
+          longitude: longitude,
 
-              networkLatitude:
-                  latitude,
+          networkLatitude: latitude,
 
-              networkLongitude:
-                  longitude,
+          networkLongitude: longitude,
 
-              gpsLatitude:
-                  latitude,
+          gpsLatitude: latitude,
 
-              gpsLongitude:
-                  longitude,
+          gpsLongitude: longitude,
 
-              geoAddress:
-                  address,
+          geoAddress: address,
 
-              closingKmImage:
-                  closingImageBase64,
+          closingKmImage: closingImageBase64,
 
-              activityId:
-                  '4',
-            ),
-          );
+          activityId: '4',
+        ),
+      );
     } catch (e) {
       if (!mounted) {
         return;
@@ -761,13 +596,9 @@ class _PunchOutScreenState extends State<PunchOutScreen> {
         _submissionSent = false;
       });
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            e.toString(),
-          ),
-        ),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(e.toString())));
     }
   }
 
@@ -797,45 +628,31 @@ class _PunchOutScreenState extends State<PunchOutScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor:
-          const Color(
-        0xFFF4F7F5,
-      ),
+      backgroundColor: const Color(0xFFF4F7F5),
 
       appBar: CustomAppBar(
-        title:
-            'Punch Out',
+        title: 'Punch Out',
 
-        showBackButton:
-            true,
+        showBackButton: true,
 
         onBackTap: () {
-          context.go(
-            AppRouter.home,
-          );
+          context.go(AppRouter.home);
         },
       ),
 
       body: SafeArea(
-        child: BlocConsumer<
-            QuickAcessBloc,
-            QuickAccessState>(
+        child: BlocConsumer<QuickAcessBloc, QuickAccessState>(
           // ===================================================================
           // LISTENER
           // ===================================================================
-
-          listener:
-              (context, state) async {
+          listener: (context, state) async {
             // ---------------------------------------------------------------
             // VEHICLE API SUCCESS
             // ---------------------------------------------------------------
 
-            if (state.quickAccessStatus ==
-                    QuickAccessStatus.success &&
+            if (state.quickAccessStatus == QuickAccessStatus.success &&
                 !_submissionSent) {
-              _setMatchedVehicleAndRoute(
-                state,
-              );
+              _setMatchedVehicleAndRoute(state);
             }
 
             if (!_submissionSent) {
@@ -846,7 +663,8 @@ class _PunchOutScreenState extends State<PunchOutScreen> {
             // PUNCH OUT SUCCESS
             // ---------------------------------------------------------------
 
-            if (state.quickAccessStatus == QuickAccessStatus.punchStatusSuccess &&
+            if (state.quickAccessStatus ==
+                    QuickAccessStatus.punchStatusSuccess &&
                 !_punchOutSaved) {
               _punchOutSaved = true;
               try {
@@ -856,8 +674,10 @@ class _PunchOutScreenState extends State<PunchOutScreen> {
                 await Future<void>.delayed(const Duration(milliseconds: 500));
                 if (!mounted) return;
                 final dailyTranId = state.dailyTranId;
-                if (userId == null || userId!.isEmpty ||
-                    dailyTranId == null || dailyTranId.isEmpty) {
+                if (userId == null ||
+                    userId!.isEmpty ||
+                    dailyTranId == null ||
+                    dailyTranId.isEmpty) {
                   await _finishPunchOut(locationsUploaded: false);
                   return;
                 }
@@ -881,7 +701,8 @@ class _PunchOutScreenState extends State<PunchOutScreen> {
               return;
             }
 
-            if (state.quickAccessStatus == QuickAccessStatus.locationAddedSucces &&
+            if (state.quickAccessStatus ==
+                    QuickAccessStatus.locationHistoryUploaded &&
                 _waitingForStoreLocation) {
               await _finishPunchOut(locationsUploaded: true);
               return;
@@ -889,7 +710,9 @@ class _PunchOutScreenState extends State<PunchOutScreen> {
 
             if (state.quickAccessStatus == QuickAccessStatus.failure &&
                 _punchOutSaved) {
-              debugPrint('Punch out saved, location sync failed: ${state.errorMessage}');
+              debugPrint(
+                'Punch out saved, location sync failed: ${state.errorMessage}',
+              );
               await _finishPunchOut(locationsUploaded: false);
               return;
             }
@@ -897,35 +720,25 @@ class _PunchOutScreenState extends State<PunchOutScreen> {
             // FAILURE
             // ---------------------------------------------------------------
 
-            if (state.quickAccessStatus ==
-                QuickAccessStatus.failure) {
+            if (state.quickAccessStatus == QuickAccessStatus.failure) {
               setState(() {
-                isLoading =
-                    false;
+                isLoading = false;
 
-                _submissionSent =
-                    false;
+                _submissionSent = false;
 
-                _waitingForStoreLocation =
-                    false;
+                _waitingForStoreLocation = false;
               });
 
               AppDialog.show(
-                context:
-                    context,
+                context: context,
 
-                type:
-                    DialogType.error,
+                type: DialogType.error,
 
-                title:
-                    'Punch Out Failed',
+                title: 'Punch Out Failed',
 
-                message:
-                    state.errorMessage ??
-                        'Unable to submit punch out.',
+                message: state.errorMessage ?? 'Unable to submit punch out.',
 
-                buttonText:
-                    'OK',
+                buttonText: 'OK',
               );
             }
           },
@@ -933,188 +746,120 @@ class _PunchOutScreenState extends State<PunchOutScreen> {
           // ===================================================================
           // UI
           // ===================================================================
-
-          builder:
-              (context, vehicleState) {
+          builder: (context, vehicleState) {
             final showKmFields =
                 _getMatchedVehicle(vehicleState)?.openingClosingKm != '0';
 
             return Form(
-              key:
-                  _formKey,
+              key: _formKey,
 
               child: Column(
                 children: [
                   // -----------------------------------------------------------
                   // SCROLLABLE SECTION
                   // -----------------------------------------------------------
-
                   Expanded(
-                    child:
-                        SingleChildScrollView(
-                      physics:
-                          const BouncingScrollPhysics(),
+                    child: SingleChildScrollView(
+                      physics: const BouncingScrollPhysics(),
 
                       keyboardDismissBehavior:
-                          ScrollViewKeyboardDismissBehavior
-                              .onDrag,
+                          ScrollViewKeyboardDismissBehavior.onDrag,
 
-                      padding:
-                          EdgeInsets.fromLTRB(
-                        14.w,
-                        9.h,
-                        14.w,
-                        14.h,
-                      ),
+                      padding: EdgeInsets.fromLTRB(14.w, 9.h, 14.w, 14.h),
 
-                      child:
-                          Column(
-                        crossAxisAlignment:
-                            CrossAxisAlignment.start,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
 
                         children: [
                           // ---------------------------------------------------
                           // HEADER
                           // ---------------------------------------------------
-
                           _compactHeader(),
 
-                          SizedBox(
-                            height:
-                                13.h,
-                          ),
+                          SizedBox(height: 13.h),
 
                           // ---------------------------------------------------
                           // TRIP DETAILS
                           // ---------------------------------------------------
-
                           _compactSectionHeader(
-                            icon:
-                                Icons.directions_car_filled_rounded,
+                            icon: Icons.directions_car_filled_rounded,
 
-                            title:
-                                'Trip Details',
+                            title: 'Trip Details',
 
-                            subtitle:
-                                'Review journey and enter closing KM',
+                            subtitle: 'Review journey and enter closing KM',
                           ),
 
-                          SizedBox(
-                            height:
-                                7.h,
-                          ),
+                          SizedBox(height: 7.h),
 
                           _contentCard(
-                            child:
-                                Column(
+                            child: Column(
                               children: [
                                 // VEHICLE
-
                                 _modernTextField(
-                                  controller:
-                                      vehicleController,
+                                  controller: vehicleController,
 
-                                  hintText:
-                                      'Vehicle Type',
+                                  hintText: 'Vehicle Type',
 
-                                  icon:
-                                      Icons
-                                          .directions_car_filled_outlined,
+                                  icon: Icons.directions_car_filled_outlined,
 
-                                  enabled:
-                                      false,
+                                  enabled: false,
                                 ),
 
-                                SizedBox(
-                                  height:
-                                      9.h,
-                                ),
+                                SizedBox(height: 9.h),
 
                                 if (showKmFields) ...[
-                                // KM ROW
+                                  // KM ROW
+                                  Row(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
 
-                                Row(
-                                  crossAxisAlignment:
-                                      CrossAxisAlignment.start,
+                                    children: [
+                                      Expanded(
+                                        child: _modernKmField(
+                                          controller: openingKmController,
 
-                                  children: [
-                                    Expanded(
-                                      child:
-                                          _modernKmField(
-                                        controller:
-                                            openingKmController,
+                                          hintText: 'Opening KM',
 
-                                        hintText:
-                                            'Opening KM',
+                                          enabled: false,
 
-                                        enabled:
-                                            false,
-
-                                        validator:
-                                            (_) => null,
-                                      ),
-                                    ),
-
-                                    SizedBox(
-                                      width:
-                                          9.w,
-                                    ),
-
-                                    Expanded(
-                                      child:
-                                          _modernKmField(
-                                        controller:
-                                            closingKmController,
-
-                                        hintText:
-                                            'Closing KM *',
-
-                                        enabled:
-                                            true,
-
-                                        validator:
-                                            (value) =>
-                                                _validateKm(
-                                          value,
-                                          'Closing KM',
+                                          validator: (_) => null,
                                         ),
-
-                                        onChanged:
-                                            (value) {
-                                          _formKey
-                                              .currentState
-                                              ?.validate();
-                                        },
                                       ),
-                                    ),
-                                  ],
-                                ),
 
-                                SizedBox(
-                                  height:
-                                      9.h,
-                                ),
+                                      SizedBox(width: 9.w),
+
+                                      Expanded(
+                                        child: _modernKmField(
+                                          controller: closingKmController,
+
+                                          hintText: 'Closing KM *',
+
+                                          enabled: true,
+
+                                          validator: (value) =>
+                                              _validateKm(value, 'Closing KM'),
+
+                                          onChanged: (value) {
+                                            _formKey.currentState?.validate();
+                                          },
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+
+                                  SizedBox(height: 9.h),
                                 ],
 
                                 // ROUTE
-
                                 _modernTextField(
-                                  controller:
-                                      routeController,
+                                  controller: routeController,
 
-                                  hintText:
-                                      'Enter Route *',
+                                  hintText: 'Enter Route *',
 
-                                  icon:
-                                      Icons.route_rounded,
+                                  icon: Icons.route_rounded,
 
-                                  validator:
-                                      (value) {
-                                    if (value ==
-                                            null ||
-                                        value
-                                            .trim()
-                                            .isEmpty) {
+                                  validator: (value) {
+                                    if (value == null || value.trim().isEmpty) {
                                       return 'Please enter route';
                                     }
 
@@ -1122,84 +867,57 @@ class _PunchOutScreenState extends State<PunchOutScreen> {
                                   },
                                 ),
 
-                                SizedBox(
-                                  height:
-                                      9.h,
-                                ),
+                                SizedBox(height: 9.h),
 
                                 // REMARK
-
                                 _modernTextField(
-                                  controller:
-                                      remarkController,
+                                  controller: remarkController,
 
-                                  hintText:
-                                      'Enter Remark',
+                                  hintText: 'Enter Remark',
 
-                                  icon:
-                                      Icons.edit_note_rounded,
+                                  icon: Icons.edit_note_rounded,
                                 ),
                               ],
                             ),
                           ),
 
-                          SizedBox(
-                            height:
-                                13.h,
-                          ),
+                          SizedBox(height: 13.h),
 
                           // ---------------------------------------------------
                           // PHOTO
                           // ---------------------------------------------------
-
                           _compactSectionHeader(
-                            icon:
-                                Icons.photo_camera_rounded,
+                            icon: Icons.photo_camera_rounded,
 
-                            title:
-                                'Closing Photo *',
+                            title: 'Closing Photo *',
 
-                            subtitle:
-                                'Capture photo before completing trip',
+                            subtitle: 'Capture photo before completing trip',
                           ),
 
-                          SizedBox(
-                            height:
-                                7.h,
-                          ),
+                          SizedBox(height: 7.h),
 
                           FormField<bool>(
-                            initialValue:
-                                _uploadedImage != null,
+                            initialValue: _uploadedImage != null,
 
-                            validator:
-                                (_) {
-                              if (_uploadedImage ==
-                                  null) {
+                            validator: (_) {
+                              if (_uploadedImage == null) {
                                 return 'Please upload an image';
                               }
 
                               return null;
                             },
 
-                            builder:
-                                (field) {
+                            builder: (field) {
                               return Column(
-                                crossAxisAlignment:
-                                    CrossAxisAlignment.start,
+                                crossAxisAlignment: CrossAxisAlignment.start,
 
                                 children: [
                                   _uploadPhotoCard(),
 
                                   if (field.hasError) ...[
-                                    SizedBox(
-                                      height:
-                                          5.h,
-                                    ),
+                                    SizedBox(height: 5.h),
 
-                                    _errorMessage(
-                                      field.errorText!,
-                                    ),
+                                    _errorMessage(field.errorText!),
                                   ],
                                 ],
                               );
@@ -1213,7 +931,6 @@ class _PunchOutScreenState extends State<PunchOutScreen> {
                   // -----------------------------------------------------------
                   // FIXED BOTTOM BUTTON
                   // -----------------------------------------------------------
-
                   _bottomSubmitSection(),
                 ],
               ),
@@ -1230,91 +947,48 @@ class _PunchOutScreenState extends State<PunchOutScreen> {
 
   Widget _compactHeader() {
     return Container(
-      width:
-          double.infinity,
+      width: double.infinity,
 
-      padding:
-          EdgeInsets.symmetric(
-        horizontal:
-            14.w,
+      padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 12.h),
 
-        vertical:
-            12.h,
-      ),
+      decoration: BoxDecoration(
+        gradient: const LinearGradient(
+          begin: Alignment.topLeft,
 
-      decoration:
-          BoxDecoration(
-        gradient:
-            const LinearGradient(
-          begin:
-              Alignment.topLeft,
+          end: Alignment.bottomRight,
 
-          end:
-              Alignment.bottomRight,
-
-          colors: [
-            Color(
-              0xFF08783D,
-            ),
-            Color(
-              0xFF13A252,
-            ),
-          ],
+          colors: [Color(0xFF08783D), Color(0xFF13A252)],
         ),
 
-        borderRadius:
-            BorderRadius.circular(
-          18.r,
-        ),
+        borderRadius: BorderRadius.circular(18.r),
 
         boxShadow: [
           BoxShadow(
-            color:
-                const Color(
-              0xFF11934A,
-            ).withOpacity(
-              0.16,
-            ),
+            color: const Color(0xFF11934A).withOpacity(0.16),
 
-            blurRadius:
-                14,
+            blurRadius: 14,
 
-            offset:
-                const Offset(
-              0,
-              5,
-            ),
+            offset: const Offset(0, 5),
           ),
         ],
       ),
 
-      child:
-          Stack(
+      child: Stack(
         children: [
           Positioned(
-            right:
-                -25.w,
+            right: -25.w,
 
-            top:
-                -30.h,
+            top: -30.h,
 
-            child:
-                Container(
-              width:
-                  90.w,
+            child: Container(
+              width: 90.w,
 
-              height:
-                  90.w,
+              height: 90.w,
 
-              decoration:
-                  BoxDecoration(
-                color:
-                    Colors.white.withOpacity(
-                  0.06,
-                ),
+              decoration: BoxDecoration(
+                color: Colors.white.withOpacity(0.06),
 
-                shape:
-                    BoxShape.circle,
+                shape: BoxShape.circle,
               ),
             ),
           ),
@@ -1322,165 +996,101 @@ class _PunchOutScreenState extends State<PunchOutScreen> {
           Row(
             children: [
               Container(
-                width:
-                    45.w,
+                width: 45.w,
 
-                height:
-                    45.w,
+                height: 45.w,
 
-                decoration:
-                    BoxDecoration(
-                  color:
-                      Colors.white.withOpacity(
-                    0.15,
-                  ),
+                decoration: BoxDecoration(
+                  color: Colors.white.withOpacity(0.15),
 
-                  borderRadius:
-                      BorderRadius.circular(
-                    13.r,
-                  ),
+                  borderRadius: BorderRadius.circular(13.r),
                 ),
 
-                child:
-                    Icon(
+                child: Icon(
                   Icons.logout_rounded,
 
-                  color:
-                      Colors.white,
+                  color: Colors.white,
 
-                  size:
-                      22.sp,
+                  size: 22.sp,
                 ),
               ),
 
-              SizedBox(
-                width:
-                    11.w,
-              ),
+              SizedBox(width: 11.w),
 
               Expanded(
-                child:
-                    Column(
-                  crossAxisAlignment:
-                      CrossAxisAlignment.start,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
 
                   children: [
                     Text(
                       'End your trip',
 
-                      style:
-                          TextStyle(
-                        color:
-                            Colors.white,
+                      style: TextStyle(
+                        color: Colors.white,
 
-                        fontSize:
-                            16.sp,
+                        fontSize: 16.sp,
 
-                        fontWeight:
-                            FontWeight.w700,
+                        fontWeight: FontWeight.w700,
                       ),
                     ),
 
-                    SizedBox(
-                      height:
-                          2.h,
-                    ),
+                    SizedBox(height: 2.h),
 
                     Text(
                       'Complete trip details and punch out',
 
-                      maxLines:
-                          1,
+                      maxLines: 1,
 
-                      overflow:
-                          TextOverflow.ellipsis,
+                      overflow: TextOverflow.ellipsis,
 
-                      style:
-                          TextStyle(
-                        color:
-                            Colors.white.withOpacity(
-                          0.80,
-                        ),
+                      style: TextStyle(
+                        color: Colors.white.withOpacity(0.80),
 
-                        fontSize:
-                            10.5.sp,
+                        fontSize: 10.5.sp,
                       ),
                     ),
                   ],
                 ),
               ),
 
-              SizedBox(
-                width:
-                    8.w,
-              ),
+              SizedBox(width: 8.w),
 
               Container(
-                padding:
-                    EdgeInsets.symmetric(
-                  horizontal:
-                      9.w,
+                padding: EdgeInsets.symmetric(horizontal: 9.w, vertical: 5.h),
 
-                  vertical:
-                      5.h,
+                decoration: BoxDecoration(
+                  color: Colors.white.withOpacity(0.15),
+
+                  borderRadius: BorderRadius.circular(20.r),
                 ),
 
-                decoration:
-                    BoxDecoration(
-                  color:
-                      Colors.white.withOpacity(
-                    0.15,
-                  ),
-
-                  borderRadius:
-                      BorderRadius.circular(
-                    20.r,
-                  ),
-                ),
-
-                child:
-                    Row(
-                  mainAxisSize:
-                      MainAxisSize.min,
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
 
                   children: [
                     Container(
-                      width:
-                          6.w,
+                      width: 6.w,
 
-                      height:
-                          6.w,
+                      height: 6.w,
 
-                      decoration:
-                          const BoxDecoration(
-                        color:
-                            Color(
-                          0xFFFFD2D2,
-                        ),
+                      decoration: const BoxDecoration(
+                        color: Color(0xFFFFD2D2),
 
-                        shape:
-                            BoxShape.circle,
+                        shape: BoxShape.circle,
                       ),
                     ),
 
-                    SizedBox(
-                      width:
-                          5.w,
-                    ),
+                    SizedBox(width: 5.w),
 
                     Text(
                       'OUT',
 
-                      style:
-                          TextStyle(
-                        color:
-                            Colors.white,
+                      style: TextStyle(
+                        color: Colors.white,
 
-                        fontSize:
-                            9.sp,
+                        fontSize: 9.sp,
 
-                        fontWeight:
-                            FontWeight.w700,
+                        fontWeight: FontWeight.w700,
                       ),
                     ),
                   ],
@@ -1507,92 +1117,51 @@ class _PunchOutScreenState extends State<PunchOutScreen> {
     return Row(
       children: [
         Container(
-          width:
-              30.w,
+          width: 30.w,
 
-          height:
-              30.w,
+          height: 30.w,
 
-          decoration:
-              BoxDecoration(
-            color:
-                const Color(
-              0xFFFFEEEE,
-            ),
+          decoration: BoxDecoration(
+            color: const Color(0xFFFFEEEE),
 
-            borderRadius:
-                BorderRadius.circular(
-              9.r,
-            ),
+            borderRadius: BorderRadius.circular(9.r),
           ),
 
-          child:
-              Icon(
-            icon,
-
-            color:
-                const Color(
-              0xFF0D984A,
-            ),
-
-            size:
-                16.sp,
-          ),
+          child: Icon(icon, color: const Color(0xFF0D984A), size: 16.sp),
         ),
 
-        SizedBox(
-          width:
-              8.w,
-        ),
+        SizedBox(width: 8.w),
 
         Expanded(
-          child:
-              Column(
-            crossAxisAlignment:
-                CrossAxisAlignment.start,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
 
             children: [
               Text(
                 title,
 
-                style:
-                    TextStyle(
-                  color:
-                      const Color(
-                    0xFF1D2521,
-                  ),
+                style: TextStyle(
+                  color: const Color(0xFF1D2521),
 
-                  fontSize:
-                      13.sp,
+                  fontSize: 13.sp,
 
-                  fontWeight:
-                      FontWeight.w700,
+                  fontWeight: FontWeight.w700,
                 ),
               ),
 
-              SizedBox(
-                height:
-                    1.h,
-              ),
+              SizedBox(height: 1.h),
 
               Text(
                 subtitle,
 
-                maxLines:
-                    1,
+                maxLines: 1,
 
-                overflow:
-                    TextOverflow.ellipsis,
+                overflow: TextOverflow.ellipsis,
 
-                style:
-                    TextStyle(
-                  color:
-                      const Color(
-                    0xFF89928D,
-                  ),
+                style: TextStyle(
+                  color: const Color(0xFF89928D),
 
-                  fontSize:
-                      9.5.sp,
+                  fontSize: 9.5.sp,
                 ),
               ),
             ],
@@ -1606,57 +1175,31 @@ class _PunchOutScreenState extends State<PunchOutScreen> {
   // CONTENT CARD
   // ===========================================================================
 
-  Widget _contentCard({
-    required Widget child,
-  }) {
+  Widget _contentCard({required Widget child}) {
     return Container(
-      width:
-          double.infinity,
+      width: double.infinity,
 
-      padding:
-          EdgeInsets.all(
-        10.w,
-      ),
+      padding: EdgeInsets.all(10.w),
 
-      decoration:
-          BoxDecoration(
-        color:
-            Colors.white,
+      decoration: BoxDecoration(
+        color: Colors.white,
 
-        borderRadius:
-            BorderRadius.circular(
-          16.r,
-        ),
+        borderRadius: BorderRadius.circular(16.r),
 
-        border:
-            Border.all(
-          color:
-              const Color(
-            0xFFE9EEEB,
-          ),
-        ),
+        border: Border.all(color: const Color(0xFFE9EEEB)),
 
         boxShadow: [
           BoxShadow(
-            color:
-                Colors.black.withOpacity(
-              0.025,
-            ),
+            color: Colors.black.withOpacity(0.025),
 
-            blurRadius:
-                9,
+            blurRadius: 9,
 
-            offset:
-                const Offset(
-              0,
-              3,
-            ),
+            offset: const Offset(0, 3),
           ),
         ],
       ),
 
-      child:
-          child,
+      child: child,
     );
   }
 
@@ -1676,23 +1219,17 @@ class _PunchOutScreenState extends State<PunchOutScreen> {
     String? Function(String?)? validator,
   }) {
     return CustomTextFormField(
-      controller:
-          controller,
+      controller: controller,
 
-      hintText:
-          hintText,
+      hintText: hintText,
 
-      labelText:
-          hintText,
+      labelText: hintText,
 
-      prefixIcon:
-          icon,
+      prefixIcon: icon,
 
-      enabled:
-          enabled,
+      enabled: enabled,
 
-      validator:
-          validator,
+      validator: validator,
     );
   }
 
@@ -1707,44 +1244,32 @@ class _PunchOutScreenState extends State<PunchOutScreen> {
 
     required bool enabled,
 
-    required String? Function(String?)
-        validator,
+    required String? Function(String?) validator,
 
-    ValueChanged<String>?
-        onChanged,
+    ValueChanged<String>? onChanged,
   }) {
     return Theme(
       data: Theme.of(context).copyWith(
-        inputDecorationTheme: Theme.of(context).inputDecorationTheme.copyWith(
-          errorMaxLines: 3,
-        ),
+        inputDecorationTheme: Theme.of(
+          context,
+        ).inputDecorationTheme.copyWith(errorMaxLines: 3),
       ),
       child: CustomTextFormField(
-      controller:
-          controller,
+        controller: controller,
 
-      hintText:
-          hintText,
+        hintText: hintText,
 
-      labelText:
-          hintText,
+        labelText: hintText,
 
-      prefixIcon:
-          Icons.speed_rounded,
+        prefixIcon: Icons.speed_rounded,
 
-      keyboardType:
-          TextInputType.number,
+        keyboardType: TextInputType.number,
 
-      enabled:
-          enabled,
+        enabled: enabled,
 
-      validator:
-          enabled
-              ? validator
-              : null,
+        validator: enabled ? validator : null,
 
-      onChanged:
-          onChanged,
+        onChanged: onChanged,
       ),
     );
   }
@@ -1753,37 +1278,24 @@ class _PunchOutScreenState extends State<PunchOutScreen> {
   // KM VALIDATION
   // ===========================================================================
 
-  String? _validateKm(
-    String? value,
-
-    String fieldName,
-  ) {
-    final text =
-        value?.trim() ?? '';
+  String? _validateKm(String? value, String fieldName) {
+    final text = value?.trim() ?? '';
 
     if (text.isEmpty) {
       return 'Please enter $fieldName';
     }
 
-    final km =
-        double.tryParse(
-      text,
-    );
+    final km = double.tryParse(text);
 
     if (km == null) {
       return 'Please enter a valid $fieldName';
     }
 
-    final openingText =
-        openingKmController.text.trim();
+    final openingText = openingKmController.text.trim();
 
-    final openingKm =
-        double.tryParse(
-      openingText,
-    );
+    final openingKm = double.tryParse(openingText);
 
-    if (openingKm != null &&
-        km < openingKm) {
+    if (openingKm != null && km < openingKm) {
       return 'Closing KM Cannot Be Less Than Opening KM';
     }
 
@@ -1796,55 +1308,29 @@ class _PunchOutScreenState extends State<PunchOutScreen> {
 
   Widget _uploadPhotoCard() {
     return Container(
-      width:
-          double.infinity,
+      width: double.infinity,
 
-      padding:
-          EdgeInsets.all(
-        9.w,
-      ),
+      padding: EdgeInsets.all(9.w),
 
-      decoration:
-          BoxDecoration(
-        color:
-            Colors.white,
+      decoration: BoxDecoration(
+        color: Colors.white,
 
-        borderRadius:
-            BorderRadius.circular(
-          16.r,
-        ),
+        borderRadius: BorderRadius.circular(16.r),
 
-        border:
-            Border.all(
-          color:
-              const Color(
-            0xFFE9EEEB,
-          ),
-        ),
+        border: Border.all(color: const Color(0xFFE9EEEB)),
 
         boxShadow: [
           BoxShadow(
-            color:
-                Colors.black.withOpacity(
-              0.025,
-            ),
+            color: Colors.black.withOpacity(0.025),
 
-            blurRadius:
-                9,
+            blurRadius: 9,
 
-            offset:
-                const Offset(
-              0,
-              3,
-            ),
+            offset: const Offset(0, 3),
           ),
         ],
       ),
 
-      child:
-          _uploadedImage == null
-              ? _emptyPhotoView()
-              : _selectedPhotoView(),
+      child: _uploadedImage == null ? _emptyPhotoView() : _selectedPhotoView(),
     );
   }
 
@@ -1854,178 +1340,99 @@ class _PunchOutScreenState extends State<PunchOutScreen> {
 
   Widget _emptyPhotoView() {
     return InkWell(
-      onTap:
-          _captureImage,
+      onTap: _captureImage,
 
-      borderRadius:
-          BorderRadius.circular(
-        13.r,
-      ),
+      borderRadius: BorderRadius.circular(13.r),
 
-      child:
-          Container(
-        height:
-            180.h,
+      child: Container(
+        height: 180.h,
 
-        width:
-            double.infinity,
+        width: double.infinity,
 
-        decoration:
-            BoxDecoration(
-          color:
-              const Color(
-            0xFFFFF8F8,
-          ),
+        decoration: BoxDecoration(
+          color: const Color(0xFFFFF8F8),
 
-          borderRadius:
-              BorderRadius.circular(
-            13.r,
-          ),
+          borderRadius: BorderRadius.circular(13.r),
 
-          border:
-              Border.all(
-            color:
-                const Color(
-              0xFFF0DEDE,
-            ),
-          ),
+          border: Border.all(color: const Color(0xFFF0DEDE)),
         ),
 
-        child:
-            Row(
-          mainAxisAlignment:
-              MainAxisAlignment.center,
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
 
           children: [
             Container(
-              width:
-                  46.w,
+              width: 46.w,
 
-              height:
-                  46.w,
+              height: 46.w,
 
-              decoration:
-                  BoxDecoration(
-                color:
-                    const Color(
-                  0xFFFFEAEA,
-                ),
+              decoration: BoxDecoration(
+                color: const Color(0xFFFFEAEA),
 
-                borderRadius:
-                    BorderRadius.circular(
-                  13.r,
-                ),
+                borderRadius: BorderRadius.circular(13.r),
               ),
 
-              child:
-                  Icon(
+              child: Icon(
                 Icons.add_a_photo_rounded,
 
-                color:
-                    const Color(
-                  0xFFD84040,
-                ),
+                color: const Color(0xFFD84040),
 
-                size:
-                    22.sp,
+                size: 22.sp,
               ),
             ),
 
-            SizedBox(
-              width:
-                  11.w,
-            ),
+            SizedBox(width: 11.w),
 
             Column(
-              mainAxisAlignment:
-                  MainAxisAlignment.center,
+              mainAxisAlignment: MainAxisAlignment.center,
 
-              crossAxisAlignment:
-                  CrossAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.start,
 
               children: [
                 Text(
                   'Capture Closing Photo',
 
-                  style:
-                      TextStyle(
-                    color:
-                        const Color(
-                      0xFF27302B,
-                    ),
+                  style: TextStyle(
+                    color: const Color(0xFF27302B),
 
-                    fontSize:
-                        12.5.sp,
+                    fontSize: 12.5.sp,
 
-                    fontWeight:
-                        FontWeight.w700,
+                    fontWeight: FontWeight.w700,
                   ),
                 ),
 
-                SizedBox(
-                  height:
-                      3.h,
-                ),
+                SizedBox(height: 3.h),
 
                 Text(
                   'Tap to open camera',
 
-                  style:
-                      TextStyle(
-                    color:
-                        const Color(
-                      0xFF929B96,
-                    ),
+                  style: TextStyle(
+                    color: const Color(0xFF929B96),
 
-                    fontSize:
-                        10.sp,
+                    fontSize: 10.sp,
                   ),
                 ),
 
-                SizedBox(
-                  height:
-                      5.h,
-                ),
+                SizedBox(height: 5.h),
 
                 Container(
-                  padding:
-                      EdgeInsets.symmetric(
-                    horizontal:
-                        9.w,
+                  padding: EdgeInsets.symmetric(horizontal: 9.w, vertical: 4.h),
 
-                    vertical:
-                        4.h,
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFFFEAEA),
+
+                    borderRadius: BorderRadius.circular(10.r),
                   ),
 
-                  decoration:
-                      BoxDecoration(
-                    color:
-                        const Color(
-                      0xFFFFEAEA,
-                    ),
-
-                    borderRadius:
-                        BorderRadius.circular(
-                      10.r,
-                    ),
-                  ),
-
-                  child:
-                      Text(
+                  child: Text(
                     'OPEN CAMERA',
 
-                    style:
-                        TextStyle(
-                      color:
-                          const Color(
-                        0xFFD84040,
-                      ),
+                    style: TextStyle(
+                      color: const Color(0xFFD84040),
 
-                      fontSize:
-                          8.5.sp,
+                      fontSize: 8.5.sp,
 
-                      fontWeight:
-                          FontWeight.w700,
+                      fontWeight: FontWeight.w700,
                     ),
                   ),
                 ),
@@ -2047,97 +1454,59 @@ class _PunchOutScreenState extends State<PunchOutScreen> {
         Stack(
           children: [
             ClipRRect(
-              borderRadius:
-                  BorderRadius.circular(
-                13.r,
-              ),
+              borderRadius: BorderRadius.circular(13.r),
 
-              child:
-                  Image.file(
+              child: Image.file(
                 _uploadedImage!,
 
-                width:
-                    double.infinity,
+                width: double.infinity,
 
-                height:
-                    180.h,
+                height: 180.h,
 
-                fit:
-                    BoxFit.cover,
+                fit: BoxFit.cover,
               ),
             ),
 
             // ---------------------------------------------------------------
             // PHOTO ADDED
             // ---------------------------------------------------------------
-
             Positioned(
-              top:
-                  7.h,
+              top: 7.h,
 
-              left:
-                  7.w,
+              left: 7.w,
 
-              child:
-                  Container(
-                padding:
-                    EdgeInsets.symmetric(
-                  horizontal:
-                      8.w,
+              child: Container(
+                padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 4.h),
 
-                  vertical:
-                      4.h,
+                decoration: BoxDecoration(
+                  color: Colors.black.withOpacity(0.55),
+
+                  borderRadius: BorderRadius.circular(14.r),
                 ),
 
-                decoration:
-                    BoxDecoration(
-                  color:
-                      Colors.black.withOpacity(
-                    0.55,
-                  ),
-
-                  borderRadius:
-                      BorderRadius.circular(
-                    14.r,
-                  ),
-                ),
-
-                child:
-                    Row(
-                  mainAxisSize:
-                      MainAxisSize.min,
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
 
                   children: [
                     Icon(
                       Icons.check_circle_rounded,
 
-                      color:
-                          const Color(
-                        0xFF7DFFA9,
-                      ),
+                      color: const Color(0xFF7DFFA9),
 
-                      size:
-                          12.sp,
+                      size: 12.sp,
                     ),
 
-                    SizedBox(
-                      width:
-                          4.w,
-                    ),
+                    SizedBox(width: 4.w),
 
                     Text(
                       'Photo Added',
 
-                      style:
-                          TextStyle(
-                        color:
-                            Colors.white,
+                      style: TextStyle(
+                        color: Colors.white,
 
-                        fontSize:
-                            9.sp,
+                        fontSize: 9.sp,
 
-                        fontWeight:
-                            FontWeight.w600,
+                        fontWeight: FontWeight.w600,
                       ),
                     ),
                   ],
@@ -2148,57 +1517,36 @@ class _PunchOutScreenState extends State<PunchOutScreen> {
             // ---------------------------------------------------------------
             // CAMERA
             // ---------------------------------------------------------------
-
             Positioned(
-              top:
-                  7.h,
+              top: 7.h,
 
-              right:
-                  7.w,
+              right: 7.w,
 
-              child:
-                  Material(
-                color:
-                    Colors.transparent,
+              child: Material(
+                color: Colors.transparent,
 
-                child:
-                    InkWell(
-                  onTap:
-                      _captureImage,
+                child: InkWell(
+                  onTap: _captureImage,
 
-                  borderRadius:
-                      BorderRadius.circular(
-                    50.r,
-                  ),
+                  borderRadius: BorderRadius.circular(50.r),
 
-                  child:
-                      Container(
-                    width:
-                        30.w,
+                  child: Container(
+                    width: 30.w,
 
-                    height:
-                        30.w,
+                    height: 30.w,
 
-                    decoration:
-                        BoxDecoration(
-                      color:
-                          Colors.black.withOpacity(
-                        0.55,
-                      ),
+                    decoration: BoxDecoration(
+                      color: Colors.black.withOpacity(0.55),
 
-                      shape:
-                          BoxShape.circle,
+                      shape: BoxShape.circle,
                     ),
 
-                    child:
-                        Icon(
+                    child: Icon(
                       Icons.camera_alt_rounded,
 
-                      color:
-                          Colors.white,
+                      color: Colors.white,
 
-                      size:
-                          15.sp,
+                      size: 15.sp,
                     ),
                   ),
                 ),
@@ -2207,86 +1555,50 @@ class _PunchOutScreenState extends State<PunchOutScreen> {
           ],
         ),
 
-        SizedBox(
-          height:
-              6.h,
-        ),
+        SizedBox(height: 6.h),
 
         // -------------------------------------------------------------------
         // RETAKE
         // -------------------------------------------------------------------
-
         InkWell(
-          onTap:
-              _captureImage,
+          onTap: _captureImage,
 
-          borderRadius:
-              BorderRadius.circular(
-            10.r,
-          ),
+          borderRadius: BorderRadius.circular(10.r),
 
-          child:
-              Container(
-            width:
-                double.infinity,
+          child: Container(
+            width: double.infinity,
 
-            padding:
-                EdgeInsets.symmetric(
-              vertical:
-                  7.h,
+            padding: EdgeInsets.symmetric(vertical: 7.h),
+
+            decoration: BoxDecoration(
+              color: const Color(0xFFFFEAEA),
+
+              borderRadius: BorderRadius.circular(10.r),
             ),
 
-            decoration:
-                BoxDecoration(
-              color:
-                  const Color(
-                0xFFFFEAEA,
-              ),
-
-              borderRadius:
-                  BorderRadius.circular(
-                10.r,
-              ),
-            ),
-
-            child:
-                Row(
-              mainAxisAlignment:
-                  MainAxisAlignment.center,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
 
               children: [
                 Icon(
                   Icons.refresh_rounded,
 
-                  color:
-                      const Color(
-                    0xFFD84040,
-                  ),
+                  color: const Color(0xFFD84040),
 
-                  size:
-                      15.sp,
+                  size: 15.sp,
                 ),
 
-                SizedBox(
-                  width:
-                      5.w,
-                ),
+                SizedBox(width: 5.w),
 
                 Text(
                   'Retake Photo',
 
-                  style:
-                      TextStyle(
-                    color:
-                        const Color(
-                      0xFFD84040,
-                    ),
+                  style: TextStyle(
+                    color: const Color(0xFFD84040),
 
-                    fontSize:
-                        10.5.sp,
+                    fontSize: 10.5.sp,
 
-                    fontWeight:
-                        FontWeight.w700,
+                    fontWeight: FontWeight.w700,
                   ),
                 ),
               ],
@@ -2301,80 +1613,42 @@ class _PunchOutScreenState extends State<PunchOutScreen> {
   // ERROR MESSAGE
   // ===========================================================================
 
-  Widget _errorMessage(
-    String message,
-  ) {
+  Widget _errorMessage(String message) {
     return Container(
-      width:
-          double.infinity,
+      width: double.infinity,
 
-      padding:
-          EdgeInsets.symmetric(
-        horizontal:
-            9.w,
+      padding: EdgeInsets.symmetric(horizontal: 9.w, vertical: 6.h),
 
-        vertical:
-            6.h,
+      decoration: BoxDecoration(
+        color: const Color(0xFFFFF3F3),
+
+        borderRadius: BorderRadius.circular(8.r),
+
+        border: Border.all(color: const Color(0xFFFFDADA)),
       ),
 
-      decoration:
-          BoxDecoration(
-        color:
-            const Color(
-          0xFFFFF3F3,
-        ),
-
-        borderRadius:
-            BorderRadius.circular(
-          8.r,
-        ),
-
-        border:
-            Border.all(
-          color:
-              const Color(
-            0xFFFFDADA,
-          ),
-        ),
-      ),
-
-      child:
-          Row(
+      child: Row(
         children: [
           Icon(
             Icons.error_outline_rounded,
 
-            color:
-                const Color(
-              0xFFD94343,
-            ),
+            color: const Color(0xFFD94343),
 
-            size:
-                14.sp,
+            size: 14.sp,
           ),
 
-          SizedBox(
-            width:
-                5.w,
-          ),
+          SizedBox(width: 5.w),
 
           Expanded(
-            child:
-                Text(
+            child: Text(
               message,
 
-              style:
-                  TextStyle(
-                color:
-                    const Color(
-                  0xFFD94343,
-                ),
+              style: TextStyle(
+                color: const Color(0xFFD94343),
 
-                fontSize:
-                    10.sp,
+                fontSize: 10.sp,
 
-                fontWeight:
-                    FontWeight.w500,
+                fontWeight: FontWeight.w500,
               ),
             ),
           ),
@@ -2389,193 +1663,108 @@ class _PunchOutScreenState extends State<PunchOutScreen> {
 
   Widget _bottomSubmitSection() {
     return Container(
-      padding:
-          EdgeInsets.fromLTRB(
-        14.w,
-        7.h,
-        14.w,
-        8.h,
-      ),
+      padding: EdgeInsets.fromLTRB(14.w, 7.h, 14.w, 8.h),
 
-      decoration:
-          BoxDecoration(
-        color:
-            Colors.white,
+      decoration: BoxDecoration(
+        color: Colors.white,
 
-        border:
-            const Border(
-          top:
-              BorderSide(
-            color:
-                Color(
-              0xFFE8ECEA,
-            ),
-          ),
-        ),
+        border: const Border(top: BorderSide(color: Color(0xFFE8ECEA))),
 
         boxShadow: [
           BoxShadow(
-            color:
-                Colors.black.withOpacity(
-              0.035,
-            ),
+            color: Colors.black.withOpacity(0.035),
 
-            blurRadius:
-                10,
+            blurRadius: 10,
 
-            offset:
-                const Offset(
-              0,
-              -3,
-            ),
+            offset: const Offset(0, -3),
           ),
         ],
       ),
 
-      child:
-          SafeArea(
-        top:
-            false,
+      child: SafeArea(
+        top: false,
 
-        child:
-            SizedBox(
-          width:
-              double.infinity,
+        child: SizedBox(
+          width: double.infinity,
 
-          height:
-              48.h,
+          height: 48.h,
 
-          child:
-              ElevatedButton(
-            onPressed:
-                isLoading
-                    ? null
-                    : _submitPunch,
+          child: ElevatedButton(
+            onPressed: isLoading ? null : _submitPunch,
 
-            style:
-                ElevatedButton.styleFrom(
-              elevation:
-                  0,
+            style: ElevatedButton.styleFrom(
+              elevation: 0,
 
-              backgroundColor:
-                  const Color(
+              backgroundColor: const Color(0xFF0B9848),
+
+              disabledBackgroundColor: const Color(
                 0xFF0B9848,
+              ).withOpacity(0.60),
+
+              foregroundColor: Colors.white,
+
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(14.r),
               ),
 
-              disabledBackgroundColor:
-                  const Color(
-                0xFF0B9848,
-              ).withOpacity(
-                0.60,
-              ),
-
-              foregroundColor:
-                  Colors.white,
-
-              shape:
-                  RoundedRectangleBorder(
-                borderRadius:
-                    BorderRadius.circular(
-                  14.r,
-                ),
-              ),
-
-              padding:
-                  EdgeInsets.zero,
+              padding: EdgeInsets.zero,
             ),
 
-            child:
-                isLoading
-                    ? SizedBox(
-                        width:
-                            20.w,
+            child: isLoading
+                ? SizedBox(
+                    width: 20.w,
 
-                        height:
-                            20.w,
+                    height: 20.w,
 
-                        child:
-                            const CircularProgressIndicator(
-                          strokeWidth:
-                              2.2,
+                    child: const CircularProgressIndicator(
+                      strokeWidth: 2.2,
 
-                          valueColor:
-                              AlwaysStoppedAnimation<
-                                  Color>(
-                            Colors.white,
-                          ),
+                      valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                    ),
+                  )
+                : Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+
+                    children: [
+                      Container(
+                        width: 28.w,
+
+                        height: 28.w,
+
+                        decoration: BoxDecoration(
+                          color: Colors.white.withOpacity(0.15),
+
+                          borderRadius: BorderRadius.circular(8.r),
                         ),
-                      )
-                    : Row(
-                        mainAxisAlignment:
-                            MainAxisAlignment.center,
 
-                        children: [
-                          Container(
-                            width:
-                                28.w,
+                        child: Icon(
+                          Icons.logout_rounded,
 
-                            height:
-                                28.w,
+                          color: Colors.white,
 
-                            decoration:
-                                BoxDecoration(
-                              color:
-                                  Colors.white.withOpacity(
-                                0.15,
-                              ),
-
-                              borderRadius:
-                                  BorderRadius.circular(
-                                8.r,
-                              ),
-                            ),
-
-                            child:
-                                Icon(
-                              Icons.logout_rounded,
-
-                              color:
-                                  Colors.white,
-
-                              size:
-                                  16.sp,
-                            ),
-                          ),
-
-                          SizedBox(
-                            width:
-                                8.w,
-                          ),
-
-                          Text(
-                            'PUNCH OUT',
-
-                            style:
-                                TextStyle(
-                              fontSize:
-                                  12.5.sp,
-
-                              fontWeight:
-                                  FontWeight.w700,
-
-                              letterSpacing:
-                                  0.3,
-                            ),
-                          ),
-
-                          SizedBox(
-                            width:
-                                6.w,
-                          ),
-
-                          Icon(
-                            Icons.arrow_forward_rounded,
-
-                            size:
-                                17.sp,
-                          ),
-                        ],
+                          size: 16.sp,
+                        ),
                       ),
+
+                      SizedBox(width: 8.w),
+
+                      Text(
+                        'PUNCH OUT',
+
+                        style: TextStyle(
+                          fontSize: 12.5.sp,
+
+                          fontWeight: FontWeight.w700,
+
+                          letterSpacing: 0.3,
+                        ),
+                      ),
+
+                      SizedBox(width: 6.w),
+
+                      Icon(Icons.arrow_forward_rounded, size: 17.sp),
+                    ],
+                  ),
           ),
         ),
       ),

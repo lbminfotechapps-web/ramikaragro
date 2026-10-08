@@ -29,97 +29,80 @@ class QuickAcessBloc extends Bloc<QuickAccessEvent, QuickAccessState> {
   String? punchStatus;
 
   Future<void> _onGetPunchStatus(
-  PunchStatEvent event,
-  Emitter<QuickAccessState> emit,
-) async {
-  emit(
-    state.copyWith(
-      quickAccessStatus: QuickAccessStatus.loading,
-      errorMessage: null,
-    ),
-  );
-
-  try {
-    final punchStat =
-        await getPunchStatusUsecase.getPunchStatus(
-      event.userId,
-    );
-
-    punchStatus = punchStat.inOutStatus;
-
-    debugPrint('========================================');
-    debugPrint('PUNCH STATUS API SUCCESS');
-    debugPrint('USER ID: ${event.userId}');
-    debugPrint(
-      'PUNCH STATUS: ${punchStat.inOutStatus}',
-    );
-    debugPrint('========================================');
-
-    // ============================================================
-    // RESTORE BACKGROUND LOCATION SERVICE
-    // ============================================================
-
-    if (punchStat.inOutStatus == '1') {
-      debugPrint('USER IS CURRENTLY PUNCHED IN');
-
-      final bool isRunning =
-          await BackgroundLocationService.isRunning();
-
-      debugPrint(
-        'BACKGROUND SERVICE RUNNING: $isRunning',
-      );
-
-      if (!isRunning) {
-        debugPrint(
-          'RESTARTING BACKGROUND LOCATION SERVICE...',
-        );
-
-        await BackgroundLocationService.start(
-          userId: event.userId,
-        );
-
-        debugPrint(
-          'BACKGROUND LOCATION SERVICE STARTED',
-        );
-      } else {
-        debugPrint(
-          'BACKGROUND LOCATION SERVICE ALREADY RUNNING',
-        );
-      }
-    } else {
-      debugPrint('USER IS NOT PUNCHED IN');
-      debugPrint(
-        'BACKGROUND LOCATION SERVICE NOT STARTED',
-      );
-    }
-
-    // ============================================================
-    // UPDATE UI
-    // ============================================================
-
+    PunchStatEvent event,
+    Emitter<QuickAccessState> emit,
+  ) async {
     emit(
       state.copyWith(
-        quickAccessStatus: QuickAccessStatus.success,
-        punchStat: punchStat,
-        punchStatus: punchStat.inOutStatus,
+        quickAccessStatus: QuickAccessStatus.loading,
         errorMessage: null,
       ),
     );
-  } catch (error) {
-    debugPrint('========================================');
-    debugPrint('PUNCH STATUS ERROR');
-    debugPrint('$error');
-    debugPrint('========================================');
 
-    emit(
-      state.copyWith(
-        quickAccessStatus:
-            QuickAccessStatus.failure,
-        errorMessage: error.toString(),
-      ),
-    );
+    try {
+      final punchStat = await getPunchStatusUsecase.getPunchStatus(
+        event.userId,
+      );
+
+      punchStatus = punchStat.inOutStatus;
+
+      debugPrint('========================================');
+      debugPrint('PUNCH STATUS API SUCCESS');
+      debugPrint('USER ID: ${event.userId}');
+      debugPrint('PUNCH STATUS: ${punchStat.inOutStatus}');
+      debugPrint('========================================');
+
+      // ============================================================
+      // RESTORE BACKGROUND LOCATION SERVICE
+      // ============================================================
+
+      if (punchStat.inOutStatus == '1') {
+        debugPrint('USER IS CURRENTLY PUNCHED IN');
+
+        final bool isRunning = await BackgroundLocationService.isRunning();
+
+        debugPrint('BACKGROUND SERVICE RUNNING: $isRunning');
+
+        if (!isRunning) {
+          debugPrint('RESTARTING BACKGROUND LOCATION SERVICE...');
+
+          await BackgroundLocationService.start(userId: event.userId);
+
+          debugPrint('BACKGROUND LOCATION SERVICE STARTED');
+        } else {
+          debugPrint('BACKGROUND LOCATION SERVICE ALREADY RUNNING');
+        }
+      } else {
+        debugPrint('USER IS NOT PUNCHED IN');
+        debugPrint('BACKGROUND LOCATION SERVICE NOT STARTED');
+      }
+
+      // ============================================================
+      // UPDATE UI
+      // ============================================================
+
+      emit(
+        state.copyWith(
+          quickAccessStatus: QuickAccessStatus.success,
+          punchStat: punchStat,
+          punchStatus: punchStat.inOutStatus,
+          errorMessage: null,
+        ),
+      );
+    } catch (error) {
+      debugPrint('========================================');
+      debugPrint('PUNCH STATUS ERROR');
+      debugPrint('$error');
+      debugPrint('========================================');
+
+      emit(
+        state.copyWith(
+          quickAccessStatus: QuickAccessStatus.failure,
+          errorMessage: error.toString(),
+        ),
+      );
+    }
   }
-}
   // Future<void> _onGetPunchStatus(
   //   PunchStatEvent event,
   //   Emitter<QuickAccessState> emit,
@@ -1454,9 +1437,8 @@ class QuickAcessBloc extends Bloc<QuickAccessEvent, QuickAccessState> {
             // DELETE EVERYTHING EXCEPT LATEST LOCATION
             // --------------------------------------------------------
 
-            final int deletedCount = await repository.deleteAllExceptLastLocation(
-              parsedUserId,
-            );
+            final int deletedCount = await repository
+                .deleteAllExceptLastLocation(parsedUserId);
 
             debugPrint('========================================');
             debugPrint('LOCATION CLEANUP SUCCESS');
@@ -1493,7 +1475,6 @@ class QuickAcessBloc extends Bloc<QuickAccessEvent, QuickAccessState> {
           } else {
             debugPrint('LOCATION CLEANUP: Invalid userId ${event.userId}');
           }
-
         } catch (error, stackTrace) {
           // The server accepted the upload; local cleanup is a separate step.
           debugPrint('Location upload succeeded, local cleanup failed: $error');
@@ -1502,15 +1483,18 @@ class QuickAcessBloc extends Bloc<QuickAccessEvent, QuickAccessState> {
 
         emit(
           state.copyWith(
-            quickAccessStatus: QuickAccessStatus.locationAddedSucces,
+            quickAccessStatus: QuickAccessStatus.locationHistoryUploaded,
             errorMessage: null,
           ),
         );
       } else {
-        emit(state.copyWith(
-          quickAccessStatus: QuickAccessStatus.failure,
-          errorMessage: 'Location history upload failed: ${result['message'] ?? 'Server rejected the upload'}',
-        ));
+        emit(
+          state.copyWith(
+            quickAccessStatus: QuickAccessStatus.failure,
+            errorMessage:
+                'Location history upload failed: ${result['message'] ?? 'Server rejected the upload'}',
+          ),
+        );
       }
     } catch (e, stackTrace) {
       debugPrint('========================================');
