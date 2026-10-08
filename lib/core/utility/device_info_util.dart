@@ -1,6 +1,7 @@
 import 'package:battery_plus/battery_plus.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:device_info_plus/device_info_plus.dart';
+import 'package:flutter/foundation.dart';
 
 class DeviceInfoUtil {
   DeviceInfoUtil._();
@@ -64,18 +65,17 @@ class DeviceInfoUtil {
 
   Future<String> getMobileInfo() async {
     try {
-      final androidInfo = await _deviceInfo.androidInfo;
-
-      return '${androidInfo.manufacturer} ${androidInfo.model}';
-    } catch (e) {
-      try {
-        final iosInfo = await _deviceInfo.iosInfo;
-
-        return '${iosInfo.name} ${iosInfo.model}';
-      } catch (e) {
-        return '';
+      final info = await _deviceInfo.deviceInfo;
+      if (info is AndroidDeviceInfo) {
+        return '${info.manufacturer} ${info.model}';
       }
+      if (info is IosDeviceInfo) {
+        return '${info.name} ${info.model}';
+      }
+    } catch (e, stackTrace) {
+      debugPrint('GET MOBILE INFO ERROR: $e\n$stackTrace');
     }
+    return '';
   }
 
   // ============================================================
@@ -84,22 +84,18 @@ class DeviceInfoUtil {
 
   Future<String> getMacAddress() async {
     try {
-      final androidInfo = await _deviceInfo.androidInfo;
-
-      // NOTE:
-      // This is NOT the physical Wi-Fi MAC address.
-      // Android does not normally allow apps to access
-      // the real MAC address on modern Android versions.
-      return androidInfo.id;
-    } catch (e) {
-      try {
-        final iosInfo = await _deviceInfo.iosInfo;
-
-        return iosInfo.identifierForVendor ?? '';
-      } catch (e) {
-        return '';
+      final info = await _deviceInfo.deviceInfo;
+      if (info is AndroidDeviceInfo) {
+        // This is the Android build ID, not a physical Wi-Fi MAC address.
+        return info.id;
       }
+      if (info is IosDeviceInfo) {
+        return info.identifierForVendor ?? '';
+      }
+    } catch (e, stackTrace) {
+      debugPrint('GET DEVICE IDENTIFIER ERROR: $e\n$stackTrace');
     }
+    return '';
   }
 
   // ============================================================
@@ -110,9 +106,6 @@ class DeviceInfoUtil {
     final mobileInfo = await getMobileInfo();
     final macAddress = await getMacAddress();
 
-    return {
-      'mobileInfo': mobileInfo,
-      'macAddress': macAddress,
-    };
+    return {'mobileInfo': mobileInfo, 'macAddress': macAddress};
   }
 }

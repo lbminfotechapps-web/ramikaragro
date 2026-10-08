@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
 import 'package:solufine/core/notifications/fcm_token_service.dart';
@@ -44,9 +46,17 @@ class FcmService {
 
     final NotificationSettings settings = await _requestPermission();
 
-    // ============================================================
-    // 3. GET / SAVE CURRENT TOKEN
-    // ============================================================
+    if (Platform.isIOS) {
+      await _messaging.setForegroundNotificationPresentationOptions(
+        alert: true,
+        badge: true,
+        sound: true,
+      );
+
+      debugPrint('======================================');
+      debugPrint('IOS FOREGROUND PRESENTATION ENABLED');
+      debugPrint('======================================');
+    }
 
     if (settings.authorizationStatus == AuthorizationStatus.authorized ||
         settings.authorizationStatus == AuthorizationStatus.provisional) {
@@ -130,30 +140,20 @@ class FcmService {
         debugPrint('======================================');
         debugPrint('FCM MESSAGE RECEIVED - FOREGROUND');
         debugPrint('MESSAGE ID: ${message.messageId}');
+        debugPrint('NOTIFICATION TITLE: ${message.notification?.title}');
+        debugPrint('NOTIFICATION BODY: ${message.notification?.body}');
         debugPrint('DATA: ${message.data}');
         debugPrint('======================================');
-
-        // ======================================================
-        // TITLE
-        // ======================================================
 
         final String title =
             message.data['notificationTitle']?.toString() ??
             message.notification?.title ??
             'Solufine';
 
-        // ======================================================
-        // BODY
-        // ======================================================
-
         final String body =
             message.data['notificationMessage']?.toString() ??
             message.notification?.body ??
             '';
-
-        // ======================================================
-        // TYPE
-        // ======================================================
 
         final String notificationType =
             message.data['notificationType']?.toString() ?? '';
@@ -166,39 +166,33 @@ class FcmService {
         debugPrint('======================================');
 
         if (body.trim().isEmpty) {
-          debugPrint(
-            'Notification message empty. '
-            'Not displaying.',
-          );
+          debugPrint('Notification body empty.');
           return;
         }
 
-        // ======================================================
-        // SHOW LOCAL NOTIFICATION
-        // ======================================================
+        // Android does not display FCM notification automatically
+        // while application is in foreground.
+        if (Platform.isAndroid) {
+          await LocalNotificationService.instance.showNotification(
+            title: title,
+            body: body,
+            data: message.data,
+          );
+        }
 
-        await LocalNotificationService.instance.showNotification(
-          title: title,
-          body: body,
-          data: message.data,
-        );
-
-        debugPrint('======================================');
-        debugPrint(
-          'LOCAL NOTIFICATION DISPLAY '
-          'REQUEST COMPLETE',
-        );
-        debugPrint('======================================');
+        // iOS notification is displayed by:
+        //
+        // setForegroundNotificationPresentationOptions(
+        //   alert: true,
+        //   badge: true,
+        //   sound: true,
+        // );
       },
       onError: (error) {
-        debugPrint('======================================');
-        debugPrint('FOREGROUND FCM ERROR');
-        debugPrint('$error');
-        debugPrint('======================================');
+        debugPrint('FOREGROUND FCM ERROR: $error');
       },
     );
   }
-
   // ============================================================
   // BACKGROUND -> USER CLICKS NOTIFICATION
   // ============================================================
