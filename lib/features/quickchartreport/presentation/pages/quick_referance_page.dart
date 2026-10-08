@@ -41,19 +41,7 @@ class _QuickReferencePageState extends State<QuickReferencePage> {
           context.go(AppRouter.home);
         },
       ),
-      // appBar: AppBar(
-      //   elevation: 0,
-      //   backgroundColor: Colors.white,
-      //   surfaceTintColor: Colors.white,
-      //   title: const Text(
-      //     'Quick Reference',
-      //     style: TextStyle(
-      //       fontSize: 20,
-      //       fontWeight: FontWeight.w700,
-      //       color: Color(0xFF1F2937),
-      //     ),
-      //   ),
-      // ),
+
       body: BlocBuilder<GalleryBloc, GalleryState>(
         builder: (context, state) {
           if (state.status == GalleryStatus.loading) {
