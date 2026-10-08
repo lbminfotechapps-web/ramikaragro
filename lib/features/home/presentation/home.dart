@@ -775,7 +775,7 @@ class _HomeState extends State<Home> {
           child: SingleChildScrollView(
             child: Column(
               children: [
-                  SizedBox(height: 12.h),
+                SizedBox(height: 12.h),
                 if (_userId == null)
                   const Padding(
                     padding: EdgeInsets.all(30),
@@ -1142,10 +1142,7 @@ class _HomeState extends State<Home> {
                           color: colorScheme.primary,
                           fontWeight: FontWeight.bold,
                         ),
-                        columns: const [
-                          DataColumn(label: Text('Employee')),
-                          DataColumn(label: Text('Mobile')),
-                        ],
+                        columns: const [DataColumn(label: Text('Employee'))],
                         rows: List<DataRow>.generate(pendingList.length, (
                           index,
                         ) {
@@ -1160,20 +1157,33 @@ class _HomeState extends State<Home> {
                                   : colorScheme.primary.withOpacity(0.035),
                             ),
                             cells: [
-                              DataCell(Text(pending.fldAdmName ?? 'Unknown')),
                               DataCell(
-                                Text(
-                                  mobileNumber.isEmpty ? '-' : mobileNumber,
-                                  style: mobileNumber.isEmpty
-                                      ? null
-                                      : TextStyle(
-                                          color: colorScheme.primary,
-                                          decoration: TextDecoration.underline,
-                                        ),
+                                Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(pending.fldAdmName ?? 'Unknown'),
+                                    const SizedBox(height: 4),
+                                    InkWell(
+                                      onTap: mobileNumber.isEmpty
+                                          ? null
+                                          : () =>
+                                                _callPhoneNumber(mobileNumber),
+                                      child: Text(
+                                        mobileNumber.isEmpty
+                                            ? '-'
+                                            : mobileNumber,
+                                        style: mobileNumber.isEmpty
+                                            ? null
+                                            : TextStyle(
+                                                color: colorScheme.primary,
+                                                decoration:
+                                                    TextDecoration.underline,
+                                              ),
+                                      ),
+                                    ),
+                                  ],
                                 ),
-                                onTap: mobileNumber.isEmpty
-                                    ? null
-                                    : () => _callPhoneNumber(mobileNumber),
                               ),
                             ],
                           );

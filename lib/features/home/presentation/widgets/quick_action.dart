@@ -5,6 +5,7 @@ import 'package:solufine/core/location_tracking/app_database.dart';
 import 'package:solufine/core/location_tracking/location_repository.dart';
 import 'package:solufine/core/secure_storage/secure_storage.dart';
 import 'package:solufine/core/theme/app_colors.dart';
+import 'package:solufine/core/utility/app_toast.dart';
 
 import 'package:solufine/core/utility/appdialog.dart';
 import 'package:solufine/core/utility/device_info_util.dart';
@@ -63,6 +64,7 @@ class _QuickAccessSectionState extends State<QuickAccessSection> {
   final TextEditingController _searchController = TextEditingController();
   String _searchText = '';
   bool _voiceMenuOpen = false;
+  bool _shareLocationPending = false;
 
   Future<void> _openVoiceMenu() async {
     if (_voiceMenuOpen) return;
@@ -212,6 +214,7 @@ class _QuickAccessSectionState extends State<QuickAccessSection> {
     // DISPATCH SHARE LOCATION EVENT
     // ============================================
 
+    _shareLocationPending = true;
     context.read<QuickAcessBloc>().add(
       ShareLocationEvent(
         userId: userId!,
@@ -390,8 +393,12 @@ class _QuickAccessSectionState extends State<QuickAccessSection> {
 
     return BlocListener<QuickAcessBloc, QuickAccessState>(
       listenWhen: (previous, current) =>
-          previous.quickAccessStatus != current.quickAccessStatus,
+          _shareLocationPending &&
+          previous.quickAccessStatus != current.quickAccessStatus &&
+          (current.quickAccessStatus == QuickAccessStatus.locationAddedSucces ||
+              current.quickAccessStatus == QuickAccessStatus.failure),
       listener: (context, state) async {
+        _shareLocationPending = false;
         // ==========================================
         // SHARE LOCATION SUCCESS
         // ==========================================
@@ -426,15 +433,15 @@ class _QuickAccessSectionState extends State<QuickAccessSection> {
               strAllLocations,
             ),
           );
-
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Location shared successfully'),
-              backgroundColor: Colors.green,
-              behavior: SnackBarBehavior.floating,
-              duration: Duration(seconds: 2),
-            ),
-          );
+          AppToast.success('Location shared successfully');
+          // ScaffoldMessenger.of(context).showSnackBar(
+          //   const SnackBar(
+          //     content: Text('Location shared successfully'),
+          //     backgroundColor: Colors.green,
+          //     behavior: SnackBarBehavior.floating,
+          //     duration: Duration(seconds: 2),
+          //   ),
+          // );
         }
 
         // ==========================================
@@ -855,11 +862,9 @@ class _QuickAccessSectionState extends State<QuickAccessSection> {
       context.push('/addExpense');
     } else if (menu.menuId == '85') {
       context.push('/selfcollectionTarget');
-    }
-     else if (menu.menuId == '84') {
+    } else if (menu.menuId == '84') {
       context.push('/selfAssignTargetPointWise');
-    }
-      else if (menu.menuId == '88') {
+    } else if (menu.menuId == '88') {
       context.push('/quickReferance');
     }
 
@@ -872,6 +877,7 @@ class _QuickAccessSectionState extends State<QuickAccessSection> {
     }
     
      else if (menu.menuId == '57' ||
+    } else if (menu.menuId == '57' ||
         menu.menuId == '63' ||
         menu.menuId == '32') {
       final userData = await SecureStorage.instance.getUserData();

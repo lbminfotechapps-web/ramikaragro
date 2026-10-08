@@ -1,8 +1,12 @@
+import 'package:go_router/go_router.dart';
 import 'package:http/http.dart' as http;
 import 'package:share_plus/share_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:solufine/core/api_constant/api_client.dart';
+import 'package:solufine/core/router/app_router.dart';
+import 'package:solufine/core/theme/app_colors.dart';
+import 'package:solufine/core/utility/widgets/custom_appbar.dart';
 import 'package:solufine/features/quickchartreport/presentation/bloc/gallerybloc.dart';
 import 'package:solufine/features/quickchartreport/presentation/bloc/galleryevent.dart';
 import 'package:solufine/features/quickchartreport/presentation/bloc/gallerystate.dart';
@@ -27,20 +31,29 @@ class _QuickReferencePageState extends State<QuickReferencePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF5F7FA),
-      appBar: AppBar(
-        elevation: 0,
-        backgroundColor: Colors.white,
-        surfaceTintColor: Colors.white,
-        title: const Text(
-          'Quick Reference',
-          style: TextStyle(
-            fontSize: 20,
-            fontWeight: FontWeight.w700,
-            color: Color(0xFF1F2937),
-          ),
-        ),
+      backgroundColor: AppColors.backgroundColor,
+      appBar: CustomAppBar(
+        title: 'Quick Reference Chart Report',
+
+        showBackButton: true,
+
+        onBackTap: () {
+          context.go(AppRouter.home);
+        },
       ),
+      // appBar: AppBar(
+      //   elevation: 0,
+      //   backgroundColor: Colors.white,
+      //   surfaceTintColor: Colors.white,
+      //   title: const Text(
+      //     'Quick Reference',
+      //     style: TextStyle(
+      //       fontSize: 20,
+      //       fontWeight: FontWeight.w700,
+      //       color: Color(0xFF1F2937),
+      //     ),
+      //   ),
+      // ),
       body: BlocBuilder<GalleryBloc, GalleryState>(
         builder: (context, state) {
           if (state.status == GalleryStatus.loading) {
