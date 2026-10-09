@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../core/theme/app_dynamic_colors.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
@@ -39,24 +40,6 @@ class ReportsHomePage extends StatelessWidget {
 
   static const Color _primary =
       Color(0xFF168A45);
-
-  static const Color _primaryDark =
-      Color(0xFF0D6A34);
-
-  static const Color _background =
-      Color(0xFFF3F6F8);
-
-  static const Color _surface =
-      Colors.white;
-
-  static const Color _text =
-      Color(0xFF16222B);
-
-  static const Color _secondaryText =
-      Color(0xFF78848F);
-
-  static const Color _border =
-      Color(0xFFE5EAED);
 
   static const Color _blue =
       Color(0xFF3B78E7);
@@ -369,7 +352,7 @@ class ReportsHomePage extends StatelessWidget {
   ) {
     return Scaffold(
       backgroundColor:
-          _background,
+          context.appBackground,
 
       appBar:
           CustomAppBar(
@@ -432,11 +415,11 @@ class ReportsHomePage extends StatelessWidget {
             if (state.status ==
                     HomeStatus.loading &&
                 state.menus.isEmpty) {
-              return const Center(
+              return Center(
                 child:
                     CircularProgressIndicator(
                   color:
-                      _primary,
+                      context.appPrimary,
                   strokeWidth:
                       2.3,
                 ),
@@ -461,7 +444,7 @@ class ReportsHomePage extends StatelessWidget {
 
             return RefreshIndicator(
               color:
-                  _primary,
+                  context.appPrimary,
 
               onRefresh:
                   () =>
@@ -498,7 +481,7 @@ class ReportsHomePage extends StatelessWidget {
                         SliverToBoxAdapter(
                       child:
                           _heroCard(
-                        reportCount:
+                        context, reportCount:
                             menus.length,
                       ),
                     ),
@@ -527,7 +510,7 @@ class ReportsHomePage extends StatelessWidget {
                         SliverToBoxAdapter(
                       child:
                           _reportsHeader(
-                        menus.length,
+                        context, menus.length,
                       ),
                     ),
                   ),
@@ -654,7 +637,7 @@ class ReportsHomePage extends StatelessWidget {
   // HERO CARD
   // ============================================================
 
-  Widget _heroCard({
+  Widget _heroCard(BuildContext context, {
     required int reportCount,
   }) {
     return Container(
@@ -665,23 +648,7 @@ class ReportsHomePage extends StatelessWidget {
 
       decoration:
           BoxDecoration(
-        gradient:
-            const LinearGradient(
-          colors: [
-            Color(
-              0xFF0F6E3D,
-            ),
-            Color(
-              0xFF179151,
-            ),
-          ],
-
-          begin:
-              Alignment.topLeft,
-
-          end:
-              Alignment.bottomRight,
-        ),
+        color: context.appPrimary,
 
         borderRadius:
             BorderRadius.circular(
@@ -691,10 +658,8 @@ class ReportsHomePage extends StatelessWidget {
         boxShadow: [
           BoxShadow(
             color:
-                _primary
-                    .withOpacity(
-              .13,
-            ),
+                context.appPrimary
+                    .withValues(alpha: .13),
 
             blurRadius:
                 14,
@@ -729,10 +694,8 @@ class ReportsHomePage extends StatelessWidget {
               decoration:
                   BoxDecoration(
                 color:
-                    Colors.white
-                        .withOpacity(
-                  .05,
-                ),
+                    context.appOnPrimary
+                        .withValues(alpha: .05),
 
                 shape:
                     BoxShape.circle,
@@ -758,10 +721,8 @@ class ReportsHomePage extends StatelessWidget {
               decoration:
                   BoxDecoration(
                 color:
-                    Colors.white
-                        .withOpacity(
-                  .04,
-                ),
+                    context.appOnPrimary
+                        .withValues(alpha: .04),
 
                 shape:
                     BoxShape.circle,
@@ -781,10 +742,8 @@ class ReportsHomePage extends StatelessWidget {
                 decoration:
                     BoxDecoration(
                   color:
-                      Colors.white
-                          .withOpacity(
-                    .14,
-                  ),
+                      context.appOnPrimary
+                          .withValues(alpha: .14),
 
                   borderRadius:
                       BorderRadius.circular(
@@ -793,12 +752,12 @@ class ReportsHomePage extends StatelessWidget {
                 ),
 
                 child:
-                    const Icon(
+                    Icon(
                   Icons
                       .dashboard_customize_outlined,
 
                   color:
-                      Colors.white,
+                      context.appOnPrimary,
 
                   size:
                       22,
@@ -810,7 +769,7 @@ class ReportsHomePage extends StatelessWidget {
                     10,
               ),
 
-              const Expanded(
+              Expanded(
                 child:
                     Column(
                   crossAxisAlignment:
@@ -823,7 +782,7 @@ class ReportsHomePage extends StatelessWidget {
                       style:
                           TextStyle(
                         color:
-                            Colors.white,
+                            context.appOnPrimary,
 
                         fontSize:
                             15,
@@ -850,9 +809,7 @@ class ReportsHomePage extends StatelessWidget {
                       style:
                           TextStyle(
                         color:
-                            Color(
-                          0xFFDDF1E5,
-                        ),
+                            context.appOnPrimary.withValues(alpha: 0.8),
 
                         fontSize:
                             7.7,
@@ -883,10 +840,8 @@ class ReportsHomePage extends StatelessWidget {
                 decoration:
                     BoxDecoration(
                   color:
-                      Colors.white
-                          .withOpacity(
-                    .13,
-                  ),
+                      context.appOnPrimary
+                          .withValues(alpha: .13),
 
                   borderRadius:
                       BorderRadius.circular(
@@ -904,9 +859,9 @@ class ReportsHomePage extends StatelessWidget {
                       '$reportCount',
 
                       style:
-                          const TextStyle(
+                          TextStyle(
                         color:
-                            Colors.white,
+                            context.appOnPrimary,
 
                         fontSize:
                             14,
@@ -924,13 +879,13 @@ class ReportsHomePage extends StatelessWidget {
                           2,
                     ),
 
-                    const Text(
+                    Text(
                       'Reports',
 
                       style:
                           TextStyle(
                         color:
-                            Colors.white70,
+                            context.appOnPrimary.withValues(alpha: 0.7),
 
                         fontSize:
                             6.5,
@@ -954,11 +909,11 @@ class ReportsHomePage extends StatelessWidget {
   // ============================================================
 
   Widget _reportsHeader(
-    int count,
+    BuildContext context, int count,
   ) {
     return Row(
       children: [
-        const Expanded(
+        Expanded(
           child:
               Column(
             crossAxisAlignment:
@@ -971,7 +926,7 @@ class ReportsHomePage extends StatelessWidget {
                 style:
                     TextStyle(
                   color:
-                      _secondaryText,
+                      context.appSubText,
 
                   fontSize:
                       7,
@@ -994,9 +949,7 @@ class ReportsHomePage extends StatelessWidget {
           decoration:
               BoxDecoration(
             color:
-                const Color(
-              0xFFEAF5EF,
-            ),
+                Color.alphaBlend(context.appPrimary.withValues(alpha: 0.1), context.appCard),
 
             borderRadius:
                 BorderRadius.circular(
@@ -1009,9 +962,9 @@ class ReportsHomePage extends StatelessWidget {
             '$count available',
 
             style:
-                const TextStyle(
+                TextStyle(
               color:
-                  _primaryDark,
+                  context.appPrimary,
 
               fontSize:
                   6.7,
@@ -1064,7 +1017,7 @@ class ReportsHomePage extends StatelessWidget {
           decoration:
               BoxDecoration(
             color:
-                _surface,
+                context.appCard,
 
             borderRadius:
                 BorderRadius.circular(
@@ -1074,7 +1027,7 @@ class ReportsHomePage extends StatelessWidget {
             border:
                 Border.all(
               color:
-                  _border,
+                  context.appBorder,
 
               width:
                   .8,
@@ -1083,10 +1036,8 @@ class ReportsHomePage extends StatelessWidget {
             boxShadow: [
               BoxShadow(
                 color:
-                    Colors.black
-                        .withOpacity(
-                  .018,
-                ),
+                    Theme.of(context).colorScheme.shadow
+                        .withValues(alpha: .018),
 
                 blurRadius:
                     6,
@@ -1114,7 +1065,7 @@ class ReportsHomePage extends StatelessWidget {
                 decoration:
                     BoxDecoration(
                   color:
-                      style.color,
+                      context.appPrimary,
 
                   borderRadius:
                       const BorderRadius.vertical(
@@ -1155,10 +1106,8 @@ class ReportsHomePage extends StatelessWidget {
                             decoration:
                                 BoxDecoration(
                               color:
-                                  style.color
-                                      .withOpacity(
-                                .08,
-                              ),
+                                  context.appPrimary
+                                      .withValues(alpha: .08),
 
                               borderRadius:
                                   BorderRadius.circular(
@@ -1174,7 +1123,7 @@ class ReportsHomePage extends StatelessWidget {
                                         style.icon,
 
                                         color:
-                                            style.color,
+                                            context.appPrimary,
 
                                         size:
                                             18,
@@ -1202,7 +1151,7 @@ class ReportsHomePage extends StatelessWidget {
                                               style.icon,
 
                                               color:
-                                                  style.color,
+                                                  context.appPrimary,
 
                                               size:
                                                   18,
@@ -1224,10 +1173,8 @@ class ReportsHomePage extends StatelessWidget {
                             decoration:
                                 BoxDecoration(
                               color:
-                                  style.color
-                                      .withOpacity(
-                                .055,
-                              ),
+                                  context.appPrimary
+                                      .withValues(alpha: .055),
 
                               shape:
                                   BoxShape.circle,
@@ -1242,7 +1189,7 @@ class ReportsHomePage extends StatelessWidget {
                                   12,
 
                               color:
-                                  style.color,
+                                  context.appPrimary,
                             ),
                           ),
                         ],
@@ -1260,9 +1207,9 @@ class ReportsHomePage extends StatelessWidget {
                             TextOverflow.ellipsis,
 
                         style:
-                            const TextStyle(
+                            TextStyle(
                           color:
-                              _text,
+                              context.appOnCard,
 
                           fontSize:
                               10,
@@ -1292,9 +1239,9 @@ class ReportsHomePage extends StatelessWidget {
                             TextOverflow.ellipsis,
 
                         style:
-                            const TextStyle(
+                            TextStyle(
                           color:
-                              _secondaryText,
+                              context.appSubText,
 
                           fontSize:
                               6.5,
@@ -1324,10 +1271,8 @@ class ReportsHomePage extends StatelessWidget {
                             decoration:
                                 BoxDecoration(
                               color:
-                                  style.color
-                                      .withOpacity(
-                                .07,
-                              ),
+                                  context.appPrimary
+                                      .withValues(alpha: .07),
 
                               borderRadius:
                                   BorderRadius.circular(
@@ -1344,7 +1289,7 @@ class ReportsHomePage extends StatelessWidget {
                               style:
                                   TextStyle(
                                 color:
-                                    style.color,
+                                    context.appPrimary,
 
                                 fontSize:
                                     6,
@@ -1362,7 +1307,7 @@ class ReportsHomePage extends StatelessWidget {
                                 .chevron_right_rounded,
 
                             color:
-                                style.color,
+                                context.appPrimary,
 
                             size:
                                 15,
@@ -1736,22 +1681,20 @@ class ReportsHomePage extends StatelessWidget {
               decoration:
                   BoxDecoration(
                 color:
-                    Colors.red
-                        .withOpacity(
-                  .06,
-                ),
+                    context.appError
+                        .withValues(alpha: .06),
 
                 shape:
                     BoxShape.circle,
               ),
 
               child:
-                  const Icon(
+                  Icon(
                 Icons
                     .error_outline_rounded,
 
                 color:
-                    Colors.redAccent,
+                    context.appError,
 
                 size:
                     25,
@@ -1763,13 +1706,13 @@ class ReportsHomePage extends StatelessWidget {
                   10,
             ),
 
-            const Text(
+            Text(
               'Unable to load reports',
 
               style:
                   TextStyle(
                 color:
-                    _text,
+                    context.appOnCard,
 
                 fontSize:
                     12,
@@ -1784,7 +1727,7 @@ class ReportsHomePage extends StatelessWidget {
                   3,
             ),
 
-            const Text(
+            Text(
               'Please check your connection and try again.',
 
               textAlign:
@@ -1793,7 +1736,7 @@ class ReportsHomePage extends StatelessWidget {
               style:
                   TextStyle(
                 color:
-                    _secondaryText,
+                    context.appSubText,
 
                 fontSize:
                     7.5,
@@ -1815,7 +1758,7 @@ class ReportsHomePage extends StatelessWidget {
               },
 
               icon:
-                  const Icon(
+                  Icon(
                 Icons.refresh_rounded,
 
                 size:
@@ -1823,19 +1766,19 @@ class ReportsHomePage extends StatelessWidget {
               ),
 
               label:
-                  const Text(
+                  Text(
                 'Retry',
               ),
 
               style:
                   OutlinedButton.styleFrom(
                 foregroundColor:
-                    _primary,
+                    context.appPrimary,
 
                 side:
-                    const BorderSide(
+                    BorderSide(
                   color:
-                      _primary,
+                      context.appPrimary,
                 ),
 
                 padding:
@@ -1848,7 +1791,7 @@ class ReportsHomePage extends StatelessWidget {
                 ),
 
                 textStyle:
-                    const TextStyle(
+                    TextStyle(
                   fontSize:
                       8.5,
 
@@ -1898,24 +1841,21 @@ class _EmptyReports
                   58,
 
               decoration:
-                  const BoxDecoration(
+                  BoxDecoration(
                 color:
-                    Color(
-                  0xFFEAF5EF,
-                ),
+                    Color.alphaBlend(context.appPrimary.withValues(alpha: 0.1), context.appCard),
 
                 shape:
                     BoxShape.circle,
               ),
 
               child:
-                  const Icon(
+                  Icon(
                 Icons
                     .dashboard_customize_outlined,
 
                 color:
-                    ReportsHomePage
-                        ._primary,
+                    context.appPrimary,
 
                 size:
                     28,
@@ -1927,14 +1867,13 @@ class _EmptyReports
                   10,
             ),
 
-            const Text(
+            Text(
               'No Reports Available',
 
               style:
                   TextStyle(
                 color:
-                    ReportsHomePage
-                        ._text,
+                    context.appText,
 
                 fontSize:
                     12,
@@ -1949,7 +1888,7 @@ class _EmptyReports
                   3,
             ),
 
-            const Text(
+            Text(
               'No report menus are assigned to your account.',
 
               textAlign:
@@ -1958,8 +1897,7 @@ class _EmptyReports
               style:
                   TextStyle(
                 color:
-                    ReportsHomePage
-                        ._secondaryText,
+                    context.appSubText,
 
                 fontSize:
                     7.5,

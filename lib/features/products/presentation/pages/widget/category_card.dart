@@ -1,3 +1,4 @@
+import 'package:solufine/core/theme/app_dynamic_colors.dart';
 import 'package:solufine/core/api_constant/api_client.dart';
 import 'package:solufine/features/products/domain/entity/fertilizer_category_entity.dart';
 import 'package:flutter/material.dart';
@@ -15,24 +16,12 @@ class CategoryCard extends StatelessWidget {
     required this.index,
   });
 
-  static const List<Color> _backgroundColors = [
-    Color(0xFFF1FAF4), // Green
-    Color(0xFFFFF8ED), // Orange
-    Color(0xFFF1F5FD), // Blue
-    Color(0xFFF5F5F5), // Grey
-    Color(0xFFF9F0FF), // Purple
-    Color(0xFFFFF0F3), // Pink
-  ];
-
-  Color get backgroundColor {
-    return _backgroundColors[index % _backgroundColors.length];
-  }
 
   @override
   Widget build(BuildContext context) {
     return Card(
       elevation: 2,
-      color: backgroundColor,
+      color: Color.alphaBlend(context.appPrimary.withValues(alpha: 0.06), context.appCard),
       clipBehavior: Clip.antiAlias,
       margin: EdgeInsets.zero,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
@@ -45,7 +34,7 @@ class CategoryCard extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               // IMAGE
-              SizedBox(width: 150, height: 100, child: _buildImage()),
+              SizedBox(width: 150, height: 100, child: _buildImage(context)),
 
               //  SizedBox(height: 5.h),
 
@@ -55,9 +44,10 @@ class CategoryCard extends StatelessWidget {
                 textAlign: TextAlign.center,
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 15,
                   fontWeight: FontWeight.w700,
+                  color: context.appOnCard,
                 ),
               ),
 
@@ -70,7 +60,7 @@ class CategoryCard extends StatelessWidget {
                 style: TextStyle(
                   fontSize: 12,
                   fontWeight: FontWeight.w500,
-                  color: Colors.grey.shade600,
+                  color: context.appSubText,
                 ),
               ),
             ],
@@ -80,9 +70,9 @@ class CategoryCard extends StatelessWidget {
     );
   }
 
-  Widget _buildImage() {
+  Widget _buildImage(BuildContext context) {
     if (category.categoryPath.isEmpty) {
-      return _placeholderImage();
+      return _placeholderImage(context);
     }
 
     return ClipRRect(
@@ -93,22 +83,22 @@ class CategoryCard extends StatelessWidget {
         height: 120,
         fit: BoxFit.contain,
         errorBuilder: (_, __, ___) {
-          return _placeholderImage();
+          return _placeholderImage(context);
         },
       ),
     );
   }
 
-  Widget _placeholderImage() {
+  Widget _placeholderImage(BuildContext context) {
     return Container(
       width: 150,
       height: 150,
       decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.6),
+        color: context.appInputBackground,
         borderRadius: BorderRadius.circular(14),
       ),
-      child: const Center(
-        child: Icon(Icons.category_rounded, size: 60, color: Colors.grey),
+      child: Center(
+        child: Icon(Icons.category_rounded, size: 60, color: context.appSubText),
       ),
     );
   }

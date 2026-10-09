@@ -42,9 +42,7 @@ extension AppColors on ColorScheme {
   static const Color accentPurple = Color(0xFFB478FF);
   static const Color accentBlue = Color(0xFF78C8FF);
 
-  // ==========================================================
-  // PRIMARY GREEN
-  // ==========================================================
+
 
   static const Color primary = Color(0xFF1B4332);
 

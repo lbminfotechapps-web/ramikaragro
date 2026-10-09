@@ -1,6 +1,6 @@
 import 'package:solufine/core/utility/tab_refresh.dart';
 import 'package:solufine/core/router/app_router.dart';
-import 'package:solufine/core/theme/app_colors.dart';
+import 'package:solufine/core/theme/app_dynamic_colors.dart';
 import 'package:solufine/core/utility/widgets/custom_appbar.dart';
 import 'package:solufine/core/utility/widgets/custom_loader.dart';
 
@@ -281,7 +281,7 @@ class _ProductCategoryScreenState extends State<ProductCategoryScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.backgroundColor,
+      backgroundColor: context.appBackground,
       appBar: CustomAppBar(
         title: 'Product Category',
         showBackButton: true,
@@ -336,7 +336,7 @@ class _ProductCategoryScreenState extends State<ProductCategoryScreen> {
 
                   if (!isSearching &&
                       state.productStatus == ProductStatus.loading) {
-                    return const CustomLoader();
+                    return CustomLoader(color: context.appPrimary);
                   }
 
                   if (!isSearching &&
@@ -376,8 +376,12 @@ class _ProductCategoryScreenState extends State<ProductCategoryScreen> {
         controller: _searchController,
         onChanged: _searchProducts,
         textInputAction: TextInputAction.search,
+        style: TextStyle(color: context.appText),
         decoration: InputDecoration(
           hintText: 'Search product...',
+          hintStyle: TextStyle(color: context.appSubText),
+          prefixIconColor: context.appPrimary,
+          suffixIconColor: context.appSubText,
           prefixIcon: const Icon(
             Icons.search_rounded,
           ),
@@ -398,7 +402,7 @@ class _ProductCategoryScreenState extends State<ProductCategoryScreen> {
                 )
               : null,
           filled: true,
-          fillColor: Colors.white,
+          fillColor: context.appInputBackground,
           contentPadding: const EdgeInsets.symmetric(
             horizontal: 16,
             vertical: 14,
@@ -408,7 +412,7 @@ class _ProductCategoryScreenState extends State<ProductCategoryScreen> {
               22,
             ),
             borderSide: BorderSide(
-              color: Colors.grey.shade200,
+              color: context.appBorder,
             ),
           ),
           enabledBorder: OutlineInputBorder(
@@ -416,15 +420,15 @@ class _ProductCategoryScreenState extends State<ProductCategoryScreen> {
               22,
             ),
             borderSide: BorderSide(
-              color: Colors.grey.shade200,
+              color: context.appBorder,
             ),
           ),
           focusedBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(
               22,
             ),
-            borderSide: const BorderSide(
-              color: Color(0xFF087C3A),
+            borderSide: BorderSide(
+              color: context.appPrimary,
               width: 1.5,
             ),
           ),
@@ -500,8 +504,8 @@ class _ProductCategoryScreenState extends State<ProductCategoryScreen> {
         decoration: _searchDecoration(),
         child: Text(
           state.message,
-          style: const TextStyle(
-            color: Colors.red,
+          style: TextStyle(
+            color: context.appError,
           ),
         ),
       );
@@ -526,7 +530,7 @@ class _ProductCategoryScreenState extends State<ProductCategoryScreen> {
           children: [
             Icon(
               Icons.search_off_rounded,
-              color: Colors.grey.shade500,
+              color: context.appSubText,
             ),
             const SizedBox(
               width: 10,
@@ -535,7 +539,7 @@ class _ProductCategoryScreenState extends State<ProductCategoryScreen> {
               child: Text(
                 'No product found for "$query"',
                 style: TextStyle(
-                  color: Colors.grey.shade600,
+                  color: context.appSubText,
                 ),
               ),
             ),
@@ -568,7 +572,7 @@ class _ProductCategoryScreenState extends State<ProductCategoryScreen> {
         separatorBuilder: (context, index) {
           return Divider(
             height: 1,
-            color: Colors.grey.shade200,
+            color: context.appBorder,
           );
         },
         itemBuilder: (context, index) {
@@ -596,18 +600,14 @@ class _ProductCategoryScreenState extends State<ProductCategoryScreen> {
                     width: 42,
                     height: 42,
                     decoration: BoxDecoration(
-                      color: const Color(
-                        0xFF087C3A,
-                      ).withOpacity(0.08),
+                      color: context.appPrimary.withValues(alpha: 0.08),
                       borderRadius: BorderRadius.circular(
                         10,
                       ),
                     ),
-                    child: const Icon(
+                    child: Icon(
                       Icons.inventory_2_outlined,
-                      color: Color(
-                        0xFF087C3A,
-                      ),
+                      color: context.appPrimary,
                       size: 21,
                     ),
                   ),
@@ -628,10 +628,10 @@ class _ProductCategoryScreenState extends State<ProductCategoryScreen> {
                           product.productName,
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontSize: 15,
                             fontWeight: FontWeight.w600,
-                            color: Colors.black87,
+                            color: context.appOnCard,
                           ),
                         ),
 
@@ -639,11 +639,11 @@ class _ProductCategoryScreenState extends State<ProductCategoryScreen> {
                           height: 2,
                         ),
 
-                        const Text(
+                        Text(
                           'View product details',
                           style: TextStyle(
                             fontSize: 12,
-                            color: Colors.grey,
+                            color: context.appSubText,
                           ),
                         ),
                       ],
@@ -654,10 +654,9 @@ class _ProductCategoryScreenState extends State<ProductCategoryScreen> {
                     width: 8,
                   ),
 
-                  const Icon(
-                    Icons.arrow_forward_ios_rounded,
+                  Icon(Icons.arrow_forward_ios_rounded,
                     size: 15,
-                    color: Colors.grey,
+                    color: context.appSubText,
                   ),
                 ],
               ),
@@ -674,16 +673,16 @@ class _ProductCategoryScreenState extends State<ProductCategoryScreen> {
 
   BoxDecoration _searchDecoration() {
     return BoxDecoration(
-      color: Colors.white,
+      color: context.appCard,
       borderRadius: BorderRadius.circular(
         14,
       ),
       border: Border.all(
-        color: Colors.grey.shade200,
+        color: context.appBorder,
       ),
       boxShadow: [
         BoxShadow(
-          color: Colors.black.withOpacity(
+          color: Theme.of(context).colorScheme.shadow.withOpacity(
             0.07,
           ),
           blurRadius: 12,

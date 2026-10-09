@@ -1,3 +1,4 @@
+import 'package:solufine/core/theme/app_dynamic_colors.dart';
 import 'dart:math' as math;
 
 import 'package:fl_chart/fl_chart.dart';
@@ -31,9 +32,9 @@ class VisitOverviewCard extends StatelessWidget {
       margin: EdgeInsets.symmetric(horizontal: 2.w),
       padding: EdgeInsets.fromLTRB(14.w, 14.h, 14.w, 12.h),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: context.appCard,
         borderRadius: BorderRadius.circular(18.r),
-        border: Border.all(color: const Color(0xFFE8EDF3)),
+        border: Border.all(color: context.appBorder),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withOpacity(0.045),
@@ -54,16 +55,12 @@ class VisitOverviewCard extends StatelessWidget {
                 width: 36.w,
                 height: 36.w,
                 decoration: BoxDecoration(
-                  gradient: const LinearGradient(
-                    colors: [Color(0xFF2563EB), Color(0xFF3B82F6)],
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                  ),
+                  gradient: context.appBackgroundGradient,
                   borderRadius: BorderRadius.circular(11.r),
                 ),
                 child: Icon(
                   Icons.show_chart_rounded,
-                  color: Colors.white,
+                  color: context.appOnPrimary,
                   size: 21.sp,
                 ),
               ),
@@ -77,7 +74,7 @@ class VisitOverviewCard extends StatelessWidget {
                     Text(
                       'Visit Overview',
                       style: TextStyle(
-                        color: const Color(0xFF152238),
+                        color: context.appOnCard,
                         fontSize: 16.sp,
                         fontWeight: FontWeight.w800,
                       ),
@@ -86,7 +83,7 @@ class VisitOverviewCard extends StatelessWidget {
                     Text(
                       'Last 8 days overview ',
                       style: TextStyle(
-                        color: const Color(0xFF8490A2),
+                        color: context.appSubText,
                         fontSize: 10.sp,
                         fontWeight: FontWeight.w500,
                       ),
@@ -141,7 +138,7 @@ class VisitOverviewCard extends StatelessWidget {
                   value: dealerCount,
                   icon: Icons.storefront_rounded,
                   color: _dealerColor,
-                  background: const Color(0xFFEEF5FF),
+                  background: Color.alphaBlend(_dealerColor.withValues(alpha: 0.1), context.appCard),
                 ),
               ),
 
@@ -153,7 +150,7 @@ class VisitOverviewCard extends StatelessWidget {
                   value: farmerCount,
                   icon: Icons.agriculture_rounded,
                   color: _farmerColor,
-                  background: const Color(0xFFFFF4EA),
+                  background: Color.alphaBlend(_farmerColor.withValues(alpha: 0.1), context.appCard),
                 ),
               ),
             ],
@@ -169,7 +166,7 @@ class VisitOverviewCard extends StatelessWidget {
               Text(
                 'Visit Trend',
                 style: TextStyle(
-                  color: const Color(0xFF334155),
+                  color: context.appOnCard,
                   fontSize: 12.sp,
                   fontWeight: FontWeight.w700,
                 ),
@@ -195,9 +192,9 @@ class VisitOverviewCard extends StatelessWidget {
             width: double.infinity,
             padding: EdgeInsets.fromLTRB(4.w, 10.h, 6.w, 0),
             decoration: BoxDecoration(
-              color: const Color(0xFFF8FAFC),
+              color: context.appInputBackground,
               borderRadius: BorderRadius.circular(14.r),
-              border: Border.all(color: const Color(0xFFEEF2F7)),
+              border: Border.all(color: context.appBorder),
             ),
             child: _VisitLineChart(dayWise: dayWise),
           ),
@@ -241,7 +238,7 @@ class _CompactStatCard extends StatelessWidget {
             width: 34.w,
             height: 34.w,
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: context.appCard,
               borderRadius: BorderRadius.circular(10.r),
               boxShadow: [
                 BoxShadow(
@@ -266,7 +263,7 @@ class _CompactStatCard extends StatelessWidget {
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: TextStyle(
-                    color: const Color(0xFF64748B),
+                    color: context.appSubText,
                     fontSize: 9.sp,
                     fontWeight: FontWeight.w600,
                   ),
@@ -317,7 +314,7 @@ class _LegendItem extends StatelessWidget {
         Text(
           label,
           style: TextStyle(
-            color: const Color(0xFF64748B),
+            color: context.appSubText,
             fontSize: 9.sp,
             fontWeight: FontWeight.w600,
           ),
@@ -350,13 +347,13 @@ class _VisitLineChart extends StatelessWidget {
             Container(
               width: 42.w,
               height: 42.w,
-              decoration: const BoxDecoration(
-                color: Color(0xFFF1F5F9),
+              decoration: BoxDecoration(
+                color: context.appInputBackground,
                 shape: BoxShape.circle,
               ),
               child: Icon(
                 Icons.insert_chart_outlined_rounded,
-                color: const Color(0xFF94A3B8),
+                color: context.appSubText,
                 size: 21.sp,
               ),
             ),
@@ -364,7 +361,7 @@ class _VisitLineChart extends StatelessWidget {
             Text(
               'No visit data available',
               style: TextStyle(
-                color: const Color(0xFF94A3B8),
+                color: context.appSubText,
                 fontSize: 10.sp,
                 fontWeight: FontWeight.w500,
               ),
@@ -429,7 +426,7 @@ class _VisitLineChart extends StatelessWidget {
           drawVerticalLine: false,
           horizontalInterval: yInterval,
           getDrawingHorizontalLine: (value) {
-            return const FlLine(color: Color(0xFFE7ECF2), strokeWidth: 1);
+            return FlLine(color: context.appBorder, strokeWidth: 1);
           },
         ),
 
@@ -465,7 +462,7 @@ class _VisitLineChart extends StatelessWidget {
                   child: Text(
                     _formatYAxis(value),
                     style: TextStyle(
-                      color: const Color(0xFF94A3B8),
+                      color: context.appSubText,
                       fontSize: 8.sp,
                       fontWeight: FontWeight.w500,
                     ),
@@ -503,7 +500,7 @@ class _VisitLineChart extends StatelessWidget {
                   child: Text(
                     DateFormat('dd MMM').format(date),
                     style: TextStyle(
-                      color: const Color(0xFF64748B),
+                      color: context.appSubText,
                       fontSize: 7.5.sp,
                       fontWeight: FontWeight.w500,
                     ),
@@ -560,7 +557,7 @@ class _VisitLineChart extends StatelessWidget {
               getDotPainter: (spot, percent, barData, index) {
                 return FlDotCirclePainter(
                   radius: 3.8,
-                  color: Colors.white,
+                  color: context.appCard,
                   strokeWidth: 2.2,
                   strokeColor: dealerColor,
                 );
@@ -598,7 +595,7 @@ class _VisitLineChart extends StatelessWidget {
               getDotPainter: (spot, percent, barData, index) {
                 return FlDotCirclePainter(
                   radius: 3.8,
-                  color: Colors.white,
+                  color: context.appCard,
                   strokeWidth: 2.2,
                   strokeColor: farmerColor,
                 );

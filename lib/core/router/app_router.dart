@@ -99,7 +99,8 @@ class AppRouter {
   static const String monthlyPerformanceReport = '/monthlyPerformanceReport';
 
   static const String reportPage = '/reportPage';
-  static const String monthlyVisitPerformanceReport = '/monthlyVisitPerformanceReport';
+  static const String monthlyVisitPerformanceReport =
+      '/monthlyVisitPerformanceReport';
 
   static const String productList = '/productList';
   static const String productDetails = '/productDetails';
@@ -556,26 +557,20 @@ class AppRouter {
         },
       ),
 
-                      GoRoute(
-                        path: monthlyVisitPerformanceReport,
-                        name: 'monthlyVisitPerformanceReport',
-                        builder: (context, state) {
-                          return MultiBlocProvider(
-                            providers: [
-                              BlocProvider<VisitMonthWiseBloc>(
-                                create: (_) =>
-                                    sl<VisitMonthWiseBloc>(),
-                              ),
-                            ],
-                            child: const VisitMonthWiseReportPage(),
-                          );
-                        },
-                      ),
-
-
-
-
-
+      GoRoute(
+        path: monthlyVisitPerformanceReport,
+        name: 'monthlyVisitPerformanceReport',
+        builder: (context, state) {
+          return MultiBlocProvider(
+            providers: [
+              BlocProvider<VisitMonthWiseBloc>(
+                create: (_) => sl<VisitMonthWiseBloc>(),
+              ),
+            ],
+            child: const VisitMonthWiseReportPage(),
+          );
+        },
+      ),
 
       GoRoute(
         path: growthReport,

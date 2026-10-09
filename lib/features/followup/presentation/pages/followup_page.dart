@@ -2,7 +2,7 @@ import 'package:url_launcher/url_launcher.dart';
 import 'package:solufine/core/utility/tab_refresh.dart';
 
 import 'package:solufine/core/router/app_router.dart';
-import 'package:solufine/core/theme/app_colors.dart';
+import 'package:solufine/core/theme/app_dynamic_colors.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -154,14 +154,7 @@ class _FollowupPageState extends State<FollowupPage> {
   // ===========================================================================
 
   ThemeData _datePickerTheme(BuildContext context) {
-    return Theme.of(context).copyWith(
-      colorScheme: const ColorScheme.light(
-        primary: AppColors.textPrimary,
-        onPrimary: AppColors.white,
-        surface: AppColors.white,
-        onSurface: AppColors.textDark,
-      ),
-    );
+    return Theme.of(context);
   }
 
   // ===========================================================================
@@ -223,10 +216,10 @@ class _FollowupPageState extends State<FollowupPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.backgroundColor,
+      backgroundColor: context.appBackground,
 
       appBar: CustomAppBar(
-        title: 'Upcoming Followup List',
+        title: 'Upcoming Followup Lefeist',
         showBackButton: true,
         onBackTap: () => context.go(AppRouter.home),
       ),
@@ -289,12 +282,8 @@ class _FollowupPageState extends State<FollowupPage> {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.fromLTRB(16, 10, 16, 18),
-      decoration: const BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [AppColors.primaryGreen, AppColors.darkGreen],
-        ),
+      decoration: BoxDecoration(
+        gradient: context.appBackgroundGradient,
         borderRadius: BorderRadius.only(
           bottomLeft: Radius.circular(26),
           bottomRight: Radius.circular(26),
@@ -309,13 +298,13 @@ class _FollowupPageState extends State<FollowupPage> {
             width: 48,
             height: 48,
             decoration: BoxDecoration(
-              color: AppColors.white.withOpacity(0.15),
+              color: context.appOnPrimary.withValues(alpha: 0.15),
               borderRadius: BorderRadius.circular(15),
-              border: Border.all(color: AppColors.white.withOpacity(0.10)),
+              border: Border.all(color: context.appOnPrimary.withValues(alpha: 0.10)),
             ),
-            child: const Icon(
+            child: Icon(
               Icons.event_note_rounded,
-              color: AppColors.white,
+              color: context.appOnPrimary,
               size: 25,
             ),
           ),
@@ -329,10 +318,10 @@ class _FollowupPageState extends State<FollowupPage> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text(
+                Text(
                   'Upcoming Followups',
                   style: TextStyle(
-                    color: AppColors.white,
+                    color: context.appOnPrimary,
                     fontSize: 17,
                     fontWeight: FontWeight.w700,
                   ),
@@ -344,7 +333,7 @@ class _FollowupPageState extends State<FollowupPage> {
                   '${_formatShortDate(fromDate)}  •  '
                   '${_formatShortDate(toDate)}',
                   style: TextStyle(
-                    color: AppColors.white.withOpacity(0.78),
+                    color: context.appOnPrimary.withValues(alpha: 0.78),
                     fontSize: 11,
                     fontWeight: FontWeight.w500,
                   ),
@@ -379,15 +368,15 @@ class _FollowupPageState extends State<FollowupPage> {
       constraints: const BoxConstraints(minWidth: 54),
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
       decoration: BoxDecoration(
-        color: AppColors.white,
+        color: context.appCard,
         borderRadius: BorderRadius.circular(13),
       ),
       child: Column(
         children: [
           Text(
             '$count',
-            style: const TextStyle(
-              color: AppColors.primaryGreen,
+            style: TextStyle(
+              color: context.appPrimary,
               fontSize: 16,
               fontWeight: FontWeight.w800,
             ),
@@ -395,10 +384,10 @@ class _FollowupPageState extends State<FollowupPage> {
 
           const SizedBox(height: 1),
 
-          const Text(
+          Text(
             'TOTAL',
             style: TextStyle(
-              color: AppColors.textGrey,
+              color: context.appSubText,
               fontSize: 7.5,
               fontWeight: FontWeight.w700,
               letterSpacing: 0.4,
@@ -418,12 +407,12 @@ class _FollowupPageState extends State<FollowupPage> {
       margin: const EdgeInsets.fromLTRB(12, 12, 12, 8),
       padding: const EdgeInsets.all(11),
       decoration: BoxDecoration(
-        color: AppColors.white,
+        color: context.appCard,
         borderRadius: BorderRadius.circular(19),
-        border: Border.all(color: AppColors.borderColor),
+        border: Border.all(color: context.appBorder),
         boxShadow: [
           BoxShadow(
-            color: AppColors.black.withOpacity(0.035),
+            color: Theme.of(context).colorScheme.shadow.withValues(alpha: 0.035),
             blurRadius: 12,
             offset: const Offset(0, 3),
           ),
@@ -484,7 +473,7 @@ class _FollowupPageState extends State<FollowupPage> {
     required VoidCallback onTap,
   }) {
     return Material(
-      color: const Color(0xFFF8FAF8),
+      color: context.appInputBackground,
       borderRadius: BorderRadius.circular(13),
       child: InkWell(
         onTap: onTap,
@@ -494,7 +483,7 @@ class _FollowupPageState extends State<FollowupPage> {
           padding: const EdgeInsets.symmetric(horizontal: 8),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(13),
-            border: Border.all(color: AppColors.white),
+            border: Border.all(color: context.appBorder),
           ),
           child: Row(
             children: [
@@ -503,10 +492,10 @@ class _FollowupPageState extends State<FollowupPage> {
                 width: 30,
                 height: 30,
                 decoration: BoxDecoration(
-                  color: AppColors.white,
+                  color: context.appCard,
                   borderRadius: BorderRadius.circular(9),
                 ),
-                child: Icon(icon, size: 15, color: AppColors.primaryGreen),
+                child: Icon(icon, size: 15, color: context.appPrimary),
               ),
 
               const SizedBox(width: 6),
@@ -519,9 +508,9 @@ class _FollowupPageState extends State<FollowupPage> {
                   children: [
                     Text(
                       title,
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 7.5,
-                        color: Color(0xFF849087),
+                        color: context.appSubText,
                         fontWeight: FontWeight.w700,
                         letterSpacing: 0.4,
                       ),
@@ -533,9 +522,9 @@ class _FollowupPageState extends State<FollowupPage> {
                       _formatShortDate(date),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 10.5,
-                        color: AppColors.textDark,
+                        color: context.appOnCard,
                         fontWeight: FontWeight.w700,
                       ),
                     ),
@@ -558,9 +547,9 @@ class _FollowupPageState extends State<FollowupPage> {
       height: 52,
       padding: const EdgeInsets.all(4),
       decoration: BoxDecoration(
-        color: const Color(0xFFF0F4F0),
+        color: context.appInputBackground,
         borderRadius: BorderRadius.circular(15),
-        border: Border.all(color: const Color(0xFFE4EAE5)),
+        border: Border.all(color: context.appBorder),
       ),
       child: Row(
         children: [
@@ -597,12 +586,12 @@ class _FollowupPageState extends State<FollowupPage> {
         duration: const Duration(milliseconds: 220),
         curve: Curves.easeOut,
         decoration: BoxDecoration(
-          color: selected ? AppColors.primaryGreen : Colors.transparent,
+          color: selected ? context.appPrimary : Colors.transparent,
           borderRadius: BorderRadius.circular(12),
           boxShadow: selected
               ? [
                   BoxShadow(
-                    color: AppColors.primaryGreen.withOpacity(0.20),
+                    color: context.appPrimary.withValues(alpha: 0.20),
                     blurRadius: 7,
                     offset: const Offset(0, 2),
                   ),
@@ -617,14 +606,14 @@ class _FollowupPageState extends State<FollowupPage> {
               height: 28,
               decoration: BoxDecoration(
                 color: selected
-                    ? AppColors.white.withOpacity(0.16)
+                    ? context.appOnPrimary.withValues(alpha: 0.16)
                     : Colors.transparent,
                 borderRadius: BorderRadius.circular(8),
               ),
               child: Icon(
                 icon,
                 size: 15,
-                color: selected ? AppColors.white : const Color(0xFF69766E),
+                color: selected ? context.appOnPrimary : context.appSubText,
               ),
             ),
 
@@ -635,7 +624,7 @@ class _FollowupPageState extends State<FollowupPage> {
               style: TextStyle(
                 fontSize: 11.5,
                 fontWeight: FontWeight.w700,
-                color: selected ? AppColors.white : const Color(0xFF69766E),
+                color: selected ? context.appOnPrimary : context.appSubText,
               ),
             ),
           ],
@@ -652,15 +641,15 @@ class _FollowupPageState extends State<FollowupPage> {
     final bool enabled = userId.isNotEmpty;
 
     return Material(
-      color: enabled ? AppColors.primaryGreen : AppColors.white,
+      color: enabled ? context.appPrimary : context.appCard,
       borderRadius: BorderRadius.circular(13),
       child: InkWell(
         onTap: enabled ? _loadFollowup : null,
         borderRadius: BorderRadius.circular(13),
-        child: const SizedBox(
+        child: SizedBox(
           width: 48,
           height: 52,
-          child: Icon(Icons.search_rounded, color: AppColors.white, size: 22),
+          child: Icon(Icons.search_rounded, color: enabled ? context.appOnPrimary : context.appSubText, size: 22),
         ),
       ),
     );
@@ -672,7 +661,7 @@ class _FollowupPageState extends State<FollowupPage> {
 
   Widget _buildFollowupList(List<FollowupEntity> followups) {
     return RefreshIndicator(
-      color: AppColors.primaryGreen,
+      color: context.appPrimary,
       onRefresh: () async {
         _loadFollowup();
       },
@@ -700,12 +689,12 @@ class _FollowupPageState extends State<FollowupPage> {
     return Container(
       margin: const EdgeInsets.only(bottom: 10),
       decoration: BoxDecoration(
-        color: AppColors.white,
+        color: context.appCard,
         borderRadius: BorderRadius.circular(18),
-        border: Border.all(color: const Color(0xFFE5EBE6)),
+        border: Border.all(color: context.appBorder),
         boxShadow: [
           BoxShadow(
-            color: AppColors.black.withOpacity(0.035),
+            color: Theme.of(context).colorScheme.shadow.withValues(alpha: 0.035),
             blurRadius: 12,
             offset: const Offset(0, 3),
           ),
@@ -723,8 +712,8 @@ class _FollowupPageState extends State<FollowupPage> {
               Container(
                 width: 4,
                 color: isPhone
-                    ? AppColors.primaryGreen
-                    : AppColors.primaryGreen,
+                    ? context.appPrimary
+                    : context.appPrimary,
               ),
 
               Expanded(
@@ -774,14 +763,14 @@ class _FollowupPageState extends State<FollowupPage> {
           decoration: BoxDecoration(
             gradient: LinearGradient(
               colors: isPhone
-                  ? const [AppColors.white, AppColors.white]
-                  : const [AppColors.white, AppColors.white],
+                  ? [context.appCard, context.appCard]
+                  : [context.appCard, context.appCard],
             ),
             borderRadius: BorderRadius.circular(13),
           ),
           child: Icon(
             isPhone ? Icons.phone_in_talk_rounded : Icons.storefront_rounded,
-            color: isPhone ? AppColors.primaryGreen : AppColors.primaryGreen,
+            color: isPhone ? context.appPrimary : context.appPrimary,
             size: 20,
           ),
         ),
@@ -799,9 +788,9 @@ class _FollowupPageState extends State<FollowupPage> {
                 item.name.isEmpty ? 'Unknown' : item.name,
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 14,
-                  color: AppColors.textDark,
+                  color: context.appOnCard,
                   fontWeight: FontWeight.w600,
                 ),
               ),
@@ -813,7 +802,7 @@ class _FollowupPageState extends State<FollowupPage> {
                   Icon(
                     Icons.business_center_outlined,
                     size: 12,
-                    color: Colors.grey.shade500,
+                    color: context.appSubText,
                   ),
 
                   const SizedBox(width: 4),
@@ -825,7 +814,7 @@ class _FollowupPageState extends State<FollowupPage> {
                       overflow: TextOverflow.ellipsis,
                       style: TextStyle(
                         fontSize: 10.5,
-                        color: Colors.grey.shade600,
+                        color: context.appSubText,
                         fontWeight: FontWeight.w500,
                       ),
                     ),
@@ -854,10 +843,10 @@ class _FollowupPageState extends State<FollowupPage> {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
       decoration: BoxDecoration(
-        color: isPhone ? AppColors.white : AppColors.white,
+        color: isPhone ? context.appCard : context.appCard,
         borderRadius: BorderRadius.circular(20),
         border: Border.all(
-          color: isPhone ? AppColors.white : const Color(0xFFFFE8B8),
+          color: isPhone ? context.appCard : context.appBorder,
         ),
       ),
     );
@@ -871,9 +860,9 @@ class _FollowupPageState extends State<FollowupPage> {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 9),
       decoration: BoxDecoration(
-        color: const Color(0xFFF7F9F7),
+        color: context.appInputBackground,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: const Color(0xFFEDF1ED)),
+        border: Border.all(color: context.appBorder),
       ),
       child: Row(
         children: [
@@ -890,7 +879,7 @@ class _FollowupPageState extends State<FollowupPage> {
             width: 1,
             height: 29,
             margin: const EdgeInsets.symmetric(horizontal: 9),
-            color: const Color(0xFFE1E6E2),
+            color: context.appBorder,
           ),
 
           // -------------------------------------------------------------------
@@ -911,7 +900,7 @@ class _FollowupPageState extends State<FollowupPage> {
           if (hasFollowupDate) ...[
             const SizedBox(width: 8),
 
-            Container(width: 1, height: 29, color: const Color(0xFFE1E6E2)),
+            Container(width: 1, height: 29, color: context.appBorder),
 
             const SizedBox(width: 8),
 
@@ -960,7 +949,7 @@ class _FollowupPageState extends State<FollowupPage> {
         onTap: onTap,
         child: Row(
           children: [
-            Icon(icon, size: 14, color: AppColors.primaryGreen),
+            Icon(icon, size: 14, color: context.appPrimary),
 
             const SizedBox(width: 6),
 
@@ -970,9 +959,9 @@ class _FollowupPageState extends State<FollowupPage> {
                 children: [
                   Text(
                     label,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 7.5,
-                      color: Color(0xFF89958C),
+                      color: context.appSubText,
                       fontWeight: FontWeight.w700,
                       letterSpacing: 0.5,
                     ),
@@ -984,9 +973,9 @@ class _FollowupPageState extends State<FollowupPage> {
                     value.isEmpty ? '--' : value,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 10.5,
-                      color: Color(0xFF26332A),
+                      color: context.appOnCard,
                       fontWeight: FontWeight.w700,
                     ),
                   ),
@@ -1007,15 +996,15 @@ class _FollowupPageState extends State<FollowupPage> {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 5),
       decoration: BoxDecoration(
-        color: const Color(0xFFE8F7ED),
+        color: Color.alphaBlend(context.appPrimary.withValues(alpha: 0.1), context.appCard),
         borderRadius: BorderRadius.circular(9),
       ),
       child: Row(
         children: [
-          const Icon(
+          Icon(
             Icons.event_repeat_rounded,
             size: 13,
-            color: AppColors.primaryGreen,
+            color: context.appPrimary,
           ),
 
           const SizedBox(width: 4),
@@ -1025,9 +1014,9 @@ class _FollowupPageState extends State<FollowupPage> {
               date,
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 9,
-                color: AppColors.primaryGreen,
+                color: context.appPrimary,
                 fontWeight: FontWeight.w700,
               ),
             ),
@@ -1050,17 +1039,17 @@ class _FollowupPageState extends State<FollowupPage> {
           height: 145,
           margin: const EdgeInsets.only(bottom: 9),
           decoration: BoxDecoration(
-            color: Colors.white,
+            color: context.appCard,
             borderRadius: BorderRadius.circular(18),
-            border: Border.all(color: const Color(0xFFE7ECE8)),
+            border: Border.all(color: context.appBorder),
           ),
-          child: const Center(
+          child: Center(
             child: SizedBox(
               width: 23,
               height: 23,
               child: CircularProgressIndicator(
                 strokeWidth: 2.2,
-                color: AppColors.primaryGreen,
+                color: context.appPrimary,
               ),
             ),
           ),
@@ -1076,7 +1065,7 @@ class _FollowupPageState extends State<FollowupPage> {
   Widget _buildErrorState(String message) {
     return _buildStateContent(
       icon: Icons.cloud_off_rounded,
-      iconColor: Colors.red,
+      iconColor: context.appError,
       title: 'Unable to load followups',
       subtitle: message,
       buttonText: 'Try Again',
@@ -1090,7 +1079,7 @@ class _FollowupPageState extends State<FollowupPage> {
   Widget _buildEmptyState() {
     return _buildStateContent(
       icon: Icons.event_available_rounded,
-      iconColor: AppColors.primaryGreen,
+      iconColor: context.appPrimary,
       title: 'No followups found',
       subtitle:
           'No $selectedType followups are available for the selected date range.',
@@ -1123,7 +1112,7 @@ class _FollowupPageState extends State<FollowupPage> {
               width: 82,
               height: 82,
               decoration: BoxDecoration(
-                color: iconColor.withOpacity(0.08),
+                color: iconColor.withValues(alpha: 0.08),
                 shape: BoxShape.circle,
               ),
               child: Icon(icon, size: 37, color: iconColor),
@@ -1137,9 +1126,9 @@ class _FollowupPageState extends State<FollowupPage> {
             Text(
               title,
               textAlign: TextAlign.center,
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 16,
-                color: Color(0xFF1D2921),
+                color: context.appText,
                 fontWeight: FontWeight.w600,
               ),
             ),
@@ -1152,10 +1141,10 @@ class _FollowupPageState extends State<FollowupPage> {
             Text(
               subtitle,
               textAlign: TextAlign.center,
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 12,
                 height: 1.45,
-                color: Color(0xFF7B867F),
+                color: context.appSubText,
               ),
             ),
 
@@ -1165,7 +1154,7 @@ class _FollowupPageState extends State<FollowupPage> {
             // BUTTON
             // -----------------------------------------------------------------
             Material(
-              color: AppColors.primaryGreen,
+              color: context.appPrimary,
               borderRadius: BorderRadius.circular(12),
               child: InkWell(
                 onTap: _loadFollowup,
@@ -1178,9 +1167,9 @@ class _FollowupPageState extends State<FollowupPage> {
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      const Icon(
+                      Icon(
                         Icons.refresh_rounded,
-                        color: AppColors.white,
+                        color: context.appOnPrimary,
                         size: 17,
                       ),
 
@@ -1188,8 +1177,8 @@ class _FollowupPageState extends State<FollowupPage> {
 
                       Text(
                         buttonText,
-                        style: const TextStyle(
-                          color: AppColors.white,
+                        style: TextStyle(
+                          color: context.appOnPrimary,
                           fontSize: 11.5,
                           fontWeight: FontWeight.w700,
                         ),
