@@ -7,6 +7,17 @@ import '../../domain/entities/report_financial_year.dart';
 import '../../domain/entities/top_dealer_performance.dart';
 
 // ============================================================
+// APPLICATION PHASE
+// ============================================================
+
+enum ApplicationPhaseStatus {
+  initial,
+  loading,
+  success,
+  failure,
+}
+
+// ============================================================
 // MONTHLY
 // ============================================================
 
@@ -89,11 +100,24 @@ enum ExpensePerformanceStatus {
 
 class MonthlyPerformanceState {
   // ==========================================================
+  // APPLICATION PHASE
+  // ==========================================================
+
+  final ApplicationPhaseStatus
+      applicationPhaseStatus;
+
+  final int applicationPhase;
+
+  final String? applicationPhaseError;
+
+  // ==========================================================
   // MONTHLY
   // ==========================================================
 
   final MonthlyPerformanceStatus status;
+
   final MonthlyPerformance? report;
+
   final String? errorMessage;
 
   // ==========================================================
@@ -101,7 +125,9 @@ class MonthlyPerformanceState {
   // ==========================================================
 
   final FinancialYearStatus financialYearStatus;
+
   final List<ReportFinancialYear> financialYears;
+
   final String? financialYearError;
 
   // ==========================================================
@@ -109,7 +135,9 @@ class MonthlyPerformanceState {
   // ==========================================================
 
   final DailyPerformanceStatus dailyStatus;
+
   final DailyPerformance? dailyReport;
+
   final String? dailyError;
 
   // ==========================================================
@@ -117,7 +145,9 @@ class MonthlyPerformanceState {
   // ==========================================================
 
   final HourlyPerformanceStatus hourlyStatus;
+
   final HourlyPerformance? hourlyReport;
+
   final String? hourlyError;
 
   // ==========================================================
@@ -125,15 +155,21 @@ class MonthlyPerformanceState {
   // ==========================================================
 
   final AreaPerformanceStatus areaStatus;
+
   final AreaPerformance? areaReport;
+
   final String? areaError;
 
   // ==========================================================
   // TOP DEALER
   // ==========================================================
 
-  final TopDealerPerformanceStatus topDealerStatus;
-  final TopDealerPerformance? topDealerReport;
+  final TopDealerPerformanceStatus
+      topDealerStatus;
+
+  final TopDealerPerformance?
+      topDealerReport;
+
   final String? topDealerError;
 
   // ==========================================================
@@ -141,7 +177,10 @@ class MonthlyPerformanceState {
   // ==========================================================
 
   final ExpensePerformanceStatus expenseStatus;
-  final ExpensePerformance? expenseReport;
+
+  final ExpensePerformance?
+      expenseReport;
+
   final String? expenseError;
 
   // ==========================================================
@@ -149,48 +188,78 @@ class MonthlyPerformanceState {
   // ==========================================================
 
   const MonthlyPerformanceState({
+    // APPLICATION PHASE
+    this.applicationPhaseStatus =
+        ApplicationPhaseStatus.initial,
+
+    this.applicationPhase = 0,
+
+    this.applicationPhaseError,
+
     // MONTHLY
     this.status =
         MonthlyPerformanceStatus.initial,
+
     this.report,
+
     this.errorMessage,
 
     // FINANCIAL YEAR
     this.financialYearStatus =
         FinancialYearStatus.initial,
+
     this.financialYears = const [],
+
     this.financialYearError,
 
     // DAILY
     this.dailyStatus =
         DailyPerformanceStatus.initial,
+
     this.dailyReport,
+
     this.dailyError,
 
     // HOURLY
     this.hourlyStatus =
         HourlyPerformanceStatus.initial,
+
     this.hourlyReport,
+
     this.hourlyError,
 
     // AREA
     this.areaStatus =
         AreaPerformanceStatus.initial,
+
     this.areaReport,
+
     this.areaError,
 
     // TOP DEALER
     this.topDealerStatus =
         TopDealerPerformanceStatus.initial,
+
     this.topDealerReport,
+
     this.topDealerError,
 
     // EXPENSE
     this.expenseStatus =
         ExpensePerformanceStatus.initial,
+
     this.expenseReport,
+
     this.expenseError,
   });
+
+  // ==========================================================
+  // HELPER
+  // ==========================================================
+
+  bool get isVisitOnlyPhase {
+    return applicationPhase == 1;
+  }
 
   // ==========================================================
   // COPY WITH
@@ -198,99 +267,158 @@ class MonthlyPerformanceState {
 
   MonthlyPerformanceState copyWith({
     // ========================================================
+    // APPLICATION PHASE
+    // ========================================================
+
+    ApplicationPhaseStatus?
+        applicationPhaseStatus,
+
+    int? applicationPhase,
+
+    String?
+        applicationPhaseError,
+
+    bool clearApplicationPhaseError =
+        false,
+
+    // ========================================================
     // MONTHLY
     // ========================================================
 
     MonthlyPerformanceStatus? status,
+
     MonthlyPerformance? report,
+
     String? errorMessage,
 
     bool clearError = false,
+
     bool clearReport = false,
 
     // ========================================================
     // FINANCIAL YEAR
     // ========================================================
 
-    FinancialYearStatus? financialYearStatus,
+    FinancialYearStatus?
+        financialYearStatus,
 
-    List<ReportFinancialYear>? financialYears,
+    List<ReportFinancialYear>?
+        financialYears,
 
     String? financialYearError,
 
-    bool clearFinancialYearError = false,
+    bool clearFinancialYearError =
+        false,
 
     // ========================================================
     // DAILY
     // ========================================================
 
-    DailyPerformanceStatus? dailyStatus,
+    DailyPerformanceStatus?
+        dailyStatus,
 
-    DailyPerformance? dailyReport,
+    DailyPerformance?
+        dailyReport,
 
     String? dailyError,
 
-    bool clearDailyError = false,
+    bool clearDailyError =
+        false,
 
-    bool clearDailyReport = false,
+    bool clearDailyReport =
+        false,
 
     // ========================================================
     // HOURLY
     // ========================================================
 
-    HourlyPerformanceStatus? hourlyStatus,
+    HourlyPerformanceStatus?
+        hourlyStatus,
 
-    HourlyPerformance? hourlyReport,
+    HourlyPerformance?
+        hourlyReport,
 
     String? hourlyError,
 
-    bool clearHourlyError = false,
+    bool clearHourlyError =
+        false,
 
-    bool clearHourlyReport = false,
+    bool clearHourlyReport =
+        false,
 
     // ========================================================
     // AREA
     // ========================================================
 
-    AreaPerformanceStatus? areaStatus,
+    AreaPerformanceStatus?
+        areaStatus,
 
-    AreaPerformance? areaReport,
+    AreaPerformance?
+        areaReport,
 
     String? areaError,
 
-    bool clearAreaError = false,
+    bool clearAreaError =
+        false,
 
-    bool clearAreaReport = false,
+    bool clearAreaReport =
+        false,
 
     // ========================================================
     // TOP DEALER
     // ========================================================
 
-    TopDealerPerformanceStatus? topDealerStatus,
+    TopDealerPerformanceStatus?
+        topDealerStatus,
 
-    TopDealerPerformance? topDealerReport,
+    TopDealerPerformance?
+        topDealerReport,
 
     String? topDealerError,
 
-    bool clearTopDealerError = false,
+    bool clearTopDealerError =
+        false,
 
-    bool clearTopDealerReport = false,
+    bool clearTopDealerReport =
+        false,
 
     // ========================================================
     // EXPENSE
     // ========================================================
 
-    ExpensePerformanceStatus? expenseStatus,
+    ExpensePerformanceStatus?
+        expenseStatus,
 
-    ExpensePerformance? expenseReport,
+    ExpensePerformance?
+        expenseReport,
 
     String? expenseError,
 
-    bool clearExpenseError = false,
+    bool clearExpenseError =
+        false,
 
-    bool clearExpenseReport = false,
+    bool clearExpenseReport =
+        false,
   }) {
     return MonthlyPerformanceState(
+      // ======================================================
+      // APPLICATION PHASE
+      // ======================================================
+
+      applicationPhaseStatus:
+          applicationPhaseStatus ??
+              this.applicationPhaseStatus,
+
+      applicationPhase:
+          applicationPhase ??
+              this.applicationPhase,
+
+      applicationPhaseError:
+          clearApplicationPhaseError
+              ? null
+              : applicationPhaseError ??
+                  this.applicationPhaseError,
+
       // ======================================================
       // MONTHLY
       // ======================================================

@@ -86,7 +86,6 @@ class _MonthlyPerformanceReportPageState
   // Expense table
   static const double _expenseParameterWidth = 125;
   static const double _expenseAmountWidth = 76;
-  static const double _expenseEntryWidth = 54;
   static const double _expenseShareWidth = 62;
 
   // ============================================================
@@ -133,6 +132,18 @@ class _MonthlyPerformanceReportPageState
   bool _showAreaDealerChart = true;
   bool _initialReportLoaded = false;
 
+  bool get _visitOnly =>
+      context.read<MonthlyPerformanceBloc>().state.isVisitOnlyPhase;
+
+  double get _businessColumnsWidth =>
+      _visitOnly ? 0 : _orderWidth + _dispatchWidth + _collectionWidth;
+
+  void _fetchApplicationPhase() {
+    context.read<MonthlyPerformanceBloc>().add(
+      const GetApplicationPhaseEvent(),
+    );
+  }
+
   // ============================================================
   // INIT
   // ============================================================
@@ -144,6 +155,7 @@ class _MonthlyPerformanceReportPageState
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
 
+      _fetchApplicationPhase();
       _loadLogin();
     });
   }
@@ -629,6 +641,7 @@ class _MonthlyPerformanceReportPageState
         actionIcon: Icons.refresh_rounded,
 
         onActionIconTap: () {
+          _fetchApplicationPhase();
           _fetchReport();
 
           if (_selectedMonthKeys.isNotEmpty) {
@@ -665,10 +678,37 @@ class _MonthlyPerformanceReportPageState
               },
 
               builder: (context, state) {
+                if (state.applicationPhaseStatus ==
+                        ApplicationPhaseStatus.initial ||
+                    state.applicationPhaseStatus ==
+                        ApplicationPhaseStatus.loading) {
+                  return const Center(
+                    child: CircularProgressIndicator(color: _primary),
+                  );
+                }
+                if (state.applicationPhaseStatus ==
+                    ApplicationPhaseStatus.failure) {
+                  return Center(
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        _errorCard(
+                          state.applicationPhaseError ??
+                              'Unable to load application phase',
+                        ),
+                        TextButton(
+                          onPressed: _fetchApplicationPhase,
+                          child: const Text('Retry'),
+                        ),
+                      ],
+                    ),
+                  );
+                }
                 return RefreshIndicator(
                   color: _primary,
 
                   onRefresh: () async {
+                    _fetchApplicationPhase();
                     _fetchReport();
 
                     if (_selectedMonthKeys.isNotEmpty) {
@@ -1197,9 +1237,7 @@ class _MonthlyPerformanceReportPageState
                 _checkWidth +
                 _monthWidth +
                 _visitWidth +
-                _orderWidth +
-                _dispatchWidth +
-                _collectionWidth +
+                _businessColumnsWidth +
                 _avgWidth +
                 _shareWidth,
             header: _monthlyHeader(),
@@ -1226,11 +1264,13 @@ class _MonthlyPerformanceReportPageState
 
           _headerCell('VISITS', _visitWidth, center: true),
 
-          _headerCell('ORDERS', _orderWidth, center: true),
+          if (!_visitOnly) _headerCell('ORDERS', _orderWidth, center: true),
 
-          _headerCell('DISPATCH', _dispatchWidth, center: true),
+          if (!_visitOnly)
+            _headerCell('DISPATCH', _dispatchWidth, center: true),
 
-          _headerCell('COLLECTION', _collectionWidth, center: true),
+          if (!_visitOnly)
+            _headerCell('COLLECTION', _collectionWidth, center: true),
 
           _headerCell('AVG', _avgWidth, center: true),
 
@@ -1302,25 +1342,28 @@ class _MonthlyPerformanceReportPageState
 
           _bodyCell('${item.visits}', _visitWidth, center: true),
 
-          _amountCountCell(
-            amount: item.orderAmount,
-            count: item.orderCount,
-            width: _orderWidth,
-            color: _red,
-          ),
+          if (!_visitOnly)
+            _amountCountCell(
+              amount: item.orderAmount,
+              count: item.orderCount,
+              width: _orderWidth,
+              color: _red,
+            ),
 
-          _amountCountCell(
-            amount: item.dispatchAmount,
-            count: item.dispatchCount,
-            width: _dispatchWidth,
-            color: _dispatchColor,
-          ),
+          if (!_visitOnly)
+            _amountCountCell(
+              amount: item.dispatchAmount,
+              count: item.dispatchCount,
+              width: _dispatchWidth,
+              color: _dispatchColor,
+            ),
 
-          _bodyCell(
-            _number(item.paymentCollection),
-            _collectionWidth,
-            center: true,
-          ),
+          if (!_visitOnly)
+            _bodyCell(
+              _number(item.paymentCollection),
+              _collectionWidth,
+              center: true,
+            ),
 
           _bodyCell(
             item.dailyVisitAvg.toStringAsFixed(2),
@@ -1346,26 +1389,29 @@ class _MonthlyPerformanceReportPageState
 
           _bodyCell('${summary.visits}', _visitWidth, center: true, bold: true),
 
-          _amountCountCell(
-            amount: summary.orderAmount,
-            count: summary.orderCount,
-            width: _orderWidth,
-            color: _red,
-          ),
+          if (!_visitOnly)
+            _amountCountCell(
+              amount: summary.orderAmount,
+              count: summary.orderCount,
+              width: _orderWidth,
+              color: _red,
+            ),
 
-          _amountCountCell(
-            amount: summary.dispatchAmount,
-            count: summary.dispatchCount,
-            width: _dispatchWidth,
-            color: _dispatchColor,
-          ),
+          if (!_visitOnly)
+            _amountCountCell(
+              amount: summary.dispatchAmount,
+              count: summary.dispatchCount,
+              width: _dispatchWidth,
+              color: _dispatchColor,
+            ),
 
-          _bodyCell(
-            _number(summary.collection),
-            _collectionWidth,
-            center: true,
-            bold: true,
-          ),
+          if (!_visitOnly)
+            _bodyCell(
+              _number(summary.collection),
+              _collectionWidth,
+              center: true,
+              bold: true,
+            ),
 
           _bodyCell(
             summary.average.toStringAsFixed(2),
@@ -1431,47 +1477,48 @@ class _MonthlyPerformanceReportPageState
 
           const SizedBox(height: 12),
 
-          Container(
-            height: 44,
-            padding: const EdgeInsets.all(3),
-            decoration: BoxDecoration(
-              color: const Color(0xFFF3F5F7),
-              borderRadius: BorderRadius.circular(9),
-            ),
-            child: Row(
-              children: [
-                Expanded(
-                  child: _modernChartTab(
-                    'Amount',
-                    Icons.currency_rupee_rounded,
-                    _showAmountPerformance,
-                    () {
-                      setState(() {
-                        _showAmountPerformance = true;
-                      });
-                    },
+          if (!_visitOnly)
+            Container(
+              height: 44,
+              padding: const EdgeInsets.all(3),
+              decoration: BoxDecoration(
+                color: const Color(0xFFF3F5F7),
+                borderRadius: BorderRadius.circular(9),
+              ),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: _modernChartTab(
+                      'Amount',
+                      Icons.currency_rupee_rounded,
+                      _showAmountPerformance,
+                      () {
+                        setState(() {
+                          _showAmountPerformance = true;
+                        });
+                      },
+                    ),
                   ),
-                ),
 
-                Expanded(
-                  child: _modernChartTab(
-                    'Visits',
-                    Icons.groups_outlined,
-                    !_showAmountPerformance,
-                    () {
-                      setState(() {
-                        _showAmountPerformance = false;
-                      });
-                    },
+                  Expanded(
+                    child: _modernChartTab(
+                      'Visits',
+                      Icons.groups_outlined,
+                      !_showAmountPerformance,
+                      () {
+                        setState(() {
+                          _showAmountPerformance = false;
+                        });
+                      },
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
-          ),
 
           const SizedBox(height: 10),
 
-          _showAmountPerformance
+          !_visitOnly && _showAmountPerformance
               ? _monthlyAmountChart(selected)
               : _monthlyVisitChart(selected),
         ],
@@ -1551,7 +1598,9 @@ class _MonthlyPerformanceReportPageState
           _chartTitle(
             icon: Icons.show_chart_rounded,
             title: 'Daily Activity',
-            subtitle: 'Visits and business amount trend',
+            subtitle: _visitOnly
+                ? 'Visits by day'
+                : 'Visits and business amount trend',
           ),
 
           const SizedBox(height: 5),
@@ -1641,7 +1690,9 @@ class _MonthlyPerformanceReportPageState
           _chartTitle(
             icon: Icons.timeline_rounded,
             title: 'Hourly Activity',
-            subtitle: 'Visits, orders, dispatch and collection',
+            subtitle: _visitOnly
+                ? 'Visits by hour'
+                : 'Visits, orders, dispatch and collection',
           ),
 
           const SizedBox(height: 5),
@@ -1685,49 +1736,51 @@ class _MonthlyPerformanceReportPageState
           _sectionHeader(
             number: '05',
             title: 'Area-wise Dealer Coverage',
-            subtitle:
-                'Unique dealer coverage and business performance by area / taluka',
+            subtitle: _visitOnly
+                ? 'Unique dealer coverage by area / taluka'
+                : 'Unique dealer coverage and business performance by area / taluka',
             color: _collectionColor,
           ),
 
           const SizedBox(height: 8),
 
-          Container(
-            height: 38,
-            padding: const EdgeInsets.all(3),
-            decoration: BoxDecoration(
-              color: const Color(0xFFF3F5F7),
-              borderRadius: BorderRadius.circular(9),
-            ),
-            child: Row(
-              children: [
-                Expanded(
-                  child: _modernChartTab(
-                    'Dealer Coverage',
-                    Icons.donut_large_rounded,
-                    _showAreaDealerChart,
-                    () {
-                      setState(() {
-                        _showAreaDealerChart = true;
-                      });
-                    },
+          if (!_visitOnly)
+            Container(
+              height: 38,
+              padding: const EdgeInsets.all(3),
+              decoration: BoxDecoration(
+                color: const Color(0xFFF3F5F7),
+                borderRadius: BorderRadius.circular(9),
+              ),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: _modernChartTab(
+                      'Dealer Coverage',
+                      Icons.donut_large_rounded,
+                      (_visitOnly || _showAreaDealerChart),
+                      () {
+                        setState(() {
+                          _showAreaDealerChart = true;
+                        });
+                      },
+                    ),
                   ),
-                ),
-                Expanded(
-                  child: _modernChartTab(
-                    'Amount Performance',
-                    Icons.bar_chart_rounded,
-                    !_showAreaDealerChart,
-                    () {
-                      setState(() {
-                        _showAreaDealerChart = false;
-                      });
-                    },
+                  Expanded(
+                    child: _modernChartTab(
+                      'Amount Performance',
+                      Icons.bar_chart_rounded,
+                      !(_visitOnly || _showAreaDealerChart),
+                      () {
+                        setState(() {
+                          _showAreaDealerChart = false;
+                        });
+                      },
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
-          ),
 
           const SizedBox(height: 8),
 
@@ -1774,7 +1827,7 @@ class _MonthlyPerformanceReportPageState
             children: [
               Expanded(
                 child: Text(
-                  _showAreaDealerChart
+                  (_visitOnly || _showAreaDealerChart)
                       ? 'Area Distribution'
                       : 'Amount Performance',
                   style: const TextStyle(
@@ -1785,7 +1838,9 @@ class _MonthlyPerformanceReportPageState
                 ),
               ),
               Text(
-                _showAreaDealerChart ? 'Dealer count' : 'Business amount',
+                (_visitOnly || _showAreaDealerChart)
+                    ? 'Dealer count'
+                    : 'Business amount',
                 style: const TextStyle(
                   color: _secondaryText,
                   fontSize: 7,
@@ -1795,7 +1850,7 @@ class _MonthlyPerformanceReportPageState
             ],
           ),
           const SizedBox(height: 6),
-          if (_showAreaDealerChart)
+          if ((_visitOnly || _showAreaDealerChart))
             _areaDealerDonut(report)
           else
             _areaAmountChart(report),
@@ -2053,13 +2108,7 @@ class _MonthlyPerformanceReportPageState
     return _simpleTable(
       title: 'Area-wise Count',
       child: _detailTableViewport(
-        width:
-            _areaWidth +
-            _visitWidth +
-            _orderWidth +
-            _dispatchWidth +
-            _collectionWidth +
-            _shareWidth,
+        width: _areaWidth + _visitWidth + _businessColumnsWidth + _shareWidth,
         header: _areaTableHeader(),
         rows: List.generate(
           report.areas.length,
@@ -2078,9 +2127,11 @@ class _MonthlyPerformanceReportPageState
         children: [
           _headerCell('AREA / TALUKA', _areaWidth),
           _headerCell('DEALERS', _visitWidth, center: true),
-          _headerCell('ORDER', _orderWidth, center: true),
-          _headerCell('DISPATCH', _dispatchWidth, center: true),
-          _headerCell('COLLECTION', _collectionWidth, center: true),
+          if (!_visitOnly) _headerCell('ORDER', _orderWidth, center: true),
+          if (!_visitOnly)
+            _headerCell('DISPATCH', _dispatchWidth, center: true),
+          if (!_visitOnly)
+            _headerCell('COLLECTION', _collectionWidth, center: true),
           _headerCell('SHARE', _shareWidth, center: true),
         ],
       ),
@@ -2101,24 +2152,27 @@ class _MonthlyPerformanceReportPageState
             bold: item.visits > 0,
             valueColor: item.visits > 0 ? _collectionColor : _secondaryText,
           ),
-          _amountCountCell(
-            amount: item.orderAmount,
-            count: item.orderCount,
-            width: _orderWidth,
-            color: _red,
-          ),
-          _amountCountCell(
-            amount: item.dispatchAmount,
-            count: item.dispatchCount,
-            width: _dispatchWidth,
-            color: _dispatchColor,
-          ),
-          _bodyCell(
-            _number(item.collectionAmount),
-            _collectionWidth,
-            center: true,
-            bold: item.collectionAmount > 0,
-          ),
+          if (!_visitOnly)
+            _amountCountCell(
+              amount: item.orderAmount,
+              count: item.orderCount,
+              width: _orderWidth,
+              color: _red,
+            ),
+          if (!_visitOnly)
+            _amountCountCell(
+              amount: item.dispatchAmount,
+              count: item.dispatchCount,
+              width: _dispatchWidth,
+              color: _dispatchColor,
+            ),
+          if (!_visitOnly)
+            _bodyCell(
+              _number(item.collectionAmount),
+              _collectionWidth,
+              center: true,
+              bold: item.collectionAmount > 0,
+            ),
           _percentageCell(item.visitShare, _shareWidth),
         ],
       ),
@@ -2139,24 +2193,27 @@ class _MonthlyPerformanceReportPageState
             bold: true,
             valueColor: _collectionColor,
           ),
-          _amountCountCell(
-            amount: report.totalOrderAmount,
-            count: report.totalOrderCount,
-            width: _orderWidth,
-            color: _red,
-          ),
-          _amountCountCell(
-            amount: report.totalDispatchAmount,
-            count: report.totalDispatchCount,
-            width: _dispatchWidth,
-            color: _dispatchColor,
-          ),
-          _bodyCell(
-            _number(report.totalCollection),
-            _collectionWidth,
-            center: true,
-            bold: true,
-          ),
+          if (!_visitOnly)
+            _amountCountCell(
+              amount: report.totalOrderAmount,
+              count: report.totalOrderCount,
+              width: _orderWidth,
+              color: _red,
+            ),
+          if (!_visitOnly)
+            _amountCountCell(
+              amount: report.totalDispatchAmount,
+              count: report.totalDispatchCount,
+              width: _dispatchWidth,
+              color: _dispatchColor,
+            ),
+          if (!_visitOnly)
+            _bodyCell(
+              _number(report.totalCollection),
+              _collectionWidth,
+              center: true,
+              bold: true,
+            ),
           _bodyCell(
             '${report.totalVisitShare.toStringAsFixed(2)}%',
             _shareWidth,
@@ -2249,15 +2306,16 @@ class _MonthlyPerformanceReportPageState
                   color: _orange,
                 ),
               ),
-              const SizedBox(width: 5),
-              Expanded(
-                child: _topDealerKpi(
-                  icon: Icons.payments_outlined,
-                  title: 'COLLECTION',
-                  value: '₹${_number(report.totalCollectionAmount)}',
-                  color: _collectionColor,
+              if (!_visitOnly) const SizedBox(width: 5),
+              if (!_visitOnly)
+                Expanded(
+                  child: _topDealerKpi(
+                    icon: Icons.payments_outlined,
+                    title: 'COLLECTION',
+                    value: '₹${_number(report.totalCollectionAmount)}',
+                    color: _collectionColor,
+                  ),
                 ),
-              ),
             ],
           ),
 
@@ -2404,9 +2462,7 @@ class _MonthlyPerformanceReportPageState
         _dealerWidth +
         _talukaWidth +
         _topVisitWidth +
-        _orderWidth +
-        _dispatchWidth +
-        _collectionWidth +
+        _businessColumnsWidth +
         _lastVisitWidth;
 
     return _detailTableViewport(
@@ -2430,9 +2486,11 @@ class _MonthlyPerformanceReportPageState
           _headerCell('DEALER', _dealerWidth),
           _headerCell('TALUKA', _talukaWidth),
           _headerCell('VISITS', _topVisitWidth, center: true),
-          _headerCell('ORDER', _orderWidth, center: true),
-          _headerCell('DISPATCH', _dispatchWidth, center: true),
-          _headerCell('COLLECTION', _collectionWidth, center: true),
+          if (!_visitOnly) _headerCell('ORDER', _orderWidth, center: true),
+          if (!_visitOnly)
+            _headerCell('DISPATCH', _dispatchWidth, center: true),
+          if (!_visitOnly)
+            _headerCell('COLLECTION', _collectionWidth, center: true),
           _headerCell('LAST VISIT', _lastVisitWidth, center: true),
         ],
       ),
@@ -2450,7 +2508,7 @@ class _MonthlyPerformanceReportPageState
       ),
       child: Row(
         children: [
-          SizedBox(
+          _detailCell(
             width: _rankWidth,
             child: Center(child: _topDealerRankBadge(item.rank)),
           ),
@@ -2460,7 +2518,7 @@ class _MonthlyPerformanceReportPageState
             bold: item.rank <= 3,
           ),
           _bodyCell(item.city.trim().isEmpty ? '-' : item.city, _talukaWidth),
-          SizedBox(
+          _detailCell(
             width: _topVisitWidth,
             child: Center(
               child: Container(
@@ -2482,29 +2540,32 @@ class _MonthlyPerformanceReportPageState
               ),
             ),
           ),
-          _topAmountCountCell(
-            amount: item.orderAmount,
-            count: item.orderCount,
-            width: _orderWidth,
-            color: _red,
-            countText: 'Orders',
-          ),
-          _topAmountCountCell(
-            amount: item.dispatchAmount,
-            count: item.dispatchCount,
-            width: _dispatchWidth,
-            color: _blue,
-            countText: 'Dispatch',
-          ),
-          _bodyCell(
-            '₹${_number(item.collectionAmount)}',
-            _collectionWidth,
-            center: true,
-            bold: item.collectionAmount > 0,
-            valueColor: item.collectionAmount > 0
-                ? _collectionColor
-                : _secondaryText,
-          ),
+          if (!_visitOnly)
+            _topAmountCountCell(
+              amount: item.orderAmount,
+              count: item.orderCount,
+              width: _orderWidth,
+              color: _red,
+              countText: 'Orders',
+            ),
+          if (!_visitOnly)
+            _topAmountCountCell(
+              amount: item.dispatchAmount,
+              count: item.dispatchCount,
+              width: _dispatchWidth,
+              color: _blue,
+              countText: 'Dispatch',
+            ),
+          if (!_visitOnly)
+            _bodyCell(
+              '₹${_number(item.collectionAmount)}',
+              _collectionWidth,
+              center: true,
+              bold: item.collectionAmount > 0,
+              valueColor: item.collectionAmount > 0
+                  ? _collectionColor
+                  : _secondaryText,
+            ),
           _bodyCell(
             item.lastVisit.isEmpty ? '-' : item.lastVisit,
             _lastVisitWidth,
@@ -2521,7 +2582,7 @@ class _MonthlyPerformanceReportPageState
       color: const Color(0xFFEDF4F8),
       child: Row(
         children: [
-          const SizedBox(width: _rankWidth),
+          _detailCell(width: _rankWidth, child: const SizedBox.shrink()),
           _bodyCell('TOTAL', _dealerWidth, bold: true),
           _bodyCell('-', _talukaWidth, center: true),
           _bodyCell(
@@ -2531,30 +2592,33 @@ class _MonthlyPerformanceReportPageState
             bold: true,
             valueColor: _blue,
           ),
-          _topAmountCountCell(
-            amount: report.totalOrderAmount,
-            count: report.totalOrderCount,
-            width: _orderWidth,
-            color: _red,
-            countText: 'Orders',
-            bold: true,
-          ),
-          _topAmountCountCell(
-            amount: report.totalDispatchAmount,
-            count: report.totalDispatchCount,
-            width: _dispatchWidth,
-            color: _blue,
-            countText: 'Dispatch',
-            bold: true,
-          ),
-          _bodyCell(
-            '₹${_number(report.totalCollectionAmount)}',
-            _collectionWidth,
-            center: true,
-            bold: true,
-            valueColor: _collectionColor,
-          ),
-          const SizedBox(width: _lastVisitWidth),
+          if (!_visitOnly)
+            _topAmountCountCell(
+              amount: report.totalOrderAmount,
+              count: report.totalOrderCount,
+              width: _orderWidth,
+              color: _red,
+              countText: 'Orders',
+              bold: true,
+            ),
+          if (!_visitOnly)
+            _topAmountCountCell(
+              amount: report.totalDispatchAmount,
+              count: report.totalDispatchCount,
+              width: _dispatchWidth,
+              color: _blue,
+              countText: 'Dispatch',
+              bold: true,
+            ),
+          if (!_visitOnly)
+            _bodyCell(
+              '₹${_number(report.totalCollectionAmount)}',
+              _collectionWidth,
+              center: true,
+              bold: true,
+              valueColor: _collectionColor,
+            ),
+          _detailCell(width: _lastVisitWidth, child: const SizedBox.shrink()),
         ],
       ),
     );
@@ -2568,7 +2632,7 @@ class _MonthlyPerformanceReportPageState
     required String countText,
     bool bold = false,
   }) {
-    return SizedBox(
+    return _detailCell(
       width: width,
       child: Tooltip(
         message: '₹${_number(amount)} • $count $countText',
@@ -2995,7 +3059,6 @@ class _MonthlyPerformanceReportPageState
         width:
             _expenseParameterWidth +
             _expenseAmountWidth +
-            _expenseEntryWidth +
             _expenseShareWidth,
         header: _expenseHeader(),
         rows: List.generate(
@@ -3015,7 +3078,6 @@ class _MonthlyPerformanceReportPageState
         children: [
           _headerCell('EXPENSE PARAMETER', _expenseParameterWidth),
           _headerCell('AMOUNT', _expenseAmountWidth, center: true),
-          _headerCell('ENTRIES', _expenseEntryWidth, center: true),
           _headerCell('SHARE', _expenseShareWidth, center: true),
         ],
       ),
@@ -3047,8 +3109,6 @@ class _MonthlyPerformanceReportPageState
             valueColor: item.amount > 0 ? _orange : _secondaryText,
           ),
 
-          _bodyCell('${item.entryCount}', _expenseEntryWidth, center: true),
-
           _percentageCell(item.sharePercent, _expenseShareWidth),
         ],
       ),
@@ -3069,13 +3129,6 @@ class _MonthlyPerformanceReportPageState
             center: true,
             bold: true,
             valueColor: _orange,
-          ),
-
-          _bodyCell(
-            '${report.totalEntryCount}',
-            _expenseEntryWidth,
-            center: true,
-            bold: true,
           ),
 
           _bodyCell(
@@ -3216,11 +3269,13 @@ class _MonthlyPerformanceReportPageState
         ) *
         1.2;
     return _chartSurface(
-      names: _seriesNames,
-      colors: _seriesColors,
+      names: _visitOnly ? [_seriesNames.first] : _seriesNames,
+      colors: _visitOnly ? [_seriesColors.first] : _seriesColors,
       pointCount: labels.length,
       pointWidth: hourly ? 72 : 42,
-      axisHint: 'Left: visits  •  Right: amount (₹)',
+      axisHint: _visitOnly
+          ? 'Number of visits'
+          : 'Left: visits  •  Right: amount (₹)',
       child: Stack(
         fit: StackFit.expand,
         children: [
@@ -3234,7 +3289,7 @@ class _MonthlyPerformanceReportPageState
                   titlesData: _readableChartAxes(
                     labels,
                     visitMax,
-                    amountMax: amountMax,
+                    amountMax: _visitOnly ? null : amountMax,
                     interval: visitInterval,
                     hideLabels: true,
                   ),
@@ -3267,7 +3322,7 @@ class _MonthlyPerformanceReportPageState
               titlesData: _readableChartAxes(
                 labels,
                 visitMax,
-                amountMax: amountMax,
+                amountMax: _visitOnly ? null : amountMax,
                 interval: visitInterval,
               ),
               gridData: _chartGrid(visitMax, interval: visitInterval),
@@ -3292,7 +3347,7 @@ class _MonthlyPerformanceReportPageState
                 ),
               ),
               lineBarsData: List.generate(
-                values.length,
+                _visitOnly ? 1 : values.length,
                 (series) => LineChartBarData(
                   spots: List.generate(
                     labels.length,
@@ -3511,13 +3566,7 @@ class _MonthlyPerformanceReportPageState
     return _simpleTable(
       title: 'Daily Details',
       child: _detailTableViewport(
-        width:
-            _dayWidth +
-            _visitWidth +
-            _orderWidth +
-            _dispatchWidth +
-            _collectionWidth +
-            _shareWidth,
+        width: _dayWidth + _visitWidth + _businessColumnsWidth + _shareWidth,
         header: _dailyTableHeader(),
         rows: List.generate(
           report.days.length,
@@ -3538,11 +3587,13 @@ class _MonthlyPerformanceReportPageState
 
           _headerCell('VISITS', _visitWidth, center: true),
 
-          _headerCell('ORDERS', _orderWidth, center: true),
+          if (!_visitOnly) _headerCell('ORDERS', _orderWidth, center: true),
 
-          _headerCell('DISPATCH', _dispatchWidth, center: true),
+          if (!_visitOnly)
+            _headerCell('DISPATCH', _dispatchWidth, center: true),
 
-          _headerCell('COLLECTION', _collectionWidth, center: true),
+          if (!_visitOnly)
+            _headerCell('COLLECTION', _collectionWidth, center: true),
 
           _headerCell('SHARE', _shareWidth, center: true),
         ],
@@ -3562,25 +3613,28 @@ class _MonthlyPerformanceReportPageState
 
           _bodyCell('${item.visits}', _visitWidth, center: true),
 
-          _amountCountCell(
-            amount: item.orderAmount,
-            count: item.orderCount,
-            width: _orderWidth,
-            color: _red,
-          ),
+          if (!_visitOnly)
+            _amountCountCell(
+              amount: item.orderAmount,
+              count: item.orderCount,
+              width: _orderWidth,
+              color: _red,
+            ),
 
-          _amountCountCell(
-            amount: item.dispatchAmount,
-            count: item.dispatchCount,
-            width: _dispatchWidth,
-            color: _dispatchColor,
-          ),
+          if (!_visitOnly)
+            _amountCountCell(
+              amount: item.dispatchAmount,
+              count: item.dispatchCount,
+              width: _dispatchWidth,
+              color: _dispatchColor,
+            ),
 
-          _bodyCell(
-            _number(item.collectionAmount),
-            _collectionWidth,
-            center: true,
-          ),
+          if (!_visitOnly)
+            _bodyCell(
+              _number(item.collectionAmount),
+              _collectionWidth,
+              center: true,
+            ),
 
           _percentageCell(item.visitShare, _shareWidth),
         ],
@@ -3610,13 +3664,7 @@ class _MonthlyPerformanceReportPageState
     return _simpleTable(
       title: 'Hourly Details',
       child: _detailTableViewport(
-        width:
-            _hourWidth +
-            _visitWidth +
-            _orderWidth +
-            _dispatchWidth +
-            _collectionWidth +
-            _shareWidth,
+        width: _hourWidth + _visitWidth + _businessColumnsWidth + _shareWidth,
         header: _hourHeader(),
         rows: List.generate(
           report.hours.length,
@@ -3706,11 +3754,13 @@ class _MonthlyPerformanceReportPageState
 
           _headerCell('VISITS', _visitWidth, center: true),
 
-          _headerCell('ORDERS', _orderWidth, center: true),
+          if (!_visitOnly) _headerCell('ORDERS', _orderWidth, center: true),
 
-          _headerCell('DISPATCH', _dispatchWidth, center: true),
+          if (!_visitOnly)
+            _headerCell('DISPATCH', _dispatchWidth, center: true),
 
-          _headerCell('COLLECTION', _collectionWidth, center: true),
+          if (!_visitOnly)
+            _headerCell('COLLECTION', _collectionWidth, center: true),
 
           _headerCell('SHARE', _shareWidth, center: true),
         ],
@@ -3730,25 +3780,28 @@ class _MonthlyPerformanceReportPageState
 
           _bodyCell('${item.visits}', _visitWidth, center: true),
 
-          _amountCountCell(
-            amount: item.orderAmount,
-            count: item.orderCount,
-            width: _orderWidth,
-            color: _red,
-          ),
+          if (!_visitOnly)
+            _amountCountCell(
+              amount: item.orderAmount,
+              count: item.orderCount,
+              width: _orderWidth,
+              color: _red,
+            ),
 
-          _amountCountCell(
-            amount: item.dispatchAmount,
-            count: item.dispatchCount,
-            width: _dispatchWidth,
-            color: _dispatchColor,
-          ),
+          if (!_visitOnly)
+            _amountCountCell(
+              amount: item.dispatchAmount,
+              count: item.dispatchCount,
+              width: _dispatchWidth,
+              color: _dispatchColor,
+            ),
 
-          _bodyCell(
-            _number(item.collectionAmount),
-            _collectionWidth,
-            center: true,
-          ),
+          if (!_visitOnly)
+            _bodyCell(
+              _number(item.collectionAmount),
+              _collectionWidth,
+              center: true,
+            ),
 
           _percentageCell(item.visitShare, _shareWidth),
         ],
@@ -3794,26 +3847,29 @@ class _MonthlyPerformanceReportPageState
 
           _bodyCell('$visits', _visitWidth, center: true, bold: true),
 
-          _amountCountCell(
-            amount: orderAmount,
-            count: orderCount,
-            width: _orderWidth,
-            color: _red,
-          ),
+          if (!_visitOnly)
+            _amountCountCell(
+              amount: orderAmount,
+              count: orderCount,
+              width: _orderWidth,
+              color: _red,
+            ),
 
-          _amountCountCell(
-            amount: dispatchAmount,
-            count: dispatchCount,
-            width: _dispatchWidth,
-            color: _dispatchColor,
-          ),
+          if (!_visitOnly)
+            _amountCountCell(
+              amount: dispatchAmount,
+              count: dispatchCount,
+              width: _dispatchWidth,
+              color: _dispatchColor,
+            ),
 
-          _bodyCell(
-            _number(collection),
-            _collectionWidth,
-            center: true,
-            bold: true,
-          ),
+          if (!_visitOnly)
+            _bodyCell(
+              _number(collection),
+              _collectionWidth,
+              center: true,
+              bold: true,
+            ),
 
           _bodyCell(
             '${share.toStringAsFixed(2)}%',
@@ -3876,8 +3932,17 @@ class _MonthlyPerformanceReportPageState
   // CELLS
   // ============================================================
 
+  // Share extra table space using the same column weights in every row.
+  // The month selection checkbox keeps its compact tap target width.
+  Widget _detailCell({required double width, required Widget child}) {
+    if (width == _checkWidth) {
+      return SizedBox(width: width, child: child);
+    }
+    return Expanded(flex: width.round(), child: child);
+  }
+
   Widget _headerCell(String value, double width, {bool center = false}) {
-    return SizedBox(
+    return _detailCell(
       width: width,
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 3),
@@ -3904,7 +3969,7 @@ class _MonthlyPerformanceReportPageState
     bool bold = false,
     Color? valueColor,
   }) {
-    return SizedBox(
+    return _detailCell(
       width: width,
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 3),
@@ -3967,7 +4032,7 @@ class _MonthlyPerformanceReportPageState
     //   ),
     // );
 
-    return SizedBox(
+    return _detailCell(
       width: width,
       child: Tooltip(
         message: '${_number(amount)} / $count',
@@ -4019,7 +4084,7 @@ class _MonthlyPerformanceReportPageState
   }
 
   Widget _percentageCell(double value, double width) {
-    return SizedBox(
+    return _detailCell(
       width: width,
       child: Center(
         child: Container(
@@ -4321,12 +4386,16 @@ class _MonthlyPerformanceReportPageState
 
             const SizedBox(width: 4),
 
-            Text(
-              title,
-              style: TextStyle(
-                color: selected ? _primaryDark : _secondaryText,
-                fontSize: 12,
-                fontWeight: selected ? FontWeight.w800 : FontWeight.w600,
+            Flexible(
+              child: Text(
+                title,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(
+                  color: selected ? _primaryDark : _secondaryText,
+                  fontSize: 12,
+                  fontWeight: selected ? FontWeight.w800 : FontWeight.w600,
+                ),
               ),
             ),
           ],

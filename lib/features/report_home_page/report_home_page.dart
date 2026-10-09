@@ -89,6 +89,8 @@ class ReportsHomePage extends StatelessWidget {
 
     // Growth / De-Growth
     '89': AppRouter.growthReport,
+    //Visit Analysis Report
+    '87': AppRouter.monthlyVisitPerformanceReport,
   };
 
   // ============================================================

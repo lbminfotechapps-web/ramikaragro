@@ -1,3 +1,4 @@
+import 'package:solufine/features/reports/domain/entities/application_phase.dart';
 import 'package:solufine/features/reports/domain/entities/area_performance.dart';
 import 'package:solufine/features/reports/domain/entities/expense_performance.dart';
 import 'package:solufine/features/reports/domain/entities/top_dealer_performance.dart';
@@ -148,6 +149,11 @@ Future<ExpensePerformance>
   );
 }
 
-
+@override
+Future<ApplicationPhase>
+    getApplicationPhase() {
+  return remoteDataSource
+      .getApplicationPhase();
+}
 
 }

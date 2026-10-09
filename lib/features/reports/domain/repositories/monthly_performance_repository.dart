@@ -1,3 +1,4 @@
+import 'package:solufine/features/reports/domain/entities/application_phase.dart';
 import 'package:solufine/features/reports/domain/entities/area_performance.dart';
 import 'package:solufine/features/reports/domain/entities/expense_performance.dart';
 import 'package:solufine/features/reports/domain/entities/hourly_performance.dart';
@@ -63,5 +64,9 @@ Future<ExpensePerformance>
   required String financialYear,
   required String selectedMonths,
 });
+
+
+Future<ApplicationPhase>
+    getApplicationPhase();
 
 }

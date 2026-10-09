@@ -38,6 +38,7 @@ import 'package:solufine/core/di/social_media_di.dart';
 import 'package:solufine/core/di/team_expense_di.dart';
 import 'package:solufine/core/di/team_leave_di.dart';
 import 'package:solufine/core/di/top_ten_dealer_di.dart';
+import 'package:solufine/core/di/visit_month_wise_di.dart';
 import 'package:solufine/core/di/visit_report_di.dart';
 import 'package:get_it/get_it.dart';
 
@@ -83,4 +84,5 @@ Future<void> initGlobalDi() async {
   await initSelfTargetDi();
   await initMonthlyPerformanceDi();
   await initGrowthReportDi();
+  await  initVisitMonthWiseDi();
 }

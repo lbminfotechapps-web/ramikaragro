@@ -141,5 +141,15 @@ class ApiClient {
   static const String getTopDealers = '/getStatTopDealers';
   static const String getExpensePerformance ='/getStatExpenseDetails';
   static const String getGrowthReport ='/getGrowthReport';
+  static const String getApplicationPhase ='/get_application_phase';
+  static const String getVisitMonthWise ='/getVisitMonthWise';
+  static const String getVisitDayWise ='/getVisitDayWise';
+  static const String getVisitHourWise ='/getVisitHourWise';
+  static const String getVisitFrequency ='/getVisitFrequency';
+  static const String getVisitGeoWise ='$baseUrl/getVisitGeoWise';
+  static const String getVisitTopList ='/getVisitTopList';
+  static const String getVisitTopEmployee ='/getVisitTopEmployee';
+
+
 
 }

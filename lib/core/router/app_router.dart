@@ -76,6 +76,8 @@ import 'package:flutter/foundation.dart';
 
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:solufine/features/visit_month_wise/presentation/bloc/visit_month_wise_bloc.dart';
+import 'package:solufine/features/visit_month_wise/presentation/pages/visit_month_wise_report_page.dart';
 
 class AppRouter {
   static const String splash = '/splash';
@@ -91,6 +93,9 @@ class AppRouter {
   static const String visits = '/visits';
   static const String products = '/products';
   static const String monthlyPerformanceReport = '/monthlyPerformanceReport';
+
+  static const String monthlyVisitPerformanceReport = '/monthlyVisitPerformanceReport';
+
 
    static const String reportPage = '/reportPage';
 
@@ -550,6 +555,25 @@ class AppRouter {
                       );
             },
           ),
+
+                      GoRoute(
+                        path: monthlyVisitPerformanceReport,
+                        name: 'monthlyVisitPerformanceReport',
+                        builder: (context, state) {
+                          return MultiBlocProvider(
+                            providers: [
+                              BlocProvider<VisitMonthWiseBloc>(
+                                create: (_) =>
+                                    sl<VisitMonthWiseBloc>(),
+                              ),
+                            ],
+                            child: const VisitMonthWiseReportPage(),
+                          );
+                        },
+                      ),
+
+
+
 
 
                        GoRoute(
