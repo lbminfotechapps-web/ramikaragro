@@ -555,30 +555,6 @@ class AppRouter {
           );
         },
       ),
-          GoRoute(
-            path: monthlyPerformanceReport,
-            name: 'monthlyPerformanceReport',
-            builder: (context, state) {
-              final String userId = state.extra is String
-                  ? state.extra as String
-                  : '';
-
-              return MultiBlocProvider(
-                        providers: [
-                          BlocProvider<MonthlyPerformanceBloc>(
-                            create: (_) =>
-                                sl<MonthlyPerformanceBloc>(),
-                          ),
-
-                          BlocProvider<EmployeeOutputBloc>(
-                            create: (_) =>
-                                sl<EmployeeOutputBloc>(),
-                          ),
-                        ],
-                        child: const MonthlyPerformanceReportPage(),
-                      );
-            },
-          ),
 
                       GoRoute(
                         path: monthlyVisitPerformanceReport,
@@ -600,16 +576,6 @@ class AppRouter {
 
 
 
-                       GoRoute(
-                          path: growthReport,
-                          name: 'growthReport',
-                          builder: (context, state) {
-                            return BlocProvider<GrowthReportBloc>(
-                              create: (_) => sl<GrowthReportBloc>(),
-                              child: const GrowthReportPage(),
-                            );
-                          },
-                        ),
 
       GoRoute(
         path: growthReport,
