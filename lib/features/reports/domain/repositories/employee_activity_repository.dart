@@ -1,3 +1,4 @@
+
 import '../entities/employee_activity.dart';
 
 abstract class EmployeeActivityRepository {
@@ -7,4 +8,6 @@ abstract class EmployeeActivityRepository {
     required String searchDate,
     required String logUserId,
   });
+
+
 }

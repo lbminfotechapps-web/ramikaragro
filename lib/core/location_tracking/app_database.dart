@@ -6,15 +6,27 @@ import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
 
 import 'package:solufine/core/location_tracking/location_table.dart';
+import 'package:solufine/features/ai/presentation/database/ai_chat_tables.dart';
 
 part 'app_database.g.dart';
 
-@DriftDatabase(tables: [LocationHistory])
+@DriftDatabase(tables: [LocationHistory, AiChatSessions, AiChatMessages])
 class AppDatabase extends _$AppDatabase {
   AppDatabase() : super(_openConnection());
 
   @override
-  int get schemaVersion => 1;
+  int get schemaVersion => 2;
+
+  @override
+  MigrationStrategy get migration => MigrationStrategy(
+    onCreate: (m) => m.createAll(),
+    onUpgrade: (m, from, to) async {
+      if (from < 2) {
+        await m.createTable(aiChatSessions);
+        await m.createTable(aiChatMessages);
+      }
+    },
+  );
 
   // ============================================================
   // SAVE LOCATION

@@ -33,6 +33,7 @@ class TeamExpenseCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // fld_status controls the reporting status and available actions.
     final String status = expense.status.trim();
 
     final bool isPending = status == '0';
@@ -698,67 +699,59 @@ class TeamExpenseCard extends StatelessWidget {
   // REJECT CONFIRMATION
   // ============================================================
 
-  void _showRejectDialog(BuildContext context, TeamExpenseEntity expense) {
-    showDialog(
+  Future<void> _showRejectDialog(
+    BuildContext context,
+    TeamExpenseEntity expense,
+  ) async {
+    var remark = '';
+    final submittedRemark = await showDialog<String>(
       context: context,
-      builder: (dialogContext) {
-        return AlertDialog(
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(20),
-          ),
-          titlePadding: const EdgeInsets.fromLTRB(20, 20, 20, 5),
-          contentPadding: const EdgeInsets.fromLTRB(20, 8, 20, 8),
-          actionsPadding: const EdgeInsets.fromLTRB(12, 4, 12, 12),
-          title: const Row(
+      builder: (dialogContext) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        title: const Text('Reject Expense'),
+        content: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Icon(Icons.cancel_outlined, color: Color(0xFFD32F2F), size: 25),
-              SizedBox(width: 9),
               Text(
-                'Reject Expense',
-                style: TextStyle(fontSize: 17, fontWeight: FontWeight.w900),
+                'Reject expense of ₹${expense.dailyTotal.toStringAsFixed(2)}?',
+              ),
+              const SizedBox(height: 16),
+              TextField(
+                onChanged: (value) => remark = value,
+                minLines: 2,
+                maxLines: 4,
+                textCapitalization: TextCapitalization.sentences,
+                decoration: const InputDecoration(
+                  labelText: 'Remark',
+                  hintText: 'Enter a rejection remark',
+                  alignLabelWithHint: true,
+                  border: OutlineInputBorder(),
+                ),
               ),
             ],
           ),
-          content: Text(
-            'Reject expense '
-            'of ₹${expense.dailyTotal.toStringAsFixed(2)}?',
-            style: const TextStyle(fontSize: 13, color: Color(0xFF68736C)),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(dialogContext),
+            child: const Text('Cancel'),
           ),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.pop(dialogContext);
-              },
-              child: const Text(
-                'Cancel',
-                style: TextStyle(color: Color(0xFF68736C)),
-              ),
+          ElevatedButton(
+            onPressed: () => Navigator.pop(dialogContext, remark.trim()),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: const Color(0xFFD32F2F),
+              foregroundColor: Colors.white,
             ),
-            ElevatedButton(
-              onPressed: () {
-                Navigator.pop(dialogContext);
-
-                _updateExpense(context, expense, '2');
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFFD32F2F),
-                foregroundColor: Colors.white,
-                elevation: 0,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10),
-                ),
-              ),
-              child: const Text(
-                'Reject',
-                style: TextStyle(fontWeight: FontWeight.w800),
-              ),
-            ),
-          ],
-        );
-      },
+            child: const Text('Reject'),
+          ),
+        ],
+      ),
     );
+    if (!context.mounted || submittedRemark == null) return;
+    _updateExpense(context, expense, '2', remark: submittedRemark);
   }
-
   // ============================================================
   // UPDATE EXPENSE
   // ============================================================
@@ -766,8 +759,10 @@ class TeamExpenseCard extends StatelessWidget {
   void _updateExpense(
     BuildContext context,
     TeamExpenseEntity expense,
-    String status,
-  ) {
+    String status, {
+    String? remark,
+  }) {
+    final updateRemark = remark ?? expense.remark;
     final String expenseJson = jsonEncode({
       'expenseId': expense.expenseId,
       'expenseBy': expense.expenseBy,
@@ -777,7 +772,7 @@ class TeamExpenseCard extends StatelessWidget {
       'dailyTotal': expense.dailyTotal,
       'daExpenses': expense.daExpenses,
       'approveAmount': expense.approveAmount,
-      'remark': expense.remark,
+      'remark': updateRemark,
     });
 
     debugPrint('==========================================');
@@ -786,7 +781,7 @@ class TeamExpenseCard extends StatelessWidget {
     debugPrint('Expense ID: ${expense.expenseId}');
     debugPrint('Status: $status');
     debugPrint('Expense JSON: $expenseJson');
-    debugPrint('Remark: ${expense.remark}');
+    debugPrint('Remark: $updateRemark');
     debugPrint('==========================================');
 
     context.read<TeamExpenseBloc>().add(
@@ -795,7 +790,7 @@ class TeamExpenseCard extends StatelessWidget {
         expenseId: expense.expenseId,
         status: status,
         expenseJson: expenseJson,
-        remark: expense.remark,
+        remark: updateRemark,
       ),
     );
   }

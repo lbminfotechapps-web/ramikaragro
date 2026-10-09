@@ -1,3 +1,4 @@
+import 'package:solufine/core/utility/widgets/internet_status_listener.dart';
 // import 'package:flutter/material.dart';
 // import 'package:flutter_bloc/flutter_bloc.dart';
 // import 'package:solufine/core/di/auth_di.dart';
@@ -103,6 +104,7 @@ import 'package:solufine/core/theme/app_theme.dart';
 // ============================================================
 
 import 'package:solufine/features/addexpense/presentation/bloc/expense_bloc.dart';
+import 'package:solufine/features/ai/presentation/bloc/ai_bloc.dart';
 import 'package:solufine/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:solufine/features/collection/presentation/bloc/dealer_target_bloc.dart';
 import 'package:solufine/features/dealer/presentation/bloc/dealerlist_bloc.dart';
@@ -203,6 +205,8 @@ class _MyAppState extends State<MyApp> {
         ),
 
         BlocProvider<ExpenseBloc>(create: (_) => sl<ExpenseBloc>()),
+
+        BlocProvider<AiBloc>(create: (_) => sl<AiBloc>()),
       ],
 
       child: MaterialApp.router(
@@ -214,7 +218,9 @@ class _MyAppState extends State<MyApp> {
         builder: (context, child) {
           return Container(
             decoration: AppColor.appGradientDecoration,
-            child: AppStatusFrame(child: child ?? const SizedBox.shrink()),
+            child: InternetStatusListener(
+              child: AppStatusFrame(child: child ?? const SizedBox.shrink()),
+            ),
           );
         },
 

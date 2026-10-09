@@ -1,3 +1,6 @@
+import 'package:flutter/material.dart';
+import 'package:solufine/features/ai/presentation/bloc/ai_bloc.dart';
+import 'package:solufine/features/ai/presentation/pages/ai_chatbot.dart';
 import 'package:solufine/features/growth_report/presentation/bloc/growth_report_bloc.dart';
 import 'package:solufine/features/growth_report/presentation/pages/growth_report_page.dart';
 import 'package:solufine/features/quickchartreport/presentation/bloc/gallerybloc.dart'
@@ -78,6 +81,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
 class AppRouter {
+  static final navigatorKey = GlobalKey<NavigatorState>();
   static const String splash = '/splash';
   static const String login = '/login';
   static const String punch = '/punchIn';
@@ -92,7 +96,7 @@ class AppRouter {
   static const String products = '/products';
   static const String monthlyPerformanceReport = '/monthlyPerformanceReport';
 
-   static const String reportPage = '/reportPage';
+  static const String reportPage = '/reportPage';
 
   static const String productList = '/productList';
   static const String productDetails = '/productDetails';
@@ -145,9 +149,11 @@ class AppRouter {
 
   static const String selfAssignTargetPointWise = '/selfAssignTargetPointWise';
   static const String quickReferance = '/quickReferance';
-  static const String growthReport ='/growthReport';
+  static const String ai = '/ai';
+  static const String growthReport = '/growthReport';
 
   static final GoRouter router = GoRouter(
+    navigatorKey: navigatorKey,
     initialLocation: splash,
 
     routes: [
@@ -524,46 +530,39 @@ class AppRouter {
         },
       ),
 
+      GoRoute(
+        path: monthlyPerformanceReport,
+        name: 'monthlyPerformanceReport',
+        builder: (context, state) {
+          final String userId = state.extra is String
+              ? state.extra as String
+              : '';
 
+          return MultiBlocProvider(
+            providers: [
+              BlocProvider<MonthlyPerformanceBloc>(
+                create: (_) => sl<MonthlyPerformanceBloc>(),
+              ),
 
-          GoRoute(
-            path: monthlyPerformanceReport,
-            name: 'monthlyPerformanceReport',
-            builder: (context, state) {
-              final String userId = state.extra is String
-                  ? state.extra as String
-                  : '';
+              BlocProvider<EmployeeOutputBloc>(
+                create: (_) => sl<EmployeeOutputBloc>(),
+              ),
+            ],
+            child: const MonthlyPerformanceReportPage(),
+          );
+        },
+      ),
 
-              return MultiBlocProvider(
-                        providers: [
-                          BlocProvider<MonthlyPerformanceBloc>(
-                            create: (_) =>
-                                sl<MonthlyPerformanceBloc>(),
-                          ),
-
-                          BlocProvider<EmployeeOutputBloc>(
-                            create: (_) =>
-                                sl<EmployeeOutputBloc>(),
-                          ),
-                        ],
-                        child: const MonthlyPerformanceReportPage(),
-                      );
-            },
-          ),
-
-
-                       GoRoute(
-                          path: growthReport,
-                          name: 'growthReport',
-                          builder: (context, state) {
-                            return BlocProvider<GrowthReportBloc>(
-                              create: (_) => sl<GrowthReportBloc>(),
-                              child: const GrowthReportPage(),
-                            );
-                          },
-                        ),
-
-         
+      GoRoute(
+        path: growthReport,
+        name: 'growthReport',
+        builder: (context, state) {
+          return BlocProvider<GrowthReportBloc>(
+            create: (_) => sl<GrowthReportBloc>(),
+            child: const GrowthReportPage(),
+          );
+        },
+      ),
 
       GoRoute(
         path: dealrFollowUpAdd,
@@ -693,6 +692,14 @@ class AppRouter {
         },
       ),
 
+      GoRoute(
+        path: ai,
+        name: 'ai',
+        builder: (context, state) => BlocProvider<AiBloc>(
+          create: (_) => sl<AiBloc>(),
+          child: const AiChatbot(),
+        ),
+      ),
       StatefulShellRoute.indexedStack(
         builder: (context, state, navigationShell) {
           return HomeShell(navigationShell: navigationShell);
@@ -722,9 +729,8 @@ class AppRouter {
               ),
             ],
           ),
-         
 
-           StatefulShellBranch(
+          StatefulShellBranch(
             routes: [
               GoRoute(
                 path: reportPage,
@@ -735,9 +741,7 @@ class AppRouter {
               ),
             ],
           ),
-         
-    
-             
+
           //   StatefulShellBranch(
           //   routes: [
           //     GoRoute(
@@ -762,8 +766,6 @@ class AppRouter {
           //     ),
           //   ],
           // ),
-
-
           StatefulShellBranch(
             routes: [
               GoRoute(
@@ -775,10 +777,6 @@ class AppRouter {
               ),
             ],
           ),
-         
-
-
-
         ],
       ),
     ],

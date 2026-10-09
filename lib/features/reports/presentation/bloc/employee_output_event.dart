@@ -1,7 +1,6 @@
 import 'package:equatable/equatable.dart';
 
-abstract class EmployeeOutputEvent
-    extends Equatable {
+abstract class EmployeeOutputEvent extends Equatable {
   const EmployeeOutputEvent();
 
   @override
@@ -12,8 +11,7 @@ abstract class EmployeeOutputEvent
 // GET REPORT
 // ============================================================
 
-class GetEmployeeOutputReportEvent
-    extends EmployeeOutputEvent {
+class GetEmployeeOutputReportEvent extends EmployeeOutputEvent {
   final String logUserId;
   final String employeeId;
   final String fromDate;
@@ -32,41 +30,47 @@ class GetEmployeeOutputReportEvent
 
   @override
   List<Object?> get props => [
-        logUserId,
-        employeeId,
-        fromDate,
-        toDate,
-        employeeName,
-        startLimit,
-      ];
+    logUserId,
+    employeeId,
+    fromDate,
+    toDate,
+    employeeName,
+    startLimit,
+  ];
 }
 
 // ============================================================
 // SEARCH EMPLOYEES
 // ============================================================
 
-class SearchEmployeesEvent
-    extends EmployeeOutputEvent {
+class SearchEmployeesEvent extends EmployeeOutputEvent {
   final String logUserId;
   final String search;
 
-  const SearchEmployeesEvent({
-    required this.logUserId,
-    required this.search,
-  });
+  const SearchEmployeesEvent({required this.logUserId, required this.search});
 
   @override
-  List<Object?> get props => [
-        logUserId,
-        search,
-      ];
+  List<Object?> get props => [logUserId, search];
 }
 
 // ============================================================
 // CLEAR SUGGESTIONS
 // ============================================================
 
-class ClearEmployeeSuggestionsEvent
-    extends EmployeeOutputEvent {
+class ClearEmployeeSuggestionsEvent extends EmployeeOutputEvent {
   const ClearEmployeeSuggestionsEvent();
+}
+
+class EmployeeOutRepoDetailsEvent extends EmployeeOutputEvent {
+  final String empId;
+  final String fromdate;
+  final String toDate;
+  const EmployeeOutRepoDetailsEvent({
+    required this.empId,
+    required this.fromdate,
+    required this.toDate,
+  });
+
+  @override
+  List<Object?> get props => [empId, fromdate, toDate];
 }
