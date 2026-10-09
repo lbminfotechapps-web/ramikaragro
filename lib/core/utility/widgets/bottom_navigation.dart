@@ -79,27 +79,18 @@ class HomeShellState extends State<HomeShell> {
       label: 'Follow up',
     ),
 
-    // INDEX 2
     (
-      // path: AppRouter.monthlyPerformanceReport,
-      // icon: Icons.bar_chart_rounded,
-      // label: 'Report',
       path: AppRouter.reportPage,
       icon: Icons.bar_chart_rounded,
       label: 'Report',
     ),
 
-    // INDEX 3
     (
       path: AppRouter.products,
       icon: Icons.inventory_2_rounded,
       label: 'Products',
     ),
   ];
-
-  // ============================================================
-  // INIT
-  // ============================================================
 
   @override
   void initState() {
@@ -269,6 +260,9 @@ class HomeShellState extends State<HomeShell> {
         _isUserLoaded = true;
       });
 
+      // Refresh the retained Home widget's user data and employee status too.
+      TabRefresh.home.refresh();
+
       final String loginStatus = userId == 0 ? '0' : '1';
 
       if (!mounted) return;
@@ -355,7 +349,6 @@ class HomeShellState extends State<HomeShell> {
     switch (branchIndex) {
       case 0:
         _refreshHome();
-        TabRefresh.home.refresh();
         break;
       case 1:
         TabRefresh.followup.refresh();
@@ -512,9 +505,11 @@ class HomeShellState extends State<HomeShell> {
               padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
               child: LayoutBuilder(
                 builder: (context, constraints) {
+                  final showAi = _userId > 0;
+                  final aiGap = showAi ? 64.0 : 0.0;
                   final active = selectedIndex < 0 ? 0 : selectedIndex;
                   final tabWidth =
-                      constraints.maxWidth / visibleTabIndices.length;
+                      (constraints.maxWidth - aiGap) / visibleTabIndices.length;
                   return TweenAnimationBuilder<double>(
                     tween: Tween<double>(
                       begin: active.toDouble(),
@@ -523,7 +518,11 @@ class HomeShellState extends State<HomeShell> {
                     duration: const Duration(milliseconds: 260),
                     curve: Curves.easeOutCubic,
                     builder: (context, animatedIndex, child) {
-                      final center = tabWidth * (animatedIndex + 0.5);
+                      final middle = visibleTabIndices.length ~/ 2;
+                      final center = selectedIndex < 0
+                          ? constraints.maxWidth / 2
+                          : tabWidth * (animatedIndex + 0.5) +
+                                (animatedIndex >= middle ? aiGap : 0);
                       return SizedBox(
                         height: 82,
                         child: Stack(
@@ -541,11 +540,17 @@ class HomeShellState extends State<HomeShell> {
                               height: 48,
                               child: Row(
                                 children: List.generate(
-                                  visibleTabIndices.length,
-                                  (position) {
+                                  visibleTabIndices.length + (showAi ? 1 : 0),
+                                  (slot) {
+                                    if (showAi && slot == middle) {
+                                      return const SizedBox(width: 64);
+                                    }
+                                    final position = showAi && slot > middle
+                                        ? slot - 1
+                                        : slot;
                                     final tab =
                                         _tabs[visibleTabIndices[position]];
-                                    final selected = position == active;
+                                    final selected = position == selectedIndex;
                                     return Expanded(
                                       child: Semantics(
                                         label: tab.label,
@@ -570,9 +575,7 @@ class HomeShellState extends State<HomeShell> {
                                                               .center,
                                                       children: [
                                                         Opacity(
-                                                          opacity: selected
-                                                              ? 0
-                                                              : 1,
+                                                          opacity: 1,
                                                           child: Icon(
                                                             tab.icon,
                                                             size: 25,
@@ -617,39 +620,80 @@ class HomeShellState extends State<HomeShell> {
                                 ),
                               ),
                             ),
-                            Positioned(
-                              top: 4,
-                              left: center - 24,
-                              width: 48,
-                              height: 48,
-                              child: ExcludeSemantics(
-                                child: Tooltip(
-                                  message:
-                                      _tabs[visibleTabIndices[active]].label,
-                                  child: Material(
-                                    color: const Color(0xFFE8F5EC),
-                                    elevation: 3,
-                                    shadowColor: const Color(0x33178A45),
-                                    shape: const CircleBorder(
-                                      side: BorderSide(
-                                        color: AppColors.primaryGreen,
-                                        width: 1.5,
-                                      ),
-                                    ),
-                                    clipBehavior: Clip.antiAlias,
-                                    child: InkWell(
-                                      customBorder: const CircleBorder(),
-                                      onTap: () => _onTabTapped(active),
-                                      child: Icon(
-                                        _tabs[visibleTabIndices[active]].icon,
-                                        color: AppColors.primaryGreen,
-                                        size: 25,
+                            if (showAi)
+                              Positioned(
+                                top: 0,
+                                left: (constraints.maxWidth - 56) / 2,
+                                width: 56,
+                                height: 56,
+                                child: Semantics(
+                                  label: 'AI assistant',
+                                  button: true,
+                                  selected: selectedIndex < 0,
+                                  child: Tooltip(
+                                    message: 'AI assistant',
+                                    child: GestureDetector(
+                                      onTap: () => context.push(AppRouter.ai),
+                                      child: Container(
+                                        decoration: BoxDecoration(
+                                          shape: BoxShape.circle,
+                                          color: const Color(0xFFE8F5EC),
+                                          border: Border.all(
+                                            color: AppColors.primaryGreen,
+                                            width: 2,
+                                          ),
+                                          boxShadow: const [
+                                            BoxShadow(
+                                              color: Color(0x33178A45),
+                                              blurRadius: 8,
+                                              offset: Offset(0, 3),
+                                            ),
+                                          ],
+                                        ),
+                                        child: const Icon(
+                                          Icons.auto_awesome_rounded,
+                                          color: AppColors.primaryGreen,
+                                          size: 28,
+                                        ),
                                       ),
                                     ),
                                   ),
                                 ),
                               ),
-                            ),
+                            // if (selectedIndex >= 0)
+                            //   Positioned(
+                            //     top: 4,
+                            //     left: center - 24,
+                            //     width: 48,
+                            //     height: 48,
+                            //     child: ExcludeSemantics(
+                            //       child: Tooltip(
+                            //         message:
+                            //             _tabs[visibleTabIndices[active]].label,
+                            //         child: Material(
+                            //           color: const Color(0xFFE8F5EC),
+                            //           elevation: 3,
+                            //           shadowColor: const Color(0x33178A45),
+                            //           shape: const CircleBorder(
+                            //             side: BorderSide(
+                            //               color: AppColors.primaryGreen,
+                            //               width: 1.5,
+                            //             ),
+                            //           ),
+                            //           clipBehavior: Clip.antiAlias,
+                            //           child: InkWell(
+                            //             customBorder: const CircleBorder(),
+                            //             onTap: () => _onTabTapped(active),
+                            //             child: Icon(
+                            //               _tabs[visibleTabIndices[active]].icon,
+                            //               color: AppColors.primaryGreen,
+                            //               size: 25,
+                            //             ),
+                            //           ),
+                            //         ),
+                            //       ),
+                            //     ),
+                            //   ),
                           ],
                         ),
                       );

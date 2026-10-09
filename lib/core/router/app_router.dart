@@ -1,3 +1,6 @@
+import 'package:flutter/material.dart';
+import 'package:solufine/features/ai/presentation/bloc/ai_bloc.dart';
+import 'package:solufine/features/ai/presentation/pages/ai_chatbot.dart';
 import 'package:solufine/features/growth_report/presentation/bloc/growth_report_bloc.dart';
 import 'package:solufine/features/growth_report/presentation/pages/growth_report_page.dart';
 import 'package:solufine/features/quickchartreport/presentation/bloc/gallerybloc.dart'
@@ -80,6 +83,7 @@ import 'package:solufine/features/visit_month_wise/presentation/bloc/visit_month
 import 'package:solufine/features/visit_month_wise/presentation/pages/visit_month_wise_report_page.dart';
 
 class AppRouter {
+  static final navigatorKey = GlobalKey<NavigatorState>();
   static const String splash = '/splash';
   static const String login = '/login';
   static const String punch = '/punchIn';
@@ -94,10 +98,8 @@ class AppRouter {
   static const String products = '/products';
   static const String monthlyPerformanceReport = '/monthlyPerformanceReport';
 
+  static const String reportPage = '/reportPage';
   static const String monthlyVisitPerformanceReport = '/monthlyVisitPerformanceReport';
-
-
-   static const String reportPage = '/reportPage';
 
   static const String productList = '/productList';
   static const String productDetails = '/productDetails';
@@ -150,9 +152,11 @@ class AppRouter {
 
   static const String selfAssignTargetPointWise = '/selfAssignTargetPointWise';
   static const String quickReferance = '/quickReferance';
-  static const String growthReport ='/growthReport';
+  static const String ai = '/ai';
+  static const String growthReport = '/growthReport';
 
   static final GoRouter router = GoRouter(
+    navigatorKey: navigatorKey,
     initialLocation: splash,
 
     routes: [
@@ -529,8 +533,28 @@ class AppRouter {
         },
       ),
 
+      GoRoute(
+        path: monthlyPerformanceReport,
+        name: 'monthlyPerformanceReport',
+        builder: (context, state) {
+          final String userId = state.extra is String
+              ? state.extra as String
+              : '';
 
+          return MultiBlocProvider(
+            providers: [
+              BlocProvider<MonthlyPerformanceBloc>(
+                create: (_) => sl<MonthlyPerformanceBloc>(),
+              ),
 
+              BlocProvider<EmployeeOutputBloc>(
+                create: (_) => sl<EmployeeOutputBloc>(),
+              ),
+            ],
+            child: const MonthlyPerformanceReportPage(),
+          );
+        },
+      ),
           GoRoute(
             path: monthlyPerformanceReport,
             name: 'monthlyPerformanceReport',
@@ -587,7 +611,16 @@ class AppRouter {
                           },
                         ),
 
-         
+      GoRoute(
+        path: growthReport,
+        name: 'growthReport',
+        builder: (context, state) {
+          return BlocProvider<GrowthReportBloc>(
+            create: (_) => sl<GrowthReportBloc>(),
+            child: const GrowthReportPage(),
+          );
+        },
+      ),
 
       GoRoute(
         path: dealrFollowUpAdd,
@@ -717,6 +750,14 @@ class AppRouter {
         },
       ),
 
+      GoRoute(
+        path: ai,
+        name: 'ai',
+        builder: (context, state) => BlocProvider<AiBloc>(
+          create: (_) => sl<AiBloc>(),
+          child: const AiChatbot(),
+        ),
+      ),
       StatefulShellRoute.indexedStack(
         builder: (context, state, navigationShell) {
           return HomeShell(navigationShell: navigationShell);
@@ -746,9 +787,8 @@ class AppRouter {
               ),
             ],
           ),
-         
 
-           StatefulShellBranch(
+          StatefulShellBranch(
             routes: [
               GoRoute(
                 path: reportPage,
@@ -759,9 +799,7 @@ class AppRouter {
               ),
             ],
           ),
-         
-    
-             
+
           //   StatefulShellBranch(
           //   routes: [
           //     GoRoute(
@@ -786,8 +824,6 @@ class AppRouter {
           //     ),
           //   ],
           // ),
-
-
           StatefulShellBranch(
             routes: [
               GoRoute(
@@ -799,10 +835,6 @@ class AppRouter {
               ),
             ],
           ),
-         
-
-
-
         ],
       ),
     ],

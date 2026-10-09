@@ -2,245 +2,171 @@ import 'package:flutter/material.dart';
 
 import '../../domain/entities/employee_output_report.dart';
 
-class EmployeeOutputCard
-    extends StatelessWidget {
-  final EmployeeOutputReport report;
+class EmployeeOutputCard extends StatelessWidget {
+  final List<EmployeeOutputReport> reports;
+  final ValueChanged<EmployeeOutputReport> onEmployeeTap;
 
   const EmployeeOutputCard({
     super.key,
-    required this.report,
+    required this.reports,
+    required this.onEmployeeTap,
   });
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius:
-            BorderRadius.circular(14),
-        boxShadow: [
-          BoxShadow(
-            color:
-                Colors.black.withOpacity(.035),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final width = constraints.maxWidth < 560
+            ? 560.0
+            : constraints.maxWidth;
 
-      child: Padding(
-        padding:
-            const EdgeInsets.fromLTRB(
-          12,
-          11,
-          12,
-          10,
-        ),
-
-        child: Column(
-          children: [
-            // ======================================================
-            // EMPLOYEE
-            // ======================================================
-
-            Row(
-              children: [
-                Container(
-                  height: 38,
-                  width: 38,
-                  decoration:
-                      BoxDecoration(
-                    color:
-                        const Color(0xFFEAF6EE),
-                    borderRadius:
-                        BorderRadius.circular(
-                            10),
-                  ),
-                  child: const Icon(
-                    Icons.person_rounded,
-                    color:
-                        Color(0xFF287A4B),
-                    size: 21,
-                  ),
+        return SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          child: SizedBox(
+            width: width,
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(12),
+              child: Table(
+                columnWidths: const {
+                  0: FlexColumnWidth(2.5),
+                  1: FlexColumnWidth(),
+                  2: FlexColumnWidth(),
+                  3: FlexColumnWidth(),
+                  4: FlexColumnWidth(1.2),
+                },
+                defaultVerticalAlignment:
+                    TableCellVerticalAlignment.middle,
+                border: TableBorder.all(
+                  color: const Color(0xFFDCE7DF),
                 ),
-
-                const SizedBox(width: 9),
-
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment:
-                        CrossAxisAlignment.start,
+                children: [
+                  TableRow(
+                    decoration: const BoxDecoration(
+                      color: Color(0xFFEAF6EE),
+                    ),
                     children: [
-                      Text(
-                        report.empName,
-                        maxLines: 1,
-                        overflow:
-                            TextOverflow.ellipsis,
-                        style:
-                            const TextStyle(
-                          fontSize: 14,
-                          fontWeight:
-                              FontWeight.w800,
-                          color:
-                              Color(0xFF202923),
-                        ),
+                      _cell(
+                        'Employee Name',
+                        isHeader: true,
+                        isName: true,
                       ),
-
-                      const SizedBox(height: 2),
-
-                     
+                      _cell('Dealer', isHeader: true),
+                      _cell('Farmer', isHeader: true),
+                      _cell('Location', isHeader: true),
+                      _cell('Total Visits', isHeader: true),
                     ],
                   ),
-                ),
-              ],
+
+                  for (var index = 0;
+                      index < reports.length;
+                      index++)
+                    TableRow(
+                      decoration: BoxDecoration(
+                        color: index.isEven
+                            ? Colors.white
+                            : const Color(0xFFF7F9F8),
+                      ),
+                      children: [
+                        _clickableCell(
+                          reports[index].empName,
+                          reports[index],
+                          isName: true,
+                        ),
+                        _clickableCell(
+                          reports[index].outletCnt,
+                          reports[index],
+                        ),
+                        _clickableCell(
+                          reports[index].farmerCnt,
+                          reports[index],
+                        ),
+                        _clickableCell(
+                          reports[index].currentCnt,
+                          reports[index],
+                        ),
+                        _clickableCell(
+                          reports[index].totalVisits,
+                          reports[index],
+                        ),
+                      ],
+                    ),
+                ],
+              ),
             ),
+          ),
+        );
+      },
+    );
+  }
 
-            const SizedBox(height: 10),
-
-            // ======================================================
-            // DEALER / FARMER
-            // ======================================================
-
-            Row(
-              children: [
-                Expanded(
-                  child: _VisitItem(
-                    icon:
-                        Icons.storefront_outlined,
-                    title: 'Dealer',
-                    value:
-                        report.outletCnt,
-                  ),
+  Widget _clickableCell(
+    String value,
+    EmployeeOutputReport report, {
+    bool isName = false,
+  }) {
+    return InkWell(
+      onTap: () => onEmployeeTap(report),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(
+          horizontal: 10,
+          vertical: 14,
+        ),
+        child: Row(
+          mainAxisAlignment: isName
+              ? MainAxisAlignment.start
+              : MainAxisAlignment.center,
+          children: [
+            Flexible(
+              child: Text(
+                value,
+                textAlign: isName
+                    ? TextAlign.left
+                    : TextAlign.center,
+                style: TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w600,
+                  color: isName
+                      ? const Color(0xFF287A4B)
+                      : const Color(0xFF202923),
                 ),
-
-                const SizedBox(width: 7),
-
-                Expanded(
-                  child: _VisitItem(
-                    icon:
-                        Icons.agriculture_outlined,
-                    title: 'Farmer',
-                    value:
-                        report.farmerCnt,
-                  ),
-                ),
-              ],
+              ),
             ),
-
-            const SizedBox(height: 7),
-
-            // ======================================================
-            // LOCATION / TOTAL
-            // ======================================================
-
-            Row(
-              children: [
-                Expanded(
-                  child: _VisitItem(
-                    icon:
-                        Icons.location_on_outlined,
-                    title: 'Location',
-                    value:
-                        report.currentCnt,
-                  ),
-                ),
-
-                const SizedBox(width: 7),
-
-                Expanded(
-                  child: _VisitItem(
-                    icon:
-                        Icons.analytics_outlined,
-                    title: 'Total Visits',
-                    value:
-                        report.totalVisits,
-                  ),
-                ),
-              ],
-            ),
+            if (isName) ...[
+              const SizedBox(width: 5),
+              const Icon(
+                Icons.chevron_right_rounded,
+                size: 16,
+                color: Color(0xFF287A4B),
+              ),
+            ],
           ],
         ),
       ),
     );
   }
-}
 
-// ================================================================
-// VISIT ITEM
-// ================================================================
-
-class _VisitItem
-    extends StatelessWidget {
-  final IconData icon;
-  final String title;
-  final String value;
-
-  const _VisitItem({
-    required this.icon,
-    required this.title,
-    required this.value,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding:
-          const EdgeInsets.symmetric(
-        horizontal: 8,
-        vertical: 7,
+  Widget _cell(
+    String value, {
+    bool isHeader = false,
+    bool isName = false,
+  }) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(
+        horizontal: 10,
+        vertical: 12,
       ),
-
-      decoration:
-          BoxDecoration(
-        color:
-            const Color(0xFFF7F9F8),
-        borderRadius:
-            BorderRadius.circular(10),
-      ),
-
-      child: Row(
-        children: [
-          Icon(
-            icon,
-            size: 16,
-            color:
-                const Color(0xFF287A4B),
-          ),
-
-          const SizedBox(width: 7),
-
-          Expanded(
-            child: Column(
-              crossAxisAlignment:
-                  CrossAxisAlignment.start,
-              children: [
-                Text(
-                  title,
-                  style:
-                      const TextStyle(
-                    fontSize: 9,
-                    color:
-                        Color(0xFF7A837E),
-                  ),
-                ),
-
-                const SizedBox(height: 1),
-
-                Text(
-                  value,
-                  style:
-                      const TextStyle(
-                    fontSize: 12,
-                    fontWeight:
-                        FontWeight.w800,
-                    color:
-                        Color(0xFF202923),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
+      child: Text(
+        value,
+        textAlign:
+            isName ? TextAlign.left : TextAlign.center,
+        style: TextStyle(
+          fontSize: 12,
+          fontWeight:
+              isHeader ? FontWeight.w800 : FontWeight.w600,
+          color: isHeader
+              ? const Color(0xFF287A4B)
+              : const Color(0xFF202923),
+        ),
       ),
     );
   }

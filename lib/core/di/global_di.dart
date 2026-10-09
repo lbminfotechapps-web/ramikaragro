@@ -1,3 +1,5 @@
+import 'package:solufine/core/di/ai_di.dart';
+import 'package:solufine/core/di/database_di.dart';
 import 'package:solufine/core/di/growth_report_di.dart';
 import 'package:solufine/core/di/quick_referance_di.dart'
     show initQuickReferenceDi;
@@ -45,6 +47,8 @@ import 'package:get_it/get_it.dart';
 final sl = GetIt.instance;
 
 Future<void> initGlobalDi() async {
+
+   databaseDi();
   await initAuthDi();
   await initHomeDi();
 
@@ -84,5 +88,6 @@ Future<void> initGlobalDi() async {
   await initSelfTargetDi();
   await initMonthlyPerformanceDi();
   await initGrowthReportDi();
+ await initAiDi();
   await  initVisitMonthWiseDi();
 }

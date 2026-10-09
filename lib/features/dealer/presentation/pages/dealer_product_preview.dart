@@ -407,7 +407,7 @@ class _DealerProductPreviewPageState extends State<DealerProductPreviewPage> {
                           ),
 
                           child: Text(
-                            'Place Order',
+                            'Add Stock',
                             style: TextStyle(
                               fontSize: 12.sp,
                               fontWeight: FontWeight.w800,

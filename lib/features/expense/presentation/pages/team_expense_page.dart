@@ -33,14 +33,13 @@ class _TeamExpenseView extends StatefulWidget {
 class _TeamExpenseViewState extends State<_TeamExpenseView> {
   int? userId;
 
-  final TextEditingController searchController =
-      TextEditingController();
+  final TextEditingController searchController = TextEditingController();
 
- // String fromDate = '10-09-2026';
- // String toDate = '10-09-2026';
+  // String fromDate = '10-09-2026';
+  // String toDate = '10-09-2026';
 
-    String fromDate = '';
-    String toDate = '';
+  String fromDate = '';
+  String toDate = '';
 
   int startLimit = 0;
 
@@ -50,10 +49,10 @@ class _TeamExpenseViewState extends State<_TeamExpenseView> {
   void initState() {
     super.initState();
 
- final today = DateTime.now();
+    final today = DateTime.now();
 
-   fromDate = _formatDate(today);
-   toDate = _formatDate(today);
+    fromDate = _formatDate(today);
+    toDate = _formatDate(today);
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _loadUserAndExpenses();
@@ -62,21 +61,16 @@ class _TeamExpenseViewState extends State<_TeamExpenseView> {
 
   Future<void> _loadUserAndExpenses() async {
     try {
-      final userData =
-          await SecureStorage.instance.getUserData();
+      final userData = await SecureStorage.instance.getUserData();
 
-      final id = int.tryParse(
-        userData?['user_id']?.toString() ?? '',
-      );
+      final id = int.tryParse(userData?['user_id']?.toString() ?? '');
 
       if (id == null) {
         if (!mounted) return;
 
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('User ID not found'),
-          ),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text('User ID not found')));
 
         return;
       }
@@ -87,13 +81,9 @@ class _TeamExpenseViewState extends State<_TeamExpenseView> {
     } catch (e) {
       if (!mounted) return;
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            'Unable to load user data: $e',
-          ),
-        ),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Unable to load user data: $e')));
     }
   }
 
@@ -105,15 +95,15 @@ class _TeamExpenseViewState extends State<_TeamExpenseView> {
     startLimit = 0;
 
     context.read<TeamExpenseBloc>().add(
-          GetTeamExpensesEvent(
-            userId: userId!,
-            fromDate: fromDate,
-            toDate: toDate,
-            searchText: searchController.text.trim(),
-            startLimit: 0,
-            isLoadMore: false,
-          ),
-        );
+      GetTeamExpensesEvent(
+        userId: userId!,
+        fromDate: fromDate,
+        toDate: toDate,
+        searchText: searchController.text.trim(),
+        startLimit: 0,
+        isLoadMore: false,
+      ),
+    );
   }
 
   void _search() {
@@ -125,35 +115,32 @@ class _TeamExpenseViewState extends State<_TeamExpenseView> {
       return;
     }
 
-    final currentState =
-        context.read<TeamExpenseBloc>().state;
+    final currentState = context.read<TeamExpenseBloc>().state;
 
     if (currentState is! TeamExpenseLoaded) {
       return;
     }
 
-    if (currentState.isLoadingMore ||
-        currentState.hasReachedEnd) {
+    if (currentState.isLoadingMore || currentState.hasReachedEnd) {
       return;
     }
 
     startLimit += pageSize;
 
     context.read<TeamExpenseBloc>().add(
-          GetTeamExpensesEvent(
-            userId: userId!,
-            fromDate: fromDate,
-            toDate: toDate,
-            searchText: searchController.text.trim(),
-            startLimit: startLimit,
-            isLoadMore: true,
-          ),
-        );
+      GetTeamExpensesEvent(
+        userId: userId!,
+        fromDate: fromDate,
+        toDate: toDate,
+        searchText: searchController.text.trim(),
+        startLimit: startLimit,
+        isLoadMore: true,
+      ),
+    );
   }
 
   Future<void> _selectFromDate() async {
-    final DateTime? selectedDate =
-        await showDatePicker(
+    final DateTime? selectedDate = await showDatePicker(
       context: context,
       initialDate: _parseDate(fromDate) ?? DateTime.now(),
       firstDate: DateTime(2020),
@@ -172,8 +159,7 @@ class _TeamExpenseViewState extends State<_TeamExpenseView> {
   }
 
   Future<void> _selectToDate() async {
-    final DateTime? selectedDate =
-        await showDatePicker(
+    final DateTime? selectedDate = await showDatePicker(
       context: context,
       initialDate: _parseDate(toDate) ?? DateTime.now(),
       firstDate: DateTime(2020),
@@ -210,11 +196,9 @@ class _TeamExpenseViewState extends State<_TeamExpenseView> {
   }
 
   String _formatDate(DateTime date) {
-    final day =
-        date.day.toString().padLeft(2, '0');
+    final day = date.day.toString().padLeft(2, '0');
 
-    final month =
-        date.month.toString().padLeft(2, '0');
+    final month = date.month.toString().padLeft(2, '0');
 
     return '$day-$month-${date.year}';
   }
@@ -229,26 +213,34 @@ class _TeamExpenseViewState extends State<_TeamExpenseView> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFF6F9F7),
-     
-       appBar:CustomAppBar(
-          title: 'Team Expense List',
-          showBackButton: true,
-          onBackTap: () => context.go(AppRouter.home),
-          // Normal refresh icon
-          actionIcon: Icons.refresh_rounded,
-         
-         
-        ),
 
-      body: BlocBuilder<TeamExpenseBloc, TeamExpenseState>(
+      appBar: CustomAppBar(
+        title: 'Team Expense List',
+        showBackButton: true,
+        onBackTap: () => context.go(AppRouter.home),
+        // Normal refresh icon
+        actionIcon: Icons.refresh_rounded,
+      ),
+
+      body: BlocConsumer<TeamExpenseBloc, TeamExpenseState>(
+        listener: (context, state) {
+          if (state is TeamExpenseUpdateSuccess) {
+            ScaffoldMessenger.of(
+              context,
+            ).showSnackBar(SnackBar(content: Text(state.message)));
+            _loadExpenses();
+          } else if (state is TeamExpenseUpdateError) {
+            ScaffoldMessenger.of(
+              context,
+            ).showSnackBar(SnackBar(content: Text(state.message)));
+          }
+        },
         builder: (context, state) {
           return Column(
             children: [
               _buildFilterSection(),
 
-              Expanded(
-                child: _buildExpenseContent(state),
-              ),
+              Expanded(child: _buildExpenseContent(state)),
             ],
           );
         },
@@ -258,17 +250,10 @@ class _TeamExpenseViewState extends State<_TeamExpenseView> {
 
   Widget _buildFilterSection() {
     return Container(
-      padding: const EdgeInsets.fromLTRB(
-        14,
-        14,
-        14,
-        12,
-      ),
+      padding: const EdgeInsets.fromLTRB(14, 14, 14, 12),
       decoration: const BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.vertical(
-          bottom: Radius.circular(22),
-        ),
+        borderRadius: BorderRadius.vertical(bottom: Radius.circular(22)),
         boxShadow: [
           BoxShadow(
             color: Color(0x12000000),
@@ -302,10 +287,7 @@ class _TeamExpenseViewState extends State<_TeamExpenseView> {
                         setState(() {});
                         _search();
                       },
-                      icon: const Icon(
-                        Icons.close_rounded,
-                        size: 20,
-                      ),
+                      icon: const Icon(Icons.close_rounded, size: 20),
                     )
                   : IconButton(
                       onPressed: _search,
@@ -316,24 +298,20 @@ class _TeamExpenseViewState extends State<_TeamExpenseView> {
                     ),
               filled: true,
               fillColor: const Color(0xFFF5F8F6),
-              contentPadding:
-                  const EdgeInsets.symmetric(
+              contentPadding: const EdgeInsets.symmetric(
                 horizontal: 14,
                 vertical: 13,
               ),
               border: OutlineInputBorder(
-                borderRadius:
-                    BorderRadius.circular(15),
+                borderRadius: BorderRadius.circular(15),
                 borderSide: BorderSide.none,
               ),
               enabledBorder: OutlineInputBorder(
-                borderRadius:
-                    BorderRadius.circular(15),
+                borderRadius: BorderRadius.circular(15),
                 borderSide: BorderSide.none,
               ),
               focusedBorder: OutlineInputBorder(
-                borderRadius:
-                    BorderRadius.circular(15),
+                borderRadius: BorderRadius.circular(15),
                 borderSide: const BorderSide(
                   color: Color(0xFF2D6A4F),
                   width: 1.2,
@@ -385,30 +363,20 @@ class _TeamExpenseViewState extends State<_TeamExpenseView> {
       onTap: onTap,
       borderRadius: BorderRadius.circular(14),
       child: Container(
-        padding: const EdgeInsets.symmetric(
-          horizontal: 12,
-          vertical: 10,
-        ),
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
         decoration: BoxDecoration(
           color: const Color(0xFFF5F8F6),
           borderRadius: BorderRadius.circular(14),
-          border: Border.all(
-            color: const Color(0xFFE2EAE4),
-          ),
+          border: Border.all(color: const Color(0xFFE2EAE4)),
         ),
         child: Row(
           children: [
             const SizedBox(width: 2),
-            Icon(
-              icon,
-              size: 18,
-              color: const Color(0xFF2D6A4F),
-            ),
+            Icon(icon, size: 18, color: const Color(0xFF2D6A4F)),
             const SizedBox(width: 8),
             Expanded(
               child: Column(
-                crossAxisAlignment:
-                    CrossAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
                     title,
@@ -436,14 +404,33 @@ class _TeamExpenseViewState extends State<_TeamExpenseView> {
     );
   }
 
-  Widget _buildExpenseContent(
-    TeamExpenseState state,
-  ) {
+  Widget _buildExpenseContent(TeamExpenseState state) {
+    if (state is TeamExpenseUpdateLoading) {
+      return Stack(
+        children: [
+          AbsorbPointer(
+            child: _buildExpenseContent(
+              TeamExpenseLoaded(expenses: state.expenses),
+            ),
+          ),
+          const Positioned(
+            top: 0,
+            left: 0,
+            right: 0,
+            child: LinearProgressIndicator(),
+          ),
+        ],
+      );
+    }
+    if (state is TeamExpenseUpdateSuccess) {
+      return _buildExpenseContent(TeamExpenseLoaded(expenses: state.expenses));
+    }
+    if (state is TeamExpenseUpdateError) {
+      return _buildExpenseContent(TeamExpenseLoaded(expenses: state.expenses));
+    }
     if (state is TeamExpenseLoading) {
       return const Center(
-        child: CircularProgressIndicator(
-          color: Color(0xFF2D6A4F),
-        ),
+        child: CircularProgressIndicator(color: Color(0xFF2D6A4F)),
       );
     }
 
@@ -462,15 +449,13 @@ class _TeamExpenseViewState extends State<_TeamExpenseView> {
 
       return NotificationListener<ScrollNotification>(
         onNotification: (notification) {
-          if (notification.metrics.axis !=
-              Axis.vertical) {
+          if (notification.metrics.axis != Axis.vertical) {
             return false;
           }
 
           if (notification.metrics.pixels >=
               notification.metrics.maxScrollExtent - 250) {
-            if (!state.isLoadingMore &&
-                !state.hasReachedEnd) {
+            if (!state.isLoadingMore && !state.hasReachedEnd) {
               _loadMore();
             }
           }
@@ -482,28 +467,16 @@ class _TeamExpenseViewState extends State<_TeamExpenseView> {
           onRefresh: () async {
             _loadExpenses();
 
-            await Future.delayed(
-              const Duration(milliseconds: 500),
-            );
+            await Future.delayed(const Duration(milliseconds: 500));
           },
           child: ListView.builder(
-            physics:
-                const AlwaysScrollableScrollPhysics(),
-            padding: const EdgeInsets.fromLTRB(
-              14,
-              14,
-              14,
-              30,
-            ),
-            itemCount: state.expenses.length +
-                (state.isLoadingMore ? 1 : 0),
+            physics: const AlwaysScrollableScrollPhysics(),
+            padding: const EdgeInsets.fromLTRB(14, 14, 14, 30),
+            itemCount: state.expenses.length + (state.isLoadingMore ? 1 : 0),
             itemBuilder: (context, index) {
-              if (index >=
-                  state.expenses.length) {
+              if (index >= state.expenses.length) {
                 return const Padding(
-                  padding: EdgeInsets.symmetric(
-                    vertical: 18,
-                  ),
+                  padding: EdgeInsets.symmetric(vertical: 18),
                   child: Center(
                     child: CircularProgressIndicator(
                       strokeWidth: 2.5,
@@ -513,15 +486,9 @@ class _TeamExpenseViewState extends State<_TeamExpenseView> {
                 );
               }
 
-              final expense =
-                  state.expenses[index];
+              final expense = state.expenses[index];
 
-             
-              return TeamExpenseCard(
-                expense: expense,
-                userId: userId!,
-              );
-
+              return TeamExpenseCard(expense: expense, userId: userId!);
             },
           ),
         ),
@@ -537,26 +504,19 @@ class _TeamExpenseViewState extends State<_TeamExpenseView> {
       onRefresh: () async {
         _loadExpenses();
 
-        await Future.delayed(
-          const Duration(milliseconds: 500),
-        );
+        await Future.delayed(const Duration(milliseconds: 500));
       },
       child: ListView(
-        physics:
-            const AlwaysScrollableScrollPhysics(),
+        physics: const AlwaysScrollableScrollPhysics(),
         children: [
-          SizedBox(
-            height:
-                MediaQuery.of(context).size.height * 0.20,
-          ),
+          SizedBox(height: MediaQuery.of(context).size.height * 0.20),
           Center(
             child: Container(
               width: 90,
               height: 90,
               decoration: BoxDecoration(
                 color: const Color(0xFFE8F5ED),
-                borderRadius:
-                    BorderRadius.circular(28),
+                borderRadius: BorderRadius.circular(28),
               ),
               child: const Icon(
                 Icons.receipt_long_outlined,
@@ -582,10 +542,7 @@ class _TeamExpenseViewState extends State<_TeamExpenseView> {
               'No team expense records are available\n'
               'for the selected date or search.',
               textAlign: TextAlign.center,
-              style: TextStyle(
-                fontSize: 12,
-                color: Color(0xFF7A857E),
-              ),
+              style: TextStyle(fontSize: 12, color: Color(0xFF7A857E)),
             ),
           ),
         ],
@@ -599,26 +556,19 @@ class _TeamExpenseViewState extends State<_TeamExpenseView> {
       onRefresh: () async {
         _loadExpenses();
 
-        await Future.delayed(
-          const Duration(milliseconds: 500),
-        );
+        await Future.delayed(const Duration(milliseconds: 500));
       },
       child: ListView(
-        physics:
-            const AlwaysScrollableScrollPhysics(),
+        physics: const AlwaysScrollableScrollPhysics(),
         children: [
-          SizedBox(
-            height:
-                MediaQuery.of(context).size.height * 0.18,
-          ),
+          SizedBox(height: MediaQuery.of(context).size.height * 0.18),
           Center(
             child: Container(
               width: 85,
               height: 85,
               decoration: BoxDecoration(
                 color: const Color(0xFFFFEBEE),
-                borderRadius:
-                    BorderRadius.circular(26),
+                borderRadius: BorderRadius.circular(26),
               ),
               child: const Icon(
                 Icons.error_outline_rounded,
@@ -640,40 +590,29 @@ class _TeamExpenseViewState extends State<_TeamExpenseView> {
           ),
           const SizedBox(height: 8),
           Padding(
-            padding: const EdgeInsets.symmetric(
-              horizontal: 30,
-            ),
+            padding: const EdgeInsets.symmetric(horizontal: 30),
             child: Text(
               message,
               textAlign: TextAlign.center,
-              style: const TextStyle(
-                fontSize: 12,
-                color: Color(0xFF7A857E),
-              ),
+              style: const TextStyle(fontSize: 12, color: Color(0xFF7A857E)),
             ),
           ),
           const SizedBox(height: 18),
           Center(
             child: ElevatedButton.icon(
               onPressed: _loadExpenses,
-              icon: const Icon(
-                Icons.refresh_rounded,
-                size: 18,
-              ),
+              icon: const Icon(Icons.refresh_rounded, size: 18),
               label: const Text('Retry'),
               style: ElevatedButton.styleFrom(
-                backgroundColor:
-                    const Color(0xFF2D6A4F),
+                backgroundColor: const Color(0xFF2D6A4F),
                 foregroundColor: Colors.white,
                 elevation: 0,
-                padding:
-                    const EdgeInsets.symmetric(
+                padding: const EdgeInsets.symmetric(
                   horizontal: 22,
                   vertical: 12,
                 ),
                 shape: RoundedRectangleBorder(
-                  borderRadius:
-                      BorderRadius.circular(13),
+                  borderRadius: BorderRadius.circular(13),
                 ),
               ),
             ),

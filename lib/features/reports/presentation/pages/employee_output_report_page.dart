@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:solufine/core/di/database_di.dart';
 import 'package:solufine/core/router/app_router.dart';
 import 'package:solufine/core/theme/app_colors.dart';
 import 'package:solufine/core/utility/widgets/custom_appbar.dart';
@@ -9,9 +10,11 @@ import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 
 import 'package:solufine/features/reports/domain/entities/assign_employee.dart';
+import 'package:solufine/features/reports/domain/entities/employee_output_report.dart';
 import 'package:solufine/features/reports/presentation/bloc/employee_output_bloc.dart';
 import 'package:solufine/features/reports/presentation/bloc/employee_output_event.dart';
 import 'package:solufine/features/reports/presentation/bloc/employee_output_state.dart';
+import 'package:solufine/features/reports/presentation/widgets/employee_output_details_dialog.dart';
 
 import '../widgets/employee_output_card.dart';
 import '../widgets/employee_output_empty.dart';
@@ -301,9 +304,52 @@ class _EmployeeOutputReportPageState extends State<EmployeeOutputReportPage> {
     await Future.delayed(const Duration(milliseconds: 300));
   }
 
-  // ============================================================
-  // DISPOSE
-  // ============================================================
+  Future<void> _openEmployeeDetails(EmployeeOutputReport report) async {
+    // Replace empId with the actual employee ID
+    // property from your EmployeeOutputReport model.
+    final selectedEmpId = report.empId;
+
+    debugPrint('========== EMPLOYEE ROW CLICK ==========');
+    debugPrint('Employee ID: $selectedEmpId');
+    debugPrint('Employee Name: ${report.empName}');
+    debugPrint('From Date: $fromDate');
+    debugPrint('To Date: $toDate');
+
+    if (selectedEmpId.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Employee ID not available')),
+      );
+      return;
+    }
+
+    // Use your existing GetIt setup.
+    final detailsBloc = getIt<EmployeeOutputBloc>();
+
+    // Trigger API event.
+    detailsBloc.add(
+      EmployeeOutRepoDetailsEvent(
+        empId: selectedEmpId,
+        fromdate: fromDate,
+        toDate: toDate,
+      ),
+    );
+
+    await showDialog<void>(
+      context: context,
+      builder: (dialogContext) {
+        return BlocProvider.value(
+          value: detailsBloc,
+          child: EmployeeOutputDetailsDialog(
+            employeeName: report.empName,
+            fromDate: fromDate,
+            toDate: toDate,
+          ),
+        );
+      },
+    );
+
+    await detailsBloc.close();
+  }
 
   @override
   void dispose() {
@@ -363,16 +409,10 @@ class _EmployeeOutputReportPageState extends State<EmployeeOutputReportPage> {
                   crossAxisAlignment: CrossAxisAlignment.start,
 
                   children: [
-                    // ==================================================
-                    // HEADER
-                    // ==================================================
                     _buildHeader(),
 
                     const SizedBox(height: 10),
 
-                    // ==================================================
-                    // FILTER
-                    // ==================================================
                     EmployeeOutputFilter(
                       employeeController: employeeController,
 
@@ -409,9 +449,6 @@ class _EmployeeOutputReportPageState extends State<EmployeeOutputReportPage> {
 
                     const SizedBox(height: 14),
 
-                    // ==================================================
-                    // LOADING
-                    // ==================================================
                     if (state.status == EmployeeOutputStatus.loading)
                       _buildLoading()
                     // ==================================================
@@ -477,23 +514,9 @@ class _EmployeeOutputReportPageState extends State<EmployeeOutputReportPage> {
 
                       const SizedBox(height: 8),
 
-                      // ================================================
-                      // CARDS
-                      // ================================================
-                      ListView.separated(
-                        shrinkWrap: true,
-
-                        physics: const NeverScrollableScrollPhysics(),
-
-                        itemCount: state.reports.length,
-
-                        separatorBuilder: (_, __) => const SizedBox(height: 8),
-
-                        itemBuilder: (context, index) {
-                          final report = state.reports[index];
-
-                          return EmployeeOutputCard(report: report);
-                        },
+                      EmployeeOutputCard(
+                        reports: state.reports,
+                        onEmployeeTap: _openEmployeeDetails,
                       ),
                     ],
                   ],

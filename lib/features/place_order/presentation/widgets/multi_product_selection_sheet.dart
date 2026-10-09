@@ -517,7 +517,11 @@ void _setQuantity(
 
   @override
   Widget build(BuildContext context) {
-    return SafeArea(
+    return Padding(
+      padding: EdgeInsets.only(
+        bottom: MediaQuery.of(context).viewInsets.bottom,
+      ),
+      child: SafeArea(
       child: Container(
         height:
             MediaQuery.of(context).size.height * 0.88,
@@ -538,6 +542,7 @@ void _setQuantity(
             _buildBottomButton(),
           ],
         ),
+      ),
       ),
     );
   }

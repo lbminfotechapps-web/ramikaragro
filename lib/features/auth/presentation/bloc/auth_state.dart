@@ -1,3 +1,5 @@
+
+
 enum LoginStatus { initial, loading, success, failure }
 
 class AuthState {

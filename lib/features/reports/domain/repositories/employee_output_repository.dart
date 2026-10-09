@@ -1,9 +1,10 @@
+import 'package:solufine/features/reports/domain/entities/employee_out_repo_details.dart';
+
 import '../entities/assign_employee.dart';
 import '../entities/employee_output_report.dart';
 
 abstract class EmployeeOutputRepository {
-  Future<List<EmployeeOutputReport>>
-      getEmployeeOutputReport({
+  Future<List<EmployeeOutputReport>> getEmployeeOutputReport({
     required String userId,
     required String employeeId,
     required String fromDate,
@@ -15,5 +16,11 @@ abstract class EmployeeOutputRepository {
   Future<List<AssignEmployee>> searchEmployees({
     required String logUserId,
     required String search,
+  });
+
+  Future<EmployeeOutRepoDetailsEntity> getEmployeeOutputReportDetails({
+    required String empId,
+    required String fromdate,
+    required String toDate,
   });
 }

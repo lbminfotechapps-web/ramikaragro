@@ -23,8 +23,6 @@ class _MyExpenseCardState extends State<MyExpenseCard> {
   Widget build(BuildContext context) {
     final expense = widget.expense;
 
-    final bool approved = expense.status == '1';
-
     return Container(
       // ============================================================
       // OPTIMIZED OUTER SPACE
@@ -101,18 +99,11 @@ class _MyExpenseCardState extends State<MyExpenseCard> {
                               color: Color(0xFF18231C),
                             ),
                           ),
-
-                      
                         ],
                       ),
                     ),
 
-                   
-
-                  
-              
-
-                     Expanded(
+                    Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
@@ -129,28 +120,25 @@ class _MyExpenseCardState extends State<MyExpenseCard> {
                           const SizedBox(height: 2),
 
                           Text(
-                           '₹ ${expense.dailyTotal}',
+                            '₹ ${expense.dailyTotal}',
                             style: const TextStyle(
                               fontSize: 14,
                               fontWeight: FontWeight.w900,
                               color: Color(0xFF18231C),
                             ),
                           ),
-
-                    
                         ],
                       ),
                     ),
 
                     const SizedBox(width: 6),
 
-                    _statusBadge(approved),
+                    _statusBadge(expense.status),
                   ],
                 ),
 
                 const SizedBox(height: 10),
 
-               
                 // ======================================================
                 // VISITED PLACE + TRAVEL MODE
                 // ======================================================
@@ -312,11 +300,17 @@ class _MyExpenseCardState extends State<MyExpenseCard> {
   // MAIN STATUS BADGE
   // ==================================================================
 
-  Widget _statusBadge(bool approved) {
+  Widget _statusBadge(String status) {
+    final (label, backgroundColor, foregroundColor) = switch (status.trim()) {
+      '1' => ('Approved', const Color(0xFFE8F5E9), const Color(0xFF2E7D32)),
+      '2' => ('Cancelled', const Color(0xFFFFEBEE), const Color(0xFFC62828)),
+      _ => ('Pending', const Color(0xFFFFF4E5), const Color(0xFFE65100)),
+    };
+
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
       decoration: BoxDecoration(
-        color: approved ? const Color(0xFFE8F5E9) : const Color(0xFFFFF4E5),
+        color: backgroundColor,
         borderRadius: BorderRadius.circular(9),
       ),
       child: Row(
@@ -327,29 +321,22 @@ class _MyExpenseCardState extends State<MyExpenseCard> {
             height: 5,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
-              color: approved
-                  ? const Color(0xFF2E7D32)
-                  : const Color(0xFFE65100),
+              color: foregroundColor,
             ),
           ),
-
           const SizedBox(width: 4),
-
           Text(
-            approved ? 'Approved' : 'Pending',
+            label,
             style: TextStyle(
               fontSize: 8,
               fontWeight: FontWeight.w900,
-              color: approved
-                  ? const Color(0xFF2E7D32)
-                  : const Color(0xFFE65100),
+              color: foregroundColor,
             ),
           ),
         ],
       ),
     );
   }
-
   // ==================================================================
   // STATUS COLOR
   // ==================================================================

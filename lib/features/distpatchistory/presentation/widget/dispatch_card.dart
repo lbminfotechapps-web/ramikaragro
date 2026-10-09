@@ -56,12 +56,11 @@ class DispatchCard extends StatelessWidget {
                         value: _orderNumber(),
                       ),
 
-                         _buildInfoRow(
+                      _buildInfoRow(
                         icon: Icons.receipt_long_outlined,
                         label: 'Dispatch No.',
                         value: _dispatchNumber(),
                       ),
-
 
                       _buildInfoRow(
                         icon: Icons.receipt_long_outlined,
@@ -255,7 +254,7 @@ class DispatchCard extends StatelessWidget {
 
         Expanded(
           child: _quantityCard(
-            title: 'Dispatch',
+            title: 'Dispatch Case',
             value: _dispatchQty(),
             icon: Icons.local_shipping_outlined,
             background: const Color(0xFFF0F8F2),
@@ -267,7 +266,7 @@ class DispatchCard extends StatelessWidget {
 
         Expanded(
           child: _quantityCard(
-            title: 'Remaining',
+            title: 'Remaining Case',
             value: _remainingQty(),
             icon: Icons.pending_actions_outlined,
             background: const Color(0xFFFFF7ED),
@@ -408,12 +407,17 @@ class DispatchCard extends StatelessWidget {
     return _getValue(['orderNo', 'order_no', 'orderNumber', 'order_number']);
   }
 
-    String _orderDate() {
+  String _orderDate() {
     return _getValue(['orderDate', 'order_date', 'orderDate', 'order_date']);
   }
 
-   String _dispatchNumber() {
-    return _getValue(['dispatchNo', 'dispatch_no', 'dispatchNumber', 'dispatch_number']);
+  String _dispatchNumber() {
+    return _getValue([
+      'dispatchNo',
+      'dispatch_no',
+      'dispatchNumber',
+      'dispatch_number',
+    ]);
   }
 
   String _orderQty() {
@@ -690,16 +694,14 @@ class DispatchCard extends StatelessWidget {
       case 'orderBy':
         return dispatch.orderBy;
 
-     
-
       case 'dispatchNo':
         return dispatch.dispatchNo;
-       case 'dispatch_no':
+      case 'dispatch_no':
         return dispatch.dispatch_no;
       case 'dispatchNumber':
         return dispatch.dispatchNumber;
       case 'dispatch_number':
-        return dispatch.dispatch_number;  
+        return dispatch.dispatch_number;
 
       case 'orderNo':
         return dispatch.orderNo;

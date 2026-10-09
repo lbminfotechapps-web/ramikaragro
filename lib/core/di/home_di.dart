@@ -115,7 +115,7 @@ Future<void> initHomeDi() async {
   // LOCATION TRACKING
   // =========================
 
-  sl.registerLazySingleton<AppDatabase>(() => AppDatabase());
+  // sl.registerLazySingleton<AppDatabase>(() => AppDatabase());
 
   sl.registerLazySingleton<LocationRepository>(
     () => LocationRepository(sl<AppDatabase>()),
