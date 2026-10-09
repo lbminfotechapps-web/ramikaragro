@@ -1,3 +1,6 @@
+import 'package:solufine/core/theme/app_theme_extension.dart';
+import 'package:solufine/core/theme/cubit/theme_cubit.dart';
+import 'package:solufine/core/theme/cubit/theme_state.dart';
 import 'package:solufine/core/utility/widgets/internet_status_listener.dart';
 // import 'package:flutter/material.dart';
 // import 'package:flutter_bloc/flutter_bloc.dart';
@@ -146,6 +149,7 @@ class _MyAppState extends State<MyApp> {
   Widget build(BuildContext context) {
     return MultiBlocProvider(
       providers: [
+        BlocProvider<ThemeCubit>.value(value: sl<ThemeCubit>()),
         BlocProvider<QuickAcessBloc>(create: (_) => sl<QuickAcessBloc>()),
 
         BlocProvider<EmployeeActivityBloc>(
@@ -209,7 +213,43 @@ class _MyAppState extends State<MyApp> {
         BlocProvider<AiBloc>(create: (_) => sl<AiBloc>()),
       ],
 
-      child: MaterialApp.router(
+      child: BlocBuilder<ThemeCubit, ThemeState>(
+        buildWhen: (previous, current) {
+          return previous.selectedTheme.id != current.selectedTheme.id;
+        },
+        builder: (context, themeState) {
+          final selectedPalette = themeState.selectedTheme;
+
+          final appTheme = AppColor.getLightTheme(selectedPalette);
+
+          return MaterialApp.router(
+            title: 'Solufine Agro',
+            theme: appTheme,
+            themeMode: ThemeMode.light,
+            debugShowCheckedModeBanner: false,
+
+            builder: (context, child) {
+              final themeExtension = Theme.of(
+                context,
+              ).extension<AppThemeExtension>()!;
+
+              return Container(
+                decoration: themeExtension.appGradientDecoration,
+                child: InternetStatusListener(
+                  child: AppStatusFrame(
+                    child: child ?? const SizedBox.shrink(),
+                  ),
+                ),
+              );
+            },
+
+            routerConfig: AppRouter.router,
+          );
+        },
+      ),
+
+      /*
+       MaterialApp.router(
         title: 'Flutter Demo',
         theme: AppColor.getLightTheme(),
         themeMode: ThemeMode.light,
@@ -226,6 +266,9 @@ class _MyAppState extends State<MyApp> {
 
         routerConfig: AppRouter.router,
       ),
+
+
+      */
     );
   }
 }

@@ -1,3 +1,4 @@
+import 'package:solufine/core/theme/app_dynamic_colors.dart';
 import 'package:solufine/core/utility/tab_refresh.dart';
 import 'package:solufine/core/di/auth_di.dart';
 import 'package:solufine/features/auth/provider/auth_provider.dart';
@@ -24,10 +25,6 @@ class HomeShell extends StatefulWidget {
 }
 
 class HomeShellState extends State<HomeShell> {
-  // ============================================================
-  // VARIABLES
-  // ============================================================
-
   GoRouterDelegate? _routerDelegate;
   late final AuthProvider _authProvider;
 
@@ -36,37 +33,13 @@ class HomeShellState extends State<HomeShell> {
   int _userId = 0;
   String _username = 'user';
 
-  /// false = SecureStorage is still being checked.
-  /// true  = user state is ready.
   bool _isUserLoaded = false;
 
-  // ============================================================
-  // ROUTE REFRESH VARIABLES
-  // ============================================================
-
-  /// Stores previous route so that we can detect:
-  ///
-  /// Any Screen
-  ///     ↓
-  /// Home
-  ///
-  /// and refresh Home APIs.
   String? _lastLocation;
 
   /// Prevents scheduling multiple Home refreshes
   /// during the same frame.
   bool _homeRefreshScheduled = false;
-
-  // ============================================================
-  // TABS
-  // ============================================================
-
-  // static const _tabs = [
-  //   (path: AppRouter.home, icon: Icons.home, label: 'Home'),
-  //   (path: AppRouter.followup, icon: Icons.report, label: 'Follow up'),
-  //   (path: AppRouter.products, icon: Icons.storage, label: 'Products'),
-  //   (path: AppRouter.monthlyPerformanceReport, icon: Icons.location_city, label: 'Report'),
-  // ];
 
   static const _tabs = [
     // INDEX 0
@@ -97,10 +70,6 @@ class HomeShellState extends State<HomeShell> {
     super.initState();
     _authProvider = sl<AuthProvider>();
     _authProvider.addListener(_onAuthChanged);
-
-    // ----------------------------------------------------------
-    // INITIAL HOME LOAD
-    // ----------------------------------------------------------
 
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       if (!mounted) return;
@@ -133,25 +102,13 @@ class HomeShellState extends State<HomeShell> {
     super.dispose();
   }
 
-  // ============================================================
-  // PUBLIC REFRESH METHOD
-  // ============================================================
-
   Future<void> refreshHome() async {
     if (!mounted) return;
 
     await _refreshHome();
   }
 
-  // ============================================================
-  // CHECK NAVIGATION
-  // ============================================================
-
   void _checkHomeNavigation() {
-    // ----------------------------------------------------------
-    // GET CURRENT GO ROUTER LOCATION
-    // ----------------------------------------------------------
-
     final delegate = _routerDelegate;
     if (!mounted || delegate == null || delegate.currentConfiguration.isEmpty) {
       return;
@@ -159,13 +116,6 @@ class HomeShellState extends State<HomeShell> {
 
     // The top route includes pushed screens above the bottom navigation.
     final location = delegate.state.uri.path;
-
-    // ----------------------------------------------------------
-    // SAME ROUTE
-    //
-    // Widget may rebuild because Bloc/setState changed.
-    // That does NOT mean navigation happened.
-    // ----------------------------------------------------------
 
     if (_lastLocation == location) {
       return;
@@ -182,10 +132,6 @@ class HomeShellState extends State<HomeShell> {
     debugPrint('TAB  : ${widget.navigationShell.currentIndex}');
     debugPrint('======================================');
 
-    // ----------------------------------------------------------
-    // CHECK IF HOME IS NOW ACTIVE
-    // ----------------------------------------------------------
-
     final bool isHomeRoute =
         location == AppRouter.home || location == '${AppRouter.home}/';
 
@@ -193,29 +139,14 @@ class HomeShellState extends State<HomeShell> {
       return;
     }
 
-    // ----------------------------------------------------------
-    // INITIAL LOAD
-    //
-    // initState() already handles initial Home API calls.
-    // Don't call twice.
-    // ----------------------------------------------------------
-
     if (previousLocation == null) {
       debugPrint('HOME INITIAL ROUTE -> initState handles refresh');
 
       return;
     }
 
-    // ----------------------------------------------------------
-    // HOME BECAME ACTIVE FROM ANOTHER ROUTE
-    // ----------------------------------------------------------
-
     _scheduleHomeRefresh(reason: 'RETURNED TO HOME FROM $previousLocation');
   }
-
-  // ============================================================
-  // SCHEDULE HOME REFRESH
-  // ============================================================
 
   void _scheduleHomeRefresh({required String reason}) {
     if (_homeRefreshScheduled) {
@@ -237,10 +168,6 @@ class HomeShellState extends State<HomeShell> {
       await _refreshHome();
     });
   }
-
-  // ============================================================
-  // LOAD USER + ALL HOME DATA
-  // ============================================================
 
   Future<void> _refreshHome() async {
     try {
@@ -267,27 +194,13 @@ class HomeShellState extends State<HomeShell> {
 
       if (!mounted) return;
 
-      // ========================================================
-      // 1. MENU API
-      //
-      // Works for guest + logged-in user.
-      // ========================================================
-
       debugPrint('CALLING MENU API');
 
       context.read<HomeBloc>().add(GetMenuEvent(userId, loginStatus));
 
-      // ========================================================
-      // GUEST USER
-      // ========================================================
-
       if (userId == 0) {
         return;
       }
-
-      // ========================================================
-      // LOGGED-IN USER
-      // ========================================================
 
       final now = DateTime.now();
 
@@ -299,10 +212,6 @@ class HomeShellState extends State<HomeShell> {
 
       if (!mounted) return;
 
-      // ========================================================
-      // 2. HOME VISIT API
-      // ========================================================
-
       debugPrint('CALLING HOME VISIT API');
 
       context.read<HomeBloc>().add(GetHomeVisitEvent(userId.toString()));
@@ -312,10 +221,6 @@ class HomeShellState extends State<HomeShell> {
       context.read<HomeBloc>().add(
         VisitGraphCountEvent(userId, searchFromDate, searchToDate),
       );
-
-      // ========================================================
-      // 5. PENDING IN-PUNCH API
-      // ========================================================
 
       context.read<HomeBloc>().add(
         GetInpunchPendingEvent(userId: userId.toString()),
@@ -330,10 +235,6 @@ class HomeShellState extends State<HomeShell> {
       }
     }
   }
-
-  // ============================================================
-  // BOTTOM NAVIGATION
-  // ============================================================
 
   void _onTabTapped(int index) {
     final visibleTabIndices = _visibleTabIndices;
@@ -455,6 +356,243 @@ class HomeShellState extends State<HomeShell> {
   // BUILD
   // ============================================================
 
+  @override
+  Widget build(BuildContext context) {
+    final colors = Theme.of(context).colorScheme;
+
+    final backgroundColor = context.appBackground;
+    final navBackground = context.appCard;
+    final selectedColor = context.appPrimary;
+    final unselectedColor = context.appSubText;
+    final textColor = context.appText;
+
+    if (!_isUserLoaded) {
+      return Scaffold(
+        backgroundColor: backgroundColor,
+        body: const Center(child: CircularProgressIndicator()),
+      );
+    }
+
+    final visibleTabIndices = _visibleTabIndices;
+
+    final selectedIndex = visibleTabIndices.indexOf(
+      widget.navigationShell.currentIndex,
+    );
+
+    return PopScope(
+      canPop: false,
+      onPopInvokedWithResult: (bool didPop, Object? result) async {
+        if (didPop) return;
+        await _handleBack();
+      },
+      child: Scaffold(
+        backgroundColor: backgroundColor,
+        body: widget.navigationShell,
+
+        bottomNavigationBar: ColoredBox(
+          color: backgroundColor,
+          child: SafeArea(
+            top: false,
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
+              child: LayoutBuilder(
+                builder: (context, constraints) {
+                  final showAi = _userId > 0;
+                  final aiGap = showAi ? 64.0 : 0.0;
+                  final active = selectedIndex < 0 ? 0 : selectedIndex;
+
+                  final tabWidth =
+                      (constraints.maxWidth - aiGap) / visibleTabIndices.length;
+
+                  return TweenAnimationBuilder<double>(
+                    tween: Tween<double>(
+                      begin: active.toDouble(),
+                      end: active.toDouble(),
+                    ),
+                    duration: const Duration(milliseconds: 260),
+                    curve: Curves.easeOutCubic,
+                    builder: (context, animatedIndex, child) {
+                      final middle = visibleTabIndices.length ~/ 2;
+
+                      final center = selectedIndex < 0
+                          ? constraints.maxWidth / 2
+                          : tabWidth * (animatedIndex + 0.5) +
+                                (animatedIndex >= middle ? aiGap : 0);
+
+                      return SizedBox(
+                        height: 82,
+                        child: Stack(
+                          clipBehavior: Clip.none,
+                          children: [
+                         Positioned.fill(
+  child: CustomPaint(
+    painter: _CurvedNavigationPainter(
+      center,
+      backgroundColor: context.appCard,
+      borderColor: context.appBorder,
+      shadowColor: Theme.of(context)
+          .colorScheme
+          .shadow
+          .withValues(alpha: 0.15),
+    ),
+  ),
+),
+
+                            // =====================================
+                            // NAVIGATION TABS
+                            // =====================================
+                            Positioned(
+                              top: 28,
+                              left: 0,
+                              right: 0,
+                              height: 48,
+                              child: Row(
+                                children: List.generate(
+                                  visibleTabIndices.length + (showAi ? 1 : 0),
+                                  (slot) {
+                                    if (showAi && slot == middle) {
+                                      return const SizedBox(width: 64);
+                                    }
+
+                                    final position = showAi && slot > middle
+                                        ? slot - 1
+                                        : slot;
+
+                                    final tab =
+                                        _tabs[visibleTabIndices[position]];
+
+                                    final selected = position == selectedIndex;
+
+                                    final itemColor = selected
+                                        ? selectedColor
+                                        : unselectedColor;
+
+                                    return Expanded(
+                                      child: Semantics(
+                                        label: tab.label,
+                                        button: true,
+                                        selected: selected,
+                                        child: Tooltip(
+                                          message: tab.label,
+                                          child: Material(
+                                            color: Colors.transparent,
+                                            child: InkResponse(
+                                              onTap: () =>
+                                                  _onTabTapped(position),
+                                              radius: 24,
+                                              child: SizedBox.expand(
+                                                child: Center(
+                                                  child: ExcludeSemantics(
+                                                    child: Column(
+                                                      mainAxisSize:
+                                                          MainAxisSize.min,
+                                                      mainAxisAlignment:
+                                                          MainAxisAlignment
+                                                              .center,
+                                                      children: [
+                                                        Icon(
+                                                          tab.icon,
+                                                          size: 25,
+                                                          color: itemColor,
+                                                        ),
+                                                        const SizedBox(
+                                                          height: 4,
+                                                        ),
+                                                        Text(
+                                                          tab.label,
+                                                          maxLines: 1,
+                                                          overflow: TextOverflow
+                                                              .ellipsis,
+                                                          style: TextStyle(
+                                                            color: itemColor,
+                                                            fontSize: 11,
+                                                            height: 1.1,
+                                                            fontWeight: selected
+                                                                ? FontWeight
+                                                                      .w700
+                                                                : FontWeight
+                                                                      .w500,
+                                                          ),
+                                                        ),
+                                                      ],
+                                                    ),
+                                                  ),
+                                                ),
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    );
+                                  },
+                                ),
+                              ),
+                            ),
+
+                            // =====================================
+                            // AI ASSISTANT BUTTON
+                            // =====================================
+                            if (showAi)
+                              Positioned(
+                                top: 0,
+                                left: (constraints.maxWidth - 56) / 2,
+                                width: 56,
+                                height: 56,
+                                child: Semantics(
+                                  label: 'AI assistant',
+                                  button: true,
+                                  selected: selectedIndex < 0,
+                                  child: Tooltip(
+                                    message: 'AI assistant',
+                                    child: GestureDetector(
+                                      onTap: () => context.push(AppRouter.ai),
+                                      child: Container(
+                                        decoration: BoxDecoration(
+                                          shape: BoxShape.circle,
+
+                                          color: colors.surface,
+
+                                          border: Border.all(
+                                            color: selectedColor,
+                                            width: 2,
+                                          ),
+
+                                          boxShadow: [
+                                            BoxShadow(
+                                              color: selectedColor.withValues(
+                                                alpha: 0.20,
+                                              ),
+                                              blurRadius: 8,
+                                              offset: const Offset(0, 3),
+                                            ),
+                                          ],
+                                        ),
+
+                                        child: Icon(
+                                          Icons.auto_awesome_rounded,
+                                          color: selectedColor,
+                                          size: 28,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                          ],
+                        ),
+                      );
+                    },
+                  );
+                },
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  /*
   @override
   Widget build(BuildContext context) {
     // ==========================================================
@@ -707,14 +845,34 @@ class HomeShellState extends State<HomeShell> {
       ),
     );
   }
+
+
+
+  */
 }
+
 
 class _CurvedNavigationPainter extends CustomPainter {
   final double selectedCenter;
-  const _CurvedNavigationPainter(this.selectedCenter);
+
+  // Dynamic theme colors
+  final Color backgroundColor;
+  final Color borderColor;
+  final Color shadowColor;
+
+  const _CurvedNavigationPainter(
+    this.selectedCenter, {
+    required this.backgroundColor,
+    required this.borderColor,
+    required this.shadowColor,
+  });
 
   @override
   void paint(Canvas canvas, Size size) {
+    // =========================================================
+    // ORIGINAL NAVIGATION SHAPE
+    // =========================================================
+
     final surface = Path()
       ..addRRect(
         RRect.fromRectAndCorners(
@@ -725,23 +883,67 @@ class _CurvedNavigationPainter extends CustomPainter {
           bottomRight: const Radius.circular(22),
         ),
       );
+
+    // =========================================================
+    // CENTER NOTCH
+    // =========================================================
+
     final notch = Path()
       ..addOval(
-        Rect.fromCircle(center: Offset(selectedCenter, 28), radius: 30),
+        Rect.fromCircle(
+          center: Offset(selectedCenter, 28),
+          radius: 30,
+        ),
       );
-    final bar = Path.combine(PathOperation.difference, surface, notch);
-    canvas.drawShadow(bar, const Color(0x261B4332), 3, false);
-    canvas.drawPath(bar, Paint()..color = Colors.white);
+
+    final bar = Path.combine(
+      PathOperation.difference,
+      surface,
+      notch,
+    );
+
+    // =========================================================
+    // DYNAMIC SHADOW
+    // =========================================================
+
+    canvas.drawShadow(
+      bar,
+      shadowColor,
+      3,
+      false,
+    );
+
+    // =========================================================
+    // DYNAMIC BACKGROUND
+    // =========================================================
+
     canvas.drawPath(
       bar,
       Paint()
-        ..color = const Color(0xFFDDEBE1)
+        ..color = backgroundColor
+        ..style = PaintingStyle.fill,
+    );
+
+    // =========================================================
+    // DYNAMIC BORDER
+    // =========================================================
+
+    canvas.drawPath(
+      bar,
+      Paint()
+        ..color = borderColor
         ..style = PaintingStyle.stroke
         ..strokeWidth = 1,
     );
   }
 
   @override
-  bool shouldRepaint(_CurvedNavigationPainter oldDelegate) =>
-      oldDelegate.selectedCenter != selectedCenter;
+  bool shouldRepaint(
+    covariant _CurvedNavigationPainter oldDelegate,
+  ) {
+    return oldDelegate.selectedCenter != selectedCenter ||
+        oldDelegate.backgroundColor != backgroundColor ||
+        oldDelegate.borderColor != borderColor ||
+        oldDelegate.shadowColor != shadowColor;
+  }
 }

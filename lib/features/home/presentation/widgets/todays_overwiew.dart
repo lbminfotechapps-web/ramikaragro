@@ -1,3 +1,4 @@
+import 'package:solufine/core/theme/app_dynamic_colors.dart';
 import 'package:solufine/features/home/doman/home_entity/homevisit_entity.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil_plus/flutter_screenutil_plus.dart';
@@ -12,9 +13,9 @@ class VisitStatisticsTable extends StatelessWidget {
     return Container(
       margin: EdgeInsets.symmetric(horizontal: 8.w, vertical: 8.h),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: context.appCard,
         borderRadius: BorderRadius.circular(16.r),
-        border: Border.all(color: const Color(0xFFE5E7EB)),
+        border: Border.all(color: context.appBorder),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withOpacity(0.05),
@@ -30,7 +31,7 @@ class VisitStatisticsTable extends StatelessWidget {
             // Header
             Container(
               padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 8.h),
-              color: const Color(0xFF1B4332),
+              color: context.appPrimary,
               child: Row(
                 children: [
                   Expanded(
@@ -43,7 +44,7 @@ class VisitStatisticsTable extends StatelessWidget {
                           maxLines: 1,
                           softWrap: false,
                           style: TextStyle(
-                            color: Colors.white,
+                            color: context.appOnPrimary,
                             fontSize: 13.sp,
                             fontWeight: FontWeight.w700,
                           ),
@@ -55,7 +56,7 @@ class VisitStatisticsTable extends StatelessWidget {
                             maxLines: 1,
                             softWrap: false,
                             style: TextStyle(
-                              color: Colors.white70,
+                              color: context.appOnPrimary.withValues(alpha: 0.7),
                               fontSize: 10.sp,
                               fontWeight: FontWeight.w500,
                             ),
@@ -63,15 +64,15 @@ class VisitStatisticsTable extends StatelessWidget {
                       ],
                     ),
                   ),
-                  Expanded(child: _headerText('Today')),
-                  Expanded(child: _headerText('Month All')),
-                  Expanded(child: _headerText('Month Unique')),
+                  Expanded(child: _headerText(context, 'Today')),
+                  Expanded(child: _headerText(context, 'Month All')),
+                  Expanded(child: _headerText(context, 'Month Unique')),
                 ],
               ),
             ),
 
             // Dealer
-            _visitRow(
+            _visitRow(context,
               title: 'Dealer Visits',
               today: homeData.todayDealerCnt,
               monthAll: homeData.monthlyDealerCnt,
@@ -80,7 +81,7 @@ class VisitStatisticsTable extends StatelessWidget {
             ),
 
             // Farmer
-            _visitRow(
+            _visitRow(context,
               title: 'Farmer Visits',
               today: homeData.todayFarmerCnt,
               monthAll: homeData.monthlyFarmerCnt,
@@ -93,7 +94,7 @@ class VisitStatisticsTable extends StatelessWidget {
     );
   }
 
-  Widget _headerText(String text) {
+  Widget _headerText(BuildContext context, String text) {
     return FittedBox(
       fit: BoxFit.scaleDown,
       child: Text(
@@ -102,7 +103,7 @@ class VisitStatisticsTable extends StatelessWidget {
         softWrap: false,
         textAlign: TextAlign.center,
         style: TextStyle(
-          color: Colors.white,
+          color: context.appOnPrimary,
           fontSize: 11.sp,
           fontWeight: FontWeight.w600,
         ),
@@ -110,7 +111,7 @@ class VisitStatisticsTable extends StatelessWidget {
     );
   }
 
-  Widget _visitRow({
+  Widget _visitRow(BuildContext context, {
     required String title,
     required String today,
     required String monthAll,
@@ -120,9 +121,9 @@ class VisitStatisticsTable extends StatelessWidget {
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 16.h),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: context.appCard,
         border: showDivider
-            ? const Border(bottom: BorderSide(color: Color(0xFFE5E7EB)))
+            ? Border(bottom: BorderSide(color: context.appBorder))
             : null,
       ),
       child: Row(
@@ -131,26 +132,26 @@ class VisitStatisticsTable extends StatelessWidget {
             child: Text(
               title,
               style: TextStyle(
-                color: const Color(0xFF1F2937),
+                color: context.appOnCard,
                 fontSize: 12.sp,
                 fontWeight: FontWeight.w600,
               ),
             ),
           ),
-          Expanded(child: _numberText(today)),
-          Expanded(child: _numberText(monthAll)),
-          Expanded(child: _numberText(monthUnique)),
+          Expanded(child: _numberText(context, today)),
+          Expanded(child: _numberText(context, monthAll)),
+          Expanded(child: _numberText(context, monthUnique)),
         ],
       ),
     );
   }
 
-  Widget _numberText(String value) {
+  Widget _numberText(BuildContext context, String value) {
     return Center(
       child: Text(
         value.isEmpty ? '0' : value,
         style: TextStyle(
-          color: const Color(0xFF1B4332),
+          color: context.appPrimary,
           fontSize: 15.sp,
           fontWeight: FontWeight.w800,
         ),

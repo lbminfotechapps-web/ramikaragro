@@ -1,10 +1,10 @@
+import 'package:solufine/core/theme/app_dynamic_colors.dart';
 import 'dart:convert';
 
 import 'package:solufine/core/di/auth_di.dart';
 import 'package:solufine/core/location_tracking/app_database.dart';
 import 'package:solufine/core/location_tracking/location_repository.dart';
 import 'package:solufine/core/secure_storage/secure_storage.dart';
-import 'package:solufine/core/theme/app_colors.dart';
 import 'package:solufine/core/utility/app_toast.dart';
 
 import 'package:solufine/core/utility/appdialog.dart';
@@ -493,7 +493,7 @@ class _QuickAccessSectionState extends State<QuickAccessSection> {
                     },
                     decoration: InputDecoration(
                       hintText: 'Search menu',
-                      hintStyle: TextStyle(fontSize: 12.sp, color: Colors.grey),
+                      hintStyle: TextStyle(fontSize: 12.sp, color: context.appSubText),
 
                       prefixIcon: Icon(Icons.search_rounded, size: 20.sp),
 
@@ -516,7 +516,7 @@ class _QuickAccessSectionState extends State<QuickAccessSection> {
                       ),
 
                       filled: true,
-                      fillColor: const Color(0xFFF6F7F8),
+                      fillColor: context.appInputBackground,
 
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(14.r),
@@ -526,7 +526,7 @@ class _QuickAccessSectionState extends State<QuickAccessSection> {
                       enabledBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(14.r),
                         borderSide: BorderSide(
-                          color: const Color(0xFFE5E7EB),
+                          color: context.appBorder,
                           width: 1,
                         ),
                       ),
@@ -550,20 +550,10 @@ class _QuickAccessSectionState extends State<QuickAccessSection> {
                     height: 36.r,
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
-                      gradient: const LinearGradient(
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                        colors: [
-                          Color(0xFF49C6FF),
-                          Color(0xFF8260F6),
-                          Color(0xFFF478B8),
-                        ],
-                      ),
+                      gradient: context.appBackgroundGradient,
                       boxShadow: [
                         BoxShadow(
-                          color: const Color(
-                            0xFF8260F6,
-                          ).withValues(alpha: 0.25),
+                          color: context.appPrimary.withValues(alpha: 0.25),
                           blurRadius: 8.r,
                           offset: Offset(0, 2.h),
                         ),
@@ -574,7 +564,7 @@ class _QuickAccessSectionState extends State<QuickAccessSection> {
                       padding: EdgeInsets.zero,
                       icon: Icon(
                         Icons.mic_rounded,
-                        color: Colors.white,
+                        color: context.appOnPrimary,
                         size: 22.sp,
                       ),
                     ),
@@ -634,7 +624,7 @@ class _QuickAccessSectionState extends State<QuickAccessSection> {
                     ],
                     if (filteredReports.isNotEmpty) ...[
                       SizedBox(height: 18.h),
-                      const Divider(color: Color(0xFFE5E7EB)),
+                      Divider(color: context.appBorder),
                       SizedBox(height: 10.h),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -660,7 +650,7 @@ class _QuickAccessSectionState extends State<QuickAccessSection> {
                       if (visibleActions.isNotEmpty ||
                           filteredReports.isNotEmpty) ...[
                         SizedBox(height: 18.h),
-                        const Divider(color: Color(0xFFE5E7EB)),
+                        Divider(color: context.appBorder),
                         SizedBox(height: 10.h),
                       ],
                       _groupTitle('Information & Support'),
@@ -683,7 +673,7 @@ class _QuickAccessSectionState extends State<QuickAccessSection> {
       style: TextStyle(
         fontSize: 15.sp,
         fontWeight: FontWeight.w700,
-        color: AppColors.primary,
+        color: context.appPrimary,
       ),
     ),
   );
@@ -927,12 +917,12 @@ class _QuickAccessSectionState extends State<QuickAccessSection> {
                   Container(
                     padding: EdgeInsets.all(10.r),
                     decoration: BoxDecoration(
-                      color: AppColors.primary.withValues(alpha: 0.10),
+                      color: context.appPrimary.withValues(alpha: 0.10),
                       borderRadius: BorderRadius.circular(12.r),
                     ),
                     child: Icon(
                       Icons.location_on_rounded,
-                      color: AppColors.primary,
+                      color: context.appPrimary,
                       size: 24.sp,
                     ),
                   ),
@@ -967,7 +957,7 @@ class _QuickAccessSectionState extends State<QuickAccessSection> {
                       ),
                       child: Icon(
                         Icons.edit_note_rounded,
-                        color: AppColors.primary,
+                        color: context.appPrimary,
                       ),
                     ),
                     border: OutlineInputBorder(
@@ -975,12 +965,12 @@ class _QuickAccessSectionState extends State<QuickAccessSection> {
                     ),
                     enabledBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12.r),
-                      borderSide: BorderSide(color: Colors.grey.shade300),
+                      borderSide: BorderSide(color: context.appBorder),
                     ),
                     focusedBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12.r),
                       borderSide: BorderSide(
-                        color: AppColors.primary,
+                        color: context.appPrimary,
                         width: 1.5,
                       ),
                     ),
@@ -1006,9 +996,9 @@ class _QuickAccessSectionState extends State<QuickAccessSection> {
                 ),
                 ElevatedButton(
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.primary,
-                    foregroundColor: Colors.white,
-                    disabledBackgroundColor: AppColors.primary.withValues(
+                    backgroundColor: context.appPrimary,
+                    foregroundColor: context.appOnPrimary,
+                    disabledBackgroundColor: context.appPrimary.withValues(
                       alpha: 0.5,
                     ),
                     shape: RoundedRectangleBorder(
@@ -1050,10 +1040,10 @@ class _QuickAccessSectionState extends State<QuickAccessSection> {
                       ? SizedBox(
                           width: 18.w,
                           height: 18.w,
-                          child: const CircularProgressIndicator(
+                          child: CircularProgressIndicator(
                             strokeWidth: 2,
                             valueColor: AlwaysStoppedAnimation<Color>(
-                              Colors.white,
+                              context.appOnPrimary,
                             ),
                           ),
                         )
@@ -1122,7 +1112,7 @@ class QuickAccessMenuItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final accent = _accentColor;
+    final accent = context.appPrimary;
     return _MenuShortcut(
       title: displayName,
       accent: accent,
@@ -1140,16 +1130,6 @@ class QuickAccessMenuItem extends StatelessWidget {
     );
   }
 
-  Color get _accentColor {
-    const palette = [
-      Color(0xFF218653),
-      Color(0xFF397AC4),
-      Color(0xFF9270CA),
-      Color(0xFFC18A32),
-      Color(0xFF2B9195),
-    ];
-    return palette[(int.tryParse(menu.menuId) ?? 0) % palette.length];
-  }
 }
 
 class _MoreItem extends StatelessWidget {
@@ -1161,12 +1141,12 @@ class _MoreItem extends StatelessWidget {
   Widget build(BuildContext context) {
     return _MenuShortcut(
       title: 'More',
-      accent: const Color(0xFF64748B),
+      accent: context.appPrimary,
       onTap: onTap,
       icon: Icon(
         Icons.more_horiz_rounded,
         size: 30.sp,
-        color: const Color(0xFF64748B),
+        color: context.appPrimary,
       ),
     );
   }
@@ -1226,7 +1206,7 @@ class _MenuShortcut extends StatelessWidget {
                   style: TextStyle(
                     fontSize: 11.sp,
                     fontWeight: FontWeight.w600,
-                    color: const Color(0xFF24352C),
+                    color: context.appText,
                     height: 1.3,
                   ),
                 ),

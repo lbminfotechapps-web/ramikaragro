@@ -1,3 +1,4 @@
+import 'package:solufine/core/theme/app_dynamic_colors.dart';
 import 'dart:io';
 
 import 'package:solufine/core/utility/tab_refresh.dart';
@@ -13,7 +14,6 @@ import 'package:solufine/core/di/auth_di.dart';
 import 'package:solufine/core/location_tracking/location_repository.dart';
 import 'package:solufine/core/router/app_router.dart';
 import 'package:solufine/core/secure_storage/secure_storage.dart';
-import 'package:solufine/core/theme/app_colors.dart';
 import 'package:solufine/core/utility/appname.dart';
 import 'package:solufine/core/utility/developer_options_checker.dart';
 import 'package:solufine/core/utility/locationpermissiondialog.dart';
@@ -328,13 +328,13 @@ class _HomeState extends State<Home> {
               },
               child: Text(
                 'CANCEL',
-                style: TextStyle(color: AppColors.darkBackgroundColor),
+                style: TextStyle(color: context.appText),
               ),
             ),
             ElevatedButton(
               style: ElevatedButton.styleFrom(
-                backgroundColor: AppColors.accentGreen,
-                foregroundColor: Colors.white,
+                backgroundColor: context.appPrimary,
+                foregroundColor: context.appOnPrimary,
               ),
               onPressed: () {
                 Navigator.of(context).pop(true);
@@ -495,9 +495,9 @@ class _HomeState extends State<Home> {
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(18),
           ),
-          title: const Row(
+          title: Row(
             children: [
-              Icon(Icons.location_off_rounded, color: Colors.orange, size: 28),
+              Icon(Icons.location_off_rounded, color: context.appWarning, size: 28),
               SizedBox(width: 12),
               Expanded(
                 child: Text(
@@ -572,12 +572,12 @@ class _HomeState extends State<Home> {
               Container(
                 padding: const EdgeInsets.all(8),
                 decoration: BoxDecoration(
-                  color: Colors.orange.withOpacity(0.12),
+                  color: context.appWarning.withValues(alpha: 0.12),
                   shape: BoxShape.circle,
                 ),
-                child: const Icon(
+                child: Icon(
                   Icons.location_off_rounded,
-                  color: Colors.orange,
+                  color: context.appWarning,
                   size: 28,
                 ),
               ),
@@ -608,8 +608,8 @@ class _HomeState extends State<Home> {
           actions: [
             ElevatedButton.icon(
               style: ElevatedButton.styleFrom(
-                backgroundColor: AppColors.accentGreen,
-                foregroundColor: Colors.white,
+                backgroundColor: context.appPrimary,
+                foregroundColor: context.appOnPrimary,
                 elevation: 0,
                 padding: const EdgeInsets.symmetric(
                   horizontal: 18,
@@ -651,14 +651,14 @@ class _HomeState extends State<Home> {
               },
               child: Text(
                 'CANCEL',
-                style: TextStyle(color: AppColors.darkBackgroundColor),
+                style: TextStyle(color: context.appText),
               ),
             ),
 
             ElevatedButton(
               style: ElevatedButton.styleFrom(
-                backgroundColor: AppColors.accentGreen,
-                foregroundColor: Colors.white,
+                backgroundColor: context.appPrimary,
+                foregroundColor: context.appOnPrimary,
               ),
               onPressed: () {
                 // Return TRUE to _logout()
@@ -710,7 +710,7 @@ class _HomeState extends State<Home> {
         }
       },
       child: Scaffold(
-        backgroundColor: AppColors.backgroundColor,
+        backgroundColor: context.appBackground,
         appBar: CustomAppBar(
           leading: Builder(
             builder: (scaffoldContext) {
@@ -719,14 +719,14 @@ class _HomeState extends State<Home> {
                 height: 40,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  border: Border.all(color: AppColors.borderColor),
+                  border: Border.all(color: context.appBorder),
                 ),
                 child: IconButton(
                   padding: EdgeInsets.zero,
 
                   // icon: const Icon(
                   //   Icons.person_2_outlined,
-                  //   color: AppColors.textColor,
+                  //   color: context.appText,
                   // ),
                   icon: Image.asset(
                     'assets/icons/logo.png',
@@ -1007,11 +1007,11 @@ class _HomeState extends State<Home> {
 
   Widget buildPunchCard(String label, String value, String location) {
     return CustomCard(
-      color: const Color(0xFF009B3A),
+      color: context.appPrimary,
       padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 10.h),
       child: Row(
         children: [
-          Icon(Icons.fingerprint, color: Colors.white, size: 30.h),
+          Icon(Icons.fingerprint, color: context.appOnPrimary, size: 30.h),
 
           SizedBox(width: 8.w),
 
@@ -1024,13 +1024,13 @@ class _HomeState extends State<Home> {
                   label,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: TextStyle(color: AppColors.cardColor, fontSize: 10.sp),
+                  style: TextStyle(color: context.appOnPrimary, fontSize: 10.sp),
                 ),
                 SizedBox(height: 2.h),
                 Text(
                   value,
                   style: TextStyle(
-                    color: AppColors.cardColor,
+                    color: context.appOnPrimary,
                     fontSize: 15.sp,
                     fontWeight: FontWeight.bold,
                   ),
@@ -1041,7 +1041,7 @@ class _HomeState extends State<Home> {
                   children: [
                     Icon(
                       Icons.location_on,
-                      color: AppColors.cardColor,
+                      color: context.appOnPrimary,
                       size: 12.h,
                     ),
                     Text(
@@ -1049,7 +1049,7 @@ class _HomeState extends State<Home> {
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: TextStyle(
-                        color: AppColors.cardColor,
+                        color: context.appOnPrimary,
                         fontSize: 8.sp,
                       ),
                     ),
@@ -1060,13 +1060,13 @@ class _HomeState extends State<Home> {
                   margin: EdgeInsets.only(left: 6.w),
                   padding: EdgeInsets.symmetric(horizontal: 6.w, vertical: 2.h),
                   decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.2),
+                    color: context.appOnPrimary.withValues(alpha: 0.2),
                     borderRadius: BorderRadius.circular(8.r),
                   ),
                   child: Text(
                     'Punch In',
                     style: TextStyle(
-                      color: AppColors.cardColor,
+                      color: context.appOnPrimary,
                       fontSize: 8.sp,
                       fontWeight: FontWeight.w600,
                     ),
@@ -1205,12 +1205,12 @@ class _HomeState extends State<Home> {
 
   Widget buildInfoCard(String label, String value, {VoidCallback? onTap}) {
     return CustomCard(
-      color: const Color(0xFFFFF8EF),
+      color: context.appCard,
       onTap: onTap,
       padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 10.h),
       child: Row(
         children: [
-          Icon(Icons.access_time_rounded, color: Colors.orange, size: 28.h),
+          Icon(Icons.access_time_rounded, color: context.appWarning, size: 28.h),
           SizedBox(width: 8.w),
           Expanded(
             child: Column(
@@ -1254,16 +1254,16 @@ class _HomeState extends State<Home> {
       child: Container(
         padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 4.h),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: context.appCard,
           borderRadius: BorderRadius.circular(10.r),
-          border: Border.all(color: Colors.grey.shade300),
+          border: Border.all(color: context.appBorder),
         ),
         child: Row(
           children: [
             Icon(
               Icons.calendar_month_outlined,
               size: 20.sp,
-              color: AppColors.primaryColor,
+              color: context.appPrimary,
             ),
             SizedBox(width: 8.w),
             Expanded(
@@ -1274,7 +1274,7 @@ class _HomeState extends State<Home> {
                     label,
                     style: TextStyle(
                       fontSize: 11.sp,
-                      color: Colors.grey.shade600,
+                      color: context.appSubText,
                     ),
                   ),
                   SizedBox(height: 2.h),
@@ -1285,7 +1285,7 @@ class _HomeState extends State<Home> {
                     style: TextStyle(
                       fontSize: 13.sp,
                       fontWeight: FontWeight.w600,
-                      color: AppColors.textColor,
+                      color: context.appText,
                     ),
                   ),
                 ],
@@ -1378,12 +1378,12 @@ class _HomeState extends State<Home> {
               Container(
                 padding: const EdgeInsets.all(8),
                 decoration: BoxDecoration(
-                  color: Colors.orange.withOpacity(0.12),
+                  color: context.appWarning.withValues(alpha: 0.12),
                   shape: BoxShape.circle,
                 ),
-                child: const Icon(
+                child: Icon(
                   Icons.warning_amber_rounded,
-                  color: Colors.orange,
+                  color: context.appWarning,
                   size: 28,
                 ),
               ),
@@ -1417,11 +1417,11 @@ class _HomeState extends State<Home> {
 
               const SizedBox(height: 10),
 
-              const Text(
+              Text(
                 'For security purposes, please disable Developer Options before continuing.',
                 style: TextStyle(
                   fontSize: 13,
-                  color: Colors.black54,
+                  color: context.appSubText,
                   height: 1.4,
                 ),
               ),
@@ -1473,8 +1473,8 @@ class _HomeState extends State<Home> {
               },
 
               style: OutlinedButton.styleFrom(
-                foregroundColor: AppColors.accentGreen,
-                side: BorderSide(color: AppColors.accentGreen),
+                foregroundColor: context.appPrimary,
+                side: BorderSide(color: context.appPrimary),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(10),
                 ),
@@ -1496,8 +1496,8 @@ class _HomeState extends State<Home> {
               },
 
               style: ElevatedButton.styleFrom(
-                backgroundColor: AppColors.accentGreen,
-                foregroundColor: Colors.white,
+                backgroundColor: context.appPrimary,
+                foregroundColor: context.appOnPrimary,
                 elevation: 0,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(10),
@@ -1534,13 +1534,13 @@ class _HomeState extends State<Home> {
             height: 26,
             alignment: Alignment.center,
             decoration: BoxDecoration(
-              color: AppColors.accentGreen,
+              color: context.appPrimary,
               shape: BoxShape.circle,
             ),
             child: Text(
               number,
-              style: const TextStyle(
-                color: Colors.white,
+              style: TextStyle(
+                color: context.appOnPrimary,
                 fontWeight: FontWeight.bold,
                 fontSize: 13,
               ),
@@ -1554,7 +1554,7 @@ class _HomeState extends State<Home> {
               padding: const EdgeInsets.only(top: 4),
               child: Text(
                 text,
-                style: const TextStyle(fontSize: 13, height: 1.3),
+                style: TextStyle(fontSize: 13, height: 1.3),
               ),
             ),
           ),

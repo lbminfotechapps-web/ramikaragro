@@ -1,4 +1,4 @@
-import 'package:solufine/core/theme/app_colors.dart';
+import 'package:solufine/core/theme/app_dynamic_colors.dart';
 import 'package:flutter/material.dart';
 
 class CustomCard extends StatelessWidget {
@@ -26,10 +26,10 @@ class CustomCard extends StatelessWidget {
     return Card(
       margin: margin ?? EdgeInsets.zero,
       elevation: elevation,
-      color: color ?? Colors.white,
+      color: color ?? context.appCard,
 
       shape: RoundedRectangleBorder(
-        side: BorderSide(color: AppColors.borderColor, width: 1),
+        side: BorderSide(color: context.appBorder, width: 1),
         borderRadius: BorderRadius.circular(borderRadius),
       ),
       child: InkWell(
