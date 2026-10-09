@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:solufine/features/ai/presentation/bloc/ai_bloc.dart';
 import 'package:solufine/features/ai/presentation/pages/ai_chatbot.dart';
+import 'package:solufine/features/calendar_report/presentation/bloc/calendar_report_bloc.dart';
+import 'package:solufine/features/calendar_report/presentation/pages/calendar_report_page.dart';
 import 'package:solufine/features/growth_report/presentation/bloc/growth_report_bloc.dart';
 import 'package:solufine/features/growth_report/presentation/pages/growth_report_page.dart';
 import 'package:solufine/features/quickchartreport/presentation/bloc/gallerybloc.dart'
@@ -100,7 +102,7 @@ class AppRouter {
 
   static const String reportPage = '/reportPage';
   static const String monthlyVisitPerformanceReport = '/monthlyVisitPerformanceReport';
-
+  static const String calendarReport = '/calendarReport';
   static const String productList = '/productList';
   static const String productDetails = '/productDetails';
   static const String farmers = '/farmers';
@@ -588,6 +590,19 @@ class AppRouter {
         },
       ),
 
+
+         GoRoute(
+        path: calendarReport,
+        name: 'calendarReport',
+        builder: (context, state) {
+          return BlocProvider<CalendarReportBloc>(
+            create: (_) => sl<CalendarReportBloc>(),
+            child: const CalendarReportPage(),
+          );
+        },
+      ),
+
+       
       GoRoute(
         path: dealrFollowUpAdd,
         name: 'dealrFollowUpAdd',

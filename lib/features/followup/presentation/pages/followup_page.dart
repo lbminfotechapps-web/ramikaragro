@@ -225,11 +225,36 @@ class _FollowupPageState extends State<FollowupPage> {
     return Scaffold(
       backgroundColor: AppColors.backgroundColor,
 
-      appBar: CustomAppBar(
-        title: 'Upcoming Followup List',
-        showBackButton: true,
-        onBackTap: () => context.go(AppRouter.home),
-      ),
+      // appBar: CustomAppBar(
+      //   title: 'Upcoming Followup List',
+      //   actionIcon: Icons.calendar_month_rounded,
+      //   onActionIconTap: _selectFromDate,
+      //   showBackButton: true,
+      //   onBackTap: () => context.go(AppRouter.home),
+      // ),
+
+
+        appBar: CustomAppBar(
+          title: 'Upcoming Followup List',
+
+          actionIcon: Icons.calendar_month_rounded,
+
+          onActionIconTap: () {
+            context.push(
+              AppRouter.calendarReport,
+            );
+          },
+
+          showBackButton: true,
+
+          onBackTap: () => context.go(
+            AppRouter.home,
+          ),
+        ),
+
+
+
+
 
       body: Column(
         children: [

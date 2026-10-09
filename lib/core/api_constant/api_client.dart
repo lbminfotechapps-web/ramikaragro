@@ -154,4 +154,5 @@ class ApiClient {
   static const String getVisitTopEmployee = '/getVisitTopEmployee';
 
   static const String askAiQuery = '/askAiQuery';
+  static const String getFollowupCalendar ='/get_followup_calendar';
 }
