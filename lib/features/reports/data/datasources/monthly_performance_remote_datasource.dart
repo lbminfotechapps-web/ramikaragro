@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
+import 'package:solufine/features/reports/data/modles/application_phase_model.dart';
 import 'package:solufine/features/reports/data/modles/area_performance_model.dart';
 import 'package:solufine/features/reports/data/modles/expense_performance_model.dart';
 import 'package:solufine/features/reports/data/modles/hourly_performance_model.dart';
@@ -76,6 +77,9 @@ Future<ExpensePerformanceModel>
   required String financialYear,
   required String selectedMonths,
 });
+
+Future<ApplicationPhaseModel>
+    getApplicationPhase();
 
 }
 
@@ -784,6 +788,64 @@ Future<ExpensePerformanceModel>
     rethrow;
   }
 }
+
+
+@override
+Future<ApplicationPhaseModel>
+    getApplicationPhase() async {
+  try {
+    final Response<dynamic> response =
+        await dioClient.client.get(
+      ApiClient.getApplicationPhase,
+    );
+
+    dynamic data =
+        response.data;
+
+    if (data is String) {
+      data =
+          jsonDecode(data);
+    }
+
+    if (data is! Map) {
+      throw Exception(
+        'Invalid application phase response',
+      );
+    }
+
+    final Map<String, dynamic> json =
+        Map<String, dynamic>.from(
+      data,
+    );
+
+    final bool status =
+        json['status'] == true ||
+            json['status']
+                    ?.toString()
+                    .toLowerCase() ==
+                'true';
+
+    if (!status) {
+      throw Exception(
+        json['message']?.toString() ??
+            'Unable to get application phase',
+      );
+    }
+
+    return ApplicationPhaseModel.fromJson(
+      json,
+    );
+  } on DioException catch (e) {
+    throw Exception(
+      e.response?.data is Map
+          ? e.response?.data['message']
+                  ?.toString() ??
+              'Unable to get application phase'
+          : 'Unable to get application phase',
+    );
+  }
+}
+
 
 
 
