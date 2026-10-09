@@ -3,6 +3,15 @@ abstract class MonthlyPerformanceEvent {
 }
 
 // ============================================================
+// APPLICATION PHASE
+// ============================================================
+
+class GetApplicationPhaseEvent
+    extends MonthlyPerformanceEvent {
+  const GetApplicationPhaseEvent();
+}
+
+// ============================================================
 // FINANCIAL YEAR
 // ============================================================
 
@@ -130,10 +139,6 @@ class GetExpensePerformanceEvent
     required this.selectedMonths,
   });
 }
-
-// ============================================================
-// CLEAR EXPENSE
-// ============================================================
 
 class ClearExpensePerformanceEvent
     extends MonthlyPerformanceEvent {

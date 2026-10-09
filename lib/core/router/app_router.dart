@@ -79,6 +79,8 @@ import 'package:flutter/foundation.dart';
 
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:solufine/features/visit_month_wise/presentation/bloc/visit_month_wise_bloc.dart';
+import 'package:solufine/features/visit_month_wise/presentation/pages/visit_month_wise_report_page.dart';
 
 class AppRouter {
   static final navigatorKey = GlobalKey<NavigatorState>();
@@ -97,6 +99,7 @@ class AppRouter {
   static const String monthlyPerformanceReport = '/monthlyPerformanceReport';
 
   static const String reportPage = '/reportPage';
+  static const String monthlyVisitPerformanceReport = '/monthlyVisitPerformanceReport';
 
   static const String productList = '/productList';
   static const String productDetails = '/productDetails';
@@ -552,6 +555,61 @@ class AppRouter {
           );
         },
       ),
+          GoRoute(
+            path: monthlyPerformanceReport,
+            name: 'monthlyPerformanceReport',
+            builder: (context, state) {
+              final String userId = state.extra is String
+                  ? state.extra as String
+                  : '';
+
+              return MultiBlocProvider(
+                        providers: [
+                          BlocProvider<MonthlyPerformanceBloc>(
+                            create: (_) =>
+                                sl<MonthlyPerformanceBloc>(),
+                          ),
+
+                          BlocProvider<EmployeeOutputBloc>(
+                            create: (_) =>
+                                sl<EmployeeOutputBloc>(),
+                          ),
+                        ],
+                        child: const MonthlyPerformanceReportPage(),
+                      );
+            },
+          ),
+
+                      GoRoute(
+                        path: monthlyVisitPerformanceReport,
+                        name: 'monthlyVisitPerformanceReport',
+                        builder: (context, state) {
+                          return MultiBlocProvider(
+                            providers: [
+                              BlocProvider<VisitMonthWiseBloc>(
+                                create: (_) =>
+                                    sl<VisitMonthWiseBloc>(),
+                              ),
+                            ],
+                            child: const VisitMonthWiseReportPage(),
+                          );
+                        },
+                      ),
+
+
+
+
+
+                       GoRoute(
+                          path: growthReport,
+                          name: 'growthReport',
+                          builder: (context, state) {
+                            return BlocProvider<GrowthReportBloc>(
+                              create: (_) => sl<GrowthReportBloc>(),
+                              child: const GrowthReportPage(),
+                            );
+                          },
+                        ),
 
       GoRoute(
         path: growthReport,

@@ -1,56 +1,35 @@
+
+
+// ============================================================
+// GET IT
+// ============================================================
+
 import 'package:get_it/get_it.dart';
-
-import '../api_constant/dio_client.dart';
-
-// ============================================================
-// DATASOURCE
-// ============================================================
-
-import '../../features/reports/data/datasources/monthly_performance_remote_datasource.dart';
-
-// ============================================================
-// REPOSITORY
-// ============================================================
-
-import '../../features/reports/data/repositories/monthly_performance_repository_impl.dart';
-
-import '../../features/reports/domain/repositories/monthly_performance_repository.dart';
-
-// ============================================================
-// USE CASES
-// ============================================================
-
-import '../../features/reports/domain/usecases/get_area_performance_usecase.dart';
-
-import '../../features/reports/domain/usecases/get_daily_performance_usecase.dart';
-
-import '../../features/reports/domain/usecases/get_expense_performance_usecase.dart';
-
-import '../../features/reports/domain/usecases/get_hourly_performance_usecase.dart';
-
-import '../../features/reports/domain/usecases/get_monthly_performance_usecase.dart';
-
-import '../../features/reports/domain/usecases/get_report_financial_years.dart';
-
-import '../../features/reports/domain/usecases/get_top_dealer_performance_usecase.dart';
-
-// ============================================================
-// BLOC
-// ============================================================
-
-import '../../features/reports/presentation/bloc/monthly_performance_bloc.dart';
+import 'package:solufine/core/api_constant/dio_client.dart';
+import 'package:solufine/features/reports/data/datasources/monthly_performance_remote_datasource.dart';
+import 'package:solufine/features/reports/data/repositories/monthly_performance_repository_impl.dart';
+import 'package:solufine/features/reports/domain/repositories/monthly_performance_repository.dart';
+import 'package:solufine/features/reports/domain/usecases/get_application_phase_usecase.dart';
+import 'package:solufine/features/reports/domain/usecases/get_area_performance_usecase.dart';
+import 'package:solufine/features/reports/domain/usecases/get_daily_performance_usecase.dart';
+import 'package:solufine/features/reports/domain/usecases/get_expense_performance_usecase.dart';
+import 'package:solufine/features/reports/domain/usecases/get_hourly_performance_usecase.dart';
+import 'package:solufine/features/reports/domain/usecases/get_monthly_performance_usecase.dart';
+import 'package:solufine/features/reports/domain/usecases/get_report_financial_years.dart';
+import 'package:solufine/features/reports/domain/usecases/get_top_dealer_performance_usecase.dart';
+import 'package:solufine/features/reports/presentation/bloc/monthly_performance_bloc.dart';
 
 final GetIt sl =
     GetIt.instance;
 
 // ============================================================
-// INITIALIZE
+// MONTHLY PERFORMANCE DI
 // ============================================================
 
 Future<void>
     initMonthlyPerformanceDi() async {
   // ==========================================================
-  // DATASOURCE
+  // REMOTE DATA SOURCE
   // ==========================================================
 
   if (!sl.isRegistered<
@@ -78,6 +57,22 @@ Future<void>
         remoteDataSource:
             sl<
                 MonthlyPerformanceRemoteDataSource>(),
+      ),
+    );
+  }
+
+  // ==========================================================
+  // APPLICATION PHASE
+  // ==========================================================
+
+  if (!sl.isRegistered<
+      GetApplicationPhaseUseCase>()) {
+    sl.registerLazySingleton<
+        GetApplicationPhaseUseCase>(
+      () =>
+          GetApplicationPhaseUseCase(
+        sl<
+            MonthlyPerformanceRepository>(),
       ),
     );
   }
@@ -204,6 +199,10 @@ Future<void>
         MonthlyPerformanceBloc>(
       () =>
           MonthlyPerformanceBloc(
+        getApplicationPhaseUseCase:
+            sl<
+                GetApplicationPhaseUseCase>(),
+
         getMonthlyPerformanceUseCase:
             sl<
                 GetMonthlyPerformanceUseCase>(),

@@ -1,9 +1,11 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 // ============================================================
 // ENTITIES
 // ============================================================
 
+import '../../domain/entities/application_phase.dart';
 import '../../domain/entities/area_performance.dart';
 import '../../domain/entities/daily_performance.dart';
 import '../../domain/entities/expense_performance.dart';
@@ -14,6 +16,7 @@ import '../../domain/entities/top_dealer_performance.dart';
 // USE CASES
 // ============================================================
 
+import '../../domain/usecases/get_application_phase_usecase.dart';
 import '../../domain/usecases/get_area_performance_usecase.dart';
 import '../../domain/usecases/get_daily_performance_usecase.dart';
 import '../../domain/usecases/get_expense_performance_usecase.dart';
@@ -35,6 +38,9 @@ class MonthlyPerformanceBloc extends Bloc<
   // ==========================================================
   // USE CASES
   // ==========================================================
+
+  final GetApplicationPhaseUseCase
+      getApplicationPhaseUseCase;
 
   final GetMonthlyPerformanceUseCase
       getMonthlyPerformanceUseCase;
@@ -62,6 +68,7 @@ class MonthlyPerformanceBloc extends Bloc<
   // ==========================================================
 
   MonthlyPerformanceBloc({
+    required this.getApplicationPhaseUseCase,
     required this.getMonthlyPerformanceUseCase,
     required this.getReportFinancialYears,
     required this.getDailyPerformanceUseCase,
@@ -72,6 +79,14 @@ class MonthlyPerformanceBloc extends Bloc<
   }) : super(
           const MonthlyPerformanceState(),
         ) {
+    // ========================================================
+    // APPLICATION PHASE
+    // ========================================================
+
+    on<GetApplicationPhaseEvent>(
+      _applicationPhase,
+    );
+
     // ========================================================
     // FINANCIAL YEAR
     // ========================================================
@@ -150,6 +165,80 @@ class MonthlyPerformanceBloc extends Bloc<
   }
 
   // ============================================================
+  // APPLICATION PHASE
+  // ============================================================
+
+  Future<void> _applicationPhase(
+    GetApplicationPhaseEvent event,
+    Emitter<MonthlyPerformanceState> emit,
+  ) async {
+    emit(
+      state.copyWith(
+        applicationPhaseStatus:
+            ApplicationPhaseStatus.loading,
+        clearApplicationPhaseError:
+            true,
+      ),
+    );
+
+    try {
+      final ApplicationPhase result =
+          await getApplicationPhaseUseCase();
+
+      debugPrint(
+        '=========================================',
+      );
+
+      debugPrint(
+        'APPLICATION PHASE => ${result.result}',
+      );
+
+      debugPrint(
+        'VISIT ONLY => ${result.result == 1}',
+      );
+
+      debugPrint(
+        '=========================================',
+      );
+
+      emit(
+        state.copyWith(
+          applicationPhaseStatus:
+              ApplicationPhaseStatus.success,
+
+          applicationPhase:
+              result.result,
+
+          clearApplicationPhaseError:
+              true,
+        ),
+      );
+    } catch (e) {
+      debugPrint(
+        'APPLICATION PHASE ERROR => $e',
+      );
+
+      emit(
+        state.copyWith(
+          applicationPhaseStatus:
+              ApplicationPhaseStatus.failure,
+
+          applicationPhase:
+              0,
+
+          applicationPhaseError:
+              e
+                  .toString()
+                  .replaceFirst(
+                    'Exception: ',
+                    '',
+                  ),
+        ),
+      );
+    }
+  }
+
+  // ============================================================
   // FINANCIAL YEAR
   // ============================================================
 
@@ -161,6 +250,7 @@ class MonthlyPerformanceBloc extends Bloc<
       state.copyWith(
         financialYearStatus:
             FinancialYearStatus.loading,
+
         clearFinancialYearError:
             true,
       ),
