@@ -353,6 +353,7 @@ class ReportsHomePage extends StatelessWidget {
     BuildContext context,
   ) {
     return Scaffold(
+   
       backgroundColor:
           context.appBackground,
 

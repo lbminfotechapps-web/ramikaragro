@@ -9,7 +9,10 @@ extension AppDynamicColors on BuildContext {
   Color get appSecondary => appColors.secondary;
 
   // Background
-  Color get appBackground => backgroundColor;
+  Color get appBackground =>
+    Theme.of(this).brightness == Brightness.dark
+        ? Colors.black
+        : Colors.white;
   Color get appSurface => appColors.surface;
 
   // Cards

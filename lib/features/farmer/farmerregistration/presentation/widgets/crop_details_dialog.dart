@@ -1,3 +1,4 @@
+import 'package:solufine/core/theme/app_dynamic_colors.dart';
 import 'package:solufine/core/utility/app_toast.dart';
 import 'package:solufine/features/farmer/farmerregistration/domain/entity/crop_entity.dart';
 import 'package:solufine/features/farmer/farmerregistration/domain/entity/irrigation_entity.dart'
@@ -97,18 +98,18 @@ class _CropDetailsDialogState extends State<CropDetailsDialog> {
       width: double.infinity,
       padding: EdgeInsets.symmetric(horizontal: 18.w, vertical: 16.h),
       decoration: BoxDecoration(
-        color: const Color(0xFF087C3A),
+        color: context.appPrimary,
         borderRadius: BorderRadius.vertical(top: Radius.circular(20.r)),
       ),
       child: Row(
         children: [
-          Icon(Icons.grass, color: Colors.white, size: 25.sp),
+          Icon(Icons.grass, color: context.appOnPrimary, size: 25.sp),
           SizedBox(width: 10.w),
           Expanded(
             child: Text(
               'Select Crop Details',
               style: TextStyle(
-                color: Colors.white,
+                color: context.appOnPrimary,
                 fontSize: 18.sp,
                 fontWeight: FontWeight.w700,
               ),
@@ -118,7 +119,7 @@ class _CropDetailsDialogState extends State<CropDetailsDialog> {
             onPressed: () {
               Navigator.pop(context);
             },
-            icon: const Icon(Icons.close, color: Colors.white),
+            icon: Icon(Icons.close, color: context.appOnPrimary),
           ),
         ],
       ),
@@ -132,10 +133,10 @@ class _CropDetailsDialogState extends State<CropDetailsDialog> {
     return Container(
       padding: EdgeInsets.all(12.w),
       decoration: BoxDecoration(
-        color: isSelected ? const Color(0xFFE8F5E9) : Colors.white,
+        color: isSelected ? Color.alphaBlend(context.appPrimary.withValues(alpha: 0.1), context.appCard) : context.appCard,
         borderRadius: BorderRadius.circular(16.r),
         border: Border.all(
-          color: isSelected ? const Color(0xFF087C3A) : Colors.grey.shade300,
+          color: isSelected ? context.appPrimary : context.appBorder,
         ),
         boxShadow: [
           BoxShadow(
@@ -151,7 +152,7 @@ class _CropDetailsDialogState extends State<CropDetailsDialog> {
             children: [
               Checkbox(
                 value: isSelected,
-                activeColor: const Color(0xFF087C3A),
+                activeColor: context.appPrimary,
                 onChanged: (value) {
                   setState(() {
                     _selected[cropId] = value ?? false;
@@ -165,7 +166,7 @@ class _CropDetailsDialogState extends State<CropDetailsDialog> {
                   style: TextStyle(
                     fontSize: 15.sp,
                     fontWeight: FontWeight.w600,
-                    color: Colors.black87,
+                    color: context.appOnCard,
                   ),
                 ),
               ),
@@ -211,13 +212,13 @@ class _CropDetailsDialogState extends State<CropDetailsDialog> {
       child: Container(
         padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 14.h),
         decoration: BoxDecoration(
-          border: Border.all(color: Colors.grey.shade300),
+          border: Border.all(color: context.appBorder),
           borderRadius: BorderRadius.circular(10.r),
-          color: Colors.white,
+          color: context.appCard,
         ),
         child: Row(
           children: [
-            const Icon(Icons.calendar_month_outlined, color: Color(0xFF087C3A)),
+            Icon(Icons.calendar_month_outlined, color: context.appPrimary),
 
             SizedBox(width: 10.w),
 
@@ -226,12 +227,12 @@ class _CropDetailsDialogState extends State<CropDetailsDialog> {
                 date == null ? 'Select Showing Date' : _formatDate(date),
                 style: TextStyle(
                   fontSize: 14.sp,
-                  color: date == null ? Colors.grey.shade500 : Colors.black87,
+                  color: date == null ? context.appSubText : context.appOnCard,
                 ),
               ),
             ),
 
-            const Icon(Icons.keyboard_arrow_down, color: Colors.grey),
+            Icon(Icons.keyboard_arrow_down, color: context.appSubText),
           ],
         ),
       ),
@@ -244,15 +245,15 @@ class _CropDetailsDialogState extends State<CropDetailsDialog> {
       keyboardType: const TextInputType.numberWithOptions(decimal: true),
       decoration: InputDecoration(
         hintText: 'Enter Acre',
-        prefixIcon: const Icon(Icons.square_foot, color: Color(0xFF087C3A)),
+        prefixIcon: Icon(Icons.square_foot, color: context.appPrimary),
         border: OutlineInputBorder(borderRadius: BorderRadius.circular(10.r)),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(10.r),
-          borderSide: BorderSide(color: Colors.grey.shade300),
+          borderSide: BorderSide(color: context.appBorder),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(10.r),
-          borderSide: const BorderSide(color: Color(0xFF087C3A), width: 1.5),
+          borderSide: BorderSide(color: context.appPrimary, width: 1.5),
         ),
       ),
     );
@@ -264,18 +265,18 @@ class _CropDetailsDialogState extends State<CropDetailsDialog> {
       isExpanded: true,
       decoration: InputDecoration(
         hintText: 'Select Irrigation',
-        prefixIcon: const Icon(
+        prefixIcon: Icon(
           Icons.water_drop_outlined,
-          color: Color(0xFF087C3A),
+          color: context.appPrimary,
         ),
         border: OutlineInputBorder(borderRadius: BorderRadius.circular(10.r)),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(10.r),
-          borderSide: BorderSide(color: Colors.grey.shade300),
+          borderSide: BorderSide(color: context.appBorder),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(10.r),
-          borderSide: const BorderSide(color: Color(0xFF087C3A), width: 1.5),
+          borderSide: BorderSide(color: context.appPrimary, width: 1.5),
         ),
       ),
       items: widget.irrigationList.map((irrigation) {
@@ -304,15 +305,15 @@ class _CropDetailsDialogState extends State<CropDetailsDialog> {
               },
               style: OutlinedButton.styleFrom(
                 minimumSize: Size(double.infinity, 48.h),
-                side: const BorderSide(color: Color(0xFF087C3A)),
+                side: BorderSide(color: context.appPrimary),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12.r),
                 ),
               ),
-              child: const Text(
+              child: Text(
                 'Cancel',
                 style: TextStyle(
-                  color: Color(0xFF087C3A),
+                  color: context.appPrimary,
                   fontWeight: FontWeight.w600,
                 ),
               ),
@@ -326,13 +327,13 @@ class _CropDetailsDialogState extends State<CropDetailsDialog> {
               onPressed: _addSelectedCrops,
               style: ElevatedButton.styleFrom(
                 minimumSize: Size(double.infinity, 48.h),
-                backgroundColor: const Color(0xFF087C3A),
-                foregroundColor: Colors.white,
+                backgroundColor: context.appPrimary,
+                foregroundColor: context.appOnPrimary,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12.r),
                 ),
               ),
-              child: const Text(
+              child: Text(
                 'Add',
                 style: TextStyle(fontWeight: FontWeight.w600),
               ),
@@ -408,7 +409,7 @@ class _CropDetailsDialogState extends State<CropDetailsDialog> {
     // ScaffoldMessenger.of(context).showSnackBar(
     //   SnackBar(
     //     content: Text(message),
-    //     backgroundColor: Colors.red,
+    //     backgroundColor: context.appError,
     //   ),
     // );
   }

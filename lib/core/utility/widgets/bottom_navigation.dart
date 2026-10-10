@@ -424,19 +424,18 @@ class HomeShellState extends State<HomeShell> {
                         child: Stack(
                           clipBehavior: Clip.none,
                           children: [
-                         Positioned.fill(
-  child: CustomPaint(
-    painter: _CurvedNavigationPainter(
-      center,
-      backgroundColor: context.appCard,
-      borderColor: context.appBorder,
-      shadowColor: Theme.of(context)
-          .colorScheme
-          .shadow
-          .withValues(alpha: 0.15),
-    ),
-  ),
-),
+                            Positioned.fill(
+                              child: CustomPaint(
+                                painter: _CurvedNavigationPainter(
+                                  center,
+                                  backgroundColor: context.appCard,
+                                  borderColor: context.appBorder,
+                                  shadowColor: Theme.of(
+                                    context,
+                                  ).colorScheme.shadow.withValues(alpha: 0.15),
+                                ),
+                              ),
+                            ),
 
                             // =====================================
                             // NAVIGATION TABS
@@ -851,7 +850,6 @@ class HomeShellState extends State<HomeShell> {
   */
 }
 
-
 class _CurvedNavigationPainter extends CustomPainter {
   final double selectedCenter;
 
@@ -890,28 +888,16 @@ class _CurvedNavigationPainter extends CustomPainter {
 
     final notch = Path()
       ..addOval(
-        Rect.fromCircle(
-          center: Offset(selectedCenter, 28),
-          radius: 30,
-        ),
+        Rect.fromCircle(center: Offset(selectedCenter, 28), radius: 30),
       );
 
-    final bar = Path.combine(
-      PathOperation.difference,
-      surface,
-      notch,
-    );
+    final bar = Path.combine(PathOperation.difference, surface, notch);
 
     // =========================================================
     // DYNAMIC SHADOW
     // =========================================================
 
-    canvas.drawShadow(
-      bar,
-      shadowColor,
-      3,
-      false,
-    );
+    canvas.drawShadow(bar, shadowColor, 3, false);
 
     // =========================================================
     // DYNAMIC BACKGROUND
@@ -938,9 +924,7 @@ class _CurvedNavigationPainter extends CustomPainter {
   }
 
   @override
-  bool shouldRepaint(
-    covariant _CurvedNavigationPainter oldDelegate,
-  ) {
+  bool shouldRepaint(covariant _CurvedNavigationPainter oldDelegate) {
     return oldDelegate.selectedCenter != selectedCenter ||
         oldDelegate.backgroundColor != backgroundColor ||
         oldDelegate.borderColor != borderColor ||

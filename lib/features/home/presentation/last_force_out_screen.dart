@@ -11,6 +11,7 @@ import 'package:solufine/features/home/presentation/quick_aceess_bloc/quick_acce
 import 'package:solufine/features/home/presentation/quick_aceess_bloc/quick_acess_bloc.dart';
 
 import 'package:flutter/material.dart';
+import 'package:solufine/core/theme/app_dynamic_colors.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil_plus/flutter_screenutil_plus.dart';
 import 'package:go_router/go_router.dart';
@@ -390,10 +391,8 @@ class _LastForceOutScreenState extends State<LastForceOutScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(
-        0xFFF4F6F8,
-      ),
-
+      // backgroundColor: context.appBackground,
+    backgroundColor: Colors.white,
       appBar: CustomAppBar(
         title: 'Last Out Punch',
         showBackButton: true,
@@ -801,18 +800,7 @@ class _LastForceOutScreenState extends State<LastForceOutScreen> {
       ),
 
       decoration: BoxDecoration(
-        gradient: const LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [
-            Color(
-              0xFF08783D,
-            ),
-            Color(
-              0xFF13A252,
-            ),
-          ],
-        ),
+        color: context.appPrimary,
 
         borderRadius: BorderRadius.circular(
           18.r,
@@ -820,11 +808,7 @@ class _LastForceOutScreenState extends State<LastForceOutScreen> {
 
         boxShadow: [
           BoxShadow(
-            color: const Color(
-              0xFF11934A,
-            ).withOpacity(
-              0.16,
-            ),
+            color: context.appPrimary.withValues(alpha: 0.16),
             blurRadius: 14,
             offset: const Offset(
               0,
@@ -843,9 +827,7 @@ class _LastForceOutScreenState extends State<LastForceOutScreen> {
               width: 90.w,
               height: 90.w,
               decoration: BoxDecoration(
-                color: Colors.white.withOpacity(
-                  0.06,
-                ),
+                color: context.appOnPrimary.withValues(alpha: 0.06),
                 shape: BoxShape.circle,
               ),
             ),
@@ -861,9 +843,7 @@ class _LastForceOutScreenState extends State<LastForceOutScreen> {
                 width: 45.w,
                 height: 45.w,
                 decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(
-                    0.15,
-                  ),
+                  color: context.appOnPrimary.withValues(alpha: 0.15),
                   borderRadius:
                       BorderRadius.circular(
                     13.r,
@@ -871,7 +851,7 @@ class _LastForceOutScreenState extends State<LastForceOutScreen> {
                 ),
                 child: Icon(
                   Icons.schedule_send_rounded,
-                  color: Colors.white,
+                  color: context.appOnPrimary,
                   size: 22.sp,
                 ),
               ),
@@ -892,7 +872,7 @@ class _LastForceOutScreenState extends State<LastForceOutScreen> {
                     Text(
                       'Last Force Out',
                       style: TextStyle(
-                        color: Colors.white,
+                        color: context.appOnPrimary,
                         fontSize: 16.sp,
                         fontWeight:
                             FontWeight.w700,
@@ -909,10 +889,8 @@ class _LastForceOutScreenState extends State<LastForceOutScreen> {
                       overflow:
                           TextOverflow.ellipsis,
                       style: TextStyle(
-                        color: Colors.white
-                            .withOpacity(
-                          0.80,
-                        ),
+                        color: context.appOnPrimary
+                            .withValues(alpha: 0.80),
                         fontSize: 10.5.sp,
                       ),
                     ),
@@ -934,9 +912,7 @@ class _LastForceOutScreenState extends State<LastForceOutScreen> {
                   vertical: 5.h,
                 ),
                 decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(
-                    0.15,
-                  ),
+                  color: context.appOnPrimary.withValues(alpha: 0.15),
                   borderRadius:
                       BorderRadius.circular(
                     20.r,
@@ -950,10 +926,8 @@ class _LastForceOutScreenState extends State<LastForceOutScreen> {
                       width: 6.w,
                       height: 6.w,
                       decoration:
-                          const BoxDecoration(
-                        color: Color(
-                          0xFFB9F6CA,
-                        ),
+                          BoxDecoration(
+                        color: context.appOnPrimary.withValues(alpha: 0.8),
                         shape:
                             BoxShape.circle,
                       ),
@@ -966,7 +940,7 @@ class _LastForceOutScreenState extends State<LastForceOutScreen> {
                     Text(
                       'FORCE',
                       style: TextStyle(
-                        color: Colors.white,
+                        color: context.appOnPrimary,
                         fontSize: 9.sp,
                         fontWeight:
                             FontWeight.w700,
@@ -996,9 +970,7 @@ class _LastForceOutScreenState extends State<LastForceOutScreen> {
           width: 30.w,
           height: 30.w,
           decoration: BoxDecoration(
-            color: const Color(
-              0xFFE7F6EC,
-            ),
+            color: Color.alphaBlend(context.appPrimary.withValues(alpha: 0.1), context.appCard),
             borderRadius:
                 BorderRadius.circular(
               9.r,
@@ -1006,9 +978,7 @@ class _LastForceOutScreenState extends State<LastForceOutScreen> {
           ),
           child: Icon(
             icon,
-            color: const Color(
-              0xFF11934A,
-            ),
+            color: context.appPrimary,
             size: 16.sp,
           ),
         ),
@@ -1020,9 +990,7 @@ class _LastForceOutScreenState extends State<LastForceOutScreen> {
         Text(
           title,
           style: TextStyle(
-            color: const Color(
-              0xFF1D2521,
-            ),
+            color: context.appOnCard,
             fontSize: 13.5.sp,
             fontWeight: FontWeight.w700,
           ),
@@ -1046,7 +1014,7 @@ class _LastForceOutScreenState extends State<LastForceOutScreen> {
       ),
 
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: context.appCard,
 
         borderRadius:
             BorderRadius.circular(
@@ -1054,17 +1022,13 @@ class _LastForceOutScreenState extends State<LastForceOutScreen> {
         ),
 
         border: Border.all(
-          color: const Color(
-            0xFFE9ECEB,
-          ),
+          color: context.appBorder,
         ),
 
         boxShadow: [
           BoxShadow(
             color:
-                Colors.black.withOpacity(
-              0.025,
-            ),
+                Colors.black.withValues(alpha: 0.025),
             blurRadius: 10,
             offset: const Offset(
               0,
@@ -1096,9 +1060,7 @@ class _LastForceOutScreenState extends State<LastForceOutScreen> {
           text: title,
 
           style: TextStyle(
-            color: const Color(
-              0xFF606864,
-            ),
+            color: context.appSubText,
             fontSize: 10.5.sp,
             fontWeight: FontWeight.w600,
           ),
@@ -1108,7 +1070,7 @@ class _LastForceOutScreenState extends State<LastForceOutScreen> {
               TextSpan(
                 text: ' *',
                 style: TextStyle(
-                  color: Colors.red.shade500,
+                  color: context.appError,
                 ),
               ),
           ],
@@ -1233,9 +1195,7 @@ class _LastForceOutScreenState extends State<LastForceOutScreen> {
       ),
 
       decoration: BoxDecoration(
-        color: const Color(
-          0xFFFFF3F3,
-        ),
+        color: Color.alphaBlend(context.appError.withValues(alpha: 0.08), context.appCard),
 
         borderRadius:
             BorderRadius.circular(
@@ -1243,9 +1203,7 @@ class _LastForceOutScreenState extends State<LastForceOutScreen> {
         ),
 
         border: Border.all(
-          color: const Color(
-            0xFFFFDADA,
-          ),
+          color: context.appError.withValues(alpha: 0.25),
         ),
       ),
 
@@ -1253,9 +1211,7 @@ class _LastForceOutScreenState extends State<LastForceOutScreen> {
         children: [
           Icon(
             Icons.error_outline_rounded,
-            color: const Color(
-              0xFFD94343,
-            ),
+            color: context.appError,
             size: 14.sp,
           ),
 
@@ -1267,9 +1223,7 @@ class _LastForceOutScreenState extends State<LastForceOutScreen> {
             child: Text(
               message,
               style: TextStyle(
-                color: const Color(
-                  0xFFD94343,
-                ),
+                color: context.appError,
                 fontSize: 10.sp,
                 fontWeight:
                     FontWeight.w500,
@@ -1295,9 +1249,7 @@ class _LastForceOutScreenState extends State<LastForceOutScreen> {
       ),
 
       decoration: BoxDecoration(
-        color: const Color(
-          0xFFFFF9EA,
-        ),
+        color: Color.alphaBlend(context.appWarning.withValues(alpha: 0.08), context.appCard),
 
         borderRadius:
             BorderRadius.circular(
@@ -1305,9 +1257,7 @@ class _LastForceOutScreenState extends State<LastForceOutScreen> {
         ),
 
         border: Border.all(
-          color: const Color(
-            0xFFFFE5A3,
-          ),
+          color: context.appWarning.withValues(alpha: 0.25),
         ),
       ),
 
@@ -1320,9 +1270,7 @@ class _LastForceOutScreenState extends State<LastForceOutScreen> {
             width: 28.w,
             height: 28.w,
             decoration: BoxDecoration(
-              color: const Color(
-                0xFFFFEDBE,
-              ),
+              color: Color.alphaBlend(context.appWarning.withValues(alpha: 0.15), context.appCard),
               borderRadius:
                   BorderRadius.circular(
                 8.r,
@@ -1330,9 +1278,7 @@ class _LastForceOutScreenState extends State<LastForceOutScreen> {
             ),
             child: Icon(
               Icons.info_outline_rounded,
-              color: const Color(
-                0xFFE29A13,
-              ),
+              color: context.appWarning,
               size: 16.sp,
             ),
           ),
@@ -1345,9 +1291,7 @@ class _LastForceOutScreenState extends State<LastForceOutScreen> {
             child: Text(
               'Punch out time cannot be earlier than your last activity time.',
               style: TextStyle(
-                color: const Color(
-                  0xFF7B6537,
-                ),
+                color: context.appOnCard,
                 fontSize: 10.5.sp,
                 height: 1.3,
                 fontWeight:
@@ -1374,22 +1318,18 @@ class _LastForceOutScreenState extends State<LastForceOutScreen> {
       ),
 
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: context.appCard,
 
-        border: const Border(
+        border: Border(
           top: BorderSide(
-            color: Color(
-              0xFFE8ECEA,
-            ),
+            color: context.appBorder,
           ),
         ),
 
         boxShadow: [
           BoxShadow(
             color:
-                Colors.black.withOpacity(
-              0.035,
-            ),
+                Colors.black.withValues(alpha: 0.035),
             blurRadius: 10,
             offset: const Offset(
               0,
@@ -1415,19 +1355,13 @@ class _LastForceOutScreenState extends State<LastForceOutScreen> {
               elevation: 0,
 
               backgroundColor:
-                  const Color(
-                0xFF11934A,
-              ),
+                  context.appPrimary,
 
               disabledBackgroundColor:
-                  const Color(
-                0xFF11934A,
-              ).withOpacity(
-                0.60,
-              ),
+                  context.appPrimary.withValues(alpha: 0.60),
 
               foregroundColor:
-                  Colors.white,
+                  context.appOnPrimary,
 
               shape:
                   RoundedRectangleBorder(
@@ -1446,12 +1380,12 @@ class _LastForceOutScreenState extends State<LastForceOutScreen> {
                     height: 20.w,
 
                     child:
-                        const CircularProgressIndicator(
+                        CircularProgressIndicator(
                       strokeWidth: 2.2,
                       valueColor:
                           AlwaysStoppedAnimation<
                               Color>(
-                        Colors.white,
+                        context.appOnPrimary,
                       ),
                     ),
                   )
@@ -1466,10 +1400,8 @@ class _LastForceOutScreenState extends State<LastForceOutScreen> {
 
                         decoration:
                             BoxDecoration(
-                          color: Colors.white
-                              .withOpacity(
-                            0.15,
-                          ),
+                          color: context.appOnPrimary
+                              .withValues(alpha: 0.15),
                           borderRadius:
                               BorderRadius.circular(
                             8.r,
@@ -1479,7 +1411,7 @@ class _LastForceOutScreenState extends State<LastForceOutScreen> {
                         child: Icon(
                           Icons
                               .schedule_send_rounded,
-                          color: Colors.white,
+                          color: context.appOnPrimary,
                           size: 16.sp,
                         ),
                       ),

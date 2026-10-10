@@ -6,7 +6,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:solufine/core/location_tracking/app_database.dart';
 import 'package:solufine/core/secure_storage/secure_storage.dart';
 
-import 'package:solufine/core/theme/app_colors.dart';
+import 'package:solufine/core/theme/app_dynamic_colors.dart';
 import 'package:solufine/core/utility/widgets/custom_appbar.dart';
 import 'package:solufine/features/ai/presentation/bloc/ai_bloc.dart';
 import 'package:solufine/features/ai/presentation/bloc/ai_event.dart';
@@ -497,7 +497,7 @@ class _AiChatbotState extends State<AiChatbot> {
       },
       child: Scaffold(
         key: _scaffoldKey,
-        backgroundColor: AppColors.backgroundColor,
+        backgroundColor: context.appBackground,
 
         appBar: CustomAppBar(
           leading: Container(
@@ -505,12 +505,12 @@ class _AiChatbotState extends State<AiChatbot> {
             height: 40,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
-              border: Border.all(color: AppColors.borderColor),
+              border: Border.all(color: context.appBorder),
             ),
             child: IconButton(
-              icon: const Icon(
+              icon: Icon(
                 Icons.menu_rounded,
-                color: AppColors.accentGreen,
+                color: context.appPrimary,
               ),
               onPressed: () {
                 _scaffoldKey.currentState?.openDrawer();
@@ -519,7 +519,7 @@ class _AiChatbotState extends State<AiChatbot> {
           ),
           action: IconButton(
             tooltip: 'New Chat',
-            icon: const Icon(Icons.edit_square, color: AppColors.accentGreen),
+            icon: Icon(Icons.edit_square, color: context.appPrimary),
             onPressed: _isSending ? null : _resetChat,
           ),
           title: 'AI Assistant',
@@ -551,7 +551,7 @@ class _AiChatbotState extends State<AiChatbot> {
   Widget _buildHistoryDrawer() {
     return Drawer(
       width: MediaQuery.sizeOf(context).width * 0.82,
-      backgroundColor: Colors.white,
+      backgroundColor: context.appCard,
       child: SafeArea(
         child: Column(
           children: [
@@ -559,9 +559,9 @@ class _AiChatbotState extends State<AiChatbot> {
               padding: const EdgeInsets.all(18),
               child: Row(
                 children: [
-                  const Icon(
+                  Icon(
                     Icons.forum_outlined,
-                    color: AppColors.accentGreen,
+                    color: context.appPrimary,
                   ),
                   const SizedBox(width: 10),
                   const Expanded(
@@ -574,7 +574,7 @@ class _AiChatbotState extends State<AiChatbot> {
                     ),
                   ),
                   IconButton(
-                    icon: const Icon(Icons.close),
+                    icon: Icon(Icons.close),
                     onPressed: () => Navigator.pop(context),
                   ),
                 ],
@@ -592,10 +592,10 @@ class _AiChatbotState extends State<AiChatbot> {
                           _resetChat();
                         },
                   style: FilledButton.styleFrom(
-                    backgroundColor: AppColors.accentGreen,
+                    backgroundColor: context.appPrimary,
                   ),
-                  icon: const Icon(Icons.add),
-                  label: const Text('New Chat'),
+                  icon: Icon(Icons.add),
+                  label: Text('New Chat'),
                 ),
               ),
             ),
@@ -612,13 +612,13 @@ class _AiChatbotState extends State<AiChatbot> {
 
                         return ListTile(
                           selected: _currentSessionId == session.id,
-                          selectedTileColor: const Color(0xFFE8F5EC),
+                          selectedTileColor: Color.alphaBlend(context.appPrimary.withValues(alpha: 0.12), context.appCard),
                           title: Text(
                             session.title,
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                           ),
-                          leading: const Icon(Icons.chat_bubble_outline),
+                          leading: Icon(Icons.chat_bubble_outline),
                           onTap: _isSending
                               ? null
                               : () => _openHistory(session),
@@ -626,9 +626,9 @@ class _AiChatbotState extends State<AiChatbot> {
                             onPressed: _isSending
                                 ? null
                                 : () => _deleteHistory(session),
-                            icon: const Icon(
+                            icon: Icon(
                               Icons.delete_outline,
-                              color: Colors.redAccent,
+                              color: context.appError,
                             ),
                           ),
                         );
@@ -654,26 +654,26 @@ class _AiChatbotState extends State<AiChatbot> {
           children: [
             Container(
               padding: const EdgeInsets.all(18),
-              decoration: const BoxDecoration(
-                color: Color(0xFFE8F5EC),
+              decoration: BoxDecoration(
+                color: Color.alphaBlend(context.appPrimary.withValues(alpha: 0.12), context.appCard),
                 shape: BoxShape.circle,
               ),
-              child: const Icon(
+              child: Icon(
                 Icons.auto_awesome_rounded,
                 size: 36,
-                color: AppColors.accentGreen,
+                color: context.appPrimary,
               ),
             ),
             const SizedBox(height: 20),
-            const Text(
+            Text(
               'How can I help you?',
               style: TextStyle(fontSize: 23, fontWeight: FontWeight.w700),
             ),
             const SizedBox(height: 8),
-            const Text(
+            Text(
               'Ask about sales, dealers, customers and orders.',
               textAlign: TextAlign.center,
-              style: TextStyle(fontSize: 13, color: Color(0xFF64748B)),
+              style: TextStyle(fontSize: 13, color: context.appSubText),
             ),
             const SizedBox(height: 24),
             _suggestionChip('Total Sales'),
@@ -697,20 +697,20 @@ class _AiChatbotState extends State<AiChatbot> {
           width: double.infinity,
           padding: const EdgeInsets.all(14),
           decoration: BoxDecoration(
-            color: Colors.white,
+            color: context.appCard,
             borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: const Color(0xFFE5EAF0)),
+            border: Border.all(color: context.appBorder),
           ),
           child: Row(
             children: [
-              const Icon(
+              Icon(
                 Icons.auto_awesome_outlined,
                 size: 18,
-                color: AppColors.accentGreen,
+                color: context.appPrimary,
               ),
               const SizedBox(width: 10),
               Expanded(child: Text(title)),
-              const Icon(Icons.arrow_outward, size: 17),
+              Icon(Icons.arrow_outward, size: 17),
             ],
           ),
         ),
@@ -729,7 +729,7 @@ class _AiChatbotState extends State<AiChatbot> {
       itemCount: _messages.length + (_isSending ? 1 : 0),
       itemBuilder: (context, index) {
         if (index == _messages.length) {
-          return const Padding(
+          return Padding(
             padding: EdgeInsets.all(12),
             child: Row(
               children: [
@@ -738,13 +738,13 @@ class _AiChatbotState extends State<AiChatbot> {
                   height: 18,
                   child: CircularProgressIndicator(
                     strokeWidth: 2,
-                    color: AppColors.accentGreen,
+                    color: context.appPrimary,
                   ),
                 ),
                 SizedBox(width: 12),
                 Text(
                   'AI is analyzing your question...',
-                  style: TextStyle(fontSize: 13, color: Color(0xFF64748B)),
+                  style: TextStyle(fontSize: 13, color: context.appSubText),
                 ),
               ],
             ),
@@ -767,11 +767,11 @@ class _AiChatbotState extends State<AiChatbot> {
             margin: const EdgeInsets.only(bottom: 14),
             padding: const EdgeInsets.all(14),
             decoration: BoxDecoration(
-              color: message.isUser ? const Color(0xFFDCFCE7) : Colors.white,
+              color: message.isUser ? Color.alphaBlend(context.appPrimary.withValues(alpha: 0.12), context.appCard) : context.appCard,
               borderRadius: BorderRadius.circular(16),
               border: message.isUser
                   ? null
-                  : Border.all(color: const Color(0xFFE5EAF0)),
+                  : Border.all(color: context.appBorder),
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -779,10 +779,10 @@ class _AiChatbotState extends State<AiChatbot> {
                 if (!message.isUser) ...[
                   Row(
                     children: [
-                      const Icon(
+                      Icon(
                         Icons.auto_awesome,
                         size: 16,
-                        color: AppColors.accentGreen,
+                        color: context.appPrimary,
                       ),
                       const SizedBox(width: 7),
                       Text(
@@ -791,10 +791,10 @@ class _AiChatbotState extends State<AiChatbot> {
                             : message.outputType == ChatOutputType.table
                             ? 'Table Response'
                             : 'AI Response',
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 13,
                           fontWeight: FontWeight.w700,
-                          color: AppColors.accentGreen,
+                          color: context.appPrimary,
                         ),
                       ),
                     ],
@@ -804,7 +804,7 @@ class _AiChatbotState extends State<AiChatbot> {
 
                 Text(
                   message.text,
-                  style: const TextStyle(fontSize: 14, height: 1.5),
+                  style: TextStyle(fontSize: 14, height: 1.5, color: context.appOnCard),
                 ),
 
                 // Graph or table based on the
@@ -915,16 +915,16 @@ class _AiChatbotState extends State<AiChatbot> {
       children: [
         Row(
           children: [
-            const Icon(
+            Icon(
               Icons.table_chart_outlined,
               size: 17,
-              color: AppColors.accentGreen,
+              color: context.appPrimary,
             ),
             const SizedBox(width: 7),
             Expanded(
               child: Text(
                 'Total Records: ${totalRows > 0 ? totalRows : rows.length}',
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 12,
                   fontWeight: FontWeight.w600,
                 ),
@@ -938,7 +938,7 @@ class _AiChatbotState extends State<AiChatbot> {
           child: SingleChildScrollView(
             scrollDirection: Axis.horizontal,
             child: DataTable(
-              headingRowColor: WidgetStateProperty.all(const Color(0xFFE8F5EC)),
+              headingRowColor: WidgetStateProperty.all(Color.alphaBlend(context.appPrimary.withValues(alpha: 0.12), context.appCard)),
               columnSpacing: 24,
               horizontalMargin: 12,
               headingRowHeight: 45,
@@ -950,7 +950,7 @@ class _AiChatbotState extends State<AiChatbot> {
                     column['label']?.toString() ??
                         column['key']?.toString() ??
                         '',
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontWeight: FontWeight.bold,
                       fontSize: 12,
                     ),
@@ -965,7 +965,7 @@ class _AiChatbotState extends State<AiChatbot> {
                     return DataCell(
                       Text(
                         _formatCellValue(row[key]),
-                        style: const TextStyle(fontSize: 12),
+                        style: TextStyle(fontSize: 12),
                       ),
                     );
                   }).toList(),
@@ -980,7 +980,7 @@ class _AiChatbotState extends State<AiChatbot> {
             child: Text(
               'Showing first $maxVisibleRows of '
               '${rows.length} returned records.',
-              style: const TextStyle(fontSize: 11, color: Colors.grey),
+              style: TextStyle(fontSize: 11, color: context.appSubText),
             ),
           ),
       ],
@@ -1089,7 +1089,7 @@ class _AiChatbotState extends State<AiChatbot> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text(
+        Text(
           'Data Visualization',
           style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700),
         ),
@@ -1115,7 +1115,7 @@ class _AiChatbotState extends State<AiChatbot> {
                   const SizedBox(width: 5),
                   Text(
                     numericColumns[j]['label']?.toString() ?? '',
-                    style: const TextStyle(fontSize: 11),
+                    style: TextStyle(fontSize: 11),
                   ),
                 ],
               ),
@@ -1162,9 +1162,9 @@ class _AiChatbotState extends State<AiChatbot> {
                         getTitlesWidget: (value, meta) {
                           return Text(
                             _compactNumber(value),
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontSize: 10,
-                              color: Colors.grey,
+                              color: context.appSubText,
                             ),
                           );
                         },
@@ -1195,9 +1195,9 @@ class _AiChatbotState extends State<AiChatbot> {
                                   maxLines: 2,
                                   overflow: TextOverflow.ellipsis,
                                   textAlign: TextAlign.center,
-                                  style: const TextStyle(
+                                  style: TextStyle(
                                     fontSize: 10,
-                                    color: Colors.black87,
+                                    color: context.appOnCard,
                                   ),
                                 ),
                               ),
@@ -1214,10 +1214,10 @@ class _AiChatbotState extends State<AiChatbot> {
         ),
 
         const SizedBox(height: 8),
-        const Text(
+        Text(
           'Tap a bar to inspect its value. '
           'Swipe horizontally to see more records.',
-          style: TextStyle(fontSize: 11, color: Colors.grey),
+          style: TextStyle(fontSize: 11, color: context.appSubText),
         ),
         if (rows.length > maxGraphRows)
           Padding(
@@ -1225,7 +1225,7 @@ class _AiChatbotState extends State<AiChatbot> {
             child: Text(
               'Showing first $maxGraphRows of '
               '${rows.length} returned records.',
-              style: const TextStyle(fontSize: 11, color: Colors.grey),
+              style: TextStyle(fontSize: 11, color: context.appSubText),
             ),
           ),
       ],
@@ -1243,11 +1243,11 @@ class _AiChatbotState extends State<AiChatbot> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text(
+        Text(
           'This result cannot be plotted as a '
           'non-negative numeric bar graph. '
           'Showing table instead.',
-          style: TextStyle(fontSize: 12, color: Colors.orange),
+          style: TextStyle(fontSize: 12, color: context.appWarning),
         ),
         const SizedBox(height: 10),
         _buildDynamicTable(
@@ -1315,9 +1315,9 @@ class _AiChatbotState extends State<AiChatbot> {
   Widget _buildBottomInput() {
     return Container(
       padding: const EdgeInsets.fromLTRB(14, 10, 14, 12),
-      decoration: const BoxDecoration(
-        color: Colors.white,
-        border: Border(top: BorderSide(color: Color(0xFFE5EAF0))),
+      decoration: BoxDecoration(
+        color: context.appCard,
+        border: Border(top: BorderSide(color: context.appBorder)),
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -1338,17 +1338,17 @@ class _AiChatbotState extends State<AiChatbot> {
               const Spacer(),
               TextButton.icon(
                 onPressed: _isSending ? null : _resetChat,
-                icon: const Icon(Icons.refresh, size: 17),
-                label: const Text('Reset'),
+                icon: Icon(Icons.refresh, size: 17),
+                label: Text('Reset'),
               ),
             ],
           ),
           const SizedBox(height: 8),
           Container(
             decoration: BoxDecoration(
-              color: const Color(0xFFF8FAFC),
+              color: context.appInputBackground,
               borderRadius: BorderRadius.circular(24),
-              border: Border.all(color: const Color(0xFFE2E8F0)),
+              border: Border.all(color: context.appBorder),
             ),
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.end,
@@ -1356,11 +1356,13 @@ class _AiChatbotState extends State<AiChatbot> {
                 Expanded(
                   child: TextField(
                     controller: _messageController,
+                    style: TextStyle(color: context.appText),
                     minLines: 1,
                     maxLines: 5,
                     textCapitalization: TextCapitalization.sentences,
-                    decoration: const InputDecoration(
+                    decoration: InputDecoration(
                       hintText: 'Ask anything...',
+                      hintStyle: TextStyle(color: context.appSubText),
                       border: InputBorder.none,
                       contentPadding: EdgeInsets.symmetric(
                         horizontal: 16,
@@ -1371,9 +1373,9 @@ class _AiChatbotState extends State<AiChatbot> {
                 ),
                 IconButton(
                   tooltip: 'Voice Input',
-                  icon: const Icon(
+                  icon: Icon(
                     Icons.mic_none_rounded,
-                    color: Color(0xFF64748B),
+                    color: context.appSubText,
                   ),
                   onPressed: () {
                     // Speech-to-text integration pending.
@@ -1387,16 +1389,16 @@ class _AiChatbotState extends State<AiChatbot> {
                 Padding(
                   padding: const EdgeInsets.only(right: 6, bottom: 5),
                   child: Material(
-                    color: _isSending ? Colors.grey : AppColors.accentGreen,
+                    color: _isSending ? context.appSubText : context.appPrimary,
                     shape: const CircleBorder(),
                     child: InkWell(
                       customBorder: const CircleBorder(),
                       onTap: _isSending ? null : _sendMessage,
-                      child: const Padding(
+                      child: Padding(
                         padding: EdgeInsets.all(10),
                         child: Icon(
                           Icons.arrow_upward_rounded,
-                          color: Colors.white,
+                          color: context.appCard,
                           size: 19,
                         ),
                       ),
@@ -1433,7 +1435,7 @@ class _AiChatbotState extends State<AiChatbot> {
           Radio<ChatOutputType>(
             value: type,
             groupValue: _selectedOutput,
-            activeColor: AppColors.accentGreen,
+            activeColor: context.appPrimary,
             visualDensity: VisualDensity.compact,
             onChanged: _isSending
                 ? null
@@ -1448,7 +1450,7 @@ class _AiChatbotState extends State<AiChatbot> {
           Icon(
             icon,
             size: 17,
-            color: selected ? AppColors.accentGreen : Colors.grey,
+            color: selected ? context.appPrimary : context.appSubText,
           ),
           const SizedBox(width: 4),
           Text(
@@ -1456,7 +1458,7 @@ class _AiChatbotState extends State<AiChatbot> {
             style: TextStyle(
               fontSize: 13,
               fontWeight: selected ? FontWeight.w700 : FontWeight.w400,
-              color: selected ? AppColors.accentGreen : Colors.grey,
+              color: selected ? context.appPrimary : context.appSubText,
             ),
           ),
         ],

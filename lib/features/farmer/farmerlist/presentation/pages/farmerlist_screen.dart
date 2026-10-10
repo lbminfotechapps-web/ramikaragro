@@ -5,7 +5,7 @@ import 'package:intl/intl.dart';
 import 'package:solufine/core/api_constant/api_client.dart';
 import 'package:solufine/core/router/app_router.dart';
 import 'package:solufine/core/secure_storage/secure_storage.dart';
-import 'package:solufine/core/theme/app_colors.dart';
+import 'package:solufine/core/theme/app_dynamic_colors.dart';
 
 import 'package:solufine/core/utility/widgets/custom_appbar.dart';
 import 'package:solufine/core/utility/widgets/custom_loader.dart';
@@ -69,8 +69,6 @@ class _FarmerlistScreenState extends State<FarmerlistScreen> {
   @override
   void dispose() {
     _searchTimer?.cancel();
-    _searchController.dispose();
-    _scrollController.dispose();
     super.dispose();
   }
 
@@ -153,17 +151,17 @@ class _FarmerlistScreenState extends State<FarmerlistScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final primaryColor = AppColors.primary;
+    final primaryColor = context.appPrimary;
 
     return Scaffold(
-      backgroundColor: AppColors.background,
-
+      backgroundColor: context.appBackground,
+    // backgroundColor: Colors.white,
       appBar: CustomAppBar(
         title: 'Farmer List',
-        titleStyle: const TextStyle(
+        titleStyle: TextStyle(
           fontSize: 20,
           fontWeight: FontWeight.w700,
-          color: Color(0xFF20382D),
+          color: Theme.of(context).appBarTheme.foregroundColor,
         ),
         showBackButton: true,
         onBackTap: () => context.go(AppRouter.home),
@@ -172,7 +170,7 @@ class _FarmerlistScreenState extends State<FarmerlistScreen> {
       body: BlocBuilder<FarmerListBloc, FarmerListState>(
         builder: (context, state) {
           if (state.status == FarmerlistStatus.loading) {
-            return const CustomLoader();
+            return CustomLoader(color: context.appPrimary);
           }
 
           if (state.status == FarmerlistStatus.failure) {
@@ -185,13 +183,13 @@ class _FarmerlistScreenState extends State<FarmerlistScreen> {
                     Icon(
                       Icons.error_outline,
                       size: 50,
-                      color: Colors.red.shade400,
+                      color: context.appError,
                     ),
                     const SizedBox(height: 12),
                     Text(
                       state.errorMessage ?? 'Something went wrong',
                       textAlign: TextAlign.center,
-                      style: const TextStyle(fontSize: 14),
+                      style: TextStyle(fontSize: 14),
                     ),
                     const SizedBox(height: 16),
                     ElevatedButton(
@@ -200,9 +198,9 @@ class _FarmerlistScreenState extends State<FarmerlistScreen> {
                       },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: primaryColor,
-                        foregroundColor: Colors.white,
+                        foregroundColor: context.appOnPrimary,
                       ),
-                      child: const Text('Retry'),
+                      child: Text('Retry'),
                     ),
                   ],
                 ),
@@ -225,9 +223,9 @@ class _FarmerlistScreenState extends State<FarmerlistScreen> {
                           Container(
                             height: 48,
                             decoration: BoxDecoration(
-                              color: Colors.white,
+                              color: context.appCard,
                               borderRadius: BorderRadius.circular(14),
-                              border: Border.all(color: Colors.grey.shade200),
+                              border: Border.all(color: context.appBorder),
                             ),
                             child: _FarmerSearchAnimation(
                               controller: _searchController,
@@ -270,13 +268,13 @@ class _FarmerlistScreenState extends State<FarmerlistScreen> {
                                       overflow: TextOverflow.ellipsis,
                                       style: TextStyle(
                                         fontSize: 13,
-                                        color: Colors.grey.shade500,
+                                        color: context.appSubText,
                                       ),
                                     ),
                                   ),
                                   hintStyle: TextStyle(
                                     fontSize: 13,
-                                    color: Colors.grey.shade500,
+                                    color: context.appSubText,
                                   ),
 
                                   prefixIcon: AnimatedSwitcher(
@@ -298,7 +296,7 @@ class _FarmerlistScreenState extends State<FarmerlistScreen> {
                                             ? 0
                                             : index,
                                       ),
-                                      color: Colors.grey.shade600,
+                                      color: context.appSubText,
                                     ),
                                   ),
 
@@ -320,7 +318,7 @@ class _FarmerlistScreenState extends State<FarmerlistScreen> {
                                               isLoadMore: false,
                                             );
                                           },
-                                          icon: const Icon(Icons.close),
+                                          icon: Icon(Icons.close),
                                         )
                                       : null,
 
@@ -355,13 +353,13 @@ class _FarmerlistScreenState extends State<FarmerlistScreen> {
 
                           const SizedBox(height: 4),
 
-                          const Padding(
+                          Padding(
                             padding: EdgeInsets.only(left: 6),
                             child: Text(
                               'Search after 3 characters. After searching wait for 2 sec..!',
                               style: TextStyle(
                                 fontSize: 10,
-                                color: Colors.red,
+                                color: context.appError,
                                 fontWeight: FontWeight.w500,
                               ),
                             ),
@@ -383,7 +381,7 @@ class _FarmerlistScreenState extends State<FarmerlistScreen> {
                     //     onPressed: () {
                     //       _showFilterBottomSheet(context);
                     //     },
-                    //     icon: const Icon(Icons.tune, color: Colors.white),
+                    //     icon: Icon(Icons.tune, color: context.appCard),
                     //   ),
                     // ),
                   ],
@@ -397,7 +395,7 @@ class _FarmerlistScreenState extends State<FarmerlistScreen> {
                     Icon(
                       Icons.people_outline,
                       size: 18,
-                      color: Colors.grey.shade600,
+                      color: context.appSubText,
                     ),
                     const SizedBox(width: 6),
                     Text(
@@ -405,7 +403,7 @@ class _FarmerlistScreenState extends State<FarmerlistScreen> {
                       style: TextStyle(
                         fontSize: 13,
                         fontWeight: FontWeight.w600,
-                        color: Colors.grey.shade700,
+                        color: context.appSubText,
                       ),
                     ),
                     const Spacer(),
@@ -413,7 +411,7 @@ class _FarmerlistScreenState extends State<FarmerlistScreen> {
                       '${state.farmerList.length} Records',
                       style: TextStyle(
                         fontSize: 12,
-                        color: Colors.grey.shade500,
+                        color: context.appSubText,
                       ),
                     ),
                   ],
@@ -430,7 +428,7 @@ class _FarmerlistScreenState extends State<FarmerlistScreen> {
                         },
                         child: ListView(
                           physics: const AlwaysScrollableScrollPhysics(),
-                          children: const [
+                          children: [
                             SizedBox(height: 180),
                             Center(
                               child: Text(
@@ -438,7 +436,7 @@ class _FarmerlistScreenState extends State<FarmerlistScreen> {
                                 style: TextStyle(
                                   fontSize: 14,
                                   fontWeight: FontWeight.w600,
-                                  color: Colors.grey,
+                                  color: context.appSubText,
                                 ),
                               ),
                             ),
@@ -459,7 +457,7 @@ class _FarmerlistScreenState extends State<FarmerlistScreen> {
                               (_isLoadingMore ? 1 : 0),
                           itemBuilder: (context, index) {
                             if (index == state.farmerList.length) {
-                              return const Padding(
+                              return Padding(
                                 padding: EdgeInsets.symmetric(vertical: 20),
                                 child: Center(
                                   child: CircularProgressIndicator(),
@@ -480,13 +478,13 @@ class _FarmerlistScreenState extends State<FarmerlistScreen> {
 
       floatingActionButton: FloatingActionButton.extended(
         backgroundColor: primaryColor,
-        foregroundColor: Colors.white,
+        foregroundColor: context.appOnPrimary,
         elevation: 3,
         onPressed: () {
           context.push('/farmerregistration');
         },
-        icon: const Icon(Icons.add_rounded),
-        label: const Text('Add farmer'),
+        icon: Icon(Icons.add_rounded),
+        label: Text('Add farmer'),
       ),
     );
   }
@@ -507,9 +505,9 @@ class _FarmerListItem extends StatelessWidget {
       margin: const EdgeInsets.only(bottom: 12),
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: context.appCard,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: const Color(0xFFE9EDE9)),
+        border: Border.all(color: context.appBorder),
         boxShadow: const [
           BoxShadow(
             color: Color(0x06123D32),
@@ -528,9 +526,9 @@ class _FarmerListItem extends StatelessWidget {
                 height: 44,
                 padding: const EdgeInsets.all(5),
                 decoration: BoxDecoration(
-                  color: Colors.white,
+                  color: context.appCard,
                   borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: const Color(0xFFEAF2EC), width: 3),
+                  border: Border.all(color: context.appBorder, width: 3),
                 ),
                 child: Image.asset(
                   'assets/images/farmer.png',
@@ -544,26 +542,26 @@ class _FarmerListItem extends StatelessWidget {
                   children: [
                     Text(
                       name.isEmpty ? 'Unknown farmer' : name,
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 14,
                         fontWeight: FontWeight.w700,
-                        color: Color(0xFF18231C),
+                        color: context.appOnCard,
                       ),
                     ),
                     const SizedBox(height: 4),
-                    const Row(
+                    Row(
                       children: [
                         Icon(
                           Icons.agriculture_outlined,
                           size: 13,
-                          color: AppColors.textSecondary,
+                          color: context.appSubText,
                         ),
                         SizedBox(width: 4),
                         Text(
                           'Farmer',
                           style: TextStyle(
                             fontSize: 11,
-                            color: AppColors.textSecondary,
+                            color: context.appSubText,
                           ),
                         ),
                       ],
@@ -573,9 +571,9 @@ class _FarmerListItem extends StatelessWidget {
               ),
             ],
           ),
-          const Padding(
+          Padding(
             padding: EdgeInsets.symmetric(vertical: 10),
-            child: Divider(height: 1, color: Color(0xFFF0F1EF)),
+            child: Divider(height: 1, color: context.appBorder),
           ),
 
           // _FarmerDetail(
@@ -645,17 +643,17 @@ class _FarmerListItem extends StatelessWidget {
                   onPressed: () {
                     context.push('/farmerpin', extra: farmer.farmerId);
                   },
-                  icon: const Icon(Icons.push_pin_outlined, size: 15),
-                  label: const Text('Pin'),
+                  icon: Icon(Icons.push_pin_outlined, size: 15),
+                  label: Text('Pin'),
                   style: OutlinedButton.styleFrom(
-                    foregroundColor: AppColors.primary,
-                    side: const BorderSide(color: AppColors.primary),
+                    foregroundColor: context.appPrimary,
+                    side: BorderSide(color: context.appPrimary),
                     minimumSize: const Size(0, 36),
                     padding: const EdgeInsets.symmetric(
                       horizontal: 8,
                       vertical: 8,
                     ),
-                    textStyle: const TextStyle(
+                    textStyle: TextStyle(
                       fontSize: 12,
                       fontWeight: FontWeight.w600,
                     ),
@@ -674,17 +672,17 @@ class _FarmerListItem extends StatelessWidget {
                       debugPrint('Phone number is missing');
                     }
                   },
-                  icon: const Icon(Icons.call_outlined, size: 15),
-                  label: const Text('Call'),
+                  icon: Icon(Icons.call_outlined, size: 15),
+                  label: Text('Call'),
                   style: FilledButton.styleFrom(
-                    backgroundColor: const Color(0xFF123D32),
-                    foregroundColor: Colors.white,
+                    backgroundColor: context.appPrimary,
+                    foregroundColor: context.appOnPrimary,
                     minimumSize: const Size(0, 36),
                     padding: const EdgeInsets.symmetric(
                       horizontal: 8,
                       vertical: 8,
                     ),
-                    textStyle: const TextStyle(
+                    textStyle: TextStyle(
                       fontSize: 12,
                       fontWeight: FontWeight.w600,
                     ),
@@ -698,10 +696,10 @@ class _FarmerListItem extends StatelessWidget {
                 onPressed: () {
                   context.push('/farmerEdit', extra: farmer);
                 },
-                icon: const Icon(Icons.edit_outlined, size: 17),
+                icon: Icon(Icons.edit_outlined, size: 17),
                 style: IconButton.styleFrom(
-                  foregroundColor: AppColors.primary,
-                  side: const BorderSide(color: AppColors.primary),
+                  foregroundColor: context.appPrimary,
+                  side: BorderSide(color: context.appPrimary),
                   minimumSize: const Size(38, 36),
                   shape: shape,
                 ),
@@ -739,10 +737,10 @@ class _FarmerDetail extends StatelessWidget {
             width: 28,
             height: 28,
             decoration: BoxDecoration(
-              color: const Color(0xFFEDF5EF),
+              color: Color.alphaBlend(context.appPrimary.withValues(alpha: 0.1), context.appCard),
               borderRadius: BorderRadius.circular(7),
             ),
-            child: Icon(icon, size: 15, color: AppColors.primary),
+            child: Icon(icon, size: 15, color: context.appPrimary),
           ),
           const SizedBox(width: 8),
           Expanded(
@@ -751,9 +749,9 @@ class _FarmerDetail extends StatelessWidget {
               children: [
                 Text(
                   label,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 9,
-                    color: AppColors.textSecondary,
+                    color: context.appSubText,
                   ),
                 ),
                 const SizedBox(height: 2),
@@ -764,8 +762,8 @@ class _FarmerDetail extends StatelessWidget {
                     height: 1.25,
                     fontWeight: FontWeight.w600,
                     color: onTap != null
-                        ? AppColors.primary
-                        : const Color(0xFF18231C),
+                        ? context.appPrimary
+                        : context.appOnCard,
                     decoration: onTap != null
                         ? TextDecoration.underline
                         : TextDecoration.none,
@@ -808,13 +806,13 @@ class _ActivityInfo extends StatelessWidget {
       constraints: const BoxConstraints(minHeight: 46),
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
       decoration: BoxDecoration(
-        color: const Color(0xFFFAFAF9),
+        color: context.appInputBackground,
         borderRadius: BorderRadius.circular(10),
-        border: Border.all(color: const Color(0xFFEEEEEB)),
+        border: Border.all(color: context.appBorder),
       ),
       child: Row(
         children: [
-          Icon(icon, size: 15, color: AppColors.primary),
+          Icon(icon, size: 15, color: context.appPrimary),
           const SizedBox(width: 6),
           Expanded(
             child: Column(
@@ -822,26 +820,26 @@ class _ActivityInfo extends StatelessWidget {
               children: [
                 Text(
                   title,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 9,
-                    color: AppColors.textSecondary,
+                    color: context.appSubText,
                   ),
                 ),
                 const SizedBox(height: 3),
                 Text(
                   value,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 10,
                     fontWeight: FontWeight.w500,
-                    color: AppColors.textDark,
+                    color: context.appOnCard,
                   ),
                 ),
                 if (time != null)
                   Text(
                     time,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 10,
-                      color: AppColors.textSecondary,
+                      color: context.appSubText,
                     ),
                   ),
               ],
@@ -874,10 +872,10 @@ class _FilterChip extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 9),
         decoration: BoxDecoration(
-          color: selected ? primaryColor : Colors.grey.shade100,
+          color: selected ? primaryColor : context.appInputBackground,
           borderRadius: BorderRadius.circular(20),
           border: Border.all(
-            color: selected ? primaryColor : Colors.grey.shade300,
+            color: selected ? primaryColor : context.appBorder,
           ),
         ),
         child: Text(
@@ -885,7 +883,7 @@ class _FilterChip extends StatelessWidget {
           style: TextStyle(
             fontSize: 12,
             fontWeight: FontWeight.w600,
-            color: selected ? Colors.white : Colors.grey.shade700,
+            color: selected ? context.appOnPrimary : context.appSubText,
           ),
         ),
       ),

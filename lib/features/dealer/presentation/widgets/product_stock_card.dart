@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil_plus/flutter_screenutil_plus.dart';
-import 'package:solufine/core/theme/app_colors.dart';
+import 'package:solufine/core/theme/app_dynamic_colors.dart';
 import 'package:solufine/features/dealer/data/models/dealer_products.dart';
 import 'package:solufine/features/place_order/domain/entities/product_entity.dart';
 /*
@@ -33,15 +33,14 @@ class ProductStockCard extends StatelessWidget {
       ),
       padding: EdgeInsets.all(14.w),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: context.appCard,
         borderRadius:
             BorderRadius.circular(17.r),
         border: Border.all(
           color: selected
-              ? AppColors.primary
+              ? context.appPrimary
                   .withOpacity(0.35)
-              : const Color(
-                  0xFFE5EAE6),
+              : context.appBorder,
           width: selected ? 1.3 : 1,
         ),
         boxShadow: [
@@ -84,8 +83,7 @@ class ProductStockCard extends StatelessWidget {
                           fontWeight:
                               FontWeight
                                   .w800,
-                          color: AppColors
-                              .textPrimary,
+                          color: context.appOnCard,
                         ),
                       ),
                     ),
@@ -103,8 +101,7 @@ class ProductStockCard extends StatelessWidget {
                   ),
                   decoration:
                       BoxDecoration(
-                    color: const Color(
-                        0xFFF0F5F1),
+                    color: context.appInputBackground,
                     borderRadius:
                         BorderRadius
                             .circular(
@@ -119,7 +116,7 @@ class ProductStockCard extends StatelessWidget {
                       fontWeight:
                           FontWeight.w600,
                       color:
-                          AppColors.primary,
+                          context.appPrimary,
                     ),
                   ),
                 ),
@@ -173,8 +170,7 @@ class ProductStockCard extends StatelessWidget {
                   letterSpacing: 0.5,
                   fontWeight:
                       FontWeight.w700,
-                  color: AppColors
-                      .textSecondary,
+                  color: context.appSubText,
                 ),
               ),
 
@@ -189,21 +185,17 @@ class ProductStockCard extends StatelessWidget {
                 decoration:
                     BoxDecoration(
                   color: selected
-                      ? AppColors
-                          .lightGreen
-                      : const Color(
-                          0xFFF6F8F6),
+                      ? Color.alphaBlend(context.appPrimary.withValues(alpha: 0.1), context.appCard)
+                      : context.appInputBackground,
                   borderRadius:
                       BorderRadius
                           .circular(12.r),
                   border: Border.all(
                     color: selected
-                        ? AppColors
-                            .primary
+                        ? context.appPrimary
                             .withOpacity(
                                 0.18)
-                        : const Color(
-                            0xFFE5E9E6),
+                        : context.appBorder,
                   ),
                 ),
                 child: Row(
@@ -232,10 +224,8 @@ class ProductStockCard extends StatelessWidget {
                               FontWeight
                                   .w800,
                           color: selected
-                              ? AppColors
-                                  .primary
-                              : AppColors
-                                  .textPrimary,
+                              ? context.appPrimary
+                              : context.appOnCard,
                         ),
                       ),
                     ),
@@ -277,7 +267,7 @@ class _ProductInfoItem extends StatelessWidget {
           style: TextStyle(
             fontSize: 9.sp,
             color:
-                AppColors.textSecondary,
+                context.appSubText,
             fontWeight:
                 FontWeight.w500,
           ),
@@ -292,7 +282,7 @@ class _ProductInfoItem extends StatelessWidget {
             fontWeight:
                 FontWeight.w700,
             color:
-                AppColors.textPrimary,
+                context.appOnCard,
           ),
         ),
       ],
@@ -315,9 +305,8 @@ class _QuantityButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return Material(
       color: enabled
-          ? AppColors.primary
-          : const Color(
-              0xFFE1E5E2),
+          ? context.appPrimary
+          : context.appBorder,
       borderRadius:
           BorderRadius.circular(8.r),
       child: InkWell(
@@ -332,7 +321,7 @@ class _QuantityButton extends StatelessWidget {
             icon,
             size: 17.sp,
             color:
-                Colors.white,
+                context.appCard,
           ),
         ),
       ),
@@ -418,12 +407,12 @@ class _ProductStockCardState extends State<ProductStockCard> {
       padding: EdgeInsets.all(12.w),
 
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: context.appCard,
         borderRadius: BorderRadius.circular(14.r),
         border: Border.all(
           color: selected
-              ? AppColors.primary.withOpacity(0.35)
-              : const Color(0xFFE5EAE6),
+              ? context.appPrimary.withOpacity(0.35)
+              : context.appBorder,
           width: selected ? 1.3 : 1,
         ),
         boxShadow: [
@@ -456,7 +445,7 @@ class _ProductStockCardState extends State<ProductStockCard> {
                     fontSize: 13.sp,
                     height: 1.2,
                     fontWeight: FontWeight.w800,
-                    color: AppColors.textPrimary,
+                    color: context.appOnCard,
                   ),
                 ),
 
@@ -468,7 +457,7 @@ class _ProductStockCardState extends State<ProductStockCard> {
                 Container(
                   padding: EdgeInsets.symmetric(horizontal: 7.w, vertical: 3.h),
                   decoration: BoxDecoration(
-                    color: const Color(0xFFF0F5F1),
+                    color: context.appInputBackground,
                     borderRadius: BorderRadius.circular(6.r),
                   ),
                   child: Text(
@@ -476,7 +465,7 @@ class _ProductStockCardState extends State<ProductStockCard> {
                     style: TextStyle(
                       fontSize: 9.sp,
                       fontWeight: FontWeight.w700,
-                      color: AppColors.primary,
+                      color: context.appPrimary,
                     ),
                   ),
                 ),
@@ -527,7 +516,7 @@ class _ProductStockCardState extends State<ProductStockCard> {
                   fontSize: 8.5.sp,
                   letterSpacing: 0.5,
                   fontWeight: FontWeight.w700,
-                  color: AppColors.textSecondary,
+                  color: context.appSubText,
                 ),
               ),
 
@@ -538,15 +527,15 @@ class _ProductStockCardState extends State<ProductStockCard> {
 
                 decoration: BoxDecoration(
                   color: selected
-                      ? AppColors.lightGreen
-                      : const Color(0xFFF6F8F6),
+                      ? Color.alphaBlend(context.appPrimary.withValues(alpha: 0.1), context.appCard)
+                      : context.appInputBackground,
 
                   borderRadius: BorderRadius.circular(10.r),
 
                   border: Border.all(
                     color: selected
-                        ? AppColors.primary
-                        : const Color(0xFFDCE3DD),
+                        ? context.appPrimary
+                        : context.appBorder,
                     width: selected ? 1.3 : 1,
                   ),
                 ),
@@ -566,7 +555,7 @@ class _ProductStockCardState extends State<ProductStockCard> {
                     style: TextStyle(
                       fontSize: 14.sp,
                       fontWeight: FontWeight.w800,
-                      color: AppColors.primary,
+                      color: context.appPrimary,
                     ),
 
                     decoration: InputDecoration(
@@ -575,14 +564,14 @@ class _ProductStockCardState extends State<ProductStockCard> {
                       hintStyle: TextStyle(
                         fontSize: 14.sp,
                         fontWeight: FontWeight.w600,
-                        color: AppColors.textSecondary,
+                        color: context.appSubText,
                       ),
 
                       filled: true,
 
                       fillColor: selected
-                          ? AppColors.lightGreen
-                          : const Color(0xFFF6F8F6),
+                          ? Color.alphaBlend(context.appPrimary.withValues(alpha: 0.1), context.appCard)
+                          : context.appInputBackground,
 
                       border: InputBorder.none,
                       enabledBorder: InputBorder.none,
@@ -620,13 +609,13 @@ class _ProductStockCardState extends State<ProductStockCard> {
 
                 decoration: BoxDecoration(
                   color: selected
-                      ? AppColors.lightGreen
-                      : const Color(0xFFF6F8F6),
+                      ? Color.alphaBlend(context.appPrimary.withValues(alpha: 0.1), context.appCard)
+                      : context.appInputBackground,
                   borderRadius: BorderRadius.circular(10.r),
                   border: Border.all(
                     color: selected
-                        ? AppColors.primary.withOpacity(0.30)
-                        : const Color(0xFFE5E9E6),
+                        ? context.appPrimary.withOpacity(0.30)
+                        : context.appBorder,
                   ),
                 ),
 
@@ -642,7 +631,7 @@ class _ProductStockCardState extends State<ProductStockCard> {
                   style: TextStyle(
                     fontSize: 14.sp,
                     fontWeight: FontWeight.w800,
-                    color: AppColors.primary,
+                    color: context.appPrimary,
                   ),
 
                   decoration: InputDecoration(
@@ -651,7 +640,7 @@ class _ProductStockCardState extends State<ProductStockCard> {
                     hintStyle: TextStyle(
                       fontSize: 14.sp,
                       fontWeight: FontWeight.w600,
-                      color: AppColors.textSecondary,
+                      color: context.appSubText,
                     ),
 
                     border: InputBorder.none,
@@ -713,12 +702,12 @@ class ProductStockCard extends StatelessWidget {
       duration: const Duration(milliseconds: 180),
       padding: EdgeInsets.all(14.w),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: context.appCard,
         borderRadius: BorderRadius.circular(17.r),
         border: Border.all(
           color: selected
-              ? AppColors.primary.withOpacity(0.35)
-              : const Color(0xFFE5EAE6),
+              ? context.appPrimary.withOpacity(0.35)
+              : context.appBorder,
           width: selected ? 1.3 : 1,
         ),
         boxShadow: [
@@ -744,7 +733,7 @@ class ProductStockCard extends StatelessWidget {
                     fontSize: 14.sp,
                     height: 1.2,
                     fontWeight: FontWeight.w800,
-                    color: AppColors.textPrimary,
+                    color: context.appOnCard,
                   ),
                 ),
 
@@ -756,7 +745,7 @@ class ProductStockCard extends StatelessWidget {
                     vertical: 4.h,
                   ),
                   decoration: BoxDecoration(
-                    color: const Color(0xFFF0F5F1),
+                    color: context.appInputBackground,
                     borderRadius: BorderRadius.circular(7.r),
                   ),
                   child: Text(
@@ -764,7 +753,7 @@ class ProductStockCard extends StatelessWidget {
                     style: TextStyle(
                       fontSize: 9.5.sp,
                       fontWeight: FontWeight.w600,
-                      color: AppColors.primary,
+                      color: context.appPrimary,
                     ),
                   ),
                 ),
@@ -803,7 +792,7 @@ class ProductStockCard extends StatelessWidget {
                   fontSize: 9.sp,
                   letterSpacing: 0.5,
                   fontWeight: FontWeight.w700,
-                  color: AppColors.textSecondary,
+                  color: context.appSubText,
                 ),
               ),
 
@@ -817,13 +806,13 @@ class ProductStockCard extends StatelessWidget {
   ),
   decoration: BoxDecoration(
     color: selected
-        ? AppColors.lightGreen
-        : const Color(0xFFF6F8F6),
+        ? Color.alphaBlend(context.appPrimary.withValues(alpha: 0.1), context.appCard)
+        : context.appInputBackground,
     borderRadius: BorderRadius.circular(12.r),
     border: Border.all(
       color: selected
-          ? AppColors.primary.withOpacity(0.30)
-          : const Color(0xFFE5E9E6),
+          ? context.appPrimary.withOpacity(0.30)
+          : context.appBorder,
     ),
   ),
   child: TextField(
@@ -833,14 +822,14 @@ class ProductStockCard extends StatelessWidget {
     style: TextStyle(
       fontSize: 15.sp,
       fontWeight: FontWeight.w800,
-      color: AppColors.primary,
+      color: context.appPrimary,
     ),
     decoration: InputDecoration(
       hintText: '0',
       hintStyle: TextStyle(
         fontSize: 15.sp,
         fontWeight: FontWeight.w600,
-        color: AppColors.textSecondary,
+        color: context.appSubText,
       ),
       border: InputBorder.none,
       enabledBorder: InputBorder.none,
@@ -869,13 +858,13 @@ class ProductStockCard extends StatelessWidget {
                 ),
                 decoration: BoxDecoration(
                   color: selected
-                      ? AppColors.lightGreen
-                      : const Color(0xFFF6F8F6),
+                      ? Color.alphaBlend(context.appPrimary.withValues(alpha: 0.1), context.appCard)
+                      : context.appInputBackground,
                   borderRadius: BorderRadius.circular(12.r),
                   border: Border.all(
                     color: selected
-                        ? AppColors.primary.withOpacity(0.18)
-                        : const Color(0xFFE5E9E6),
+                        ? context.appPrimary.withOpacity(0.18)
+                        : context.appBorder,
                   ),
                 ),
                 child: Row(
@@ -896,8 +885,8 @@ class ProductStockCard extends StatelessWidget {
                           fontSize: 15.sp,
                           fontWeight: FontWeight.w800,
                           color: selected
-                              ? AppColors.primary
-                              : AppColors.textPrimary,
+                              ? context.appPrimary
+                              : context.appOnCard,
                         ),
                       ),
                     ),
@@ -938,7 +927,7 @@ class _ProductInfoItem extends StatelessWidget {
           label,
           style: TextStyle(
             fontSize: 8.sp,
-            color: AppColors.textSecondary,
+            color: context.appSubText,
             fontWeight: FontWeight.w500,
           ),
         ),
@@ -952,7 +941,7 @@ class _ProductInfoItem extends StatelessWidget {
           style: TextStyle(
             fontSize: 10.sp,
             fontWeight: FontWeight.w700,
-            color: AppColors.textPrimary,
+            color: context.appOnCard,
           ),
         ),
       ],
@@ -974,7 +963,7 @@ class _QuantityButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Material(
-      color: enabled ? AppColors.primary : const Color(0xFFE1E5E2),
+      color: enabled ? context.appPrimary : context.appBorder,
       borderRadius: BorderRadius.circular(8.r),
       child: InkWell(
         onTap: enabled ? onTap : null,
@@ -982,7 +971,7 @@ class _QuantityButton extends StatelessWidget {
         child: SizedBox(
           width: 30.w,
           height: 30.w,
-          child: Icon(icon, size: 17.sp, color: Colors.white),
+          child: Icon(icon, size: 17.sp, color: context.appOnPrimary),
         ),
       ),
     );

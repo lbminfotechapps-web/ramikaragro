@@ -1,3 +1,4 @@
+import 'package:solufine/core/theme/app_colors.dart';
 import 'package:solufine/core/theme/app_dynamic_colors.dart';
 import 'dart:io';
 
@@ -710,7 +711,7 @@ class _HomeState extends State<Home> {
         }
       },
       child: Scaffold(
-        backgroundColor: context.appBackground,
+          backgroundColor: context.appBackground,
         appBar: CustomAppBar(
           leading: Builder(
             builder: (scaffoldContext) {

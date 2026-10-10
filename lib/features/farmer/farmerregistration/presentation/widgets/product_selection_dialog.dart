@@ -1,3 +1,4 @@
+import 'package:solufine/core/theme/app_dynamic_colors.dart';
 import 'package:solufine/core/utility/app_toast.dart';
 import 'package:solufine/features/farmer/farmerregistration/domain/entity/product_entity.dart';
 import 'package:flutter/material.dart';
@@ -45,7 +46,7 @@ class _ProductSelectionDialogState extends State<ProductSelectionDialog> {
                         'No product available',
                         style: TextStyle(
                           fontSize: 14.sp,
-                          color: Colors.grey.shade600,
+                          color: context.appSubText,
                         ),
                       ),
                     )
@@ -73,19 +74,19 @@ class _ProductSelectionDialogState extends State<ProductSelectionDialog> {
       width: double.infinity,
       padding: EdgeInsets.symmetric(horizontal: 18.w, vertical: 16.h),
       decoration: BoxDecoration(
-        color: const Color(0xFF087C3A),
+        color: context.appPrimary,
         borderRadius: BorderRadius.vertical(top: Radius.circular(20.r)),
       ),
       child: Row(
         children: [
-          Icon(Icons.inventory_2_outlined, color: Colors.white, size: 25.sp),
+          Icon(Icons.inventory_2_outlined, color: context.appOnPrimary, size: 25.sp),
           SizedBox(width: 10.w),
 
           Expanded(
             child: Text(
               'Select Suggested Products',
               style: TextStyle(
-                color: Colors.white,
+                color: context.appOnPrimary,
                 fontSize: 18.sp,
                 fontWeight: FontWeight.w700,
               ),
@@ -96,7 +97,7 @@ class _ProductSelectionDialogState extends State<ProductSelectionDialog> {
             onPressed: () {
               Navigator.pop(context);
             },
-            icon: const Icon(Icons.close, color: Colors.white),
+            icon: Icon(Icons.close, color: context.appOnPrimary),
           ),
         ],
       ),
@@ -122,10 +123,10 @@ class _ProductSelectionDialogState extends State<ProductSelectionDialog> {
       child: Container(
         padding: EdgeInsets.symmetric(horizontal: 5.w, vertical: 4.h),
         decoration: BoxDecoration(
-          color: isSelected ? const Color(0xFFE8F5E9) : Colors.white,
+          color: isSelected ? Color.alphaBlend(context.appPrimary.withValues(alpha: 0.1), context.appCard) : context.appCard,
           borderRadius: BorderRadius.circular(12.r),
           border: Border.all(
-            color: isSelected ? const Color(0xFF087C3A) : Colors.grey.shade300,
+            color: isSelected ? context.appPrimary : context.appBorder,
           ),
           boxShadow: [
             BoxShadow(
@@ -139,7 +140,7 @@ class _ProductSelectionDialogState extends State<ProductSelectionDialog> {
           children: [
             Checkbox(
               value: isSelected,
-              activeColor: const Color(0xFF087C3A),
+              activeColor: context.appPrimary,
               onChanged: (value) {
                 setState(() {
                   if (value == true) {
@@ -161,7 +162,7 @@ class _ProductSelectionDialogState extends State<ProductSelectionDialog> {
                 style: TextStyle(
                   fontSize: 14.sp,
                   fontWeight: FontWeight.w600,
-                  color: Colors.black87,
+                  color: context.appOnCard,
                 ),
               ),
             ),
@@ -183,15 +184,15 @@ class _ProductSelectionDialogState extends State<ProductSelectionDialog> {
               },
               style: OutlinedButton.styleFrom(
                 minimumSize: Size(double.infinity, 48.h),
-                side: const BorderSide(color: Color(0xFF087C3A)),
+                side: BorderSide(color: context.appPrimary),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12.r),
                 ),
               ),
-              child: const Text(
+              child: Text(
                 'Cancel',
                 style: TextStyle(
-                  color: Color(0xFF087C3A),
+                  color: context.appPrimary,
                   fontWeight: FontWeight.w600,
                 ),
               ),
@@ -213,13 +214,13 @@ class _ProductSelectionDialogState extends State<ProductSelectionDialog> {
               },
               style: ElevatedButton.styleFrom(
                 minimumSize: Size(double.infinity, 48.h),
-                backgroundColor: const Color(0xFF087C3A),
-                foregroundColor: Colors.white,
+                backgroundColor: context.appPrimary,
+                foregroundColor: context.appOnPrimary,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12.r),
                 ),
               ),
-              child: const Text(
+              child: Text(
                 'Add',
                 style: TextStyle(fontWeight: FontWeight.w600),
               ),

@@ -52,7 +52,7 @@ class CustomButton extends StatelessWidget {
       height: (height ?? 52).h,
       child: Container(
         decoration: BoxDecoration(
-          gradient: gradient ?? AppColors.appGradient,
+          gradient: gradient ?? (backgroundColor == null ? AppColors.appGradient : null),
           color: backgroundColor,
           borderRadius: radius,
           border: borderColor != null
@@ -93,11 +93,11 @@ class CustomButton extends StatelessWidget {
                   ? SizedBox(
                       width: 20.w,
                       height: 20.h,
-                      child: const CircularProgressIndicator(
+                      child: CircularProgressIndicator(
                         strokeWidth: 2,
                         valueColor:
                             AlwaysStoppedAnimation<Color>(
-                          Colors.white,
+                          textColor ?? Colors.white,
                         ),
                       ),
                     )
@@ -113,7 +113,7 @@ class CustomButton extends StatelessWidget {
                           text: text,
                           fontSize: textSize ?? 15.sp,
                           fontWeight: FontWeight.w600,
-                          color: textStyle?.color ??
+                          color: textStyle?.color ?? textColor ??
                               Colors.white,
                         ),
                       ],

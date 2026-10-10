@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil_plus/flutter_screenutil_plus.dart';
 import 'package:solufine/core/secure_storage/secure_storage.dart';
-import 'package:solufine/core/theme/app_colors.dart';
+import 'package:solufine/core/theme/app_dynamic_colors.dart';
 import 'package:solufine/core/utility/widgets/custom_appbar.dart';
 import 'package:solufine/features/dealer/data/models/dealer_products.dart';
 import 'package:solufine/features/dealer/presentation/bloc/dealerlist_bloc.dart';
@@ -353,7 +353,7 @@ class _DealerstocksState extends State<Dealerstocks> {
     );
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF5F7F5),
+      backgroundColor: context.appBackground,
 
       appBar: CustomAppBar(title: 'Dealer Stock', showBackButton: true),
 
@@ -402,9 +402,9 @@ class _DealerstocksState extends State<Dealerstocks> {
 
                               if (state.status == DealerListStatus.loading &&
                                   state.productList.isEmpty) {
-                                return const Center(
+                                return Center(
                                   child: CircularProgressIndicator(
-                                    color: AppColors.primary,
+                                    color: context.appPrimary,
                                   ),
                                 );
                               }
@@ -435,7 +435,7 @@ class _DealerstocksState extends State<Dealerstocks> {
                                       Icon(
                                         Icons.inventory_2_outlined,
                                         size: 42.sp,
-                                        color: AppColors.textSecondary,
+                                        color: context.appSubText,
                                       ),
 
                                       SizedBox(height: 8.h),
@@ -445,7 +445,7 @@ class _DealerstocksState extends State<Dealerstocks> {
                                         style: TextStyle(
                                           fontSize: 12.sp,
                                           fontWeight: FontWeight.w600,
-                                          color: AppColors.textSecondary,
+                                          color: context.appSubText,
                                         ),
                                       ),
                                     ],
@@ -465,7 +465,7 @@ class _DealerstocksState extends State<Dealerstocks> {
                                       Icon(
                                         Icons.search_off_rounded,
                                         size: 40.sp,
-                                        color: AppColors.textSecondary,
+                                        color: context.appSubText,
                                       ),
 
                                       SizedBox(height: 8.h),
@@ -475,7 +475,7 @@ class _DealerstocksState extends State<Dealerstocks> {
                                         style: TextStyle(
                                           fontSize: 12.sp,
                                           fontWeight: FontWeight.w700,
-                                          color: AppColors.textSecondary,
+                                          color: context.appSubText,
                                         ),
                                       ),
 
@@ -485,7 +485,7 @@ class _DealerstocksState extends State<Dealerstocks> {
                                         'Try another product name',
                                         style: TextStyle(
                                           fontSize: 10.sp,
-                                          color: AppColors.textSecondary,
+                                          color: context.appSubText,
                                         ),
                                       ),
                                     ],
@@ -594,17 +594,17 @@ class _DealerstocksState extends State<Dealerstocks> {
                       : _openStockPreview,
 
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.primary,
+                    backgroundColor: context.appPrimary,
 
-                    disabledBackgroundColor: AppColors.primary.withOpacity(
+                    disabledBackgroundColor: context.appPrimary.withOpacity(
                       0.35,
                     ),
 
-                    foregroundColor: Colors.white,
+                    foregroundColor: context.appOnPrimary,
 
                     elevation: 5,
 
-                    shadowColor: AppColors.primary.withOpacity(0.25),
+                    shadowColor: context.appPrimary.withOpacity(0.25),
 
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(16.r),
@@ -618,7 +618,7 @@ class _DealerstocksState extends State<Dealerstocks> {
                       Icon(
                         Icons.preview_rounded,
 
-                        color: Colors.white,
+                        color: context.appOnPrimary,
 
                         size: 20.sp,
                       ),
@@ -636,7 +636,7 @@ class _DealerstocksState extends State<Dealerstocks> {
                           overflow: TextOverflow.ellipsis,
 
                           style: TextStyle(
-                            color: Colors.white,
+                            color: context.appOnPrimary,
 
                             fontSize: 13.sp,
 
@@ -650,7 +650,7 @@ class _DealerstocksState extends State<Dealerstocks> {
                       Icon(
                         Icons.arrow_forward_rounded,
 
-                        color: Colors.white,
+                        color: context.appOnPrimary,
 
                         size: 18.sp,
                       ),
@@ -668,9 +668,9 @@ class _DealerstocksState extends State<Dealerstocks> {
   Widget _buildProductHeader() {
     return Container(
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: context.appCard,
         borderRadius: BorderRadius.circular(14.r),
-        border: Border.all(color: const Color(0xFFE7ECE8)),
+        border: Border.all(color: context.appBorder),
       ),
 
       child: Column(
@@ -688,13 +688,13 @@ class _DealerstocksState extends State<Dealerstocks> {
                   height: 32.w,
 
                   decoration: BoxDecoration(
-                    color: AppColors.lightGreen,
+                    color: Color.alphaBlend(context.appPrimary.withValues(alpha: 0.1), context.appCard),
                     borderRadius: BorderRadius.circular(8.r),
                   ),
 
                   child: Icon(
                     Icons.inventory_2_outlined,
-                    color: AppColors.primary,
+                    color: context.appPrimary,
                     size: 17.sp,
                   ),
                 ),
@@ -710,7 +710,7 @@ class _DealerstocksState extends State<Dealerstocks> {
                         style: TextStyle(
                           fontSize: 13.sp,
                           fontWeight: FontWeight.w800,
-                          color: AppColors.textPrimary,
+                          color: context.appOnCard,
                         ),
                       ),
 
@@ -718,7 +718,7 @@ class _DealerstocksState extends State<Dealerstocks> {
                         'Add stock quantity',
                         style: TextStyle(
                           fontSize: 9.sp,
-                          color: AppColors.textSecondary,
+                          color: context.appSubText,
                         ),
                       ),
                     ],
@@ -732,13 +732,13 @@ class _DealerstocksState extends State<Dealerstocks> {
                       vertical: 4.h,
                     ),
                     decoration: BoxDecoration(
-                      color: AppColors.lightGreen,
+                      color: Color.alphaBlend(context.appPrimary.withValues(alpha: 0.1), context.appCard),
                       borderRadius: BorderRadius.circular(16.r),
                     ),
                     child: Text(
                       '$_selectedProductCount selected',
                       style: TextStyle(
-                        color: AppColors.primary,
+                        color: context.appPrimary,
                         fontSize: 9.sp,
                         fontWeight: FontWeight.w700,
                       ),
@@ -748,7 +748,7 @@ class _DealerstocksState extends State<Dealerstocks> {
             ),
           ),
 
-          Divider(height: 1, color: const Color(0xFFEDF1EE)),
+          Divider(height: 1, color: context.appBorder),
 
           // ============================================================
           // LOCAL PRODUCT SEARCH
@@ -758,7 +758,7 @@ class _DealerstocksState extends State<Dealerstocks> {
             child: Container(
               height: 40.h,
               decoration: BoxDecoration(
-                color: const Color(0xFFF6F8F6),
+                color: context.appInputBackground,
                 borderRadius: BorderRadius.circular(10.r),
               ),
 
@@ -788,12 +788,12 @@ class _DealerstocksState extends State<Dealerstocks> {
 
                   hintStyle: TextStyle(
                     fontSize: 11.sp,
-                    color: AppColors.textSecondary,
+                    color: context.appSubText,
                   ),
 
                   prefixIcon: Icon(
                     Icons.search_rounded,
-                    color: AppColors.primary,
+                    color: context.appPrimary,
                     size: 18.sp,
                   ),
 
@@ -811,7 +811,7 @@ class _DealerstocksState extends State<Dealerstocks> {
                           child: Icon(
                             Icons.close_rounded,
                             size: 17.sp,
-                            color: AppColors.textSecondary,
+                            color: context.appSubText,
                           ),
                         )
                       : null,
@@ -848,13 +848,13 @@ class _DealerstocksState extends State<Dealerstocks> {
             Container(
               width: 70.w,
               height: 70.w,
-              decoration: const BoxDecoration(
-                color: Color(0xFFEAF4EC),
+              decoration: BoxDecoration(
+                color: Color.alphaBlend(context.appPrimary.withValues(alpha: 0.1), context.appCard),
                 shape: BoxShape.circle,
               ),
               child: Icon(
                 Icons.storefront_rounded,
-                color: AppColors.primary,
+                color: context.appPrimary,
                 size: 32.sp,
               ),
             ),
@@ -866,7 +866,7 @@ class _DealerstocksState extends State<Dealerstocks> {
               style: TextStyle(
                 fontSize: 16.sp,
                 fontWeight: FontWeight.w800,
-                color: AppColors.textPrimary,
+                color: context.appOnCard,
               ),
             ),
 
@@ -878,7 +878,7 @@ class _DealerstocksState extends State<Dealerstocks> {
               style: TextStyle(
                 fontSize: 12.sp,
                 height: 1.4,
-                color: AppColors.textSecondary,
+                color: context.appSubText,
               ),
             ),
           ],

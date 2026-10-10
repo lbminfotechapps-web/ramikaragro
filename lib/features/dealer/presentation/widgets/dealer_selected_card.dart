@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil_plus/flutter_screenutil_plus.dart';
-import 'package:solufine/core/theme/app_colors.dart';
+import 'package:solufine/core/theme/app_dynamic_colors.dart';
 import 'package:solufine/features/place_order/domain/entities/dealer_entity.dart';
 
 class DealerSelectorCard extends StatelessWidget {
@@ -38,11 +38,11 @@ class DealerSelectorCard extends StatelessWidget {
       return Container(
         padding: EdgeInsets.all(13.w),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: context.appCard,
           borderRadius:
               BorderRadius.circular(18.r),
           border: Border.all(
-            color: AppColors.primary
+            color: context.appPrimary
                 .withOpacity(0.18),
           ),
           boxShadow: [
@@ -63,7 +63,7 @@ class DealerSelectorCard extends StatelessWidget {
               decoration:
                   BoxDecoration(
                 color:
-                    AppColors.lightGreen,
+                    Color.alphaBlend(context.appPrimary.withValues(alpha: 0.1), context.appCard),
                 borderRadius:
                     BorderRadius.circular(
                         13.r),
@@ -72,7 +72,7 @@ class DealerSelectorCard extends StatelessWidget {
                 Icons
                     .storefront_rounded,
                 color:
-                    AppColors.primary,
+                    context.appPrimary,
                 size: 22.sp,
               ),
             ),
@@ -92,8 +92,7 @@ class DealerSelectorCard extends StatelessWidget {
                       fontWeight:
                           FontWeight.w700,
                       letterSpacing: 0.8,
-                      color: AppColors
-                          .textSecondary,
+                      color: context.appSubText,
                     ),
                   ),
 
@@ -109,8 +108,7 @@ class DealerSelectorCard extends StatelessWidget {
                       fontSize: 14.sp,
                       fontWeight:
                           FontWeight.w800,
-                      color: AppColors
-                          .textPrimary,
+                      color: context.appOnCard,
                     ),
                   ),
 
@@ -125,8 +123,7 @@ class DealerSelectorCard extends StatelessWidget {
                       style:
                           TextStyle(
                         fontSize: 10.sp,
-                        color: AppColors
-                            .textSecondary,
+                        color: context.appSubText,
                       ),
                     ),
                   ],
@@ -139,8 +136,7 @@ class DealerSelectorCard extends StatelessWidget {
               height: 36.w,
               decoration:
                   BoxDecoration(
-                color: AppColors
-                    .lightGreen,
+                color: Color.alphaBlend(context.appPrimary.withValues(alpha: 0.1), context.appCard),
                 borderRadius:
                     BorderRadius.circular(
                         10.r),
@@ -153,7 +149,7 @@ class DealerSelectorCard extends StatelessWidget {
                 icon: Icon(
                   Icons.edit_rounded,
                   color:
-                      AppColors.primary,
+                      context.appPrimary,
                   size: 18.sp,
                 ),
               ),
@@ -191,7 +187,7 @@ class DealerSelectorCard extends StatelessWidget {
                       .storefront_outlined,
                   size: 17.sp,
                   color:
-                      AppColors.primary,
+                      context.appPrimary,
                 ),
                 SizedBox(width: 6.w),
                 Text(
@@ -200,15 +196,14 @@ class DealerSelectorCard extends StatelessWidget {
                     fontSize: 13.sp,
                     fontWeight:
                         FontWeight.w700,
-                    color: AppColors
-                        .textPrimary,
+                    color: context.appOnCard,
                   ),
                 ),
                 Text(
                   ' *',
                   style: TextStyle(
                     color:
-                        Colors.red,
+                        context.appError,
                     fontSize: 13.sp,
                   ),
                 ),
@@ -220,13 +215,12 @@ class DealerSelectorCard extends StatelessWidget {
             Container(
               decoration:
                   BoxDecoration(
-                color: Colors.white,
+                color: context.appCard,
                 borderRadius:
                     BorderRadius.circular(
                         14.r),
                 border: Border.all(
-                  color: const Color(
-                      0xFFE1E7E2),
+                  color: context.appBorder,
                 ),
               ),
 
@@ -238,12 +232,12 @@ class DealerSelectorCard extends StatelessWidget {
                   hintText: 'Search dealer name or mobile...',
                   hintStyle: TextStyle(
                     fontSize: 12.sp,
-                    color: AppColors.textSecondary,
+                    color: context.appSubText,
                   ),
 
                   prefixIcon: Icon(
                     Icons.search,
-                    color: AppColors.primary,
+                    color: context.appPrimary,
                     size: 20.sp,
                   ),
 
@@ -264,7 +258,7 @@ class DealerSelectorCard extends StatelessWidget {
                       '    Search after 4 characters. After searching wait for 2 sec..!',
                   helperStyle: TextStyle(
                     fontSize: 9.sp,
-                    color: Colors.red,
+                    color: context.appError,
                     fontWeight: FontWeight.w500,
                   ),
                   helperMaxLines: 1,
@@ -292,14 +286,13 @@ class DealerSelectorCard extends StatelessWidget {
                 ),
                 decoration:
                     BoxDecoration(
-                  color: Colors.white,
+                  color: context.appCard,
                   borderRadius:
                       BorderRadius
                           .circular(
                               14.r),
                   border: Border.all(
-                    color: const Color(
-                        0xFFE2E8E3),
+                    color: context.appBorder,
                   ),
                   boxShadow: [
                     BoxShadow(
@@ -328,8 +321,7 @@ class DealerSelectorCard extends StatelessWidget {
                           Divider(
                     height: 1,
                     color:
-                        const Color(
-                            0xFFEEF1EE),
+                        context.appInputBackground,
                   ),
                   itemBuilder:
                       (context, index) {
@@ -374,8 +366,7 @@ class DealerSelectorCard extends StatelessWidget {
                               decoration:
                                   BoxDecoration(
                                 color:
-                                    AppColors
-                                        .lightGreen,
+                                    Color.alphaBlend(context.appPrimary.withValues(alpha: 0.1), context.appCard),
                                 borderRadius:
                                     BorderRadius
                                         .circular(
@@ -386,8 +377,7 @@ class DealerSelectorCard extends StatelessWidget {
                                 Icons
                                     .storefront_rounded,
                                 color:
-                                    AppColors
-                                        .primary,
+                                    context.appPrimary,
                                 size:
                                     19.sp,
                               ),
@@ -424,7 +414,7 @@ class DealerSelectorCard extends StatelessWidget {
                                         fontSize:
                                             10.5.sp,
                                         color:
-                                            AppColors.textSecondary,
+                                            context.appSubText,
                                       ),
                                     ),
                                 ],
@@ -435,8 +425,7 @@ class DealerSelectorCard extends StatelessWidget {
                                   .arrow_forward_ios_rounded,
                               size:
                                   12.sp,
-                              color: AppColors
-                                  .textSecondary,
+                              color: context.appSubText,
                             ),
                           ],
                         ),
