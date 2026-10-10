@@ -30,6 +30,7 @@ import 'package:solufine/features/home/presentation/quick_aceess_bloc/quick_acce
 import 'package:solufine/features/home/presentation/quick_aceess_bloc/quick_acess_bloc.dart';
 import 'package:solufine/features/home/presentation/widgets/notvisited.dart';
 import 'package:solufine/features/home/presentation/widgets/quick_action.dart';
+import 'package:solufine/features/home/presentation/widgets/rotating_home_card.dart';
 import 'package:solufine/features/home/presentation/widgets/todays_overwiew.dart';
 import 'package:solufine/features/home/presentation/widgets/visit_overview.dart';
 import 'package:flutter/material.dart';
@@ -40,6 +41,7 @@ import 'package:dio/dio.dart';
 import 'package:get_it/get_it.dart';
 import 'package:go_router/go_router.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:solufine/features/weather/homeforecastcard.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class Home extends StatefulWidget {
@@ -830,41 +832,47 @@ class _HomeState extends State<Home> {
                         countryState = data.state ?? '';
                       }
 
-                      return Row(
+                      return Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
-                          Expanded(
-                            child: SizedBox(
-                              height: 100.h,
-                              child: buildPunchCard(
-                                "Today's Punch",
-                                punchTiming.isEmpty ? '--' : punchTiming,
-                                [
-                                  city,
-                                  countryState,
-                                ].where((e) => e.isNotEmpty).join(', '),
-                              ),
-                            ),
-                          ),
-
-                          if (pendingTotalCount != 1) ...[
-                            SizedBox(width: 8.w),
-
-                            Expanded(
-                              child: SizedBox(
-                                height: 100.h,
-                                child: buildInfoCard(
-                                  'In Punch Pending',
-                                  '$pendingCount/'
-                                      '$pendingTotalCount',
-                                  onTap: () {
-                                    final pendingList = data?.result ?? [];
-
-                                    _showPendingListDialog(pendingList);
-                                  },
+                          Row(
+                            children: [
+                              Expanded(
+                                child: SizedBox(
+                                  height: 100.h,
+                                  child: buildPunchCard(
+                                    "Today's Punch",
+                                    punchTiming.isEmpty ? '--' : punchTiming,
+                                    [
+                                      city,
+                                      countryState,
+                                    ].where((e) => e.isNotEmpty).join(', '),
+                                  ),
                                 ),
                               ),
-                            ),
-                          ],
+                              SizedBox(width: 8.w),
+                              Expanded(
+                                child: SizedBox(
+                                  height: 100.h,
+                                  child: RotatingHomeCard(
+                                    weather: const HomeForecastCard(
+                                      compact: true,
+                                    ),
+                                    showPending: pendingTotalCount != 1,
+                                    pending: buildInfoCard(
+                                      'In Punch Pending',
+                                      '$pendingCount/$pendingTotalCount',
+                                      onTap: () {
+                                        _showPendingListDialog(
+                                          data?.result ?? [],
+                                        );
+                                      },
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
                         ],
                       );
                     },
