@@ -1,6 +1,6 @@
 import 'package:solufine/core/router/app_router.dart';
 import 'package:solufine/core/secure_storage/secure_storage.dart';
-import 'package:solufine/core/theme/app_colors.dart';
+import 'package:solufine/core/theme/app_dynamic_colors.dart';
 import 'package:solufine/core/utility/appdialog.dart';
 
 import 'package:solufine/core/utility/data_list.dart';
@@ -844,7 +844,7 @@ class _FarmerEditUpdateScrenState extends State<FarmerEditUpdateScren> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.backgroundColor,
+      backgroundColor: context.appBackground,
 
       appBar: CustomAppBar(
         title: 'Farmer Details',
@@ -860,8 +860,8 @@ class _FarmerEditUpdateScrenState extends State<FarmerEditUpdateScren> {
         width: double.infinity,
         height: 52,
         borderRadius: 22,
-        backgroundColor: const Color(0xFF087C3A),
-        textColor: Colors.white,
+        backgroundColor: context.appPrimary,
+        textColor: context.appOnPrimary,
       ),
 
       body: BlocConsumer<StateBloc, StatsState>(
@@ -1192,12 +1192,12 @@ class _FarmerEditUpdateScrenState extends State<FarmerEditUpdateScren> {
 
                     SizedBox(height: 10.h),
 
-                    const Text(
+                    Text(
                       'State *',
                       style: TextStyle(
                         fontSize: 15,
                         fontWeight: FontWeight.w600,
-                        color: Colors.black87,
+                        color: context.appText,
                       ),
                     ),
 
@@ -1225,12 +1225,12 @@ class _FarmerEditUpdateScrenState extends State<FarmerEditUpdateScren> {
                     ),
                     SizedBox(height: 10.h),
 
-                    const Text(
+                    Text(
                       'District *',
                       style: TextStyle(
                         fontSize: 15,
                         fontWeight: FontWeight.w600,
-                        color: Colors.black87,
+                        color: context.appText,
                       ),
                     ),
 
@@ -1258,12 +1258,12 @@ class _FarmerEditUpdateScrenState extends State<FarmerEditUpdateScren> {
                     ),
                     SizedBox(height: 10.h),
 
-                    const Text(
+                    Text(
                       'Taluka *',
                       style: TextStyle(
                         fontSize: 15,
                         fontWeight: FontWeight.w600,
-                        color: Colors.black87,
+                        color: context.appText,
                       ),
                     ),
 
@@ -1297,12 +1297,12 @@ class _FarmerEditUpdateScrenState extends State<FarmerEditUpdateScren> {
                     ),
                     SizedBox(height: 10.h),
 
-                    const Text(
+                    Text(
                       'Status Of Farmer *',
                       style: TextStyle(
                         fontSize: 15,
                         fontWeight: FontWeight.w600,
-                        color: Colors.black87,
+                        color: context.appText,
                       ),
                     ),
 
@@ -1341,12 +1341,12 @@ class _FarmerEditUpdateScrenState extends State<FarmerEditUpdateScren> {
 
                     SizedBox(height: 10.h),
 
-                    const Text(
+                    Text(
                       'Suggested Product *',
                       style: TextStyle(
                         fontSize: 15,
                         fontWeight: FontWeight.w600,
-                        color: Colors.black87,
+                        color: context.appText,
                       ),
                     ),
 
@@ -1419,12 +1419,12 @@ class _FarmerEditUpdateScrenState extends State<FarmerEditUpdateScren> {
 
                     SizedBox(height: 10.h),
 
-                    const Text(
+                    Text(
                       'Crop Details *',
                       style: TextStyle(
                         fontSize: 15,
                         fontWeight: FontWeight.w600,
-                        color: Colors.black87,
+                        color: context.appText,
                       ),
                     ),
 

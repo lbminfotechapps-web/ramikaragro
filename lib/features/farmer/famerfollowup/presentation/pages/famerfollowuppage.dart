@@ -16,6 +16,7 @@ import 'package:solufine/features/farmer/famerfollowup/presentation/bloc/famerfo
 import 'package:solufine/features/farmer/famerfollowup/presentation/bloc/famerfollowup_event.dart';
 import 'package:solufine/features/farmer/famerfollowup/presentation/bloc/famerfollowup_state.dart';
 import 'package:flutter/material.dart';
+import 'package:solufine/core/theme/app_dynamic_colors.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil_plus/flutter_screenutil_plus.dart';
 import 'package:geocoding/geocoding.dart';
@@ -269,14 +270,7 @@ class _FamerFollowupPageState extends State<FamerFollowupPage> {
       lastDate: DateTime(2100),
       builder: (context, child) {
         return Theme(
-          data: Theme.of(context).copyWith(
-            colorScheme: const ColorScheme.light(
-              primary: Color(0xFF087F5B),
-              onPrimary: Colors.white,
-              surface: Colors.white,
-              onSurface: Color(0xFF172B24),
-            ),
-          ),
+          data: Theme.of(context),
           child: child!,
         );
       },
@@ -623,7 +617,7 @@ class _FamerFollowupPageState extends State<FamerFollowupPage> {
       },
 
       child: Scaffold(
-        backgroundColor: const Color(0xFFF6F8F7),
+        backgroundColor: context.appBackground,
 
         // ====================================================
         // APP BAR
@@ -699,7 +693,7 @@ class _FamerFollowupPageState extends State<FamerFollowupPage> {
             return Container(
               padding: const EdgeInsets.fromLTRB(16, 12, 16, 14),
               decoration: BoxDecoration(
-                color: Colors.white,
+                color: context.appCard,
                 boxShadow: [
                   BoxShadow(
                     blurRadius: 15,
@@ -717,25 +711,25 @@ class _FamerFollowupPageState extends State<FamerFollowupPage> {
                     onPressed: loading ? null : _submitFollowup,
 
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF087F5B),
-                      foregroundColor: Colors.white,
+                      backgroundColor: context.appPrimary,
+                      foregroundColor: context.appOnPrimary,
                       elevation: 0,
-                      disabledBackgroundColor: const Color(0xFF9DBDB1),
+                      disabledBackgroundColor: context.appPrimary.withValues(alpha: 0.4),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(16),
                       ),
                     ),
 
                     child: loading
-                        ? const SizedBox(
+                        ? SizedBox(
                             height: 23,
                             width: 23,
                             child: CircularProgressIndicator(
                               strokeWidth: 2.5,
-                              color: Colors.white,
+                              color: context.appOnPrimary,
                             ),
                           )
-                        : const Row(
+                        : Row(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
                               Icon(
@@ -774,18 +768,18 @@ class _FamerFollowupPageState extends State<FamerFollowupPage> {
         Container(
           padding: const EdgeInsets.all(7),
           decoration: BoxDecoration(
-            color: const Color(0xFFE5F3EE),
+            color: Color.alphaBlend(context.appPrimary.withValues(alpha: 0.1), context.appCard),
             borderRadius: BorderRadius.circular(9),
           ),
-          child: Icon(icon, size: 17, color: const Color(0xFF087F5B)),
+          child: Icon(icon, size: 17, color: context.appPrimary),
         ),
 
         const SizedBox(width: 9),
 
         Text(
           title,
-          style: const TextStyle(
-            color: Color(0xFF172B24),
+          style: TextStyle(
+            color: context.appOnCard,
             fontSize: 15,
             fontWeight: FontWeight.w700,
           ),
@@ -796,7 +790,7 @@ class _FamerFollowupPageState extends State<FamerFollowupPage> {
 
   Widget _buildHistoryStrip() {
     return Material(
-      color: Colors.white,
+      color: context.appCard,
       borderRadius: BorderRadius.circular(16),
       child: InkWell(
         onTap: _showFollowupHistory,
@@ -806,7 +800,7 @@ class _FamerFollowupPageState extends State<FamerFollowupPage> {
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: const Color(0xFFDCE5E1)),
+            border: Border.all(color: context.appBorder),
           ),
           child: Row(
             children: [
@@ -814,26 +808,26 @@ class _FamerFollowupPageState extends State<FamerFollowupPage> {
                 height: 40,
                 width: 40,
                 decoration: BoxDecoration(
-                  color: const Color(0xFFE8F5F0),
+                  color: Color.alphaBlend(context.appPrimary.withValues(alpha: 0.1), context.appCard),
                   borderRadius: BorderRadius.circular(12),
                 ),
-                child: const Icon(
+                child: Icon(
                   Icons.history_rounded,
-                  color: Color(0xFF087F5B),
+                  color: context.appPrimary,
                   size: 22,
                 ),
               ),
 
               const SizedBox(width: 12),
 
-              const Expanded(
+              Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
                       'Follow-up History',
                       style: TextStyle(
-                        color: Color(0xFF172B24),
+                        color: context.appOnCard,
                         fontSize: 14,
                         fontWeight: FontWeight.w700,
                       ),
@@ -842,7 +836,7 @@ class _FamerFollowupPageState extends State<FamerFollowupPage> {
                     Text(
                       'View previous farmer follow-ups',
                       style: TextStyle(
-                        color: Color(0xFF7A8983),
+                        color: context.appSubText,
                         fontSize: 11.5,
                       ),
                     ),
@@ -854,13 +848,13 @@ class _FamerFollowupPageState extends State<FamerFollowupPage> {
                 height: 34,
                 width: 34,
                 decoration: BoxDecoration(
-                  color: const Color(0xFFF3F8F6),
+                  color: context.appInputBackground,
                   borderRadius: BorderRadius.circular(10),
                 ),
-                child: const Icon(
+                child: Icon(
                   Icons.arrow_forward_ios_rounded,
                   size: 14,
-                  color: Color(0xFF087F5B),
+                  color: context.appPrimary,
                 ),
               ),
             ],
@@ -896,14 +890,14 @@ class _FamerFollowupPageState extends State<FamerFollowupPage> {
         icon: Icons.call_merge_rounded,
       ),
 
-      hint: const Text(
+      hint: Text(
         'Select follow-up type',
-        style: TextStyle(color: Color(0xFF9AA6A1), fontSize: 14),
+        style: TextStyle(color: context.appSubText, fontSize: 14),
       ),
 
-      icon: const Icon(
+      icon: Icon(
         Icons.keyboard_arrow_down_rounded,
-        color: Color(0xFF087F5B),
+        color: context.appPrimary,
       ),
 
       items: followUpTypes.map((type) {
@@ -911,7 +905,7 @@ class _FamerFollowupPageState extends State<FamerFollowupPage> {
           value: type,
           child: Text(
             type,
-            style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
+            style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
           ),
         );
       }).toList(),
@@ -945,10 +939,10 @@ class _FamerFollowupPageState extends State<FamerFollowupPage> {
       decoration: _inputDecoration(
         label: 'Next Follow-up Date',
         icon: Icons.calendar_today_rounded,
-        suffix: const Icon(
+        suffix: Icon(
           Icons.arrow_forward_ios_rounded,
           size: 14,
-          color: Color(0xFF8C9994),
+          color: context.appSubText,
         ),
       ),
 
@@ -1044,9 +1038,9 @@ class _FamerFollowupPageState extends State<FamerFollowupPage> {
         width: double.infinity,
         height: 170,
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: context.appCard,
           borderRadius: BorderRadius.circular(20),
-          border: Border.all(color: const Color(0xFFD8E5E0), width: 1.2),
+          border: Border.all(color: context.appBorder, width: 1.2),
         ),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -1055,22 +1049,22 @@ class _FamerFollowupPageState extends State<FamerFollowupPage> {
               height: 54,
               width: 54,
               decoration: BoxDecoration(
-                color: const Color(0xFFE8F5F0),
+                color: Color.alphaBlend(context.appPrimary.withValues(alpha: 0.1), context.appCard),
                 borderRadius: BorderRadius.circular(17),
               ),
-              child: const Icon(
+              child: Icon(
                 Icons.add_a_photo_rounded,
-                color: Color(0xFF087F5B),
+                color: context.appPrimary,
                 size: 27,
               ),
             ),
 
             const SizedBox(height: 12),
 
-            const Text(
+            Text(
               'Add Image',
               style: TextStyle(
-                color: Color(0xFF172B24),
+                color: context.appOnCard,
                 fontSize: 14.5,
                 fontWeight: FontWeight.w700,
               ),
@@ -1078,9 +1072,9 @@ class _FamerFollowupPageState extends State<FamerFollowupPage> {
 
             const SizedBox(height: 4),
 
-            const Text(
+            Text(
               'Tap to take a photo',
-              style: TextStyle(color: Color(0xFF8A9792), fontSize: 12),
+              style: TextStyle(color: context.appSubText, fontSize: 12),
             ),
           ],
         ),
@@ -1115,9 +1109,9 @@ class _FamerFollowupPageState extends State<FamerFollowupPage> {
       width: double.infinity,
       padding: const EdgeInsets.all(15),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: context.appCard,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: const Color(0xFFDCE5E1)),
+        border: Border.all(color: context.appBorder),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -1125,12 +1119,12 @@ class _FamerFollowupPageState extends State<FamerFollowupPage> {
           Container(
             padding: const EdgeInsets.all(9),
             decoration: BoxDecoration(
-              color: const Color(0xFFE5F3EE),
+              color: Color.alphaBlend(context.appPrimary.withValues(alpha: 0.1), context.appCard),
               borderRadius: BorderRadius.circular(12),
             ),
-            child: const Icon(
+            child: Icon(
               Icons.location_on_rounded,
-              color: Color(0xFF087F5B),
+              color: context.appPrimary,
               size: 20,
             ),
           ),
@@ -1141,10 +1135,10 @@ class _FamerFollowupPageState extends State<FamerFollowupPage> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text(
+                Text(
                   'Current Location',
                   style: TextStyle(
-                    color: Color(0xFF172B24),
+                    color: context.appOnCard,
                     fontSize: 13.5,
                     fontWeight: FontWeight.w700,
                   ),
@@ -1153,21 +1147,21 @@ class _FamerFollowupPageState extends State<FamerFollowupPage> {
                 const SizedBox(height: 5),
 
                 if (isLocationLoading)
-                  const Row(
+                  Row(
                     children: [
                       SizedBox(
                         height: 14,
                         width: 14,
                         child: CircularProgressIndicator(
                           strokeWidth: 2,
-                          color: Color(0xFF087F5B),
+                          color: context.appPrimary,
                         ),
                       ),
                       SizedBox(width: 8),
                       Text(
                         'Getting location...',
                         style: TextStyle(
-                          color: Color(0xFF7A8983),
+                          color: context.appSubText,
                           fontSize: 12,
                         ),
                       ),
@@ -1180,8 +1174,8 @@ class _FamerFollowupPageState extends State<FamerFollowupPage> {
                       Text(
                         '${latitude!.toStringAsFixed(6)}, '
                         '${longitude!.toStringAsFixed(6)}',
-                        style: const TextStyle(
-                          color: Color(0xFF087F5B),
+                        style: TextStyle(
+                          color: context.appPrimary,
                           fontSize: 12,
                           fontWeight: FontWeight.w600,
                         ),
@@ -1191,8 +1185,8 @@ class _FamerFollowupPageState extends State<FamerFollowupPage> {
                         const SizedBox(height: 4),
                         Text(
                           geoAddress,
-                          style: const TextStyle(
-                            color: Color(0xFF7A8983),
+                          style: TextStyle(
+                            color: context.appSubText,
                             fontSize: 11.5,
                             height: 1.35,
                           ),
@@ -1201,9 +1195,9 @@ class _FamerFollowupPageState extends State<FamerFollowupPage> {
                     ],
                   )
                 else
-                  const Text(
+                  Text(
                     'Location not available',
-                    style: TextStyle(color: Color(0xFF9AA6A1), fontSize: 12),
+                    style: TextStyle(color: context.appSubText, fontSize: 12),
                   ),
               ],
             ),
@@ -1211,9 +1205,9 @@ class _FamerFollowupPageState extends State<FamerFollowupPage> {
 
           IconButton(
             onPressed: isLocationLoading ? null : _getCurrentLocation,
-            icon: const Icon(
+            icon: Icon(
               Icons.refresh_rounded,
-              color: Color(0xFF087F5B),
+              color: context.appPrimary,
               size: 20,
             ),
           ),
@@ -1230,14 +1224,14 @@ class _FamerFollowupPageState extends State<FamerFollowupPage> {
     return Container(
       padding: const EdgeInsets.all(15),
       decoration: BoxDecoration(
-        color: const Color(0xFFEFF7F4),
+        color: Color.alphaBlend(context.appPrimary.withValues(alpha: 0.1), context.appCard),
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: const Color(0xFFDCEBE5)),
+        border: Border.all(color: context.appBorder),
       ),
-      child: const Row(
+      child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(Icons.info_outline_rounded, color: Color(0xFF087F5B), size: 20),
+          Icon(Icons.info_outline_rounded, color: context.appPrimary, size: 20),
 
           SizedBox(width: 10),
 
@@ -1245,7 +1239,7 @@ class _FamerFollowupPageState extends State<FamerFollowupPage> {
             child: Text(
               'Add the next follow-up date and a clear remark so the farmer interaction can be tracked properly.',
               style: TextStyle(
-                color: Color(0xFF557068),
+                color: context.appOnCard,
                 fontSize: 12.5,
                 height: 1.4,
               ),
@@ -1274,45 +1268,45 @@ class _FamerFollowupPageState extends State<FamerFollowupPage> {
       hintText: hintText,
       alignLabelWithHint: alignLabelWithHint,
 
-      prefixIcon: Icon(icon, color: const Color(0xFF087F5B), size: 20),
+      prefixIcon: Icon(icon, color: context.appPrimary, size: 20),
       prefixIconConstraints: prefixIconConstraints,
 
       suffixIcon: suffix,
 
       filled: true,
-      fillColor: Colors.white,
+      fillColor: context.appCard,
 
       contentPadding:
           contentPadding ??
           const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
 
-      labelStyle: const TextStyle(color: Color(0xFF75847E), fontSize: 13.5),
+      labelStyle: TextStyle(color: context.appSubText, fontSize: 13.5),
 
-      hintStyle: const TextStyle(color: Color(0xFF9AA6A1), fontSize: 14),
+      hintStyle: TextStyle(color: context.appSubText, fontSize: 14),
 
       border: OutlineInputBorder(
         borderRadius: BorderRadius.circular(16),
-        borderSide: const BorderSide(color: Color(0xFFDCE5E1)),
+        borderSide: BorderSide(color: context.appBorder),
       ),
 
       enabledBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(16),
-        borderSide: const BorderSide(color: Color(0xFFDCE5E1)),
+        borderSide: BorderSide(color: context.appBorder),
       ),
 
       focusedBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(16),
-        borderSide: const BorderSide(color: Color(0xFF087F5B), width: 1.5),
+        borderSide: BorderSide(color: context.appPrimary, width: 1.5),
       ),
 
       errorBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(16),
-        borderSide: const BorderSide(color: Colors.redAccent),
+        borderSide: BorderSide(color: context.appError),
       ),
 
       focusedErrorBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(16),
-        borderSide: const BorderSide(color: Colors.redAccent, width: 1.5),
+        borderSide: BorderSide(color: context.appError, width: 1.5),
       ),
     );
   }
@@ -1381,7 +1375,7 @@ class _FollowupHistoryDialog extends StatelessWidget {
       child: Container(
         constraints: const BoxConstraints(maxHeight: 650),
         decoration: BoxDecoration(
-          color: const Color(0xFFF6F8F7),
+          color: context.appBackground,
           borderRadius: BorderRadius.circular(24),
         ),
         child: Column(
@@ -1393,7 +1387,7 @@ class _FollowupHistoryDialog extends StatelessWidget {
               child: BlocBuilder<FamerfollowupBloc, FamerfollowupState>(
                 builder: (context, state) {
                   if (state.status == FamerfollowupStatus.loading) {
-                    return const CustomLoader();
+                    return CustomLoader(color: context.appPrimary);
                   }
 
                   if (state.status == FamerfollowupStatus.failure) {
@@ -1401,7 +1395,7 @@ class _FollowupHistoryDialog extends StatelessWidget {
                   }
 
                   if (state.historyList.isEmpty) {
-                    return _buildEmpty();
+                    return _buildEmpty(context);
                   }
 
                   return ListView.separated(
@@ -1412,7 +1406,7 @@ class _FollowupHistoryDialog extends StatelessWidget {
                     itemBuilder: (context, index) {
                       final item = state.historyList[index];
 
-                      return _buildHistoryItem(item);
+                      return _buildHistoryItem(context, item);
                     },
                   );
                 },
@@ -1427,10 +1421,8 @@ class _FollowupHistoryDialog extends StatelessWidget {
   Widget _buildHeader(BuildContext context) {
     return Container(
       padding: const EdgeInsets.fromLTRB(18, 18, 10, 16),
-      decoration: const BoxDecoration(
-        gradient: LinearGradient(
-          colors: [Color(0xFF087F5B), Color(0xFF0B9A70)],
-        ),
+      decoration: BoxDecoration(
+        color: context.appPrimary,
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
       child: Row(
@@ -1439,12 +1431,12 @@ class _FollowupHistoryDialog extends StatelessWidget {
             height: 42,
             width: 42,
             decoration: BoxDecoration(
-              color: Colors.white.withOpacity(.16),
+              color: context.appOnPrimary.withOpacity(.16),
               borderRadius: BorderRadius.circular(13),
             ),
-            child: const Icon(
+            child: Icon(
               Icons.history_rounded,
-              color: Colors.white,
+              color: context.appOnPrimary,
               size: 23,
             ),
           ),
@@ -1455,10 +1447,10 @@ class _FollowupHistoryDialog extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text(
+                Text(
                   'Follow-up History',
                   style: TextStyle(
-                    color: Colors.white,
+                    color: context.appOnPrimary,
                     fontSize: 17,
                     fontWeight: FontWeight.w700,
                   ),
@@ -1469,7 +1461,7 @@ class _FollowupHistoryDialog extends StatelessWidget {
                 Text(
                   'Farmer ID: $farmerId',
                   style: TextStyle(
-                    color: Colors.white.withOpacity(.8),
+                    color: context.appOnPrimary.withOpacity(.8),
                     fontSize: 11.5,
                   ),
                 ),
@@ -1481,20 +1473,20 @@ class _FollowupHistoryDialog extends StatelessWidget {
             onPressed: () {
               Navigator.pop(context);
             },
-            icon: const Icon(Icons.close_rounded, color: Colors.white),
+            icon: Icon(Icons.close_rounded, color: context.appOnPrimary),
           ),
         ],
       ),
     );
   }
 
-  Widget _buildHistoryItem(RemarkListModel item) {
+  Widget _buildHistoryItem(BuildContext context, RemarkListModel item) {
     return Container(
       padding: const EdgeInsets.all(15),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: context.appCard,
         borderRadius: BorderRadius.circular(17),
-        border: Border.all(color: const Color(0xFFDCE5E1)),
+        border: Border.all(color: context.appBorder),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -1505,22 +1497,22 @@ class _FollowupHistoryDialog extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 6),
                 decoration: BoxDecoration(
-                  color: const Color(0xFFE8F5F0),
+                  color: Color.alphaBlend(context.appPrimary.withValues(alpha: 0.1), context.appCard),
                   borderRadius: BorderRadius.circular(9),
                 ),
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    const Icon(
+                    Icon(
                       Icons.calendar_today_rounded,
                       size: 13,
-                      color: Color(0xFF087F5B),
+                      color: context.appPrimary,
                     ),
                     const SizedBox(width: 5),
                     Text(
                       item.fldDate,
-                      style: const TextStyle(
-                        color: Color(0xFF087F5B),
+                      style: TextStyle(
+                        color: context.appPrimary,
                         fontSize: 11.5,
                         fontWeight: FontWeight.w700,
                       ),
@@ -1531,18 +1523,18 @@ class _FollowupHistoryDialog extends StatelessWidget {
 
               const Spacer(),
 
-              const Icon(
+              Icon(
                 Icons.access_time_rounded,
                 size: 15,
-                color: Color(0xFF8A9792),
+                color: context.appSubText,
               ),
 
               const SizedBox(width: 4),
 
               Text(
                 item.fldTime,
-                style: const TextStyle(
-                  color: Color(0xFF7A8983),
+                style: TextStyle(
+                  color: context.appSubText,
                   fontSize: 11.5,
                   fontWeight: FontWeight.w600,
                 ),
@@ -1556,10 +1548,10 @@ class _FollowupHistoryDialog extends StatelessWidget {
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Icon(
+              Icon(
                 Icons.person_outline_rounded,
                 size: 18,
-                color: Color(0xFF087F5B),
+                color: context.appPrimary,
               ),
 
               const SizedBox(width: 8),
@@ -1567,8 +1559,8 @@ class _FollowupHistoryDialog extends StatelessWidget {
               Expanded(
                 child: Text(
                   item.fldAdmName.isEmpty ? '-' : item.fldAdmName,
-                  style: const TextStyle(
-                    color: Color(0xFF172B24),
+                  style: TextStyle(
+                    color: context.appOnCard,
                     fontSize: 13,
                     fontWeight: FontWeight.w700,
                   ),
@@ -1583,10 +1575,10 @@ class _FollowupHistoryDialog extends StatelessWidget {
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Icon(
+              Icon(
                 Icons.storefront_outlined,
                 size: 18,
-                color: Color(0xFF087F5B),
+                color: context.appPrimary,
               ),
 
               const SizedBox(width: 8),
@@ -1594,8 +1586,8 @@ class _FollowupHistoryDialog extends StatelessWidget {
               Expanded(
                 child: Text(
                   item.fldFarmerName.isEmpty ? '-' : item.fldFarmerName,
-                  style: const TextStyle(
-                    color: Color(0xFF53645D),
+                  style: TextStyle(
+                    color: context.appOnCard,
                     fontSize: 12.5,
                     fontWeight: FontWeight.w500,
                   ),
@@ -1611,16 +1603,16 @@ class _FollowupHistoryDialog extends StatelessWidget {
             width: double.infinity,
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
-              color: const Color(0xFFF5F8F6),
+              color: context.appInputBackground,
               borderRadius: BorderRadius.circular(12),
             ),
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Icon(
+                Icon(
                   Icons.notes_rounded,
                   size: 17,
-                  color: Color(0xFF087F5B),
+                  color: context.appPrimary,
                 ),
 
                 const SizedBox(width: 8),
@@ -1628,8 +1620,8 @@ class _FollowupHistoryDialog extends StatelessWidget {
                 Expanded(
                   child: Text(
                     item.fldRemark.isEmpty ? 'No remark' : item.fldRemark,
-                    style: const TextStyle(
-                      color: Color(0xFF40534B),
+                    style: TextStyle(
+                      color: context.appOnCard,
                       fontSize: 12.5,
                       height: 1.4,
                     ),
@@ -1643,8 +1635,8 @@ class _FollowupHistoryDialog extends StatelessWidget {
     );
   }
 
-  Widget _buildEmpty() {
-    return const Center(
+  Widget _buildEmpty(BuildContext context) {
+    return Center(
       child: Padding(
         padding: EdgeInsets.all(30),
         child: Column(
@@ -1653,7 +1645,7 @@ class _FollowupHistoryDialog extends StatelessWidget {
             Icon(
               Icons.history_toggle_off_rounded,
               size: 55,
-              color: Color(0xFFB4C3BD),
+              color: context.appSubText,
             ),
 
             SizedBox(height: 14),
@@ -1661,7 +1653,7 @@ class _FollowupHistoryDialog extends StatelessWidget {
             Text(
               'No Follow-up History',
               style: TextStyle(
-                color: Color(0xFF172B24),
+                color: context.appOnCard,
                 fontSize: 15,
                 fontWeight: FontWeight.w700,
               ),
@@ -1672,7 +1664,7 @@ class _FollowupHistoryDialog extends StatelessWidget {
             Text(
               'No previous follow-ups found for this farmer.',
               textAlign: TextAlign.center,
-              style: TextStyle(color: Color(0xFF7A8983), fontSize: 12),
+              style: TextStyle(color: context.appSubText, fontSize: 12),
             ),
           ],
         ),
@@ -1687,15 +1679,15 @@ class _FollowupHistoryDialog extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Icon(
+            Icon(
               Icons.error_outline_rounded,
               size: 50,
-              color: Colors.redAccent,
+              color: context.appError,
             ),
 
             const SizedBox(height: 12),
 
-            const Text(
+            Text(
               'Unable to load history',
               style: TextStyle(fontSize: 15, fontWeight: FontWeight.w700),
             ),
@@ -1705,7 +1697,7 @@ class _FollowupHistoryDialog extends StatelessWidget {
             Text(
               error ?? 'Something went wrong',
               textAlign: TextAlign.center,
-              style: const TextStyle(color: Color(0xFF7A8983), fontSize: 12),
+              style: TextStyle(color: context.appSubText, fontSize: 12),
             ),
           ],
         ),

@@ -59,8 +59,11 @@ class AppColor {
       // ========================================================
 
       primaryColor: palette.primary,
-      scaffoldBackgroundColor: palette.background,
-      canvasColor: palette.background,
+   scaffoldBackgroundColor:
+    isDark ? Colors.black : Colors.white,
+
+canvasColor:
+    isDark ? Colors.black : Colors.white,
       dividerColor: palette.border,
       disabledColor: palette.textSecondary.withValues(alpha: 0.5),
 

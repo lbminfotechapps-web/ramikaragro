@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:solufine/core/theme/app_dynamic_colors.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil_plus/flutter_screenutil_plus.dart';
 import 'package:fluttertoast/fluttertoast.dart';
@@ -514,24 +515,24 @@ class _AddExpensePageState extends State<AddExpensePage> {
         style: TextStyle(
           fontSize: 12.5.sp,
           fontWeight: FontWeight.w500,
-          color: const Color(0xFF26302B),
+          color: context.appOnCard,
         ),
         decoration: InputDecoration(
           labelText: label,
           labelStyle: TextStyle(
-            color: const Color(0xFF75807A),
+            color: context.appSubText,
             fontSize: 11.5.sp,
           ),
           floatingLabelStyle: TextStyle(
-            color: const Color(0xFF118F49),
+            color: context.appPrimary,
             fontWeight: FontWeight.w600,
             fontSize: 11.5.sp,
           ),
           prefixIcon: icon == null
               ? null
-              : Icon(icon, color: const Color(0xFF13974E), size: 19.sp),
+              : Icon(icon, color: context.appPrimary, size: 19.sp),
           filled: true,
-          fillColor: readOnly ? const Color(0xFFF4F6F5) : Colors.white,
+          fillColor: readOnly ? context.appInputBackground : context.appCard,
           isDense: true,
           contentPadding: EdgeInsets.symmetric(
             horizontal: 12.w,
@@ -539,15 +540,15 @@ class _AddExpensePageState extends State<AddExpensePage> {
           ),
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(12.r),
-            borderSide: const BorderSide(color: Color(0xFFE0E7E3)),
+            borderSide: BorderSide(color: context.appBorder),
           ),
           enabledBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(12.r),
-            borderSide: const BorderSide(color: Color(0xFFE0E7E3)),
+            borderSide: BorderSide(color: context.appBorder),
           ),
           focusedBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(12.r),
-            borderSide: const BorderSide(color: Color(0xFF11934A), width: 1.4),
+            borderSide: BorderSide(color: context.appPrimary, width: 1.4),
           ),
         ),
       ),
@@ -625,7 +626,7 @@ class _AddExpensePageState extends State<AddExpensePage> {
         }
       },
       child: Scaffold(
-        backgroundColor: const Color(0xFFF4F7F5),
+        backgroundColor: context.appBackground,
         appBar: CustomAppBar(
           title: 'Add Expense',
           showBackButton: true,
@@ -634,7 +635,7 @@ class _AddExpensePageState extends State<AddExpensePage> {
         body: BlocBuilder<ExpenseBloc, ExpenseState>(
           builder: (context, state) {
             if (state.status == ExpenseStatus.loading) {
-              return const Center(child: CircularProgressIndicator());
+              return Center(child: CircularProgressIndicator());
             }
 
             if (state.status == ExpenseStatus.loaded &&
@@ -662,19 +663,19 @@ class _AddExpensePageState extends State<AddExpensePage> {
                   else if (state.expStatus == 1)
                     _buildStatus(
                       Icons.check_circle_rounded,
-                      Colors.green,
+                      context.appSuccess,
                       'Expenses Already Entered',
                     )
                   else if (state.expStatus == 2)
                     _buildStatus(
                       Icons.warning_amber_rounded,
-                      Colors.orange,
+                      context.appWarning,
                       'You Have Not Out-Punched Yet',
                     )
                   else
                     _buildStatus(
                       Icons.error_outline_rounded,
-                      Colors.grey,
+                      context.appSubText,
                       'You have not in-punched and out-punched',
                     ),
                 ],
@@ -695,15 +696,11 @@ class _AddExpensePageState extends State<AddExpensePage> {
       width: double.infinity,
       padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 12.h),
       decoration: BoxDecoration(
-        gradient: const LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [Color(0xFF08783D), Color(0xFF12A052)],
-        ),
+        color: context.appPrimary,
         borderRadius: BorderRadius.circular(18.r),
         boxShadow: [
           BoxShadow(
-            color: const Color(0xFF11934A).withOpacity(0.16),
+            color: context.appPrimary.withOpacity(0.16),
             blurRadius: 14,
             offset: const Offset(0, 5),
           ),
@@ -718,7 +715,7 @@ class _AddExpensePageState extends State<AddExpensePage> {
               width: 100.w,
               height: 100.w,
               decoration: BoxDecoration(
-                color: Colors.white.withOpacity(0.06),
+                color: context.appOnPrimary.withOpacity(0.06),
                 shape: BoxShape.circle,
               ),
             ),
@@ -729,12 +726,12 @@ class _AddExpensePageState extends State<AddExpensePage> {
                 width: 44.w,
                 height: 44.w,
                 decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.15),
+                  color: context.appOnPrimary.withOpacity(0.15),
                   borderRadius: BorderRadius.circular(13.r),
                 ),
                 child: Icon(
                   Icons.receipt_long_rounded,
-                  color: Colors.white,
+                  color: context.appOnPrimary,
                   size: 22.sp,
                 ),
               ),
@@ -746,7 +743,7 @@ class _AddExpensePageState extends State<AddExpensePage> {
                     Text(
                       'Daily Expense',
                       style: TextStyle(
-                        color: Colors.white,
+                        color: context.appOnPrimary,
                         fontSize: 16.sp,
                         fontWeight: FontWeight.w700,
                       ),
@@ -757,7 +754,7 @@ class _AddExpensePageState extends State<AddExpensePage> {
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: TextStyle(
-                        color: Colors.white.withOpacity(0.82),
+                        color: context.appOnPrimary.withOpacity(0.82),
                         fontSize: 10.5.sp,
                       ),
                     ),
@@ -767,13 +764,13 @@ class _AddExpensePageState extends State<AddExpensePage> {
               Container(
                 padding: EdgeInsets.symmetric(horizontal: 9.w, vertical: 5.h),
                 decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.15),
+                  color: context.appOnPrimary.withOpacity(0.15),
                   borderRadius: BorderRadius.circular(20.r),
                 ),
                 child: Text(
                   'EXPENSE',
                   style: TextStyle(
-                    color: Colors.white,
+                    color: context.appOnPrimary,
                     fontSize: 8.5.sp,
                     fontWeight: FontWeight.w700,
                   ),
@@ -801,9 +798,9 @@ class _AddExpensePageState extends State<AddExpensePage> {
           width: double.infinity,
           padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 10.h),
           decoration: BoxDecoration(
-            color: Colors.white,
+            color: context.appCard,
             borderRadius: BorderRadius.circular(14.r),
-            border: Border.all(color: const Color(0xFFE3E9E6)),
+            border: Border.all(color: context.appBorder),
           ),
           child: Row(
             children: [
@@ -811,12 +808,12 @@ class _AddExpensePageState extends State<AddExpensePage> {
                 width: 36.w,
                 height: 36.w,
                 decoration: BoxDecoration(
-                  color: const Color(0xFFE7F6EC),
+                  color: Color.alphaBlend(context.appPrimary.withValues(alpha: 0.1), context.appCard),
                   borderRadius: BorderRadius.circular(10.r),
                 ),
                 child: Icon(
                   Icons.calendar_month_rounded,
-                  color: const Color(0xFF11934A),
+                  color: context.appPrimary,
                   size: 18.sp,
                 ),
               ),
@@ -828,7 +825,7 @@ class _AddExpensePageState extends State<AddExpensePage> {
                     Text(
                       'Expense Date',
                       style: TextStyle(
-                        color: const Color(0xFF7C8580),
+                        color: context.appSubText,
                         fontSize: 9.5.sp,
                       ),
                     ),
@@ -836,7 +833,7 @@ class _AddExpensePageState extends State<AddExpensePage> {
                     Text(
                       dateController.text,
                       style: TextStyle(
-                        color: const Color(0xFF26302B),
+                        color: context.appOnCard,
                         fontSize: 13.sp,
                         fontWeight: FontWeight.w700,
                       ),
@@ -846,7 +843,7 @@ class _AddExpensePageState extends State<AddExpensePage> {
               ),
               Icon(
                 Icons.keyboard_arrow_down_rounded,
-                color: const Color(0xFF7D8681),
+                color: context.appSubText,
                 size: 21.sp,
               ),
             ],
@@ -969,9 +966,9 @@ class _AddExpensePageState extends State<AddExpensePage> {
             width: double.infinity,
             padding: EdgeInsets.symmetric(horizontal: 13.w, vertical: 11.h),
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: context.appCard,
               borderRadius: BorderRadius.circular(14.r),
-              border: Border.all(color: const Color(0xFFDCE7E1)),
+              border: Border.all(color: context.appBorder),
             ),
             child: Row(
               children: [
@@ -979,12 +976,12 @@ class _AddExpensePageState extends State<AddExpensePage> {
                   width: 34.w,
                   height: 34.w,
                   decoration: BoxDecoration(
-                    color: const Color(0xFFE7F6EC),
+                    color: Color.alphaBlend(context.appPrimary.withValues(alpha: 0.1), context.appCard),
                     borderRadius: BorderRadius.circular(10.r),
                   ),
                   child: Icon(
                     Icons.add_rounded,
-                    color: const Color(0xFF11934A),
+                    color: context.appPrimary,
                     size: 21.sp,
                   ),
                 ),
@@ -996,7 +993,7 @@ class _AddExpensePageState extends State<AddExpensePage> {
                       Text(
                         'Add Expenses',
                         style: TextStyle(
-                          color: const Color(0xFF26302B),
+                          color: context.appOnCard,
                           fontSize: 12.5.sp,
                           fontWeight: FontWeight.w700,
                         ),
@@ -1006,7 +1003,7 @@ class _AddExpensePageState extends State<AddExpensePage> {
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                         style: TextStyle(
-                          color: const Color(0xFF89928D),
+                          color: context.appSubText,
                           fontSize: 9.5.sp,
                         ),
                       ),
@@ -1015,7 +1012,7 @@ class _AddExpensePageState extends State<AddExpensePage> {
                 ),
                 Icon(
                   Icons.arrow_forward_ios_rounded,
-                  color: const Color(0xFF8B948F),
+                  color: context.appSubText,
                   size: 14.sp,
                 ),
               ],
@@ -1039,14 +1036,14 @@ class _AddExpensePageState extends State<AddExpensePage> {
               hintText: 'Remark',
               prefixIcon: Icon(
                 Icons.edit_note_rounded,
-                color: const Color(0xFF11934A),
+                color: context.appPrimary,
               ),
               filled: true,
-              fillColor: const Color(0xFFF8FAF9),
+              fillColor: context.appInputBackground,
               isDense: true,
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(11.r),
-                borderSide: const BorderSide(color: Color(0xFFE2E8E4)),
+                borderSide: BorderSide(color: context.appBorder),
               ),
             ),
           ),
@@ -1060,8 +1057,8 @@ class _AddExpensePageState extends State<AddExpensePage> {
           child: ElevatedButton(
             style: ElevatedButton.styleFrom(
               elevation: 0,
-              backgroundColor: const Color(0xFF11934A),
-              foregroundColor: Colors.white,
+              backgroundColor: context.appPrimary,
+              foregroundColor: context.appOnPrimary,
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(14.r),
               ),
@@ -1100,16 +1097,16 @@ class _AddExpensePageState extends State<AddExpensePage> {
           width: 29.w,
           height: 29.w,
           decoration: BoxDecoration(
-            color: const Color(0xFFE7F6EC),
+            color: Color.alphaBlend(context.appPrimary.withValues(alpha: 0.1), context.appCard),
             borderRadius: BorderRadius.circular(8.r),
           ),
-          child: Icon(icon, color: const Color(0xFF11934A), size: 15.sp),
+          child: Icon(icon, color: context.appPrimary, size: 15.sp),
         ),
         SizedBox(width: 7.w),
         Text(
           title,
           style: TextStyle(
-            color: const Color(0xFF202823),
+            color: context.appOnCard,
             fontSize: 13.sp,
             fontWeight: FontWeight.w700,
           ),
@@ -1123,9 +1120,9 @@ class _AddExpensePageState extends State<AddExpensePage> {
       width: double.infinity,
       padding: EdgeInsets.all(10.w),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: context.appCard,
         borderRadius: BorderRadius.circular(15.r),
-        border: Border.all(color: const Color(0xFFE5EBE7)),
+        border: Border.all(color: context.appBorder),
       ),
       child: child,
     );
@@ -1141,15 +1138,15 @@ class _AddExpensePageState extends State<AddExpensePage> {
         height: 47.h,
         padding: EdgeInsets.symmetric(horizontal: 11.w),
         decoration: BoxDecoration(
-          color: const Color(0xFFF4F6F5),
+          color: context.appInputBackground,
           borderRadius: BorderRadius.circular(12.r),
-          border: Border.all(color: const Color(0xFFE0E7E3)),
+          border: Border.all(color: context.appBorder),
         ),
         child: Row(
           children: [
             Icon(
               Icons.directions_car_filled_rounded,
-              color: const Color(0xFF11934A),
+              color: context.appPrimary,
               size: 19.sp,
             ),
             SizedBox(width: 9.w),
@@ -1188,11 +1185,11 @@ class _AddExpensePageState extends State<AddExpensePage> {
 
         isDense: true,
 
-        hint: const Text('Select DA Type'),
+        hint: Text('Select DA Type'),
 
         decoration: InputDecoration(
           filled: true,
-          fillColor: Colors.white,
+          fillColor: context.appCard,
           isDense: true,
           border: OutlineInputBorder(borderRadius: BorderRadius.circular(12.r)),
         ),
@@ -1212,10 +1209,10 @@ class _AddExpensePageState extends State<AddExpensePage> {
   //     value: daType,
   //     isExpanded: true,
   //     isDense: true,
-  //     hint: const Text('Select DA Type'),
+  //     hint: Text('Select DA Type'),
   //     decoration: InputDecoration(
   //       filled: true,
-  //       fillColor: Colors.white,
+  //       fillColor: context.appCard,
   //       isDense: true,
   //       border: OutlineInputBorder(borderRadius: BorderRadius.circular(12.r)),
   //     ),
@@ -1236,19 +1233,19 @@ class _AddExpensePageState extends State<AddExpensePage> {
       width: double.infinity,
       padding: EdgeInsets.symmetric(horizontal: 13.w, vertical: 11.h),
       decoration: BoxDecoration(
-        color: const Color(0xFFE8F7EE),
+        color: Color.alphaBlend(context.appPrimary.withValues(alpha: 0.1), context.appCard),
         borderRadius: BorderRadius.circular(14.r),
-        border: Border.all(color: const Color(0xFFD6EBDE)),
+        border: Border.all(color: context.appBorder),
       ),
       child: Row(
         children: [
-          Icon(Icons.payments_rounded, color: const Color(0xFF11934A)),
+          Icon(Icons.payments_rounded, color: context.appPrimary),
           SizedBox(width: 10.w),
-          const Expanded(child: Text('Total Amount')),
+          Expanded(child: Text('Total Amount')),
           Text(
             '₹ ${finalTotalAmount.toStringAsFixed(2)}',
             style: TextStyle(
-              color: const Color(0xFF0C8E44),
+              color: context.appPrimary,
               fontSize: 16.sp,
               fontWeight: FontWeight.w800,
             ),
@@ -1268,7 +1265,7 @@ class _AddExpensePageState extends State<AddExpensePage> {
       margin: EdgeInsets.only(top: 35.h),
       padding: EdgeInsets.symmetric(vertical: 28.h),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: context.appCard,
         borderRadius: BorderRadius.circular(18.r),
       ),
       child: Column(
@@ -1303,7 +1300,7 @@ class _AddExpensePageState extends State<AddExpensePage> {
             height: MediaQuery.of(sheetContext).size.height * 0.82,
             padding: EdgeInsets.fromLTRB(14.w, 10.h, 14.w, 12.h),
             decoration: BoxDecoration(
-              color: const Color(0xFFF8FAF9),
+              color: context.appInputBackground,
               borderRadius: BorderRadius.vertical(top: Radius.circular(22.r)),
             ),
             child: Column(
@@ -1312,7 +1309,7 @@ class _AddExpensePageState extends State<AddExpensePage> {
                   height: 4.h,
                   width: 42.w,
                   decoration: BoxDecoration(
-                    color: const Color(0xFFD5DBD8),
+                    color: context.appBorder,
                     borderRadius: BorderRadius.circular(10.r),
                   ),
                 ),
@@ -1325,12 +1322,12 @@ class _AddExpensePageState extends State<AddExpensePage> {
                       width: 36.w,
                       height: 36.w,
                       decoration: BoxDecoration(
-                        color: const Color(0xFFE7F6EC),
+                        color: Color.alphaBlend(context.appPrimary.withValues(alpha: 0.1), context.appCard),
                         borderRadius: BorderRadius.circular(10.r),
                       ),
                       child: Icon(
                         Icons.photo_library_rounded,
-                        color: const Color(0xFF11934A),
+                        color: context.appPrimary,
                       ),
                     ),
                     SizedBox(width: 9.w),
@@ -1349,7 +1346,7 @@ class _AddExpensePageState extends State<AddExpensePage> {
                             'Enter amount and select receipt from gallery',
                             style: TextStyle(
                               fontSize: 9.5.sp,
-                              color: const Color(0xFF8A938E),
+                              color: context.appSubText,
                             ),
                           ),
                         ],
@@ -1357,7 +1354,7 @@ class _AddExpensePageState extends State<AddExpensePage> {
                     ),
                     IconButton(
                       onPressed: () => Navigator.pop(sheetContext),
-                      icon: const Icon(Icons.close),
+                      icon: Icon(Icons.close),
                     ),
                   ],
                 ),
@@ -1413,7 +1410,7 @@ class _AddExpensePageState extends State<AddExpensePage> {
                     Expanded(
                       child: OutlinedButton(
                         onPressed: () => Navigator.pop(sheetContext),
-                        child: const Text('Cancel'),
+                        child: Text('Cancel'),
                       ),
                     ),
 
@@ -1422,8 +1419,8 @@ class _AddExpensePageState extends State<AddExpensePage> {
                     Expanded(
                       child: ElevatedButton.icon(
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xFF11934A),
-                          foregroundColor: Colors.white,
+                          backgroundColor: context.appPrimary,
+                          foregroundColor: context.appOnPrimary,
                         ),
                         onPressed: () {
                           final currentState = context
@@ -1476,8 +1473,8 @@ class _AddExpensePageState extends State<AddExpensePage> {
 
                           Navigator.pop(sheetContext);
                         },
-                        icon: const Icon(Icons.save),
-                        label: const Text('Save'),
+                        icon: Icon(Icons.save),
+                        label: Text('Save'),
                       ),
                     ),
                   ],
@@ -1501,9 +1498,9 @@ class _AddExpensePageState extends State<AddExpensePage> {
       margin: EdgeInsets.only(bottom: 8.h),
       padding: EdgeInsets.all(9.w),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: context.appCard,
         borderRadius: BorderRadius.circular(14.r),
-        border: Border.all(color: const Color(0xFFE4EAE6)),
+        border: Border.all(color: context.appBorder),
       ),
       child: Row(
         children: [
@@ -1615,15 +1612,15 @@ class _AddExpensePageState extends State<AddExpensePage> {
                     bottom: 2.w,
                     child: Container(
                       padding: EdgeInsets.all(4.w),
-                      decoration: const BoxDecoration(
-                        color: Color(0xFF11934A),
+                      decoration: BoxDecoration(
+                        color: context.appPrimary,
                         shape: BoxShape.circle,
                       ),
                       child: Icon(
                         // CHANGED CAMERA ICON -> GALLERY ICON
                         Icons.photo_library_rounded,
                         size: 11.sp,
-                        color: Colors.white,
+                        color: context.appOnPrimary,
                       ),
                     ),
                   ),
@@ -1647,7 +1644,7 @@ class _AddExpensePageState extends State<AddExpensePage> {
                   style: TextStyle(
                     fontWeight: FontWeight.w700,
                     fontSize: 12.sp,
-                    color: const Color(0xFF26302B),
+                    color: context.appOnCard,
                   ),
                 ),
 
@@ -1672,8 +1669,8 @@ class _AddExpensePageState extends State<AddExpensePage> {
                       filled: true,
 
                       fillColor: isTravelExpense
-                          ? const Color(0xFFF2F5F3)
-                          : const Color(0xFFF9FBFA),
+                          ? context.appInputBackground
+                          : context.appInputBackground,
 
                       isDense: true,
 
@@ -1688,7 +1685,7 @@ class _AddExpensePageState extends State<AddExpensePage> {
 
                       focusedBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(9.r),
-                        borderSide: const BorderSide(color: Color(0xFF11934A)),
+                        borderSide: BorderSide(color: context.appPrimary),
                       ),
                     ),
 
@@ -1732,7 +1729,7 @@ class _AddExpensePageState extends State<AddExpensePage> {
       height: 58.w,
       width: 58.w,
       decoration: BoxDecoration(
-        color: const Color(0xFFF0F4F2),
+        color: context.appInputBackground,
         borderRadius: BorderRadius.circular(11.r),
       ),
       child: Icon(
@@ -1740,7 +1737,7 @@ class _AddExpensePageState extends State<AddExpensePage> {
             ? Icons.directions_car_rounded
             // CHANGED CAMERA -> GALLERY
             : Icons.photo_library_outlined,
-        color: const Color(0xFF89928D),
+        color: context.appSubText,
         size: 21.sp,
       ),
     );

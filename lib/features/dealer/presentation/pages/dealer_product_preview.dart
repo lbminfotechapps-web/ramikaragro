@@ -12,7 +12,7 @@ import 'package:signature/signature.dart';
 import 'package:solufine/core/router/app_router.dart';
 import 'package:solufine/core/secure_storage/secure_storage.dart';
 
-import 'package:solufine/core/theme/app_colors.dart';
+import 'package:solufine/core/theme/app_dynamic_colors.dart';
 
 import 'package:solufine/core/utility/location_util.dart';
 import 'package:solufine/core/utility/widgets/custom_appbar.dart';
@@ -240,7 +240,7 @@ class _DealerProductPreviewPageState extends State<DealerProductPreviewPage> {
             padding: EdgeInsets.all(18.w),
 
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: context.appCard,
               borderRadius: BorderRadius.circular(18.r),
             ),
 
@@ -251,14 +251,14 @@ class _DealerProductPreviewPageState extends State<DealerProductPreviewPage> {
                 Container(
                   width: 62.w,
                   height: 62.w,
-                  decoration: const BoxDecoration(
-                    color: AppColors.lightGreen,
+                  decoration: BoxDecoration(
+                    color: Color.alphaBlend(context.appPrimary.withValues(alpha: 0.1), context.appCard),
                     shape: BoxShape.circle,
                   ),
                   child: Icon(
                     Icons.shopping_cart_checkout_rounded,
                     size: 30.sp,
-                    color: AppColors.primary,
+                    color: context.appPrimary,
                   ),
                 ),
 
@@ -270,7 +270,7 @@ class _DealerProductPreviewPageState extends State<DealerProductPreviewPage> {
                   style: TextStyle(
                     fontSize: 17.sp,
                     fontWeight: FontWeight.w800,
-                    color: AppColors.textPrimary,
+                    color: context.appOnCard,
                   ),
                 ),
 
@@ -282,7 +282,7 @@ class _DealerProductPreviewPageState extends State<DealerProductPreviewPage> {
                   style: TextStyle(
                     fontSize: 12.sp,
                     height: 1.4,
-                    color: AppColors.textSecondary,
+                    color: context.appSubText,
                   ),
                 ),
 
@@ -297,11 +297,11 @@ class _DealerProductPreviewPageState extends State<DealerProductPreviewPage> {
                   padding: EdgeInsets.all(11.w),
 
                   decoration: BoxDecoration(
-                    color: const Color(0xFFF6F8F6),
+                    color: context.appInputBackground,
 
                     borderRadius: BorderRadius.circular(11.r),
 
-                    border: Border.all(color: const Color(0xFFE4E9E5)),
+                    border: Border.all(color: context.appBorder),
                   ),
 
                   child: Column(
@@ -362,9 +362,9 @@ class _DealerProductPreviewPageState extends State<DealerProductPreviewPage> {
                           },
 
                           style: OutlinedButton.styleFrom(
-                            foregroundColor: AppColors.textSecondary,
+                            foregroundColor: context.appSubText,
 
-                            side: const BorderSide(color: Color(0xFFD6DDD8)),
+                            side: BorderSide(color: context.appBorder),
 
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(11.r),
@@ -395,9 +395,9 @@ class _DealerProductPreviewPageState extends State<DealerProductPreviewPage> {
                           },
 
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: AppColors.primary,
+                            backgroundColor: context.appPrimary,
 
-                            foregroundColor: Colors.white,
+                            foregroundColor: context.appOnPrimary,
 
                             elevation: 0,
 
@@ -751,7 +751,7 @@ class _DealerProductPreviewPageState extends State<DealerProductPreviewPage> {
       ..showSnackBar(
         SnackBar(
           content: Text(message),
-          backgroundColor: isError ? Colors.redAccent : AppColors.primary,
+          backgroundColor: isError ? context.appError : context.appPrimary,
           behavior: SnackBarBehavior.floating,
         ),
       );
@@ -778,7 +778,7 @@ class _DealerProductPreviewPageState extends State<DealerProductPreviewPage> {
             padding: EdgeInsets.all(20.w),
 
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: context.appCard,
 
               borderRadius: BorderRadius.circular(20.r),
             ),
@@ -794,8 +794,8 @@ class _DealerProductPreviewPageState extends State<DealerProductPreviewPage> {
                   width: 72.w,
                   height: 72.w,
 
-                  decoration: const BoxDecoration(
-                    color: AppColors.lightGreen,
+                  decoration: BoxDecoration(
+                    color: Color.alphaBlend(context.appPrimary.withValues(alpha: 0.1), context.appCard),
                     shape: BoxShape.circle,
                   ),
 
@@ -805,15 +805,15 @@ class _DealerProductPreviewPageState extends State<DealerProductPreviewPage> {
                     width: 52.w,
                     height: 52.w,
 
-                    decoration: const BoxDecoration(
-                      color: AppColors.primary,
+                    decoration: BoxDecoration(
+                      color: context.appPrimary,
                       shape: BoxShape.circle,
                     ),
 
                     child: Icon(
                       Icons.check_rounded,
                       size: 32.sp,
-                      color: Colors.white,
+                      color: context.appOnPrimary,
                     ),
                   ),
                 ),
@@ -827,7 +827,7 @@ class _DealerProductPreviewPageState extends State<DealerProductPreviewPage> {
                   style: TextStyle(
                     fontSize: 18.sp,
                     fontWeight: FontWeight.w800,
-                    color: AppColors.textPrimary,
+                    color: context.appOnCard,
                   ),
                 ),
 
@@ -841,7 +841,7 @@ class _DealerProductPreviewPageState extends State<DealerProductPreviewPage> {
                     fontSize: 12.sp,
                     height: 1.4,
                     fontWeight: FontWeight.w500,
-                    color: AppColors.textSecondary,
+                    color: context.appSubText,
                   ),
                 ),
 
@@ -862,9 +862,9 @@ class _DealerProductPreviewPageState extends State<DealerProductPreviewPage> {
                     },
 
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: AppColors.primary,
+                      backgroundColor: context.appPrimary,
 
-                      foregroundColor: Colors.white,
+                      foregroundColor: context.appOnPrimary,
 
                       elevation: 0,
 
@@ -903,7 +903,7 @@ class _DealerProductPreviewPageState extends State<DealerProductPreviewPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF5F7F5),
+      backgroundColor: context.appBackground,
 
       appBar: CustomAppBar(
         title: 'Stock Preview',
@@ -1030,11 +1030,11 @@ class _DealerProductPreviewPageState extends State<DealerProductPreviewPage> {
                     constraints: BoxConstraints(maxHeight: 280.h),
 
                     decoration: BoxDecoration(
-                      color: Colors.white,
+                      color: context.appCard,
 
                       borderRadius: BorderRadius.circular(14.r),
 
-                      border: Border.all(color: const Color(0xFFE5EAE6)),
+                      border: Border.all(color: context.appBorder),
                     ),
 
                     child: widget.products.length <= 3
@@ -1199,9 +1199,9 @@ class _DealerProductPreviewPageState extends State<DealerProductPreviewPage> {
 
             borderRadius: 22,
 
-            backgroundColor: const Color(0xFF087C3A),
+            backgroundColor: context.appPrimary,
 
-            textColor: Colors.white,
+            textColor: context.appOnPrimary,
           ),
         ),
       ),
@@ -1218,11 +1218,11 @@ class _DealerProductPreviewPageState extends State<DealerProductPreviewPage> {
           width: 26.w,
           height: 26.w,
           decoration: BoxDecoration(
-            color: AppColors.lightGreen,
+            color: Color.alphaBlend(context.appPrimary.withValues(alpha: 0.1), context.appCard),
             borderRadius: BorderRadius.circular(7.r),
           ),
           alignment: Alignment.center,
-          child: Icon(icon, size: 14.sp, color: AppColors.primary),
+          child: Icon(icon, size: 14.sp, color: context.appPrimary),
         ),
 
         SizedBox(width: 6.w),
@@ -1235,7 +1235,7 @@ class _DealerProductPreviewPageState extends State<DealerProductPreviewPage> {
             style: TextStyle(
               fontSize: 10.sp,
               fontWeight: FontWeight.w800,
-              color: AppColors.textPrimary,
+              color: context.appOnCard,
             ),
           ),
         ),
@@ -1254,10 +1254,10 @@ class _DealerProductPreviewPageState extends State<DealerProductPreviewPage> {
           width: 28.w,
           height: 28.w,
           decoration: BoxDecoration(
-            color: AppColors.lightGreen,
+            color: Color.alphaBlend(context.appPrimary.withValues(alpha: 0.1), context.appCard),
             borderRadius: BorderRadius.circular(7.r),
           ),
-          child: Icon(icon, size: 14.sp, color: AppColors.primary),
+          child: Icon(icon, size: 14.sp, color: context.appPrimary),
         ),
 
         SizedBox(width: 8.w),
@@ -1268,7 +1268,7 @@ class _DealerProductPreviewPageState extends State<DealerProductPreviewPage> {
             style: TextStyle(
               fontSize: 10.5.sp,
               fontWeight: FontWeight.w600,
-              color: AppColors.textSecondary,
+              color: context.appSubText,
             ),
           ),
         ),
@@ -1282,7 +1282,7 @@ class _DealerProductPreviewPageState extends State<DealerProductPreviewPage> {
             style: TextStyle(
               fontSize: 11.sp,
               fontWeight: FontWeight.w800,
-              color: AppColors.textPrimary,
+              color: context.appOnCard,
             ),
           ),
         ),
@@ -1296,9 +1296,9 @@ class _DealerProductPreviewPageState extends State<DealerProductPreviewPage> {
       height: 145.h,
 
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: context.appCard,
         borderRadius: BorderRadius.circular(12.r),
-        border: Border.all(color: const Color(0xFFE4EAE5)),
+        border: Border.all(color: context.appBorder),
       ),
 
       clipBehavior: Clip.antiAlias,
@@ -1313,7 +1313,7 @@ class _DealerProductPreviewPageState extends State<DealerProductPreviewPage> {
                 Image.file(File(dealerImagePath!), fit: BoxFit.cover),
 
                 // ======================================================
-                // DARK GRADIENT
+                // SOLID THEME COLOR
                 // ======================================================
                 Positioned(
                   left: 0,
@@ -1322,14 +1322,7 @@ class _DealerProductPreviewPageState extends State<DealerProductPreviewPage> {
                   child: Container(
                     height: 42.h,
                     decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        begin: Alignment.topCenter,
-                        end: Alignment.bottomCenter,
-                        colors: [
-                          Colors.transparent,
-                          Colors.black.withOpacity(0.55),
-                        ],
-                      ),
+                      color: context.appPrimary,
                     ),
                   ),
                 ),
@@ -1358,7 +1351,7 @@ class _DealerProductPreviewPageState extends State<DealerProductPreviewPage> {
                           Icon(
                             Icons.camera_alt_rounded,
                             size: 12.sp,
-                            color: Colors.white,
+                            color: context.appOnPrimary,
                           ),
                           SizedBox(width: 3.w),
                           Text(
@@ -1366,7 +1359,7 @@ class _DealerProductPreviewPageState extends State<DealerProductPreviewPage> {
                             style: TextStyle(
                               fontSize: 8.sp,
                               fontWeight: FontWeight.w700,
-                              color: Colors.white,
+                              color: context.appOnPrimary,
                             ),
                           ),
                         ],
@@ -1388,14 +1381,14 @@ class _DealerProductPreviewPageState extends State<DealerProductPreviewPage> {
                       width: 28.w,
                       height: 28.w,
                       decoration: BoxDecoration(
-                        color: Colors.redAccent,
+                        color: context.appError,
                         shape: BoxShape.circle,
                       ),
                       alignment: Alignment.center,
                       child: Icon(
                         Icons.delete_outline_rounded,
                         size: 15.sp,
-                        color: Colors.white,
+                        color: context.appOnPrimary,
                       ),
                     ),
                   ),
@@ -1415,8 +1408,8 @@ class _DealerProductPreviewPageState extends State<DealerProductPreviewPage> {
                     width: 40.w,
                     height: 40.w,
 
-                    decoration: const BoxDecoration(
-                      color: AppColors.lightGreen,
+                    decoration: BoxDecoration(
+                      color: Color.alphaBlend(context.appPrimary.withValues(alpha: 0.1), context.appCard),
                       shape: BoxShape.circle,
                     ),
 
@@ -1425,7 +1418,7 @@ class _DealerProductPreviewPageState extends State<DealerProductPreviewPage> {
                     child: Icon(
                       Icons.photo_camera_rounded,
                       size: 20.sp,
-                      color: AppColors.primary,
+                      color: context.appPrimary,
                     ),
                   ),
 
@@ -1436,7 +1429,7 @@ class _DealerProductPreviewPageState extends State<DealerProductPreviewPage> {
                     style: TextStyle(
                       fontSize: 10.sp,
                       fontWeight: FontWeight.w700,
-                      color: AppColors.textPrimary,
+                      color: context.appOnCard,
                     ),
                   ),
 
@@ -1447,7 +1440,7 @@ class _DealerProductPreviewPageState extends State<DealerProductPreviewPage> {
                     textAlign: TextAlign.center,
                     style: TextStyle(
                       fontSize: 8.sp,
-                      color: AppColors.textSecondary,
+                      color: context.appSubText,
                     ),
                   ),
                 ],
@@ -1462,9 +1455,9 @@ class _DealerProductPreviewPageState extends State<DealerProductPreviewPage> {
       height: 145.h,
 
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: context.appCard,
         borderRadius: BorderRadius.circular(12.r),
-        border: Border.all(color: const Color(0xFFE4EAE5)),
+        border: Border.all(color: context.appBorder),
       ),
 
       clipBehavior: Clip.antiAlias,
@@ -1489,9 +1482,9 @@ class _DealerProductPreviewPageState extends State<DealerProductPreviewPage> {
 
             padding: EdgeInsets.symmetric(horizontal: 7.w),
 
-            decoration: const BoxDecoration(
-              color: Color(0xFFF7F9F7),
-              border: Border(top: BorderSide(color: Color(0xFFE7ECE8))),
+            decoration: BoxDecoration(
+              color: context.appInputBackground,
+              border: Border(top: BorderSide(color: context.appBorder)),
             ),
 
             child: Row(
@@ -1499,7 +1492,7 @@ class _DealerProductPreviewPageState extends State<DealerProductPreviewPage> {
                 Icon(
                   Icons.gesture_rounded,
                   size: 13.sp,
-                  color: AppColors.textSecondary,
+                  color: context.appSubText,
                 ),
 
                 SizedBox(width: 4.w),
@@ -1509,7 +1502,7 @@ class _DealerProductPreviewPageState extends State<DealerProductPreviewPage> {
                     'Sign here',
                     style: TextStyle(
                       fontSize: 8.sp,
-                      color: AppColors.textSecondary,
+                      color: context.appSubText,
                     ),
                   ),
                 ),
@@ -1526,7 +1519,7 @@ class _DealerProductPreviewPageState extends State<DealerProductPreviewPage> {
                         Icon(
                           Icons.refresh_rounded,
                           size: 13.sp,
-                          color: Colors.redAccent,
+                          color: context.appError,
                         ),
 
                         SizedBox(width: 2.w),
@@ -1536,7 +1529,7 @@ class _DealerProductPreviewPageState extends State<DealerProductPreviewPage> {
                           style: TextStyle(
                             fontSize: 8.sp,
                             fontWeight: FontWeight.w700,
-                            color: Colors.redAccent,
+                            color: context.appError,
                           ),
                         ),
                       ],
@@ -1558,11 +1551,11 @@ class _DealerProductPreviewPageState extends State<DealerProductPreviewPage> {
       padding: EdgeInsets.all(12.w),
 
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: context.appCard,
 
         borderRadius: BorderRadius.circular(14.r),
 
-        border: Border.all(color: const Color(0xFFE5EAE6)),
+        border: Border.all(color: context.appBorder),
       ),
 
       child: Row(
@@ -1571,8 +1564,8 @@ class _DealerProductPreviewPageState extends State<DealerProductPreviewPage> {
             width: 42.w,
             height: 42.w,
 
-            decoration: const BoxDecoration(
-              color: AppColors.lightGreen,
+            decoration: BoxDecoration(
+              color: Color.alphaBlend(context.appPrimary.withValues(alpha: 0.1), context.appCard),
 
               shape: BoxShape.circle,
             ),
@@ -1580,7 +1573,7 @@ class _DealerProductPreviewPageState extends State<DealerProductPreviewPage> {
             child: Icon(
               Icons.storefront_rounded,
 
-              color: AppColors.primary,
+              color: context.appPrimary,
 
               size: 21.sp,
             ),
@@ -1598,7 +1591,7 @@ class _DealerProductPreviewPageState extends State<DealerProductPreviewPage> {
                   style: TextStyle(
                     fontSize: 9.sp,
 
-                    color: AppColors.textSecondary,
+                    color: context.appSubText,
                   ),
                 ),
 
@@ -1616,7 +1609,7 @@ class _DealerProductPreviewPageState extends State<DealerProductPreviewPage> {
 
                     fontWeight: FontWeight.w800,
 
-                    color: AppColors.textPrimary,
+                    color: context.appOnCard,
                   ),
                 ),
               ],
@@ -1626,7 +1619,7 @@ class _DealerProductPreviewPageState extends State<DealerProductPreviewPage> {
           Icon(
             Icons.check_circle_rounded,
 
-            color: AppColors.primary,
+            color: context.appPrimary,
 
             size: 20.sp,
           ),
@@ -1646,11 +1639,11 @@ class _DealerProductPreviewPageState extends State<DealerProductPreviewPage> {
       padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 10.h),
 
       decoration: BoxDecoration(
-        color: AppColors.lightGreen,
+        color: Color.alphaBlend(context.appPrimary.withValues(alpha: 0.1), context.appCard),
 
         borderRadius: BorderRadius.circular(12.r),
 
-        border: Border.all(color: AppColors.primary.withOpacity(0.15)),
+        border: Border.all(color: context.appPrimary.withOpacity(0.15)),
       ),
 
       child: Row(
@@ -1666,7 +1659,7 @@ class _DealerProductPreviewPageState extends State<DealerProductPreviewPage> {
           Container(
             height: 32.h,
             width: 1,
-            color: AppColors.primary.withOpacity(0.15),
+            color: context.appPrimary.withOpacity(0.15),
           ),
 
           Expanded(
@@ -1690,7 +1683,7 @@ class _DealerProductPreviewPageState extends State<DealerProductPreviewPage> {
       mainAxisAlignment: MainAxisAlignment.center,
 
       children: [
-        Icon(icon, size: 18.sp, color: AppColors.primary),
+        Icon(icon, size: 18.sp, color: context.appPrimary),
 
         SizedBox(width: 6.w),
 
@@ -1703,7 +1696,7 @@ class _DealerProductPreviewPageState extends State<DealerProductPreviewPage> {
               style: TextStyle(
                 fontSize: 14.sp,
                 fontWeight: FontWeight.w900,
-                color: AppColors.primary,
+                color: context.appPrimary,
               ),
             ),
 
@@ -1711,7 +1704,7 @@ class _DealerProductPreviewPageState extends State<DealerProductPreviewPage> {
               subtitle,
               style: TextStyle(
                 fontSize: 8.5.sp,
-                color: AppColors.textSecondary,
+                color: context.appSubText,
               ),
             ),
           ],
@@ -1735,11 +1728,11 @@ class _DealerProductPreviewPageState extends State<DealerProductPreviewPage> {
       padding: EdgeInsets.all(11.w),
 
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: context.appCard,
 
         borderRadius: BorderRadius.circular(12.r),
 
-        border: Border.all(color: const Color(0xFFE5EAE6)),
+        border: Border.all(color: context.appBorder),
       ),
 
       child: Row(
@@ -1752,7 +1745,7 @@ class _DealerProductPreviewPageState extends State<DealerProductPreviewPage> {
             alignment: Alignment.center,
 
             decoration: BoxDecoration(
-              color: AppColors.lightGreen,
+              color: Color.alphaBlend(context.appPrimary.withValues(alpha: 0.1), context.appCard),
 
               borderRadius: BorderRadius.circular(8.r),
             ),
@@ -1761,7 +1754,7 @@ class _DealerProductPreviewPageState extends State<DealerProductPreviewPage> {
               '${index + 1}',
 
               style: TextStyle(
-                color: AppColors.primary,
+                color: context.appPrimary,
 
                 fontSize: 10.sp,
 
@@ -1790,7 +1783,7 @@ class _DealerProductPreviewPageState extends State<DealerProductPreviewPage> {
 
                     fontWeight: FontWeight.w800,
 
-                    color: AppColors.textPrimary,
+                    color: context.appOnCard,
                   ),
                 ),
 
@@ -1823,7 +1816,7 @@ class _DealerProductPreviewPageState extends State<DealerProductPreviewPage> {
             padding: EdgeInsets.symmetric(horizontal: 9.w, vertical: 7.h),
 
             decoration: BoxDecoration(
-              color: AppColors.primary,
+              color: context.appPrimary,
 
               borderRadius: BorderRadius.circular(9.r),
             ),
@@ -1838,7 +1831,7 @@ class _DealerProductPreviewPageState extends State<DealerProductPreviewPage> {
 
                     fontWeight: FontWeight.w600,
 
-                    color: Colors.white.withOpacity(0.75),
+                    color: context.appOnPrimary.withOpacity(0.75),
                   ),
                 ),
 
@@ -1850,7 +1843,7 @@ class _DealerProductPreviewPageState extends State<DealerProductPreviewPage> {
 
                     fontWeight: FontWeight.w900,
 
-                    color: Colors.white,
+                    color: context.appOnPrimary,
                   ),
                 ),
               ],
@@ -1866,7 +1859,7 @@ class _DealerProductPreviewPageState extends State<DealerProductPreviewPage> {
       padding: EdgeInsets.symmetric(horizontal: 6.w, vertical: 3.h),
 
       decoration: BoxDecoration(
-        color: const Color(0xFFF3F6F3),
+        color: context.appInputBackground,
 
         borderRadius: BorderRadius.circular(5.r),
       ),
@@ -1879,7 +1872,7 @@ class _DealerProductPreviewPageState extends State<DealerProductPreviewPage> {
 
           fontWeight: FontWeight.w600,
 
-          color: AppColors.textSecondary,
+          color: context.appSubText,
         ),
       ),
     );
@@ -1898,30 +1891,30 @@ class _DealerProductPreviewPageState extends State<DealerProductPreviewPage> {
       decoration: InputDecoration(
         hintText: 'Enter remark...',
 
-        hintStyle: TextStyle(fontSize: 11.sp, color: AppColors.textSecondary),
+        hintStyle: TextStyle(fontSize: 11.sp, color: context.appSubText),
 
         filled: true,
 
-        fillColor: Colors.white,
+        fillColor: context.appCard,
 
         contentPadding: EdgeInsets.all(12.w),
 
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12.r),
 
-          borderSide: const BorderSide(color: Color(0xFFE5EAE6)),
+          borderSide: BorderSide(color: context.appBorder),
         ),
 
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12.r),
 
-          borderSide: const BorderSide(color: Color(0xFFE5EAE6)),
+          borderSide: BorderSide(color: context.appBorder),
         ),
 
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12.r),
 
-          borderSide: const BorderSide(color: AppColors.primary, width: 1.3),
+          borderSide: BorderSide(color: context.appPrimary, width: 1.3),
         ),
       ),
     );
@@ -1939,12 +1932,12 @@ class _DealerProductPreviewPageState extends State<DealerProductPreviewPage> {
           height: 31.w,
 
           decoration: BoxDecoration(
-            color: AppColors.lightGreen,
+            color: Color.alphaBlend(context.appPrimary.withValues(alpha: 0.1), context.appCard),
 
             borderRadius: BorderRadius.circular(8.r),
           ),
 
-          child: Icon(icon, color: AppColors.primary, size: 16.sp),
+          child: Icon(icon, color: context.appPrimary, size: 16.sp),
         ),
 
         SizedBox(width: 8.w),
@@ -1962,7 +1955,7 @@ class _DealerProductPreviewPageState extends State<DealerProductPreviewPage> {
 
                   fontWeight: FontWeight.w800,
 
-                  color: AppColors.textPrimary,
+                  color: context.appOnCard,
                 ),
               ),
 
@@ -1972,7 +1965,7 @@ class _DealerProductPreviewPageState extends State<DealerProductPreviewPage> {
                 style: TextStyle(
                   fontSize: 9.sp,
 
-                  color: AppColors.textSecondary,
+                  color: context.appSubText,
                 ),
               ),
             ],

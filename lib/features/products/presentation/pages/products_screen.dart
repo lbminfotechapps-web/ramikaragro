@@ -281,6 +281,7 @@ class _ProductCategoryScreenState extends State<ProductCategoryScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+          // backgroundColor: Colors.white,
       backgroundColor: context.appBackground,
       appBar: CustomAppBar(
         title: 'Product Category',

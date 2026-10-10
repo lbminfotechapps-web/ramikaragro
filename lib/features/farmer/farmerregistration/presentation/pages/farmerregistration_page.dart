@@ -6,7 +6,7 @@ import 'package:solufine/core/location_tracking/app_database.dart';
 import 'package:solufine/core/location_tracking/location_repository.dart';
 import 'package:solufine/core/router/app_router.dart';
 import 'package:solufine/core/secure_storage/secure_storage.dart';
-import 'package:solufine/core/theme/app_colors.dart';
+import 'package:solufine/core/theme/app_dynamic_colors.dart';
 import 'package:solufine/core/utility/app_image_picker.dart';
 import 'package:solufine/core/utility/appdialog.dart';
 import 'package:solufine/core/utility/cameracapturepage.dart';
@@ -779,7 +779,7 @@ class _FarmerregistrationPageState extends State<FarmerregistrationPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: context.appBackground,
       appBar: CustomAppBar(
         title: 'Farmer Registration Form',
         showBackButton: true,
@@ -795,8 +795,8 @@ class _FarmerregistrationPageState extends State<FarmerregistrationPage> {
             width: double.infinity,
             height: 52,
             borderRadius: 22,
-            backgroundColor: const Color(0xFF087C3A),
-            textColor: Colors.white,
+            backgroundColor: context.appPrimary,
+            textColor: context.appOnPrimary,
           );
         },
       ),
@@ -842,7 +842,7 @@ class _FarmerregistrationPageState extends State<FarmerregistrationPage> {
             });
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
-                backgroundColor: AppColors.darkErrorColor,
+                backgroundColor: context.appError,
                 content: Text(state.errorMessage ?? 'Submission failed'),
               ),
             );
@@ -1057,12 +1057,12 @@ class _FarmerregistrationPageState extends State<FarmerregistrationPage> {
 
                     SizedBox(height: 10.h),
 
-                    const Text(
+                    Text(
                       'State *',
                       style: TextStyle(
                         fontSize: 15,
                         fontWeight: FontWeight.w600,
-                        color: Colors.black87,
+                        color: context.appOnCard,
                       ),
                     ),
 
@@ -1098,12 +1098,12 @@ class _FarmerregistrationPageState extends State<FarmerregistrationPage> {
 
                     SizedBox(height: 10.h),
 
-                    const Text(
+                    Text(
                       'District *',
                       style: TextStyle(
                         fontSize: 15,
                         fontWeight: FontWeight.w600,
-                        color: Colors.black87,
+                        color: context.appOnCard,
                       ),
                     ),
 
@@ -1142,12 +1142,12 @@ class _FarmerregistrationPageState extends State<FarmerregistrationPage> {
                     ),
                     SizedBox(height: 10.h),
 
-                    const Text(
+                    Text(
                       'Taluka *',
                       style: TextStyle(
                         fontSize: 15,
                         fontWeight: FontWeight.w600,
-                        color: Colors.black87,
+                        color: context.appOnCard,
                       ),
                     ),
 
@@ -1191,12 +1191,12 @@ class _FarmerregistrationPageState extends State<FarmerregistrationPage> {
 
                     SizedBox(height: 10.h),
 
-                    const Text(
+                    Text(
                       'Status Of Farmer *',
                       style: TextStyle(
                         fontSize: 15,
                         fontWeight: FontWeight.w600,
-                        color: Colors.black87,
+                        color: context.appOnCard,
                       ),
                     ),
 
@@ -1237,12 +1237,12 @@ class _FarmerregistrationPageState extends State<FarmerregistrationPage> {
 
                     SizedBox(height: 10.h),
 
-                    const Text(
+                    Text(
                       'Suggested Product *',
                       style: TextStyle(
                         fontSize: 15,
                         fontWeight: FontWeight.w600,
-                        color: Colors.black87,
+                        color: context.appOnCard,
                       ),
                     ),
 
@@ -1301,12 +1301,12 @@ class _FarmerregistrationPageState extends State<FarmerregistrationPage> {
 
                     SizedBox(height: 10.h),
 
-                    const Text(
+                    Text(
                       'Crop Details *',
                       style: TextStyle(
                         fontSize: 15,
                         fontWeight: FontWeight.w600,
-                        color: Colors.black87,
+                        color: context.appOnCard,
                       ),
                     ),
 
@@ -1372,7 +1372,7 @@ class _FarmerregistrationPageState extends State<FarmerregistrationPage> {
                                 child: Text(
                                   field.errorText!,
                                   style: TextStyle(
-                                    color: Colors.red,
+                                    color: context.appError,
                                     fontSize: 12.sp,
                                   ),
                                 ),
@@ -1465,12 +1465,12 @@ class _FarmerregistrationPageState extends State<FarmerregistrationPage> {
     return Container(
       padding: EdgeInsets.fromLTRB(16.w, 6.h, 16.w, 16.h),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: context.appCard,
         borderRadius: BorderRadius.circular(20.r),
         border: Border.all(
           color: _uploadedImage != null
-              ? const Color(0xFF087C3A)
-              : Colors.grey.shade200,
+              ? context.appPrimary
+              : context.appBorder,
         ),
       ),
       child: Column(
@@ -1488,12 +1488,12 @@ class _FarmerregistrationPageState extends State<FarmerregistrationPage> {
                     width: 42.w,
                     height: 42.h,
                     decoration: BoxDecoration(
-                      color: const Color(0xFFE7F8EB),
+                      color: Color.alphaBlend(context.appPrimary.withValues(alpha: 0.1), context.appCard),
                       borderRadius: BorderRadius.circular(12.r),
                     ),
                     child: Icon(
                       Icons.camera_alt_outlined,
-                      color: Color(0xFF00A83B),
+                      color: context.appPrimary,
                       size: 22.sp,
                     ),
                   ),
@@ -1512,7 +1512,7 @@ class _FarmerregistrationPageState extends State<FarmerregistrationPage> {
 
                   Icon(
                     Icons.chevron_right_rounded,
-                    color: Colors.grey.shade500,
+                    color: context.appSubText,
                     size: 28.sp,
                   ),
                 ],
@@ -1529,12 +1529,12 @@ class _FarmerregistrationPageState extends State<FarmerregistrationPage> {
               height: 260.h,
               width: double.infinity,
               decoration: BoxDecoration(
-                color: const Color(0xFFFAFAFA),
+                color: context.appInputBackground,
                 borderRadius: BorderRadius.circular(16.r),
                 border: Border.all(
                   color: _uploadedImage != null
-                      ? const Color(0xFF087C3A)
-                      : Colors.grey.shade200,
+                      ? context.appPrimary
+                      : context.appBorder,
                 ),
               ),
               child: _uploadedImage == null
@@ -1544,13 +1544,13 @@ class _FarmerregistrationPageState extends State<FarmerregistrationPage> {
                         Icon(
                           Icons.image_outlined,
                           size: 52.sp,
-                          color: Colors.grey.shade400,
+                          color: context.appSubText,
                         ),
                         SizedBox(height: 14.h),
                         Text(
                           'Tap to capture image',
                           style: TextStyle(
-                            color: Colors.grey.shade500,
+                            color: context.appSubText,
                             fontSize: 15.sp,
                           ),
                         ),

@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:solufine/core/theme/app_dynamic_colors.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil_plus/flutter_screenutil_plus.dart';
 import 'package:go_router/go_router.dart';
@@ -628,8 +629,8 @@ class _PunchOutScreenState extends State<PunchOutScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF4F7F5),
-
+      // backgroundColor: context.appBackground,
+    backgroundColor: Colors.white,
       appBar: CustomAppBar(
         title: 'Punch Out',
 
@@ -952,19 +953,13 @@ class _PunchOutScreenState extends State<PunchOutScreen> {
       padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 12.h),
 
       decoration: BoxDecoration(
-        gradient: const LinearGradient(
-          begin: Alignment.topLeft,
-
-          end: Alignment.bottomRight,
-
-          colors: [Color(0xFF08783D), Color(0xFF13A252)],
-        ),
+        color: context.appPrimary,
 
         borderRadius: BorderRadius.circular(18.r),
 
         boxShadow: [
           BoxShadow(
-            color: const Color(0xFF11934A).withOpacity(0.16),
+            color: context.appPrimary.withValues(alpha: 0.16),
 
             blurRadius: 14,
 
@@ -986,7 +981,7 @@ class _PunchOutScreenState extends State<PunchOutScreen> {
               height: 90.w,
 
               decoration: BoxDecoration(
-                color: Colors.white.withOpacity(0.06),
+                color: context.appOnPrimary.withValues(alpha: 0.06),
 
                 shape: BoxShape.circle,
               ),
@@ -1001,7 +996,7 @@ class _PunchOutScreenState extends State<PunchOutScreen> {
                 height: 45.w,
 
                 decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.15),
+                  color: context.appOnPrimary.withValues(alpha: 0.15),
 
                   borderRadius: BorderRadius.circular(13.r),
                 ),
@@ -1009,7 +1004,7 @@ class _PunchOutScreenState extends State<PunchOutScreen> {
                 child: Icon(
                   Icons.logout_rounded,
 
-                  color: Colors.white,
+                  color: context.appOnPrimary,
 
                   size: 22.sp,
                 ),
@@ -1026,7 +1021,7 @@ class _PunchOutScreenState extends State<PunchOutScreen> {
                       'End your trip',
 
                       style: TextStyle(
-                        color: Colors.white,
+                        color: context.appOnPrimary,
 
                         fontSize: 16.sp,
 
@@ -1044,7 +1039,7 @@ class _PunchOutScreenState extends State<PunchOutScreen> {
                       overflow: TextOverflow.ellipsis,
 
                       style: TextStyle(
-                        color: Colors.white.withOpacity(0.80),
+                        color: context.appOnPrimary.withValues(alpha: 0.80),
 
                         fontSize: 10.5.sp,
                       ),
@@ -1059,7 +1054,7 @@ class _PunchOutScreenState extends State<PunchOutScreen> {
                 padding: EdgeInsets.symmetric(horizontal: 9.w, vertical: 5.h),
 
                 decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.15),
+                  color: context.appOnPrimary.withValues(alpha: 0.15),
 
                   borderRadius: BorderRadius.circular(20.r),
                 ),
@@ -1073,8 +1068,8 @@ class _PunchOutScreenState extends State<PunchOutScreen> {
 
                       height: 6.w,
 
-                      decoration: const BoxDecoration(
-                        color: Color(0xFFFFD2D2),
+                      decoration: BoxDecoration(
+                        color: context.appOnPrimary.withValues(alpha: 0.8),
 
                         shape: BoxShape.circle,
                       ),
@@ -1086,7 +1081,7 @@ class _PunchOutScreenState extends State<PunchOutScreen> {
                       'OUT',
 
                       style: TextStyle(
-                        color: Colors.white,
+                        color: context.appOnPrimary,
 
                         fontSize: 9.sp,
 
@@ -1122,12 +1117,15 @@ class _PunchOutScreenState extends State<PunchOutScreen> {
           height: 30.w,
 
           decoration: BoxDecoration(
-            color: const Color(0xFFFFEEEE),
+            color: Color.alphaBlend(
+              context.appPrimary.withValues(alpha: 0.1),
+              context.appCard,
+            ),
 
             borderRadius: BorderRadius.circular(9.r),
           ),
 
-          child: Icon(icon, color: const Color(0xFF0D984A), size: 16.sp),
+          child: Icon(icon, color: context.appPrimary, size: 16.sp),
         ),
 
         SizedBox(width: 8.w),
@@ -1141,7 +1139,7 @@ class _PunchOutScreenState extends State<PunchOutScreen> {
                 title,
 
                 style: TextStyle(
-                  color: const Color(0xFF1D2521),
+                  color: context.appOnCard,
 
                   fontSize: 13.sp,
 
@@ -1158,11 +1156,7 @@ class _PunchOutScreenState extends State<PunchOutScreen> {
 
                 overflow: TextOverflow.ellipsis,
 
-                style: TextStyle(
-                  color: const Color(0xFF89928D),
-
-                  fontSize: 9.5.sp,
-                ),
+                style: TextStyle(color: context.appSubText, fontSize: 9.5.sp),
               ),
             ],
           ),
@@ -1182,15 +1176,15 @@ class _PunchOutScreenState extends State<PunchOutScreen> {
       padding: EdgeInsets.all(10.w),
 
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: context.appCard,
 
         borderRadius: BorderRadius.circular(16.r),
 
-        border: Border.all(color: const Color(0xFFE9EEEB)),
+        border: Border.all(color: context.appBorder),
 
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.025),
+            color: Colors.black.withValues(alpha: 0.025),
 
             blurRadius: 9,
 
@@ -1313,15 +1307,15 @@ class _PunchOutScreenState extends State<PunchOutScreen> {
       padding: EdgeInsets.all(9.w),
 
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: context.appCard,
 
         borderRadius: BorderRadius.circular(16.r),
 
-        border: Border.all(color: const Color(0xFFE9EEEB)),
+        border: Border.all(color: context.appBorder),
 
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.025),
+            color: Colors.black.withValues(alpha: 0.025),
 
             blurRadius: 9,
 
@@ -1350,11 +1344,11 @@ class _PunchOutScreenState extends State<PunchOutScreen> {
         width: double.infinity,
 
         decoration: BoxDecoration(
-          color: const Color(0xFFFFF8F8),
+          color: context.appInputBackground,
 
           borderRadius: BorderRadius.circular(13.r),
 
-          border: Border.all(color: const Color(0xFFF0DEDE)),
+          border: Border.all(color: context.appBorder),
         ),
 
         child: Row(
@@ -1367,7 +1361,10 @@ class _PunchOutScreenState extends State<PunchOutScreen> {
               height: 46.w,
 
               decoration: BoxDecoration(
-                color: const Color(0xFFFFEAEA),
+                color: Color.alphaBlend(
+                  context.appPrimary.withValues(alpha: 0.1),
+                  context.appCard,
+                ),
 
                 borderRadius: BorderRadius.circular(13.r),
               ),
@@ -1375,7 +1372,7 @@ class _PunchOutScreenState extends State<PunchOutScreen> {
               child: Icon(
                 Icons.add_a_photo_rounded,
 
-                color: const Color(0xFFD84040),
+                color: context.appPrimary,
 
                 size: 22.sp,
               ),
@@ -1393,7 +1390,7 @@ class _PunchOutScreenState extends State<PunchOutScreen> {
                   'Capture Closing Photo',
 
                   style: TextStyle(
-                    color: const Color(0xFF27302B),
+                    color: context.appOnCard,
 
                     fontSize: 12.5.sp,
 
@@ -1406,11 +1403,7 @@ class _PunchOutScreenState extends State<PunchOutScreen> {
                 Text(
                   'Tap to open camera',
 
-                  style: TextStyle(
-                    color: const Color(0xFF929B96),
-
-                    fontSize: 10.sp,
-                  ),
+                  style: TextStyle(color: context.appSubText, fontSize: 10.sp),
                 ),
 
                 SizedBox(height: 5.h),
@@ -1419,7 +1412,10 @@ class _PunchOutScreenState extends State<PunchOutScreen> {
                   padding: EdgeInsets.symmetric(horizontal: 9.w, vertical: 4.h),
 
                   decoration: BoxDecoration(
-                    color: const Color(0xFFFFEAEA),
+                    color: Color.alphaBlend(
+                      context.appPrimary.withValues(alpha: 0.1),
+                      context.appCard,
+                    ),
 
                     borderRadius: BorderRadius.circular(10.r),
                   ),
@@ -1428,7 +1424,7 @@ class _PunchOutScreenState extends State<PunchOutScreen> {
                     'OPEN CAMERA',
 
                     style: TextStyle(
-                      color: const Color(0xFFD84040),
+                      color: context.appPrimary,
 
                       fontSize: 8.5.sp,
 
@@ -1479,7 +1475,7 @@ class _PunchOutScreenState extends State<PunchOutScreen> {
                 padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 4.h),
 
                 decoration: BoxDecoration(
-                  color: Colors.black.withOpacity(0.55),
+                  color: Colors.black.withValues(alpha: 0.55),
 
                   borderRadius: BorderRadius.circular(14.r),
                 ),
@@ -1536,7 +1532,7 @@ class _PunchOutScreenState extends State<PunchOutScreen> {
                     height: 30.w,
 
                     decoration: BoxDecoration(
-                      color: Colors.black.withOpacity(0.55),
+                      color: Colors.black.withValues(alpha: 0.55),
 
                       shape: BoxShape.circle,
                     ),
@@ -1571,7 +1567,10 @@ class _PunchOutScreenState extends State<PunchOutScreen> {
             padding: EdgeInsets.symmetric(vertical: 7.h),
 
             decoration: BoxDecoration(
-              color: const Color(0xFFFFEAEA),
+              color: Color.alphaBlend(
+                context.appPrimary.withValues(alpha: 0.1),
+                context.appCard,
+              ),
 
               borderRadius: BorderRadius.circular(10.r),
             ),
@@ -1583,7 +1582,7 @@ class _PunchOutScreenState extends State<PunchOutScreen> {
                 Icon(
                   Icons.refresh_rounded,
 
-                  color: const Color(0xFFD84040),
+                  color: context.appPrimary,
 
                   size: 15.sp,
                 ),
@@ -1594,7 +1593,7 @@ class _PunchOutScreenState extends State<PunchOutScreen> {
                   'Retake Photo',
 
                   style: TextStyle(
-                    color: const Color(0xFFD84040),
+                    color: context.appPrimary,
 
                     fontSize: 10.5.sp,
 
@@ -1620,11 +1619,14 @@ class _PunchOutScreenState extends State<PunchOutScreen> {
       padding: EdgeInsets.symmetric(horizontal: 9.w, vertical: 6.h),
 
       decoration: BoxDecoration(
-        color: const Color(0xFFFFF3F3),
+        color: Color.alphaBlend(
+          context.appError.withValues(alpha: 0.08),
+          context.appCard,
+        ),
 
         borderRadius: BorderRadius.circular(8.r),
 
-        border: Border.all(color: const Color(0xFFFFDADA)),
+        border: Border.all(color: context.appError.withValues(alpha: 0.25)),
       ),
 
       child: Row(
@@ -1632,7 +1634,7 @@ class _PunchOutScreenState extends State<PunchOutScreen> {
           Icon(
             Icons.error_outline_rounded,
 
-            color: const Color(0xFFD94343),
+            color: context.appError,
 
             size: 14.sp,
           ),
@@ -1644,7 +1646,7 @@ class _PunchOutScreenState extends State<PunchOutScreen> {
               message,
 
               style: TextStyle(
-                color: const Color(0xFFD94343),
+                color: context.appError,
 
                 fontSize: 10.sp,
 
@@ -1666,13 +1668,13 @@ class _PunchOutScreenState extends State<PunchOutScreen> {
       padding: EdgeInsets.fromLTRB(14.w, 7.h, 14.w, 8.h),
 
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: context.appCard,
 
-        border: const Border(top: BorderSide(color: Color(0xFFE8ECEA))),
+        border: Border(top: BorderSide(color: context.appBorder)),
 
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.035),
+            color: Colors.black.withValues(alpha: 0.035),
 
             blurRadius: 10,
 
@@ -1695,13 +1697,13 @@ class _PunchOutScreenState extends State<PunchOutScreen> {
             style: ElevatedButton.styleFrom(
               elevation: 0,
 
-              backgroundColor: const Color(0xFF0B9848),
+              backgroundColor: context.appPrimary,
 
-              disabledBackgroundColor: const Color(
-                0xFF0B9848,
-              ).withOpacity(0.60),
+              disabledBackgroundColor: context.appPrimary.withValues(
+                alpha: 0.60,
+              ),
 
-              foregroundColor: Colors.white,
+              foregroundColor: context.appOnPrimary,
 
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(14.r),
@@ -1716,10 +1718,12 @@ class _PunchOutScreenState extends State<PunchOutScreen> {
 
                     height: 20.w,
 
-                    child: const CircularProgressIndicator(
+                    child: CircularProgressIndicator(
                       strokeWidth: 2.2,
 
-                      valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                      valueColor: AlwaysStoppedAnimation<Color>(
+                        context.appOnPrimary,
+                      ),
                     ),
                   )
                 : Row(
@@ -1732,7 +1736,7 @@ class _PunchOutScreenState extends State<PunchOutScreen> {
                         height: 28.w,
 
                         decoration: BoxDecoration(
-                          color: Colors.white.withOpacity(0.15),
+                          color: context.appOnPrimary.withValues(alpha: 0.15),
 
                           borderRadius: BorderRadius.circular(8.r),
                         ),
@@ -1740,7 +1744,7 @@ class _PunchOutScreenState extends State<PunchOutScreen> {
                         child: Icon(
                           Icons.logout_rounded,
 
-                          color: Colors.white,
+                          color: context.appOnPrimary,
 
                           size: 16.sp,
                         ),

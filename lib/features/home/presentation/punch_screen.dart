@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:solufine/core/theme/app_dynamic_colors.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil_plus/flutter_screenutil_plus.dart';
 import 'package:geolocator/geolocator.dart';
@@ -561,8 +562,8 @@ class _PunchScreenState extends State<PunchScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF4F7F5),
-
+      // backgroundColor: context.appBackground,
+    backgroundColor: Colors.white,
       appBar: CustomAppBar(
         title: 'Punch In',
 
@@ -815,19 +816,13 @@ class _PunchScreenState extends State<PunchScreen> {
       padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 12.h),
 
       decoration: BoxDecoration(
-        gradient: const LinearGradient(
-          begin: Alignment.topLeft,
-
-          end: Alignment.bottomRight,
-
-          colors: [Color(0xFF08783D), Color(0xFF13A252)],
-        ),
+        gradient: context.appBackgroundGradient,
 
         borderRadius: BorderRadius.circular(18.r),
 
         boxShadow: [
           BoxShadow(
-            color: const Color(0xFF11934A).withOpacity(0.16),
+            color: context.appPrimary.withValues(alpha: 0.16),
 
             blurRadius: 14,
 
@@ -849,7 +844,7 @@ class _PunchScreenState extends State<PunchScreen> {
               height: 90.w,
 
               decoration: BoxDecoration(
-                color: Colors.white.withOpacity(0.06),
+                color: context.appOnPrimary.withValues(alpha: 0.06),
 
                 shape: BoxShape.circle,
               ),
@@ -864,7 +859,7 @@ class _PunchScreenState extends State<PunchScreen> {
                 height: 45.w,
 
                 decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.15),
+                  color: context.appOnPrimary.withValues(alpha: 0.15),
 
                   borderRadius: BorderRadius.circular(13.r),
                 ),
@@ -872,7 +867,7 @@ class _PunchScreenState extends State<PunchScreen> {
                 child: Icon(
                   Icons.fingerprint_rounded,
 
-                  color: Colors.white,
+                  color: context.appOnPrimary,
 
                   size: 23.sp,
                 ),
@@ -888,8 +883,8 @@ class _PunchScreenState extends State<PunchScreen> {
                     Text(
                       'Ready to start?',
 
-                      style: TextStyle(
-                        color: Colors.white,
+                   style: TextStyle(
+                        color: context.appOnPrimary,
 
                         fontSize: 16.sp,
 
@@ -907,7 +902,7 @@ class _PunchScreenState extends State<PunchScreen> {
                       overflow: TextOverflow.ellipsis,
 
                       style: TextStyle(
-                        color: Colors.white.withOpacity(0.80),
+                        color: context.appOnPrimary.withValues(alpha: 0.80),
 
                         fontSize: 10.5.sp,
                       ),
@@ -922,7 +917,7 @@ class _PunchScreenState extends State<PunchScreen> {
                 padding: EdgeInsets.symmetric(horizontal: 9.w, vertical: 5.h),
 
                 decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.15),
+                  color: context.appOnPrimary.withValues(alpha: 0.15),
 
                   borderRadius: BorderRadius.circular(20.r),
                 ),
@@ -936,8 +931,8 @@ class _PunchScreenState extends State<PunchScreen> {
 
                       height: 6.w,
 
-                      decoration: const BoxDecoration(
-                        color: Color(0xFFB9F6CA),
+                      decoration: BoxDecoration(
+                        color: context.appOnPrimary.withValues(alpha: 0.8),
 
                         shape: BoxShape.circle,
                       ),
@@ -949,7 +944,7 @@ class _PunchScreenState extends State<PunchScreen> {
                       'IN',
 
                       style: TextStyle(
-                        color: Colors.white,
+                        color: context.appOnPrimary,
 
                         fontSize: 9.sp,
 
@@ -979,12 +974,12 @@ class _PunchScreenState extends State<PunchScreen> {
           height: 30.w,
 
           decoration: BoxDecoration(
-            color: const Color(0xFFE7F6EC),
+            color: Color.alphaBlend(context.appPrimary.withValues(alpha: 0.1), context.appCard),
 
             borderRadius: BorderRadius.circular(9.r),
           ),
 
-          child: Icon(icon, color: const Color(0xFF11934A), size: 16.sp),
+          child: Icon(icon, color: context.appPrimary, size: 16.sp),
         ),
 
         SizedBox(width: 8.w),
@@ -993,7 +988,7 @@ class _PunchScreenState extends State<PunchScreen> {
           title,
 
           style: TextStyle(
-            color: const Color(0xFF1D2521),
+            color: context.appOnCard,
 
             fontSize: 13.5.sp,
 
@@ -1015,15 +1010,15 @@ class _PunchScreenState extends State<PunchScreen> {
       padding: EdgeInsets.all(11.w),
 
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: context.appCard,
 
         borderRadius: BorderRadius.circular(16.r),
 
-        border: Border.all(color: const Color(0xFFE9ECEB)),
+        border: Border.all(color: context.appBorder),
 
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.025),
+            color: Colors.black.withValues(alpha: 0.025),
 
             blurRadius: 10,
 
@@ -1114,11 +1109,11 @@ class _PunchScreenState extends State<PunchScreen> {
           padding: EdgeInsets.symmetric(horizontal: 11.w),
 
           decoration: BoxDecoration(
-            color: const Color(0xFFF8FAF9),
+            color: context.appInputBackground,
 
             borderRadius: BorderRadius.circular(13.r),
 
-            border: Border.all(color: const Color(0xFFE2E9E5)),
+            border: Border.all(color: context.appBorder),
           ),
 
           child: Row(
@@ -1129,7 +1124,7 @@ class _PunchScreenState extends State<PunchScreen> {
                 height: 34.w,
 
                 decoration: BoxDecoration(
-                  color: const Color(0xFFE5F6EC),
+                  color: Color.alphaBlend(context.appPrimary.withValues(alpha: 0.1), context.appCard),
 
                   borderRadius: BorderRadius.circular(9.r),
                 ),
@@ -1137,7 +1132,7 @@ class _PunchScreenState extends State<PunchScreen> {
                 child: Icon(
                   Icons.directions_car_filled_outlined,
 
-                  color: const Color(0xFF0D984A),
+                  color: context.appPrimary,
 
                   size: 18.sp,
                 ),
@@ -1154,13 +1149,13 @@ class _PunchScreenState extends State<PunchScreen> {
 
                     borderRadius: BorderRadius.circular(14.r),
 
-                    dropdownColor: Colors.white,
+                    dropdownColor: context.appCard,
 
                     hint: Text(
                       'Select Vehicle Type',
 
                       style: TextStyle(
-                        color: const Color(0xFF9AA29E),
+                        color: context.appSubText,
 
                         fontSize: 12.5.sp,
                       ),
@@ -1169,13 +1164,13 @@ class _PunchScreenState extends State<PunchScreen> {
                     icon: Icon(
                       Icons.keyboard_arrow_down_rounded,
 
-                      color: const Color(0xFF67706B),
+                      color: context.appSubText,
 
                       size: 22.sp,
                     ),
 
                     style: TextStyle(
-                      color: const Color(0xFF252B28),
+                      color: context.appOnCard,
 
                       fontSize: 12.5.sp,
 
@@ -1230,7 +1225,7 @@ class _PunchScreenState extends State<PunchScreen> {
           style: TextStyle(
             fontSize: 10.5.sp,
 
-            color: const Color(0xFF606864),
+            color: context.appSubText,
 
             fontWeight: FontWeight.w600,
           ),
@@ -1240,7 +1235,7 @@ class _PunchScreenState extends State<PunchScreen> {
               TextSpan(
                 text: ' *',
 
-                style: TextStyle(color: Colors.red.shade500),
+                style: TextStyle(color: context.appError),
               ),
           ],
         ),
@@ -1339,15 +1334,15 @@ class _PunchScreenState extends State<PunchScreen> {
       padding: EdgeInsets.all(10.w),
 
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: context.appCard,
 
         borderRadius: BorderRadius.circular(16.r),
 
-        border: Border.all(color: const Color(0xFFE9EEEB)),
+        border: Border.all(color: context.appBorder),
 
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.025),
+            color: Colors.black.withValues(alpha: 0.025),
 
             blurRadius: 10,
 
@@ -1376,11 +1371,11 @@ class _PunchScreenState extends State<PunchScreen> {
         width: double.infinity,
 
         decoration: BoxDecoration(
-          color: const Color(0xFFF8FAF9),
+          color: context.appInputBackground,
 
           borderRadius: BorderRadius.circular(13.r),
 
-          border: Border.all(color: const Color(0xFFDDE7E1)),
+          border: Border.all(color: context.appBorder),
         ),
 
         child: Row(
@@ -1393,7 +1388,7 @@ class _PunchScreenState extends State<PunchScreen> {
               height: 48.w,
 
               decoration: BoxDecoration(
-                color: const Color(0xFFE4F7EC),
+                color: Color.alphaBlend(context.appPrimary.withValues(alpha: 0.1), context.appCard),
 
                 borderRadius: BorderRadius.circular(14.r),
               ),
@@ -1401,7 +1396,7 @@ class _PunchScreenState extends State<PunchScreen> {
               child: Icon(
                 Icons.add_a_photo_rounded,
 
-                color: const Color(0xFF0D984A),
+                color: context.appPrimary,
 
                 size: 23.sp,
               ),
@@ -1419,7 +1414,7 @@ class _PunchScreenState extends State<PunchScreen> {
                   'Capture Photo',
 
                   style: TextStyle(
-                    color: const Color(0xFF27302B),
+                    color: context.appOnCard,
 
                     fontSize: 13.sp,
 
@@ -1433,7 +1428,7 @@ class _PunchScreenState extends State<PunchScreen> {
                   'Tap to open camera',
 
                   style: TextStyle(
-                    color: const Color(0xFF929B96),
+                    color: context.appSubText,
 
                     fontSize: 10.5.sp,
                   ),
@@ -1445,7 +1440,7 @@ class _PunchScreenState extends State<PunchScreen> {
                   padding: EdgeInsets.symmetric(horizontal: 9.w, vertical: 4.h),
 
                   decoration: BoxDecoration(
-                    color: const Color(0xFFE8F7EE),
+                    color: Color.alphaBlend(context.appPrimary.withValues(alpha: 0.1), context.appCard),
 
                     borderRadius: BorderRadius.circular(10.r),
                   ),
@@ -1454,7 +1449,7 @@ class _PunchScreenState extends State<PunchScreen> {
                     'OPEN CAMERA',
 
                     style: TextStyle(
-                      color: const Color(0xFF0D9147),
+                      color: context.appPrimary,
 
                       fontSize: 8.5.sp,
 
@@ -1502,7 +1497,7 @@ class _PunchScreenState extends State<PunchScreen> {
                 padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 4.h),
 
                 decoration: BoxDecoration(
-                  color: Colors.black.withOpacity(0.55),
+                  color: Colors.black.withValues(alpha: 0.55),
 
                   borderRadius: BorderRadius.circular(15.r),
                 ),
@@ -1551,7 +1546,7 @@ class _PunchScreenState extends State<PunchScreen> {
                   height: 32.w,
 
                   decoration: BoxDecoration(
-                    color: Colors.black.withOpacity(0.55),
+                    color: Colors.black.withValues(alpha: 0.55),
 
                     shape: BoxShape.circle,
                   ),
@@ -1582,7 +1577,7 @@ class _PunchScreenState extends State<PunchScreen> {
             padding: EdgeInsets.symmetric(vertical: 7.h),
 
             decoration: BoxDecoration(
-              color: const Color(0xFFE8F7EE),
+              color: Color.alphaBlend(context.appPrimary.withValues(alpha: 0.1), context.appCard),
 
               borderRadius: BorderRadius.circular(11.r),
             ),
@@ -1594,7 +1589,7 @@ class _PunchScreenState extends State<PunchScreen> {
                 Icon(
                   Icons.refresh_rounded,
 
-                  color: const Color(0xFF0C9548),
+                  color: context.appPrimary,
 
                   size: 16.sp,
                 ),
@@ -1605,7 +1600,7 @@ class _PunchScreenState extends State<PunchScreen> {
                   'Retake Photo',
 
                   style: TextStyle(
-                    color: const Color(0xFF0C9548),
+                    color: context.appPrimary,
 
                     fontSize: 10.5.sp,
 
@@ -1631,11 +1626,11 @@ class _PunchScreenState extends State<PunchScreen> {
       padding: EdgeInsets.symmetric(horizontal: 9.w, vertical: 6.h),
 
       decoration: BoxDecoration(
-        color: const Color(0xFFFFF3F3),
+        color: Color.alphaBlend(context.appError.withValues(alpha: 0.08), context.appCard),
 
         borderRadius: BorderRadius.circular(8.r),
 
-        border: Border.all(color: const Color(0xFFFFDADA)),
+        border: Border.all(color: context.appError.withValues(alpha: 0.25)),
       ),
 
       child: Row(
@@ -1643,7 +1638,7 @@ class _PunchScreenState extends State<PunchScreen> {
           Icon(
             Icons.error_outline_rounded,
 
-            color: const Color(0xFFD94343),
+            color: context.appError,
 
             size: 14.sp,
           ),
@@ -1655,7 +1650,7 @@ class _PunchScreenState extends State<PunchScreen> {
               message,
 
               style: TextStyle(
-                color: const Color(0xFFD94343),
+                color: context.appError,
 
                 fontSize: 10.sp,
 
@@ -1677,13 +1672,13 @@ class _PunchScreenState extends State<PunchScreen> {
       padding: EdgeInsets.fromLTRB(14.w, 7.h, 14.w, 8.h),
 
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: context.appCard,
 
-        border: const Border(top: BorderSide(color: Color(0xFFE8ECEA))),
+        border: Border(top: BorderSide(color: context.appBorder)),
 
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.035),
+            color: Colors.black.withValues(alpha: 0.035),
 
             blurRadius: 10,
 
@@ -1706,13 +1701,11 @@ class _PunchScreenState extends State<PunchScreen> {
             style: ElevatedButton.styleFrom(
               elevation: 0,
 
-              backgroundColor: const Color(0xFF0B9848),
+              backgroundColor: context.appPrimary,
 
-              disabledBackgroundColor: const Color(
-                0xFF0B9848,
-              ).withOpacity(0.60),
+              disabledBackgroundColor: context.appPrimary.withValues(alpha: 0.60),
 
-              foregroundColor: Colors.white,
+              foregroundColor: context.appOnPrimary,
 
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(14.r),
@@ -1727,10 +1720,10 @@ class _PunchScreenState extends State<PunchScreen> {
 
                     height: 20.w,
 
-                    child: const CircularProgressIndicator(
+                    child: CircularProgressIndicator(
                       strokeWidth: 2.2,
 
-                      valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                      valueColor: AlwaysStoppedAnimation<Color>(context.appOnPrimary),
                     ),
                   )
                 : Row(

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
-import 'package:solufine/core/theme/app_colors.dart';
+import 'package:solufine/core/theme/app_dynamic_colors.dart';
 
 class CustomTextFormField extends StatelessWidget {
   final TextEditingController controller;
@@ -78,26 +78,26 @@ class CustomTextFormField extends StatelessWidget {
         }
       },
 
-      style: const TextStyle(fontSize: 14, color: Colors.black87),
+      style: TextStyle(fontSize: 14, color: context.appText),
 
       decoration: InputDecoration(
         hintText: hintText,
         labelText: labelText,
 
         labelStyle: TextStyle(
-          color: Colors.grey.shade500,
+          color: context.appSubText,
           fontSize: 16,
           fontWeight: FontWeight.w400,
         ),
 
         floatingLabelStyle: TextStyle(
-          color: AppColors.accentGreen,
+          color: context.appPrimary,
           fontSize: 14,
           fontWeight: FontWeight.w600,
         ),
 
         hintStyle: TextStyle(
-          color: Colors.grey.shade500,
+          color: context.appSubText,
           fontSize: 16,
           fontWeight: FontWeight.w400,
         ),
@@ -105,46 +105,46 @@ class CustomTextFormField extends StatelessWidget {
         prefixIcon: Padding(
           padding: const EdgeInsets.all(10),
           child: Container(
-            decoration: const BoxDecoration(
+            decoration: BoxDecoration(
               shape: BoxShape.circle,
-              color: Color(0xFFE4F4E9),
+              color: Color.alphaBlend(context.appPrimary.withValues(alpha: 0.1), context.appCard),
             ),
-            child: Icon(prefixIcon, color: AppColors.accentGreen, size: 22),
+            child: Icon(prefixIcon, color: context.appPrimary, size: 22),
           ),
         ),
 
         suffixIcon: suffixIcon != null
             ? IconButton(
                 onPressed: onSuffixIconTap,
-                icon: Icon(suffixIcon, color: Colors.grey.shade500),
+                icon: Icon(suffixIcon, color: context.appSubText),
               )
             : null,
 
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(10),
-          borderSide: BorderSide(color: Colors.grey.shade200),
+          borderSide: BorderSide(color: context.appBorder),
         ),
 
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(10),
           borderSide: BorderSide(
-            color: isValid ? const Color(0xFF087C3A) : Colors.grey.shade200,
+            color: isValid ? context.appPrimary : context.appBorder,
           ),
         ),
 
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(10),
-          borderSide: const BorderSide(color: Color(0xFF087C3A), width: 1.5),
+          borderSide: BorderSide(color: context.appPrimary, width: 1.5),
         ),
 
         errorBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(10),
-          borderSide: const BorderSide(color: Colors.red),
+          borderSide: BorderSide(color: context.appError),
         ),
 
         focusedErrorBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(10),
-          borderSide: const BorderSide(color: Colors.red, width: 1.5),
+          borderSide: BorderSide(color: context.appError, width: 1.5),
         ),
 
         contentPadding: const EdgeInsets.symmetric(
@@ -210,14 +210,14 @@ class _KeyboardDoneOverlayState extends State<_KeyboardDoneOverlay>
           child: ExcludeFocus(
             child: TextFieldTapRegion(
               child: Material(
-                color: Colors.white,
+                color: Theme.of(overlayContext).colorScheme.surface,
                 elevation: 2,
                 child: Align(
                   alignment: Alignment.centerRight,
                   child: TextButton(
                     onPressed: () => FocusScope.of(context).unfocus(),
                     style: TextButton.styleFrom(
-                      foregroundColor: AppColors.accentGreen,
+                      foregroundColor: Theme.of(overlayContext).colorScheme.primary,
                       textStyle: const TextStyle(fontWeight: FontWeight.w700),
                     ),
                     child: const Text('Done'),
