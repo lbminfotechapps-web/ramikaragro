@@ -909,7 +909,7 @@ class _FarmerEditUpdateScrenState extends State<FarmerEditUpdateScren> {
             AppDialog.show(
               context: context,
               message: 'Farmer Updated Successfully',
-              onButtonPressed: () => {context.go(AppRouter.home)},
+              onButtonPressed: () => context.go(AppRouter.farmers),
             );
           } else if (state.status == StatesStatus.failed) {
             setState(() {

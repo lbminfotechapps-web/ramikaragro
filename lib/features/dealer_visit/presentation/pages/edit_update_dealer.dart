@@ -676,11 +676,11 @@ class _EditUpdateDealerState extends State<EditUpdateDealer> {
                 backgroundColor: AppColors.backgroundColor,
                 content: Text(
                   style: TextStyle(color: AppColors.accentGreen),
-                  state.errorMessage ?? 'Farmer Updated Successfully',
+                  state.errorMessage ?? 'Dealer Updated Successfully',
                 ),
               ),
             );
-            context.go(AppRouter.home);
+            context.go(AppRouter.visits);
           }
           // ============================================
           // API ERROR
