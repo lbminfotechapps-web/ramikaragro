@@ -329,10 +329,7 @@ class _HomeState extends State<Home> {
               onPressed: () {
                 Navigator.of(context).pop(false);
               },
-              child: Text(
-                'CANCEL',
-                style: TextStyle(color: context.appText),
-              ),
+              child: Text('CANCEL', style: TextStyle(color: context.appText)),
             ),
             ElevatedButton(
               style: ElevatedButton.styleFrom(
@@ -350,34 +347,6 @@ class _HomeState extends State<Home> {
     );
     return result ?? false;
   }
-
-  // Future<void> _checkLocationAndGps() async {
-  //   // ============================================================
-  //   // 1. CHECK LOCATION PERMISSION
-  //   // ============================================================
-
-  //   final PermissionStatus permissionStatus = await Permission.location.status;
-
-  //   if (!permissionStatus.isGranted) {
-  //     if (!mounted) return;
-
-  //     await checkLocationPermission(context);
-
-  //     return;
-  //   }
-
-  //   // ============================================================
-  //   // 2. CHECK GPS / LOCATION SERVICE
-  //   // ============================================================
-
-  //   final bool gpsEnabled = await Geolocator.isLocationServiceEnabled();
-
-  //   if (!gpsEnabled) {
-  //     if (!mounted) return;
-
-  //     await _showGpsOffDialog();
-  //   }
-  // }
 
   Future<void> _checkLocationAndGps() async {
     if (!mounted) return;
@@ -500,7 +469,11 @@ class _HomeState extends State<Home> {
           ),
           title: Row(
             children: [
-              Icon(Icons.location_off_rounded, color: context.appWarning, size: 28),
+              Icon(
+                Icons.location_off_rounded,
+                color: context.appWarning,
+                size: 28,
+              ),
               SizedBox(width: 12),
               Expanded(
                 child: Text(
@@ -652,10 +625,7 @@ class _HomeState extends State<Home> {
               onPressed: () {
                 Navigator.of(dialogContext).pop(false);
               },
-              child: Text(
-                'CANCEL',
-                style: TextStyle(color: context.appText),
-              ),
+              child: Text('CANCEL', style: TextStyle(color: context.appText)),
             ),
 
             ElevatedButton(
@@ -713,7 +683,7 @@ class _HomeState extends State<Home> {
         }
       },
       child: Scaffold(
-          backgroundColor: context.appBackground,
+        backgroundColor: context.appBackground,
         appBar: CustomAppBar(
           leading: Builder(
             builder: (scaffoldContext) {
@@ -1033,7 +1003,10 @@ class _HomeState extends State<Home> {
                   label,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: TextStyle(color: context.appOnPrimary, fontSize: 10.sp),
+                  style: TextStyle(
+                    color: context.appOnPrimary,
+                    fontSize: 10.sp,
+                  ),
                 ),
                 SizedBox(height: 2.h),
                 Text(
@@ -1219,7 +1192,11 @@ class _HomeState extends State<Home> {
       padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 10.h),
       child: Row(
         children: [
-          Icon(Icons.access_time_rounded, color: context.appWarning, size: 28.h),
+          Icon(
+            Icons.access_time_rounded,
+            color: context.appWarning,
+            size: 28.h,
+          ),
           SizedBox(width: 8.w),
           Expanded(
             child: Column(
@@ -1561,10 +1538,7 @@ class _HomeState extends State<Home> {
           Expanded(
             child: Padding(
               padding: const EdgeInsets.only(top: 4),
-              child: Text(
-                text,
-                style: TextStyle(fontSize: 13, height: 1.3),
-              ),
+              child: Text(text, style: TextStyle(fontSize: 13, height: 1.3)),
             ),
           ),
         ],

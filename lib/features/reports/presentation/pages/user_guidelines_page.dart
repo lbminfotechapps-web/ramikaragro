@@ -1,5 +1,5 @@
 import 'package:solufine/core/router/app_router.dart';
-import 'package:solufine/core/theme/app_colors.dart';
+import 'package:solufine/core/theme/app_theme_context.dart';
 import 'package:solufine/core/utility/widgets/custom_appbar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -16,10 +16,6 @@ import '../widgets/organization_webview.dart';
 class UserGuidelinesPage extends StatelessWidget {
   const UserGuidelinesPage({super.key});
 
-  static const Color primaryGreen = Color(0xFF0F723A);
-  static const Color darkGreen = Color(0xFF084D28);
-  static const Color backgroundColor = Color(0xFFF4F8F5);
-
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
@@ -27,26 +23,26 @@ class UserGuidelinesPage extends StatelessWidget {
           OrganizationDI.createBloc()..add(GetOrganizationDetailsEvent()),
       child: Scaffold(
         appBar: CustomAppBar(
-          backgroundColor: primaryGreen,
+          backgroundColor: context.primaryColor,
           leading: IconButton(
-            icon: const Icon(
+            icon: Icon(
               Icons.arrow_back_ios_new,
               size: 19,
-              color: AppColors.backgroundColor,
+              color: context.onPrimaryColor,
             ),
             onPressed: () {
               context.go(AppRouter.home);
             },
           ),
           title: 'User Guide',
-          titleStyle: const TextStyle(
+          titleStyle: TextStyle(
             fontSize: 22,
             fontWeight: FontWeight.w600,
-            color: AppColors.backgroundColor,
+            color: context.onPrimaryColor,
           ),
         ),
 
-        backgroundColor: backgroundColor,
+        backgroundColor: context.backgroundColor,
         body: SafeArea(
           child: Column(
             children: [
@@ -56,7 +52,7 @@ class UserGuidelinesPage extends StatelessWidget {
                 child: BlocBuilder<OrganizationBloc, OrganizationState>(
                   builder: (context, state) {
                     if (state is OrganizationLoading) {
-                      return _buildLoading();
+                      return _buildLoading(context);
                     }
 
                     if (state is OrganizationError) {
@@ -65,6 +61,7 @@ class UserGuidelinesPage extends StatelessWidget {
 
                     if (state is OrganizationLoaded) {
                       return _buildContent(
+                        context,
                         state.organization.organizationUserGuideLine,
                       );
                     }
@@ -88,13 +85,9 @@ class UserGuidelinesPage extends StatelessWidget {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.fromLTRB(18, 12, 18, 25),
-      decoration: const BoxDecoration(
-        gradient: LinearGradient(
-          colors: [primaryGreen, darkGreen],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
-        borderRadius: BorderRadius.only(
+      decoration: BoxDecoration(
+        color: context.primaryColor,
+        borderRadius: const BorderRadius.only(
           bottomLeft: Radius.circular(30),
           bottomRight: Radius.circular(30),
         ),
@@ -106,26 +99,26 @@ class UserGuidelinesPage extends StatelessWidget {
             width: 62,
             height: 62,
             decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.15),
+              color: context.onPrimaryColor.withValues(alpha: 0.15),
               shape: BoxShape.circle,
               border: Border.all(
-                color: Colors.white.withOpacity(0.25),
+                color: context.onPrimaryColor.withValues(alpha: 0.25),
                 width: 1.5,
               ),
             ),
-            child: const Icon(
+            child: Icon(
               Icons.menu_book_rounded,
-              color: Colors.white,
+              color: context.onPrimaryColor,
               size: 32,
             ),
           ),
 
           const SizedBox(height: 12),
 
-          const Text(
+          Text(
             'Application Guidelines',
             style: TextStyle(
-              color: Colors.white,
+              color: context.onPrimaryColor,
               fontSize: 17,
               fontWeight: FontWeight.w600,
             ),
@@ -136,7 +129,7 @@ class UserGuidelinesPage extends StatelessWidget {
           Text(
             'Everything you need to know',
             style: TextStyle(
-              color: Colors.white.withOpacity(0.75),
+              color: context.onPrimaryColor.withValues(alpha: 0.75),
               fontSize: 13,
             ),
           ),
@@ -149,17 +142,17 @@ class UserGuidelinesPage extends StatelessWidget {
   // CONTENT
   // ============================================================
 
-  Widget _buildContent(String html) {
+  Widget _buildContent(BuildContext context, String html) {
     return Padding(
       padding: const EdgeInsets.fromLTRB(14, 14, 14, 14),
       child: Container(
         width: double.infinity,
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: context.cardBackgroundColor,
           borderRadius: BorderRadius.circular(24),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.06),
+              color: context.appColors.shadow.withValues(alpha: 0.06),
               blurRadius: 20,
               spreadRadius: 1,
               offset: const Offset(0, 6),
@@ -169,7 +162,7 @@ class UserGuidelinesPage extends StatelessWidget {
         clipBehavior: Clip.antiAlias,
         child: Column(
           children: [
-            _buildSectionHeader(),
+            _buildSectionHeader(context),
 
             Expanded(child: OrganizationWebView(html: html)),
           ],
@@ -178,13 +171,15 @@ class UserGuidelinesPage extends StatelessWidget {
     );
   }
 
-  Widget _buildSectionHeader() {
+  Widget _buildSectionHeader(BuildContext context) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 14),
       decoration: BoxDecoration(
-        color: primaryGreen.withOpacity(0.06),
+        color: context.primaryColor.withValues(alpha: 0.06),
         border: Border(
-          bottom: BorderSide(color: primaryGreen.withOpacity(0.08)),
+          bottom: BorderSide(
+            color: context.primaryColor.withValues(alpha: 0.08),
+          ),
         ),
       ),
     );
@@ -194,7 +189,7 @@ class UserGuidelinesPage extends StatelessWidget {
   // LOADING
   // ============================================================
 
-  Widget _buildLoading() {
+  Widget _buildLoading(BuildContext context) {
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -203,32 +198,32 @@ class UserGuidelinesPage extends StatelessWidget {
             width: 76,
             height: 76,
             decoration: BoxDecoration(
-              color: primaryGreen.withOpacity(0.08),
+              color: context.primaryColor.withValues(alpha: 0.08),
               shape: BoxShape.circle,
             ),
             padding: const EdgeInsets.all(21),
-            child: const CircularProgressIndicator(
+            child: CircularProgressIndicator(
               strokeWidth: 3,
-              color: primaryGreen,
+              color: context.primaryColor,
             ),
           ),
 
           const SizedBox(height: 20),
 
-          const Text(
+          Text(
             'Loading Guidelines...',
             style: TextStyle(
               fontSize: 15,
               fontWeight: FontWeight.w600,
-              color: Color(0xFF333333),
+              color: context.primaryTextColor,
             ),
           ),
 
           const SizedBox(height: 6),
 
-          const Text(
+          Text(
             'Please wait a moment',
-            style: TextStyle(fontSize: 12, color: Colors.grey),
+            style: TextStyle(fontSize: 12, color: context.secondaryTextColor),
           ),
         ],
       ),
@@ -250,35 +245,39 @@ class UserGuidelinesPage extends StatelessWidget {
               width: 92,
               height: 92,
               decoration: BoxDecoration(
-                color: Colors.red.withOpacity(0.07),
+                color: context.appColors.error.withValues(alpha: 0.07),
                 shape: BoxShape.circle,
               ),
-              child: const Icon(
+              child: Icon(
                 Icons.menu_book_outlined,
                 size: 44,
-                color: Colors.redAccent,
+                color: context.appColors.error,
               ),
             ),
 
             const SizedBox(height: 22),
 
-            const Text(
+            Text(
               'Unable to Load Guidelines',
               textAlign: TextAlign.center,
               style: TextStyle(
                 fontSize: 19,
                 fontWeight: FontWeight.w700,
-                color: Color(0xFF252525),
+                color: context.primaryTextColor,
               ),
             ),
 
             const SizedBox(height: 8),
 
-            const Text(
+            Text(
               'Something went wrong while loading '
               'the user guidelines.',
               textAlign: TextAlign.center,
-              style: TextStyle(fontSize: 13, height: 1.5, color: Colors.grey),
+              style: TextStyle(
+                fontSize: 13,
+                height: 1.5,
+                color: context.secondaryTextColor,
+              ),
             ),
 
             const SizedBox(height: 14),
@@ -287,17 +286,19 @@ class UserGuidelinesPage extends StatelessWidget {
               width: double.infinity,
               padding: const EdgeInsets.all(13),
               decoration: BoxDecoration(
-                color: Colors.red.withOpacity(0.05),
+                color: context.appColors.error.withValues(alpha: 0.05),
                 borderRadius: BorderRadius.circular(13),
-                border: Border.all(color: Colors.red.withOpacity(0.10)),
+                border: Border.all(
+                  color: context.appColors.error.withValues(alpha: 0.10),
+                ),
               ),
               child: Text(
                 message,
                 textAlign: TextAlign.center,
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 11,
                   height: 1.4,
-                  color: Colors.redAccent,
+                  color: context.appColors.error,
                 ),
               ),
             ),
@@ -313,13 +314,13 @@ class UserGuidelinesPage extends StatelessWidget {
                   );
                 },
                 icon: const Icon(Icons.refresh_rounded, size: 20),
-                label: const Text(
+                label: Text(
                   'Try Again',
                   style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
                 ),
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: primaryGreen,
-                  foregroundColor: Colors.white,
+                  backgroundColor: context.primaryColor,
+                  foregroundColor: context.onPrimaryColor,
                   elevation: 0,
                   padding: const EdgeInsets.symmetric(horizontal: 26),
                   shape: RoundedRectangleBorder(

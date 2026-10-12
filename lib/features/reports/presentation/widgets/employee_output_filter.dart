@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:solufine/core/theme/app_theme_context.dart';
 
 import '../../domain/entities/assign_employee.dart';
 
@@ -21,8 +22,7 @@ class EmployeeOutputFilter extends StatelessWidget {
 
   final ValueChanged<String> onEmployeeChanged;
 
-  final ValueChanged<AssignEmployee>
-      onEmployeeSelected;
+  final ValueChanged<AssignEmployee> onEmployeeSelected;
 
   final VoidCallback onFromDateTap;
 
@@ -54,13 +54,11 @@ class EmployeeOutputFilter extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius:
-            BorderRadius.circular(16),
+        color: context.cardBackgroundColor,
+        borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color:
-                Colors.black.withOpacity(.035),
+            color: context.appColors.shadow.withValues(alpha: .035),
             blurRadius: 10,
             offset: const Offset(0, 3),
           ),
@@ -71,51 +69,39 @@ class EmployeeOutputFilter extends StatelessWidget {
           // ======================================================
           // FILTER HEADER
           // ======================================================
-
           InkWell(
-            borderRadius:
-                BorderRadius.circular(16),
+            borderRadius: BorderRadius.circular(16),
             onTap: onExpandChanged,
             child: Padding(
-              padding:
-                  const EdgeInsets.symmetric(
-                horizontal: 15,
-                vertical: 13,
-              ),
+              padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 13),
               child: Row(
                 children: [
                   Container(
                     height: 38,
                     width: 38,
                     decoration: BoxDecoration(
-                      color:
-                          const Color(0xFFEAF6EE),
-                      borderRadius:
-                          BorderRadius.circular(10),
+                      color: context.primaryColor.withValues(alpha: 0.08),
+                      borderRadius: BorderRadius.circular(10),
                     ),
-                    child: const Icon(
+                    child: Icon(
                       Icons.filter_alt_outlined,
-                      color:
-                          Color(0xFF287A4B),
+                      color: context.primaryColor,
                       size: 21,
                     ),
                   ),
 
                   const SizedBox(width: 11),
 
-                  const Expanded(
+                  Expanded(
                     child: Column(
-                      crossAxisAlignment:
-                          CrossAxisAlignment.start,
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
                           'Search & Filter',
                           style: TextStyle(
                             fontSize: 14,
-                            fontWeight:
-                                FontWeight.w800,
-                            color:
-                                Color(0xFF202923),
+                            fontWeight: FontWeight.w800,
+                            color: context.cardTextColor,
                           ),
                         ),
                         SizedBox(height: 2),
@@ -123,8 +109,7 @@ class EmployeeOutputFilter extends StatelessWidget {
                           'Employee name and date range',
                           style: TextStyle(
                             fontSize: 11,
-                            color:
-                                Color(0xFF7A837E),
+                            color: context.secondaryTextColor,
                           ),
                         ),
                       ],
@@ -133,12 +118,9 @@ class EmployeeOutputFilter extends StatelessWidget {
 
                   Icon(
                     expanded
-                        ? Icons
-                            .keyboard_arrow_up_rounded
-                        : Icons
-                            .keyboard_arrow_down_rounded,
-                    color:
-                        const Color(0xFF59645E),
+                        ? Icons.keyboard_arrow_up_rounded
+                        : Icons.keyboard_arrow_down_rounded,
+                    color: context.secondaryTextColor,
                   ),
                 ],
               ),
@@ -148,27 +130,18 @@ class EmployeeOutputFilter extends StatelessWidget {
           // ======================================================
           // FILTER BODY
           // ======================================================
-
           if (expanded) ...[
             const Divider(height: 1),
 
             Padding(
-              padding:
-                  const EdgeInsets.fromLTRB(
-                14,
-                14,
-                14,
-                14,
-              ),
+              padding: const EdgeInsets.fromLTRB(14, 14, 14, 14),
               child: Column(
                 children: [
                   // ==================================================
                   // EMPLOYEE LABEL
                   // ==================================================
-
                   const _FieldLabel(
-                    icon:
-                        Icons.person_outline_rounded,
+                    icon: Icons.person_outline_rounded,
                     title: 'Employee',
                   ),
 
@@ -177,66 +150,39 @@ class EmployeeOutputFilter extends StatelessWidget {
                   // ==================================================
                   // EMPLOYEE TEXT FIELD
                   // ==================================================
-
                   TextField(
-                    controller:
-                        employeeController,
+                    controller: employeeController,
 
-                    onChanged:
-                        onEmployeeChanged,
+                    onChanged: onEmployeeChanged,
 
-                    decoration:
-                        InputDecoration(
-                      hintText:
-                          'Search employee name',
+                    decoration: InputDecoration(
+                      hintText: 'Search employee name',
 
-                      hintStyle:
-                          const TextStyle(
+                      hintStyle: TextStyle(
                         fontSize: 13,
-                        color:
-                            Color(0xFF9AA19D),
+                        color: context.secondaryTextColor,
                       ),
 
-                      prefixIcon:
-                          const Icon(
-                        Icons.search_rounded,
-                        size: 20,
-                      ),
+                      prefixIcon: Icon(Icons.search_rounded, size: 20),
 
-                      suffixIcon:
-                          employeeController
-                                  .text
-                                  .isNotEmpty
-                              ? IconButton(
-                                  onPressed: () {
-                                    employeeController
-                                        .clear();
+                      suffixIcon: employeeController.text.isNotEmpty
+                          ? IconButton(
+                              onPressed: () {
+                                employeeController.clear();
 
-                                    onEmployeeChanged(
-                                      '',
-                                    );
-                                  },
-                                  icon:
-                                      const Icon(
-                                    Icons
-                                        .close_rounded,
-                                    size: 18,
-                                  ),
-                                )
-                              : null,
+                                onEmployeeChanged('');
+                              },
+                              icon: Icon(Icons.close_rounded, size: 18),
+                            )
+                          : null,
 
                       filled: true,
 
-                      fillColor:
-                          const Color(0xFFF7F9F8),
+                      fillColor: context.appColors.surfaceContainerHighest,
 
-                      border:
-                          OutlineInputBorder(
-                        borderRadius:
-                            BorderRadius.circular(
-                                11),
-                        borderSide:
-                            BorderSide.none,
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(11),
+                        borderSide: BorderSide.none,
                       ),
                     ),
                   ),
@@ -244,23 +190,15 @@ class EmployeeOutputFilter extends StatelessWidget {
                   // ==================================================
                   // LOADING
                   // ==================================================
-
                   if (employeeLoading)
-                    const Padding(
-                      padding:
-                          EdgeInsets.only(
-                        top: 6,
-                      ),
+                    Padding(
+                      padding: EdgeInsets.only(top: 6),
                       child: Align(
-                        alignment:
-                            Alignment.centerRight,
+                        alignment: Alignment.centerRight,
                         child: SizedBox(
                           height: 18,
                           width: 18,
-                          child:
-                              CircularProgressIndicator(
-                            strokeWidth: 2,
-                          ),
+                          child: CircularProgressIndicator(strokeWidth: 2),
                         ),
                       ),
                     ),
@@ -268,60 +206,34 @@ class EmployeeOutputFilter extends StatelessWidget {
                   // ==================================================
                   // EMPLOYEE SUGGESTIONS
                   // ==================================================
-
                   if (employees.isNotEmpty)
                     Container(
-                      margin:
-                          const EdgeInsets.only(
-                        top: 4,
+                      margin: const EdgeInsets.only(top: 4),
+
+                      constraints: const BoxConstraints(maxHeight: 190),
+
+                      decoration: BoxDecoration(
+                        color: context.cardBackgroundColor,
+                        borderRadius: BorderRadius.circular(10),
+                        border: Border.all(color: context.borderColor),
                       ),
 
-                      constraints:
-                          const BoxConstraints(
-                        maxHeight: 190,
-                      ),
-
-                      decoration:
-                          BoxDecoration(
-                        color: Colors.white,
-                        borderRadius:
-                            BorderRadius.circular(
-                                10),
-                        border: Border.all(
-                          color:
-                              const Color(
-                                  0xFFE0E5E2),
-                        ),
-                      ),
-
-                      child:
-                          ListView.separated(
+                      child: ListView.separated(
                         shrinkWrap: true,
 
-                        itemCount:
-                            employees.length,
+                        itemCount: employees.length,
 
-                        separatorBuilder:
-                            (_, __) =>
-                                const Divider(
-                          height: 1,
-                        ),
+                        separatorBuilder: (_, __) => const Divider(height: 1),
 
-                        itemBuilder:
-                            (context, index) {
-                          final employee =
-                              employees[index];
+                        itemBuilder: (context, index) {
+                          final employee = employees[index];
 
                           return InkWell(
                             onTap: () {
-                              onEmployeeSelected(
-                                employee,
-                              );
+                              onEmployeeSelected(employee);
                             },
                             child: Padding(
-                              padding:
-                                  const EdgeInsets
-                                      .symmetric(
+                              padding: const EdgeInsets.symmetric(
                                 horizontal: 12,
                                 vertical: 10,
                               ),
@@ -330,62 +242,43 @@ class EmployeeOutputFilter extends StatelessWidget {
                                   Container(
                                     height: 32,
                                     width: 32,
-                                    decoration:
-                                        const BoxDecoration(
-                                      color: Color(
-                                          0xFFEAF6EE),
-                                      shape:
-                                          BoxShape.circle,
+                                    decoration: BoxDecoration(
+                                      color: context.primaryColor.withValues(
+                                        alpha: 0.08,
+                                      ),
+                                      shape: BoxShape.circle,
                                     ),
-                                    child:
-                                        const Icon(
-                                      Icons
-                                          .person_outline,
+                                    child: Icon(
+                                      Icons.person_outline,
                                       size: 17,
-                                      color: Color(
-                                          0xFF287A4B),
+                                      color: context.primaryColor,
                                     ),
                                   ),
 
-                                  const SizedBox(
-                                      width: 9),
+                                  const SizedBox(width: 9),
 
                                   Expanded(
-                                    child:
-                                        Column(
+                                    child: Column(
                                       crossAxisAlignment:
-                                          CrossAxisAlignment
-                                              .start,
+                                          CrossAxisAlignment.start,
                                       children: [
                                         Text(
-                                          employee
-                                              .fldAdmName
-                                              .toString(),
+                                          employee.fldAdmName.toString(),
                                           maxLines: 1,
-                                          overflow:
-                                              TextOverflow
-                                                  .ellipsis,
-                                          style:
-                                              const TextStyle(
-                                            fontSize:
-                                                13,
-                                            fontWeight:
-                                                FontWeight
-                                                    .w600,
+                                          overflow: TextOverflow.ellipsis,
+                                          style: TextStyle(
+                                            fontSize: 13,
+                                            fontWeight: FontWeight.w600,
                                           ),
                                         ),
 
-                                        const SizedBox(
-                                            height: 2),
+                                        const SizedBox(height: 2),
 
                                         Text(
                                           'ID: ${employee.fldId}',
-                                          style:
-                                              const TextStyle(
-                                            fontSize:
-                                                10,
-                                            color: Color(
-                                                0xFF7A837E),
+                                          style: TextStyle(
+                                            fontSize: 10,
+                                            color: context.secondaryTextColor,
                                           ),
                                         ),
                                       ],
@@ -404,15 +297,13 @@ class EmployeeOutputFilter extends StatelessWidget {
                   // ==================================================
                   // DATES
                   // ==================================================
-
                   Row(
                     children: [
                       Expanded(
                         child: _DateField(
                           title: 'From Date',
                           value: fromDate,
-                          onTap:
-                              onFromDateTap,
+                          onTap: onFromDateTap,
                         ),
                       ),
 
@@ -422,8 +313,7 @@ class EmployeeOutputFilter extends StatelessWidget {
                         child: _DateField(
                           title: 'To Date',
                           value: toDate,
-                          onTap:
-                              onToDateTap,
+                          onTap: onToDateTap,
                         ),
                       ),
                     ],
@@ -434,47 +324,26 @@ class EmployeeOutputFilter extends StatelessWidget {
                   // ==================================================
                   // BUTTONS
                   // ==================================================
-
                   Row(
                     children: [
                       Expanded(
-                        child:
-                            OutlinedButton.icon(
+                        child: OutlinedButton.icon(
                           onPressed: onReset,
 
-                          icon: const Icon(
-                            Icons
-                                .restart_alt_rounded,
-                            size: 18,
-                          ),
+                          icon: Icon(Icons.restart_alt_rounded, size: 18),
 
-                          label:
-                              const Text('Reset'),
+                          label: Text('Reset'),
 
-                          style:
-                              OutlinedButton.styleFrom(
-                            foregroundColor:
-                                const Color(
-                                    0xFF59645E),
+                          style: OutlinedButton.styleFrom(
+                            foregroundColor: context.secondaryTextColor,
 
-                            side:
-                                const BorderSide(
-                              color: Color(
-                                  0xFFD8DEDA),
+                            side: BorderSide(color: context.borderColor),
+
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(11),
                             ),
 
-                            shape:
-                                RoundedRectangleBorder(
-                              borderRadius:
-                                  BorderRadius.circular(
-                                      11),
-                            ),
-
-                            padding:
-                                const EdgeInsets
-                                    .symmetric(
-                              vertical: 13,
-                            ),
+                            padding: const EdgeInsets.symmetric(vertical: 13),
                           ),
                         ),
                       ),
@@ -482,41 +351,25 @@ class EmployeeOutputFilter extends StatelessWidget {
                       const SizedBox(width: 10),
 
                       Expanded(
-                        child:
-                            ElevatedButton.icon(
+                        child: ElevatedButton.icon(
                           onPressed: onSearch,
 
-                          icon: const Icon(
-                            Icons.search_rounded,
-                            size: 18,
-                          ),
+                          icon: Icon(Icons.search_rounded, size: 18),
 
-                          label:
-                              const Text('Search'),
+                          label: Text('Search'),
 
-                          style:
-                              ElevatedButton.styleFrom(
-                            backgroundColor:
-                                const Color(
-                                    0xFF287A4B),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: context.primaryColor,
 
-                            foregroundColor:
-                                Colors.white,
+                            foregroundColor: context.onPrimaryColor,
 
                             elevation: 0,
 
-                            shape:
-                                RoundedRectangleBorder(
-                              borderRadius:
-                                  BorderRadius.circular(
-                                      11),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(11),
                             ),
 
-                            padding:
-                                const EdgeInsets
-                                    .symmetric(
-                              vertical: 13,
-                            ),
+                            padding: const EdgeInsets.symmetric(vertical: 13),
                           ),
                         ),
                       ),
@@ -540,30 +393,22 @@ class _FieldLabel extends StatelessWidget {
   final IconData icon;
   final String title;
 
-  const _FieldLabel({
-    required this.icon,
-    required this.title,
-  });
+  const _FieldLabel({required this.icon, required this.title});
 
   @override
   Widget build(BuildContext context) {
     return Row(
       children: [
-        Icon(
-          icon,
-          size: 17,
-          color:
-              const Color(0xFF287A4B),
-        ),
+        Icon(icon, size: 17, color: context.primaryColor),
 
         const SizedBox(width: 6),
 
         Text(
           title,
-          style: const TextStyle(
+          style: TextStyle(
             fontSize: 12,
             fontWeight: FontWeight.w700,
-            color: Color(0xFF39423D),
+            color: context.cardTextColor,
           ),
         ),
       ],
@@ -589,50 +434,38 @@ class _DateField extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return InkWell(
-      borderRadius:
-          BorderRadius.circular(11),
+      borderRadius: BorderRadius.circular(11),
 
       onTap: onTap,
 
       child: Container(
-        padding:
-            const EdgeInsets.symmetric(
-          horizontal: 11,
-          vertical: 10,
-        ),
+        padding: const EdgeInsets.symmetric(horizontal: 11, vertical: 10),
 
-        decoration:
-            BoxDecoration(
-          color:
-              const Color(0xFFF7F9F8),
+        decoration: BoxDecoration(
+          color: context.appColors.surfaceContainerHighest,
 
-          borderRadius:
-              BorderRadius.circular(11),
+          borderRadius: BorderRadius.circular(11),
         ),
 
         child: Row(
           children: [
-            const Icon(
+            Icon(
               Icons.calendar_today_outlined,
               size: 17,
-              color:
-                  Color(0xFF287A4B),
+              color: context.primaryColor,
             ),
 
             const SizedBox(width: 8),
 
             Expanded(
               child: Column(
-                crossAxisAlignment:
-                    CrossAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
                     title,
-                    style:
-                        const TextStyle(
+                    style: TextStyle(
                       fontSize: 9,
-                      color:
-                          Color(0xFF7A837E),
+                      color: context.secondaryTextColor,
                     ),
                   ),
 
@@ -640,13 +473,10 @@ class _DateField extends StatelessWidget {
 
                   Text(
                     value,
-                    style:
-                        const TextStyle(
+                    style: TextStyle(
                       fontSize: 12,
-                      fontWeight:
-                          FontWeight.w700,
-                      color:
-                          Color(0xFF202923),
+                      fontWeight: FontWeight.w700,
+                      color: context.cardTextColor,
                     ),
                   ),
                 ],

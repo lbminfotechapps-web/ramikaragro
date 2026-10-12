@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:solufine/core/theme/app_theme_context.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../bloc/employee_output_bloc.dart';
@@ -20,7 +21,7 @@ class EmployeeOutputDetailsDialog extends StatelessWidget {
   Widget build(BuildContext context) {
     return Dialog(
       insetPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 24),
-      backgroundColor: Colors.white,
+      backgroundColor: context.cardBackgroundColor,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
       child: ConstrainedBox(
         constraints: BoxConstraints(
@@ -38,7 +39,7 @@ class EmployeeOutputDetailsDialog extends StatelessWidget {
               child: BlocBuilder<EmployeeOutputBloc, EmployeeOutputState>(
                 builder: (context, state) {
                   if (state.status == EmployeeOutputStatus.loading) {
-                    return const Padding(
+                    return Padding(
                       padding: EdgeInsets.all(50),
                       child: Center(child: CircularProgressIndicator()),
                     );
@@ -46,6 +47,7 @@ class EmployeeOutputDetailsDialog extends StatelessWidget {
 
                   if (state.status == EmployeeOutputStatus.failure) {
                     return _buildMessage(
+                      context,
                       Icons.error_outline,
                       state.errorMessage ?? 'Unable to load details',
                     );
@@ -54,7 +56,7 @@ class EmployeeOutputDetailsDialog extends StatelessWidget {
                   final response = state.employeeOutRepoDetailsEntity;
 
                   if (response == null) {
-                    return const Padding(
+                    return Padding(
                       padding: EdgeInsets.all(40),
                       child: Center(child: CircularProgressIndicator()),
                     );
@@ -64,6 +66,7 @@ class EmployeeOutputDetailsDialog extends StatelessWidget {
 
                   if (records.isEmpty) {
                     return _buildMessage(
+                      context,
                       Icons.inbox_outlined,
                       'No employee details found',
                     );
@@ -93,28 +96,31 @@ class EmployeeOutputDetailsDialog extends StatelessWidget {
                           children: [
                             Expanded(
                               child: _summaryCard(
+                                context,
                                 title: 'Expense',
                                 value: '₹${totalExpense.toStringAsFixed(2)}',
 
-                                color: Colors.orange,
+                                color: context.appColors.secondary,
                               ),
                             ),
                             const SizedBox(width: 7),
                             Expanded(
                               child: _summaryCard(
+                                context,
                                 title: 'Kilometer',
                                 value: totalKm.toStringAsFixed(1),
 
-                                color: Colors.blue,
+                                color: context.appColors.tertiary,
                               ),
                             ),
                             const SizedBox(width: 7),
                             Expanded(
                               child: _summaryCard(
+                                context,
                                 title: 'Present',
                                 value: '$totalPresent',
 
-                                color: Colors.green,
+                                color: context.primaryColor,
                               ),
                             ),
                           ],
@@ -122,12 +128,12 @@ class EmployeeOutputDetailsDialog extends StatelessWidget {
 
                         const SizedBox(height: 16),
 
-                        const Text(
+                        Text(
                           'Daily Expense & Attendance',
                           style: TextStyle(
                             fontSize: 14,
                             fontWeight: FontWeight.w800,
-                            color: Color(0xFF202923),
+                            color: context.cardTextColor,
                           ),
                         ),
 
@@ -142,7 +148,7 @@ class EmployeeOutputDetailsDialog extends StatelessWidget {
                               borderRadius: BorderRadius.circular(10),
                               child: Table(
                                 border: TableBorder.all(
-                                  color: const Color(0xFFDCE7DF),
+                                  color: context.borderColor,
                                 ),
                                 columnWidths: const {
                                   0: FlexColumnWidth(1.5),
@@ -155,14 +161,28 @@ class EmployeeOutputDetailsDialog extends StatelessWidget {
                                 children: [
                                   // TABLE HEADER
                                   TableRow(
-                                    decoration: const BoxDecoration(
-                                      color: Color(0xFFEAF6EE),
+                                    decoration: BoxDecoration(
+                                      color: context.primaryColor.withValues(
+                                        alpha: 0.08,
+                                      ),
                                     ),
                                     children: [
-                                      _tableCell('Date', isHeader: true),
-                                      _tableCell('Expense (₹)', isHeader: true),
-                                      _tableCell('KM', isHeader: true),
-                                      _tableCell('Status', isHeader: true),
+                                      _tableCell(
+                                        context,
+                                        'Date',
+                                        isHeader: true,
+                                      ),
+                                      _tableCell(
+                                        context,
+                                        'Expense (₹)',
+                                        isHeader: true,
+                                      ),
+                                      _tableCell(context, 'KM', isHeader: true),
+                                      _tableCell(
+                                        context,
+                                        'Status',
+                                        isHeader: true,
+                                      ),
                                     ],
                                   ),
 
@@ -175,16 +195,26 @@ class EmployeeOutputDetailsDialog extends StatelessWidget {
                                     TableRow(
                                       decoration: BoxDecoration(
                                         color: index.isEven
-                                            ? Colors.white
-                                            : const Color(0xFFF7F9F8),
+                                            ? context.cardBackgroundColor
+                                            : context
+                                                  .appColors
+                                                  .surfaceContainerHighest,
                                       ),
                                       children: [
-                                        _tableCell(records[index].date),
-                                        _tableCell(records[index].totalExpense),
                                         _tableCell(
+                                          context,
+                                          records[index].date,
+                                        ),
+                                        _tableCell(
+                                          context,
+                                          records[index].totalExpense,
+                                        ),
+                                        _tableCell(
+                                          context,
                                           records[index].totalKilometer,
                                         ),
                                         _statusCell(
+                                          context,
                                           records[index].presentStatus,
                                         ),
                                       ],
@@ -192,20 +222,29 @@ class EmployeeOutputDetailsDialog extends StatelessWidget {
 
                                   // TOTAL ROW
                                   TableRow(
-                                    decoration: const BoxDecoration(
-                                      color: Color(0xFFDDF1E4),
+                                    decoration: BoxDecoration(
+                                      color: context.primaryColor.withValues(
+                                        alpha: 0.08,
+                                      ),
                                     ),
                                     children: [
-                                      _tableCell('TOTAL', isTotal: true),
                                       _tableCell(
+                                        context,
+                                        'TOTAL',
+                                        isTotal: true,
+                                      ),
+                                      _tableCell(
+                                        context,
                                         totalExpense.toStringAsFixed(2),
                                         isTotal: true,
                                       ),
                                       _tableCell(
+                                        context,
                                         totalKm.toStringAsFixed(1),
                                         isTotal: true,
                                       ),
                                       _tableCell(
+                                        context,
                                         'P - $totalPresent',
                                         isTotal: true,
                                       ),
@@ -221,9 +260,9 @@ class EmployeeOutputDetailsDialog extends StatelessWidget {
 
                         Text(
                           'Total records: ${records.length}',
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontSize: 11,
-                            color: Colors.grey,
+                            color: context.secondaryTextColor,
                           ),
                         ),
                       ],
@@ -242,8 +281,11 @@ class EmployeeOutputDetailsDialog extends StatelessWidget {
                 alignment: Alignment.centerRight,
                 child: TextButton.icon(
                   onPressed: () => Navigator.of(context).pop(),
-                  icon: const Icon(Icons.close,color: Colors.green,),
-                  label: const Text('Close',style: TextStyle(color: Colors.green,),),
+                  icon: Icon(Icons.close, color: context.primaryColor),
+                  label: Text(
+                    'Close',
+                    style: TextStyle(color: context.primaryColor),
+                  ),
                 ),
               ),
             ),
@@ -256,15 +298,15 @@ class EmployeeOutputDetailsDialog extends StatelessWidget {
   Widget _buildHeader(BuildContext context) {
     return Container(
       padding: const EdgeInsets.all(16),
-      decoration: const BoxDecoration(
-        color: Color(0xFFEAF6EE),
+      decoration: BoxDecoration(
+        color: context.primaryColor.withValues(alpha: 0.08),
         borderRadius: BorderRadius.vertical(top: Radius.circular(18)),
       ),
       child: Row(
         children: [
-          const CircleAvatar(
-            backgroundColor: Color(0xFFD2E9D8),
-            child: Icon(Icons.person_outline, color: Color(0xFF287A4B)),
+          CircleAvatar(
+            backgroundColor: context.primaryColor.withValues(alpha: 0.08),
+            child: Icon(Icons.person_outline, color: context.primaryColor),
           ),
 
           const SizedBox(width: 10),
@@ -277,15 +319,15 @@ class EmployeeOutputDetailsDialog extends StatelessWidget {
                   employeeName,
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w800,
-                  ),
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.w800),
                 ),
                 const SizedBox(height: 3),
                 Text(
                   '$fromDate  to  $toDate',
-                  style: const TextStyle(fontSize: 11, color: Colors.black54),
+                  style: TextStyle(
+                    fontSize: 11,
+                    color: context.secondaryTextColor,
+                  ),
                 ),
               ],
             ),
@@ -293,14 +335,15 @@ class EmployeeOutputDetailsDialog extends StatelessWidget {
 
           IconButton(
             onPressed: () => Navigator.of(context).pop(),
-            icon: const Icon(Icons.close),
+            icon: Icon(Icons.close),
           ),
         ],
       ),
     );
   }
 
-  Widget _summaryCard({
+  Widget _summaryCard(
+    BuildContext context, {
     required String title,
     required String value,
 
@@ -330,7 +373,7 @@ class EmployeeOutputDetailsDialog extends StatelessWidget {
           const SizedBox(height: 3),
           Text(
             title,
-            style: const TextStyle(fontSize: 10, color: Colors.black54),
+            style: TextStyle(fontSize: 10, color: context.secondaryTextColor),
           ),
         ],
       ),
@@ -338,6 +381,7 @@ class EmployeeOutputDetailsDialog extends StatelessWidget {
   }
 
   Widget _tableCell(
+    BuildContext context,
     String value, {
     bool isHeader = false,
     bool isTotal = false,
@@ -351,14 +395,14 @@ class EmployeeOutputDetailsDialog extends StatelessWidget {
           fontSize: 12,
           fontWeight: isHeader || isTotal ? FontWeight.w800 : FontWeight.w500,
           color: isHeader || isTotal
-              ? const Color(0xFF287A4B)
-              : const Color(0xFF202923),
+              ? context.primaryColor
+              : context.cardTextColor,
         ),
       ),
     );
   }
 
-  Widget _statusCell(String status) {
+  Widget _statusCell(BuildContext context, String status) {
     final normalized = status.trim().toUpperCase();
 
     final isPresent = normalized == 'P';
@@ -370,16 +414,14 @@ class EmployeeOutputDetailsDialog extends StatelessWidget {
           padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
           decoration: BoxDecoration(
             color: isPresent
-                ? const Color(0xFFE2F5E9)
-                : const Color(0xFFFFE9E9),
+                ? context.primaryColor.withValues(alpha: 0.08)
+                : context.appColors.error.withValues(alpha: 0.08),
             borderRadius: BorderRadius.circular(7),
           ),
           child: Text(
             normalized,
             style: TextStyle(
-              color: isPresent
-                  ? const Color(0xFF16834B)
-                  : const Color(0xFFD33B3B),
+              color: isPresent ? context.primaryColor : context.appColors.error,
               fontWeight: FontWeight.w800,
               fontSize: 12,
             ),
@@ -389,14 +431,14 @@ class EmployeeOutputDetailsDialog extends StatelessWidget {
     );
   }
 
-  Widget _buildMessage(IconData icon, String message) {
+  Widget _buildMessage(BuildContext context, IconData icon, String message) {
     return Padding(
       padding: const EdgeInsets.all(30),
       child: Center(
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(icon, size: 42, color: Colors.grey),
+            Icon(icon, size: 42, color: context.secondaryTextColor),
             const SizedBox(height: 12),
             Text(message, textAlign: TextAlign.center),
           ],

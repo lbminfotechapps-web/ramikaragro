@@ -1,4 +1,5 @@
 import 'package:solufine/core/router/app_router.dart';
+import 'package:solufine/core/theme/app_theme_context.dart';
 import 'package:solufine/core/utility/widgets/custom_appbar.dart';
 import 'package:solufine/core/utility/widgets/custom_loader.dart';
 import 'package:solufine/features/home/presentation/home_bloc/crop_schedule_bloc.dart';
@@ -35,10 +36,20 @@ class CropScheduleView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF7F9F7),
+      backgroundColor: context.backgroundColor,
 
       appBar: CustomAppBar(
         title: 'Crop Schedule',
+        backgroundColor: context.primaryColor,
+        titleStyle: TextStyle(color: context.onPrimaryColor),
+        leading: IconButton(
+          icon: Icon(
+            Icons.arrow_back_ios_new_rounded,
+            size: 20,
+            color: context.onPrimaryColor,
+          ),
+          onPressed: () => context.go(AppRouter.home),
+        ),
         showBackButton: true,
         onBackTap: () => context.go(AppRouter.home),
       ),
@@ -79,7 +90,7 @@ class CropScheduleView extends StatelessWidget {
           // =====================================================
 
           return RefreshIndicator(
-            color: const Color(0xFF176B3A),
+            color: context.primaryColor,
             onRefresh: () async {
               context.read<CropScheduleBloc>().add(
                 const RefreshCropSchedulesEvent(),
@@ -119,15 +130,11 @@ class _SummaryHeader extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        gradient: const LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [Color(0xFF176B3A), Color(0xFF2E8B57)],
-        ),
+        color: context.primaryColor,
         borderRadius: BorderRadius.circular(22),
         boxShadow: [
           BoxShadow(
-            color: Colors.green.withOpacity(0.18),
+            color: context.primaryColor.withValues(alpha: 0.18),
             blurRadius: 18,
             offset: const Offset(0, 8),
           ),
@@ -140,12 +147,12 @@ class _SummaryHeader extends StatelessWidget {
             width: 58,
             height: 58,
             decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.16),
+              color: context.onPrimaryColor.withValues(alpha: 0.16),
               borderRadius: BorderRadius.circular(17),
             ),
-            child: const Icon(
+            child: Icon(
               Icons.agriculture_rounded,
-              color: Colors.white,
+              color: context.onPrimaryColor,
               size: 30,
             ),
           ),
@@ -157,10 +164,10 @@ class _SummaryHeader extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text(
+                Text(
                   'Crop Planning',
                   style: TextStyle(
-                    color: Colors.white,
+                    color: context.onPrimaryColor,
                     fontSize: 18,
                     fontWeight: FontWeight.w700,
                   ),
@@ -170,7 +177,10 @@ class _SummaryHeader extends StatelessWidget {
                   count == 1
                       ? '1 crop schedule available'
                       : '$count crop schedules available',
-                  style: const TextStyle(color: Colors.white70, fontSize: 13),
+                  style: TextStyle(
+                    color: context.onPrimaryColor.withValues(alpha: 0.7),
+                    fontSize: 13,
+                  ),
                 ),
               ],
             ),
@@ -180,13 +190,13 @@ class _SummaryHeader extends StatelessWidget {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: context.cardBackgroundColor,
               borderRadius: BorderRadius.circular(14),
             ),
             child: Text(
               '$count',
-              style: const TextStyle(
-                color: Color(0xFF176B3A),
+              style: TextStyle(
+                color: context.primaryColor,
                 fontSize: 22,
                 fontWeight: FontWeight.w800,
               ),
@@ -214,7 +224,7 @@ class _LoadingView extends StatelessWidget {
         Container(
           height: 120,
           decoration: BoxDecoration(
-            color: Colors.white,
+            color: context.cardBackgroundColor,
             borderRadius: BorderRadius.circular(22),
           ),
         ),
@@ -227,7 +237,7 @@ class _LoadingView extends StatelessWidget {
             height: 230,
             margin: const EdgeInsets.only(bottom: 16),
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: context.cardBackgroundColor,
               borderRadius: BorderRadius.circular(20),
             ),
           ),
@@ -235,7 +245,7 @@ class _LoadingView extends StatelessWidget {
 
         const SizedBox(height: 20),
 
-        const Center(child: CustomLoader()),
+        Center(child: CustomLoader(color: context.primaryColor)),
       ],
     );
   }
@@ -262,22 +272,26 @@ class _ErrorView extends StatelessWidget {
               width: 82,
               height: 82,
               decoration: BoxDecoration(
-                color: Colors.red.shade50,
+                color: context.appColors.error.withValues(alpha: 0.08),
                 shape: BoxShape.circle,
               ),
               child: Icon(
                 Icons.cloud_off_rounded,
                 size: 40,
-                color: Colors.red.shade400,
+                color: context.appColors.error,
               ),
             ),
 
             const SizedBox(height: 22),
 
-            const Text(
+            Text(
               'Unable to load schedules',
               textAlign: TextAlign.center,
-              style: TextStyle(fontSize: 20, fontWeight: FontWeight.w700),
+              style: TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.w700,
+                color: context.primaryTextColor,
+              ),
             ),
 
             const SizedBox(height: 8),
@@ -286,7 +300,7 @@ class _ErrorView extends StatelessWidget {
               message,
               textAlign: TextAlign.center,
               style: TextStyle(
-                color: Colors.grey.shade600,
+                color: context.secondaryTextColor,
                 fontSize: 14,
                 height: 1.5,
               ),
@@ -301,8 +315,8 @@ class _ErrorView extends StatelessWidget {
                 );
               },
               style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF176B3A),
-                foregroundColor: Colors.white,
+                backgroundColor: context.primaryColor,
+                foregroundColor: context.onPrimaryColor,
                 padding: const EdgeInsets.symmetric(
                   horizontal: 22,
                   vertical: 13,
@@ -334,7 +348,7 @@ class _EmptyView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return RefreshIndicator(
-      color: const Color(0xFF176B3A),
+      color: context.primaryColor,
       onRefresh: () async {
         context.read<CropScheduleBloc>().add(const RefreshCropSchedulesEvent());
       },
@@ -348,23 +362,27 @@ class _EmptyView extends StatelessWidget {
               width: 100,
               height: 100,
               decoration: BoxDecoration(
-                color: Colors.green.shade50,
+                color: context.primaryColor.withValues(alpha: 0.08),
                 shape: BoxShape.circle,
               ),
               child: Icon(
                 Icons.agriculture_outlined,
                 size: 48,
-                color: Colors.green.shade700,
+                color: context.primaryColor,
               ),
             ),
           ),
 
           const SizedBox(height: 24),
 
-          const Center(
+          Center(
             child: Text(
               'No Crop Schedule',
-              style: TextStyle(fontSize: 20, fontWeight: FontWeight.w700),
+              style: TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.w700,
+                color: context.primaryTextColor,
+              ),
             ),
           ),
 
@@ -378,7 +396,7 @@ class _EmptyView extends StatelessWidget {
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   fontSize: 14,
-                  color: Colors.grey.shade600,
+                  color: context.secondaryTextColor,
                   height: 1.5,
                 ),
               ),

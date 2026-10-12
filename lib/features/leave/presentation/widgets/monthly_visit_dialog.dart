@@ -1,5 +1,6 @@
 import 'package:solufine/core/theme/app_theme_context.dart';
 import 'package:flutter/material.dart';
+import 'package:solufine/core/theme/app_theme_context.dart';
 
 import '../../domain/entities/pre_details.dart';
 import '../../domain/entities/top_ten_dealer.dart';
@@ -29,7 +30,7 @@ void showMonthlyVisitDialog(BuildContext context, TopTenDealer dealer) {
                         padding: const EdgeInsets.all(16),
                         shrinkWrap: true,
                         itemCount: dealer.preDetails.length,
-                        separatorBuilder: (_, __) => SizedBox(height: 8),
+                        separatorBuilder: (_, __) => const SizedBox(height: 8),
                         itemBuilder: (context, index) {
                           return _monthlyItem(
                             context,
@@ -139,7 +140,7 @@ Widget _monthlyItem(BuildContext context, PreDetails item) {
   return Container(
     padding: const EdgeInsets.all(14),
     decoration: BoxDecoration(
-      color: context.appTheme.inputBackground,
+      color: context.appColors.surfaceContainerHighest,
       borderRadius: BorderRadius.circular(14),
       border: Border.all(color: context.borderColor),
     ),
@@ -149,7 +150,7 @@ Widget _monthlyItem(BuildContext context, PreDetails item) {
           width: 40,
           height: 40,
           decoration: BoxDecoration(
-            color: context.appColors.primaryContainer,
+            color: context.primaryColor.withValues(alpha: 0.08),
             shape: BoxShape.circle,
           ),
           child: Icon(
@@ -167,7 +168,7 @@ Widget _monthlyItem(BuildContext context, PreDetails item) {
             style: TextStyle(
               fontSize: 14,
               fontWeight: FontWeight.w600,
-              color: context.primaryTextColor,
+              color: context.cardTextColor,
             ),
           ),
         ),
@@ -175,7 +176,7 @@ Widget _monthlyItem(BuildContext context, PreDetails item) {
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
           decoration: BoxDecoration(
-            color: context.appColors.primaryContainer,
+            color: context.primaryColor.withValues(alpha: 0.08),
             borderRadius: BorderRadius.circular(20),
           ),
           child: Text(

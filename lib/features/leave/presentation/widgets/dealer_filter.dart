@@ -1,5 +1,6 @@
 import 'package:solufine/core/theme/app_theme_context.dart';
 import 'package:flutter/material.dart';
+import 'package:solufine/core/theme/app_theme_context.dart';
 
 class DealerFilter extends StatelessWidget {
   final int selectedDays;
@@ -51,14 +52,14 @@ class DealerFilter extends StatelessWidget {
                     color: context.primaryColor,
                   ),
                 ),
-                SizedBox(width: 8),
+                const SizedBox(width: 8),
                 Expanded(
                   child: Text(
                     'Follow-up Period',
                     style: TextStyle(
                       fontSize: 12,
                       fontWeight: FontWeight.w800,
-                      color: context.primaryTextColor,
+                      color: context.cardTextColor,
                     ),
                   ),
                 ),
@@ -106,7 +107,7 @@ class DealerFilter extends StatelessWidget {
               decoration: BoxDecoration(
                 color: selected
                     ? context.primaryColor
-                    : context.appTheme.inputBackground,
+                    : context.appColors.surfaceContainerHighest,
                 borderRadius: BorderRadius.circular(12),
                 border: Border.all(
                   color: selected ? context.primaryColor : context.borderColor,
@@ -131,7 +132,7 @@ class DealerFilter extends StatelessWidget {
                       fontWeight: FontWeight.w800,
                       color: selected
                           ? context.onPrimaryColor
-                          : context.primaryTextColor,
+                          : context.cardTextColor,
                     ),
                   ),
                   Text(

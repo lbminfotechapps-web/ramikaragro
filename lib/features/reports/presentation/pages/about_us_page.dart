@@ -1,5 +1,5 @@
 import 'package:solufine/core/router/app_router.dart';
-import 'package:solufine/core/theme/app_colors.dart';
+import 'package:solufine/core/theme/app_theme_context.dart';
 import 'package:solufine/core/utility/widgets/custom_appbar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -16,10 +16,6 @@ import '../widgets/organization_webview.dart';
 class AboutUsPage extends StatelessWidget {
   const AboutUsPage({super.key});
 
-  static const Color primaryGreen = Color(0xFF0F723A);
-  static const Color darkGreen = Color(0xFF09552B);
-  static const Color backgroundColor = Color(0xFFF4F8F5);
-
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
@@ -27,26 +23,26 @@ class AboutUsPage extends StatelessWidget {
           OrganizationDI.createBloc()..add(GetOrganizationDetailsEvent()),
       child: Scaffold(
         appBar: CustomAppBar(
-          backgroundColor: primaryGreen,
+          backgroundColor: context.primaryColor,
           leading: IconButton(
-            icon: const Icon(
+            icon: Icon(
               Icons.arrow_back_ios_new,
               size: 19,
-              color: AppColors.backgroundColor,
+              color: context.onPrimaryColor,
             ),
             onPressed: () {
               context.go(AppRouter.home);
             },
           ),
           title: 'About Us',
-          titleStyle: const TextStyle(
+          titleStyle: TextStyle(
             fontSize: 22,
             fontWeight: FontWeight.w600,
-            color: AppColors.backgroundColor,
+            color: context.onPrimaryColor,
           ),
         ),
 
-        backgroundColor: backgroundColor,
+        backgroundColor: context.backgroundColor,
         body: Column(
           children: [
             _buildHeader(context),
@@ -55,7 +51,7 @@ class AboutUsPage extends StatelessWidget {
               child: BlocBuilder<OrganizationBloc, OrganizationState>(
                 builder: (context, state) {
                   if (state is OrganizationLoading) {
-                    return _buildLoading();
+                    return _buildLoading(context);
                   }
 
                   if (state is OrganizationError) {
@@ -64,6 +60,7 @@ class AboutUsPage extends StatelessWidget {
 
                   if (state is OrganizationLoaded) {
                     return _buildContent(
+                      context,
                       state.organization.organizationAboutUs,
                     );
                   }
@@ -86,14 +83,9 @@ class AboutUsPage extends StatelessWidget {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.fromLTRB(18, 12, 18, 12),
-      decoration: const BoxDecoration(
-        color: primaryGreen,
-        // gradient: LinearGradient(
-        //   colors: [primaryGreen, darkGreen],
-        //   begin: Alignment.topLeft,
-        //   end: Alignment.bottomRight,
-        // ),
-        borderRadius: BorderRadius.only(
+      decoration: BoxDecoration(
+        color: context.primaryColor,
+        borderRadius: const BorderRadius.only(
           bottomLeft: Radius.circular(30),
           bottomRight: Radius.circular(30),
         ),
@@ -101,31 +93,30 @@ class AboutUsPage extends StatelessWidget {
       child: Column(
         children: [
           // const SizedBox(height: 18),
-
           Container(
             width: 58,
             height: 58,
             decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.16),
+              color: context.onPrimaryColor.withOpacity(0.16),
               shape: BoxShape.circle,
               border: Border.all(
-                color: Colors.white.withOpacity(0.25),
+                color: context.onPrimaryColor.withOpacity(0.25),
                 width: 1.5,
               ),
             ),
-            child: const Icon(
+            child: Icon(
               Icons.business_rounded,
-              color: Colors.white,
+              color: context.onPrimaryColor,
               size: 30,
             ),
           ),
 
           const SizedBox(height: 12),
 
-          const Text(
+          Text(
             'About Our Organization',
             style: TextStyle(
-              color: Colors.white,
+              color: context.onPrimaryColor,
               fontSize: 17,
               fontWeight: FontWeight.w600,
             ),
@@ -136,7 +127,7 @@ class AboutUsPage extends StatelessWidget {
           Text(
             'Learn more about us',
             style: TextStyle(
-              color: Colors.white.withOpacity(0.75),
+              color: context.onPrimaryColor.withOpacity(0.75),
               fontSize: 13,
             ),
           ),
@@ -155,13 +146,13 @@ class AboutUsPage extends StatelessWidget {
         width: 44,
         height: 44,
         decoration: BoxDecoration(
-          color: Colors.white.withOpacity(0.12),
+          color: context.onPrimaryColor.withOpacity(0.12),
           borderRadius: BorderRadius.circular(14),
-          border: Border.all(color: Colors.white.withOpacity(0.15)),
+          border: Border.all(color: context.onPrimaryColor.withOpacity(0.15)),
         ),
-        child: const Icon(
+        child: Icon(
           Icons.arrow_back_ios_new_rounded,
-          color: Colors.white,
+          color: context.onPrimaryColor,
           size: 19,
         ),
       ),
@@ -172,15 +163,15 @@ class AboutUsPage extends StatelessWidget {
   // CONTENT
   // ------------------------------------------------------------
 
-  Widget _buildContent(String html) {
+  Widget _buildContent(BuildContext context, String html) {
     return Container(
       width: double.infinity,
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: context.cardBackgroundColor,
         borderRadius: BorderRadius.circular(24),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.06),
+            color: Theme.of(context).shadowColor.withOpacity(0.06),
             blurRadius: 20,
             spreadRadius: 1,
             offset: const Offset(0, 6),
@@ -190,21 +181,21 @@ class AboutUsPage extends StatelessWidget {
       clipBehavior: Clip.antiAlias,
       child: Column(
         children: [
-          _buildContentHeader(),
-    
+          _buildContentHeader(context),
+
           Expanded(child: OrganizationWebView(html: html)),
         ],
       ),
     );
   }
 
-  Widget _buildContentHeader() {
+  Widget _buildContentHeader(BuildContext context) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 14),
       decoration: BoxDecoration(
-        color: primaryGreen.withOpacity(0.06),
+        color: context.primaryColor.withOpacity(0.06),
         border: Border(
-          bottom: BorderSide(color: primaryGreen.withOpacity(0.08)),
+          bottom: BorderSide(color: context.primaryColor.withOpacity(0.08)),
         ),
       ),
     );
@@ -214,7 +205,7 @@ class AboutUsPage extends StatelessWidget {
   // LOADING
   // ------------------------------------------------------------
 
-  Widget _buildLoading() {
+  Widget _buildLoading(BuildContext context) {
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -223,32 +214,32 @@ class AboutUsPage extends StatelessWidget {
             width: 72,
             height: 72,
             decoration: BoxDecoration(
-              color: primaryGreen.withOpacity(0.08),
+              color: context.primaryColor.withOpacity(0.08),
               shape: BoxShape.circle,
             ),
             padding: const EdgeInsets.all(20),
-            child: const CircularProgressIndicator(
+            child: CircularProgressIndicator(
               strokeWidth: 3,
-              color: primaryGreen,
+              color: context.primaryColor,
             ),
           ),
 
           const SizedBox(height: 20),
 
-          const Text(
+          Text(
             'Loading About Us...',
             style: TextStyle(
               fontSize: 15,
               fontWeight: FontWeight.w600,
-              color: Color(0xFF333333),
+              color: context.primaryTextColor,
             ),
           ),
 
           const SizedBox(height: 6),
 
-          const Text(
+          Text(
             'Please wait a moment',
-            style: TextStyle(fontSize: 12, color: Colors.grey),
+            style: TextStyle(fontSize: 12, color: context.secondaryTextColor),
           ),
         ],
       ),
@@ -270,35 +261,39 @@ class AboutUsPage extends StatelessWidget {
               width: 90,
               height: 90,
               decoration: BoxDecoration(
-                color: Colors.red.withOpacity(0.07),
+                color: context.appColors.error.withOpacity(0.07),
                 shape: BoxShape.circle,
               ),
-              child: const Icon(
+              child: Icon(
                 Icons.cloud_off_rounded,
                 size: 42,
-                color: Colors.redAccent,
+                color: context.appColors.error,
               ),
             ),
 
             const SizedBox(height: 22),
 
-            const Text(
+            Text(
               'Unable to Load About Us',
               textAlign: TextAlign.center,
               style: TextStyle(
                 fontSize: 19,
                 fontWeight: FontWeight.w700,
-                color: Color(0xFF252525),
+                color: context.primaryTextColor,
               ),
             ),
 
             const SizedBox(height: 8),
 
-            const Text(
+            Text(
               'Something went wrong while loading '
               'the organization information.',
               textAlign: TextAlign.center,
-              style: TextStyle(fontSize: 13, height: 1.5, color: Colors.grey),
+              style: TextStyle(
+                fontSize: 13,
+                height: 1.5,
+                color: context.secondaryTextColor,
+              ),
             ),
 
             const SizedBox(height: 14),
@@ -307,17 +302,19 @@ class AboutUsPage extends StatelessWidget {
               width: double.infinity,
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: Colors.red.withOpacity(0.05),
+                color: context.appColors.error.withOpacity(0.05),
                 borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: Colors.red.withOpacity(0.10)),
+                border: Border.all(
+                  color: context.appColors.error.withOpacity(0.10),
+                ),
               ),
               child: Text(
                 message,
                 textAlign: TextAlign.center,
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 11,
                   height: 1.4,
-                  color: Colors.redAccent,
+                  color: context.appColors.error,
                 ),
               ),
             ),
@@ -338,8 +335,8 @@ class AboutUsPage extends StatelessWidget {
                   style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
                 ),
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: primaryGreen,
-                  foregroundColor: Colors.white,
+                  backgroundColor: context.primaryColor,
+                  foregroundColor: context.onPrimaryColor,
                   elevation: 0,
                   padding: const EdgeInsets.symmetric(horizontal: 26),
                   shape: RoundedRectangleBorder(

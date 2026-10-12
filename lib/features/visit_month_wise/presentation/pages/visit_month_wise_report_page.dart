@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:solufine/core/theme/app_theme_context.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 
@@ -33,18 +34,18 @@ class _VisitMonthWiseReportPageState extends State<VisitMonthWiseReportPage> {
   // COLORS
   // ============================================================
 
-  static const Color _primary = Color(0xFF0F8A61);
-  static const Color _primaryDark = Color(0xFF08704D);
+  Color get _primary => context.primaryColor;
+  Color get _primaryDark => context.primaryColor;
 
-  static const Color _blue = Color(0xFF3B78D8);
-  static const Color _purple = Color(0xFF705ED1);
-  static const Color _orange = Color(0xFFE69729);
+  Color get _blue => context.appColors.secondary;
+  Color get _purple => context.appColors.tertiary;
+  Color get _orange => context.appColors.error;
 
-  static const Color _background = Color(0xFFF5F8FA);
-  static const Color _border = Color(0xFFE1E8EC);
+  Color get _background => context.backgroundColor;
+  Color get _border => context.borderColor;
 
-  static const Color _text = Color(0xFF172331);
-  static const Color _muted = Color(0xFF718094);
+  Color get _text => context.cardTextColor;
+  Color get _muted => context.secondaryTextColor;
 
   // ============================================================
   // EMPLOYEE
@@ -422,6 +423,16 @@ class _VisitMonthWiseReportPageState extends State<VisitMonthWiseReportPage> {
 
       appBar: CustomAppBar(
         title: 'Visit Analysis Reports',
+        backgroundColor: context.primaryColor,
+        titleStyle: TextStyle(color: context.onPrimaryColor),
+        leading: IconButton(
+          icon: Icon(
+            Icons.arrow_back_ios_new_rounded,
+            size: 20,
+            color: context.onPrimaryColor,
+          ),
+          onPressed: () => Navigator.maybePop(context),
+        ),
 
         showBackButton: true,
 
@@ -431,7 +442,7 @@ class _VisitMonthWiseReportPageState extends State<VisitMonthWiseReportPage> {
       ),
 
       body: !_loginLoaded
-          ? const Center(child: CircularProgressIndicator(color: _primary))
+          ? Center(child: CircularProgressIndicator(color: _primary))
           : BlocBuilder<VisitMonthWiseBloc, VisitMonthWiseState>(
               builder: (context, state) {
                 return RefreshIndicator(
@@ -450,10 +461,9 @@ class _VisitMonthWiseReportPageState extends State<VisitMonthWiseReportPage> {
                       // ====================================
                       // FILTER
                       // ====================================
-
                       _filterCard(state),
 
-                      const SizedBox(height: 8),
+                      SizedBox(height: 8),
 
                       // ====================================
                       // MONTH WISE
@@ -471,7 +481,7 @@ class _VisitMonthWiseReportPageState extends State<VisitMonthWiseReportPage> {
                           state.report ?? _emptyMonthReport(),
                         ),
 
-                      const SizedBox(height: 8),
+                      SizedBox(height: 8),
 
                       // ====================================
                       // DAY WISE
@@ -490,7 +500,7 @@ class _VisitMonthWiseReportPageState extends State<VisitMonthWiseReportPage> {
                           state.dayWiseReport ?? _emptyDayReport(),
                         ),
 
-                      const SizedBox(height: 8),
+                      SizedBox(height: 8),
 
                       // ====================================
                       // HOUR WISE
@@ -509,7 +519,7 @@ class _VisitMonthWiseReportPageState extends State<VisitMonthWiseReportPage> {
                           state.hourWiseReport ?? _emptyHourReport(),
                         ),
 
-                      const SizedBox(height: 8),
+                      SizedBox(height: 8),
 
                       // ====================================
                       // VISIT FREQUENCY
@@ -528,7 +538,7 @@ class _VisitMonthWiseReportPageState extends State<VisitMonthWiseReportPage> {
                           state.frequencyReport ?? _emptyFrequencyReport(),
                         ),
 
-                      const SizedBox(height: 8),
+                      SizedBox(height: 8),
 
                       // ====================================
                       // GEO WISE
@@ -547,7 +557,7 @@ class _VisitMonthWiseReportPageState extends State<VisitMonthWiseReportPage> {
                           state.geoWiseReport ?? _emptyGeoReport(),
                         ),
 
-                      const SizedBox(height: 8),
+                      SizedBox(height: 8),
 
                       // ====================================
                       // TOP DEALERS / FARMERS
@@ -565,7 +575,7 @@ class _VisitMonthWiseReportPageState extends State<VisitMonthWiseReportPage> {
                           state.topListReport ?? _emptyTopListReport(),
                         ),
 
-                      const SizedBox(height: 8),
+                      SizedBox(height: 8),
 
                       // ====================================
                       // TOP EMPLOYEE
@@ -626,9 +636,9 @@ class _VisitMonthWiseReportPageState extends State<VisitMonthWiseReportPage> {
                 children: [
                   _iconBox(Icons.tune_rounded, _primary, size: 30),
 
-                  const SizedBox(width: 8),
+                  SizedBox(width: 8),
 
-                  const Expanded(
+                  Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
 
@@ -667,7 +677,7 @@ class _VisitMonthWiseReportPageState extends State<VisitMonthWiseReportPage> {
 
                     duration: const Duration(milliseconds: 180),
 
-                    child: const Icon(
+                    child: Icon(
                       Icons.keyboard_arrow_down_rounded,
 
                       color: _primary,
@@ -688,9 +698,9 @@ class _VisitMonthWiseReportPageState extends State<VisitMonthWiseReportPage> {
 
               child: Column(
                 children: [
-                  const Divider(height: 1, color: _border),
+                  Divider(height: 1, color: _border),
 
-                  const SizedBox(height: 8),
+                  SizedBox(height: 8),
 
                   _filterFields(state),
 
@@ -722,7 +732,7 @@ class _VisitMonthWiseReportPageState extends State<VisitMonthWiseReportPage> {
             children: [
               Expanded(flex: 4, child: _employeeField(state)),
 
-              const SizedBox(width: 7),
+              SizedBox(width: 7),
 
               Expanded(
                 flex: 2,
@@ -735,7 +745,7 @@ class _VisitMonthWiseReportPageState extends State<VisitMonthWiseReportPage> {
                 ),
               ),
 
-              const SizedBox(width: 7),
+              SizedBox(width: 7),
 
               Expanded(
                 flex: 2,
@@ -748,7 +758,7 @@ class _VisitMonthWiseReportPageState extends State<VisitMonthWiseReportPage> {
                 ),
               ),
 
-              const SizedBox(width: 7),
+              SizedBox(width: 7),
 
               SizedBox(width: 120, height: 40, child: _viewButton()),
             ],
@@ -759,7 +769,7 @@ class _VisitMonthWiseReportPageState extends State<VisitMonthWiseReportPage> {
           children: [
             _employeeField(state),
 
-            const SizedBox(height: 6),
+            SizedBox(height: 6),
 
             Row(
               children: [
@@ -773,7 +783,7 @@ class _VisitMonthWiseReportPageState extends State<VisitMonthWiseReportPage> {
                   ),
                 ),
 
-                const SizedBox(width: 6),
+                SizedBox(width: 6),
 
                 Expanded(
                   child: _dateField(
@@ -787,7 +797,7 @@ class _VisitMonthWiseReportPageState extends State<VisitMonthWiseReportPage> {
               ],
             ),
 
-            const SizedBox(height: 7),
+            SizedBox(height: 7),
 
             SizedBox(width: double.infinity, height: 40, child: _viewButton()),
           ],
@@ -819,7 +829,7 @@ class _VisitMonthWiseReportPageState extends State<VisitMonthWiseReportPage> {
 
         onChanged: _onEmployeeChanged,
 
-        style: const TextStyle(
+        style: TextStyle(
           fontSize: 9,
 
           color: _text,
@@ -832,7 +842,7 @@ class _VisitMonthWiseReportPageState extends State<VisitMonthWiseReportPage> {
 
           hintText: 'Search employee',
 
-          prefixIcon: const Icon(
+          prefixIcon: Icon(
             Icons.person_search_outlined,
 
             size: 16,
@@ -841,7 +851,7 @@ class _VisitMonthWiseReportPageState extends State<VisitMonthWiseReportPage> {
           ),
 
           suffixIcon: state.employeeStatus == VisitReportEmployeeStatus.loading
-              ? const Padding(
+              ? Padding(
                   padding: EdgeInsets.all(12),
 
                   child: SizedBox(
@@ -856,7 +866,7 @@ class _VisitMonthWiseReportPageState extends State<VisitMonthWiseReportPage> {
                     ),
                   ),
                 )
-              : const Icon(
+              : Icon(
                   Icons.keyboard_arrow_down_rounded,
 
                   size: 17,
@@ -866,20 +876,20 @@ class _VisitMonthWiseReportPageState extends State<VisitMonthWiseReportPage> {
 
           filled: true,
 
-          fillColor: const Color(0xFFF9FBFC),
+          fillColor: context.appColors.surfaceContainerHighest,
 
           contentPadding: const EdgeInsets.symmetric(horizontal: 8),
 
           enabledBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(9),
 
-            borderSide: const BorderSide(color: _border),
+            borderSide: BorderSide(color: _border),
           ),
 
           focusedBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(9),
 
-            borderSide: const BorderSide(color: _primary),
+            borderSide: BorderSide(color: _primary),
           ),
         ),
       ),
@@ -901,7 +911,7 @@ class _VisitMonthWiseReportPageState extends State<VisitMonthWiseReportPage> {
       margin: const EdgeInsets.only(top: 6),
 
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: context.cardBackgroundColor,
 
         border: Border.all(color: _border),
 
@@ -916,7 +926,7 @@ class _VisitMonthWiseReportPageState extends State<VisitMonthWiseReportPage> {
         itemCount: state.employees.length,
 
         separatorBuilder: (context, index) =>
-            const Divider(height: 1, color: _border),
+            Divider(height: 1, color: _border),
 
         itemBuilder: (context, index) {
           final VisitReportEmployee employee = state.employees[index];
@@ -933,13 +943,13 @@ class _VisitMonthWiseReportPageState extends State<VisitMonthWiseReportPage> {
                 children: [
                   _iconBox(Icons.person_outline, _primary, size: 26),
 
-                  const SizedBox(width: 7),
+                  SizedBox(width: 7),
 
                   Expanded(
                     child: Text(
                       employee.name,
 
-                      style: const TextStyle(
+                      style: TextStyle(
                         color: _text,
 
                         fontSize: 9,
@@ -978,7 +988,7 @@ class _VisitMonthWiseReportPageState extends State<VisitMonthWiseReportPage> {
           decoration: InputDecoration(
             labelText: label,
 
-            prefixIcon: const Icon(
+            prefixIcon: Icon(
               Icons.calendar_month_outlined,
 
               size: 15,
@@ -988,21 +998,21 @@ class _VisitMonthWiseReportPageState extends State<VisitMonthWiseReportPage> {
 
             filled: true,
 
-            fillColor: const Color(0xFFF9FBFC),
+            fillColor: context.appColors.surfaceContainerHighest,
 
             contentPadding: const EdgeInsets.symmetric(horizontal: 8),
 
             enabledBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(9),
 
-              borderSide: const BorderSide(color: _border),
+              borderSide: BorderSide(color: _border),
             ),
           ),
 
           child: Text(
             value,
 
-            style: const TextStyle(
+            style: TextStyle(
               color: _text,
 
               fontSize: 9,
@@ -1023,20 +1033,20 @@ class _VisitMonthWiseReportPageState extends State<VisitMonthWiseReportPage> {
     return ElevatedButton.icon(
       onPressed: _loadReport,
 
-      icon: const Icon(Icons.analytics_outlined, size: 15),
+      icon: Icon(Icons.analytics_outlined, size: 15),
 
-      label: const Text('View Report'),
+      label: Text('View Report'),
 
       style: ElevatedButton.styleFrom(
         elevation: 0,
 
         backgroundColor: _primary,
 
-        foregroundColor: Colors.white,
+        foregroundColor: context.onPrimaryColor,
 
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(9)),
 
-        textStyle: const TextStyle(fontSize: 9.5, fontWeight: FontWeight.w700),
+        textStyle: TextStyle(fontSize: 9.5, fontWeight: FontWeight.w700),
       ),
     );
   }
@@ -1206,7 +1216,7 @@ class _VisitMonthWiseReportPageState extends State<VisitMonthWiseReportPage> {
             color: _primary,
           ),
 
-          const Divider(height: 1, color: _border),
+          Divider(height: 1, color: _border),
 
           if (report.items.isNotEmpty) ...[
             _summaryRow(
@@ -1219,7 +1229,7 @@ class _VisitMonthWiseReportPageState extends State<VisitMonthWiseReportPage> {
               uniqueCustomers: report.total.uniqueCustomers,
             ),
 
-            const Divider(height: 1, color: _border),
+            Divider(height: 1, color: _border),
           ],
 
           _monthWiseTable(report),
@@ -1252,7 +1262,7 @@ class _VisitMonthWiseReportPageState extends State<VisitMonthWiseReportPage> {
             color: _blue,
           ),
 
-          const Divider(height: 1, color: _border),
+          Divider(height: 1, color: _border),
 
           _dayWiseTable(report),
         ],
@@ -1289,7 +1299,7 @@ class _VisitMonthWiseReportPageState extends State<VisitMonthWiseReportPage> {
               color: _orange,
             ),
 
-          const Divider(height: 1, color: _border),
+          Divider(height: 1, color: _border),
 
           _hourWiseTable(report),
         ],
@@ -1322,7 +1332,7 @@ class _VisitMonthWiseReportPageState extends State<VisitMonthWiseReportPage> {
             decoration: BoxDecoration(color: color, shape: BoxShape.circle),
           ),
 
-          const SizedBox(width: 8),
+          SizedBox(width: 8),
 
           Expanded(
             child: Column(
@@ -1332,7 +1342,7 @@ class _VisitMonthWiseReportPageState extends State<VisitMonthWiseReportPage> {
                 Text(
                   title,
 
-                  style: const TextStyle(
+                  style: TextStyle(
                     color: _text,
 
                     fontSize: 11.5,
@@ -1341,7 +1351,7 @@ class _VisitMonthWiseReportPageState extends State<VisitMonthWiseReportPage> {
                   ),
                 ),
 
-                const SizedBox(height: 2),
+                SizedBox(height: 2),
 
                 Text(
                   subtitle,
@@ -1350,7 +1360,7 @@ class _VisitMonthWiseReportPageState extends State<VisitMonthWiseReportPage> {
 
                   overflow: TextOverflow.ellipsis,
 
-                  style: const TextStyle(
+                  style: TextStyle(
                     color: _muted,
 
                     fontSize: 7.2,
@@ -1362,7 +1372,7 @@ class _VisitMonthWiseReportPageState extends State<VisitMonthWiseReportPage> {
             ),
           ),
 
-          const SizedBox(width: 6),
+          SizedBox(width: 6),
 
           _periodBadge(period: period, color: color),
         ],
@@ -1375,7 +1385,7 @@ class _VisitMonthWiseReportPageState extends State<VisitMonthWiseReportPage> {
       padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 4),
 
       decoration: BoxDecoration(
-        color: color.withOpacity(.08),
+        color: color.withValues(alpha: .08),
 
         borderRadius: BorderRadius.circular(6),
       ),
@@ -1413,16 +1423,16 @@ class _VisitMonthWiseReportPageState extends State<VisitMonthWiseReportPage> {
                 width: 7,
                 height: 7,
 
-                decoration: const BoxDecoration(
+                decoration: BoxDecoration(
                   color: _orange,
 
                   shape: BoxShape.circle,
                 ),
               ),
 
-              const SizedBox(width: 8),
+              SizedBox(width: 8),
 
-              const Expanded(
+              Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
 
@@ -1474,9 +1484,9 @@ class _VisitMonthWiseReportPageState extends State<VisitMonthWiseReportPage> {
                           '${_hourLabelWithMinutes(peakHour.label)} '
                           '(${peakHour.totalVisits} visits)',
 
-                foreground: const Color(0xFF7B5A00),
+                foreground: context.appColors.tertiary,
 
-                background: const Color(0xFFFFF6DB),
+                background: context.appColors.tertiary.withValues(alpha: 0.12),
               ),
 
               _hourBadge(
@@ -1486,7 +1496,7 @@ class _VisitMonthWiseReportPageState extends State<VisitMonthWiseReportPage> {
 
                 foreground: _primaryDark,
 
-                background: const Color(0xFFEAF7F2),
+                background: context.primaryColor.withValues(alpha: 0.08),
               ),
 
               _hourBadge(
@@ -1496,7 +1506,7 @@ class _VisitMonthWiseReportPageState extends State<VisitMonthWiseReportPage> {
 
                 foreground: _blue,
 
-                background: const Color(0xFFEDF3FF),
+                background: context.appColors.secondary.withValues(alpha: 0.08),
               ),
             ],
           );
@@ -1506,7 +1516,7 @@ class _VisitMonthWiseReportPageState extends State<VisitMonthWiseReportPage> {
               children: [
                 Expanded(flex: 4, child: title),
 
-                const SizedBox(width: 8),
+                SizedBox(width: 8),
 
                 Flexible(flex: 6, child: badges),
               ],
@@ -1519,7 +1529,7 @@ class _VisitMonthWiseReportPageState extends State<VisitMonthWiseReportPage> {
             children: [
               title,
 
-              const SizedBox(height: 6),
+              SizedBox(height: 6),
 
               Align(alignment: Alignment.centerRight, child: badges),
             ],
@@ -1551,7 +1561,7 @@ class _VisitMonthWiseReportPageState extends State<VisitMonthWiseReportPage> {
           if (icon != null) ...[
             Icon(icon, size: 10, color: foreground),
 
-            const SizedBox(width: 3),
+            SizedBox(width: 3),
           ],
 
           Text(
@@ -1634,7 +1644,7 @@ class _VisitMonthWiseReportPageState extends State<VisitMonthWiseReportPage> {
             ),
           ),
 
-          const SizedBox(width: 4),
+          SizedBox(width: 4),
 
           Expanded(
             child: _summaryTile(
@@ -1645,7 +1655,7 @@ class _VisitMonthWiseReportPageState extends State<VisitMonthWiseReportPage> {
             ),
           ),
 
-          const SizedBox(width: 4),
+          SizedBox(width: 4),
 
           Expanded(
             child: _summaryTile(
@@ -1656,7 +1666,7 @@ class _VisitMonthWiseReportPageState extends State<VisitMonthWiseReportPage> {
             ),
           ),
 
-          const SizedBox(width: 4),
+          SizedBox(width: 4),
 
           Expanded(
             child: _summaryTile(
@@ -1678,7 +1688,7 @@ class _VisitMonthWiseReportPageState extends State<VisitMonthWiseReportPage> {
       padding: const EdgeInsets.symmetric(horizontal: 6),
 
       decoration: BoxDecoration(
-        color: const Color(0xFFFAFCFD),
+        color: context.appColors.surfaceContainerHighest,
 
         borderRadius: BorderRadius.circular(8),
 
@@ -1692,7 +1702,7 @@ class _VisitMonthWiseReportPageState extends State<VisitMonthWiseReportPage> {
             height: 25,
 
             decoration: BoxDecoration(
-              color: color.withOpacity(.08),
+              color: color.withValues(alpha: .08),
 
               borderRadius: BorderRadius.circular(7),
             ),
@@ -1700,7 +1710,7 @@ class _VisitMonthWiseReportPageState extends State<VisitMonthWiseReportPage> {
             child: Icon(icon, color: color, size: 13),
           ),
 
-          const SizedBox(width: 5),
+          SizedBox(width: 5),
 
           Expanded(
             child: Column(
@@ -1712,7 +1722,7 @@ class _VisitMonthWiseReportPageState extends State<VisitMonthWiseReportPage> {
                 Text(
                   value,
 
-                  style: const TextStyle(
+                  style: TextStyle(
                     color: _text,
 
                     fontSize: 12,
@@ -1721,7 +1731,7 @@ class _VisitMonthWiseReportPageState extends State<VisitMonthWiseReportPage> {
                   ),
                 ),
 
-                const SizedBox(height: 2),
+                SizedBox(height: 2),
 
                 Text(
                   title,
@@ -1730,7 +1740,7 @@ class _VisitMonthWiseReportPageState extends State<VisitMonthWiseReportPage> {
 
                   overflow: TextOverflow.ellipsis,
 
-                  style: const TextStyle(
+                  style: TextStyle(
                     color: _muted,
 
                     fontSize: 6,
@@ -2128,7 +2138,7 @@ class _VisitMonthWiseReportPageState extends State<VisitMonthWiseReportPage> {
 
                   type: 'Dealer',
 
-                  accent: const Color(0xFF12B886),
+                  accent: context.primaryColor,
 
                   fromDate: report.fromDate,
 
@@ -2136,7 +2146,7 @@ class _VisitMonthWiseReportPageState extends State<VisitMonthWiseReportPage> {
                 ),
               ),
 
-              const SizedBox(width: 8),
+              SizedBox(width: 8),
 
               Expanded(
                 child: _frequencyCard(
@@ -2149,7 +2159,7 @@ class _VisitMonthWiseReportPageState extends State<VisitMonthWiseReportPage> {
 
                   type: 'Farmer',
 
-                  accent: const Color(0xFF3D7DF3),
+                  accent: context.appColors.secondary,
 
                   fromDate: report.fromDate,
 
@@ -2171,14 +2181,14 @@ class _VisitMonthWiseReportPageState extends State<VisitMonthWiseReportPage> {
 
               type: 'Dealer',
 
-              accent: const Color(0xFF12B886),
+              accent: context.primaryColor,
 
               fromDate: report.fromDate,
 
               toDate: report.toDate,
             ),
 
-            const SizedBox(height: 8),
+            SizedBox(height: 8),
 
             _frequencyCard(
               title: 'FARMER VISIT FREQUENCY',
@@ -2190,7 +2200,7 @@ class _VisitMonthWiseReportPageState extends State<VisitMonthWiseReportPage> {
 
               type: 'Farmer',
 
-              accent: const Color(0xFF3D7DF3),
+              accent: context.appColors.secondary,
 
               fromDate: report.fromDate,
 
@@ -2238,7 +2248,7 @@ class _VisitMonthWiseReportPageState extends State<VisitMonthWiseReportPage> {
             type: type,
           ),
 
-          const Divider(height: 1, color: _border),
+          Divider(height: 1, color: _border),
 
           if (!hasData)
             _frequencyEmpty(type: type, accent: accent)
@@ -2302,7 +2312,7 @@ class _VisitMonthWiseReportPageState extends State<VisitMonthWiseReportPage> {
                 ),
               ),
 
-              const SizedBox(width: 7),
+              SizedBox(width: 7),
 
               Expanded(
                 child: Text(
@@ -2312,7 +2322,7 @@ class _VisitMonthWiseReportPageState extends State<VisitMonthWiseReportPage> {
 
                   overflow: TextOverflow.ellipsis,
 
-                  style: const TextStyle(
+                  style: TextStyle(
                     color: _text,
 
                     fontSize: 11.5,
@@ -2330,7 +2340,7 @@ class _VisitMonthWiseReportPageState extends State<VisitMonthWiseReportPage> {
                   ),
 
                   decoration: BoxDecoration(
-                    color: const Color(0xFFF5F8F9),
+                    color: context.appColors.surfaceContainerHighest,
 
                     borderRadius: BorderRadius.circular(5),
                   ),
@@ -2338,7 +2348,7 @@ class _VisitMonthWiseReportPageState extends State<VisitMonthWiseReportPage> {
                   child: Text(
                     '$total ${type}s',
 
-                    style: const TextStyle(
+                    style: TextStyle(
                       color: _muted,
 
                       fontSize: 6.7,
@@ -2350,7 +2360,7 @@ class _VisitMonthWiseReportPageState extends State<VisitMonthWiseReportPage> {
             ],
           ),
 
-          const SizedBox(height: 4),
+          SizedBox(height: 4),
 
           Wrap(
             spacing: 6,
@@ -2362,7 +2372,7 @@ class _VisitMonthWiseReportPageState extends State<VisitMonthWiseReportPage> {
               Text(
                 subtitle,
 
-                style: const TextStyle(
+                style: TextStyle(
                   color: _muted,
 
                   fontSize: 7.4,
@@ -2375,7 +2385,7 @@ class _VisitMonthWiseReportPageState extends State<VisitMonthWiseReportPage> {
                 padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
 
                 decoration: BoxDecoration(
-                  color: accent.withOpacity(.08),
+                  color: accent.withValues(alpha: .08),
 
                   borderRadius: BorderRadius.circular(5),
                 ),
@@ -2418,8 +2428,8 @@ class _VisitMonthWiseReportPageState extends State<VisitMonthWiseReportPage> {
               child: Text(
                 bucket.label,
 
-                style: const TextStyle(
-                  color: Color(0xFF476481),
+                style: TextStyle(
+                  color: context.secondaryTextColor,
 
                   fontSize: 8.5,
 
@@ -2428,14 +2438,14 @@ class _VisitMonthWiseReportPageState extends State<VisitMonthWiseReportPage> {
               ),
             ),
 
-            const SizedBox(width: 6),
+            SizedBox(width: 6),
 
             Text(
               '${bucket.count} $name '
               '(${bucket.percentage.toStringAsFixed(1)}%)',
 
-              style: const TextStyle(
-                color: Color(0xFF173B63),
+              style: TextStyle(
+                color: context.cardTextColor,
 
                 fontSize: 7.6,
 
@@ -2445,7 +2455,7 @@ class _VisitMonthWiseReportPageState extends State<VisitMonthWiseReportPage> {
           ],
         ),
 
-        const SizedBox(height: 5),
+        SizedBox(height: 5),
 
         ClipRRect(
           borderRadius: BorderRadius.circular(10),
@@ -2455,7 +2465,7 @@ class _VisitMonthWiseReportPageState extends State<VisitMonthWiseReportPage> {
 
             child: Stack(
               children: [
-                Container(color: const Color(0xFFE8EEF2)),
+                Container(color: context.borderColor),
 
                 if (progress > 0)
                   FractionallySizedBox(
@@ -2500,7 +2510,7 @@ class _VisitMonthWiseReportPageState extends State<VisitMonthWiseReportPage> {
             height: 38,
 
             decoration: BoxDecoration(
-              color: accent.withOpacity(.07),
+              color: accent.withValues(alpha: .07),
 
               borderRadius: BorderRadius.circular(10),
             ),
@@ -2508,9 +2518,9 @@ class _VisitMonthWiseReportPageState extends State<VisitMonthWiseReportPage> {
             child: Icon(Icons.bar_chart_rounded, color: accent, size: 19),
           ),
 
-          const SizedBox(height: 8),
+          SizedBox(height: 8),
 
-          const Text(
+          Text(
             'No Data Found',
 
             style: TextStyle(
@@ -2522,14 +2532,14 @@ class _VisitMonthWiseReportPageState extends State<VisitMonthWiseReportPage> {
             ),
           ),
 
-          const SizedBox(height: 3),
+          SizedBox(height: 3),
 
           Text(
             'No ${type.toLowerCase()} visit frequency data found for the selected period.',
 
             textAlign: TextAlign.center,
 
-            style: const TextStyle(
+            style: TextStyle(
               color: _muted,
 
               fontSize: 7.4,
@@ -2573,7 +2583,7 @@ class _VisitMonthWiseReportPageState extends State<VisitMonthWiseReportPage> {
                 ),
               ),
 
-              const SizedBox(width: 8),
+              SizedBox(width: 8),
 
               Expanded(
                 child: _geoWiseCard(
@@ -2589,7 +2599,7 @@ class _VisitMonthWiseReportPageState extends State<VisitMonthWiseReportPage> {
                 ),
               ),
 
-              const SizedBox(width: 8),
+              SizedBox(width: 8),
 
               Expanded(
                 child: _geoWiseCard(
@@ -2635,7 +2645,7 @@ class _VisitMonthWiseReportPageState extends State<VisitMonthWiseReportPage> {
                     ),
                   ),
 
-                  const SizedBox(width: 8),
+                  SizedBox(width: 8),
 
                   Expanded(
                     child: _geoWiseCard(
@@ -2653,7 +2663,7 @@ class _VisitMonthWiseReportPageState extends State<VisitMonthWiseReportPage> {
                 ],
               ),
 
-              const SizedBox(height: 8),
+              SizedBox(height: 8),
 
               _geoWiseCard(
                 title: 'TALUKA-WISE VISIT ANALYSIS',
@@ -2688,7 +2698,7 @@ class _VisitMonthWiseReportPageState extends State<VisitMonthWiseReportPage> {
               emptyMessage: 'No state-wise visit data found',
             ),
 
-            const SizedBox(height: 8),
+            SizedBox(height: 8),
 
             _geoWiseCard(
               title: 'DISTRICT-WISE VISIT ANALYSIS',
@@ -2702,7 +2712,7 @@ class _VisitMonthWiseReportPageState extends State<VisitMonthWiseReportPage> {
               emptyMessage: 'No district-wise visit data found',
             ),
 
-            const SizedBox(height: 8),
+            SizedBox(height: 8),
 
             _geoWiseCard(
               title: 'TALUKA-WISE VISIT ANALYSIS',
@@ -2744,7 +2754,6 @@ class _VisitMonthWiseReportPageState extends State<VisitMonthWiseReportPage> {
           // =====================================================
           // HEADER
           // =====================================================
-
           Padding(
             padding: const EdgeInsets.fromLTRB(10, 9, 10, 8),
 
@@ -2761,7 +2770,7 @@ class _VisitMonthWiseReportPageState extends State<VisitMonthWiseReportPage> {
                   ),
                 ),
 
-                const SizedBox(width: 7),
+                SizedBox(width: 7),
 
                 Expanded(
                   child: Column(
@@ -2775,7 +2784,7 @@ class _VisitMonthWiseReportPageState extends State<VisitMonthWiseReportPage> {
 
                         overflow: TextOverflow.ellipsis,
 
-                        style: const TextStyle(
+                        style: TextStyle(
                           color: _text,
 
                           fontSize: 10.8,
@@ -2786,7 +2795,7 @@ class _VisitMonthWiseReportPageState extends State<VisitMonthWiseReportPage> {
                         ),
                       ),
 
-                      const SizedBox(height: 2),
+                      SizedBox(height: 2),
 
                       Text(
                         subtitle,
@@ -2795,7 +2804,7 @@ class _VisitMonthWiseReportPageState extends State<VisitMonthWiseReportPage> {
 
                         overflow: TextOverflow.ellipsis,
 
-                        style: const TextStyle(
+                        style: TextStyle(
                           color: _muted,
 
                           fontSize: 7,
@@ -2807,7 +2816,7 @@ class _VisitMonthWiseReportPageState extends State<VisitMonthWiseReportPage> {
                   ),
                 ),
 
-                const SizedBox(width: 5),
+                SizedBox(width: 5),
 
                 Container(
                   padding: const EdgeInsets.symmetric(
@@ -2816,7 +2825,7 @@ class _VisitMonthWiseReportPageState extends State<VisitMonthWiseReportPage> {
                   ),
 
                   decoration: BoxDecoration(
-                    color: accent.withOpacity(.08),
+                    color: accent.withValues(alpha: .08),
 
                     borderRadius: BorderRadius.circular(6),
                   ),
@@ -2838,7 +2847,7 @@ class _VisitMonthWiseReportPageState extends State<VisitMonthWiseReportPage> {
             ),
           ),
 
-          const Divider(height: 1, color: _border),
+          Divider(height: 1, color: _border),
 
           // =====================================================
           // DATA
@@ -2872,7 +2881,6 @@ class _VisitMonthWiseReportPageState extends State<VisitMonthWiseReportPage> {
             // ==================================================
             // HEADER
             // ==================================================
-
             _geoTableRow(
               values: const ['Name', 'Dealer', 'Farmer', 'Total', 'Unique'],
 
@@ -2951,12 +2959,12 @@ class _VisitMonthWiseReportPageState extends State<VisitMonthWiseReportPage> {
           : 32,
 
       color: header
-          ? const Color(0xFFF3F6F8)
+          ? context.appColors.surfaceContainerHighest
           : total
-          ? const Color(0xFFF0F4F7)
+          ? context.appColors.surfaceContainerHighest
           : alternate
-          ? const Color(0xFFFBFCFD)
-          : Colors.white,
+          ? context.appColors.surfaceContainerHighest
+          : context.cardBackgroundColor,
 
       child: Row(
         children: List.generate(values.length, (index) {
@@ -2988,7 +2996,7 @@ class _VisitMonthWiseReportPageState extends State<VisitMonthWiseReportPage> {
 
             padding: const EdgeInsets.symmetric(horizontal: 7),
 
-            decoration: const BoxDecoration(
+            decoration: BoxDecoration(
               border: Border(
                 right: BorderSide(color: _border, width: .55),
 
@@ -3006,7 +3014,7 @@ class _VisitMonthWiseReportPageState extends State<VisitMonthWiseReportPage> {
               textAlign: index == 0 ? TextAlign.left : TextAlign.right,
 
               style: TextStyle(
-                color: header ? const Color(0xFF4B5B70) : valueColor,
+                color: header ? context.secondaryTextColor : valueColor,
 
                 fontSize: header ? 7.4 : 7.9,
 
@@ -3038,7 +3046,7 @@ class _VisitMonthWiseReportPageState extends State<VisitMonthWiseReportPage> {
             height: 36,
 
             decoration: BoxDecoration(
-              color: accent.withOpacity(.07),
+              color: accent.withValues(alpha: .07),
 
               borderRadius: BorderRadius.circular(9),
             ),
@@ -3046,9 +3054,9 @@ class _VisitMonthWiseReportPageState extends State<VisitMonthWiseReportPage> {
             child: Icon(Icons.location_on_outlined, color: accent, size: 18),
           ),
 
-          const SizedBox(height: 7),
+          SizedBox(height: 7),
 
-          const Text(
+          Text(
             'No Data Found',
 
             style: TextStyle(
@@ -3060,14 +3068,14 @@ class _VisitMonthWiseReportPageState extends State<VisitMonthWiseReportPage> {
             ),
           ),
 
-          const SizedBox(height: 3),
+          SizedBox(height: 3),
 
           Text(
             message,
 
             textAlign: TextAlign.center,
 
-            style: const TextStyle(
+            style: TextStyle(
               color: _muted,
 
               fontSize: 7.2,
@@ -3101,7 +3109,7 @@ class _VisitMonthWiseReportPageState extends State<VisitMonthWiseReportPage> {
                   toDate: report.toDate,
                 ),
               ),
-              const SizedBox(width: 8),
+              SizedBox(width: 8),
               Expanded(
                 child: _topVisitCard(
                   title: 'TOP FARMERS VISITED',
@@ -3126,7 +3134,7 @@ class _VisitMonthWiseReportPageState extends State<VisitMonthWiseReportPage> {
               fromDate: report.fromDate,
               toDate: report.toDate,
             ),
-            const SizedBox(height: 8),
+            SizedBox(height: 8),
             _topVisitCard(
               title: 'TOP FARMERS VISITED',
               group: report.farmer,
@@ -3169,13 +3177,13 @@ class _VisitMonthWiseReportPageState extends State<VisitMonthWiseReportPage> {
                     shape: BoxShape.circle,
                   ),
                 ),
-                const SizedBox(width: 7),
+                SizedBox(width: 7),
                 Expanded(
                   child: Text(
                     title,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(
+                    style: TextStyle(
                       color: _text,
                       fontSize: 10.8,
                       fontWeight: FontWeight.w900,
@@ -3183,14 +3191,14 @@ class _VisitMonthWiseReportPageState extends State<VisitMonthWiseReportPage> {
                     ),
                   ),
                 ),
-                const SizedBox(width: 6),
+                SizedBox(width: 6),
                 Container(
                   padding: const EdgeInsets.symmetric(
                     horizontal: 7,
                     vertical: 4,
                   ),
                   decoration: BoxDecoration(
-                    color: accent.withOpacity(.08),
+                    color: accent.withValues(alpha: .08),
                     borderRadius: BorderRadius.circular(6),
                   ),
                   child: Text(
@@ -3205,7 +3213,7 @@ class _VisitMonthWiseReportPageState extends State<VisitMonthWiseReportPage> {
               ],
             ),
           ),
-          const Divider(height: 1, color: _border),
+          Divider(height: 1, color: _border),
           if (group.items.isEmpty)
             _topListEmpty(type: type, accent: accent)
           else ...[
@@ -3246,19 +3254,16 @@ class _VisitMonthWiseReportPageState extends State<VisitMonthWiseReportPage> {
       decoration: BoxDecoration(
         border: isLast
             ? null
-            : const Border(
-                bottom: BorderSide(color: Color(0xFFEDF1F4), width: .8),
-              ),
+            : Border(bottom: BorderSide(color: context.borderColor, width: .8)),
       ),
       child: Row(
         children: [
           // ==========================================
           // RANK
           // ==========================================
-
           _rankCircle(rank: item.rank),
 
-          const SizedBox(width: 8),
+          SizedBox(width: 8),
 
           // ==========================================
           // NAME
@@ -3268,15 +3273,15 @@ class _VisitMonthWiseReportPageState extends State<VisitMonthWiseReportPage> {
               item.name,
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
-              style: const TextStyle(
-                color: Color(0xFF33465F),
+              style: TextStyle(
+                color: context.secondaryTextColor,
                 fontSize: 8.3,
                 fontWeight: FontWeight.w700,
               ),
             ),
           ),
 
-          const SizedBox(width: 8),
+          SizedBox(width: 8),
 
           // ==========================================
           // VISIT COUNT
@@ -3284,7 +3289,7 @@ class _VisitMonthWiseReportPageState extends State<VisitMonthWiseReportPage> {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
             decoration: BoxDecoration(
-              color: const Color(0xFFF1F5F8),
+              color: context.appColors.surfaceContainerHighest,
               borderRadius: BorderRadius.circular(6),
             ),
             child: Text(
@@ -3308,19 +3313,19 @@ class _VisitMonthWiseReportPageState extends State<VisitMonthWiseReportPage> {
 
     switch (rank) {
       case 1:
-        background = const Color(0xFFFFF1C7);
-        foreground = const Color(0xFFB77900);
+        background = context.appColors.tertiary.withValues(alpha: 0.12);
+        foreground = context.appColors.tertiary;
         break;
       case 2:
-        background = const Color(0xFFF0F4F7);
-        foreground = const Color(0xFF5D7187);
+        background = context.appColors.surfaceContainerHighest;
+        foreground = context.secondaryTextColor;
         break;
       case 3:
-        background = const Color(0xFFF7EEE8);
-        foreground = const Color(0xFFA45A32);
+        background = context.appColors.tertiary.withValues(alpha: 0.12);
+        foreground = context.appColors.tertiary;
         break;
       default:
-        background = const Color(0xFFF5F7F9);
+        background = context.appColors.surfaceContainerHighest;
         foreground = _muted;
     }
 
@@ -3349,7 +3354,7 @@ class _VisitMonthWiseReportPageState extends State<VisitMonthWiseReportPage> {
       height: 34,
       padding: const EdgeInsets.symmetric(horizontal: 8),
       decoration: BoxDecoration(
-        color: const Color(0xFFF5F8FA),
+        color: context.appColors.surfaceContainerHighest,
         borderRadius: BorderRadius.circular(7),
         border: Border.all(color: _border),
       ),
@@ -3358,8 +3363,8 @@ class _VisitMonthWiseReportPageState extends State<VisitMonthWiseReportPage> {
           Expanded(
             child: Text(
               'TOP $count TOTAL',
-              style: const TextStyle(
-                color: Color(0xFF455970),
+              style: TextStyle(
+                color: context.secondaryTextColor,
                 fontSize: 7.7,
                 fontWeight: FontWeight.w800,
               ),
@@ -3387,13 +3392,13 @@ class _VisitMonthWiseReportPageState extends State<VisitMonthWiseReportPage> {
             width: 36,
             height: 36,
             decoration: BoxDecoration(
-              color: accent.withOpacity(.07),
+              color: accent.withValues(alpha: .07),
               borderRadius: BorderRadius.circular(9),
             ),
             child: Icon(Icons.emoji_events_outlined, color: accent, size: 18),
           ),
-          const SizedBox(height: 7),
-          const Text(
+          SizedBox(height: 7),
+          Text(
             'No Data Found',
             style: TextStyle(
               color: _text,
@@ -3401,11 +3406,11 @@ class _VisitMonthWiseReportPageState extends State<VisitMonthWiseReportPage> {
               fontWeight: FontWeight.w800,
             ),
           ),
-          const SizedBox(height: 3),
+          SizedBox(height: 3),
           Text(
             'No top ${type.toLowerCase()} visit data found for the selected period.',
             textAlign: TextAlign.center,
-            style: const TextStyle(
+            style: TextStyle(
               color: _muted,
               fontSize: 7.2,
               fontWeight: FontWeight.w500,
@@ -3441,17 +3446,17 @@ class _VisitMonthWiseReportPageState extends State<VisitMonthWiseReportPage> {
                     Container(
                       width: 7,
                       height: 7,
-                      decoration: const BoxDecoration(
+                      decoration: BoxDecoration(
                         color: _purple,
                         shape: BoxShape.circle,
                       ),
                     ),
-                    const SizedBox(width: 8),
+                    SizedBox(width: 8),
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const Text(
+                          Text(
                             'TOP EMPLOYEE VISITED',
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
@@ -3462,14 +3467,14 @@ class _VisitMonthWiseReportPageState extends State<VisitMonthWiseReportPage> {
                               letterSpacing: .12,
                             ),
                           ),
-                          const SizedBox(height: 2),
+                          SizedBox(height: 2),
                           Text(
                             report.periodLabel.trim().isNotEmpty
                                 ? 'Individual officer field activities • ${report.periodLabel}'
                                 : 'Individual officer field activities, unique coverage & productivity ratios',
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
-                            style: const TextStyle(
+                            style: TextStyle(
                               color: _muted,
                               fontSize: 7.2,
                               fontWeight: FontWeight.w500,
@@ -3487,12 +3492,12 @@ class _VisitMonthWiseReportPageState extends State<VisitMonthWiseReportPage> {
                     vertical: 4,
                   ),
                   decoration: BoxDecoration(
-                    color: _blue.withOpacity(.08),
+                    color: _blue.withValues(alpha: .08),
                     borderRadius: BorderRadius.circular(6),
                   ),
                   child: Text(
                     '$period Period',
-                    style: const TextStyle(
+                    style: TextStyle(
                       color: _blue,
                       fontSize: 6.8,
                       fontWeight: FontWeight.w800,
@@ -3504,7 +3509,7 @@ class _VisitMonthWiseReportPageState extends State<VisitMonthWiseReportPage> {
                   return Row(
                     children: [
                       Expanded(child: heading),
-                      const SizedBox(width: 8),
+                      SizedBox(width: 8),
                       periodBadge,
                     ],
                   );
@@ -3514,7 +3519,7 @@ class _VisitMonthWiseReportPageState extends State<VisitMonthWiseReportPage> {
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
                     heading,
-                    const SizedBox(height: 6),
+                    SizedBox(height: 6),
                     Align(alignment: Alignment.centerRight, child: periodBadge),
                   ],
                 );
@@ -3522,7 +3527,7 @@ class _VisitMonthWiseReportPageState extends State<VisitMonthWiseReportPage> {
             ),
           ),
 
-          const Divider(height: 1, color: _border),
+          Divider(height: 1, color: _border),
 
           if (report.items.isEmpty)
             _topEmployeeEmpty()
@@ -3624,12 +3629,12 @@ class _VisitMonthWiseReportPageState extends State<VisitMonthWiseReportPage> {
             : 34,
       ),
       color: header
-          ? const Color(0xFFF4F7F9)
+          ? context.appColors.surfaceContainerHighest
           : total
-          ? const Color(0xFFEDF3F7)
+          ? context.appColors.surfaceContainerHighest
           : alternate
-          ? const Color(0xFFFBFCFD)
-          : Colors.white,
+          ? context.appColors.surfaceContainerHighest
+          : context.cardBackgroundColor,
       child: Row(
         children: List.generate(values.length, (index) {
           Color valueColor = _text;
@@ -3655,7 +3660,7 @@ class _VisitMonthWiseReportPageState extends State<VisitMonthWiseReportPage> {
             alignment: index == 0
                 ? Alignment.centerLeft
                 : Alignment.centerRight,
-            decoration: const BoxDecoration(
+            decoration: BoxDecoration(
               border: Border(
                 right: BorderSide(color: _border, width: .55),
                 bottom: BorderSide(color: _border, width: .55),
@@ -3665,13 +3670,13 @@ class _VisitMonthWiseReportPageState extends State<VisitMonthWiseReportPage> {
                 ? Row(
                     children: [
                       _employeeRankBadge(rank: rank),
-                      const SizedBox(width: 7),
+                      SizedBox(width: 7),
                       Expanded(
                         child: Text(
                           values[index],
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
-                          style: const TextStyle(
+                          style: TextStyle(
                             color: _text,
                             fontSize: 8,
                             fontWeight: FontWeight.w800,
@@ -3686,7 +3691,7 @@ class _VisitMonthWiseReportPageState extends State<VisitMonthWiseReportPage> {
                     overflow: TextOverflow.ellipsis,
                     textAlign: index == 0 ? TextAlign.left : TextAlign.right,
                     style: TextStyle(
-                      color: header ? const Color(0xFF4B5B70) : valueColor,
+                      color: header ? context.secondaryTextColor : valueColor,
                       fontSize: header ? 7.5 : 8,
                       fontWeight: header || total || index == 0
                           ? FontWeight.w800
@@ -3708,16 +3713,16 @@ class _VisitMonthWiseReportPageState extends State<VisitMonthWiseReportPage> {
     Color foreground;
 
     if (rank == 1) {
-      background = const Color(0xFFFFF1C7);
-      foreground = const Color(0xFFB77900);
+      background = context.appColors.tertiary.withValues(alpha: 0.12);
+      foreground = context.appColors.tertiary;
     } else if (rank == 2) {
-      background = const Color(0xFFF0F4F7);
-      foreground = const Color(0xFF5D7187);
+      background = context.appColors.surfaceContainerHighest;
+      foreground = context.secondaryTextColor;
     } else if (rank == 3) {
-      background = const Color(0xFFF7EEE8);
-      foreground = const Color(0xFFA45A32);
+      background = context.appColors.tertiary.withValues(alpha: 0.12);
+      foreground = context.appColors.tertiary;
     } else {
-      background = const Color(0xFFF5F7F9);
+      background = context.appColors.surfaceContainerHighest;
       foreground = _muted;
     }
 
@@ -3750,17 +3755,13 @@ class _VisitMonthWiseReportPageState extends State<VisitMonthWiseReportPage> {
             width: 38,
             height: 38,
             decoration: BoxDecoration(
-              color: _purple.withOpacity(.07),
+              color: _purple.withValues(alpha: .07),
               borderRadius: BorderRadius.circular(10),
             ),
-            child: const Icon(
-              Icons.groups_2_outlined,
-              color: _purple,
-              size: 19,
-            ),
+            child: Icon(Icons.groups_2_outlined, color: _purple, size: 19),
           ),
-          const SizedBox(height: 7),
-          const Text(
+          SizedBox(height: 7),
+          Text(
             'No Employee Data Found',
             style: TextStyle(
               color: _text,
@@ -3768,8 +3769,8 @@ class _VisitMonthWiseReportPageState extends State<VisitMonthWiseReportPage> {
               fontWeight: FontWeight.w800,
             ),
           ),
-          const SizedBox(height: 3),
-          const Text(
+          SizedBox(height: 3),
+          Text(
             'No employee visit contribution was found for the selected period.',
             textAlign: TextAlign.center,
             style: TextStyle(
@@ -3803,12 +3804,12 @@ class _VisitMonthWiseReportPageState extends State<VisitMonthWiseReportPage> {
           : 32,
 
       color: header
-          ? const Color(0xFFF2F5F7)
+          ? context.appColors.surfaceContainerHighest
           : total
-          ? const Color(0xFFEAF1F5)
+          ? context.appColors.surfaceContainerHighest
           : alternate
-          ? const Color(0xFFFAFBFC)
-          : Colors.white,
+          ? context.appColors.surfaceContainerHighest
+          : context.cardBackgroundColor,
 
       child: Row(
         children: List.generate(values.length, (index) {
@@ -3821,7 +3822,7 @@ class _VisitMonthWiseReportPageState extends State<VisitMonthWiseReportPage> {
 
             padding: const EdgeInsets.symmetric(horizontal: 7),
 
-            decoration: const BoxDecoration(
+            decoration: BoxDecoration(
               border: Border(
                 right: BorderSide(color: _border, width: .6),
 
@@ -3840,7 +3841,7 @@ class _VisitMonthWiseReportPageState extends State<VisitMonthWiseReportPage> {
 
               style: TextStyle(
                 color: header
-                    ? const Color(0xFF4B5B70)
+                    ? context.secondaryTextColor
                     : index == 4
                     ? _blue
                     : _text,
@@ -3877,12 +3878,12 @@ class _VisitMonthWiseReportPageState extends State<VisitMonthWiseReportPage> {
           : 31,
 
       color: header
-          ? const Color(0xFFF3F6F8)
+          ? context.appColors.surfaceContainerHighest
           : total
-          ? const Color(0xFFF2F6F7)
+          ? context.appColors.surfaceContainerHighest
           : alternate
-          ? const Color(0xFFFBFCFD)
-          : Colors.white,
+          ? context.appColors.surfaceContainerHighest
+          : context.cardBackgroundColor,
 
       child: Row(
         children: List.generate(values.length, (index) {
@@ -3905,7 +3906,7 @@ class _VisitMonthWiseReportPageState extends State<VisitMonthWiseReportPage> {
 
             padding: const EdgeInsets.symmetric(horizontal: 7),
 
-            decoration: const BoxDecoration(
+            decoration: BoxDecoration(
               border: Border(
                 right: BorderSide(color: _border, width: .55),
 
@@ -3923,7 +3924,7 @@ class _VisitMonthWiseReportPageState extends State<VisitMonthWiseReportPage> {
               textAlign: index == 0 ? TextAlign.left : TextAlign.center,
 
               style: TextStyle(
-                color: header ? const Color(0xFF44556B) : valueColor,
+                color: header ? context.secondaryTextColor : valueColor,
 
                 fontSize: header ? 7.6 : 8,
 
@@ -3973,17 +3974,17 @@ class _VisitMonthWiseReportPageState extends State<VisitMonthWiseReportPage> {
             height: 40,
 
             decoration: BoxDecoration(
-              color: const Color(0xFFF1F5F4),
+              color: context.primaryColor.withValues(alpha: 0.08),
 
               borderRadius: BorderRadius.circular(10),
             ),
 
-            child: const Icon(Icons.inbox_outlined, color: _muted, size: 20),
+            child: Icon(Icons.inbox_outlined, color: _muted, size: 20),
           ),
 
-          const SizedBox(height: 8),
+          SizedBox(height: 8),
 
-          const Text(
+          Text(
             'No Data Found',
 
             style: TextStyle(
@@ -3995,14 +3996,14 @@ class _VisitMonthWiseReportPageState extends State<VisitMonthWiseReportPage> {
             ),
           ),
 
-          const SizedBox(height: 3),
+          SizedBox(height: 3),
 
           Text(
             message,
 
             textAlign: TextAlign.center,
 
-            style: const TextStyle(
+            style: TextStyle(
               color: _muted,
 
               fontSize: 7.5,
@@ -4011,20 +4012,20 @@ class _VisitMonthWiseReportPageState extends State<VisitMonthWiseReportPage> {
             ),
           ),
 
-          const SizedBox(height: 7),
+          SizedBox(height: 7),
 
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 4),
 
             decoration: BoxDecoration(
-              color: const Color(0xFFF8FAFB),
+              color: context.appColors.surfaceContainerHighest,
 
               borderRadius: BorderRadius.circular(5),
 
               border: Border.all(color: _border),
             ),
 
-            child: const Text(
+            child: Text(
               'Try changing employee or date range',
 
               style: TextStyle(
@@ -4056,19 +4057,19 @@ class _VisitMonthWiseReportPageState extends State<VisitMonthWiseReportPage> {
           mainAxisSize: MainAxisSize.min,
 
           children: [
-            const SizedBox(
+            SizedBox(
               width: 18,
               height: 18,
 
               child: CircularProgressIndicator(strokeWidth: 2, color: _primary),
             ),
 
-            const SizedBox(width: 8),
+            SizedBox(width: 8),
 
             Text(
               message,
 
-              style: const TextStyle(
+              style: TextStyle(
                 color: _muted,
 
                 fontSize: 9,
@@ -4094,21 +4095,21 @@ class _VisitMonthWiseReportPageState extends State<VisitMonthWiseReportPage> {
 
       child: Row(
         children: [
-          const Icon(
+          Icon(
             Icons.error_outline_rounded,
 
-            color: Colors.redAccent,
+            color: context.appColors.error,
 
             size: 18,
           ),
 
-          const SizedBox(width: 7),
+          SizedBox(width: 7),
 
           Expanded(
             child: Text(
               message,
 
-              style: const TextStyle(
+              style: TextStyle(
                 color: _text,
 
                 fontSize: 9,
@@ -4121,7 +4122,7 @@ class _VisitMonthWiseReportPageState extends State<VisitMonthWiseReportPage> {
           TextButton(
             onPressed: _loadReport,
 
-            child: const Text('Retry', style: TextStyle(fontSize: 9)),
+            child: Text('Retry', style: TextStyle(fontSize: 9)),
           ),
         ],
       ),
@@ -4138,7 +4139,7 @@ class _VisitMonthWiseReportPageState extends State<VisitMonthWiseReportPage> {
       height: size,
 
       decoration: BoxDecoration(
-        color: color.withOpacity(.08),
+        color: color.withValues(alpha: .08),
 
         borderRadius: BorderRadius.circular(8),
       ),
@@ -4153,7 +4154,7 @@ class _VisitMonthWiseReportPageState extends State<VisitMonthWiseReportPage> {
 
   BoxDecoration _cardDecoration() {
     return BoxDecoration(
-      color: Colors.white,
+      color: context.cardBackgroundColor,
 
       borderRadius: BorderRadius.circular(12),
 
@@ -4161,7 +4162,7 @@ class _VisitMonthWiseReportPageState extends State<VisitMonthWiseReportPage> {
 
       boxShadow: [
         BoxShadow(
-          color: Colors.black.withOpacity(.02),
+          color: context.appColors.shadow.withValues(alpha: .02),
 
           blurRadius: 8,
 

@@ -1,5 +1,5 @@
 import 'package:solufine/core/router/app_router.dart';
-import 'package:solufine/core/theme/app_colors.dart';
+import 'package:solufine/core/theme/app_theme_context.dart';
 import 'package:solufine/core/utility/widgets/custom_appbar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -13,8 +13,6 @@ import '../bloc/notification_state.dart';
 
 import '../widgets/notification_card.dart';
 import '../widgets/notification_shimmer.dart';
-
-
 
 class NotificationPage extends StatefulWidget {
   final int userId;
@@ -33,16 +31,6 @@ class NotificationPage extends StatefulWidget {
 }
 
 class _NotificationPageState extends State<NotificationPage> {
-  // =========================================================
-  // COLORS
-  // =========================================================
-
-  static const Color primaryGreen = Color(0xFF0F723A);
-  static const Color darkGreen = Color(0xFF075329);
-  static const Color backgroundColor = Color(0xFFF5F8F6);
-  static const Color textDark = Color(0xFF1C2721);
-  static const Color textGrey = Color(0xFF748078);
-
   late final ScrollController _scrollController;
 
   NotificationBloc? _notificationBloc;
@@ -122,28 +110,28 @@ class _NotificationPageState extends State<NotificationPage> {
           _notificationBloc = context.read<NotificationBloc>();
 
           return Scaffold(
-            backgroundColor: AppColors.backgroundColor,
+            backgroundColor: context.backgroundColor,
 
             // =================================================
             // APP BAR
             // =================================================
             appBar: CustomAppBar(
-              backgroundColor: primaryGreen,
+              backgroundColor: context.primaryColor,
               leading: IconButton(
-                icon: const Icon(
+                icon: Icon(
                   Icons.arrow_back_ios_new_rounded,
                   size: 19,
-                  // color: AppColors.darkBackgroundColor,
+                  color: context.onPrimaryColor,
                 ),
                 onPressed: () {
                   context.go(AppRouter.home);
                 },
               ),
               title: 'Notifications',
-              titleStyle: const TextStyle(
+              titleStyle: TextStyle(
                 fontSize: 22,
                 fontWeight: FontWeight.w600,
-                color: AppColors.backgroundColor,
+                color: context.onPrimaryColor,
               ),
             ),
 
@@ -206,9 +194,9 @@ class _NotificationPageState extends State<NotificationPage> {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.fromLTRB(18, 16, 18, 22),
-      decoration: const BoxDecoration(
-        color: primaryGreen,
-        borderRadius: BorderRadius.only(
+      decoration: BoxDecoration(
+        color: context.primaryColor,
+        borderRadius: const BorderRadius.only(
           bottomLeft: Radius.circular(32),
           bottomRight: Radius.circular(32),
         ),
@@ -230,13 +218,15 @@ class _NotificationPageState extends State<NotificationPage> {
                 width: 58,
                 height: 58,
                 decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.14),
+                  color: context.onPrimaryColor.withValues(alpha: 0.14),
                   shape: BoxShape.circle,
-                  border: Border.all(color: Colors.white.withOpacity(0.18)),
+                  border: Border.all(
+                    color: context.onPrimaryColor.withValues(alpha: 0.18),
+                  ),
                 ),
-                child: const Icon(
+                child: Icon(
                   Icons.notifications_active_rounded,
-                  color: Colors.white,
+                  color: context.onPrimaryColor,
                   size: 29,
                 ),
               ),
@@ -250,10 +240,10 @@ class _NotificationPageState extends State<NotificationPage> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text(
+                    Text(
                       'Stay Updated',
                       style: TextStyle(
-                        color: Colors.white,
+                        color: context.onPrimaryColor,
                         fontSize: 18,
                         fontWeight: FontWeight.w700,
                       ),
@@ -266,7 +256,7 @@ class _NotificationPageState extends State<NotificationPage> {
                           ? 'No notifications available'
                           : 'Here are your latest updates',
                       style: TextStyle(
-                        color: Colors.white.withOpacity(0.75),
+                        color: context.onPrimaryColor.withValues(alpha: 0.75),
                         fontSize: 12.5,
                       ),
                     ),
@@ -284,11 +274,11 @@ class _NotificationPageState extends State<NotificationPage> {
                     vertical: 9,
                   ),
                   decoration: BoxDecoration(
-                    color: Colors.white,
+                    color: context.cardBackgroundColor,
                     borderRadius: BorderRadius.circular(25),
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.black.withOpacity(0.12),
+                        color: context.appColors.shadow.withValues(alpha: 0.12),
                         blurRadius: 10,
                         offset: const Offset(0, 4),
                       ),
@@ -296,8 +286,8 @@ class _NotificationPageState extends State<NotificationPage> {
                   ),
                   child: Text(
                     '$count',
-                    style: const TextStyle(
-                      color: primaryGreen,
+                    style: TextStyle(
+                      color: context.primaryColor,
                       fontSize: 13,
                       fontWeight: FontWeight.w800,
                     ),
@@ -319,8 +309,8 @@ class _NotificationPageState extends State<NotificationPage> {
     NotificationLoaded state,
   ) {
     return RefreshIndicator(
-      color: primaryGreen,
-      backgroundColor: Colors.white,
+      color: context.primaryColor,
+      backgroundColor: context.cardBackgroundColor,
 
       onRefresh: () async {
         context.read<NotificationBloc>().add(
@@ -367,12 +357,12 @@ class _NotificationPageState extends State<NotificationPage> {
     return Container(
       margin: const EdgeInsets.only(bottom: 13),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: context.cardBackgroundColor,
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: const Color(0xFFE7ECE9), width: 1),
+        border: Border.all(color: context.borderColor, width: 1),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.045),
+            color: context.appColors.shadow.withValues(alpha: 0.045),
             blurRadius: 15,
             offset: const Offset(0, 5),
           ),
@@ -395,19 +385,19 @@ class _NotificationPageState extends State<NotificationPage> {
           height: 46,
           padding: const EdgeInsets.all(11),
           decoration: BoxDecoration(
-            color: Colors.white,
+            color: context.cardBackgroundColor,
             shape: BoxShape.circle,
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withOpacity(0.06),
+                color: context.appColors.shadow.withValues(alpha: 0.06),
                 blurRadius: 12,
                 offset: const Offset(0, 4),
               ),
             ],
           ),
-          child: const CircularProgressIndicator(
+          child: CircularProgressIndicator(
             strokeWidth: 2.5,
-            color: primaryGreen,
+            color: context.primaryColor,
           ),
         ),
       ),
@@ -420,7 +410,7 @@ class _NotificationPageState extends State<NotificationPage> {
 
   Widget _buildEmpty(BuildContext context) {
     return RefreshIndicator(
-      color: primaryGreen,
+      color: context.primaryColor,
 
       onRefresh: () async {
         context.read<NotificationBloc>().add(
@@ -452,7 +442,7 @@ class _NotificationPageState extends State<NotificationPage> {
                       width: 105,
                       height: 105,
                       decoration: BoxDecoration(
-                        color: AppColors.gradientStartColor,
+                        color: context.primaryColor.withValues(alpha: 0.08),
                         shape: BoxShape.circle,
                       ),
                       child: Stack(
@@ -462,19 +452,21 @@ class _NotificationPageState extends State<NotificationPage> {
                             width: 72,
                             height: 72,
                             decoration: BoxDecoration(
-                              color: Colors.white,
+                              color: context.cardBackgroundColor,
                               shape: BoxShape.circle,
                               boxShadow: [
                                 BoxShadow(
-                                  color: primaryGreen.withOpacity(0.10),
+                                  color: context.primaryColor.withValues(
+                                    alpha: 0.10,
+                                  ),
                                   blurRadius: 15,
                                 ),
                               ],
                             ),
                           ),
-                          const Icon(
+                          Icon(
                             Icons.notifications_none_rounded,
-                            color: primaryGreen,
+                            color: context.primaryColor,
                             size: 43,
                           ),
                         ],
@@ -483,18 +475,16 @@ class _NotificationPageState extends State<NotificationPage> {
 
                     const SizedBox(height: 25),
 
-                    const Text(
+                    Text(
                       'Record Not Found',
                       style: TextStyle(
-                        color: textDark,
+                        color: context.primaryTextColor,
                         fontSize: 21,
                         fontWeight: FontWeight.w700,
                       ),
                     ),
 
                     const SizedBox(height: 9),
-
-                
 
                     // // =========================================
                     // // REFRESH BUTTON
@@ -512,8 +502,8 @@ class _NotificationPageState extends State<NotificationPage> {
                     //   icon: const Icon(Icons.refresh_rounded, size: 19),
                     //   label: const Text('Refresh Notifications'),
                     //   style: ElevatedButton.styleFrom(
-                    //     backgroundColor: primaryGreen,
-                    //     foregroundColor: Colors.white,
+                    //     backgroundColor: context.primaryColor,
+                    //     foregroundColor: context.onPrimaryColor,
                     //     elevation: 0,
                     //     padding: const EdgeInsets.symmetric(
                     //       horizontal: 21,
@@ -552,24 +542,24 @@ class _NotificationPageState extends State<NotificationPage> {
               width: 100,
               height: 100,
               decoration: BoxDecoration(
-                color: Colors.red.withOpacity(0.07),
+                color: context.appColors.error.withValues(alpha: 0.07),
                 shape: BoxShape.circle,
               ),
               child: Container(
                 margin: const EdgeInsets.all(15),
                 decoration: BoxDecoration(
-                  color: Colors.white,
+                  color: context.cardBackgroundColor,
                   shape: BoxShape.circle,
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.red.withOpacity(0.08),
+                      color: context.appColors.error.withValues(alpha: 0.08),
                       blurRadius: 12,
                     ),
                   ],
                 ),
-                child: const Icon(
+                child: Icon(
                   Icons.notifications_off_outlined,
-                  color: Colors.redAccent,
+                  color: context.appColors.error,
                   size: 42,
                 ),
               ),
@@ -577,10 +567,10 @@ class _NotificationPageState extends State<NotificationPage> {
 
             const SizedBox(height: 25),
 
-            const Text(
+            Text(
               'Unable to Load',
               style: TextStyle(
-                color: textDark,
+                color: context.primaryTextColor,
                 fontSize: 21,
                 fontWeight: FontWeight.w700,
               ),
@@ -588,11 +578,15 @@ class _NotificationPageState extends State<NotificationPage> {
 
             const SizedBox(height: 9),
 
-            const Text(
+            Text(
               'We couldn’t load your notifications.\n'
               'Please check your connection and try again.',
               textAlign: TextAlign.center,
-              style: TextStyle(color: textGrey, fontSize: 13, height: 1.55),
+              style: TextStyle(
+                color: context.secondaryTextColor,
+                fontSize: 13,
+                height: 1.55,
+              ),
             ),
 
             const SizedBox(height: 18),
@@ -604,17 +598,19 @@ class _NotificationPageState extends State<NotificationPage> {
               width: double.infinity,
               padding: const EdgeInsets.all(13),
               decoration: BoxDecoration(
-                color: Colors.red.withOpacity(0.045),
+                color: context.appColors.error.withValues(alpha: 0.045),
                 borderRadius: BorderRadius.circular(13),
-                border: Border.all(color: Colors.red.withOpacity(0.10)),
+                border: Border.all(
+                  color: context.appColors.error.withValues(alpha: 0.10),
+                ),
               ),
               child: Text(
                 message,
                 textAlign: TextAlign.center,
                 maxLines: 3,
                 overflow: TextOverflow.ellipsis,
-                style: const TextStyle(
-                  color: Colors.redAccent,
+                style: TextStyle(
+                  color: context.appColors.error,
                   fontSize: 11.5,
                   height: 1.4,
                 ),
@@ -639,8 +635,8 @@ class _NotificationPageState extends State<NotificationPage> {
               icon: const Icon(Icons.refresh_rounded, size: 19),
               label: const Text('Try Again'),
               style: ElevatedButton.styleFrom(
-                backgroundColor: primaryGreen,
-                foregroundColor: Colors.white,
+                backgroundColor: context.primaryColor,
+                foregroundColor: context.onPrimaryColor,
                 elevation: 0,
                 padding: const EdgeInsets.symmetric(
                   horizontal: 25,

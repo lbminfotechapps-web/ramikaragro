@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:solufine/core/theme/app_theme_context.dart';
 
-class EmployeeOutputEmpty
-    extends StatelessWidget {
+class EmployeeOutputEmpty extends StatelessWidget {
   final IconData icon;
   final String title;
   final String subtitle;
@@ -18,17 +18,11 @@ class EmployeeOutputEmpty
     return Container(
       width: double.infinity,
 
-      padding:
-          const EdgeInsets.symmetric(
-        horizontal: 20,
-        vertical: 45,
-      ),
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 45),
 
-      decoration:
-          BoxDecoration(
-        color: Colors.white,
-        borderRadius:
-            BorderRadius.circular(16),
+      decoration: BoxDecoration(
+        color: context.cardBackgroundColor,
+        borderRadius: BorderRadius.circular(16),
       ),
 
       child: Column(
@@ -37,35 +31,23 @@ class EmployeeOutputEmpty
             height: 64,
             width: 64,
 
-            decoration:
-                const BoxDecoration(
-              color:
-                  Color(0xFFEAF6EE),
-              shape:
-                  BoxShape.circle,
+            decoration: BoxDecoration(
+              color: context.primaryColor.withValues(alpha: 0.08),
+              shape: BoxShape.circle,
             ),
 
-            child: Icon(
-              icon,
-              size: 30,
-              color:
-                  const Color(0xFF287A4B),
-            ),
+            child: Icon(icon, size: 30, color: context.primaryColor),
           ),
 
           const SizedBox(height: 12),
 
           Text(
             title,
-            textAlign:
-                TextAlign.center,
-            style:
-                const TextStyle(
+            textAlign: TextAlign.center,
+            style: TextStyle(
               fontSize: 15,
-              fontWeight:
-                  FontWeight.w800,
-              color:
-                  Color(0xFF202923),
+              fontWeight: FontWeight.w800,
+              color: context.cardTextColor,
             ),
           ),
 
@@ -73,14 +55,8 @@ class EmployeeOutputEmpty
 
           Text(
             subtitle,
-            textAlign:
-                TextAlign.center,
-            style:
-                const TextStyle(
-              fontSize: 11,
-              color:
-                  Color(0xFF7A837E),
-            ),
+            textAlign: TextAlign.center,
+            style: TextStyle(fontSize: 11, color: context.secondaryTextColor),
           ),
         ],
       ),

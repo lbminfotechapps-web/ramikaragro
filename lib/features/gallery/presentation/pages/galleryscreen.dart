@@ -6,6 +6,7 @@ import 'package:solufine/features/gallery/presentation/boc/gallery_bloc.dart';
 import 'package:solufine/features/gallery/presentation/boc/gallery_event.dart';
 import 'package:solufine/features/gallery/presentation/boc/gallery_state.dart';
 import 'package:flutter/material.dart';
+import 'package:solufine/core/theme/app_theme_context.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil_plus/flutter_screenutil_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -83,10 +84,20 @@ class _GalleryScreenState extends State<GalleryScreen>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: context.backgroundColor,
 
       appBar: CustomAppBar(
         title: 'Gallery',
+        backgroundColor: context.primaryColor,
+        titleStyle: TextStyle(color: context.onPrimaryColor),
+        leading: IconButton(
+          icon: Icon(
+            Icons.arrow_back_ios_new_rounded,
+            size: 20,
+            color: context.onPrimaryColor,
+          ),
+          onPressed: () => Navigator.pop(context),
+        ),
         showBackButton: true,
         onBackTap: () => Navigator.pop(context),
       ),
@@ -126,7 +137,7 @@ class _GalleryScreenState extends State<GalleryScreen>
       margin: const EdgeInsets.symmetric(horizontal: 18, vertical: 8),
 
       decoration: BoxDecoration(
-        color: Colors.grey.shade100,
+        color: context.appColors.surfaceContainerHighest,
         borderRadius: BorderRadius.circular(12),
       ),
 
@@ -134,7 +145,7 @@ class _GalleryScreenState extends State<GalleryScreen>
         controller: _tabController,
 
         indicator: BoxDecoration(
-          color: const Color(0xFF218838),
+          color: context.primaryColor,
           borderRadius: BorderRadius.circular(10),
         ),
 
@@ -142,9 +153,9 @@ class _GalleryScreenState extends State<GalleryScreen>
 
         dividerColor: Colors.transparent,
 
-        labelColor: Colors.white,
+        labelColor: context.onPrimaryColor,
 
-        unselectedLabelColor: Colors.black87,
+        unselectedLabelColor: context.cardTextColor,
 
         labelStyle: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
 
@@ -201,7 +212,7 @@ class _GalleryScreenState extends State<GalleryScreen>
 
         // Data
         return RefreshIndicator(
-          color: const Color(0xFF218838),
+          color: context.primaryColor,
 
           onRefresh: () async {
             context.read<GalleryBloc>().add(RefreshGalleryEvent(type: type));
@@ -257,13 +268,13 @@ class _GalleryScreenState extends State<GalleryScreen>
 
       child: Container(
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: context.cardBackgroundColor,
 
           borderRadius: BorderRadius.circular(14),
 
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.08),
+              color: context.appColors.shadow.withValues(alpha: 0.08),
               blurRadius: 8,
               offset: const Offset(0, 3),
             ),
@@ -315,13 +326,13 @@ class _GalleryScreenState extends State<GalleryScreen>
                         height: 52,
 
                         decoration: BoxDecoration(
-                          color: Colors.black.withOpacity(0.70),
+                          color: context.primaryColor.withValues(alpha: 0.70),
                           shape: BoxShape.circle,
                         ),
 
-                        child: const Icon(
+                        child: Icon(
                           Icons.play_arrow,
-                          color: Colors.white,
+                          color: context.onPrimaryColor,
                           size: 32,
                         ),
                       ),
@@ -342,14 +353,14 @@ class _GalleryScreenState extends State<GalleryScreen>
                         ),
 
                         decoration: BoxDecoration(
-                          color: const Color(0xFF218838),
+                          color: context.primaryColor,
                           borderRadius: BorderRadius.circular(6),
                         ),
 
-                        child: const Text(
+                        child: Text(
                           'Certificate',
                           style: TextStyle(
-                            color: Colors.white,
+                            color: context.onPrimaryColor,
                             fontSize: 10,
                             fontWeight: FontWeight.w600,
                           ),
@@ -385,20 +396,20 @@ class _GalleryScreenState extends State<GalleryScreen>
 
                         overflow: TextOverflow.ellipsis,
 
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 13,
                           fontWeight: FontWeight.w600,
-                          color: Colors.black87,
+                          color: context.cardTextColor,
                         ),
                       ),
                     ),
 
                     const SizedBox(width: 4),
 
-                    const Icon(
+                    Icon(
                       Icons.arrow_forward_ios,
                       size: 13,
-                      color: Color(0xFF218838),
+                      color: context.primaryColor,
                     ),
                   ],
                 ),
@@ -683,14 +694,18 @@ class _GalleryScreenState extends State<GalleryScreen>
       width: double.infinity,
       height: double.infinity,
 
-      color: Colors.grey.shade100,
+      color: context.appColors.surfaceContainerHighest,
 
-      child: const Center(
+      child: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
 
           children: [
-            Icon(Icons.picture_as_pdf, size: 55, color: Colors.red),
+            Icon(
+              Icons.picture_as_pdf,
+              size: 55,
+              color: context.appColors.error,
+            ),
 
             SizedBox(height: 8),
 
@@ -699,7 +714,7 @@ class _GalleryScreenState extends State<GalleryScreen>
               style: TextStyle(
                 fontSize: 13,
                 fontWeight: FontWeight.w600,
-                color: Colors.black54,
+                color: context.secondaryTextColor,
               ),
             ),
           ],
@@ -726,10 +741,14 @@ class _GalleryScreenState extends State<GalleryScreen>
 
   Widget _imageLoadingWidget() {
     return Container(
-      color: Colors.grey.shade100,
+      color: context.appColors.surfaceContainerHighest,
 
-      child: const Center(
-        child: SizedBox(width: 25, height: 25, child: CustomLoader()),
+      child: Center(
+        child: SizedBox(
+          width: 25,
+          height: 25,
+          child: CustomLoader(color: context.primaryColor),
+        ),
       ),
     );
   }
@@ -744,13 +763,13 @@ class _GalleryScreenState extends State<GalleryScreen>
     StackTrace? stackTrace,
   ) {
     return Container(
-      color: Colors.grey.shade100,
+      color: context.appColors.surfaceContainerHighest,
 
-      child: const Center(
+      child: Center(
         child: Icon(
           Icons.image_not_supported_outlined,
           size: 40,
-          color: Colors.grey,
+          color: context.secondaryTextColor,
         ),
       ),
     );
@@ -761,8 +780,8 @@ class _GalleryScreenState extends State<GalleryScreen>
   // ---------------------------------------------------------------------------
 
   Widget _buildLoading() {
-    return const Center(
-      child: CircularProgressIndicator(color: Color(0xFF218838)),
+    return Center(
+      child: CircularProgressIndicator(color: context.primaryColor),
     );
   }
 
@@ -779,7 +798,7 @@ class _GalleryScreenState extends State<GalleryScreen>
           mainAxisAlignment: MainAxisAlignment.center,
 
           children: [
-            const Icon(Icons.error_outline, size: 55, color: Colors.redAccent),
+            Icon(Icons.error_outline, size: 55, color: context.appColors.error),
 
             const SizedBox(height: 15),
 
@@ -787,7 +806,7 @@ class _GalleryScreenState extends State<GalleryScreen>
               message,
               textAlign: TextAlign.center,
 
-              style: const TextStyle(fontSize: 14, color: Colors.black54),
+              style: TextStyle(fontSize: 14, color: context.secondaryTextColor),
             ),
 
             const SizedBox(height: 18),
@@ -802,9 +821,9 @@ class _GalleryScreenState extends State<GalleryScreen>
               label: const Text('Retry'),
 
               style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF218838),
+                backgroundColor: context.primaryColor,
 
-                foregroundColor: Colors.white,
+                foregroundColor: context.onPrimaryColor,
 
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(8),
@@ -833,7 +852,7 @@ class _GalleryScreenState extends State<GalleryScreen>
     }
 
     return RefreshIndicator(
-      color: const Color(0xFF218838),
+      color: context.primaryColor,
 
       onRefresh: () async {
         context.read<GalleryBloc>().add(RefreshGalleryEvent(type: type));
@@ -860,7 +879,7 @@ class _GalleryScreenState extends State<GalleryScreen>
 
                     size: 65,
 
-                    color: Colors.grey.shade400,
+                    color: context.secondaryTextColor,
                   ),
 
                   const SizedBox(height: 15),
@@ -870,7 +889,7 @@ class _GalleryScreenState extends State<GalleryScreen>
 
                     style: TextStyle(
                       fontSize: 15,
-                      color: Colors.grey.shade600,
+                      color: context.secondaryTextColor,
                       fontWeight: FontWeight.w500,
                     ),
                   ),
@@ -889,9 +908,9 @@ class _GalleryScreenState extends State<GalleryScreen>
                     label: const Text('Refresh'),
 
                     style: OutlinedButton.styleFrom(
-                      foregroundColor: const Color(0xFF218838),
+                      foregroundColor: context.primaryColor,
 
-                      side: const BorderSide(color: Color(0xFF218838)),
+                      side: BorderSide(color: context.primaryColor),
 
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(8),

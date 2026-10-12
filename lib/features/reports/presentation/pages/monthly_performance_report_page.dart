@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
+import 'package:solufine/core/theme/app_theme_context.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
@@ -41,8 +42,8 @@ class _MonthlyPerformanceReportPageState
   // COLORS
   // ============================================================
 
-  static const Color _primary = Color(0xFF14804A);
-  static const Color _primaryDark = Color(0xFF0B6539);
+  Color get _primary => context.primaryColor;
+  Color get _primaryDark => context.primaryColor;
 
   static const Color _blue = Color(0xFF3977D5);
   static const Color _red = Color(0xFFE45B55);
@@ -51,15 +52,15 @@ class _MonthlyPerformanceReportPageState
   static const Color _purple = Color(0xFF7357D8);
   static const Color _orange = Color(0xFFF59E0B);
 
-  static const Color _background = Color(0xFFF5F7F9);
-  static const Color _cardColor = Colors.white;
-  static const Color _border = Color(0xFFE7EBEF);
+  Color get _background => context.backgroundColor;
+  Color get _cardColor => context.cardBackgroundColor;
+  Color get _border => context.borderColor;
 
-  static const Color _text = Color(0xFF17212B);
-  static const Color _secondaryText = Color(0xFF75808E);
+  Color get _text => context.cardTextColor;
+  Color get _secondaryText => context.secondaryTextColor;
 
-  static const Color _softGreen = Color(0xFFF0F8F4);
-  static const Color _softBlue = Color(0xFFF2F6FC);
+  Color get _softGreen => context.primaryColor.withValues(alpha: 0.06);
+  Color get _softBlue => context.appColors.secondary.withValues(alpha: 0.06);
 
   // ============================================================
   // TABLE WIDTHS
@@ -632,6 +633,16 @@ class _MonthlyPerformanceReportPageState
 
       appBar: CustomAppBar(
         title: 'Sales Person Statistics',
+        backgroundColor: context.primaryColor,
+        titleStyle: TextStyle(color: context.onPrimaryColor),
+        leading: IconButton(
+          icon: Icon(
+            Icons.arrow_back_ios_new_rounded,
+            size: 20,
+            color: context.onPrimaryColor,
+          ),
+          onPressed: () => context.go(AppRouter.home),
+        ),
         showBackButton: true,
 
         onBackTap: () {
@@ -655,7 +666,7 @@ class _MonthlyPerformanceReportPageState
       ),
 
       body: !_loginLoaded
-          ? const Center(child: CircularProgressIndicator(color: _primary))
+          ? Center(child: CircularProgressIndicator(color: _primary))
           : BlocConsumer<MonthlyPerformanceBloc, MonthlyPerformanceState>(
               listener: (context, state) {
                 if (state.financialYearStatus == FinancialYearStatus.success &&
@@ -682,7 +693,7 @@ class _MonthlyPerformanceReportPageState
                         ApplicationPhaseStatus.initial ||
                     state.applicationPhaseStatus ==
                         ApplicationPhaseStatus.loading) {
-                  return const Center(
+                  return Center(
                     child: CircularProgressIndicator(color: _primary),
                   );
                 }
@@ -698,7 +709,7 @@ class _MonthlyPerformanceReportPageState
                         ),
                         TextButton(
                           onPressed: _fetchApplicationPhase,
-                          child: const Text('Retry'),
+                          child: Text('Retry'),
                         ),
                       ],
                     ),
@@ -728,10 +739,10 @@ class _MonthlyPerformanceReportPageState
                     children: [
                       _filterCard(state),
 
-                      const SizedBox(height: 8),
+                      SizedBox(height: 8),
 
                       if (state.status == MonthlyPerformanceStatus.loading)
-                        const Padding(
+                        Padding(
                           padding: EdgeInsets.symmetric(vertical: 55),
                           child: Center(
                             child: CircularProgressIndicator(color: _primary),
@@ -784,21 +795,17 @@ class _MonthlyPerformanceReportPageState
                       color: _softGreen,
                       borderRadius: BorderRadius.circular(10),
                     ),
-                    child: const Icon(
-                      Icons.tune_rounded,
-                      color: _primary,
-                      size: 18,
-                    ),
+                    child: Icon(Icons.tune_rounded, color: _primary, size: 18),
                   ),
 
-                  const SizedBox(width: 10),
+                  SizedBox(width: 10),
 
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
 
                       children: [
-                        const Text(
+                        Text(
                           'Performance Report',
                           style: TextStyle(
                             color: _text,
@@ -807,7 +814,7 @@ class _MonthlyPerformanceReportPageState
                           ),
                         ),
 
-                        const SizedBox(height: 3),
+                        SizedBox(height: 3),
 
                         Row(
                           children: [
@@ -818,7 +825,7 @@ class _MonthlyPerformanceReportPageState
                                     : _selectedEmployeeName,
                                 maxLines: 1,
                                 overflow: TextOverflow.ellipsis,
-                                style: const TextStyle(
+                                style: TextStyle(
                                   color: _secondaryText,
                                   fontSize: 8.5,
                                   fontWeight: FontWeight.w500,
@@ -826,7 +833,7 @@ class _MonthlyPerformanceReportPageState
                               ),
                             ),
 
-                            const Padding(
+                            Padding(
                               padding: EdgeInsets.symmetric(horizontal: 5),
                               child: Text(
                                 '•',
@@ -836,7 +843,7 @@ class _MonthlyPerformanceReportPageState
 
                             Text(
                               _selectedFinancialYear?.label ?? 'FY',
-                              style: const TextStyle(
+                              style: TextStyle(
                                 color: _primary,
                                 fontSize: 8.5,
                                 fontWeight: FontWeight.w700,
@@ -854,11 +861,11 @@ class _MonthlyPerformanceReportPageState
                     child: Container(
                       width: 30,
                       height: 30,
-                      decoration: const BoxDecoration(
-                        color: Color(0xFFF5F7F9),
+                      decoration: BoxDecoration(
+                        color: context.backgroundColor,
                         shape: BoxShape.circle,
                       ),
-                      child: const Icon(
+                      child: Icon(
                         Icons.keyboard_arrow_down_rounded,
                         size: 20,
                         color: _secondaryText,
@@ -882,16 +889,16 @@ class _MonthlyPerformanceReportPageState
               padding: const EdgeInsets.fromLTRB(10, 0, 10, 10),
               child: Column(
                 children: [
-                  const Divider(height: 1, color: _border),
+                  Divider(height: 1, color: _border),
 
-                  const SizedBox(height: 8),
+                  SizedBox(height: 8),
 
                   Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Expanded(flex: 7, child: _employeeField()),
 
-                      const SizedBox(width: 7),
+                      SizedBox(width: 7),
 
                       Expanded(flex: 3, child: _fyField(state)),
                     ],
@@ -903,7 +910,7 @@ class _MonthlyPerformanceReportPageState
                     },
                   ),
 
-                  const SizedBox(height: 8),
+                  SizedBox(height: 8),
 
                   SizedBox(
                     width: double.infinity,
@@ -911,18 +918,18 @@ class _MonthlyPerformanceReportPageState
                     child: ElevatedButton.icon(
                       onPressed: _viewReport,
 
-                      icon: const Icon(Icons.analytics_outlined, size: 16),
+                      icon: Icon(Icons.analytics_outlined, size: 16),
 
-                      label: const Text('View Performance'),
+                      label: Text('View Performance'),
 
                       style: ElevatedButton.styleFrom(
                         elevation: 0,
                         backgroundColor: _primary,
-                        foregroundColor: Colors.white,
+                        foregroundColor: context.onPrimaryColor,
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(10),
                         ),
-                        textStyle: const TextStyle(
+                        textStyle: TextStyle(
                           fontSize: 10,
                           fontWeight: FontWeight.w700,
                         ),
@@ -959,7 +966,7 @@ class _MonthlyPerformanceReportPageState
 
         onChanged: _employeeSearch,
 
-        style: const TextStyle(
+        style: TextStyle(
           fontSize: 9.5,
           color: _text,
           fontWeight: FontWeight.w600,
@@ -969,7 +976,7 @@ class _MonthlyPerformanceReportPageState
           labelText: 'Employee',
           hintText: 'Search employee',
 
-          prefixIcon: const Icon(
+          prefixIcon: Icon(
             Icons.person_search_outlined,
             size: 16,
             color: _primary,
@@ -977,23 +984,23 @@ class _MonthlyPerformanceReportPageState
 
           prefixIconConstraints: const BoxConstraints(minWidth: 36),
 
-          labelStyle: const TextStyle(fontSize: 9, color: _secondaryText),
+          labelStyle: TextStyle(fontSize: 9, color: _secondaryText),
 
-          hintStyle: const TextStyle(fontSize: 9, color: _secondaryText),
+          hintStyle: TextStyle(fontSize: 9, color: _secondaryText),
 
           filled: true,
-          fillColor: const Color(0xFFF8FAFB),
+          fillColor: context.appColors.surfaceContainerHighest,
 
           contentPadding: const EdgeInsets.symmetric(horizontal: 8),
 
           enabledBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(10),
-            borderSide: const BorderSide(color: _border),
+            borderSide: BorderSide(color: _border),
           ),
 
           focusedBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(10),
-            borderSide: const BorderSide(color: _primary, width: 1.2),
+            borderSide: BorderSide(color: _primary, width: 1.2),
           ),
         ),
       ),
@@ -1012,26 +1019,26 @@ class _MonthlyPerformanceReportPageState
 
         isExpanded: true,
 
-        icon: const Icon(Icons.keyboard_arrow_down_rounded, size: 17),
+        icon: Icon(Icons.keyboard_arrow_down_rounded, size: 17),
 
         decoration: InputDecoration(
           labelText: 'FY',
 
-          labelStyle: const TextStyle(fontSize: 8.5, color: _secondaryText),
+          labelStyle: TextStyle(fontSize: 8.5, color: _secondaryText),
 
           filled: true,
-          fillColor: const Color(0xFFF8FAFB),
+          fillColor: context.appColors.surfaceContainerHighest,
 
           contentPadding: const EdgeInsets.symmetric(horizontal: 8),
 
           enabledBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(10),
-            borderSide: const BorderSide(color: _border),
+            borderSide: BorderSide(color: _border),
           ),
 
           focusedBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(10),
-            borderSide: const BorderSide(color: _primary),
+            borderSide: BorderSide(color: _primary),
           ),
         ),
 
@@ -1041,7 +1048,7 @@ class _MonthlyPerformanceReportPageState
                 value: fy,
                 child: Text(
                   _shortFY(fy.label),
-                  style: const TextStyle(
+                  style: TextStyle(
                     color: _text,
                     fontSize: 8.5,
                     fontWeight: FontWeight.w600,
@@ -1078,7 +1085,7 @@ class _MonthlyPerformanceReportPageState
     }
 
     if (state.employeeLoading) {
-      return const Padding(
+      return Padding(
         padding: EdgeInsets.only(top: 5),
         child: LinearProgressIndicator(minHeight: 2, color: _primary),
       );
@@ -1093,7 +1100,7 @@ class _MonthlyPerformanceReportPageState
       margin: const EdgeInsets.only(top: 5),
       clipBehavior: Clip.antiAlias,
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: context.cardBackgroundColor,
         border: Border.all(color: _border),
         borderRadius: BorderRadius.circular(9),
       ),
@@ -1104,7 +1111,7 @@ class _MonthlyPerformanceReportPageState
         itemCount: state.employees.length,
 
         separatorBuilder: (context, index) {
-          return const Divider(height: 1, color: _border);
+          return Divider(height: 1, color: _border);
         },
 
         itemBuilder: (context, index) {
@@ -1122,23 +1129,23 @@ class _MonthlyPerformanceReportPageState
                     width: 27,
                     height: 27,
                     alignment: Alignment.center,
-                    decoration: const BoxDecoration(
+                    decoration: BoxDecoration(
                       color: _softGreen,
                       shape: BoxShape.circle,
                     ),
-                    child: const Icon(
+                    child: Icon(
                       Icons.person_outline,
                       color: _primary,
                       size: 14,
                     ),
                   ),
 
-                  const SizedBox(width: 8),
+                  SizedBox(width: 8),
 
                   Expanded(
                     child: Text(
                       employee.fldAdmName,
-                      style: const TextStyle(
+                      style: TextStyle(
                         color: _text,
                         fontSize: 9,
                         fontWeight: FontWeight.w600,
@@ -1146,7 +1153,7 @@ class _MonthlyPerformanceReportPageState
                     ),
                   ),
 
-                  const Icon(
+                  Icon(
                     Icons.arrow_forward_ios_rounded,
                     size: 10,
                     color: _secondaryText,
@@ -1183,28 +1190,28 @@ class _MonthlyPerformanceReportPageState
       children: [
         _monthlyTable(report, summary),
 
-        const SizedBox(height: 8),
+        SizedBox(height: 8),
 
         _monthlyCard(selected, summary),
 
         if (_selectedMonthKeys.isNotEmpty) ...[
-          const SizedBox(height: 8),
+          SizedBox(height: 8),
 
           _dailySection(state),
 
-          const SizedBox(height: 10),
+          SizedBox(height: 10),
 
           _hourlySection(state),
 
-          const SizedBox(height: 8),
+          SizedBox(height: 8),
 
           _areaSection(state),
 
-          const SizedBox(height: 8),
+          SizedBox(height: 8),
 
           _topDealersSection(state),
 
-          const SizedBox(height: 8),
+          SizedBox(height: 8),
 
           _expenseSection(state),
         ],
@@ -1255,7 +1262,7 @@ class _MonthlyPerformanceReportPageState
   Widget _monthlyHeader() {
     return Container(
       height: 30 * MediaQuery.textScalerOf(context).scale(1),
-      color: const Color(0xFFF1F5F8),
+      color: context.appColors.surfaceContainerHighest,
       child: Row(
         children: [
           _headerCell('', _checkWidth),
@@ -1286,10 +1293,10 @@ class _MonthlyPerformanceReportPageState
     return Container(
       height: 34 * MediaQuery.textScalerOf(context).scale(1),
       color: selected
-          ? const Color(0xFFF0FAF5)
+          ? context.primaryColor.withValues(alpha: 0.06)
           : index.isEven
-          ? Colors.white
-          : const Color(0xFFFAFBFC),
+          ? context.cardBackgroundColor
+          : context.appColors.surfaceContainerHighest,
 
       child: Row(
         children: [
@@ -1380,10 +1387,10 @@ class _MonthlyPerformanceReportPageState
   Widget _monthlyTotal(_MonthSummary summary) {
     return Container(
       height: 38 * MediaQuery.textScalerOf(context).scale(1),
-      color: const Color(0xFFEDF4F8),
+      color: context.appColors.secondary.withValues(alpha: 0.08),
       child: Row(
         children: [
-          const SizedBox(width: _checkWidth),
+          SizedBox(width: _checkWidth),
 
           _bodyCell('TOTAL', _monthWidth, bold: true),
 
@@ -1457,7 +1464,7 @@ class _MonthlyPerformanceReportPageState
                 child: _miniKpi('TOTAL VISITS', '${summary.visits}', _blue),
               ),
 
-              const SizedBox(width: 6),
+              SizedBox(width: 6),
 
               Expanded(
                 child: _miniKpi(
@@ -1467,7 +1474,7 @@ class _MonthlyPerformanceReportPageState
                 ),
               ),
 
-              const SizedBox(width: 6),
+              SizedBox(width: 6),
 
               Expanded(
                 child: _miniKpi('BEST MONTH', summary.bestMonth, _purple),
@@ -1475,14 +1482,14 @@ class _MonthlyPerformanceReportPageState
             ],
           ),
 
-          const SizedBox(height: 12),
+          SizedBox(height: 12),
 
           if (!_visitOnly)
             Container(
               height: 44,
               padding: const EdgeInsets.all(3),
               decoration: BoxDecoration(
-                color: const Color(0xFFF3F5F7),
+                color: context.appColors.surfaceContainerHighest,
                 borderRadius: BorderRadius.circular(9),
               ),
               child: Row(
@@ -1516,7 +1523,7 @@ class _MonthlyPerformanceReportPageState
               ),
             ),
 
-          const SizedBox(height: 10),
+          SizedBox(height: 10),
 
           !_visitOnly && _showAmountPerformance
               ? _monthlyAmountChart(selected)
@@ -1567,7 +1574,7 @@ class _MonthlyPerformanceReportPageState
                 child: _miniKpi('VISITS', '${summary.totalVisits}', _blue),
               ),
 
-              const SizedBox(width: 5),
+              SizedBox(width: 5),
 
               Expanded(
                 child: _miniKpi(
@@ -1577,11 +1584,11 @@ class _MonthlyPerformanceReportPageState
                 ),
               ),
 
-              const SizedBox(width: 5),
+              SizedBox(width: 5),
 
               Expanded(child: _miniKpi('BEST DAY', summary.bestDay, _purple)),
 
-              const SizedBox(width: 5),
+              SizedBox(width: 5),
 
               Expanded(
                 child: _miniKpi(
@@ -1593,7 +1600,7 @@ class _MonthlyPerformanceReportPageState
             ],
           ),
 
-          const SizedBox(height: 13),
+          SizedBox(height: 13),
 
           _chartTitle(
             icon: Icons.show_chart_rounded,
@@ -1603,11 +1610,11 @@ class _MonthlyPerformanceReportPageState
                 : 'Visits and business amount trend',
           ),
 
-          const SizedBox(height: 5),
+          SizedBox(height: 5),
 
           _dailyCombinedChart(report.days),
 
-          const SizedBox(height: 12),
+          SizedBox(height: 12),
 
           _dailyTable(report),
         ],
@@ -1661,7 +1668,7 @@ class _MonthlyPerformanceReportPageState
                 ),
               ),
 
-              const SizedBox(width: 6),
+              SizedBox(width: 6),
 
               Expanded(
                 child: _compactInfo(
@@ -1672,7 +1679,7 @@ class _MonthlyPerformanceReportPageState
                 ),
               ),
 
-              const SizedBox(width: 6),
+              SizedBox(width: 6),
 
               Expanded(
                 child: _compactInfo(
@@ -1685,7 +1692,7 @@ class _MonthlyPerformanceReportPageState
             ],
           ),
 
-          const SizedBox(height: 13),
+          SizedBox(height: 13),
 
           _chartTitle(
             icon: Icons.timeline_rounded,
@@ -1695,11 +1702,11 @@ class _MonthlyPerformanceReportPageState
                 : 'Visits, orders, dispatch and collection',
           ),
 
-          const SizedBox(height: 5),
+          SizedBox(height: 5),
 
           _hourlyCombinedChart(report.hours),
 
-          const SizedBox(height: 12),
+          SizedBox(height: 12),
 
           _hourlyTable(report),
         ],
@@ -1742,14 +1749,14 @@ class _MonthlyPerformanceReportPageState
             color: _collectionColor,
           ),
 
-          const SizedBox(height: 8),
+          SizedBox(height: 8),
 
           if (!_visitOnly)
             Container(
               height: 38,
               padding: const EdgeInsets.all(3),
               decoration: BoxDecoration(
-                color: const Color(0xFFF3F5F7),
+                color: context.appColors.surfaceContainerHighest,
                 borderRadius: BorderRadius.circular(9),
               ),
               child: Row(
@@ -1782,7 +1789,7 @@ class _MonthlyPerformanceReportPageState
               ),
             ),
 
-          const SizedBox(height: 8),
+          SizedBox(height: 8),
 
           LayoutBuilder(
             builder: (context, constraints) {
@@ -1791,7 +1798,7 @@ class _MonthlyPerformanceReportPageState
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Expanded(flex: 5, child: _areaChartPanel(report)),
-                    const SizedBox(width: 8),
+                    SizedBox(width: 8),
                     Expanded(flex: 6, child: _areaTable(report)),
                   ],
                 );
@@ -1800,7 +1807,7 @@ class _MonthlyPerformanceReportPageState
               return Column(
                 children: [
                   _areaChartPanel(report),
-                  const SizedBox(height: 8),
+                  SizedBox(height: 8),
                   _areaTable(report),
                 ],
               );
@@ -1816,7 +1823,7 @@ class _MonthlyPerformanceReportPageState
       width: double.infinity,
       padding: const EdgeInsets.fromLTRB(8, 8, 8, 6),
       decoration: BoxDecoration(
-        color: const Color(0xFFFBFCFD),
+        color: context.appColors.surfaceContainerHighest,
         borderRadius: BorderRadius.circular(11),
         border: Border.all(color: _border),
       ),
@@ -1830,7 +1837,7 @@ class _MonthlyPerformanceReportPageState
                   (_visitOnly || _showAreaDealerChart)
                       ? 'Area Distribution'
                       : 'Amount Performance',
-                  style: const TextStyle(
+                  style: TextStyle(
                     color: _text,
                     fontSize: 10.5,
                     fontWeight: FontWeight.w800,
@@ -1841,7 +1848,7 @@ class _MonthlyPerformanceReportPageState
                 (_visitOnly || _showAreaDealerChart)
                     ? 'Dealer count'
                     : 'Business amount',
-                style: const TextStyle(
+                style: TextStyle(
                   color: _secondaryText,
                   fontSize: 7,
                   fontWeight: FontWeight.w500,
@@ -1849,7 +1856,7 @@ class _MonthlyPerformanceReportPageState
               ),
             ],
           ),
-          const SizedBox(height: 6),
+          SizedBox(height: 6),
           if ((_visitOnly || _showAreaDealerChart))
             _areaDealerDonut(report)
           else
@@ -1901,8 +1908,8 @@ class _MonthlyPerformanceReportPageState
                         title: percentage >= 8
                             ? '${percentage.toStringAsFixed(0)}%'
                             : '',
-                        titleStyle: const TextStyle(
-                          color: Colors.white,
+                        titleStyle: TextStyle(
+                          color: context.cardBackgroundColor,
                           fontSize: 8,
                           fontWeight: FontWeight.w800,
                         ),
@@ -1915,15 +1922,15 @@ class _MonthlyPerformanceReportPageState
                   children: [
                     Text(
                       '${_areaCoverageTotal(report)}',
-                      style: const TextStyle(
+                      style: TextStyle(
                         color: _text,
                         fontSize: 18,
                         fontWeight: FontWeight.w900,
                         height: 1,
                       ),
                     ),
-                    const SizedBox(height: 2),
-                    const Text(
+                    SizedBox(height: 2),
+                    Text(
                       'Dealers',
                       style: TextStyle(
                         color: _secondaryText,
@@ -1936,14 +1943,14 @@ class _MonthlyPerformanceReportPageState
               ],
             ),
           ),
-          const SizedBox(width: 6),
+          SizedBox(width: 6),
           Expanded(
             flex: 4,
             child: ListView.separated(
               padding: EdgeInsets.zero,
               physics: const NeverScrollableScrollPhysics(),
               itemCount: data.length,
-              separatorBuilder: (_, __) => const SizedBox(height: 5),
+              separatorBuilder: (_, __) => SizedBox(height: 5),
               itemBuilder: (context, index) {
                 final item = data[index];
                 return Row(
@@ -1956,20 +1963,20 @@ class _MonthlyPerformanceReportPageState
                         borderRadius: BorderRadius.circular(3),
                       ),
                     ),
-                    const SizedBox(width: 5),
+                    SizedBox(width: 5),
                     Expanded(
                       child: Text(
                         item.areaName,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
-                        style: const TextStyle(
+                        style: TextStyle(
                           color: _text,
                           fontSize: 7.5,
                           fontWeight: FontWeight.w700,
                         ),
                       ),
                     ),
-                    const SizedBox(width: 4),
+                    SizedBox(width: 4),
                     Text(
                       '${item.visits}',
                       style: TextStyle(
@@ -2032,14 +2039,15 @@ class _MonthlyPerformanceReportPageState
           titlesData: _readableChartAxes(labels, maxY, money: true),
           barTouchData: BarTouchData(
             touchTooltipData: BarTouchTooltipData(
+              getTooltipColor: (_) => context.primaryColor,
               fitInsideHorizontally: true,
               fitInsideVertically: true,
               getTooltipItem: (group, groupIndex, rod, rodIndex) {
                 final names = ['Orders', 'Dispatch', 'Collection'];
                 return BarTooltipItem(
                   '${labels[groupIndex]} · ${names[rodIndex]}\n₹${_number(rod.toY)}',
-                  const TextStyle(
-                    color: Colors.white,
+                  TextStyle(
+                    color: context.onPrimaryColor,
                     fontSize: 10,
                     fontWeight: FontWeight.w700,
                   ),
@@ -2084,15 +2092,15 @@ class _MonthlyPerformanceReportPageState
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Icon(
+            Icon(
               Icons.location_off_outlined,
-              color: Color(0xFFB5BEC8),
+              color: context.secondaryTextColor,
               size: 28,
             ),
-            const SizedBox(height: 5),
+            SizedBox(height: 5),
             Text(
               text,
-              style: const TextStyle(
+              style: TextStyle(
                 color: _secondaryText,
                 fontSize: 8,
                 fontWeight: FontWeight.w600,
@@ -2122,7 +2130,7 @@ class _MonthlyPerformanceReportPageState
   Widget _areaTableHeader() {
     return Container(
       height: 28 * MediaQuery.textScalerOf(context).scale(1),
-      color: const Color(0xFFF1F5F8),
+      color: context.appColors.surfaceContainerHighest,
       child: Row(
         children: [
           _headerCell('AREA / TALUKA', _areaWidth),
@@ -2141,7 +2149,9 @@ class _MonthlyPerformanceReportPageState
   Widget _areaRow(AreaPerformanceItem item, int index) {
     return Container(
       height: 34 * MediaQuery.textScalerOf(context).scale(1),
-      color: index.isEven ? Colors.white : const Color(0xFFFAFBFC),
+      color: index.isEven
+          ? context.cardBackgroundColor
+          : context.appColors.surfaceContainerHighest,
       child: Row(
         children: [
           _bodyCell(item.areaName, _areaWidth, bold: item.visits > 0),
@@ -2182,7 +2192,7 @@ class _MonthlyPerformanceReportPageState
   Widget _areaTotal(AreaPerformance report) {
     return Container(
       height: 34 * MediaQuery.textScalerOf(context).scale(1),
-      color: const Color(0xFFEDF4F8),
+      color: context.appColors.secondary.withValues(alpha: 0.08),
       child: Row(
         children: [
           _bodyCell('TOTAL', _areaWidth, bold: true),
@@ -2279,10 +2289,10 @@ class _MonthlyPerformanceReportPageState
             number: '06',
             title: 'Most Visited Dealers',
             subtitle: 'Top dealers ranked by total visit count',
-            color: const Color(0xFF215081),
+            color: context.primaryColor,
           ),
 
-          const SizedBox(height: 7),
+          SizedBox(height: 7),
 
           // Compact summary strip
           Row(
@@ -2295,7 +2305,7 @@ class _MonthlyPerformanceReportPageState
                   color: _blue,
                 ),
               ),
-              const SizedBox(width: 5),
+              SizedBox(width: 5),
               Expanded(
                 flex: 2,
                 child: _topDealerKpi(
@@ -2306,7 +2316,7 @@ class _MonthlyPerformanceReportPageState
                   color: _orange,
                 ),
               ),
-              if (!_visitOnly) const SizedBox(width: 5),
+              if (!_visitOnly) SizedBox(width: 5),
               if (!_visitOnly)
                 Expanded(
                   child: _topDealerKpi(
@@ -2319,12 +2329,12 @@ class _MonthlyPerformanceReportPageState
             ],
           ),
 
-          const SizedBox(height: 7),
+          SizedBox(height: 7),
 
           Container(
             clipBehavior: Clip.antiAlias,
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: context.cardBackgroundColor,
               border: Border.all(color: _border),
               borderRadius: BorderRadius.circular(11),
             ),
@@ -2333,18 +2343,14 @@ class _MonthlyPerformanceReportPageState
                 Container(
                   height: 34,
                   padding: const EdgeInsets.symmetric(horizontal: 9),
-                  decoration: const BoxDecoration(
-                    gradient: LinearGradient(
-                      colors: [Color(0xFF1E4C79), Color(0xFF2D6FA3)],
-                    ),
-                  ),
+                  decoration: BoxDecoration(color: context.primaryColor),
                   child: Row(
                     children: [
-                      const Expanded(
+                      Expanded(
                         child: Text(
                           'Top Dealer Ranking',
                           style: TextStyle(
-                            color: Colors.white,
+                            color: context.onPrimaryColor,
                             fontSize: 10.5,
                             fontWeight: FontWeight.w800,
                           ),
@@ -2356,15 +2362,15 @@ class _MonthlyPerformanceReportPageState
                           vertical: 3,
                         ),
                         decoration: BoxDecoration(
-                          color: Colors.white.withOpacity(.13),
+                          color: context.onPrimaryColor.withValues(alpha: .13),
                           borderRadius: BorderRadius.circular(20),
                         ),
                         child: Text(
                           report.financialYearLabel.isEmpty
                               ? 'TOP 10'
                               : '${report.financialYearLabel}  •  TOP 10',
-                          style: const TextStyle(
-                            color: Colors.white,
+                          style: TextStyle(
+                            color: context.onPrimaryColor,
                             fontSize: 6.8,
                             fontWeight: FontWeight.w700,
                           ),
@@ -2393,9 +2399,9 @@ class _MonthlyPerformanceReportPageState
       height: 48,
       padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 5),
       decoration: BoxDecoration(
-        color: color.withOpacity(.055),
+        color: color.withValues(alpha: .055),
         borderRadius: BorderRadius.circular(9),
-        border: Border.all(color: color.withOpacity(.12)),
+        border: Border.all(color: color.withValues(alpha: .12)),
       ),
       child: Row(
         children: [
@@ -2403,12 +2409,12 @@ class _MonthlyPerformanceReportPageState
             width: 26,
             height: 26,
             decoration: BoxDecoration(
-              color: color.withOpacity(.11),
+              color: color.withValues(alpha: .11),
               borderRadius: BorderRadius.circular(7),
             ),
             child: Icon(icon, color: color, size: 14),
           ),
-          const SizedBox(width: 6),
+          SizedBox(width: 6),
           Expanded(
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -2418,14 +2424,14 @@ class _MonthlyPerformanceReportPageState
                   title,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(
+                  style: TextStyle(
                     color: _secondaryText,
                     fontSize: 6.2,
                     fontWeight: FontWeight.w800,
                     letterSpacing: .15,
                   ),
                 ),
-                const SizedBox(height: 1),
+                SizedBox(height: 1),
                 Text(
                   value,
                   maxLines: 1,
@@ -2442,7 +2448,7 @@ class _MonthlyPerformanceReportPageState
                     subtitle,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(
+                    style: TextStyle(
                       color: _secondaryText,
                       fontSize: 6.2,
                       height: 1,
@@ -2479,7 +2485,7 @@ class _MonthlyPerformanceReportPageState
   Widget _topDealerHeader() {
     return Container(
       height: 30 * MediaQuery.textScalerOf(context).scale(1),
-      color: const Color(0xFFE9F1F8),
+      color: context.appColors.secondary.withValues(alpha: 0.08),
       child: Row(
         children: [
           _headerCell('RANK', _rankWidth, center: true),
@@ -2501,9 +2507,11 @@ class _MonthlyPerformanceReportPageState
     return Container(
       height: 34 * MediaQuery.textScalerOf(context).scale(1),
       decoration: BoxDecoration(
-        color: index.isEven ? Colors.white : const Color(0xFFFAFBFC),
-        border: const Border(
-          bottom: BorderSide(color: Color(0xFFF0F2F4), width: .6),
+        color: index.isEven
+            ? context.cardBackgroundColor
+            : context.appColors.surfaceContainerHighest,
+        border: Border(
+          bottom: BorderSide(color: context.borderColor, width: .6),
         ),
       ),
       child: Row(
@@ -2525,14 +2533,14 @@ class _MonthlyPerformanceReportPageState
                 constraints: const BoxConstraints(minWidth: 25),
                 padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
                 decoration: BoxDecoration(
-                  color: const Color(0xFFEAF2FC),
+                  color: context.appColors.secondary.withValues(alpha: 0.08),
                   borderRadius: BorderRadius.circular(20),
                 ),
                 child: Text(
                   '${item.visits}',
                   textAlign: TextAlign.center,
-                  style: const TextStyle(
-                    color: Color(0xFF1F67B1),
+                  style: TextStyle(
+                    color: context.primaryColor,
                     fontSize: 9.5,
                     fontWeight: FontWeight.w900,
                   ),
@@ -2579,7 +2587,7 @@ class _MonthlyPerformanceReportPageState
   Widget _topDealerTotal(TopDealerPerformance report) {
     return Container(
       height: 36 * MediaQuery.textScalerOf(context).scale(1),
-      color: const Color(0xFFEDF4F8),
+      color: context.appColors.secondary.withValues(alpha: 0.08),
       child: Row(
         children: [
           _detailCell(width: _rankWidth, child: const SizedBox.shrink()),
@@ -2656,7 +2664,7 @@ class _MonthlyPerformanceReportPageState
                 '$count $countText',
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
-                style: const TextStyle(
+                style: TextStyle(
                   color: _secondaryText,
                   fontSize: 6.7,
                   height: 1.05,
@@ -2688,7 +2696,7 @@ class _MonthlyPerformanceReportPageState
         break;
       default:
         background = const Color(0xFFEAF2FA);
-        foreground = const Color(0xFF215081);
+        foreground = context.primaryColor;
     }
 
     return Container(
@@ -2744,10 +2752,10 @@ class _MonthlyPerformanceReportPageState
             color: _orange,
           ),
 
-          const SizedBox(height: 7),
+          SizedBox(height: 7),
 
           // _expenseTotalCard(report),
-          const SizedBox(height: 8),
+          SizedBox(height: 8),
 
           LayoutBuilder(
             builder: (context, constraints) {
@@ -2756,7 +2764,7 @@ class _MonthlyPerformanceReportPageState
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Expanded(flex: 5, child: _expenseChartPanel(report)),
-                    const SizedBox(width: 8),
+                    SizedBox(width: 8),
                     Expanded(flex: 6, child: _expenseTable(report)),
                   ],
                 );
@@ -2765,14 +2773,14 @@ class _MonthlyPerformanceReportPageState
               return Column(
                 children: [
                   _expenseChartPanel(report),
-                  const SizedBox(height: 8),
+                  SizedBox(height: 8),
                   _expenseTable(report),
                 ],
               );
             },
           ),
 
-          const SizedBox(height: 8),
+          SizedBox(height: 8),
 
           //  _expenseSummaryStrip(report),
         ],
@@ -2785,13 +2793,9 @@ class _MonthlyPerformanceReportPageState
       width: double.infinity,
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
       decoration: BoxDecoration(
-        gradient: const LinearGradient(
-          colors: [Color(0xFFFFF9EF), Color(0xFFFFFCF7)],
-          begin: Alignment.centerLeft,
-          end: Alignment.centerRight,
-        ),
+        color: context.appColors.secondary.withValues(alpha: 0.06),
         borderRadius: BorderRadius.circular(11),
-        border: Border.all(color: const Color(0xFFF1E4CC)),
+        border: Border.all(color: context.borderColor),
       ),
       child: Row(
         children: [
@@ -2799,19 +2803,19 @@ class _MonthlyPerformanceReportPageState
             width: 34,
             height: 34,
             decoration: BoxDecoration(
-              color: _orange.withOpacity(.10),
+              color: _orange.withValues(alpha: .10),
               borderRadius: BorderRadius.circular(9),
             ),
-            child: const Icon(
+            child: Icon(
               Icons.account_balance_wallet_outlined,
               color: _orange,
               size: 18,
             ),
           ),
 
-          const SizedBox(width: 8),
+          SizedBox(width: 8),
 
-          const Expanded(
+          Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -2839,7 +2843,7 @@ class _MonthlyPerformanceReportPageState
 
           Text(
             '₹${_number(report.totalExpense)}',
-            style: const TextStyle(
+            style: TextStyle(
               color: _orange,
               fontSize: 20,
               height: 1,
@@ -2856,14 +2860,14 @@ class _MonthlyPerformanceReportPageState
       width: double.infinity,
       padding: const EdgeInsets.fromLTRB(8, 8, 8, 7),
       decoration: BoxDecoration(
-        color: const Color(0xFFFBFCFD),
+        color: context.appColors.surfaceContainerHighest,
         borderRadius: BorderRadius.circular(11),
         border: Border.all(color: _border),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Row(
+          Row(
             children: [
               Expanded(
                 child: Text(
@@ -2886,7 +2890,7 @@ class _MonthlyPerformanceReportPageState
             ],
           ),
 
-          const SizedBox(height: 6),
+          SizedBox(height: 6),
 
           _expenseDonut(report),
         ],
@@ -2906,13 +2910,13 @@ class _MonthlyPerformanceReportPageState
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              const Icon(
+              Icon(
                 Icons.donut_large_outlined,
-                color: Color(0xFFB5BEC8),
+                color: context.secondaryTextColor,
                 size: 28,
               ),
-              const SizedBox(height: 5),
-              const Text(
+              SizedBox(height: 5),
+              Text(
                 'No expense amount available',
                 style: TextStyle(
                   color: _secondaryText,
@@ -2957,8 +2961,8 @@ class _MonthlyPerformanceReportPageState
                         color: _expenseColor(index),
                         radius: 42,
                         title: share >= 8 ? '${share.toStringAsFixed(0)}%' : '',
-                        titleStyle: const TextStyle(
-                          color: Colors.white,
+                        titleStyle: TextStyle(
+                          color: context.cardBackgroundColor,
                           fontSize: 8,
                           fontWeight: FontWeight.w800,
                         ),
@@ -2972,15 +2976,15 @@ class _MonthlyPerformanceReportPageState
                   children: [
                     Text(
                       '₹${_number(report.totalExpense)}',
-                      style: const TextStyle(
+                      style: TextStyle(
                         color: _text,
                         fontSize: 15,
                         height: 1,
                         fontWeight: FontWeight.w900,
                       ),
                     ),
-                    const SizedBox(height: 2),
-                    const Text(
+                    SizedBox(height: 2),
+                    Text(
                       'Expense',
                       style: TextStyle(
                         color: _secondaryText,
@@ -2994,7 +2998,7 @@ class _MonthlyPerformanceReportPageState
             ),
           ),
 
-          const SizedBox(width: 6),
+          SizedBox(width: 6),
 
           Expanded(
             flex: 4,
@@ -3002,7 +3006,7 @@ class _MonthlyPerformanceReportPageState
               padding: EdgeInsets.zero,
               primary: false,
               itemCount: data.length,
-              separatorBuilder: (_, __) => const SizedBox(height: 5),
+              separatorBuilder: (_, __) => SizedBox(height: 5),
               itemBuilder: (context, index) {
                 final ExpensePerformanceItem item = data[index];
 
@@ -3017,14 +3021,14 @@ class _MonthlyPerformanceReportPageState
                       ),
                     ),
 
-                    const SizedBox(width: 5),
+                    SizedBox(width: 5),
 
                     Expanded(
                       child: Text(
                         item.parameterName,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
-                        style: const TextStyle(
+                        style: TextStyle(
                           color: _text,
                           fontSize: 7.5,
                           fontWeight: FontWeight.w700,
@@ -3032,7 +3036,7 @@ class _MonthlyPerformanceReportPageState
                       ),
                     ),
 
-                    const SizedBox(width: 4),
+                    SizedBox(width: 4),
 
                     Text(
                       '₹${_number(item.amount)}',
@@ -3057,9 +3061,7 @@ class _MonthlyPerformanceReportPageState
       title: 'Parameter-wise Expense',
       child: _detailTableViewport(
         width:
-            _expenseParameterWidth +
-            _expenseAmountWidth +
-            _expenseShareWidth,
+            _expenseParameterWidth + _expenseAmountWidth + _expenseShareWidth,
         header: _expenseHeader(),
         rows: List.generate(
           report.expenses.length,
@@ -3073,7 +3075,7 @@ class _MonthlyPerformanceReportPageState
   Widget _expenseHeader() {
     return Container(
       height: 28 * MediaQuery.textScalerOf(context).scale(1),
-      color: const Color(0xFFF1F5F8),
+      color: context.appColors.surfaceContainerHighest,
       child: Row(
         children: [
           _headerCell('EXPENSE PARAMETER', _expenseParameterWidth),
@@ -3088,9 +3090,11 @@ class _MonthlyPerformanceReportPageState
     return Container(
       height: 34 * MediaQuery.textScalerOf(context).scale(1),
       decoration: BoxDecoration(
-        color: index.isEven ? Colors.white : const Color(0xFFFAFBFC),
-        border: const Border(
-          bottom: BorderSide(color: Color(0xFFF0F2F4), width: .6),
+        color: index.isEven
+            ? context.cardBackgroundColor
+            : context.appColors.surfaceContainerHighest,
+        border: Border(
+          bottom: BorderSide(color: context.borderColor, width: .6),
         ),
       ),
       child: Row(
@@ -3118,7 +3122,7 @@ class _MonthlyPerformanceReportPageState
   Widget _expenseTotalRow(ExpensePerformance report) {
     return Container(
       height: 34 * MediaQuery.textScalerOf(context).scale(1),
-      color: const Color(0xFFFFF5E8),
+      color: context.appColors.secondary.withValues(alpha: 0.08),
       child: Row(
         children: [
           _bodyCell('TOTAL', _expenseParameterWidth, bold: true),
@@ -3152,9 +3156,9 @@ class _MonthlyPerformanceReportPageState
       height: 48,
       padding: const EdgeInsets.symmetric(horizontal: 7),
       decoration: BoxDecoration(
-        color: color.withOpacity(.05),
+        color: color.withValues(alpha: .05),
         borderRadius: BorderRadius.circular(9),
-        border: Border.all(color: color.withOpacity(.10)),
+        border: Border.all(color: color.withValues(alpha: .10)),
       ),
       child: Row(
         children: [
@@ -3162,13 +3166,13 @@ class _MonthlyPerformanceReportPageState
             width: 25,
             height: 25,
             decoration: BoxDecoration(
-              color: color.withOpacity(.10),
+              color: color.withValues(alpha: .10),
               borderRadius: BorderRadius.circular(7),
             ),
             child: Icon(icon, color: color, size: 13),
           ),
 
-          const SizedBox(width: 5),
+          SizedBox(width: 5),
 
           Expanded(
             child: Column(
@@ -3179,14 +3183,14 @@ class _MonthlyPerformanceReportPageState
                   title,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(
+                  style: TextStyle(
                     color: _secondaryText,
                     fontSize: 6,
                     fontWeight: FontWeight.w600,
                   ),
                 ),
 
-                const SizedBox(height: 2),
+                SizedBox(height: 2),
 
                 Text(
                   value,
@@ -3329,6 +3333,7 @@ class _MonthlyPerformanceReportPageState
               borderData: FlBorderData(show: false),
               lineTouchData: LineTouchData(
                 touchTooltipData: LineTouchTooltipData(
+                  getTooltipColor: (_) => context.primaryColor,
                   fitInsideHorizontally: true,
                   fitInsideVertically: true,
                   getTooltipItems: (spots) => spots.map((spot) {
@@ -3379,7 +3384,7 @@ class _MonthlyPerformanceReportPageState
                           radius: 3,
                           color: _seriesColors[series],
                           strokeWidth: 1.5,
-                          strokeColor: Colors.white,
+                          strokeColor: context.cardBackgroundColor,
                         ),
                   ),
                 ),
@@ -3402,11 +3407,7 @@ class _MonthlyPerformanceReportPageState
     return Container(
       padding: const EdgeInsets.fromLTRB(8, 10, 8, 8),
       decoration: BoxDecoration(
-        gradient: const LinearGradient(
-          begin: Alignment.topCenter,
-          end: Alignment.bottomCenter,
-          colors: [Color(0xFFF8FAFF), Colors.white],
-        ),
+        color: context.cardBackgroundColor,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(color: _border),
       ),
@@ -3429,10 +3430,10 @@ class _MonthlyPerformanceReportPageState
                       shape: BoxShape.circle,
                     ),
                   ),
-                  const SizedBox(width: 5),
+                  SizedBox(width: 5),
                   Text(
                     names[i],
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 11,
                       fontWeight: FontWeight.w600,
                       color: _text,
@@ -3442,12 +3443,9 @@ class _MonthlyPerformanceReportPageState
               ),
             ),
           ),
-          const SizedBox(height: 8),
-          Text(
-            axisHint,
-            style: const TextStyle(fontSize: 10, color: _secondaryText),
-          ),
-          const SizedBox(height: 8),
+          SizedBox(height: 8),
+          Text(axisHint, style: TextStyle(fontSize: 10, color: _secondaryText)),
+          SizedBox(height: 8),
           SizedBox(
             height: 200 * MediaQuery.textScalerOf(context).scale(1),
             child: LayoutBuilder(
@@ -3470,8 +3468,8 @@ class _MonthlyPerformanceReportPageState
               },
             ),
           ),
-          const SizedBox(height: 6),
-          const Text(
+          SizedBox(height: 6),
+          Text(
             'Tap a point for details • Swipe to explore',
             style: TextStyle(fontSize: 10, color: _secondaryText),
           ),
@@ -3483,11 +3481,8 @@ class _MonthlyPerformanceReportPageState
   FlGridData _chartGrid(double maxY, {double? interval}) => FlGridData(
     drawVerticalLine: false,
     horizontalInterval: interval ?? maxY / 4,
-    getDrawingHorizontalLine: (value) => const FlLine(
-      color: Color(0xFFE3E9F2),
-      strokeWidth: 1,
-      dashArray: [4, 4],
-    ),
+    getDrawingHorizontalLine: (value) =>
+        FlLine(color: context.borderColor, strokeWidth: 1, dashArray: [4, 4]),
   );
 
   FlTitlesData _readableChartAxes(
@@ -3511,11 +3506,11 @@ class _MonthlyPerformanceReportPageState
             child: Text(
               text,
               maxLines: 1,
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 11,
                 height: 1.2,
                 fontWeight: FontWeight.w600,
-                color: Color(0xFF526174),
+                color: context.secondaryTextColor,
               ),
             ),
           );
@@ -3580,7 +3575,7 @@ class _MonthlyPerformanceReportPageState
   Widget _dailyTableHeader() {
     return Container(
       height: 30 * MediaQuery.textScalerOf(context).scale(1),
-      color: const Color(0xFFF1F5F8),
+      color: context.appColors.surfaceContainerHighest,
       child: Row(
         children: [
           _headerCell('DAY', _dayWidth),
@@ -3605,7 +3600,9 @@ class _MonthlyPerformanceReportPageState
     return Container(
       height: 34 * MediaQuery.textScalerOf(context).scale(1),
 
-      color: index.isEven ? Colors.white : const Color(0xFFFAFBFC),
+      color: index.isEven
+          ? context.cardBackgroundColor
+          : context.appColors.surfaceContainerHighest,
 
       child: Row(
         children: [
@@ -3697,7 +3694,7 @@ class _MonthlyPerformanceReportPageState
                 children: [
                   header,
                   if (rows.isEmpty)
-                    const Padding(
+                    Padding(
                       padding: EdgeInsets.all(10),
                       child: Text(
                         'No details available',
@@ -3729,10 +3726,7 @@ class _MonthlyPerformanceReportPageState
                           if (width > constraints.maxWidth)
                             'Swipe for more columns',
                         ].join(' • '),
-                        style: const TextStyle(
-                          fontSize: 10,
-                          color: _secondaryText,
-                        ),
+                        style: TextStyle(fontSize: 10, color: _secondaryText),
                       ),
                     ),
                 ],
@@ -3747,7 +3741,7 @@ class _MonthlyPerformanceReportPageState
   Widget _hourHeader() {
     return Container(
       height: 30 * MediaQuery.textScalerOf(context).scale(1),
-      color: const Color(0xFFF1F5F8),
+      color: context.appColors.surfaceContainerHighest,
       child: Row(
         children: [
           _headerCell('HOUR', _hourWidth),
@@ -3772,7 +3766,9 @@ class _MonthlyPerformanceReportPageState
     return Container(
       height: 34 * MediaQuery.textScalerOf(context).scale(1),
 
-      color: index.isEven ? Colors.white : const Color(0xFFFAFBFC),
+      color: index.isEven
+          ? context.cardBackgroundColor
+          : context.appColors.surfaceContainerHighest,
 
       child: Row(
         children: [
@@ -3840,7 +3836,7 @@ class _MonthlyPerformanceReportPageState
   }) {
     return Container(
       height: 38 * MediaQuery.textScalerOf(context).scale(1),
-      color: const Color(0xFFEDF4F8),
+      color: context.appColors.secondary.withValues(alpha: 0.08),
       child: Row(
         children: [
           _bodyCell(first, firstWidth, bold: true),
@@ -3890,7 +3886,7 @@ class _MonthlyPerformanceReportPageState
     return Container(
       clipBehavior: Clip.antiAlias,
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: context.cardBackgroundColor,
         border: Border.all(color: _border),
         borderRadius: BorderRadius.circular(11),
       ),
@@ -3899,20 +3895,16 @@ class _MonthlyPerformanceReportPageState
           Container(
             width: double.infinity,
             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-            color: const Color(0xFFFAFBFC),
+            color: context.appColors.surfaceContainerHighest,
             child: Row(
               children: [
-                const Icon(
-                  Icons.table_rows_outlined,
-                  size: 14,
-                  color: _primary,
-                ),
+                Icon(Icons.table_rows_outlined, size: 14, color: _primary),
 
-                const SizedBox(width: 6),
+                SizedBox(width: 6),
 
                 Text(
                   title,
-                  style: const TextStyle(
+                  style: TextStyle(
                     color: _text,
                     fontSize: 10,
                     fontWeight: FontWeight.w800,
@@ -3950,8 +3942,8 @@ class _MonthlyPerformanceReportPageState
           alignment: center ? Alignment.center : Alignment.centerLeft,
           child: Text(
             value,
-            style: const TextStyle(
-              color: Color(0xFF687789),
+            style: TextStyle(
+              color: context.secondaryTextColor,
               fontSize: 9,
               fontWeight: FontWeight.w800,
               letterSpacing: .25,
@@ -4020,7 +4012,7 @@ class _MonthlyPerformanceReportPageState
     //             'Count: $count',
     //             maxLines: 1,
     //             overflow: TextOverflow.ellipsis,
-    //             style: const TextStyle(
+    //             style: TextStyle(
     //               color: _secondaryText,
     //               fontSize: 9,
     //               height: 1.15,
@@ -4054,9 +4046,9 @@ class _MonthlyPerformanceReportPageState
                 ),
               ),
 
-              const SizedBox(width: 3),
+              SizedBox(width: 3),
 
-              const Text(
+              Text(
                 '/',
                 style: TextStyle(
                   color: _secondaryText,
@@ -4065,12 +4057,12 @@ class _MonthlyPerformanceReportPageState
                 ),
               ),
 
-              const SizedBox(width: 3),
+              SizedBox(width: 3),
 
               Text(
                 '$count',
                 maxLines: 1,
-                style: const TextStyle(
+                style: TextStyle(
                   color: _secondaryText,
                   fontSize: 9.5,
                   fontWeight: FontWeight.w600,
@@ -4091,8 +4083,8 @@ class _MonthlyPerformanceReportPageState
           padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
           decoration: BoxDecoration(
             color: value > 0
-                ? const Color(0xFFEDF8F2)
-                : const Color(0xFFF4F5F6),
+                ? context.primaryColor.withValues(alpha: 0.06)
+                : context.appColors.surfaceContainerHighest,
             borderRadius: BorderRadius.circular(20),
           ),
           child: Text(
@@ -4131,7 +4123,7 @@ class _MonthlyPerformanceReportPageState
             ),
           ),
 
-          const SizedBox(width: 7),
+          SizedBox(width: 7),
 
           Expanded(
             child: Column(
@@ -4141,7 +4133,7 @@ class _MonthlyPerformanceReportPageState
                   title,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(
+                  style: TextStyle(
                     color: _text,
                     fontSize: 12.5,
                     fontWeight: FontWeight.w800,
@@ -4149,13 +4141,13 @@ class _MonthlyPerformanceReportPageState
                   ),
                 ),
 
-                const SizedBox(height: 3),
+                SizedBox(height: 3),
 
                 Text(
                   subtitle,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(
+                  style: TextStyle(
                     color: _secondaryText,
                     fontSize: 7.5,
                     fontWeight: FontWeight.w500,
@@ -4168,7 +4160,7 @@ class _MonthlyPerformanceReportPageState
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
             decoration: BoxDecoration(
-              color: color.withOpacity(.08),
+              color: color.withValues(alpha: .08),
               borderRadius: BorderRadius.circular(20),
             ),
             child: Text(
@@ -4194,9 +4186,9 @@ class _MonthlyPerformanceReportPageState
       height: 52,
       padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 5),
       decoration: BoxDecoration(
-        color: color.withOpacity(.055),
+        color: color.withValues(alpha: .055),
         borderRadius: BorderRadius.circular(11),
-        border: Border.all(color: color.withOpacity(.10)),
+        border: Border.all(color: color.withValues(alpha: .10)),
       ),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -4210,14 +4202,14 @@ class _MonthlyPerformanceReportPageState
                 decoration: BoxDecoration(color: color, shape: BoxShape.circle),
               ),
 
-              const SizedBox(width: 5),
+              SizedBox(width: 5),
 
               Expanded(
                 child: Text(
                   title,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(
+                  style: TextStyle(
                     color: _secondaryText,
                     fontSize: 6,
                     fontWeight: FontWeight.w700,
@@ -4255,9 +4247,9 @@ class _MonthlyPerformanceReportPageState
       height: 50,
       padding: const EdgeInsets.symmetric(horizontal: 7),
       decoration: BoxDecoration(
-        color: color.withOpacity(.055),
+        color: color.withValues(alpha: .055),
         borderRadius: BorderRadius.circular(10),
-        border: Border.all(color: color.withOpacity(.10)),
+        border: Border.all(color: color.withValues(alpha: .10)),
       ),
       child: Row(
         children: [
@@ -4265,13 +4257,13 @@ class _MonthlyPerformanceReportPageState
             width: 27,
             height: 27,
             decoration: BoxDecoration(
-              color: color.withOpacity(.10),
+              color: color.withValues(alpha: .10),
               borderRadius: BorderRadius.circular(8),
             ),
             child: Icon(icon, color: color, size: 14),
           ),
 
-          const SizedBox(width: 6),
+          SizedBox(width: 6),
 
           Expanded(
             child: Column(
@@ -4281,14 +4273,14 @@ class _MonthlyPerformanceReportPageState
                 Text(
                   title,
                   maxLines: 1,
-                  style: const TextStyle(
+                  style: TextStyle(
                     color: _secondaryText,
                     fontSize: 5.8,
                     fontWeight: FontWeight.w600,
                   ),
                 ),
 
-                const SizedBox(height: 2),
+                SizedBox(height: 2),
 
                 Text(
                   value,
@@ -4329,7 +4321,7 @@ class _MonthlyPerformanceReportPageState
           child: Icon(icon, size: 15, color: _blue),
         ),
 
-        const SizedBox(width: 8),
+        SizedBox(width: 8),
 
         Expanded(
           child: Column(
@@ -4337,18 +4329,18 @@ class _MonthlyPerformanceReportPageState
             children: [
               Text(
                 title,
-                style: const TextStyle(
+                style: TextStyle(
                   color: _text,
                   fontSize: 14,
                   fontWeight: FontWeight.w800,
                 ),
               ),
 
-              const SizedBox(height: 1),
+              SizedBox(height: 1),
 
               Text(
                 subtitle,
-                style: const TextStyle(color: _secondaryText, fontSize: 11),
+                style: TextStyle(color: _secondaryText, fontSize: 11),
               ),
             ],
           ),
@@ -4373,10 +4365,15 @@ class _MonthlyPerformanceReportPageState
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 180),
         decoration: BoxDecoration(
-          color: selected ? Colors.white : Colors.transparent,
+          color: selected ? context.cardBackgroundColor : Colors.transparent,
           borderRadius: BorderRadius.circular(7),
           boxShadow: selected
-              ? [BoxShadow(color: Colors.black.withOpacity(.05), blurRadius: 5)]
+              ? [
+                  BoxShadow(
+                    color: context.appColors.shadow.withValues(alpha: .05),
+                    blurRadius: 5,
+                  ),
+                ]
               : null,
         ),
         child: Row(
@@ -4384,7 +4381,7 @@ class _MonthlyPerformanceReportPageState
           children: [
             Icon(icon, size: 17, color: selected ? _primary : _secondaryText),
 
-            const SizedBox(width: 4),
+            SizedBox(width: 4),
 
             Flexible(
               child: Text(
@@ -4505,12 +4502,13 @@ class _MonthlyPerformanceReportPageState
           ),
           barTouchData: BarTouchData(
             touchTooltipData: BarTouchTooltipData(
+              getTooltipColor: (_) => context.primaryColor,
               fitInsideHorizontally: true,
               fitInsideVertically: true,
               getTooltipItem: (group, groupIndex, rod, rodIndex) => BarTooltipItem(
                 '${labels[groupIndex]} · ${names[rodIndex]}\n${amount ? '₹${_number(rod.toY)}' : rod.toY.toInt().toString()}',
-                const TextStyle(
-                  color: Colors.white,
+                TextStyle(
+                  color: context.onPrimaryColor,
                   fontSize: 12,
                   fontWeight: FontWeight.w700,
                 ),
@@ -4527,14 +4525,7 @@ class _MonthlyPerformanceReportPageState
                 (series) => BarChartRodData(
                   toY: values[index][series],
                   width: amount ? 12 : 20,
-                  gradient: LinearGradient(
-                    begin: Alignment.bottomCenter,
-                    end: Alignment.topCenter,
-                    colors: [
-                      colors[series].withValues(alpha: .65),
-                      colors[series],
-                    ],
-                  ),
+                  color: colors[series],
                   borderRadius: const BorderRadius.vertical(
                     top: Radius.circular(5),
                   ),
@@ -4555,18 +4546,15 @@ class _MonthlyPerformanceReportPageState
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const SizedBox(
+            SizedBox(
               width: 20,
               height: 20,
               child: CircularProgressIndicator(strokeWidth: 2, color: _primary),
             ),
 
-            const SizedBox(height: 8),
+            SizedBox(height: 8),
 
-            Text(
-              value,
-              style: const TextStyle(color: _secondaryText, fontSize: 8),
-            ),
+            Text(value, style: TextStyle(color: _secondaryText, fontSize: 8)),
           ],
         ),
       ),
@@ -4583,23 +4571,23 @@ class _MonthlyPerformanceReportPageState
             width: 34,
             height: 34,
             decoration: BoxDecoration(
-              color: Colors.red.withOpacity(.07),
+              color: context.appColors.error.withValues(alpha: .07),
               borderRadius: BorderRadius.circular(10),
             ),
-            child: const Icon(
+            child: Icon(
               Icons.error_outline,
-              color: Colors.redAccent,
+              color: context.appColors.error,
               size: 18,
             ),
           ),
 
-          const SizedBox(width: 10),
+          SizedBox(width: 10),
 
           Expanded(
             child: Text(
               value,
-              style: const TextStyle(
-                color: Colors.redAccent,
+              style: TextStyle(
+                color: context.appColors.error,
                 fontSize: 9,
                 fontWeight: FontWeight.w600,
               ),
@@ -4615,15 +4603,19 @@ class _MonthlyPerformanceReportPageState
       height: 145,
       width: double.infinity,
       decoration: BoxDecoration(
-        color: const Color(0xFFFBFCFD),
+        color: context.appColors.surfaceContainerHighest,
         borderRadius: BorderRadius.circular(10),
         border: Border.all(color: _border),
       ),
-      child: const Center(
+      child: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.bar_chart_rounded, color: Color(0xFFB5BEC8), size: 30),
+            Icon(
+              Icons.bar_chart_rounded,
+              color: context.secondaryTextColor,
+              size: 30,
+            ),
 
             SizedBox(height: 5),
 
@@ -4652,7 +4644,7 @@ class _MonthlyPerformanceReportPageState
       border: Border.all(color: _border, width: .8),
       boxShadow: [
         BoxShadow(
-          color: Colors.black.withOpacity(.035),
+          color: context.appColors.shadow.withValues(alpha: .035),
           blurRadius: 12,
           offset: const Offset(0, 4),
         ),

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:solufine/core/theme/app_theme_context.dart';
 
 import '../../domain/entities/employee_output_report.dart';
 
@@ -16,9 +17,7 @@ class EmployeeOutputCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return LayoutBuilder(
       builder: (context, constraints) {
-        final width = constraints.maxWidth < 560
-            ? 560.0
-            : constraints.maxWidth;
+        final width = constraints.maxWidth < 560 ? 560.0 : constraints.maxWidth;
 
         return SingleChildScrollView(
           scrollDirection: Axis.horizontal,
@@ -34,57 +33,58 @@ class EmployeeOutputCard extends StatelessWidget {
                   3: FlexColumnWidth(),
                   4: FlexColumnWidth(1.2),
                 },
-                defaultVerticalAlignment:
-                    TableCellVerticalAlignment.middle,
-                border: TableBorder.all(
-                  color: const Color(0xFFDCE7DF),
-                ),
+                defaultVerticalAlignment: TableCellVerticalAlignment.middle,
+                border: TableBorder.all(color: context.borderColor),
                 children: [
                   TableRow(
-                    decoration: const BoxDecoration(
-                      color: Color(0xFFEAF6EE),
+                    decoration: BoxDecoration(
+                      color: context.primaryColor.withValues(alpha: 0.08),
                     ),
                     children: [
                       _cell(
+                        context,
                         'Employee Name',
                         isHeader: true,
                         isName: true,
                       ),
-                      _cell('Dealer', isHeader: true),
-                      _cell('Farmer', isHeader: true),
-                      _cell('Location', isHeader: true),
-                      _cell('Total Visits', isHeader: true),
+                      _cell(context, 'Dealer', isHeader: true),
+                      _cell(context, 'Farmer', isHeader: true),
+                      _cell(context, 'Location', isHeader: true),
+                      _cell(context, 'Total Visits', isHeader: true),
                     ],
                   ),
 
-                  for (var index = 0;
-                      index < reports.length;
-                      index++)
+                  for (var index = 0; index < reports.length; index++)
                     TableRow(
                       decoration: BoxDecoration(
                         color: index.isEven
-                            ? Colors.white
-                            : const Color(0xFFF7F9F8),
+                            ? context.cardBackgroundColor
+                            : context.appColors.surfaceContainerHighest,
                       ),
                       children: [
                         _clickableCell(
+                          context,
                           reports[index].empName,
                           reports[index],
                           isName: true,
                         ),
                         _clickableCell(
+                          context,
                           reports[index].outletCnt,
                           reports[index],
                         ),
                         _clickableCell(
+                          context,
                           reports[index].farmerCnt,
                           reports[index],
                         ),
                         _clickableCell(
+                          context,
                           reports[index].currentCnt,
                           reports[index],
                         ),
                         _clickableCell(
+                          context,
                           reports[index].totalVisits,
                           reports[index],
                         ),
@@ -100,6 +100,7 @@ class EmployeeOutputCard extends StatelessWidget {
   }
 
   Widget _clickableCell(
+    BuildContext context,
     String value,
     EmployeeOutputReport report, {
     bool isName = false,
@@ -107,10 +108,7 @@ class EmployeeOutputCard extends StatelessWidget {
     return InkWell(
       onTap: () => onEmployeeTap(report),
       child: Padding(
-        padding: const EdgeInsets.symmetric(
-          horizontal: 10,
-          vertical: 14,
-        ),
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 14),
         child: Row(
           mainAxisAlignment: isName
               ? MainAxisAlignment.start
@@ -119,24 +117,20 @@ class EmployeeOutputCard extends StatelessWidget {
             Flexible(
               child: Text(
                 value,
-                textAlign: isName
-                    ? TextAlign.left
-                    : TextAlign.center,
+                textAlign: isName ? TextAlign.left : TextAlign.center,
                 style: TextStyle(
                   fontSize: 12,
                   fontWeight: FontWeight.w600,
-                  color: isName
-                      ? const Color(0xFF287A4B)
-                      : const Color(0xFF202923),
+                  color: isName ? context.primaryColor : context.cardTextColor,
                 ),
               ),
             ),
             if (isName) ...[
               const SizedBox(width: 5),
-              const Icon(
+              Icon(
                 Icons.chevron_right_rounded,
                 size: 16,
-                color: Color(0xFF287A4B),
+                color: context.primaryColor,
               ),
             ],
           ],
@@ -146,26 +140,20 @@ class EmployeeOutputCard extends StatelessWidget {
   }
 
   Widget _cell(
+    BuildContext context,
     String value, {
     bool isHeader = false,
     bool isName = false,
   }) {
     return Padding(
-      padding: const EdgeInsets.symmetric(
-        horizontal: 10,
-        vertical: 12,
-      ),
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 12),
       child: Text(
         value,
-        textAlign:
-            isName ? TextAlign.left : TextAlign.center,
+        textAlign: isName ? TextAlign.left : TextAlign.center,
         style: TextStyle(
           fontSize: 12,
-          fontWeight:
-              isHeader ? FontWeight.w800 : FontWeight.w600,
-          color: isHeader
-              ? const Color(0xFF287A4B)
-              : const Color(0xFF202923),
+          fontWeight: isHeader ? FontWeight.w800 : FontWeight.w600,
+          color: isHeader ? context.primaryColor : context.cardTextColor,
         ),
       ),
     );

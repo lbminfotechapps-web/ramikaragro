@@ -7,7 +7,7 @@ import 'package:intl/intl.dart';
 
 import 'package:solufine/core/router/app_router.dart';
 import 'package:solufine/core/secure_storage/secure_storage.dart';
-import 'package:solufine/core/theme/app_colors.dart';
+import 'package:solufine/core/theme/app_theme_context.dart';
 import 'package:solufine/core/utility/widgets/custom_appbar.dart';
 
 import '../../domain/entities/assign_employee.dart';
@@ -28,27 +28,20 @@ import '../widgets/visit_summary_empty.dart';
 class VisitSummaryPage extends StatefulWidget {
   final String userId;
 
-  const VisitSummaryPage({
-    super.key,
-    required this.userId,
-  });
+  const VisitSummaryPage({super.key, required this.userId});
 
   @override
-  State<VisitSummaryPage> createState() =>
-      _VisitSummaryPageState();
+  State<VisitSummaryPage> createState() => _VisitSummaryPageState();
 }
 
-class _VisitSummaryPageState
-    extends State<VisitSummaryPage> {
+class _VisitSummaryPageState extends State<VisitSummaryPage> {
   // ============================================================
   // EMPLOYEE
   // ============================================================
 
-  final TextEditingController employeeController =
-      TextEditingController();
+  final TextEditingController employeeController = TextEditingController();
 
-  final FocusNode employeeFocusNode =
-      FocusNode();
+  final FocusNode employeeFocusNode = FocusNode();
 
   Timer? employeeSearchTimer;
 
@@ -75,8 +68,7 @@ class _VisitSummaryPageState
   // STATUS
   // ============================================================
 
-  String selectedStatus =
-      'All Status';
+  String selectedStatus = 'All Status';
 
   // ============================================================
   // FILTER
@@ -92,21 +84,18 @@ class _VisitSummaryPageState
   void initState() {
     super.initState();
 
-    final DateTime today =
-        DateTime.now();
+    final DateTime today = DateTime.now();
 
     fromDate = today;
     toDate = today;
 
-    WidgetsBinding.instance.addPostFrameCallback(
-      (_) {
-        if (!mounted) {
-          return;
-        }
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) {
+        return;
+      }
 
-        _loadLoginEmployee();
-      },
-    );
+      _loadLoginEmployee();
+    });
   }
 
   // ============================================================
@@ -129,107 +118,73 @@ class _VisitSummaryPageState
 
   Future<void> _loadLoginEmployee() async {
     try {
-      final userData =
-          await SecureStorage.instance.getUserData();
+      final userData = await SecureStorage.instance.getUserData();
 
       if (!mounted) {
         return;
       }
 
-      final String storedUserId =
-          userData?['user_id']
-                  ?.toString()
-                  .trim() ??
-              '';
+      final String storedUserId = userData?['user_id']?.toString().trim() ?? '';
 
       final String storedUserName =
-          userData?['user_name']
-                  ?.toString()
-                  .trim() ??
-              '';
+          userData?['user_name']?.toString().trim() ?? '';
 
-      final String userId =
-          widget.userId.trim().isNotEmpty
-              ? widget.userId.trim()
-              : storedUserId;
+      final String userId = widget.userId.trim().isNotEmpty
+          ? widget.userId.trim()
+          : storedUserId;
 
-      final String userName =
-          storedUserName.isNotEmpty
-              ? storedUserName
-              : 'Logged-in Employee';
+      final String userName = storedUserName.isNotEmpty
+          ? storedUserName
+          : 'Logged-in Employee';
 
       setState(() {
-        loginEmployeeId =
-            userId;
+        loginEmployeeId = userId;
 
-        loginEmployeeName =
-            userName;
+        loginEmployeeName = userName;
 
         // ========================================
         // DEFAULT EMPLOYEE = LOGIN EMPLOYEE
         // ========================================
 
-        selectedEmployeeId =
-            userId;
+        selectedEmployeeId = userId;
 
-        selectedEmployeeName =
-            userName;
+        selectedEmployeeName = userName;
 
-        employeeController.text =
-            userName;
+        employeeController.text = userName;
 
-        loginEmployeeLoaded =
-            true;
+        loginEmployeeLoaded = true;
       });
 
-      debugPrint(
-        '==========================================',
-      );
+      debugPrint('==========================================');
 
-      debugPrint(
-        'VISIT SUMMARY LOGIN EMPLOYEE',
-      );
+      debugPrint('VISIT SUMMARY LOGIN EMPLOYEE');
 
-      debugPrint(
-        'ID   : $loginEmployeeId',
-      );
+      debugPrint('ID   : $loginEmployeeId');
 
-      debugPrint(
-        'NAME : $loginEmployeeName',
-      );
+      debugPrint('NAME : $loginEmployeeName');
 
-      debugPrint(
-        '==========================================',
-      );
+      debugPrint('==========================================');
 
       _loadReport();
     } catch (e) {
-      debugPrint(
-        'LOGIN EMPLOYEE ERROR => $e',
-      );
+      debugPrint('LOGIN EMPLOYEE ERROR => $e');
 
       if (!mounted) {
         return;
       }
 
       setState(() {
-        loginEmployeeId =
-            widget.userId.trim();
+        loginEmployeeId = widget.userId.trim();
 
-        loginEmployeeName =
-            'Logged-in Employee';
+        loginEmployeeName = 'Logged-in Employee';
 
-        selectedEmployeeId =
-            loginEmployeeId;
+        selectedEmployeeId = loginEmployeeId;
 
-        selectedEmployeeName =
-            loginEmployeeName;
+        selectedEmployeeName = loginEmployeeName;
 
-        employeeController.text =
-            loginEmployeeName;
+        employeeController.text = loginEmployeeName;
 
-        loginEmployeeLoaded =
-            true;
+        loginEmployeeLoaded = true;
       });
 
       _loadReport();
@@ -240,36 +195,24 @@ class _VisitSummaryPageState
   // DATE FORMAT API
   // ============================================================
 
-  String _formatDateForApi(
-    DateTime? date,
-  ) {
+  String _formatDateForApi(DateTime? date) {
     if (date == null) {
       return '';
     }
 
-    return DateFormat(
-      'dd-MM-yyyy',
-    ).format(
-      date,
-    );
+    return DateFormat('dd-MM-yyyy').format(date);
   }
 
   // ============================================================
   // DATE FORMAT UI
   // ============================================================
 
-  String _formatDateForDisplay(
-    DateTime? date,
-  ) {
+  String _formatDateForDisplay(DateTime? date) {
     if (date == null) {
       return '';
     }
 
-    return DateFormat(
-      'dd MMM yyyy',
-    ).format(
-      date,
-    );
+    return DateFormat('dd MMM yyyy').format(date);
   }
 
   // ============================================================
@@ -277,71 +220,41 @@ class _VisitSummaryPageState
   // ============================================================
 
   void _loadReport() {
-    if (fromDate == null ||
-        toDate == null) {
+    if (fromDate == null || toDate == null) {
       return;
     }
 
-    final String apiEmployeeId =
-        selectedEmployeeId.trim();
+    final String apiEmployeeId = selectedEmployeeId.trim();
 
-    debugPrint(
-      '==========================================',
+    debugPrint('==========================================');
+
+    debugPrint('GET VISIT REPORT');
+
+    debugPrint('LOGIN USER ID    : ${widget.userId}');
+
+    debugPrint('EMPLOYEE USER ID : $apiEmployeeId');
+
+    debugPrint('EMPLOYEE NAME    : $selectedEmployeeName');
+
+    debugPrint('FROM DATE        : ${_formatDateForApi(fromDate)}');
+
+    debugPrint('TO DATE          : ${_formatDateForApi(toDate)}');
+
+    debugPrint('STATUS           : $selectedStatus');
+
+    debugPrint('==========================================');
+
+    context.read<VisitReportBloc>().add(
+      GetVisitReportEvent(
+        logUserId: widget.userId,
+
+        userId: apiEmployeeId,
+
+        fromDate: _formatDateForApi(fromDate),
+
+        toDate: _formatDateForApi(toDate),
+      ),
     );
-
-    debugPrint(
-      'GET VISIT REPORT',
-    );
-
-    debugPrint(
-      'LOGIN USER ID    : ${widget.userId}',
-    );
-
-    debugPrint(
-      'EMPLOYEE USER ID : $apiEmployeeId',
-    );
-
-    debugPrint(
-      'EMPLOYEE NAME    : $selectedEmployeeName',
-    );
-
-    debugPrint(
-      'FROM DATE        : ${_formatDateForApi(fromDate)}',
-    );
-
-    debugPrint(
-      'TO DATE          : ${_formatDateForApi(toDate)}',
-    );
-
-    debugPrint(
-      'STATUS           : $selectedStatus',
-    );
-
-    debugPrint(
-      '==========================================',
-    );
-
-    context
-        .read<VisitReportBloc>()
-        .add(
-          GetVisitReportEvent(
-            logUserId:
-                widget.userId,
-
-            userId:
-                apiEmployeeId,
-
-            fromDate:
-                _formatDateForApi(
-              fromDate,
-            ),
-
-            toDate:
-                _formatDateForApi(
-              toDate,
-            ),
-          ),
-        );
   }
 
   // ============================================================
@@ -349,16 +262,13 @@ class _VisitSummaryPageState
   // ============================================================
 
   void _toggleFilter() {
-    FocusScope.of(context)
-        .unfocus();
+    FocusScope.of(context).unfocus();
 
     setState(() {
-      showFilters =
-          !showFilters;
+      showFilters = !showFilters;
 
       if (!showFilters) {
-        showEmployeeList =
-            false;
+        showEmployeeList = false;
       }
     });
   }
@@ -367,26 +277,18 @@ class _VisitSummaryPageState
   // LOAD EMPLOYEES
   // ============================================================
 
-  void _loadEmployees({
-    String? search,
-  }) {
+  void _loadEmployees({String? search}) {
     if (!mounted) {
       return;
     }
 
-    context
-        .read<EmployeeOutputBloc>()
-        .add(
-          SearchEmployeesEvent(
-            logUserId:
-                widget.userId,
+    context.read<EmployeeOutputBloc>().add(
+      SearchEmployeesEvent(
+        logUserId: widget.userId,
 
-            search:
-                search ??
-                    employeeController.text
-                        .trim(),
-          ),
-        );
+        search: search ?? employeeController.text.trim(),
+      ),
+    );
   }
 
   // ============================================================
@@ -395,8 +297,7 @@ class _VisitSummaryPageState
 
   void _onEmployeeFieldTap() {
     setState(() {
-      showEmployeeList =
-          true;
+      showEmployeeList = true;
     });
 
     _loadEmployees();
@@ -406,118 +307,79 @@ class _VisitSummaryPageState
   // EMPLOYEE SEARCH
   // ============================================================
 
-  void _searchEmployee(
-    String value,
-  ) {
+  void _searchEmployee(String value) {
     employeeSearchTimer?.cancel();
 
-    final String search =
-        value.trim();
+    final String search = value.trim();
 
-    if (selectedEmployeeId.isNotEmpty &&
-        search != selectedEmployeeName) {
+    if (selectedEmployeeId.isNotEmpty && search != selectedEmployeeName) {
       setState(() {
-        selectedEmployeeId =
-            '';
+        selectedEmployeeId = '';
 
-        selectedEmployeeName =
-            '';
+        selectedEmployeeName = '';
 
-        showEmployeeList =
-            true;
+        showEmployeeList = true;
       });
     } else {
       setState(() {
-        showEmployeeList =
-            true;
+        showEmployeeList = true;
       });
     }
 
     if (search.isEmpty) {
-      selectedEmployeeId =
-          '';
+      selectedEmployeeId = '';
 
-      selectedEmployeeName =
-          'All Employees';
+      selectedEmployeeName = 'All Employees';
 
-      _loadEmployees(
-        search: '',
-      );
+      _loadEmployees(search: '');
 
       return;
     }
 
-    employeeSearchTimer =
-        Timer(
-      const Duration(
-        milliseconds: 400,
-      ),
-      () {
-        if (!mounted) {
-          return;
-        }
+    employeeSearchTimer = Timer(const Duration(milliseconds: 400), () {
+      if (!mounted) {
+        return;
+      }
 
-        _loadEmployees(
-          search:
-              search,
-        );
-      },
-    );
+      _loadEmployees(search: search);
+    });
   }
 
   // ============================================================
   // SELECT EMPLOYEE
   // ============================================================
 
-  void _selectEmployee(
-    AssignEmployee employee,
-  ) {
-    final String id =
-        employee.fldId
-            .toString()
-            .trim();
+  void _selectEmployee(AssignEmployee employee) {
+    final String id = employee.fldId.toString().trim();
 
-    final String name =
-        employee.fldAdmName
-            .trim();
+    final String name = employee.fldAdmName.trim();
 
     if (id.isEmpty ||
         name.isEmpty ||
-        id.toLowerCase() ==
-            'null' ||
-        name.toLowerCase() ==
-            'null') {
+        id.toLowerCase() == 'null' ||
+        name.toLowerCase() == 'null') {
       return;
     }
 
     setState(() {
-      selectedEmployeeId =
-          id;
+      selectedEmployeeId = id;
 
-      selectedEmployeeName =
-          name;
+      selectedEmployeeName = name;
 
-      employeeController.text =
-          name;
+      employeeController.text = name;
 
-      employeeController.selection =
-          TextSelection.collapsed(
-        offset:
-            name.length,
+      employeeController.selection = TextSelection.collapsed(
+        offset: name.length,
       );
 
-      showEmployeeList =
-          false;
+      showEmployeeList = false;
     });
 
-    context
-        .read<EmployeeOutputBloc>()
-        .add(
-          const ClearEmployeeSuggestionsEvent(),
-        );
+    context.read<EmployeeOutputBloc>().add(
+      const ClearEmployeeSuggestionsEvent(),
+    );
 
-    FocusScope.of(context)
-        .unfocus();
+    FocusScope.of(context).unfocus();
   }
 
   // ============================================================
@@ -530,19 +392,14 @@ class _VisitSummaryPageState
     setState(() {
       employeeController.clear();
 
-      selectedEmployeeId =
-          '';
+      selectedEmployeeId = '';
 
-      selectedEmployeeName =
-          'All Employees';
+      selectedEmployeeName = 'All Employees';
 
-      showEmployeeList =
-          true;
+      showEmployeeList = true;
     });
 
-    _loadEmployees(
-      search: '',
-    );
+    _loadEmployees(search: '');
 
     employeeFocusNode.requestFocus();
   }
@@ -552,42 +409,20 @@ class _VisitSummaryPageState
   // ============================================================
 
   Future<void> _selectFromDate() async {
-    final DateTime? picked =
-        await showDatePicker(
-      context:
-          context,
+    final DateTime? picked = await showDatePicker(
+      context: context,
 
-      initialDate:
-          fromDate ??
-              DateTime.now(),
+      initialDate: fromDate ?? DateTime.now(),
 
-      firstDate:
-          DateTime(2020),
+      firstDate: DateTime(2020),
 
-      lastDate:
-          DateTime.now(),
+      lastDate: DateTime.now(),
 
-      builder:
-          (
-        context,
-        child,
-      ) {
+      builder: (context, child) {
         return Theme(
-          data:
-              Theme.of(
-            context,
-          ).copyWith(
-            colorScheme:
-                ColorScheme.fromSeed(
-              seedColor:
-                  const Color(
-                0xFF287A4B,
-              ),
-            ),
-          ),
+          data: Theme.of(context).copyWith(colorScheme: context.appColors),
 
-          child:
-              child!,
+          child: child!,
         );
       },
     );
@@ -597,15 +432,10 @@ class _VisitSummaryPageState
     }
 
     setState(() {
-      fromDate =
-          picked;
+      fromDate = picked;
 
-      if (toDate != null &&
-          toDate!.isBefore(
-            picked,
-          )) {
-        toDate =
-            picked;
+      if (toDate != null && toDate!.isBefore(picked)) {
+        toDate = picked;
       }
     });
   }
@@ -615,47 +445,22 @@ class _VisitSummaryPageState
   // ============================================================
 
   Future<void> _selectToDate() async {
-    final DateTime initialDate =
-        toDate ??
-            fromDate ??
-            DateTime.now();
+    final DateTime initialDate = toDate ?? fromDate ?? DateTime.now();
 
-    final DateTime? picked =
-        await showDatePicker(
-      context:
-          context,
+    final DateTime? picked = await showDatePicker(
+      context: context,
 
-      initialDate:
-          initialDate,
+      initialDate: initialDate,
 
-      firstDate:
-          fromDate ??
-              DateTime(2020),
+      firstDate: fromDate ?? DateTime(2020),
 
-      lastDate:
-          DateTime.now(),
+      lastDate: DateTime.now(),
 
-      builder:
-          (
-        context,
-        child,
-      ) {
+      builder: (context, child) {
         return Theme(
-          data:
-              Theme.of(
-            context,
-          ).copyWith(
-            colorScheme:
-                ColorScheme.fromSeed(
-              seedColor:
-                  const Color(
-                0xFF287A4B,
-              ),
-            ),
-          ),
+          data: Theme.of(context).copyWith(colorScheme: context.appColors),
 
-          child:
-              child!,
+          child: child!,
         );
       },
     );
@@ -665,8 +470,7 @@ class _VisitSummaryPageState
     }
 
     setState(() {
-      toDate =
-          picked;
+      toDate = picked;
     });
   }
 
@@ -675,45 +479,31 @@ class _VisitSummaryPageState
   // ============================================================
 
   void _searchReport() {
-    FocusScope.of(context)
-        .unfocus();
+    FocusScope.of(context).unfocus();
 
-    if (employeeController.text
-            .trim()
-            .isNotEmpty &&
+    if (employeeController.text.trim().isNotEmpty &&
         selectedEmployeeId.isEmpty &&
-        selectedEmployeeName !=
-            'All Employees') {
-      ScaffoldMessenger.of(context)
-          .hideCurrentSnackBar();
+        selectedEmployeeName != 'All Employees') {
+      ScaffoldMessenger.of(context).hideCurrentSnackBar();
 
-      ScaffoldMessenger.of(context)
-          .showSnackBar(
+      ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content:
-              Text(
-            'Please select employee from the list',
-          ),
-          behavior:
-              SnackBarBehavior.floating,
+          content: Text('Please select employee from the list'),
+          behavior: SnackBarBehavior.floating,
         ),
       );
 
       return;
     }
 
-    context
-        .read<EmployeeOutputBloc>()
-        .add(
-          const ClearEmployeeSuggestionsEvent(),
-        );
+    context.read<EmployeeOutputBloc>().add(
+      const ClearEmployeeSuggestionsEvent(),
+    );
 
     setState(() {
-      showEmployeeList =
-          false;
+      showEmployeeList = false;
 
-      showFilters =
-          false;
+      showFilters = false;
     });
 
     _loadReport();
@@ -726,55 +516,43 @@ class _VisitSummaryPageState
   void _resetFilters() {
     employeeSearchTimer?.cancel();
 
-    final DateTime today =
-        DateTime.now();
+    final DateTime today = DateTime.now();
 
     setState(() {
       // ========================================
       // RESET EMPLOYEE TO LOGIN EMPLOYEE
       // ========================================
 
-      selectedEmployeeId =
-          loginEmployeeId;
+      selectedEmployeeId = loginEmployeeId;
 
-      selectedEmployeeName =
-          loginEmployeeName;
+      selectedEmployeeName = loginEmployeeName;
 
-      employeeController.text =
-          loginEmployeeName;
+      employeeController.text = loginEmployeeName;
 
       // ========================================
       // RESET DATE
       // ========================================
 
-      fromDate =
-          today;
+      fromDate = today;
 
-      toDate =
-          today;
+      toDate = today;
 
       // ========================================
       // RESET STATUS
       // ========================================
 
-      selectedStatus =
-          'All Status';
+      selectedStatus = 'All Status';
 
-      showEmployeeList =
-          false;
+      showEmployeeList = false;
 
-      showFilters =
-          false;
+      showFilters = false;
     });
 
-    context
-        .read<EmployeeOutputBloc>()
-        .add(
-          const ClearEmployeeSuggestionsEvent(),
-        );
+    context.read<EmployeeOutputBloc>().add(
+      const ClearEmployeeSuggestionsEvent(),
+    );
 
-    FocusScope.of(context)
-        .unfocus();
+    FocusScope.of(context).unfocus();
 
     _loadReport();
   }
@@ -783,123 +561,56 @@ class _VisitSummaryPageState
   // LOCAL STATUS FILTER
   // ============================================================
 
-  List<VisitReport> _filterReports(
-    List<VisitReport> reports,
-  ) {
-    if (selectedStatus ==
-        'All Status') {
+  List<VisitReport> _filterReports(List<VisitReport> reports) {
+    if (selectedStatus == 'All Status') {
       return reports;
     }
 
-    return reports.where(
-      (
-        report,
-      ) {
-        return report.status
-                .toLowerCase() ==
-            selectedStatus
-                .toLowerCase();
-      },
-    ).toList();
+    return reports.where((report) {
+      return report.status.toLowerCase() == selectedStatus.toLowerCase();
+    }).toList();
   }
 
   // ============================================================
   // STRING -> INT
   // ============================================================
 
-  int _toInt(
-    String value,
-  ) {
-    return int.tryParse(
-          value.trim(),
-        ) ??
-        0;
+  int _toInt(String value) {
+    return int.tryParse(value.trim()) ?? 0;
   }
 
   // ============================================================
   // STATISTICS
   // ============================================================
 
-  int _presentCount(
-    List<VisitReport> reports,
-  ) {
-    return reports.where(
-      (
-        e,
-      ) {
-        return e.status
-                .toLowerCase() ==
-            'present';
-      },
-    ).length;
+  int _presentCount(List<VisitReport> reports) {
+    return reports.where((e) {
+      return e.status.toLowerCase() == 'present';
+    }).length;
   }
 
-  int _absentCount(
-    List<VisitReport> reports,
-  ) {
-    return reports.where(
-      (
-        e,
-      ) {
-        return e.status
-                .toLowerCase() ==
-            'absent';
-      },
-    ).length;
+  int _absentCount(List<VisitReport> reports) {
+    return reports.where((e) {
+      return e.status.toLowerCase() == 'absent';
+    }).length;
   }
 
-  int _dealerVisits(
-    List<VisitReport> reports,
-  ) {
-    return reports.fold(
-      0,
-      (
-        sum,
-        item,
-      ) =>
-          sum +
-          _toInt(
-            item.dealerVisit,
-          ),
-    );
+  int _dealerVisits(List<VisitReport> reports) {
+    return reports.fold(0, (sum, item) => sum + _toInt(item.dealerVisit));
   }
 
-  int _farmerVisits(
-    List<VisitReport> reports,
-  ) {
-    return reports.fold(
-      0,
-      (
-        sum,
-        item,
-      ) =>
-          sum +
-          _toInt(
-            item.farmerVisit,
-          ),
-    );
+  int _farmerVisits(List<VisitReport> reports) {
+    return reports.fold(0, (sum, item) => sum + _toInt(item.farmerVisit));
   }
 
   // ============================================================
   // INPUT BORDER
   // ============================================================
 
-  OutlineInputBorder _inputBorder({
-    Color color =
-        const Color(
-      0xFFE5EAE7,
-    ),
-  }) {
+  OutlineInputBorder _inputBorder({Color? color}) {
     return OutlineInputBorder(
-      borderRadius:
-          BorderRadius.circular(
-        9,
-      ),
-      borderSide:
-          BorderSide(
-        color:
-            color,
-      ),
+      borderRadius: BorderRadius.circular(9),
+      borderSide: BorderSide(color: color ?? context.borderColor),
     );
   }
 
@@ -907,80 +618,42 @@ class _VisitSummaryPageState
   // EMPLOYEE LIST
   // ============================================================
 
-  Widget _buildEmployeeList(
-    EmployeeOutputState state,
-  ) {
+  Widget _buildEmployeeList(EmployeeOutputState state) {
     if (state.employeeLoading) {
-      return const Padding(
-        padding:
-            EdgeInsets.only(
-          top: 5,
-        ),
-        child:
-            LinearProgressIndicator(
-          minHeight:
-              2,
-          color:
-              Color(
-            0xFF287A4B,
-          ),
+      return Padding(
+        padding: EdgeInsets.only(top: 5),
+        child: LinearProgressIndicator(
+          minHeight: 2,
+          color: context.primaryColor,
         ),
       );
     }
 
     if (!showEmployeeList) {
-      return const SizedBox
-          .shrink();
+      return const SizedBox.shrink();
     }
 
     if (state.employees.isEmpty) {
       return Container(
-        margin:
-            const EdgeInsets.only(
-          top: 5,
+        margin: const EdgeInsets.only(top: 5),
+        padding: const EdgeInsets.all(10),
+        decoration: BoxDecoration(
+          color: context.appColors.surfaceContainerHighest,
+          borderRadius: BorderRadius.circular(8),
         ),
-        padding:
-            const EdgeInsets.all(
-          10,
-        ),
-        decoration:
-            BoxDecoration(
-          color:
-              const Color(
-            0xFFF7F9F8,
-          ),
-          borderRadius:
-              BorderRadius.circular(
-            8,
-          ),
-        ),
-        child:
-            const Row(
+        child: Row(
           children: [
             Icon(
-              Icons
-                  .person_search_outlined,
-              size:
-                  17,
-              color:
-                  Color(
-                0xFF7A827D,
-              ),
+              Icons.person_search_outlined,
+              size: 17,
+              color: context.secondaryTextColor,
             ),
-            SizedBox(
-              width:
-                  7,
-            ),
+            SizedBox(width: 7),
             Text(
               'No employee found',
-              style:
-                  TextStyle(
-                fontSize:
-                    11.5,
-                color:
-                    Color(
-                  0xFF7A827D,
-                ),
+              style: TextStyle(
+                fontSize: 11.5,
+                color: context.secondaryTextColor,
               ),
             ),
           ],
@@ -989,172 +662,80 @@ class _VisitSummaryPageState
     }
 
     return Container(
-      margin:
-          const EdgeInsets.only(
-        top: 5,
+      margin: const EdgeInsets.only(top: 5),
+      constraints: const BoxConstraints(maxHeight: 180),
+      decoration: BoxDecoration(
+        color: context.cardBackgroundColor,
+        borderRadius: BorderRadius.circular(9),
+        border: Border.all(color: context.borderColor),
       ),
-      constraints:
-          const BoxConstraints(
-        maxHeight:
-            180,
-      ),
-      decoration:
-          BoxDecoration(
-        color:
-            Colors.white,
-        borderRadius:
-            BorderRadius.circular(
-          9,
-        ),
-        border:
-            Border.all(
-          color:
-              const Color(
-            0xFFE4EAE6,
-          ),
-        ),
-      ),
-      child:
-          ListView.separated(
-        shrinkWrap:
-            true,
-        padding:
-            EdgeInsets.zero,
-        itemCount:
-            state.employees.length,
-        separatorBuilder:
-            (
-          _,
-          __,
-        ) =>
-                const Divider(
-          height:
-              1,
-        ),
-        itemBuilder:
-            (
-          context,
-          index,
-        ) {
-          final AssignEmployee employee =
-              state.employees[
-                  index];
+      child: ListView.separated(
+        shrinkWrap: true,
+        padding: EdgeInsets.zero,
+        itemCount: state.employees.length,
+        separatorBuilder: (_, __) => Divider(height: 1),
+        itemBuilder: (context, index) {
+          final AssignEmployee employee = state.employees[index];
 
-          final String id =
-              employee.fldId
-                  .toString()
-                  .trim();
+          final String id = employee.fldId.toString().trim();
 
-          final String name =
-              employee.fldAdmName
-                  .trim();
+          final String name = employee.fldAdmName.trim();
 
           if (name.isEmpty) {
-            return const SizedBox
-                .shrink();
+            return const SizedBox.shrink();
           }
 
-          final bool selected =
-              id ==
-                  selectedEmployeeId;
+          final bool selected = id == selectedEmployeeId;
 
           return InkWell(
-            onTap:
-                () =>
-                    _selectEmployee(
-              employee,
-            ),
-            child:
-                Padding(
-              padding:
-                  const EdgeInsets.symmetric(
-                horizontal:
-                    10,
-                vertical:
-                    8,
-              ),
-              child:
-                  Row(
+            onTap: () => _selectEmployee(employee),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+              child: Row(
                 children: [
                   CircleAvatar(
-                    radius:
-                        14,
-                    backgroundColor:
-                        const Color(
-                      0xFFE8F5EC,
+                    radius: 14,
+                    backgroundColor: context.primaryColor.withValues(
+                      alpha: 0.08,
                     ),
-                    child:
-                        Text(
-                      name[0]
-                          .toUpperCase(),
-                      style:
-                          const TextStyle(
-                        fontSize:
-                            10,
-                        fontWeight:
-                            FontWeight
-                                .w800,
-                        color:
-                            Color(
-                          0xFF287A4B,
-                        ),
+                    child: Text(
+                      name[0].toUpperCase(),
+                      style: TextStyle(
+                        fontSize: 10,
+                        fontWeight: FontWeight.w800,
+                        color: context.primaryColor,
                       ),
                     ),
                   ),
 
-                  const SizedBox(
-                    width:
-                        8,
-                  ),
+                  const SizedBox(width: 8),
 
                   Expanded(
-                    child:
-                        Text(
+                    child: Text(
                       name,
-                      maxLines:
-                          1,
-                      overflow:
-                          TextOverflow
-                              .ellipsis,
-                      style:
-                          TextStyle(
-                        fontSize:
-                            12,
-                        fontWeight:
-                            selected
-                                ? FontWeight
-                                    .w700
-                                : FontWeight
-                                    .w500,
-                        color:
-                            const Color(
-                          0xFF303934,
-                        ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                        fontSize: 12,
+                        fontWeight: selected
+                            ? FontWeight.w700
+                            : FontWeight.w500,
+                        color: context.cardTextColor,
                       ),
                     ),
                   ),
 
                   if (selected)
-                    const Icon(
-                      Icons
-                          .check_circle_rounded,
-                      size:
-                          17,
-                      color:
-                          Color(
-                        0xFF287A4B,
-                      ),
+                    Icon(
+                      Icons.check_circle_rounded,
+                      size: 17,
+                      color: context.primaryColor,
                     )
                   else
-                    const Icon(
-                      Icons
-                          .chevron_right_rounded,
-                      size:
-                          17,
-                      color:
-                          Color(
-                        0xFF9AA19D,
-                      ),
+                    Icon(
+                      Icons.chevron_right_rounded,
+                      size: 17,
+                      color: context.secondaryTextColor,
                     ),
                 ],
               ),
@@ -1170,140 +751,73 @@ class _VisitSummaryPageState
   // ============================================================
 
   Widget _buildFilter() {
-    return BlocBuilder<
-        EmployeeOutputBloc,
-        EmployeeOutputState>(
-      builder:
-          (
-        context,
-        employeeState,
-      ) {
+    return BlocBuilder<EmployeeOutputBloc, EmployeeOutputState>(
+      builder: (context, employeeState) {
         return Container(
-          decoration:
-              BoxDecoration(
-            color:
-                Colors.white,
-            borderRadius:
-                BorderRadius.circular(
-              12,
-            ),
+          decoration: BoxDecoration(
+            color: context.cardBackgroundColor,
+            borderRadius: BorderRadius.circular(12),
             boxShadow: [
               BoxShadow(
-                color:
-                    Colors.black
-                        .withOpacity(
-                  0.035,
-                ),
-                blurRadius:
-                    6,
-                offset:
-                    const Offset(
-                  0,
-                  2,
-                ),
+                color: context.appColors.shadow.withValues(alpha: 0.035),
+                blurRadius: 6,
+                offset: const Offset(0, 2),
               ),
             ],
           ),
-          child:
-              Column(
+          child: Column(
             children: [
               // ================================================
               // HEADER
               // ================================================
-
               InkWell(
-                onTap:
-                    _toggleFilter,
-                borderRadius:
-                    BorderRadius.circular(
-                  12,
-                ),
-                child:
-                    Padding(
-                  padding:
-                      const EdgeInsets.symmetric(
-                    horizontal:
-                        11,
-                    vertical:
-                        9,
+                onTap: _toggleFilter,
+                borderRadius: BorderRadius.circular(12),
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 11,
+                    vertical: 9,
                   ),
-                  child:
-                      Row(
+                  child: Row(
                     children: [
                       Container(
-                        height:
-                            32,
-                        width:
-                            32,
-                        decoration:
-                            BoxDecoration(
-                          color:
-                              const Color(
-                            0xFFE8F5EC,
-                          ),
-                          borderRadius:
-                              BorderRadius.circular(
-                            8,
-                          ),
+                        height: 32,
+                        width: 32,
+                        decoration: BoxDecoration(
+                          color: context.primaryColor.withValues(alpha: 0.08),
+                          borderRadius: BorderRadius.circular(8),
                         ),
-                        child:
-                            const Icon(
-                          Icons
-                              .filter_alt_outlined,
-                          size:
-                              17,
-                          color:
-                              Color(
-                            0xFF287A4B,
-                          ),
+                        child: Icon(
+                          Icons.filter_alt_outlined,
+                          size: 17,
+                          color: context.primaryColor,
                         ),
                       ),
 
-                      const SizedBox(
-                        width:
-                            8,
-                      ),
+                      const SizedBox(width: 8),
 
                       Expanded(
-                        child:
-                            Column(
-                          crossAxisAlignment:
-                              CrossAxisAlignment.start,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            const Text(
+                            Text(
                               'Filter Visit Summary',
-                              style:
-                                  TextStyle(
-                                fontSize:
-                                    13,
-                                fontWeight:
-                                    FontWeight.w800,
-                                color:
-                                    Color(
-                                  0xFF202522,
-                                ),
+                              style: TextStyle(
+                                fontSize: 13,
+                                fontWeight: FontWeight.w800,
+                                color: context.cardTextColor,
                               ),
                             ),
 
-                            const SizedBox(
-                              height:
-                                  1,
-                            ),
+                            const SizedBox(height: 1),
 
                             Text(
                               '${selectedEmployeeName.isEmpty ? 'All Employees' : selectedEmployeeName} • ${_formatDateForDisplay(fromDate)}',
-                              maxLines:
-                                  1,
-                              overflow:
-                                  TextOverflow.ellipsis,
-                              style:
-                                  const TextStyle(
-                                fontSize:
-                                    10,
-                                color:
-                                    Color(
-                                  0xFF7A827D,
-                                ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: TextStyle(
+                                fontSize: 10,
+                                color: context.secondaryTextColor,
                               ),
                             ),
                           ],
@@ -1311,25 +825,12 @@ class _VisitSummaryPageState
                       ),
 
                       AnimatedRotation(
-                        turns:
-                            showFilters
-                                ? 0.5
-                                : 0,
-                        duration:
-                            const Duration(
-                          milliseconds:
-                              180,
-                        ),
-                        child:
-                            const Icon(
-                          Icons
-                              .keyboard_arrow_down_rounded,
-                          size:
-                              21,
-                          color:
-                              Color(
-                            0xFF59645E,
-                          ),
+                        turns: showFilters ? 0.5 : 0,
+                        duration: const Duration(milliseconds: 180),
+                        child: Icon(
+                          Icons.keyboard_arrow_down_rounded,
+                          size: 21,
+                          color: context.secondaryTextColor,
                         ),
                       ),
                     ],
@@ -1340,383 +841,185 @@ class _VisitSummaryPageState
               // ================================================
               // FILTER BODY
               // ================================================
-
               if (showFilters) ...[
-                const Divider(
-                  height:
-                      1,
-                  color:
-                      Color(
-                    0xFFEAEDEA,
-                  ),
-                ),
+                Divider(height: 1, color: context.borderColor),
 
                 Padding(
-                  padding:
-                      const EdgeInsets.fromLTRB(
-                    10,
-                    9,
-                    10,
-                    10,
-                  ),
-                  child:
-                      Column(
-                    crossAxisAlignment:
-                        CrossAxisAlignment.start,
+                  padding: const EdgeInsets.fromLTRB(10, 9, 10, 10),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       // ========================================
                       // EMPLOYEE
                       // ========================================
-
                       const _FilterLabel(
-                        icon:
-                            Icons
-                                .person_outline_rounded,
-                        title:
-                            'Employee',
+                        icon: Icons.person_outline_rounded,
+                        title: 'Employee',
                       ),
 
-                      const SizedBox(
-                        height:
-                            4,
-                      ),
+                      const SizedBox(height: 4),
 
                       TextField(
-                        controller:
-                            employeeController,
-                        focusNode:
-                            employeeFocusNode,
-                        onTap:
-                            _onEmployeeFieldTap,
-                        onChanged:
-                            _searchEmployee,
-                        style:
-                            const TextStyle(
-                          fontSize:
-                              12,
-                        ),
-                        decoration:
-                            InputDecoration(
-                          hintText:
-                              'Search employee',
-                          filled:
-                              true,
-                          fillColor:
-                              const Color(
-                            0xFFF7F9F8,
+                        controller: employeeController,
+                        focusNode: employeeFocusNode,
+                        onTap: _onEmployeeFieldTap,
+                        onChanged: _searchEmployee,
+                        style: TextStyle(fontSize: 12),
+                        decoration: InputDecoration(
+                          hintText: 'Search employee',
+                          filled: true,
+                          fillColor: context.appColors.surfaceContainerHighest,
+                          prefixIcon: Icon(
+                            Icons.search_rounded,
+                            size: 18,
+                            color: context.primaryColor,
                           ),
-                          prefixIcon:
-                              const Icon(
-                            Icons
-                                .search_rounded,
-                            size:
-                                18,
-                            color:
-                                Color(
-                              0xFF287A4B,
-                            ),
+                          suffixIcon: employeeController.text.isNotEmpty
+                              ? IconButton(
+                                  onPressed: _clearEmployee,
+                                  visualDensity: VisualDensity.compact,
+                                  icon: Icon(Icons.close_rounded, size: 17),
+                                )
+                              : null,
+                          isDense: true,
+                          contentPadding: const EdgeInsets.symmetric(
+                            horizontal: 10,
+                            vertical: 10,
                           ),
-                          suffixIcon:
-                              employeeController
-                                      .text
-                                      .isNotEmpty
-                                  ? IconButton(
-                                      onPressed:
-                                          _clearEmployee,
-                                      visualDensity:
-                                          VisualDensity.compact,
-                                      icon:
-                                          const Icon(
-                                        Icons.close_rounded,
-                                        size:
-                                            17,
-                                      ),
-                                    )
-                                  : null,
-                          isDense:
-                              true,
-                          contentPadding:
-                              const EdgeInsets.symmetric(
-                            horizontal:
-                                10,
-                            vertical:
-                                10,
-                          ),
-                          border:
-                              _inputBorder(),
-                          enabledBorder:
-                              _inputBorder(),
-                          focusedBorder:
-                              _inputBorder(
-                            color:
-                                const Color(
-                              0xFF287A4B,
-                            ),
+                          border: _inputBorder(),
+                          enabledBorder: _inputBorder(),
+                          focusedBorder: _inputBorder(
+                            color: context.primaryColor,
                           ),
                         ),
                       ),
 
-                      _buildEmployeeList(
-                        employeeState,
-                      ),
+                      _buildEmployeeList(employeeState),
 
-                      const SizedBox(
-                        height:
-                            9,
-                      ),
+                      const SizedBox(height: 9),
 
                       // ========================================
                       // DATE ROW
                       // ========================================
-
                       Row(
                         children: [
                           Expanded(
-                            child:
-                                _DateField(
-                              title:
-                                  'From',
-                              value:
-                                  _formatDateForDisplay(
-                                fromDate,
-                              ),
-                              onTap:
-                                  _selectFromDate,
+                            child: _DateField(
+                              title: 'From',
+                              value: _formatDateForDisplay(fromDate),
+                              onTap: _selectFromDate,
                             ),
                           ),
 
-                          const SizedBox(
-                            width:
-                                7,
-                          ),
+                          const SizedBox(width: 7),
 
                           Expanded(
-                            child:
-                                _DateField(
-                              title:
-                                  'To',
-                              value:
-                                  _formatDateForDisplay(
-                                toDate,
-                              ),
-                              onTap:
-                                  _selectToDate,
+                            child: _DateField(
+                              title: 'To',
+                              value: _formatDateForDisplay(toDate),
+                              onTap: _selectToDate,
                             ),
                           ),
                         ],
                       ),
 
-                      const SizedBox(
-                        height:
-                            9,
-                      ),
+                      const SizedBox(height: 9),
 
                       // ========================================
                       // STATUS
                       // ========================================
-
                       const _FilterLabel(
-                        icon:
-                            Icons
-                                .fact_check_outlined,
-                        title:
-                            'Status',
+                        icon: Icons.fact_check_outlined,
+                        title: 'Status',
                       ),
 
-                      const SizedBox(
-                        height:
-                            4,
-                      ),
+                      const SizedBox(height: 4),
 
-                      DropdownButtonFormField<
-                          String>(
-                        value:
-                            selectedStatus,
-                        isDense:
-                            true,
-                        decoration:
-                            InputDecoration(
-                          filled:
-                              true,
-                          fillColor:
-                              const Color(
-                            0xFFF7F9F8,
+                      DropdownButtonFormField<String>(
+                        value: selectedStatus,
+                        isDense: true,
+                        decoration: InputDecoration(
+                          filled: true,
+                          fillColor: context.appColors.surfaceContainerHighest,
+                          prefixIcon: Icon(
+                            Icons.filter_list_rounded,
+                            size: 18,
+                            color: context.primaryColor,
                           ),
-                          prefixIcon:
-                              const Icon(
-                            Icons
-                                .filter_list_rounded,
-                            size:
-                                18,
-                            color:
-                                Color(
-                              0xFF287A4B,
-                            ),
+                          contentPadding: const EdgeInsets.symmetric(
+                            horizontal: 8,
+                            vertical: 8,
                           ),
-                          contentPadding:
-                              const EdgeInsets.symmetric(
-                            horizontal:
-                                8,
-                            vertical:
-                                8,
-                          ),
-                          border:
-                              _inputBorder(),
-                          enabledBorder:
-                              _inputBorder(),
-                          focusedBorder:
-                              _inputBorder(
-                            color:
-                                const Color(
-                              0xFF287A4B,
-                            ),
+                          border: _inputBorder(),
+                          enabledBorder: _inputBorder(),
+                          focusedBorder: _inputBorder(
+                            color: context.primaryColor,
                           ),
                         ),
-                        items:
-                            const [
+                        items: const [
                           DropdownMenuItem(
-                            value:
-                                'All Status',
-                            child:
-                                Text(
-                              'All Status',
-                            ),
+                            value: 'All Status',
+                            child: Text('All Status'),
                           ),
                           DropdownMenuItem(
-                            value:
-                                'Present',
-                            child:
-                                Text(
-                              'Present',
-                            ),
+                            value: 'Present',
+                            child: Text('Present'),
                           ),
                           DropdownMenuItem(
-                            value:
-                                'Absent',
-                            child:
-                                Text(
-                              'Absent',
-                            ),
+                            value: 'Absent',
+                            child: Text('Absent'),
                           ),
                         ],
-                        onChanged:
-                            (
-                          value,
-                        ) {
-                          if (value ==
-                              null) {
+                        onChanged: (value) {
+                          if (value == null) {
                             return;
                           }
 
                           setState(() {
-                            selectedStatus =
-                                value;
+                            selectedStatus = value;
                           });
                         },
                       ),
 
-                      const SizedBox(
-                        height:
-                            9,
-                      ),
+                      const SizedBox(height: 9),
 
                       // ========================================
                       // BUTTONS
                       // ========================================
-
                       Row(
                         children: [
                           Expanded(
-                            child:
-                                OutlinedButton.icon(
-                              onPressed:
-                                  _resetFilters,
-                              icon:
-                                  const Icon(
-                                Icons
-                                    .restart_alt_rounded,
-                                size:
-                                    16,
-                              ),
-                              label:
-                                  const Text(
-                                'Reset',
-                              ),
-                              style:
-                                  OutlinedButton.styleFrom(
-                                foregroundColor:
-                                    const Color(
-                                  0xFF59645E,
-                                ),
-                                minimumSize:
-                                    const Size(
-                                  0,
-                                  39,
-                                ),
-                                padding:
-                                    EdgeInsets.zero,
-                                side:
-                                    const BorderSide(
-                                  color:
-                                      Color(
-                                    0xFFD8DEDA,
-                                  ),
-                                ),
-                                shape:
-                                    RoundedRectangleBorder(
-                                  borderRadius:
-                                      BorderRadius.circular(
-                                    9,
-                                  ),
+                            child: OutlinedButton.icon(
+                              onPressed: _resetFilters,
+                              icon: Icon(Icons.restart_alt_rounded, size: 16),
+                              label: Text('Reset'),
+                              style: OutlinedButton.styleFrom(
+                                foregroundColor: context.secondaryTextColor,
+                                minimumSize: const Size(0, 39),
+                                padding: EdgeInsets.zero,
+                                side: BorderSide(color: context.borderColor),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(9),
                                 ),
                               ),
                             ),
                           ),
 
-                          const SizedBox(
-                            width:
-                                8,
-                          ),
+                          const SizedBox(width: 8),
 
                           Expanded(
-                            child:
-                                ElevatedButton.icon(
-                              onPressed:
-                                  _searchReport,
-                              icon:
-                                  const Icon(
-                                Icons
-                                    .search_rounded,
-                                size:
-                                    16,
-                              ),
-                              label:
-                                  const Text(
-                                'Search',
-                              ),
-                              style:
-                                  ElevatedButton.styleFrom(
-                                backgroundColor:
-                                    const Color(
-                                  0xFF287A4B,
-                                ),
-                                foregroundColor:
-                                    Colors.white,
-                                elevation:
-                                    0,
-                                minimumSize:
-                                    const Size(
-                                  0,
-                                  39,
-                                ),
-                                padding:
-                                    EdgeInsets.zero,
-                                shape:
-                                    RoundedRectangleBorder(
-                                  borderRadius:
-                                      BorderRadius.circular(
-                                    9,
-                                  ),
+                            child: ElevatedButton.icon(
+                              onPressed: _searchReport,
+                              icon: Icon(Icons.search_rounded, size: 16),
+                              label: Text('Search'),
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: context.primaryColor,
+                                foregroundColor: context.onPrimaryColor,
+                                elevation: 0,
+                                minimumSize: const Size(0, 39),
+                                padding: EdgeInsets.zero,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(9),
                                 ),
                               ),
                             ),
@@ -1739,272 +1042,166 @@ class _VisitSummaryPageState
   // ============================================================
 
   @override
-  Widget build(
-    BuildContext context,
-  ) {
+  Widget build(BuildContext context) {
     if (!loginEmployeeLoaded) {
       return Scaffold(
-        backgroundColor:
-            AppColors.backgroundColor,
-        appBar:
-            CustomAppBar(
-          title:
-              'Visit Summary',
-          showBackButton:
-              true,
-          onBackTap:
-              () =>
-                  context.go(
-            AppRouter.home,
-          ),
-        ),
-        body:
-            const Center(
-          child:
-              CircularProgressIndicator(
-            color:
-                Color(
-              0xFF287A4B,
+        backgroundColor: context.backgroundColor,
+        appBar: CustomAppBar(
+          backgroundColor: context.primaryColor,
+          titleStyle: TextStyle(color: context.onPrimaryColor),
+          leading: IconButton(
+            icon: Icon(
+              Icons.arrow_back_ios_new_rounded,
+              size: 20,
+              color: context.onPrimaryColor,
             ),
+            onPressed: () => context.go(AppRouter.home),
           ),
+          title: 'Visit Summary',
+          showBackButton: true,
+          onBackTap: () => context.go(AppRouter.home),
+        ),
+        body: Center(
+          child: CircularProgressIndicator(color: context.primaryColor),
         ),
       );
     }
 
     return Scaffold(
-      backgroundColor:
-          AppColors.backgroundColor,
+      backgroundColor: context.backgroundColor,
 
-      appBar:
-          CustomAppBar(
-        title:
-            'Visit Summary',
-
-        showBackButton:
-            true,
-
-        actionIcon:
-            Icons.refresh_rounded,
-
-        onBackTap:
-            () =>
-                context.go(
-          AppRouter.home,
+      appBar: CustomAppBar(
+        backgroundColor: context.primaryColor,
+        titleStyle: TextStyle(color: context.onPrimaryColor),
+        leading: IconButton(
+          icon: Icon(
+            Icons.arrow_back_ios_new_rounded,
+            size: 20,
+            color: context.onPrimaryColor,
+          ),
+          onPressed: () => context.go(AppRouter.home),
         ),
+        title: 'Visit Summary',
 
-        onActionIconTap:
-            _loadReport,
+        showBackButton: true,
+
+        actionIcon: Icons.refresh_rounded,
+
+        onBackTap: () => context.go(AppRouter.home),
+
+        onActionIconTap: _loadReport,
       ),
 
-      body:
-          BlocBuilder<
-              VisitReportBloc,
-              VisitReportState>(
-        builder:
-            (
-          context,
-          state,
-        ) {
+      body: BlocBuilder<VisitReportBloc, VisitReportState>(
+        builder: (context, state) {
           // ================================================
           // FILTER DATA
           // ================================================
 
-          final List<VisitReport> reports =
-              _filterReports(
-            state.reports,
-          );
+          final List<VisitReport> reports = _filterReports(state.reports);
 
           return RefreshIndicator(
-            color:
-                const Color(
-              0xFF287A4B,
-            ),
+            color: context.primaryColor,
 
-            onRefresh:
-                () async {
+            onRefresh: () async {
               _loadReport();
             },
 
-            child:
-                ListView(
-              physics:
-                  const AlwaysScrollableScrollPhysics(),
+            child: ListView(
+              physics: const AlwaysScrollableScrollPhysics(),
 
-              padding:
-                  const EdgeInsets.fromLTRB(
-                12,
-                10,
-                12,
-                20,
-              ),
+              padding: const EdgeInsets.fromLTRB(12, 10, 12, 20),
 
               children: [
                 // ============================================
                 // FILTER ALWAYS VISIBLE
                 // ============================================
-
                 _buildFilter(),
 
-                const SizedBox(
-                  height:
-                      10,
-                ),
+                const SizedBox(height: 10),
 
                 // ============================================
                 // LOADING
                 // ============================================
-
-                if (state.status ==
-                    VisitReportStatus.loading)
-                  const Padding(
-                    padding:
-                        EdgeInsets.only(
-                      top:
-                          100,
-                    ),
-                    child:
-                        Center(
-                      child:
-                          CircularProgressIndicator(
-                        color:
-                            Color(
-                          0xFF287A4B,
-                        ),
+                if (state.status == VisitReportStatus.loading)
+                  Padding(
+                    padding: EdgeInsets.only(top: 100),
+                    child: Center(
+                      child: CircularProgressIndicator(
+                        color: context.primaryColor,
                       ),
                     ),
                   )
-
                 // ============================================
                 // FAILURE
                 // ============================================
-
-                else if (state.status ==
-                    VisitReportStatus.failure)
+                else if (state.status == VisitReportStatus.failure)
                   _ErrorView(
-                    message:
-                        state.errorMessage ??
-                            'Unable to load report',
+                    message: state.errorMessage ?? 'Unable to load report',
 
-                    onRetry:
-                        _loadReport,
+                    onRetry: _loadReport,
                   )
-
                 // ============================================
                 // CONTENT
                 // ============================================
-
                 else ...[
                   VisitSummaryStatistics(
-                    total:
-                        reports.length,
+                    total: reports.length,
 
-                    present:
-                        _presentCount(
-                      reports,
-                    ),
+                    present: _presentCount(reports),
 
-                    absent:
-                        _absentCount(
-                      reports,
-                    ),
+                    absent: _absentCount(reports),
 
-                    dealerVisits:
-                        _dealerVisits(
-                      reports,
-                    ),
+                    dealerVisits: _dealerVisits(reports),
 
-                    farmerVisits:
-                        _farmerVisits(
-                      reports,
-                    ),
+                    farmerVisits: _farmerVisits(reports),
                   ),
 
-                  const SizedBox(
-                    height:
-                        12,
-                  ),
+                  const SizedBox(height: 12),
 
                   Row(
                     children: [
-                      const Expanded(
-                        child:
-                            Text(
+                      Expanded(
+                        child: Text(
                           'Visit Details',
-                          style:
-                              TextStyle(
-                            fontSize:
-                                15,
-                            fontWeight:
-                                FontWeight.w800,
-                            color:
-                                Color(
-                              0xFF1F2924,
-                            ),
+                          style: TextStyle(
+                            fontSize: 15,
+                            fontWeight: FontWeight.w800,
+                            color: context.cardTextColor,
                           ),
                         ),
                       ),
 
                       Container(
-                        padding:
-                            const EdgeInsets.symmetric(
-                          horizontal:
-                              8,
-                          vertical:
-                              4,
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 8,
+                          vertical: 4,
                         ),
-                        decoration:
-                            BoxDecoration(
-                          color:
-                              const Color(
-                            0xFFE8F5EC,
-                          ),
-                          borderRadius:
-                              BorderRadius.circular(
-                            14,
-                          ),
+                        decoration: BoxDecoration(
+                          color: context.primaryColor.withValues(alpha: 0.08),
+                          borderRadius: BorderRadius.circular(14),
                         ),
-                        child:
-                            Text(
+                        child: Text(
                           '${reports.length} Records',
-                          style:
-                              const TextStyle(
-                            fontSize:
-                                10.5,
-                            fontWeight:
-                                FontWeight.w700,
-                            color:
-                                Color(
-                              0xFF287A4B,
-                            ),
+                          style: TextStyle(
+                            fontSize: 10.5,
+                            fontWeight: FontWeight.w700,
+                            color: context.primaryColor,
                           ),
                         ),
                       ),
                     ],
                   ),
 
-                  const SizedBox(
-                    height:
-                        8,
-                  ),
+                  const SizedBox(height: 8),
 
                   if (reports.isEmpty)
                     const VisitSummaryEmpty()
                   else
                     ...reports.map(
-                      (
-                        report,
-                      ) =>
-                          Padding(
-                        padding:
-                            const EdgeInsets.only(
-                          bottom:
-                              8,
-                        ),
-                        child:
-                            VisitSummaryCard(
-                          report:
-                              report,
-                        ),
+                      (report) => Padding(
+                        padding: const EdgeInsets.only(bottom: 8),
+                        child: VisitSummaryCard(report: report),
                       ),
                     ),
                 ],
@@ -2021,49 +1218,26 @@ class _VisitSummaryPageState
 // FILTER LABEL
 // ============================================================================
 
-class _FilterLabel
-    extends StatelessWidget {
+class _FilterLabel extends StatelessWidget {
   final IconData icon;
   final String title;
 
-  const _FilterLabel({
-    required this.icon,
-    required this.title,
-  });
+  const _FilterLabel({required this.icon, required this.title});
 
   @override
-  Widget build(
-    BuildContext context,
-  ) {
+  Widget build(BuildContext context) {
     return Row(
       children: [
-        Icon(
-          icon,
-          size:
-              14,
-          color:
-              const Color(
-            0xFF287A4B,
-          ),
-        ),
+        Icon(icon, size: 14, color: context.primaryColor),
 
-        const SizedBox(
-          width:
-              4,
-        ),
+        const SizedBox(width: 4),
 
         Text(
           title,
-          style:
-              const TextStyle(
-            fontSize:
-                11,
-            fontWeight:
-                FontWeight.w700,
-            color:
-                Color(
-              0xFF4E5953,
-            ),
+          style: TextStyle(
+            fontSize: 11,
+            fontWeight: FontWeight.w700,
+            color: context.secondaryTextColor,
           ),
         ),
       ],
@@ -2075,8 +1249,7 @@ class _FilterLabel
 // DATE FIELD
 // ============================================================================
 
-class _DateField
-    extends StatelessWidget {
+class _DateField extends StatelessWidget {
   final String title;
   final String value;
   final VoidCallback onTap;
@@ -2088,104 +1261,51 @@ class _DateField
   });
 
   @override
-  Widget build(
-    BuildContext context,
-  ) {
+  Widget build(BuildContext context) {
     return InkWell(
-      onTap:
-          onTap,
-      borderRadius:
-          BorderRadius.circular(
-        9,
-      ),
-      child:
-          Container(
-        height:
-            47,
-        padding:
-            const EdgeInsets.symmetric(
-          horizontal:
-              8,
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(9),
+      child: Container(
+        height: 47,
+        padding: const EdgeInsets.symmetric(horizontal: 8),
+        decoration: BoxDecoration(
+          color: context.appColors.surfaceContainerHighest,
+          borderRadius: BorderRadius.circular(9),
+          border: Border.all(color: context.borderColor),
         ),
-        decoration:
-            BoxDecoration(
-          color:
-              const Color(
-            0xFFF7F9F8,
-          ),
-          borderRadius:
-              BorderRadius.circular(
-            9,
-          ),
-          border:
-              Border.all(
-            color:
-                const Color(
-              0xFFE5EAE7,
-            ),
-          ),
-        ),
-        child:
-            Row(
+        child: Row(
           children: [
-            const Icon(
-              Icons
-                  .calendar_month_outlined,
-              size:
-                  16,
-              color:
-                  Color(
-                0xFF287A4B,
-              ),
+            Icon(
+              Icons.calendar_month_outlined,
+              size: 16,
+              color: context.primaryColor,
             ),
 
-            const SizedBox(
-              width:
-                  6,
-            ),
+            const SizedBox(width: 6),
 
             Expanded(
-              child:
-                  Column(
-                mainAxisAlignment:
-                    MainAxisAlignment.center,
-                crossAxisAlignment:
-                    CrossAxisAlignment.start,
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
                     title,
-                    style:
-                        const TextStyle(
-                      fontSize:
-                          9,
-                      color:
-                          Color(
-                        0xFF7A827D,
-                      ),
+                    style: TextStyle(
+                      fontSize: 9,
+                      color: context.secondaryTextColor,
                     ),
                   ),
 
-                  const SizedBox(
-                    height:
-                        1,
-                  ),
+                  const SizedBox(height: 1),
 
                   Text(
                     value,
-                    maxLines:
-                        1,
-                    overflow:
-                        TextOverflow.ellipsis,
-                    style:
-                        const TextStyle(
-                      fontSize:
-                          10.5,
-                      fontWeight:
-                          FontWeight.w600,
-                      color:
-                          Color(
-                        0xFF303934,
-                      ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                      fontSize: 10.5,
+                      fontWeight: FontWeight.w600,
+                      color: context.cardTextColor,
                     ),
                   ),
                 ],
@@ -2202,101 +1322,50 @@ class _DateField
 // ERROR
 // ============================================================================
 
-class _ErrorView
-    extends StatelessWidget {
+class _ErrorView extends StatelessWidget {
   final String message;
 
   final VoidCallback onRetry;
 
-  const _ErrorView({
-    required this.message,
-    required this.onRetry,
-  });
+  const _ErrorView({required this.message, required this.onRetry});
 
   @override
-  Widget build(
-    BuildContext context,
-  ) {
+  Widget build(BuildContext context) {
     return Padding(
-      padding:
-          const EdgeInsets.only(
-        top:
-            80,
-      ),
-      child:
-          Column(
+      padding: const EdgeInsets.only(top: 80),
+      child: Column(
         children: [
-          const Icon(
-            Icons
-                .error_outline_rounded,
-            size:
-                45,
-            color:
-                Colors.redAccent,
+          Icon(
+            Icons.error_outline_rounded,
+            size: 45,
+            color: context.appColors.error,
           ),
 
-          const SizedBox(
-            height:
-                8,
-          ),
+          const SizedBox(height: 8),
 
-          const Text(
+          Text(
             'Something went wrong',
-            style:
-                TextStyle(
-              fontSize:
-                  16,
-              fontWeight:
-                  FontWeight.w700,
-            ),
+            style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
           ),
 
-          const SizedBox(
-            height:
-                5,
-          ),
+          const SizedBox(height: 5),
 
           Text(
             message,
-            textAlign:
-                TextAlign.center,
-            style:
-                const TextStyle(
-              fontSize:
-                  12,
-              color:
-                  Colors.grey,
-            ),
+            textAlign: TextAlign.center,
+            style: TextStyle(fontSize: 12, color: context.secondaryTextColor),
           ),
 
-          const SizedBox(
-            height:
-                12,
-          ),
+          const SizedBox(height: 12),
 
           ElevatedButton.icon(
-            onPressed:
-                onRetry,
-            icon:
-                const Icon(
-              Icons.refresh_rounded,
-              size:
-                  17,
-            ),
-            label:
-                const Text(
-              'Retry',
-            ),
-            style:
-                ElevatedButton.styleFrom(
-              backgroundColor:
-                  const Color(
-                0xFF287A4B,
-              ),
-              foregroundColor:
-                  Colors.white,
-              elevation:
-                  0,
+            onPressed: onRetry,
+            icon: Icon(Icons.refresh_rounded, size: 17),
+            label: Text('Retry'),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: context.primaryColor,
+              foregroundColor: context.onPrimaryColor,
+              elevation: 0,
             ),
           ),
         ],

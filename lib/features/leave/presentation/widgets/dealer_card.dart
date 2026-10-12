@@ -1,5 +1,6 @@
 import 'package:solufine/core/theme/app_theme_context.dart';
 import 'package:flutter/material.dart';
+import 'package:solufine/core/theme/app_theme_context.dart';
 
 import '../../domain/entities/top_ten_dealer.dart';
 
@@ -55,7 +56,7 @@ class DealerCard extends StatelessWidget {
                       style: TextStyle(
                         fontSize: 14,
                         fontWeight: FontWeight.w700,
-                        color: context.primaryTextColor,
+                        color: context.cardTextColor,
                       ),
                     ),
 
@@ -97,7 +98,7 @@ class DealerCard extends StatelessWidget {
                 width: 62,
                 padding: const EdgeInsets.symmetric(vertical: 9),
                 decoration: BoxDecoration(
-                  color: context.appColors.primaryContainer,
+                  color: context.primaryColor.withValues(alpha: 0.08),
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Column(
@@ -137,12 +138,12 @@ class DealerCard extends StatelessWidget {
       height: 34,
       decoration: BoxDecoration(
         color: rank == 1
-            ? context.appColors.tertiaryContainer
+            ? context.appColors.secondary.withValues(alpha: 0.12)
             : rank == 2
-            ? context.appColors.secondaryContainer
+            ? context.appColors.surfaceContainerHighest
             : rank == 3
-            ? context.appColors.primaryContainer
-            : context.appTheme.inputBackground,
+            ? context.appColors.secondary.withValues(alpha: 0.12)
+            : context.appColors.surfaceContainerHighest,
         shape: BoxShape.circle,
       ),
       child: Center(
@@ -152,7 +153,7 @@ class DealerCard extends StatelessWidget {
             fontSize: 12,
             fontWeight: FontWeight.w800,
             color: rank == 1
-                ? context.appColors.onTertiaryContainer
+                ? context.appColors.secondary
                 : context.secondaryTextColor,
           ),
         ),

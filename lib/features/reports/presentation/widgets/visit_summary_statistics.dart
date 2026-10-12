@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:solufine/core/theme/app_theme_context.dart';
 
 class VisitSummaryStatistics extends StatelessWidget {
   final int total;
@@ -21,12 +22,12 @@ class VisitSummaryStatistics extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text(
+        Text(
           'Summary',
           style: TextStyle(
             fontSize: 16,
             fontWeight: FontWeight.w800,
-            color: Color(0xFF1F2924),
+            color: context.cardTextColor,
           ),
         ),
 
@@ -42,7 +43,7 @@ class VisitSummaryStatistics extends StatelessWidget {
                 title: 'Total',
                 value: total,
                 icon: Icons.list_alt_rounded,
-                iconColor: const Color(0xFF287A4B),
+                iconColor: context.primaryColor,
               ),
             ),
 
@@ -53,7 +54,7 @@ class VisitSummaryStatistics extends StatelessWidget {
                 title: 'Present',
                 value: present,
                 icon: Icons.check_circle_outline_rounded,
-                iconColor: const Color(0xFF2E8B57),
+                iconColor: context.primaryColor,
               ),
             ),
 
@@ -64,7 +65,7 @@ class VisitSummaryStatistics extends StatelessWidget {
                 title: 'Absent',
                 value: absent,
                 icon: Icons.cancel_outlined,
-                iconColor: const Color(0xFFD45C5C),
+                iconColor: context.appColors.error,
               ),
             ),
           ],
@@ -82,7 +83,7 @@ class VisitSummaryStatistics extends StatelessWidget {
                 title: 'Dealer Visits',
                 value: dealerVisits,
                 icon: Icons.storefront_outlined,
-                iconColor: const Color(0xFF8A6B2E),
+                iconColor: context.appColors.secondary,
               ),
             ),
 
@@ -93,7 +94,7 @@ class VisitSummaryStatistics extends StatelessWidget {
                 title: 'Farmer Visits',
                 value: farmerVisits,
                 icon: Icons.agriculture_outlined,
-                iconColor: const Color(0xFF4E7D5C),
+                iconColor: context.primaryColor,
               ),
             ),
           ],
@@ -125,18 +126,15 @@ class _StatCard extends StatelessWidget {
     return Container(
       height: 62,
 
-      padding: const EdgeInsets.symmetric(
-        horizontal: 8,
-        vertical: 6,
-      ),
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
 
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: context.cardBackgroundColor,
         borderRadius: BorderRadius.circular(11),
 
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(.035),
+            color: context.appColors.shadow.withValues(alpha: .035),
             blurRadius: 6,
             offset: const Offset(0, 2),
           ),
@@ -153,15 +151,11 @@ class _StatCard extends StatelessWidget {
             width: 30,
 
             decoration: BoxDecoration(
-              color: iconColor.withOpacity(.10),
+              color: iconColor.withValues(alpha: .10),
               borderRadius: BorderRadius.circular(8),
             ),
 
-            child: Icon(
-              icon,
-              color: iconColor,
-              size: 17,
-            ),
+            child: Icon(icon, color: iconColor, size: 17),
           ),
 
           const SizedBox(width: 7),
@@ -180,9 +174,9 @@ class _StatCard extends StatelessWidget {
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
 
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 9.5,
-                    color: Color(0xFF707973),
+                    color: context.secondaryTextColor,
                     fontWeight: FontWeight.w600,
                   ),
                 ),

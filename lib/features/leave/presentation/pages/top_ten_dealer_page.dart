@@ -57,6 +57,16 @@ class _TopTenDealerPageState extends State<TopTenDealerPage> {
             backgroundColor: context.backgroundColor,
             appBar: CustomAppBar(
               title: 'Top 10 Dealers',
+              backgroundColor: context.primaryColor,
+              titleStyle: TextStyle(color: context.onPrimaryColor),
+              leading: IconButton(
+                icon: Icon(
+                  Icons.arrow_back_ios_new_rounded,
+                  size: 20,
+                  color: context.onPrimaryColor,
+                ),
+                onPressed: () => context.go(AppRouter.home),
+              ),
               showBackButton: true,
               onBackTap: () => context.go(AppRouter.home),
               actionIcon: Icons.refresh_rounded,
@@ -111,9 +121,9 @@ class _TopTenDealerPageState extends State<TopTenDealerPage> {
     return AppBar(
       elevation: 0,
       backgroundColor: context.primaryColor,
-      surfaceTintColor: context.onPrimaryColor,
+      surfaceTintColor: context.cardBackgroundColor,
       titleSpacing: 20,
-      iconTheme: IconThemeData(color: context.onPrimaryColor),
+      iconTheme: IconThemeData(color: context.cardBackgroundColor),
       title: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -122,14 +132,14 @@ class _TopTenDealerPageState extends State<TopTenDealerPage> {
             style: TextStyle(
               fontSize: 21,
               fontWeight: FontWeight.w700,
-              color: context.onPrimaryColor,
+              color: context.cardBackgroundColor,
             ),
           ),
 
           SizedBox(height: 2),
           Text(
             'Dealer visit performance',
-            style: TextStyle(fontSize: 12, color: context.onPrimaryColor),
+            style: TextStyle(fontSize: 12, color: context.cardBackgroundColor),
           ),
         ],
       ),
@@ -138,7 +148,7 @@ class _TopTenDealerPageState extends State<TopTenDealerPage> {
         icon: Icon(
           Icons.arrow_back_ios_new,
           size: 19,
-          color: context.onPrimaryColor,
+          color: context.backgroundColor,
         ),
         onPressed: () {
           context.go(AppRouter.home);
@@ -149,7 +159,7 @@ class _TopTenDealerPageState extends State<TopTenDealerPage> {
         Container(
           margin: const EdgeInsets.only(right: 16),
           decoration: BoxDecoration(
-            color: context.appColors.primaryContainer,
+            color: context.primaryColor.withValues(alpha: 0.08),
             borderRadius: BorderRadius.circular(12),
           ),
           child: IconButton(
@@ -194,7 +204,7 @@ class _TopTenDealerPageState extends State<TopTenDealerPage> {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 13),
       decoration: BoxDecoration(
-        color: context.appColors.primaryContainer,
+        color: context.primaryColor.withValues(alpha: 0.08),
         borderRadius: BorderRadius.circular(12),
       ),
       child: Row(
@@ -207,7 +217,7 @@ class _TopTenDealerPageState extends State<TopTenDealerPage> {
               style: TextStyle(
                 fontSize: 13,
                 fontWeight: FontWeight.w800,
-                color: context.primaryTextColor,
+                color: context.cardTextColor,
               ),
             ),
           ),
@@ -228,7 +238,7 @@ class _TopTenDealerPageState extends State<TopTenDealerPage> {
               style: TextStyle(
                 fontSize: 13,
                 fontWeight: FontWeight.w800,
-                color: context.primaryTextColor,
+                color: context.cardTextColor,
               ),
             ),
           ),
@@ -254,7 +264,7 @@ class _TopTenDealerPageState extends State<TopTenDealerPage> {
             width: 80,
             height: 80,
             decoration: BoxDecoration(
-              color: context.appTheme.inputBackground,
+              color: context.appColors.surfaceContainerHighest,
               shape: BoxShape.circle,
             ),
             child: Icon(

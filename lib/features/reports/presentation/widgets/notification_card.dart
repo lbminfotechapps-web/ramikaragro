@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:solufine/core/theme/app_theme_context.dart';
 
 import '../../domain/entities/notification.dart';
 
@@ -7,20 +8,16 @@ class NotificationCard extends StatelessWidget {
 
   const NotificationCard({super.key, required this.notification});
 
-  static const Color primaryGreen = Color(0xFF0F723A);
-
-  static const Color darkGreen = Color(0xFF084D28);
-
   @override
   Widget build(BuildContext context) {
     return Container(
       margin: const EdgeInsets.only(bottom: 13),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: context.cardBackgroundColor,
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.055),
+            color: context.appColors.shadow.withValues(alpha: 0.055),
             blurRadius: 18,
             offset: const Offset(0, 6),
           ),
@@ -34,7 +31,7 @@ class NotificationCard extends StatelessWidget {
             Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                _buildNotificationIcon(),
+                _buildNotificationIcon(context),
 
                 const SizedBox(width: 13),
 
@@ -46,10 +43,10 @@ class NotificationCard extends StatelessWidget {
                         notification.title,
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 15.5,
                           fontWeight: FontWeight.w700,
-                          color: Color(0xFF1D241F),
+                          color: context.cardTextColor,
                         ),
                       ),
 
@@ -61,7 +58,7 @@ class NotificationCard extends StatelessWidget {
                       //     fontSize: 10.5,
                       //     fontWeight:
                       //         FontWeight.w500,
-                      //     color: primaryGreen
+                      //     color: context.primaryColor
                       //         .withOpacity(0.8),
                       //   ),
                       // ),
@@ -79,15 +76,15 @@ class NotificationCard extends StatelessWidget {
               width: double.infinity,
               padding: const EdgeInsets.all(13),
               decoration: BoxDecoration(
-                color: const Color(0xFFF7FAF8),
+                color: context.primaryColor.withValues(alpha: 0.06),
                 borderRadius: BorderRadius.circular(14),
               ),
               child: Text(
                 notification.message,
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 13.5,
                   height: 1.55,
-                  color: Color(0xFF555D58),
+                  color: context.secondaryTextColor,
                 ),
               ),
             ),
@@ -97,6 +94,7 @@ class NotificationCard extends StatelessWidget {
             Row(
               children: [
                 _buildInfoItem(
+                  context,
                   icon: Icons.calendar_today_rounded,
                   value: notification.notificationDate,
                 ),
@@ -104,6 +102,7 @@ class NotificationCard extends StatelessWidget {
                 const SizedBox(width: 18),
 
                 _buildInfoItem(
+                  context,
                   icon: Icons.access_time_rounded,
                   value: notification.notificationTime,
                 ),
@@ -115,32 +114,32 @@ class NotificationCard extends StatelessWidget {
     );
   }
 
-  Widget _buildNotificationIcon() {
+  Widget _buildNotificationIcon(BuildContext context) {
     return Container(
       width: 48,
       height: 48,
       decoration: BoxDecoration(
-        gradient: const LinearGradient(
-          colors: [primaryGreen, darkGreen],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
+        color: context.primaryColor,
         borderRadius: BorderRadius.circular(15),
       ),
-      child: const Icon(
+      child: Icon(
         Icons.notifications_active_rounded,
-        color: Colors.white,
+        color: context.onPrimaryColor,
         size: 23,
       ),
     );
   }
 
-  Widget _buildInfoItem({required IconData icon, required String value}) {
+  Widget _buildInfoItem(
+    BuildContext context, {
+    required IconData icon,
+    required String value,
+  }) {
     return Flexible(
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(icon, size: 14, color: primaryGreen),
+          Icon(icon, size: 14, color: context.primaryColor),
 
           const SizedBox(width: 6),
 
@@ -148,10 +147,10 @@ class NotificationCard extends StatelessWidget {
             child: Text(
               value,
               overflow: TextOverflow.ellipsis,
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 11.5,
                 fontWeight: FontWeight.w500,
-                color: Color(0xFF737A76),
+                color: context.secondaryTextColor,
               ),
             ),
           ),

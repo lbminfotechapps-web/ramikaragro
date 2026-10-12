@@ -1,14 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:solufine/core/theme/app_theme_context.dart';
 
 import '../../domain/entities/visit_report.dart';
 
 class VisitSummaryCard extends StatelessWidget {
   final VisitReport report;
 
-  const VisitSummaryCard({
-    super.key,
-    required this.report,
-  });
+  const VisitSummaryCard({super.key, required this.report});
 
   bool get isPresent {
     return report.status.toLowerCase() == 'present';
@@ -18,11 +16,11 @@ class VisitSummaryCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: context.cardBackgroundColor,
         borderRadius: BorderRadius.circular(14),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(.035),
+            color: context.appColors.shadow.withValues(alpha: .035),
             blurRadius: 8,
             offset: const Offset(0, 2),
           ),
@@ -34,12 +32,7 @@ class VisitSummaryCard extends StatelessWidget {
           // HEADER
           // ============================================================
           Padding(
-            padding: const EdgeInsets.fromLTRB(
-              12,
-              10,
-              12,
-              9,
-            ),
+            padding: const EdgeInsets.fromLTRB(12, 10, 12, 9),
             child: Row(
               children: [
                 Container(
@@ -47,8 +40,8 @@ class VisitSummaryCard extends StatelessWidget {
                   width: 36,
                   decoration: BoxDecoration(
                     color: isPresent
-                        ? const Color(0xFFEAF6EE)
-                        : const Color(0xFFFFEEEE),
+                        ? context.primaryColor.withValues(alpha: 0.08)
+                        : context.appColors.error.withValues(alpha: 0.08),
                     borderRadius: BorderRadius.circular(9),
                   ),
                   child: Icon(
@@ -56,8 +49,8 @@ class VisitSummaryCard extends StatelessWidget {
                         ? Icons.person_pin_circle_outlined
                         : Icons.person_off_outlined,
                     color: isPresent
-                        ? const Color(0xFF287A4B)
-                        : const Color(0xFFD45C5C),
+                        ? context.primaryColor
+                        : context.appColors.error,
                     size: 20,
                   ),
                 ),
@@ -66,19 +59,16 @@ class VisitSummaryCard extends StatelessWidget {
 
                 Expanded(
                   child: Column(
-                    crossAxisAlignment:
-                        CrossAxisAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        report.empName.isEmpty
-                            ? 'Employee'
-                            : report.empName,
+                        report.empName.isEmpty ? 'Employee' : report.empName,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 13.5,
                           fontWeight: FontWeight.w800,
-                          color: Color(0xFF202923),
+                          color: context.cardTextColor,
                         ),
                       ),
 
@@ -88,9 +78,9 @@ class VisitSummaryCard extends StatelessWidget {
                       //   report.empCode,
                       //   maxLines: 1,
                       //   overflow: TextOverflow.ellipsis,
-                      //   style: const TextStyle(
+                      //   style: TextStyle(
                       //     fontSize: 10.5,
-                      //     color: Color(0xFF737C76),
+                      //     color: context.secondaryTextColor,
                       //     fontWeight: FontWeight.w600,
                       //   ),
                       // ),
@@ -100,45 +90,33 @@ class VisitSummaryCard extends StatelessWidget {
 
                 const SizedBox(width: 6),
 
-                _StatusBadge(
-                  status: report.status,
-                ),
+                _StatusBadge(status: report.status),
               ],
             ),
           ),
 
-          const Divider(
-            height: 1,
-            thickness: .7,
-            indent: 12,
-            endIndent: 12,
-          ),
+          Divider(height: 1, thickness: .7, indent: 12, endIndent: 12),
 
           // ============================================================
           // DATE
           // ============================================================
           Padding(
-            padding: const EdgeInsets.fromLTRB(
-              12,
-              8,
-              12,
-              5,
-            ),
+            padding: const EdgeInsets.fromLTRB(12, 8, 12, 5),
             child: Row(
               children: [
-                const Icon(
+                Icon(
                   Icons.calendar_today_outlined,
                   size: 14,
-                  color: Color(0xFF68736D),
+                  color: context.secondaryTextColor,
                 ),
 
                 const SizedBox(width: 5),
 
-                const Text(
+                Text(
                   'Date',
                   style: TextStyle(
                     fontSize: 10.5,
-                    color: Color(0xFF7B847F),
+                    color: context.secondaryTextColor,
                   ),
                 ),
 
@@ -146,10 +124,10 @@ class VisitSummaryCard extends StatelessWidget {
 
                 Text(
                   _displayValue(report.date),
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 11.5,
                     fontWeight: FontWeight.w700,
-                    color: Color(0xFF303934),
+                    color: context.cardTextColor,
                   ),
                 ),
               ],
@@ -160,10 +138,7 @@ class VisitSummaryCard extends StatelessWidget {
           // IN / OUT
           // ============================================================
           Padding(
-            padding: const EdgeInsets.symmetric(
-              horizontal: 12,
-              vertical: 3,
-            ),
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 3),
             child: Row(
               children: [
                 Expanded(
@@ -171,7 +146,7 @@ class VisitSummaryCard extends StatelessWidget {
                     icon: Icons.login_rounded,
                     title: 'IN Time',
                     value: _displayValue(report.inTime),
-                    iconColor: const Color(0xFF2E8B57),
+                    iconColor: context.primaryColor,
                   ),
                 ),
 
@@ -182,7 +157,7 @@ class VisitSummaryCard extends StatelessWidget {
                     icon: Icons.logout_rounded,
                     title: 'OUT Time',
                     value: _displayValue(report.outTime),
-                    iconColor: const Color(0xFFD45C5C),
+                    iconColor: context.appColors.error,
                   ),
                 ),
               ],
@@ -193,20 +168,15 @@ class VisitSummaryCard extends StatelessWidget {
           // VISITS
           // ============================================================
           Padding(
-            padding: const EdgeInsets.symmetric(
-              horizontal: 12,
-              vertical: 3,
-            ),
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 3),
             child: Row(
               children: [
                 Expanded(
                   child: _InfoItem(
                     icon: Icons.storefront_outlined,
                     title: 'Dealer Visits',
-                    value: _displayValue(
-                      report.dealerVisit,
-                    ),
-                    iconColor: const Color(0xFF8A6B2E),
+                    value: _displayValue(report.dealerVisit),
+                    iconColor: context.appColors.secondary,
                   ),
                 ),
 
@@ -216,10 +186,8 @@ class VisitSummaryCard extends StatelessWidget {
                   child: _InfoItem(
                     icon: Icons.agriculture_outlined,
                     title: 'Farmer Visits',
-                    value: _displayValue(
-                      report.farmerVisit,
-                    ),
-                    iconColor: const Color(0xFF4E7D5C),
+                    value: _displayValue(report.farmerVisit),
+                    iconColor: context.primaryColor,
                   ),
                 ),
               ],
@@ -230,20 +198,15 @@ class VisitSummaryCard extends StatelessWidget {
           // KM / TIME
           // ============================================================
           Padding(
-            padding: const EdgeInsets.symmetric(
-              horizontal: 12,
-              vertical: 3,
-            ),
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 3),
             child: Row(
               children: [
                 Expanded(
                   child: _InfoItem(
                     icon: Icons.route_outlined,
                     title: 'Total KM',
-                    value: _displayValue(
-                      report.totalKm,
-                    ),
-                    iconColor: const Color(0xFF287A4B),
+                    value: _displayValue(report.totalKm),
+                    iconColor: context.primaryColor,
                   ),
                 ),
 
@@ -253,10 +216,8 @@ class VisitSummaryCard extends StatelessWidget {
                   child: _InfoItem(
                     icon: Icons.timer_outlined,
                     title: 'Total Time',
-                    value: _displayValue(
-                      report.totalTime,
-                    ),
-                    iconColor: const Color(0xFF637A69),
+                    value: _displayValue(report.totalTime),
+                    iconColor: context.secondaryTextColor,
                   ),
                 ),
               ],
@@ -267,22 +228,15 @@ class VisitSummaryCard extends StatelessWidget {
           // EXPENSE / MAP KM
           // ============================================================
           Padding(
-            padding: const EdgeInsets.fromLTRB(
-              12,
-              3,
-              12,
-              10,
-            ),
+            padding: const EdgeInsets.fromLTRB(12, 3, 12, 10),
             child: Row(
               children: [
                 Expanded(
                   child: _InfoItem(
                     icon: Icons.currency_rupee_rounded,
                     title: 'Expense',
-                    value: _displayValue(
-                      report.expenseAmount,
-                    ),
-                    iconColor: const Color(0xFF8A6B2E),
+                    value: _displayValue(report.expenseAmount),
+                    iconColor: context.appColors.secondary,
                   ),
                 ),
 
@@ -292,10 +246,8 @@ class VisitSummaryCard extends StatelessWidget {
                   child: _InfoItem(
                     icon: Icons.location_on_outlined,
                     title: 'On Map KM',
-                    value: _displayValue(
-                      report.onMapKm,
-                    ),
-                    iconColor: const Color(0xFF4C7290),
+                    value: _displayValue(report.onMapKm),
+                    iconColor: context.appColors.tertiary,
                   ),
                 ),
               ],
@@ -322,28 +274,22 @@ class VisitSummaryCard extends StatelessWidget {
 class _StatusBadge extends StatelessWidget {
   final String status;
 
-  const _StatusBadge({
-    required this.status,
-  });
+  const _StatusBadge({required this.status});
 
   @override
   Widget build(BuildContext context) {
-    final bool present =
-        status.toLowerCase() == 'present';
+    final bool present = status.toLowerCase() == 'present';
 
     final Color background = present
-        ? const Color(0xFFEAF6EE)
-        : const Color(0xFFFFEEEE);
+        ? context.primaryColor.withValues(alpha: 0.08)
+        : context.appColors.error.withValues(alpha: 0.08);
 
     final Color foreground = present
-        ? const Color(0xFF287A4B)
-        : const Color(0xFFD45C5C);
+        ? context.primaryColor
+        : context.appColors.error;
 
     return Container(
-      padding: const EdgeInsets.symmetric(
-        horizontal: 8,
-        vertical: 4,
-      ),
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: BoxDecoration(
         color: background,
         borderRadius: BorderRadius.circular(18),
@@ -352,9 +298,7 @@ class _StatusBadge extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           Icon(
-            present
-                ? Icons.check_circle_rounded
-                : Icons.cancel_rounded,
+            present ? Icons.check_circle_rounded : Icons.cancel_rounded,
             size: 12,
             color: foreground,
           ),
@@ -395,36 +339,28 @@ class _InfoItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(
-        horizontal: 8,
-        vertical: 6,
-      ),
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
       decoration: BoxDecoration(
-        color: const Color(0xFFF8FAF9),
+        color: context.appColors.surfaceContainerHighest,
         borderRadius: BorderRadius.circular(9),
       ),
       child: Row(
         children: [
-          Icon(
-            icon,
-            size: 16,
-            color: iconColor,
-          ),
+          Icon(icon, size: 16, color: iconColor),
 
           const SizedBox(width: 6),
 
           Expanded(
             child: Column(
-              crossAxisAlignment:
-                  CrossAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
                   title,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 9,
-                    color: Color(0xFF7B847F),
+                    color: context.secondaryTextColor,
                     fontWeight: FontWeight.w600,
                   ),
                 ),
@@ -435,9 +371,9 @@ class _InfoItem extends StatelessWidget {
                   value,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 11,
-                    color: Color(0xFF303934),
+                    color: context.cardTextColor,
                     fontWeight: FontWeight.w800,
                   ),
                 ),
