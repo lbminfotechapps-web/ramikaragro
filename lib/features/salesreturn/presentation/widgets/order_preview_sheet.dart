@@ -1,7 +1,7 @@
 import 'dart:io';
 import 'dart:typed_data';
 
-import 'package:solufine/core/theme/app_colors.dart';
+import 'package:solufine/core/theme/app_theme_context.dart';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil_plus/flutter_screenutil_plus.dart';
@@ -90,7 +90,7 @@ class OrderPreviewSheet extends StatelessWidget {
         maxHeight: MediaQuery.of(context).size.height * 0.94,
       ),
       decoration: BoxDecoration(
-        color: AppColors.background,
+        color: context.backgroundColor,
         borderRadius: BorderRadius.vertical(top: Radius.circular(24.r)),
       ),
       child: Column(
@@ -104,11 +104,12 @@ class OrderPreviewSheet extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  _buildOrderOverview(),
+                  _buildOrderOverview(context),
 
                   SizedBox(height: 12.h),
 
                   _buildSectionHeader(
+                    context,
                     Icons.shopping_bag_outlined,
                     'Products',
                     '${products.length}',
@@ -117,23 +118,24 @@ class OrderPreviewSheet extends StatelessWidget {
                   SizedBox(height: 7.h),
 
                   if (products.isEmpty)
-                    _buildEmptyProducts()
+                    _buildEmptyProducts(context)
                   else
                     ...products.map(
                       (product) => Padding(
                         padding: EdgeInsets.only(bottom: 7.h),
-                        child: _buildProductCard(product),
+                        child: _buildProductCard(context, product),
                       ),
                     ),
 
                   SizedBox(height: 3.h),
 
-                  _buildTotalSummary(),
+                  _buildTotalSummary(context),
 
                   if (hasPhoto || hasSignature) ...[
                     SizedBox(height: 12.h),
 
                     _buildSectionHeader(
+                      context,
                       Icons.verified_user_outlined,
                       'Dealer Verification',
                       null,
@@ -142,6 +144,7 @@ class OrderPreviewSheet extends StatelessWidget {
                     SizedBox(height: 6.h),
 
                     _buildDealerVerification(
+                      context,
                       hasPhoto: hasPhoto,
                       hasSignature: hasSignature,
                     ),
@@ -150,11 +153,16 @@ class OrderPreviewSheet extends StatelessWidget {
                   if (remark.trim().isNotEmpty) ...[
                     SizedBox(height: 12.h),
 
-                    _buildSectionHeader(Icons.notes_outlined, 'Remark', null),
+                    _buildSectionHeader(
+                      context,
+                      Icons.notes_outlined,
+                      'Remark',
+                      null,
+                    ),
 
                     SizedBox(height: 6.h),
 
-                    _buildRemark(),
+                    _buildRemark(context),
                   ],
 
                   SizedBox(height: 5.h),
@@ -173,11 +181,11 @@ class OrderPreviewSheet extends StatelessWidget {
     return Container(
       padding: EdgeInsets.fromLTRB(15.w, 11.h, 8.w, 11.h),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: context.cardBackgroundColor,
         borderRadius: BorderRadius.vertical(top: Radius.circular(24.r)),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: context.appColors.shadow.withValues(alpha: 0.05),
             blurRadius: 10,
             offset: const Offset(0, 2),
           ),
@@ -189,12 +197,12 @@ class OrderPreviewSheet extends StatelessWidget {
             height: 40.w,
             width: 40.w,
             decoration: BoxDecoration(
-              color: AppColors.lightGreen,
+              color: context.primaryColor.withValues(alpha: 0.08),
               borderRadius: BorderRadius.circular(12.r),
             ),
             child: Icon(
               Icons.receipt_long_rounded,
-              color: AppColors.primary,
+              color: context.primaryColor,
               size: 21.sp,
             ),
           ),
@@ -210,7 +218,7 @@ class OrderPreviewSheet extends StatelessWidget {
                   style: TextStyle(
                     fontSize: 17.sp,
                     fontWeight: FontWeight.w800,
-                    color: AppColors.textPrimary,
+                    color: context.primaryTextColor,
                   ),
                 ),
                 SizedBox(height: 1.h),
@@ -218,7 +226,7 @@ class OrderPreviewSheet extends StatelessWidget {
                   'Review before submitting',
                   style: TextStyle(
                     fontSize: 10.5.sp,
-                    color: AppColors.textSecondary,
+                    color: context.secondaryTextColor,
                   ),
                 ),
               ],
@@ -228,7 +236,7 @@ class OrderPreviewSheet extends StatelessWidget {
           Container(
             padding: EdgeInsets.symmetric(horizontal: 9.w, vertical: 5.h),
             decoration: BoxDecoration(
-              color: AppColors.lightGreen,
+              color: context.primaryColor.withValues(alpha: 0.08),
               borderRadius: BorderRadius.circular(8.r),
             ),
             child: Text(
@@ -236,7 +244,7 @@ class OrderPreviewSheet extends StatelessWidget {
               style: TextStyle(
                 fontSize: 10.sp,
                 fontWeight: FontWeight.w700,
-                color: AppColors.primary,
+                color: context.primaryColor,
               ),
             ),
           ),
@@ -248,7 +256,7 @@ class OrderPreviewSheet extends StatelessWidget {
             onPressed: () => Navigator.pop(context),
             icon: Icon(
               Icons.close_rounded,
-              color: AppColors.textSecondary,
+              color: context.secondaryTextColor,
               size: 21.sp,
             ),
           ),
@@ -257,17 +265,22 @@ class OrderPreviewSheet extends StatelessWidget {
     );
   }
 
-  Widget _buildSectionHeader(IconData icon, String title, String? trailing) {
+  Widget _buildSectionHeader(
+    BuildContext context,
+    IconData icon,
+    String title,
+    String? trailing,
+  ) {
     return Row(
       children: [
         Container(
           height: 28.w,
           width: 28.w,
           decoration: BoxDecoration(
-            color: AppColors.lightGreen,
+            color: context.primaryColor.withValues(alpha: 0.08),
             borderRadius: BorderRadius.circular(8.r),
           ),
-          child: Icon(icon, size: 15.sp, color: AppColors.primary),
+          child: Icon(icon, size: 15.sp, color: context.primaryColor),
         ),
 
         SizedBox(width: 7.w),
@@ -277,7 +290,7 @@ class OrderPreviewSheet extends StatelessWidget {
           style: TextStyle(
             fontSize: 13.5.sp,
             fontWeight: FontWeight.w800,
-            color: AppColors.textPrimary,
+            color: context.primaryTextColor,
           ),
         ),
 
@@ -287,7 +300,7 @@ class OrderPreviewSheet extends StatelessWidget {
           Container(
             padding: EdgeInsets.symmetric(horizontal: 6.w, vertical: 2.h),
             decoration: BoxDecoration(
-              color: Colors.grey.shade100,
+              color: context.appTheme.inputBackground,
               borderRadius: BorderRadius.circular(6.r),
             ),
             child: Text(
@@ -295,7 +308,7 @@ class OrderPreviewSheet extends StatelessWidget {
               style: TextStyle(
                 fontSize: 9.sp,
                 fontWeight: FontWeight.w700,
-                color: AppColors.textSecondary,
+                color: context.secondaryTextColor,
               ),
             ),
           ),
@@ -304,14 +317,14 @@ class OrderPreviewSheet extends StatelessWidget {
     );
   }
 
-  Widget _buildOrderOverview() {
+  Widget _buildOrderOverview(BuildContext context) {
     return Container(
       width: double.infinity,
       padding: EdgeInsets.all(12.w),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: context.cardBackgroundColor,
         borderRadius: BorderRadius.circular(15.r),
-        border: Border.all(color: AppColors.border),
+        border: Border.all(color: context.borderColor),
       ),
       child: Column(
         children: [
@@ -322,12 +335,12 @@ class OrderPreviewSheet extends StatelessWidget {
                 height: 42.w,
                 width: 42.w,
                 decoration: BoxDecoration(
-                  color: AppColors.lightGreen,
+                  color: context.primaryColor.withValues(alpha: 0.08),
                   shape: BoxShape.circle,
                 ),
                 child: Icon(
                   Icons.storefront_rounded,
-                  color: AppColors.primary,
+                  color: context.primaryColor,
                   size: 21.sp,
                 ),
               ),
@@ -342,7 +355,7 @@ class OrderPreviewSheet extends StatelessWidget {
                       'Dealer',
                       style: TextStyle(
                         fontSize: 9.5.sp,
-                        color: AppColors.textSecondary,
+                        color: context.secondaryTextColor,
                       ),
                     ),
 
@@ -355,7 +368,7 @@ class OrderPreviewSheet extends StatelessWidget {
                       style: TextStyle(
                         fontSize: 14.sp,
                         fontWeight: FontWeight.w800,
-                        color: AppColors.textPrimary,
+                        color: context.primaryTextColor,
                       ),
                     ),
 
@@ -367,7 +380,7 @@ class OrderPreviewSheet extends StatelessWidget {
                           Icon(
                             Icons.phone_outlined,
                             size: 12.sp,
-                            color: AppColors.textSecondary,
+                            color: context.secondaryTextColor,
                           ),
 
                           SizedBox(width: 4.w),
@@ -376,7 +389,7 @@ class OrderPreviewSheet extends StatelessWidget {
                             dealer.mobile,
                             style: TextStyle(
                               fontSize: 10.sp,
-                              color: AppColors.textSecondary,
+                              color: context.secondaryTextColor,
                             ),
                           ),
                         ],
@@ -392,7 +405,7 @@ class OrderPreviewSheet extends StatelessWidget {
                           Icon(
                             Icons.location_on_outlined,
                             size: 12.sp,
-                            color: AppColors.textSecondary,
+                            color: context.secondaryTextColor,
                           ),
 
                           SizedBox(width: 4.w),
@@ -404,7 +417,7 @@ class OrderPreviewSheet extends StatelessWidget {
                               overflow: TextOverflow.ellipsis,
                               style: TextStyle(
                                 fontSize: 10.sp,
-                                color: AppColors.textSecondary,
+                                color: context.secondaryTextColor,
                               ),
                             ),
                           ),
@@ -419,7 +432,7 @@ class OrderPreviewSheet extends StatelessWidget {
 
           SizedBox(height: 10.h),
 
-          Divider(height: 1, color: AppColors.border),
+          Divider(height: 1, color: context.borderColor),
 
           SizedBox(height: 10.h),
 
@@ -427,6 +440,7 @@ class OrderPreviewSheet extends StatelessWidget {
             children: [
               Expanded(
                 child: _compactInfo(
+                  context,
                   icon: Icons.warehouse_outlined,
                   label: 'Godown',
                   value: godown.name,
@@ -439,14 +453,15 @@ class OrderPreviewSheet extends StatelessWidget {
     );
   }
 
-  Widget _compactInfo({
+  Widget _compactInfo(
+    BuildContext context, {
     required IconData icon,
     required String label,
     required String value,
   }) {
     return Row(
       children: [
-        Icon(icon, size: 17.sp, color: AppColors.primary),
+        Icon(icon, size: 17.sp, color: context.primaryColor),
 
         SizedBox(width: 7.w),
 
@@ -458,7 +473,7 @@ class OrderPreviewSheet extends StatelessWidget {
                 label,
                 style: TextStyle(
                   fontSize: 9.sp,
-                  color: AppColors.textSecondary,
+                  color: context.secondaryTextColor,
                 ),
               ),
 
@@ -471,7 +486,7 @@ class OrderPreviewSheet extends StatelessWidget {
                 style: TextStyle(
                   fontSize: 11.sp,
                   fontWeight: FontWeight.w700,
-                  color: AppColors.textPrimary,
+                  color: context.primaryTextColor,
                 ),
               ),
             ],
@@ -481,7 +496,7 @@ class OrderPreviewSheet extends StatelessWidget {
     );
   }
 
-  Widget _buildProductCard(ProductEntity product) {
+  Widget _buildProductCard(BuildContext context, ProductEntity product) {
     final productId = product.id.toString();
 
     final rates = selectedRates[productId] ?? <ProductRateEntity>[];
@@ -505,9 +520,9 @@ class OrderPreviewSheet extends StatelessWidget {
       width: double.infinity,
       padding: EdgeInsets.all(9.w),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: context.cardBackgroundColor,
         borderRadius: BorderRadius.circular(14.r),
-        border: Border.all(color: AppColors.border),
+        border: Border.all(color: context.borderColor),
       ),
       child: Column(
         children: [
@@ -518,7 +533,7 @@ class OrderPreviewSheet extends StatelessWidget {
                 height: 40.w,
                 width: 40.w,
                 decoration: BoxDecoration(
-                  color: AppColors.lightGreen,
+                  color: context.primaryColor.withValues(alpha: 0.08),
                   borderRadius: BorderRadius.circular(10.r),
                 ),
                 child: product.image.trim().isNotEmpty
@@ -528,11 +543,11 @@ class OrderPreviewSheet extends StatelessWidget {
                           product.image,
                           fit: BoxFit.cover,
                           errorBuilder: (_, __, ___) {
-                            return _productIcon();
+                            return _productIcon(context);
                           },
                         ),
                       )
-                    : _productIcon(),
+                    : _productIcon(context),
               ),
 
               SizedBox(width: 9.w),
@@ -548,7 +563,7 @@ class OrderPreviewSheet extends StatelessWidget {
                       style: TextStyle(
                         fontSize: 13.sp,
                         fontWeight: FontWeight.w800,
-                        color: AppColors.textPrimary,
+                        color: context.primaryTextColor,
                       ),
                     ),
 
@@ -562,7 +577,7 @@ class OrderPreviewSheet extends StatelessWidget {
                     //   ),
                     //   decoration: BoxDecoration(
                     //     color:
-                    //         AppColors.lightGreen,
+                    //         context.primaryColor.withValues(alpha: 0.08),
                     //     borderRadius:
                     //         BorderRadius.circular(
                     //       5.r,
@@ -584,7 +599,7 @@ class OrderPreviewSheet extends StatelessWidget {
                     style: TextStyle(
                       fontSize: 13.sp,
                       fontWeight: FontWeight.w900,
-                      color: AppColors.primary,
+                      color: context.primaryColor,
                     ),
                   ),
 
@@ -594,7 +609,7 @@ class OrderPreviewSheet extends StatelessWidget {
                     '$productQuantity Qty',
                     style: TextStyle(
                       fontSize: 8.5.sp,
-                      color: AppColors.textSecondary,
+                      color: context.secondaryTextColor,
                     ),
                   ),
                 ],
@@ -609,7 +624,7 @@ class OrderPreviewSheet extends StatelessWidget {
               width: double.infinity,
               padding: EdgeInsets.all(7.w),
               decoration: BoxDecoration(
-                color: AppColors.background,
+                color: context.backgroundColor,
                 borderRadius: BorderRadius.circular(9.r),
               ),
               child: Column(
@@ -621,7 +636,7 @@ class OrderPreviewSheet extends StatelessWidget {
                         style: TextStyle(
                           fontSize: 8.sp,
                           fontWeight: FontWeight.w800,
-                          color: AppColors.textSecondary,
+                          color: context.secondaryTextColor,
                           letterSpacing: .3,
                         ),
                       ),
@@ -633,7 +648,7 @@ class OrderPreviewSheet extends StatelessWidget {
                         style: TextStyle(
                           fontSize: 8.sp,
                           fontWeight: FontWeight.w800,
-                          color: AppColors.textSecondary,
+                          color: context.secondaryTextColor,
                           letterSpacing: .3,
                         ),
                       ),
@@ -647,7 +662,11 @@ class OrderPreviewSheet extends StatelessWidget {
 
                     final quantity = quantities[detailsId] ?? 1;
 
-                    return _buildRateRow(rate: rate, quantity: quantity);
+                    return _buildRateRow(
+                      context,
+                      rate: rate,
+                      quantity: quantity,
+                    );
                   }),
                 ],
               ),
@@ -658,15 +677,16 @@ class OrderPreviewSheet extends StatelessWidget {
     );
   }
 
-  Widget _productIcon() {
+  Widget _productIcon(BuildContext context) {
     return Icon(
       Icons.inventory_2_outlined,
-      color: AppColors.primary,
+      color: context.primaryColor,
       size: 23.sp,
     );
   }
 
-  Widget _buildRateRow({
+  Widget _buildRateRow(
+    BuildContext context, {
     required ProductRateEntity rate,
     required int quantity,
   }) {
@@ -680,7 +700,7 @@ class OrderPreviewSheet extends StatelessWidget {
           Icon(
             Icons.inventory_2_outlined,
             size: 12.sp,
-            color: AppColors.primary,
+            color: context.primaryColor,
           ),
 
           SizedBox(width: 5.w),
@@ -697,7 +717,7 @@ class OrderPreviewSheet extends StatelessWidget {
                   style: TextStyle(
                     fontSize: 9.5.sp,
                     fontWeight: FontWeight.w700,
-                    color: AppColors.textPrimary,
+                    color: context.primaryTextColor,
                   ),
                 ),
 
@@ -708,7 +728,7 @@ class OrderPreviewSheet extends StatelessWidget {
                   style: TextStyle(
                     fontSize: 8.sp,
                     fontWeight: FontWeight.w600,
-                    color: AppColors.textSecondary,
+                    color: context.secondaryTextColor,
                   ),
                 ),
               ],
@@ -720,7 +740,7 @@ class OrderPreviewSheet extends StatelessWidget {
           Container(
             padding: EdgeInsets.symmetric(horizontal: 5.w, vertical: 2.h),
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: context.cardBackgroundColor,
               borderRadius: BorderRadius.circular(5.r),
             ),
             child: Text(
@@ -728,7 +748,7 @@ class OrderPreviewSheet extends StatelessWidget {
               style: TextStyle(
                 fontSize: 8.sp,
                 fontWeight: FontWeight.w700,
-                color: AppColors.textSecondary,
+                color: context.secondaryTextColor,
               ),
             ),
           ),
@@ -737,7 +757,7 @@ class OrderPreviewSheet extends StatelessWidget {
             '× ₹${price.toStringAsFixed(2)}',
             style: TextStyle(
               fontSize: 9.sp,
-              color: AppColors.primary,
+              color: context.primaryColor,
               fontWeight: FontWeight.w700,
             ),
           ),
@@ -750,7 +770,7 @@ class OrderPreviewSheet extends StatelessWidget {
           //     vertical: 2.h,
           //   ),
           //   decoration: BoxDecoration(
-          //     color: Colors.white,
+          //     color: context.onPrimaryColor,
           //     borderRadius: BorderRadius.circular(5.r),
           //   ),
           //   child: Text(
@@ -758,7 +778,7 @@ class OrderPreviewSheet extends StatelessWidget {
           //     style: TextStyle(
           //       fontSize: 8.sp,
           //       fontWeight: FontWeight.w700,
-          //       color: AppColors.textSecondary,
+          //       color: context.secondaryTextColor,
           //     ),
           //   ),
           // ),
@@ -772,7 +792,7 @@ class OrderPreviewSheet extends StatelessWidget {
               style: TextStyle(
                 fontSize: 12.sp,
                 fontWeight: FontWeight.w800,
-                color: AppColors.textPrimary,
+                color: context.primaryTextColor,
               ),
             ),
           ),
@@ -781,21 +801,21 @@ class OrderPreviewSheet extends StatelessWidget {
     );
   }
 
-  Widget _buildEmptyProducts() {
+  Widget _buildEmptyProducts(BuildContext context) {
     return Container(
       width: double.infinity,
       padding: EdgeInsets.all(18.w),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: context.cardBackgroundColor,
         borderRadius: BorderRadius.circular(14.r),
-        border: Border.all(color: AppColors.border),
+        border: Border.all(color: context.borderColor),
       ),
       child: Column(
         children: [
           Icon(
             Icons.inventory_2_outlined,
             size: 34.sp,
-            color: AppColors.textSecondary,
+            color: context.secondaryTextColor,
           ),
 
           SizedBox(height: 6.h),
@@ -805,7 +825,7 @@ class OrderPreviewSheet extends StatelessWidget {
             style: TextStyle(
               fontSize: 13.sp,
               fontWeight: FontWeight.w700,
-              color: AppColors.textPrimary,
+              color: context.primaryTextColor,
             ),
           ),
         ],
@@ -813,18 +833,16 @@ class OrderPreviewSheet extends StatelessWidget {
     );
   }
 
-  Widget _buildTotalSummary() {
+  Widget _buildTotalSummary(BuildContext context) {
     return Container(
       width: double.infinity,
       padding: EdgeInsets.all(12.w),
       decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: [AppColors.primary, AppColors.primary.withOpacity(.88)],
-        ),
+        color: context.primaryColor,
         borderRadius: BorderRadius.circular(15.r),
         boxShadow: [
           BoxShadow(
-            color: AppColors.primary.withOpacity(.15),
+            color: context.primaryColor.withValues(alpha: .15),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
@@ -834,23 +852,25 @@ class OrderPreviewSheet extends StatelessWidget {
         children: [
           Expanded(
             child: _totalItem(
+              context,
               Icons.inventory_2_outlined,
               'Products',
               '${products.length}',
             ),
           ),
 
-          _verticalDivider(),
+          _verticalDivider(context),
 
           Expanded(
             child: _totalItem(
+              context,
               Icons.format_list_numbered,
               'Quantity',
               '$totalQuantity',
             ),
           ),
 
-          _verticalDivider(),
+          _verticalDivider(context),
 
           Expanded(
             flex: 2,
@@ -862,7 +882,7 @@ class OrderPreviewSheet extends StatelessWidget {
                   style: TextStyle(
                     fontSize: 8.sp,
                     fontWeight: FontWeight.w700,
-                    color: Colors.white.withOpacity(.75),
+                    color: context.onPrimaryColor.withValues(alpha: .75),
                   ),
                 ),
 
@@ -873,7 +893,7 @@ class OrderPreviewSheet extends StatelessWidget {
                   style: TextStyle(
                     fontSize: 18.sp,
                     fontWeight: FontWeight.w900,
-                    color: Colors.white,
+                    color: context.onPrimaryColor,
                   ),
                 ),
               ],
@@ -884,10 +904,15 @@ class OrderPreviewSheet extends StatelessWidget {
     );
   }
 
-  Widget _totalItem(IconData icon, String label, String value) {
+  Widget _totalItem(
+    BuildContext context,
+    IconData icon,
+    String label,
+    String value,
+  ) {
     return Row(
       children: [
-        Icon(icon, size: 18.sp, color: Colors.white),
+        Icon(icon, size: 18.sp, color: context.onPrimaryColor),
 
         SizedBox(width: 6.w),
 
@@ -898,7 +923,7 @@ class OrderPreviewSheet extends StatelessWidget {
               label,
               style: TextStyle(
                 fontSize: 8.sp,
-                color: Colors.white.withOpacity(.75),
+                color: context.onPrimaryColor.withValues(alpha: .75),
               ),
             ),
 
@@ -909,7 +934,7 @@ class OrderPreviewSheet extends StatelessWidget {
               style: TextStyle(
                 fontSize: 14.sp,
                 fontWeight: FontWeight.w800,
-                color: Colors.white,
+                color: context.onPrimaryColor,
               ),
             ),
           ],
@@ -918,16 +943,17 @@ class OrderPreviewSheet extends StatelessWidget {
     );
   }
 
-  Widget _verticalDivider() {
+  Widget _verticalDivider(BuildContext context) {
     return Container(
       width: 1,
       height: 32.h,
       margin: EdgeInsets.symmetric(horizontal: 7.w),
-      color: Colors.white.withOpacity(.22),
+      color: context.onPrimaryColor.withValues(alpha: .22),
     );
   }
 
-  Widget _buildDealerVerification({
+  Widget _buildDealerVerification(
+    BuildContext context, {
     required bool hasPhoto,
     required bool hasSignature,
   }) {
@@ -935,9 +961,9 @@ class OrderPreviewSheet extends StatelessWidget {
       width: double.infinity,
       padding: EdgeInsets.all(9.w),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: context.cardBackgroundColor,
         borderRadius: BorderRadius.circular(14.r),
-        border: Border.all(color: AppColors.border),
+        border: Border.all(color: context.borderColor),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -945,15 +971,16 @@ class OrderPreviewSheet extends StatelessWidget {
           if (hasPhoto)
             Expanded(
               child: _verificationItem(
+                context,
                 icon: Icons.camera_alt_outlined,
                 title: 'Dealer Photo',
                 child: Container(
                   height: 105.h,
                   width: double.infinity,
                   decoration: BoxDecoration(
-                    color: AppColors.background,
+                    color: context.backgroundColor,
                     borderRadius: BorderRadius.circular(10.r),
-                    border: Border.all(color: AppColors.border),
+                    border: Border.all(color: context.borderColor),
                   ),
                   child: ClipRRect(
                     borderRadius: BorderRadius.circular(10.r),
@@ -965,7 +992,7 @@ class OrderPreviewSheet extends StatelessWidget {
                           child: Icon(
                             Icons.broken_image_outlined,
                             size: 28.sp,
-                            color: AppColors.textSecondary,
+                            color: context.secondaryTextColor,
                           ),
                         );
                       },
@@ -980,6 +1007,7 @@ class OrderPreviewSheet extends StatelessWidget {
           if (hasSignature)
             Expanded(
               child: _verificationItem(
+                context,
                 icon: Icons.draw_outlined,
                 title: 'Signature',
                 child: Container(
@@ -987,9 +1015,9 @@ class OrderPreviewSheet extends StatelessWidget {
                   width: double.infinity,
                   padding: EdgeInsets.all(5.w),
                   decoration: BoxDecoration(
-                    color: AppColors.background,
+                    color: context.backgroundColor,
                     borderRadius: BorderRadius.circular(10.r),
-                    border: Border.all(color: AppColors.border),
+                    border: Border.all(color: context.borderColor),
                   ),
                   child: ClipRRect(
                     borderRadius: BorderRadius.circular(8.r),
@@ -1003,7 +1031,8 @@ class OrderPreviewSheet extends StatelessWidget {
     );
   }
 
-  Widget _verificationItem({
+  Widget _verificationItem(
+    BuildContext context, {
     required IconData icon,
     required String title,
     required Widget child,
@@ -1013,7 +1042,7 @@ class OrderPreviewSheet extends StatelessWidget {
       children: [
         Row(
           children: [
-            Icon(icon, size: 13.sp, color: AppColors.primary),
+            Icon(icon, size: 13.sp, color: context.primaryColor),
 
             SizedBox(width: 5.w),
 
@@ -1022,7 +1051,7 @@ class OrderPreviewSheet extends StatelessWidget {
               style: TextStyle(
                 fontSize: 9.5.sp,
                 fontWeight: FontWeight.w800,
-                color: AppColors.textPrimary,
+                color: context.primaryTextColor,
               ),
             ),
           ],
@@ -1035,14 +1064,14 @@ class OrderPreviewSheet extends StatelessWidget {
     );
   }
 
-  Widget _buildRemark() {
+  Widget _buildRemark(BuildContext context) {
     return Container(
       width: double.infinity,
       padding: EdgeInsets.symmetric(horizontal: 11.w, vertical: 9.h),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: context.cardBackgroundColor,
         borderRadius: BorderRadius.circular(12.r),
-        border: Border.all(color: AppColors.border),
+        border: Border.all(color: context.borderColor),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -1051,13 +1080,13 @@ class OrderPreviewSheet extends StatelessWidget {
             height: 28.w,
             width: 28.w,
             decoration: BoxDecoration(
-              color: AppColors.lightGreen,
+              color: context.primaryColor.withValues(alpha: 0.08),
               borderRadius: BorderRadius.circular(8.r),
             ),
             child: Icon(
               Icons.notes_outlined,
               size: 15.sp,
-              color: AppColors.primary,
+              color: context.primaryColor,
             ),
           ),
 
@@ -1069,7 +1098,7 @@ class OrderPreviewSheet extends StatelessWidget {
               style: TextStyle(
                 fontSize: 11.5.sp,
                 height: 1.4,
-                color: AppColors.textPrimary,
+                color: context.primaryTextColor,
               ),
             ),
           ),
@@ -1082,10 +1111,10 @@ class OrderPreviewSheet extends StatelessWidget {
     return Container(
       padding: EdgeInsets.fromLTRB(12.w, 9.h, 12.w, 10.h),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: context.cardBackgroundColor,
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(.08),
+            color: context.appColors.shadow.withValues(alpha: .08),
             blurRadius: 12,
             offset: const Offset(0, -3),
           ),
@@ -1100,7 +1129,7 @@ class OrderPreviewSheet extends StatelessWidget {
                 onPressed: () => Navigator.pop(context),
                 style: OutlinedButton.styleFrom(
                   minimumSize: Size(double.infinity, 46.h),
-                  side: BorderSide(color: AppColors.primary, width: 1.1),
+                  side: BorderSide(color: context.primaryColor, width: 1.1),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12.r),
                   ),
@@ -1110,7 +1139,7 @@ class OrderPreviewSheet extends StatelessWidget {
                   style: TextStyle(
                     fontSize: 12.sp,
                     fontWeight: FontWeight.w700,
-                    color: AppColors.primary,
+                    color: context.primaryColor,
                   ),
                 ),
               ),
@@ -1123,8 +1152,8 @@ class OrderPreviewSheet extends StatelessWidget {
                 onPressed: onConfirm,
                 style: ElevatedButton.styleFrom(
                   minimumSize: Size(double.infinity, 46.h),
-                  backgroundColor: AppColors.primary,
-                  foregroundColor: Colors.white,
+                  backgroundColor: context.primaryColor,
+                  foregroundColor: context.onPrimaryColor,
                   elevation: 0,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12.r),

@@ -22,7 +22,7 @@ class AppThemeColors {
     textPrimary: Color(0xFF000000),
     textSecondary: Color(0xFF666666),
     border: Color(0xFFE0E0E0),
-    inputBackground: Colors.white,
+   inputBackground: Colors.white,
     gradientStart: Color(0xFF3F9D39),
     gradientEnd: Color(0xFFA9E6A5),
   );
@@ -49,7 +49,7 @@ class AppThemeColors {
     textPrimary: Color(0xFF18392A),
     textSecondary: Color(0xFF587165),
     border: Color(0xFFD7E5DA),
-    inputBackground: Color(0xFFF4FAF5),
+    inputBackground: Colors.white,
     gradientStart: Color(0xFF1B4332),
     gradientEnd: Color(0xFF52A478),
   );
@@ -76,7 +76,7 @@ class AppThemeColors {
     textPrimary: Color(0xFF17324D),
     textSecondary: Color(0xFF61758A),
     border: Color(0xFFD5E5F1),
-    inputBackground: Color(0xFFF2F9FF),
+   inputBackground: Colors.white,
     gradientStart: Color(0xFF075985),
     gradientEnd: Color(0xFF38BDF8),
   );
@@ -103,7 +103,7 @@ class AppThemeColors {
     textPrimary: Color(0xFF332452),
     textSecondary: Color(0xFF76698B),
     border: Color(0xFFE5DDF4),
-    inputBackground: Color(0xFFFAF7FF),
+   inputBackground: Colors.white,
     gradientStart: Color(0xFF6D28D9),
     gradientEnd: Color(0xFFB794F6),
   );
@@ -157,7 +157,7 @@ class AppThemeColors {
     textPrimary: Color(0xFFF5F6F8),
     textSecondary: Color(0xFFB4BAC5),
     border: Color(0xFF424751),
-    inputBackground: Color(0xFF2D3138),
+    inputBackground: Colors.white,
     gradientStart: Color(0xFF15171B),
     gradientEnd: Color(0xFF343B47),
   );
@@ -184,7 +184,7 @@ class AppThemeColors {
     textPrimary: Color(0xFF174B38),
     textSecondary: Color(0xFF597D6B),
     border: Color(0xFFCEE8D8),
-    inputBackground: Color(0xFFF4FFF7),
+   inputBackground: Colors.white,
     gradientStart: Color(0xFFBCEACD),
     gradientEnd: Color(0xFFEAF9F0),
   );

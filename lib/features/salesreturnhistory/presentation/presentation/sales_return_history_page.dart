@@ -9,7 +9,7 @@ import 'package:flutter_screenutil_plus/flutter_screenutil_plus.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../core/secure_storage/secure_storage.dart';
-import '../../../../core/theme/app_colors.dart';
+import '../../../../core/theme/app_theme_context.dart';
 import '../../../../core/utility/widgets/custom_appbar.dart';
 
 import '../bloc/sales_return_history_bloc.dart';
@@ -183,7 +183,7 @@ class _SalesReturnHistoryPageState extends State<SalesReturnHistoryPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xffF5F7F9),
+      backgroundColor: context.backgroundColor,
 
       appBar: CustomAppBar(
         title: 'Sales Return History',
@@ -226,17 +226,21 @@ class _SalesReturnHistoryPageState extends State<SalesReturnHistoryPage> {
 
                   if (state.status == SalesReturnHistoryStatus.loading &&
                       state.salesReturns.isEmpty)
-                    const SliverFillRemaining(
-                      child: Center(child: CircularProgressIndicator()),
+                    SliverFillRemaining(
+                      child: Center(
+                        child: CircularProgressIndicator(
+                          color: context.primaryColor,
+                        ),
+                      ),
                     )
                   else if (state.salesReturns.isEmpty)
-                    const SliverFillRemaining(
+                    SliverFillRemaining(
                       child: Center(
                         child: Text(
                           'No Record Found',
                           style: TextStyle(
                             fontWeight: FontWeight.w600,
-                            color: Colors.grey,
+                            color: context.secondaryTextColor,
                           ),
                         ),
                       ),
@@ -248,8 +252,10 @@ class _SalesReturnHistoryPageState extends State<SalesReturnHistoryPage> {
                           if (index == state.salesReturns.length) {
                             return Padding(
                               padding: EdgeInsets.symmetric(vertical: 15.h),
-                              child: const Center(
-                                child: CircularProgressIndicator(),
+                              child: Center(
+                                child: CircularProgressIndicator(
+                                  color: context.primaryColor,
+                                ),
                               ),
                             );
                           }
@@ -282,6 +288,8 @@ class _SalesReturnHistoryPageState extends State<SalesReturnHistoryPage> {
     return Padding(
       padding: EdgeInsets.all(10.w),
       child: Card(
+        color: context.cardBackgroundColor,
+        shadowColor: context.appColors.shadow,
         elevation: 2,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(12.r),
@@ -301,7 +309,7 @@ class _SalesReturnHistoryPageState extends State<SalesReturnHistoryPage> {
                   children: [
                     Icon(
                       Icons.filter_alt_outlined,
-                      color: AppColors.darkPrimaryColor,
+                      color: context.primaryColor,
                     ),
                     SizedBox(width: 10.w),
                     Expanded(
@@ -309,6 +317,7 @@ class _SalesReturnHistoryPageState extends State<SalesReturnHistoryPage> {
                         'Search & Filter',
                         style: TextStyle(
                           fontSize: 15.sp,
+                          color: context.primaryTextColor,
                           fontWeight: FontWeight.w600,
                         ),
                       ),
@@ -390,6 +399,7 @@ class _SalesReturnHistoryPageState extends State<SalesReturnHistoryPage> {
       context: context,
       builder: (context) {
         return AlertDialog(
+          backgroundColor: context.cardBackgroundColor,
           title: const Text('Sales Return Details'),
           content: SizedBox(
             width: double.maxFinite,
@@ -410,6 +420,8 @@ class _SalesReturnHistoryPageState extends State<SalesReturnHistoryPage> {
                   else
                     ...item.salesReturnDetails.map(
                       (detail) => Card(
+                        color: context.cardBackgroundColor,
+                        shadowColor: context.appColors.shadow,
                         margin: const EdgeInsets.symmetric(vertical: 4),
                         elevation: 3,
                         child: Padding(
@@ -451,11 +463,19 @@ class _SalesReturnHistoryPageState extends State<SalesReturnHistoryPage> {
             width: 125,
             child: Text(
               label,
-              style: const TextStyle(fontWeight: FontWeight.w600),
+              style: TextStyle(
+                fontWeight: FontWeight.w600,
+                color: context.primaryTextColor,
+              ),
             ),
           ),
           const Text(' : '),
-          Expanded(child: Text(value.isEmpty ? '-' : value)),
+          Expanded(
+            child: Text(
+              value.isEmpty ? '-' : value,
+              style: TextStyle(color: context.primaryTextColor),
+            ),
+          ),
         ],
       ),
     );

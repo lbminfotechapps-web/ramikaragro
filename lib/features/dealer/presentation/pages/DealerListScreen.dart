@@ -6,7 +6,7 @@ import 'package:solufine/core/api_constant/api_client.dart';
 import 'package:solufine/core/di/auth_di.dart';
 import 'package:solufine/core/location_tracking/location_repository.dart';
 import 'package:solufine/core/secure_storage/secure_storage.dart';
-import 'package:solufine/core/theme/app_colors.dart';
+import 'package:solufine/core/theme/app_theme_context.dart';
 import 'package:solufine/core/utility/app_tutorial_service.dart';
 import 'package:solufine/core/utility/device_info_util.dart';
 import 'package:solufine/core/utility/location_util.dart';
@@ -581,7 +581,7 @@ class _DealerListScreenState extends State<DealerListScreen> {
         context.go('/home');
       },
       child: Scaffold(
-        backgroundColor: AppColors.backgroundColor,
+        backgroundColor: context.backgroundColor,
         appBar: CustomAppBar(
           title: 'Dealer List',
           showBackButton: true,
@@ -638,7 +638,7 @@ class _DealerListScreenState extends State<DealerListScreen> {
                             Icon(
                               Icons.error_outline,
                               size: 50,
-                              color: Colors.red.shade400,
+                              color: context.appColors.error,
                             ),
                             const SizedBox(height: 12),
                             Text(
@@ -655,8 +655,8 @@ class _DealerListScreenState extends State<DealerListScreen> {
                                 // _loadFarmers(searchKey: _searchController.text.trim());
                               },
                               style: ElevatedButton.styleFrom(
-                                backgroundColor: AppColors.primary,
-                                foregroundColor: Colors.white,
+                                backgroundColor: context.primaryColor,
+                                foregroundColor: context.onPrimaryColor,
                               ),
                               child: const Text('Retry'),
                             ),
@@ -683,11 +683,11 @@ class _DealerListScreenState extends State<DealerListScreen> {
                                 _searchText.isEmpty
                                     ? 'Your dealers'
                                     : 'Search results',
-                                style: const TextStyle(
+                                style: TextStyle(
                                   fontSize: 18,
                                   fontWeight: FontWeight.w700,
                                   letterSpacing: -0.4,
-                                  color: Color(0xFF203C32),
+                                  color: context.primaryTextColor,
                                 ),
                               ),
                             ),
@@ -697,15 +697,17 @@ class _DealerListScreenState extends State<DealerListScreen> {
                                 vertical: 5,
                               ),
                               decoration: BoxDecoration(
-                                color: const Color(0xFFE1E9DF),
+                                color: context.primaryColor.withValues(
+                                  alpha: 0.08,
+                                ),
                                 borderRadius: BorderRadius.circular(8),
                               ),
                               child: Text(
                                 '${dealers.length}',
-                                style: const TextStyle(
+                                style: TextStyle(
                                   fontSize: 12,
                                   fontWeight: FontWeight.w700,
-                                  color: Color(0xFF3B5D4A),
+                                  color: context.primaryColor,
                                 ),
                               ),
                             ),
@@ -774,8 +776,8 @@ class _DealerListScreenState extends State<DealerListScreen> {
         ),
 
         floatingActionButton: FloatingActionButton.extended(
-          backgroundColor: AppColors.primary,
-          foregroundColor: Colors.white,
+          backgroundColor: context.primaryColor,
+          foregroundColor: context.onPrimaryColor,
           elevation: 3,
           onPressed: () {
             context.push('/dealrFollowUpAdd');
@@ -798,16 +800,16 @@ class _DealerListScreenState extends State<DealerListScreen> {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
         decoration: BoxDecoration(
-          color: const Color(0xFFEAF2ED),
+          color: context.primaryColor.withValues(alpha: 0.08),
           borderRadius: BorderRadius.circular(10),
-          border: Border.all(color: const Color(0xFFDCE8DF)),
+          border: Border.all(color: context.borderColor),
         ),
         child: Row(
           children: [
-            const Icon(
+            Icon(
               Icons.my_location_rounded,
               size: 13,
-              color: Color(0xFF3B5D4A),
+              color: context.primaryColor,
             ),
             const SizedBox(width: 7),
             Expanded(
@@ -817,10 +819,10 @@ class _DealerListScreenState extends State<DealerListScreen> {
                     : 'Location unavailable',
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 11,
                   fontWeight: FontWeight.w600,
-                  color: Color(0xFF3B5D4A),
+                  color: context.primaryColor,
                 ),
               ),
             ),
@@ -842,7 +844,7 @@ class _DealerListScreenState extends State<DealerListScreen> {
         builder: (context, index) => TextField(
           controller: _searchController,
           textInputAction: TextInputAction.search,
-          style: const TextStyle(fontSize: 14, color: AppColors.textDark),
+          style: TextStyle(fontSize: 14, color: context.primaryTextColor),
           decoration: InputDecoration(
             hint: AnimatedSwitcher(
               layoutBuilder: (currentChild, previousChildren) => Stack(
@@ -857,12 +859,18 @@ class _DealerListScreenState extends State<DealerListScreen> {
                 key: ValueKey(index),
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
-                style: const TextStyle(color: AppColors.textGrey, fontSize: 14),
+                style: TextStyle(
+                  color: context.secondaryTextColor,
+                  fontSize: 14,
+                ),
               ),
             ),
-            hintStyle: const TextStyle(color: AppColors.textGrey, fontSize: 14),
+            hintStyle: TextStyle(
+              color: context.secondaryTextColor,
+              fontSize: 14,
+            ),
             filled: true,
-            fillColor: Colors.white,
+            fillColor: context.appTheme.inputBackground,
             prefixIcon: AnimatedSwitcher(
               duration: Duration(
                 milliseconds: MediaQuery.disableAnimationsOf(context) ? 0 : 400,
@@ -872,7 +880,7 @@ class _DealerListScreenState extends State<DealerListScreen> {
                     ? Icons.search_rounded
                     : Icons.phone_android_rounded,
                 key: ValueKey(_searchController.text.isNotEmpty ? 0 : index),
-                color: AppColors.primaryLight,
+                color: context.primaryColor,
               ),
             ),
             suffixIcon: _searchController.text.isNotEmpty
@@ -885,23 +893,23 @@ class _DealerListScreenState extends State<DealerListScreen> {
 
             helperText:
                 'Search after 3 characters. After searching wait for 2 sec..!',
-            helperStyle: const TextStyle(
+            helperStyle: TextStyle(
               fontSize: 10,
-              color: Colors.red,
+              color: context.appColors.error,
               fontWeight: FontWeight.w500,
             ),
 
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(16),
-              borderSide: const BorderSide(color: Color(0xFFE0E8E2)),
+              borderSide: BorderSide(color: context.borderColor),
             ),
             enabledBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(16),
-              borderSide: const BorderSide(color: Color(0xFFE0E8E2)),
+              borderSide: BorderSide(color: context.borderColor),
             ),
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(16),
-              borderSide: const BorderSide(color: AppColors.primaryLight),
+              borderSide: BorderSide(color: context.primaryColor),
             ),
             contentPadding: const EdgeInsets.symmetric(
               horizontal: 16,
@@ -921,7 +929,7 @@ class _DealerListScreenState extends State<DealerListScreen> {
           Icon(
             _searchText.isNotEmpty ? Icons.search_off : Icons.store_outlined,
             size: 48,
-            color: Colors.grey.shade400,
+            color: context.secondaryTextColor,
           ),
 
           const SizedBox(height: 12),
@@ -929,7 +937,7 @@ class _DealerListScreenState extends State<DealerListScreen> {
           Text(
             'No Dealers Found..!',
             style: TextStyle(
-              color: Colors.grey.shade600,
+              color: context.secondaryTextColor,
               fontSize: 15,
               fontWeight: FontWeight.w500,
             ),
@@ -939,7 +947,7 @@ class _DealerListScreenState extends State<DealerListScreen> {
             const SizedBox(height: 5),
             Text(
               'Try another search',
-              style: TextStyle(color: Colors.grey.shade500, fontSize: 12),
+              style: TextStyle(color: context.secondaryTextColor, fontSize: 12),
             ),
           ],
         ],
@@ -1065,14 +1073,14 @@ class _DealerListItem extends StatelessWidget {
       margin: const EdgeInsets.only(bottom: 12),
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: context.cardBackgroundColor,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: const Color(0xFFE9EDE9)),
-        boxShadow: const [
+        border: Border.all(color: context.borderColor),
+        boxShadow: [
           BoxShadow(
-            color: Color(0x06123D32),
+            color: context.appColors.shadow.withValues(alpha: 0.03),
             blurRadius: 12,
-            offset: Offset(0, 3),
+            offset: const Offset(0, 3),
           ),
         ],
       ),
@@ -1086,17 +1094,17 @@ class _DealerListItem extends StatelessWidget {
                 height: 44,
                 padding: const EdgeInsets.all(5),
                 decoration: BoxDecoration(
-                  color: Colors.white,
+                  color: context.cardBackgroundColor,
                   borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: const Color(0xFFEAF2EC), width: 3),
+                  border: Border.all(color: context.borderColor, width: 3),
                 ),
                 child: Center(
                   child: Text(
                     name.isEmpty ? '?' : name.characters.first.toUpperCase(),
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 22,
                       fontWeight: FontWeight.w700,
-                      color: AppColors.primary,
+                      color: context.primaryColor,
                     ),
                   ),
                 ),
@@ -1108,10 +1116,10 @@ class _DealerListItem extends StatelessWidget {
                   children: [
                     Text(
                       name.isEmpty ? 'Unknown dealer' : name,
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 14,
                         fontWeight: FontWeight.w700,
-                        color: Color(0xFF18231C),
+                        color: context.cardTextColor,
                       ),
                     ),
 
@@ -1119,10 +1127,10 @@ class _DealerListItem extends StatelessWidget {
 
                     Row(
                       children: [
-                        const Icon(
+                        Icon(
                           Icons.storefront_outlined,
                           size: 13,
-                          color: AppColors.textSecondary,
+                          color: context.secondaryTextColor,
                         ),
 
                         const SizedBox(width: 8),
@@ -1133,9 +1141,9 @@ class _DealerListItem extends StatelessWidget {
                             'Lat: ${dealer.latitude}  Long: ${dealer.longitude}  (${dealer.outletDistance})',
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontSize: 10,
-                              color: AppColors.textSecondary,
+                              color: context.secondaryTextColor,
                               fontWeight: FontWeight.w500,
                             ),
                           ),
@@ -1147,9 +1155,9 @@ class _DealerListItem extends StatelessWidget {
               ),
             ],
           ),
-          const Padding(
+          Padding(
             padding: EdgeInsets.symmetric(vertical: 5),
-            child: Divider(height: 1, color: Color(0xFFF0F1EF)),
+            child: Divider(height: 1, color: context.borderColor),
           ),
 
           Row(
@@ -1178,8 +1186,8 @@ class _DealerListItem extends StatelessWidget {
                   fit: BoxFit.contain,
                 ),
                 style: IconButton.styleFrom(
-                  backgroundColor: const Color(0xFFF1F6FF),
-                  side: const BorderSide(color: Color(0xFFD4E3FC)),
+                  backgroundColor: context.primaryColor.withValues(alpha: 0.08),
+                  side: BorderSide(color: context.borderColor),
                 ),
               ),
               const SizedBox(width: 6),
@@ -1187,7 +1195,7 @@ class _DealerListItem extends StatelessWidget {
                 key: whatsappKey,
                 tooltip: 'Chat with dealer on WhatsApp',
                 onPressed: () => _openWhatsApp(context),
-                icon: const SizedBox(
+                icon: SizedBox(
                   width: 22,
                   height: 22,
                   child: Stack(
@@ -1196,22 +1204,22 @@ class _DealerListItem extends StatelessWidget {
                       Icon(
                         Icons.chat_bubble_outline,
                         size: 22,
-                        color: Color(0xFF25D366),
+                        color: context.primaryColor,
                       ),
                       Padding(
                         padding: EdgeInsets.only(bottom: 3),
                         child: Icon(
                           Icons.phone,
                           size: 13,
-                          color: Color(0xFF25D366),
+                          color: context.primaryColor,
                         ),
                       ),
                     ],
                   ),
                 ),
                 style: IconButton.styleFrom(
-                  backgroundColor: const Color(0xFFEDF9F0),
-                  side: const BorderSide(color: Color(0xFFBDE5C8)),
+                  backgroundColor: context.primaryColor.withValues(alpha: 0.08),
+                  side: BorderSide(color: context.borderColor),
                 ),
               ),
             ],
@@ -1278,8 +1286,8 @@ class _DealerListItem extends StatelessWidget {
                     ),
                     label: Text(locationNotAvailable ? 'LOC' : 'Pin'),
                     style: OutlinedButton.styleFrom(
-                      foregroundColor: AppColors.primary,
-                      side: const BorderSide(color: AppColors.primary),
+                      foregroundColor: context.primaryColor,
+                      side: BorderSide(color: context.primaryColor),
                       minimumSize: const Size(0, 36),
                       padding: const EdgeInsets.symmetric(
                         horizontal: 8,
@@ -1310,8 +1318,8 @@ class _DealerListItem extends StatelessWidget {
                   icon: const Icon(Icons.call_outlined, size: 15),
                   label: const Text('Call'),
                   style: FilledButton.styleFrom(
-                    backgroundColor: const Color(0xFF123D32),
-                    foregroundColor: Colors.white,
+                    backgroundColor: context.primaryColor,
+                    foregroundColor: context.onPrimaryColor,
                     minimumSize: const Size(0, 36),
                     padding: const EdgeInsets.symmetric(
                       horizontal: 8,
@@ -1334,8 +1342,8 @@ class _DealerListItem extends StatelessWidget {
                 },
                 icon: const Icon(Icons.edit_outlined, size: 17),
                 style: IconButton.styleFrom(
-                  foregroundColor: AppColors.primary,
-                  side: const BorderSide(color: AppColors.primary),
+                  foregroundColor: context.primaryColor,
+                  side: BorderSide(color: context.primaryColor),
                   minimumSize: const Size(38, 36),
                   shape: shape,
                 ),
@@ -1427,10 +1435,10 @@ class _DealerDetail extends StatelessWidget {
             width: 28,
             height: 28,
             decoration: BoxDecoration(
-              color: const Color(0xFFEDF5EF),
+              color: context.primaryColor.withValues(alpha: 0.08),
               borderRadius: BorderRadius.circular(7),
             ),
-            child: Icon(icon, size: 15, color: AppColors.primary),
+            child: Icon(icon, size: 15, color: context.primaryColor),
           ),
           const SizedBox(width: 8),
           Expanded(
@@ -1439,9 +1447,9 @@ class _DealerDetail extends StatelessWidget {
               children: [
                 Text(
                   label,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 9,
-                    color: AppColors.textSecondary,
+                    color: context.secondaryTextColor,
                   ),
                 ),
                 const SizedBox(height: 2),
@@ -1452,8 +1460,8 @@ class _DealerDetail extends StatelessWidget {
                     height: 1.25,
                     fontWeight: FontWeight.w600,
                     color: onTap != null
-                        ? AppColors.primary
-                        : const Color(0xFF18231C),
+                        ? context.primaryColor
+                        : context.cardTextColor,
                     decoration: onTap != null
                         ? TextDecoration.underline
                         : TextDecoration.none,
@@ -1496,13 +1504,13 @@ class _ActivityInfo extends StatelessWidget {
       constraints: const BoxConstraints(minHeight: 46),
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
       decoration: BoxDecoration(
-        color: const Color(0xFFFAFAF9),
+        color: context.appTheme.inputBackground,
         borderRadius: BorderRadius.circular(10),
-        border: Border.all(color: const Color(0xFFEEEEEB)),
+        border: Border.all(color: context.borderColor),
       ),
       child: Row(
         children: [
-          Icon(icon, size: 15, color: AppColors.primary),
+          Icon(icon, size: 15, color: context.primaryColor),
           const SizedBox(width: 6),
           Expanded(
             child: Column(
@@ -1510,26 +1518,26 @@ class _ActivityInfo extends StatelessWidget {
               children: [
                 Text(
                   title,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 9,
-                    color: AppColors.textSecondary,
+                    color: context.secondaryTextColor,
                   ),
                 ),
                 const SizedBox(height: 3),
                 Text(
                   value,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 10,
                     fontWeight: FontWeight.w500,
-                    color: AppColors.textDark,
+                    color: context.primaryTextColor,
                   ),
                 ),
                 if (time != null)
                   Text(
                     time,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 10,
-                      color: AppColors.textSecondary,
+                      color: context.secondaryTextColor,
                     ),
                   ),
               ],

@@ -11,6 +11,8 @@ import 'package:solufine/core/api_constant/dio_client.dart';
 import 'package:solufine/core/di/auth_di.dart';
 import 'package:solufine/core/router/app_router.dart';
 import 'package:solufine/core/secure_storage/secure_storage.dart';
+import 'package:solufine/core/theme/app_theme_context.dart';
+import 'package:solufine/core/theme/app_dynamic_colors.dart';
 import 'package:solufine/core/utility/widgets/custom_appbar.dart';
 import 'package:solufine/core/utility/widgets/custom_loader.dart';
 
@@ -371,7 +373,7 @@ class _CollectionListPageState extends State<CollectionListPage> {
       value: _bloc,
 
       child: Scaffold(
-        backgroundColor: const Color(0xffF5F7F9),
+        backgroundColor: context.backgroundColor,
 
         // ====================================================================
         // APP BAR
@@ -498,7 +500,7 @@ class _CollectionListPageState extends State<CollectionListPage> {
 
     if (state.status == CollectionListStatus.success) {
       return RefreshIndicator(
-        color: const Color(0xff0F8A4B),
+        color: context.primaryColor,
 
         onRefresh: () async {
           _fetchCollectionList();
@@ -564,12 +566,12 @@ class _CompactFilter extends StatelessWidget {
     return Container(
       width: double.infinity,
 
-      decoration: const BoxDecoration(
-        color: Colors.white,
+      decoration: BoxDecoration(
+        color: context.cardBackgroundColor,
 
         boxShadow: [
           BoxShadow(
-            color: Color(0x08000000),
+            color: context.appColors.shadow.withValues(alpha: 0.03),
             blurRadius: 8,
             offset: Offset(0, 2),
           ),
@@ -604,17 +606,17 @@ class _CompactFilter extends StatelessWidget {
                       width: 34,
 
                       decoration: BoxDecoration(
-                        color: const Color(0xff0F8A4B).withOpacity(0.09),
+                        color: context.primaryColor.withValues(alpha: 0.09),
 
                         borderRadius: BorderRadius.circular(9),
                       ),
 
-                      child: const Icon(
+                      child: Icon(
                         Icons.tune_rounded,
 
                         size: 18,
 
-                        color: Color(0xff0F8A4B),
+                        color: context.primaryColor,
                       ),
                     ),
 
@@ -623,7 +625,7 @@ class _CompactFilter extends StatelessWidget {
                     // ======================================================
                     // TITLE
                     // ======================================================
-                    const Expanded(
+                    Expanded(
                       child: Text(
                         'Filter Collections',
 
@@ -632,7 +634,7 @@ class _CompactFilter extends StatelessWidget {
 
                           fontWeight: FontWeight.w700,
 
-                          color: Color(0xff252A27),
+                          color: context.cardTextColor,
                         ),
                       ),
                     ),
@@ -676,10 +678,10 @@ class _CompactFilter extends StatelessWidget {
 
                       duration: const Duration(milliseconds: 250),
 
-                      child: const Icon(
+                      child: Icon(
                         Icons.keyboard_arrow_down_rounded,
 
-                        color: Color(0xff0F8A4B),
+                        color: context.primaryColor,
 
                         size: 24,
                       ),
@@ -832,11 +834,11 @@ class _SearchableDealerField extends StatelessWidget {
           constraints: const BoxConstraints(minHeight: 56),
 
           decoration: BoxDecoration(
-            color: const Color(0xffF7F9F8),
+            color: context.appTheme.inputBackground,
 
             borderRadius: BorderRadius.circular(11),
 
-            border: Border.all(color: const Color(0xffE3E9E5)),
+            border: Border.all(color: context.borderColor),
           ),
 
           child: Row(
@@ -847,15 +849,15 @@ class _SearchableDealerField extends StatelessWidget {
                 width: 36,
 
                 decoration: BoxDecoration(
-                  color: const Color(0xff0F8A4B).withOpacity(0.08),
+                  color: context.primaryColor.withValues(alpha: 0.08),
 
                   borderRadius: BorderRadius.circular(9),
                 ),
 
-                child: const Icon(
+                child: Icon(
                   Icons.storefront_rounded,
 
-                  color: Color(0xff0F8A4B),
+                  color: context.primaryColor,
 
                   size: 19,
                 ),
@@ -876,7 +878,7 @@ class _SearchableDealerField extends StatelessWidget {
                       style: TextStyle(
                         fontSize: 10,
 
-                        color: Colors.grey.shade600,
+                        color: context.secondaryTextColor,
                       ),
                     ),
 
@@ -889,12 +891,12 @@ class _SearchableDealerField extends StatelessWidget {
 
                       overflow: TextOverflow.ellipsis,
 
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 13,
 
                         fontWeight: FontWeight.w600,
 
-                        color: Color(0xff252A27),
+                        color: context.cardTextColor,
                       ),
                     ),
 
@@ -908,7 +910,7 @@ class _SearchableDealerField extends StatelessWidget {
                         style: TextStyle(
                           fontSize: 9.5,
 
-                          color: Colors.grey.shade500,
+                          color: context.secondaryTextColor,
                         ),
                       ),
                     ],
@@ -924,17 +926,17 @@ class _SearchableDealerField extends StatelessWidget {
                 width: 34,
 
                 decoration: BoxDecoration(
-                  color: Colors.white,
+                  color: context.cardBackgroundColor,
 
                   borderRadius: BorderRadius.circular(8),
 
-                  border: Border.all(color: const Color(0xffE1E8E3)),
+                  border: Border.all(color: context.borderColor),
                 ),
 
-                child: const Icon(
+                child: Icon(
                   Icons.search_rounded,
 
-                  color: Color(0xff0F8A4B),
+                  color: context.primaryColor,
 
                   size: 19,
                 ),
@@ -1234,8 +1236,8 @@ class _DealerSearchSheetState extends State<_DealerSearchSheet> {
         color: Colors.transparent,
 
         child: Container(
-          decoration: const BoxDecoration(
-            color: Colors.white,
+          decoration: BoxDecoration(
+            color: context.cardBackgroundColor,
 
             borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
           ),
@@ -1253,7 +1255,7 @@ class _DealerSearchSheetState extends State<_DealerSearchSheet> {
                 width: 42,
 
                 decoration: BoxDecoration(
-                  color: Colors.grey.shade300,
+                  color: context.borderColor,
 
                   borderRadius: BorderRadius.circular(20),
                 ),
@@ -1273,15 +1275,15 @@ class _DealerSearchSheetState extends State<_DealerSearchSheet> {
                       width: 40,
 
                       decoration: BoxDecoration(
-                        color: const Color(0xff0F8A4B).withOpacity(0.09),
+                        color: context.primaryColor.withValues(alpha: 0.09),
 
                         borderRadius: BorderRadius.circular(11),
                       ),
 
-                      child: const Icon(
+                      child: Icon(
                         Icons.storefront_rounded,
 
-                        color: Color(0xff0F8A4B),
+                        color: context.primaryColor,
 
                         size: 21,
                       ),
@@ -1289,7 +1291,7 @@ class _DealerSearchSheetState extends State<_DealerSearchSheet> {
 
                     const SizedBox(width: 10),
 
-                    const Expanded(
+                    Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
 
@@ -1302,7 +1304,7 @@ class _DealerSearchSheetState extends State<_DealerSearchSheet> {
 
                               fontWeight: FontWeight.w700,
 
-                              color: Color(0xff252A27),
+                              color: context.cardTextColor,
                             ),
                           ),
 
@@ -1311,7 +1313,10 @@ class _DealerSearchSheetState extends State<_DealerSearchSheet> {
                           Text(
                             'Search dealer and select',
 
-                            style: TextStyle(fontSize: 11, color: Colors.grey),
+                            style: TextStyle(
+                              fontSize: 11,
+                              color: context.secondaryTextColor,
+                            ),
                           ),
                         ],
                       ),
@@ -1349,13 +1354,13 @@ class _DealerSearchSheetState extends State<_DealerSearchSheet> {
                     hintStyle: TextStyle(
                       fontSize: 13,
 
-                      color: Colors.grey.shade500,
+                      color: context.secondaryTextColor,
                     ),
 
-                    prefixIcon: const Icon(
+                    prefixIcon: Icon(
                       Icons.search_rounded,
 
-                      color: Color(0xff0F8A4B),
+                      color: context.primaryColor,
                     ),
 
                     suffixIcon: _searchController.text.isNotEmpty
@@ -1368,7 +1373,7 @@ class _DealerSearchSheetState extends State<_DealerSearchSheet> {
 
                     filled: true,
 
-                    fillColor: const Color(0xffF7F9F8),
+                    fillColor: context.appTheme.inputBackground,
 
                     contentPadding: const EdgeInsets.symmetric(
                       horizontal: 12,
@@ -1385,14 +1390,14 @@ class _DealerSearchSheetState extends State<_DealerSearchSheet> {
                     enabledBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
 
-                      borderSide: BorderSide(color: Colors.grey.shade200),
+                      borderSide: BorderSide(color: context.borderColor),
                     ),
 
                     focusedBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
 
-                      borderSide: const BorderSide(
-                        color: Color(0xff0F8A4B),
+                      borderSide: BorderSide(
+                        color: context.primaryColor,
 
                         width: 1.4,
                       ),
@@ -1447,8 +1452,8 @@ class _DealerSearchSheetState extends State<_DealerSearchSheet> {
     // =========================================================================
 
     if (_loading) {
-      return const Center(
-        child: CircularProgressIndicator(color: Color(0xff0F8A4B)),
+      return Center(
+        child: CircularProgressIndicator(color: context.primaryColor),
       );
     }
 
@@ -1470,7 +1475,7 @@ class _DealerSearchSheetState extends State<_DealerSearchSheet> {
 
                 size: 42,
 
-                color: Colors.red.shade400,
+                color: context.appError,
               ),
 
               const SizedBox(height: 8),
@@ -1489,9 +1494,9 @@ class _DealerSearchSheetState extends State<_DealerSearchSheet> {
                 label: const Text('Retry'),
 
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xff0F8A4B),
+                  backgroundColor: context.primaryColor,
 
-                  foregroundColor: Colors.white,
+                  foregroundColor: context.onPrimaryColor,
                 ),
               ),
             ],
@@ -1516,7 +1521,7 @@ class _DealerSearchSheetState extends State<_DealerSearchSheet> {
               width: 65,
 
               decoration: BoxDecoration(
-                color: Colors.grey.shade100,
+                color: context.appTheme.inputBackground,
 
                 shape: BoxShape.circle,
               ),
@@ -1526,7 +1531,7 @@ class _DealerSearchSheetState extends State<_DealerSearchSheet> {
 
                 size: 31,
 
-                color: Colors.grey.shade400,
+                color: context.secondaryTextColor,
               ),
             ),
 
@@ -1543,7 +1548,7 @@ class _DealerSearchSheetState extends State<_DealerSearchSheet> {
             Text(
               'Try another dealer name.',
 
-              style: TextStyle(fontSize: 11, color: Colors.grey.shade600),
+              style: TextStyle(fontSize: 11, color: context.secondaryTextColor),
             ),
           ],
         ),
@@ -1573,7 +1578,7 @@ class _DealerSearchSheetState extends State<_DealerSearchSheet> {
 
                 fontWeight: FontWeight.w500,
 
-                color: Colors.grey.shade600,
+                color: context.secondaryTextColor,
               ),
             ),
           ),
@@ -1658,7 +1663,9 @@ class _DealerSearchItem extends StatelessWidget {
       // ListTile background color or ink splashes
       // may be invisible.
       child: Material(
-        color: selected ? const Color(0xffEAF6EF) : Colors.white,
+        color: selected
+            ? context.primaryColor.withValues(alpha: 0.09)
+            : context.cardBackgroundColor,
 
         borderRadius: BorderRadius.circular(11),
 
@@ -1674,9 +1681,7 @@ class _DealerSearchItem extends StatelessWidget {
               borderRadius: BorderRadius.circular(11),
 
               border: Border.all(
-                color: selected
-                    ? const Color(0xff0F8A4B)
-                    : const Color(0xffE8ECE9),
+                color: selected ? context.primaryColor : context.borderColor,
               ),
             ),
 
@@ -1688,12 +1693,12 @@ class _DealerSearchItem extends StatelessWidget {
                   width: 40,
 
                   decoration: BoxDecoration(
-                    color: const Color(0xff0F8A4B).withOpacity(0.08),
+                    color: context.primaryColor.withValues(alpha: 0.08),
 
                     borderRadius: BorderRadius.circular(10),
                   ),
 
-                  child: Icon(icon, size: 19, color: const Color(0xff0F8A4B)),
+                  child: Icon(icon, size: 19, color: context.primaryColor),
                 ),
 
                 const SizedBox(width: 10),
@@ -1717,7 +1722,7 @@ class _DealerSearchItem extends StatelessWidget {
                               ? FontWeight.w700
                               : FontWeight.w600,
 
-                          color: const Color(0xff252A27),
+                          color: context.cardTextColor,
                         ),
                       ),
 
@@ -1734,7 +1739,7 @@ class _DealerSearchItem extends StatelessWidget {
                           style: TextStyle(
                             fontSize: 10.5,
 
-                            color: Colors.grey.shade600,
+                            color: context.secondaryTextColor,
                           ),
                         ),
                       ],
@@ -1745,10 +1750,10 @@ class _DealerSearchItem extends StatelessWidget {
                 const SizedBox(width: 8),
 
                 if (selected)
-                  const Icon(
+                  Icon(
                     Icons.check_circle_rounded,
 
-                    color: Color(0xff0F8A4B),
+                    color: context.primaryColor,
 
                     size: 22,
                   )
@@ -1756,7 +1761,7 @@ class _DealerSearchItem extends StatelessWidget {
                   Icon(
                     Icons.chevron_right_rounded,
 
-                    color: Colors.grey.shade400,
+                    color: context.secondaryTextColor,
 
                     size: 22,
                   ),
@@ -1787,7 +1792,7 @@ class _FilterResultInfo extends StatelessWidget {
 
       padding: const EdgeInsets.fromLTRB(11, 7, 11, 3),
 
-      color: const Color(0xffF5F7F9),
+      color: context.backgroundColor,
 
       child: Row(
         children: [
@@ -1795,7 +1800,7 @@ class _FilterResultInfo extends StatelessWidget {
             padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
 
             decoration: BoxDecoration(
-              color: const Color(0xff0F8A4B).withOpacity(0.08),
+              color: context.primaryColor.withValues(alpha: 0.08),
 
               borderRadius: BorderRadius.circular(20),
             ),
@@ -1804,12 +1809,12 @@ class _FilterResultInfo extends StatelessWidget {
               mainAxisSize: MainAxisSize.min,
 
               children: [
-                const Icon(
+                Icon(
                   Icons.receipt_long_outlined,
 
                   size: 13,
 
-                  color: Color(0xff0F8A4B),
+                  color: context.primaryColor,
                 ),
 
                 const SizedBox(width: 4),
@@ -1817,12 +1822,12 @@ class _FilterResultInfo extends StatelessWidget {
                 Text(
                   '$count collection${count == 1 ? '' : 's'}',
 
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 10.5,
 
                     fontWeight: FontWeight.w700,
 
-                    color: Color(0xff0F8A4B),
+                    color: context.primaryColor,
                   ),
                 ),
               ],
@@ -1842,7 +1847,7 @@ class _FilterResultInfo extends StatelessWidget {
 
                     size: 13,
 
-                    color: Colors.grey.shade600,
+                    color: context.secondaryTextColor,
                   ),
 
                   const SizedBox(width: 3),
@@ -1860,7 +1865,7 @@ class _FilterResultInfo extends StatelessWidget {
 
                         fontWeight: FontWeight.w600,
 
-                        color: Colors.grey.shade700,
+                        color: context.secondaryTextColor,
                       ),
                     ),
                   ),
@@ -1906,11 +1911,11 @@ class _FilterDropdown<T> extends StatelessWidget {
       icon: const Icon(Icons.keyboard_arrow_down_rounded, size: 20),
 
       decoration: InputDecoration(
-        prefixIcon: Icon(icon, size: 18, color: const Color(0xff0F8A4B)),
+        prefixIcon: Icon(icon, size: 18, color: context.primaryColor),
 
         filled: true,
 
-        fillColor: const Color(0xffF7F9F8),
+        fillColor: context.appTheme.inputBackground,
 
         contentPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
 
@@ -1923,13 +1928,13 @@ class _FilterDropdown<T> extends StatelessWidget {
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(10),
 
-          borderSide: BorderSide(color: Colors.grey.shade200),
+          borderSide: BorderSide(color: context.borderColor),
         ),
 
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(10),
 
-          borderSide: const BorderSide(color: Color(0xff0F8A4B)),
+          borderSide: BorderSide(color: context.primaryColor),
         ),
       ),
 
@@ -1968,15 +1973,15 @@ class _CollectionListCardState extends State<CollectionListCard> {
       margin: const EdgeInsets.only(bottom: 8),
 
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: context.cardBackgroundColor,
 
         borderRadius: BorderRadius.circular(14),
 
-        border: Border.all(color: const Color(0xffE7ECE9)),
+        border: Border.all(color: context.borderColor),
 
-        boxShadow: const [
+        boxShadow: [
           BoxShadow(
-            color: Color(0x09000000),
+            color: context.appColors.shadow.withValues(alpha: 0.035),
 
             blurRadius: 8,
 
@@ -2010,15 +2015,15 @@ class _CollectionListCardState extends State<CollectionListCard> {
                         width: 40,
 
                         decoration: BoxDecoration(
-                          color: const Color(0xff0F8A4B).withOpacity(0.09),
+                          color: context.primaryColor.withValues(alpha: 0.09),
 
                           borderRadius: BorderRadius.circular(11),
                         ),
 
-                        child: const Icon(
+                        child: Icon(
                           Icons.storefront_rounded,
 
-                          color: Color(0xff0F8A4B),
+                          color: context.primaryColor,
 
                           size: 21,
                         ),
@@ -2057,7 +2062,7 @@ class _CollectionListCardState extends State<CollectionListCard> {
                               style: TextStyle(
                                 fontSize: 11,
 
-                                color: Colors.grey.shade600,
+                                color: context.secondaryTextColor,
                               ),
                             ),
                           ],
@@ -2073,12 +2078,12 @@ class _CollectionListCardState extends State<CollectionListCard> {
                           Text(
                             '₹ ${item.paymentAmount}',
 
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontSize: 17,
 
                               fontWeight: FontWeight.w800,
 
-                              color: Color(0xff0F8A4B),
+                              color: context.primaryColor,
                             ),
                           ),
 
@@ -2106,7 +2111,7 @@ class _CollectionListCardState extends State<CollectionListCard> {
 
                             size: 16,
 
-                            color: Colors.grey.shade500,
+                            color: context.secondaryTextColor,
                           ),
 
                           const SizedBox(width: 6),
@@ -2124,7 +2129,7 @@ class _CollectionListCardState extends State<CollectionListCard> {
                               style: TextStyle(
                                 fontSize: 12,
 
-                                color: Colors.grey.shade700,
+                                color: context.secondaryTextColor,
                               ),
                             ),
                           ),
@@ -2150,9 +2155,11 @@ class _CollectionListCardState extends State<CollectionListCard> {
                       },
 
                       style: TextButton.styleFrom(
-                        foregroundColor: const Color(0xff0F8A4B),
+                        foregroundColor: context.primaryColor,
 
-                        backgroundColor: const Color(0xffF2F8F4),
+                        backgroundColor: context.primaryColor.withValues(
+                          alpha: 0.09,
+                        ),
 
                         padding: EdgeInsets.zero,
 
@@ -2225,14 +2232,14 @@ class _CollectionListCardState extends State<CollectionListCard> {
   Color _statusColor(String status) {
     switch (status.toLowerCase()) {
       case 'approved':
-        return Colors.green;
+        return context.appSuccess;
 
       case 'rejected':
       case 'cancelled':
-        return Colors.red;
+        return context.appError;
 
       default:
-        return Colors.orange;
+        return context.appWarning;
     }
   }
 }
@@ -2254,11 +2261,11 @@ class _DetailsSection extends StatelessWidget {
       padding: const EdgeInsets.all(10),
 
       decoration: BoxDecoration(
-        color: const Color(0xffF7F9F8),
+        color: context.appTheme.inputBackground,
 
         borderRadius: BorderRadius.circular(10),
 
-        border: Border.all(color: const Color(0xffE3E9E5)),
+        border: Border.all(color: context.borderColor),
       ),
 
       child: Column(
@@ -2286,7 +2293,7 @@ class _DetailsSection extends StatelessWidget {
 
             value: '₹ ${item.paymentAmount}',
 
-            valueColor: const Color(0xff0F8A4B),
+            valueColor: context.primaryColor,
           ),
 
           _DetailRow(
@@ -2437,7 +2444,7 @@ class _DetailRow extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
 
         children: [
-          Icon(icon, size: 16, color: Colors.grey.shade600),
+          Icon(icon, size: 16, color: context.secondaryTextColor),
 
           const SizedBox(width: 7),
 
@@ -2447,7 +2454,7 @@ class _DetailRow extends StatelessWidget {
             child: Text(
               label,
 
-              style: TextStyle(fontSize: 11, color: Colors.grey.shade600),
+              style: TextStyle(fontSize: 11, color: context.secondaryTextColor),
             ),
           ),
 
@@ -2462,7 +2469,7 @@ class _DetailRow extends StatelessWidget {
 
                 fontWeight: FontWeight.w600,
 
-                color: valueColor ?? const Color(0xff252A27),
+                color: valueColor ?? context.cardTextColor,
               ),
             ),
           ),
@@ -2491,16 +2498,16 @@ class _StatusChip extends StatelessWidget {
         normalizedStatus == 'rejected' || normalizedStatus == 'cancelled';
 
     final Color color = isApproved
-        ? Colors.green.shade700
+        ? context.appSuccess
         : isRejected
-        ? Colors.red.shade700
-        : Colors.orange.shade800;
+        ? context.appError
+        : context.appWarning;
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
 
       decoration: BoxDecoration(
-        color: color.withOpacity(0.09),
+        color: color.withValues(alpha: 0.09),
 
         borderRadius: BorderRadius.circular(20),
       ),
@@ -2545,17 +2552,17 @@ class _DealerEmptyView extends StatelessWidget {
               width: 68,
 
               decoration: BoxDecoration(
-                color: const Color(0xff0F8A4B).withOpacity(0.08),
+                color: context.primaryColor.withValues(alpha: 0.08),
 
                 shape: BoxShape.circle,
               ),
 
-              child: const Icon(
+              child: Icon(
                 Icons.storefront_outlined,
 
                 size: 33,
 
-                color: Color(0xff0F8A4B),
+                color: context.primaryColor,
               ),
             ),
 
@@ -2576,7 +2583,7 @@ class _DealerEmptyView extends StatelessWidget {
 
               textAlign: TextAlign.center,
 
-              style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
+              style: TextStyle(fontSize: 12, color: context.secondaryTextColor),
             ),
           ],
         ),
@@ -2607,7 +2614,7 @@ class _EmptyView extends StatelessWidget {
 
               size: 52,
 
-              color: Colors.grey.shade400,
+              color: context.secondaryTextColor,
             ),
 
             const SizedBox(height: 12),
@@ -2623,7 +2630,7 @@ class _EmptyView extends StatelessWidget {
             Text(
               'Try another month or status.',
 
-              style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
+              style: TextStyle(fontSize: 12, color: context.secondaryTextColor),
             ),
           ],
         ),
@@ -2658,7 +2665,7 @@ class _ErrorView extends StatelessWidget {
 
               size: 48,
 
-              color: Colors.red.shade400,
+              color: context.appError,
             ),
 
             const SizedBox(height: 10),
@@ -2680,7 +2687,7 @@ class _ErrorView extends StatelessWidget {
 
               overflow: TextOverflow.ellipsis,
 
-              style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
+              style: TextStyle(fontSize: 12, color: context.secondaryTextColor),
             ),
 
             const SizedBox(height: 12),
@@ -2696,9 +2703,9 @@ class _ErrorView extends StatelessWidget {
                 label: const Text('Retry'),
 
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xff0F8A4B),
+                  backgroundColor: context.primaryColor,
 
-                  foregroundColor: Colors.white,
+                  foregroundColor: context.onPrimaryColor,
 
                   elevation: 0,
 

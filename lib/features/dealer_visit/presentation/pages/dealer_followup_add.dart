@@ -5,7 +5,7 @@ import 'package:solufine/core/di/auth_di.dart';
 import 'package:solufine/core/location_tracking/app_database.dart';
 import 'package:solufine/core/location_tracking/location_repository.dart';
 import 'package:solufine/core/secure_storage/secure_storage.dart';
-import 'package:solufine/core/theme/app_colors.dart';
+import 'package:solufine/core/theme/app_theme_context.dart';
 import 'package:solufine/core/utility/appdialog.dart';
 import 'package:solufine/core/utility/cameracapturepage.dart';
 import 'package:solufine/core/utility/data_list.dart';
@@ -658,7 +658,7 @@ class _DealerFollowupAddState extends State<DealerFollowupAdd> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.backgroundColor,
+      backgroundColor: context.backgroundColor,
       appBar: CustomAppBar(
         title: 'Dealer Registration Form',
         showBackButton: true,
@@ -677,8 +677,8 @@ class _DealerFollowupAddState extends State<DealerFollowupAdd> {
                   width: double.infinity,
                   height: 52,
                   borderRadius: 22,
-                  backgroundColor: const Color(0xFF087C3A),
-                  textColor: Colors.white,
+                  backgroundColor: context.primaryColor,
+                  textColor: context.onPrimaryColor,
                 ),
               );
             },
@@ -726,8 +726,11 @@ class _DealerFollowupAddState extends State<DealerFollowupAdd> {
             });
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
-                backgroundColor: AppColors.darkErrorColor,
-                content: Text(state.errorMessage ?? 'Submission failed'),
+                backgroundColor: context.appColors.error,
+                content: Text(
+                  state.errorMessage ?? 'Submission failed',
+                  style: TextStyle(color: context.appColors.onError),
+                ),
               ),
             );
           }
@@ -821,12 +824,12 @@ class _DealerFollowupAddState extends State<DealerFollowupAdd> {
                   children: [
                     SizedBox(height: 10.h),
 
-                    const Text(
+                    Text(
                       'Dealer Type *',
                       style: TextStyle(
                         fontSize: 15,
                         fontWeight: FontWeight.w600,
-                        color: Colors.black87,
+                        color: context.primaryTextColor,
                       ),
                     ),
 
@@ -1012,12 +1015,12 @@ class _DealerFollowupAddState extends State<DealerFollowupAdd> {
 
                     SizedBox(height: 10.h),
 
-                    const Text(
+                    Text(
                       'State *',
                       style: TextStyle(
                         fontSize: 15,
                         fontWeight: FontWeight.w600,
-                        color: Colors.black87,
+                        color: context.primaryTextColor,
                       ),
                     ),
 
@@ -1071,12 +1074,12 @@ class _DealerFollowupAddState extends State<DealerFollowupAdd> {
                     // ),
                     SizedBox(height: 10.h),
 
-                    const Text(
+                    Text(
                       'District *',
                       style: TextStyle(
                         fontSize: 15,
                         fontWeight: FontWeight.w600,
-                        color: Colors.black87,
+                        color: context.primaryTextColor,
                       ),
                     ),
 
@@ -1106,12 +1109,12 @@ class _DealerFollowupAddState extends State<DealerFollowupAdd> {
 
                     SizedBox(height: 10.h),
 
-                    const Text(
+                    Text(
                       'Taluka *',
                       style: TextStyle(
                         fontSize: 15,
                         fontWeight: FontWeight.w600,
-                        color: Colors.black87,
+                        color: context.primaryTextColor,
                       ),
                     ),
 
@@ -1164,12 +1167,12 @@ class _DealerFollowupAddState extends State<DealerFollowupAdd> {
                     ),
                     SizedBox(height: 10.h),
 
-                    const Text(
+                    Text(
                       'Follow Up Type *',
                       style: TextStyle(
                         fontSize: 15,
                         fontWeight: FontWeight.w600,
-                        color: Colors.black87,
+                        color: context.primaryTextColor,
                       ),
                     ),
                     SizedBox(height: 5.h),
@@ -1220,7 +1223,7 @@ class _DealerFollowupAddState extends State<DealerFollowupAdd> {
                                 child: Text(
                                   field.errorText!,
                                   style: TextStyle(
-                                    color: Colors.red,
+                                    color: context.appColors.error,
                                     fontSize: 12.sp,
                                   ),
                                 ),
@@ -1279,9 +1282,9 @@ class _DealerFollowupAddState extends State<DealerFollowupAdd> {
     return Container(
       padding: EdgeInsets.fromLTRB(16.w, 6.h, 16.w, 16.h),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: context.cardBackgroundColor,
         borderRadius: BorderRadius.circular(20.r),
-        border: Border.all(color: Colors.grey.shade200),
+        border: Border.all(color: context.borderColor),
       ),
       child: Column(
         children: [
@@ -1297,12 +1300,12 @@ class _DealerFollowupAddState extends State<DealerFollowupAdd> {
                     width: 42.w,
                     height: 42.h,
                     decoration: BoxDecoration(
-                      color: const Color(0xFFE7F8EB),
+                      color: context.primaryColor.withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(12.r),
                     ),
                     child: Icon(
                       Icons.camera_alt_outlined,
-                      color: Color(0xFF00A83B),
+                      color: context.primaryColor,
                       size: 22.sp,
                     ),
                   ),
@@ -1321,7 +1324,7 @@ class _DealerFollowupAddState extends State<DealerFollowupAdd> {
 
                   Icon(
                     Icons.chevron_right_rounded,
-                    color: Colors.grey.shade500,
+                    color: context.secondaryTextColor,
                     size: 28.sp,
                   ),
                 ],
@@ -1337,9 +1340,9 @@ class _DealerFollowupAddState extends State<DealerFollowupAdd> {
               height: 200.h,
               width: double.infinity,
               decoration: BoxDecoration(
-                color: const Color(0xFFFAFAFA),
+                color: context.appTheme.inputBackground,
                 borderRadius: BorderRadius.circular(16.r),
-                border: Border.all(color: Colors.grey.shade200),
+                border: Border.all(color: context.borderColor),
               ),
               child: _uploadedImage == null
                   ? Column(
@@ -1348,13 +1351,13 @@ class _DealerFollowupAddState extends State<DealerFollowupAdd> {
                         Icon(
                           Icons.image_outlined,
                           size: 52.sp,
-                          color: Colors.grey.shade400,
+                          color: context.secondaryTextColor,
                         ),
                         SizedBox(height: 14.h),
                         Text(
                           'Tap to capture image',
                           style: TextStyle(
-                            color: Colors.grey.shade500,
+                            color: context.secondaryTextColor,
                             fontSize: 15.sp,
                           ),
                         ),
@@ -1386,12 +1389,12 @@ class _DealerFollowupAddState extends State<DealerFollowupAdd> {
                               width: 40.w,
                               height: 40.w,
                               decoration: BoxDecoration(
-                                color: Colors.black.withValues(alpha: 0.65),
+                                color: context.appColors.error,
                                 shape: BoxShape.circle,
                               ),
                               child: Icon(
                                 Icons.delete_outline,
-                                color: Colors.white,
+                                color: context.appColors.onError,
                                 size: 22.sp,
                               ),
                             ),

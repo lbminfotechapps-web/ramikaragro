@@ -6,7 +6,7 @@ import 'package:share_plus/share_plus.dart';
 import 'package:solufine/core/api_constant/api_client.dart';
 
 import 'package:solufine/core/secure_storage/secure_storage.dart';
-import 'package:solufine/core/theme/app_colors.dart';
+import 'package:solufine/core/theme/app_theme_context.dart';
 import 'package:solufine/core/utility/widgets/custom_appbar.dart';
 
 import 'package:solufine/features/products/domain/entity/fertilizer_product_entity.dart';
@@ -21,8 +21,17 @@ enum ProductLanguage { english, marathi, hindi, kannada }
 
 class DynamicHtmlContent extends StatefulWidget {
   final String htmlContent;
+  final Color textColor;
+  final Color primaryColor;
+  final Color borderColor;
 
-  const DynamicHtmlContent({super.key, required this.htmlContent});
+  const DynamicHtmlContent({
+    super.key,
+    required this.htmlContent,
+    required this.textColor,
+    required this.primaryColor,
+    required this.borderColor,
+  });
 
   @override
   State<DynamicHtmlContent> createState() => _DynamicHtmlContentState();
@@ -141,7 +150,7 @@ body {
 
   line-height: 1.55;
 
-  color: #424242;
+  color: rgba(${widget.textColor.r * 255}, ${widget.textColor.g * 255}, ${widget.textColor.b * 255}, ${widget.textColor.a});
 
   overflow: hidden;
 }
@@ -186,7 +195,7 @@ img {
 
 .greenLine {
   width: 50px;
-  border-bottom: 3px solid #228B22;
+  border-bottom: 3px solid rgba(${widget.primaryColor.r * 255}, ${widget.primaryColor.g * 255}, ${widget.primaryColor.b * 255}, ${widget.primaryColor.a});
   margin: 4px 0 8px 0;
 }
 
@@ -198,7 +207,7 @@ img {
 .languageSeparator {
   width: 100%;
   height: 1px;
-  background-color: #E5E5E5;
+  background-color: rgba(${widget.borderColor.r * 255}, ${widget.borderColor.g * 255}, ${widget.borderColor.b * 255}, ${widget.borderColor.a});
 
   margin-top: 12px;
   margin-bottom: 12px;
@@ -285,7 +294,15 @@ class _ProductDetailsState extends State<ProductDetails> {
   @override
   Widget build(BuildContext context) {
     if (product == null) {
-      return const Scaffold(body: Center(child: Text('Product Not Found')));
+      return Scaffold(
+        backgroundColor: context.backgroundColor,
+        body: Center(
+          child: Text(
+            'Product Not Found',
+            style: TextStyle(color: context.primaryTextColor),
+          ),
+        ),
+      );
     }
 
     // ============================================================
@@ -300,7 +317,7 @@ class _ProductDetailsState extends State<ProductDetails> {
     final productContent = contents[selected] ?? '';
 
     return Scaffold(
-      backgroundColor: AppColors.backgroundColor,
+      backgroundColor: context.backgroundColor,
 
       // ============================================================
       // APP BAR
@@ -341,9 +358,9 @@ class _ProductDetailsState extends State<ProductDetails> {
                     initialIndex: languages.indexOf(selected),
                     child: TabBar(
                       isScrollable: true,
-                      labelColor: AppColors.accentGreen,
-                      indicatorColor: AppColors.accentGreen,
-                      unselectedLabelColor: Colors.grey.shade700,
+                      labelColor: context.primaryColor,
+                      indicatorColor: context.primaryColor,
+                      unselectedLabelColor: context.secondaryTextColor,
                       onTap: (index) =>
                           setState(() => _selectedLanguage = languages[index]),
                       tabs: [
@@ -366,15 +383,15 @@ class _ProductDetailsState extends State<ProductDetails> {
                         style: TextStyle(
                           fontSize: 22.sp,
                           fontWeight: FontWeight.w700,
-                          color: Colors.black87,
+                          color: context.primaryTextColor,
                         ),
                       ),
 
                       const SizedBox(height: 6),
                       Container(
-                        decoration: const BoxDecoration(
+                        decoration: BoxDecoration(
                           border: Border(
-                            bottom: BorderSide(color: AppColors.accentGreen),
+                            bottom: BorderSide(color: context.primaryColor),
                           ),
                         ),
                         child: Row(
@@ -396,7 +413,7 @@ class _ProductDetailsState extends State<ProductDetails> {
                             Container(
                               height: 20,
                               width: 1,
-                              color: Colors.grey.shade300,
+                              color: context.borderColor,
                             ),
                             Expanded(
                               child: Builder(
@@ -405,12 +422,12 @@ class _ProductDetailsState extends State<ProductDetails> {
                                       ? null
                                       : () => _shareProduct(shareContext),
                                   icon: _isSharing
-                                      ? const SizedBox(
+                                      ? SizedBox(
                                           width: 16,
                                           height: 16,
                                           child: CircularProgressIndicator(
                                             strokeWidth: 2,
-                                            color: AppColors.accentGreen,
+                                            color: context.primaryColor,
                                           ),
                                         )
                                       : const Icon(
@@ -446,7 +463,7 @@ class _ProductDetailsState extends State<ProductDetails> {
                               style: TextStyle(
                                 fontSize: 14.sp,
                                 height: 1.5,
-                                color: Colors.grey.shade700,
+                                color: context.secondaryTextColor,
                               ),
                             ),
                           ),
@@ -462,7 +479,7 @@ class _ProductDetailsState extends State<ProductDetails> {
                               style: TextStyle(
                                 fontSize: 14.sp,
                                 height: 1.5,
-                                color: Colors.grey.shade700,
+                                color: context.secondaryTextColor,
                               ),
                             ),
                           ),
@@ -475,6 +492,9 @@ class _ProductDetailsState extends State<ProductDetails> {
                             title: 'Product Contents',
                             child: DynamicHtmlContent(
                               htmlContent: productContent,
+                              textColor: context.primaryTextColor,
+                              primaryColor: context.primaryColor,
+                              borderColor: context.borderColor,
                             ),
                           ),
 
@@ -540,7 +560,7 @@ class _ProductDetailsState extends State<ProductDetails> {
   }
 
   ButtonStyle _actionTabStyle() => TextButton.styleFrom(
-    foregroundColor: AppColors.accentGreen,
+    foregroundColor: context.primaryColor,
     minimumSize: const Size(0, 36),
     padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
     visualDensity: VisualDensity.compact,
@@ -784,7 +804,7 @@ class _ProductDetailsState extends State<ProductDetails> {
         height: 260,
         width: double.infinity,
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: context.cardBackgroundColor,
           borderRadius: BorderRadius.circular(20),
         ),
         padding: const EdgeInsets.all(16),
@@ -806,10 +826,14 @@ class _ProductDetailsState extends State<ProductDetails> {
               child: Container(
                 padding: const EdgeInsets.all(8),
                 decoration: BoxDecoration(
-                  color: Colors.black.withOpacity(0.55),
+                  color: context.primaryColor.withValues(alpha: 0.55),
                   shape: BoxShape.circle,
                 ),
-                child: const Icon(Icons.zoom_in, color: Colors.white, size: 22),
+                child: Icon(
+                  Icons.zoom_in,
+                  color: context.onPrimaryColor,
+                  size: 22,
+                ),
               ),
             ),
           ],
@@ -825,7 +849,7 @@ class _ProductDetailsState extends State<ProductDetails> {
   void _showZoomImage(BuildContext context, String imageUrl) {
     showDialog(
       context: context,
-      barrierColor: Colors.black,
+      barrierColor: context.backgroundColor,
       builder: (dialogContext) {
         return Dialog(
           backgroundColor: Colors.transparent,
@@ -842,9 +866,9 @@ class _ProductDetailsState extends State<ProductDetails> {
                     imageUrl,
                     fit: BoxFit.contain,
                     errorBuilder: (_, __, ___) {
-                      return const Icon(
+                      return Icon(
                         Icons.image_not_supported_outlined,
-                        color: Colors.white,
+                        color: context.secondaryTextColor,
                         size: 70,
                       );
                     },
@@ -861,13 +885,13 @@ class _ProductDetailsState extends State<ProductDetails> {
                   },
                   child: Container(
                     padding: const EdgeInsets.all(8),
-                    decoration: const BoxDecoration(
-                      color: Colors.black54,
+                    decoration: BoxDecoration(
+                      color: context.primaryColor.withValues(alpha: 0.54),
                       shape: BoxShape.circle,
                     ),
-                    child: const Icon(
+                    child: Icon(
                       Icons.close,
-                      color: Colors.white,
+                      color: context.onPrimaryColor,
                       size: 28,
                     ),
                   ),
@@ -889,11 +913,11 @@ class _ProductDetailsState extends State<ProductDetails> {
       margin: const EdgeInsets.only(bottom: 14),
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: context.cardBackgroundColor,
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.04),
+            color: context.appColors.shadow.withValues(alpha: 0.04),
             blurRadius: 8,
             offset: const Offset(0, 3),
           ),
@@ -907,7 +931,7 @@ class _ProductDetailsState extends State<ProductDetails> {
             style: TextStyle(
               fontSize: 16.sp,
               fontWeight: FontWeight.w700,
-              color: const Color(0xFF087C3A),
+              color: context.primaryColor,
             ),
           ),
 
@@ -928,7 +952,7 @@ class _ProductDetailsState extends State<ProductDetails> {
       margin: const EdgeInsets.only(bottom: 14),
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: context.cardBackgroundColor,
         borderRadius: BorderRadius.circular(16),
       ),
       child: Column(
@@ -939,7 +963,7 @@ class _ProductDetailsState extends State<ProductDetails> {
             style: TextStyle(
               fontSize: 16.sp,
               fontWeight: FontWeight.w700,
-              color: const Color(0xFF087C3A),
+              color: context.primaryColor,
             ),
           ),
 
@@ -950,13 +974,13 @@ class _ProductDetailsState extends State<ProductDetails> {
             width: double.infinity,
             fit: BoxFit.contain,
             errorBuilder: (_, __, ___) {
-              return const SizedBox(
+              return SizedBox(
                 height: 140,
                 child: Center(
                   child: Icon(
                     Icons.image_not_supported_outlined,
                     size: 60,
-                    color: Colors.grey,
+                    color: context.secondaryTextColor,
                   ),
                 ),
               );
@@ -976,11 +1000,15 @@ class _ProductDetailsState extends State<ProductDetails> {
       height: 260,
       width: double.infinity,
       decoration: BoxDecoration(
-        color: Colors.grey.shade100,
+        color: context.appTheme.inputBackground,
         borderRadius: BorderRadius.circular(20),
       ),
-      child: const Center(
-        child: Icon(Icons.inventory_2_rounded, size: 80, color: Colors.grey),
+      child: Center(
+        child: Icon(
+          Icons.inventory_2_rounded,
+          size: 80,
+          color: context.secondaryTextColor,
+        ),
       ),
     );
   }

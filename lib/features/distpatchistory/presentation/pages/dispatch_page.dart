@@ -1,6 +1,6 @@
 import 'package:solufine/core/router/app_router.dart';
 import 'package:solufine/core/secure_storage/secure_storage.dart';
-import 'package:solufine/core/theme/app_colors.dart';
+import 'package:solufine/core/theme/app_theme_context.dart';
 import 'package:solufine/core/utility/widgets/custom_appbar.dart';
 import 'package:solufine/features/distpatchistory/presentation/widget/dispatch_card.dart';
 import 'package:solufine/features/distpatchistory/presentation/widget/dispatch_detail_card.dart';
@@ -96,7 +96,7 @@ class _DispatchPageState extends State<DispatchPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xffF5F7F9),
+      backgroundColor: context.backgroundColor,
 
       appBar: CustomAppBar(
         title: 'Dispatch History',
@@ -135,11 +135,11 @@ class _DispatchPageState extends State<DispatchPage> {
     return Container(
       margin: EdgeInsets.fromLTRB(12.w, 10.h, 12.w, 5.h),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: context.cardBackgroundColor,
         borderRadius: BorderRadius.circular(14.r),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: context.appColors.shadow.withValues(alpha: 0.05),
             blurRadius: 10,
             offset: const Offset(0, 3),
           ),
@@ -161,12 +161,12 @@ class _DispatchPageState extends State<DispatchPage> {
                   Container(
                     padding: EdgeInsets.all(8.w),
                     decoration: BoxDecoration(
-                      color: AppColors.gradientStartColor.withOpacity(0.10),
+                      color: context.primaryColor.withValues(alpha: 0.10),
                       shape: BoxShape.circle,
                     ),
                     child: Icon(
                       Icons.filter_alt_outlined,
-                      color: AppColors.darkPrimaryColor,
+                      color: context.primaryColor,
                       size: 19.sp,
                     ),
                   ),
@@ -319,8 +319,8 @@ class _DispatchPageState extends State<DispatchPage> {
                   icon: const Icon(Icons.search),
                   label: const Text('Search'),
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.primaryGreen,
-                    foregroundColor: Colors.white,
+                    backgroundColor: context.primaryColor,
+                    foregroundColor: context.onPrimaryColor,
                   ),
                 ),
               ),
@@ -474,7 +474,7 @@ class _DispatchPageState extends State<DispatchPage> {
           Icon(
             Icons.inventory_2_outlined,
             size: 70.sp,
-            color: Colors.grey.shade400,
+            color: context.secondaryTextColor,
           ),
 
           SizedBox(height: 12.h),
@@ -484,7 +484,7 @@ class _DispatchPageState extends State<DispatchPage> {
             style: TextStyle(
               fontSize: 18.sp,
               fontWeight: FontWeight.w700,
-              color: Colors.grey.shade600,
+              color: context.secondaryTextColor,
             ),
           ),
         ],
@@ -629,8 +629,8 @@ class _DispatchPageState extends State<DispatchPage> {
       builder: (context) {
         return Container(
           height: MediaQuery.of(context).size.height * 0.85,
-          decoration: const BoxDecoration(
-            color: Colors.white,
+          decoration: BoxDecoration(
+            color: context.cardBackgroundColor,
             borderRadius: BorderRadius.vertical(top: Radius.circular(22)),
           ),
 
@@ -645,7 +645,7 @@ class _DispatchPageState extends State<DispatchPage> {
                 width: 40.w,
                 height: 4.h,
                 decoration: BoxDecoration(
-                  color: Colors.grey.shade300,
+                  color: context.borderColor,
                   borderRadius: BorderRadius.circular(10),
                 ),
               ),
@@ -682,9 +682,9 @@ class _DispatchPageState extends State<DispatchPage> {
                 margin: EdgeInsets.symmetric(horizontal: 12.w),
                 padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 8.h),
                 decoration: BoxDecoration(
-                  color: Colors.grey.shade50,
+                  color: context.appTheme.inputBackground,
                   borderRadius: BorderRadius.circular(8.r),
-                  border: Border.all(color: Colors.grey.shade200),
+                  border: Border.all(color: context.borderColor),
                 ),
                 child: Column(
                   children: [
@@ -715,7 +715,7 @@ class _DispatchPageState extends State<DispatchPage> {
                 child: Divider(
                   height: 1.h,
                   thickness: 1,
-                  color: Colors.grey.shade300,
+                  color: context.borderColor,
                 ),
               ),
 
@@ -764,7 +764,7 @@ class _DispatchPageState extends State<DispatchPage> {
               style: TextStyle(
                 fontSize: 13.sp,
                 fontWeight: FontWeight.w500,
-                color: Colors.black,
+                color: context.cardTextColor,
               ),
             ),
           ),
@@ -776,7 +776,7 @@ class _DispatchPageState extends State<DispatchPage> {
             width: 15.w,
             child: Text(
               ':',
-              style: TextStyle(fontSize: 15.sp, color: Colors.black),
+              style: TextStyle(fontSize: 15.sp, color: context.cardTextColor),
             ),
           ),
 
@@ -792,7 +792,7 @@ class _DispatchPageState extends State<DispatchPage> {
                 style: TextStyle(
                   fontSize: 13.sp,
                   fontWeight: FontWeight.w500,
-                  color: Colors.grey.shade700,
+                  color: context.secondaryTextColor,
                 ),
               ),
             ),

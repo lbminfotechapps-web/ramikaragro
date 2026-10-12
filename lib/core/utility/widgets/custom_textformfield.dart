@@ -81,8 +81,10 @@ class CustomTextFormField extends StatelessWidget {
       style: TextStyle(fontSize: 14, color: context.appText),
 
       decoration: InputDecoration(
+         filled: true,
         hintText: hintText,
         labelText: labelText,
+ fillColor: context.appInputBackground,
 
         labelStyle: TextStyle(
           color: context.appSubText,

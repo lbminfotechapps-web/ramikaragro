@@ -1,4 +1,4 @@
-import 'package:solufine/core/theme/app_colors.dart';
+import 'package:solufine/core/theme/app_theme_context.dart';
 import 'package:solufine/features/place_order/domain/entities/product_entity.dart';
 import 'package:solufine/features/place_order/domain/entities/product_rate_entity.dart';
 
@@ -20,14 +20,9 @@ class ProductCard extends StatelessWidget {
 
   final VoidCallback onDelete;
 
-  final void Function(
-    ProductRateEntity rate,
-    int quantity,
-  ) onQuantityChanged;
+  final void Function(ProductRateEntity rate, int quantity) onQuantityChanged;
 
-  final void Function(
-    ProductRateEntity rate,
-  ) onDeletePacking;
+  final void Function(ProductRateEntity rate) onDeletePacking;
 
   const ProductCard({
     super.key,
@@ -44,66 +39,47 @@ class ProductCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final bool hasRates =
-        selectedRates.isNotEmpty;
+    final bool hasRates = selectedRates.isNotEmpty;
 
     return Container(
       width: double.infinity,
-      margin: EdgeInsets.only(
-        bottom: 6.h,
-      ),
-      padding: EdgeInsets.symmetric(
-        horizontal: 9.w,
-        vertical: 8.h,
-      ),
+      margin: EdgeInsets.only(bottom: 6.h),
+      padding: EdgeInsets.symmetric(horizontal: 9.w, vertical: 8.h),
       decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius:
-            BorderRadius.circular(
-          12.r,
-        ),
+        color: context.cardBackgroundColor,
+        borderRadius: BorderRadius.circular(12.r),
         border: Border.all(
           color: hasRates
-              ? AppColors.primary
-                  .withOpacity(0.22)
-              : AppColors.border,
+              ? context.primaryColor.withValues(alpha: 0.22)
+              : context.borderColor,
         ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black
-                .withOpacity(0.025),
+            color: context.appColors.shadow.withValues(alpha: 0.025),
             blurRadius: 5,
-            offset:
-                const Offset(0, 2),
+            offset: const Offset(0, 2),
           ),
         ],
       ),
       child: Column(
-        crossAxisAlignment:
-            CrossAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           // =====================================================
           // PRODUCT HEADER
           // =====================================================
-
           Row(
-            crossAxisAlignment:
-                CrossAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               Container(
                 width: 34.w,
                 height: 34.w,
                 decoration: BoxDecoration(
-                  color:
-                      AppColors.lightGreen,
-                  borderRadius:
-                      BorderRadius.circular(
-                    9.r,
-                  ),
+                  color: context.primaryColor.withValues(alpha: 0.08),
+                  borderRadius: BorderRadius.circular(9.r),
                 ),
                 child: Icon(
                   Icons.inventory_2_rounded,
-                  color: AppColors.primary,
+                  color: context.primaryColor,
                   size: 17.sp,
                 ),
               ),
@@ -112,22 +88,16 @@ class ProductCard extends StatelessWidget {
 
               Expanded(
                 child: Column(
-                  crossAxisAlignment:
-                      CrossAxisAlignment
-                          .start,
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
                       product.name,
                       maxLines: 1,
-                      overflow:
-                          TextOverflow
-                              .ellipsis,
+                      overflow: TextOverflow.ellipsis,
                       style: TextStyle(
                         fontSize: 12.5.sp,
-                        fontWeight:
-                            FontWeight.w800,
-                        color: AppColors
-                            .textPrimary,
+                        fontWeight: FontWeight.w800,
+                        color: context.primaryTextColor,
                       ),
                     ),
 
@@ -137,16 +107,12 @@ class ProductCard extends StatelessWidget {
                       children: [
                         Icon(
                           hasRates
-                              ? Icons
-                                  .check_circle_rounded
-                              : Icons
-                                  .radio_button_unchecked_rounded,
+                              ? Icons.check_circle_rounded
+                              : Icons.radio_button_unchecked_rounded,
                           size: 11.sp,
                           color: hasRates
-                              ? AppColors
-                                  .primary
-                              : AppColors
-                                  .textSecondary,
+                              ? context.primaryColor
+                              : context.secondaryTextColor,
                         ),
 
                         SizedBox(width: 3.w),
@@ -157,21 +123,13 @@ class ProductCard extends StatelessWidget {
                                 ? '${selectedRates.length} packing${selectedRates.length == 1 ? '' : 's'} selected'
                                 : 'Select packing / rate',
                             maxLines: 1,
-                            overflow:
-                                TextOverflow
-                                    .ellipsis,
-                            style:
-                                TextStyle(
-                              fontSize:
-                                  9.sp,
-                              fontWeight:
-                                  FontWeight
-                                      .w600,
+                            overflow: TextOverflow.ellipsis,
+                            style: TextStyle(
+                              fontSize: 9.sp,
+                              fontWeight: FontWeight.w600,
                               color: hasRates
-                                  ? AppColors
-                                      .primary
-                                  : AppColors
-                                      .textSecondary,
+                                  ? context.primaryColor
+                                  : context.secondaryTextColor,
                             ),
                           ),
                         ),
@@ -183,42 +141,25 @@ class ProductCard extends StatelessWidget {
 
               SizedBox(width: 5.w),
 
-              _buildCompactActionButton(
-                hasRates: hasRates,
-              ),
+              _buildCompactActionButton(context, hasRates: hasRates),
 
               SizedBox(width: 3.w),
 
               // DELETE PRODUCT
-
               InkWell(
-                borderRadius:
-                    BorderRadius.circular(
-                  8.r,
-                ),
+                borderRadius: BorderRadius.circular(8.r),
                 onTap: onDelete,
                 child: Container(
                   width: 30.w,
                   height: 30.w,
-                  alignment:
-                      Alignment.center,
-                  decoration:
-                      BoxDecoration(
-                    color: Colors.red
-                        .withOpacity(
-                      0.06,
-                    ),
-                    borderRadius:
-                        BorderRadius
-                            .circular(
-                      8.r,
-                    ),
+                  alignment: Alignment.center,
+                  decoration: BoxDecoration(
+                    color: context.appColors.error.withValues(alpha: 0.06),
+                    borderRadius: BorderRadius.circular(8.r),
                   ),
                   child: Icon(
-                    Icons
-                        .delete_outline_rounded,
-                    color:
-                        Colors.redAccent,
+                    Icons.delete_outline_rounded,
+                    color: context.appColors.error,
                     size: 17.sp,
                   ),
                 ),
@@ -229,56 +170,32 @@ class ProductCard extends StatelessWidget {
           // =====================================================
           // SELECTED PACKINGS
           // =====================================================
-
           if (hasRates) ...[
             SizedBox(height: 7.h),
 
             Container(
               width: double.infinity,
-              padding:
-                  EdgeInsets.symmetric(
-                horizontal: 7.w,
-                vertical: 2.h,
-              ),
+              padding: EdgeInsets.symmetric(horizontal: 7.w, vertical: 2.h),
               decoration: BoxDecoration(
-                color:
-                    AppColors.background,
-                borderRadius:
-                    BorderRadius.circular(
-                  9.r,
-                ),
+                color: context.backgroundColor,
+                borderRadius: BorderRadius.circular(9.r),
                 border: Border.all(
-                  color: AppColors.border
-                      .withOpacity(
-                    0.45,
-                  ),
+                  color: context.borderColor.withValues(alpha: 0.45),
                 ),
               ),
               child: Column(
                 children: [
                   for (
                     int index = 0;
-                    index <
-                        selectedRates
-                            .length;
+                    index < selectedRates.length;
                     index++
                   ) ...[
-                    _buildPackingRow(
-                      selectedRates[
-                          index],
-                    ),
+                    _buildPackingRow(context, selectedRates[index]),
 
-                    if (index <
-                        selectedRates
-                                .length -
-                            1)
+                    if (index < selectedRates.length - 1)
                       Divider(
                         height: 1,
-                        color: AppColors
-                            .border
-                            .withOpacity(
-                          0.35,
-                        ),
+                        color: context.borderColor.withValues(alpha: 0.35),
                       ),
                   ],
                 ],
@@ -294,27 +211,18 @@ class ProductCard extends StatelessWidget {
   // PACKING ROW
   // ============================================================
 
-  Widget _buildPackingRow(
-    ProductRateEntity rate,
-  ) {
-    final String productDetailsId =
-        rate.productDetailsId
-            .toString();
+  Widget _buildPackingRow(BuildContext context, ProductRateEntity rate) {
+    final String productDetailsId = rate.productDetailsId.toString();
 
-    final int quantity =
-        packingQuantities[
-                productDetailsId] ??
-            0;
+    final int quantity = packingQuantities[productDetailsId] ?? 0;
 
     return Padding(
-      padding: EdgeInsets.symmetric(
-        vertical: 5.h,
-      ),
+      padding: EdgeInsets.symmetric(vertical: 5.h),
       child: Row(
         children: [
           Icon(
             Icons.check_circle_rounded,
-            color: AppColors.primary,
+            color: context.primaryColor,
             size: 13.sp,
           ),
 
@@ -322,9 +230,7 @@ class ProductCard extends StatelessWidget {
 
           Expanded(
             child: Column(
-              crossAxisAlignment:
-                  CrossAxisAlignment
-                      .start,
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Row(
                   children: [
@@ -332,18 +238,11 @@ class ProductCard extends StatelessWidget {
                       child: Text(
                         '${rate.packing} ${rate.unit}',
                         maxLines: 1,
-                        overflow:
-                            TextOverflow
-                                .ellipsis,
-                        style:
-                            TextStyle(
-                          fontSize:
-                              10.5.sp,
-                          fontWeight:
-                              FontWeight
-                                  .w700,
-                          color: AppColors
-                              .textPrimary,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          fontSize: 10.5.sp,
+                          fontWeight: FontWeight.w700,
+                          color: context.primaryTextColor,
                         ),
                       ),
                     ),
@@ -354,11 +253,8 @@ class ProductCard extends StatelessWidget {
                       '₹${rate.rateWithGst}',
                       style: TextStyle(
                         fontSize: 9.sp,
-                        fontWeight:
-                            FontWeight
-                                .w800,
-                        color: AppColors
-                            .primary,
+                        fontWeight: FontWeight.w800,
+                        color: context.primaryColor,
                       ),
                     ),
                   ],
@@ -367,33 +263,20 @@ class ProductCard extends StatelessWidget {
                 SizedBox(height: 2.h),
 
                 Container(
-                  padding:
-                      EdgeInsets
-                          .symmetric(
+                  padding: EdgeInsets.symmetric(
                     horizontal: 5.w,
                     vertical: 1.5.h,
                   ),
-                  decoration:
-                      BoxDecoration(
-                    color: AppColors
-                        .lightGreen,
-                    borderRadius:
-                        BorderRadius
-                            .circular(
-                      5.r,
-                    ),
+                  decoration: BoxDecoration(
+                    color: context.primaryColor.withValues(alpha: 0.08),
+                    borderRadius: BorderRadius.circular(5.r),
                   ),
                   child: Text(
                     rate.displayCase,
-                    style:
-                        TextStyle(
-                      fontSize:
-                          7.5.sp,
-                      fontWeight:
-                          FontWeight
-                              .w700,
-                      color: AppColors
-                          .primary,
+                    style: TextStyle(
+                      fontSize: 7.5.sp,
+                      fontWeight: FontWeight.w700,
+                      color: context.primaryColor,
                     ),
                   ),
                 ),
@@ -406,54 +289,33 @@ class ProductCard extends StatelessWidget {
           // =====================================================
           // QUANTITY FIELD
           // =====================================================
-
           _CaseQuantityField(
             key: ValueKey(
               'product_card_${product.id}_${rate.productDetailsId}',
             ),
             quantity: quantity,
-            onChanged:
-                (newQuantity) {
-              onQuantityChanged(
-                rate,
-                newQuantity,
-              );
+            onChanged: (newQuantity) {
+              onQuantityChanged(rate, newQuantity);
             },
           ),
-
-
-          
-
-
 
           SizedBox(width: 5.w),
 
           // DELETE PACKING
-
           Material(
-            color: Colors.red
-                .withOpacity(0.07),
-            borderRadius:
-                BorderRadius.circular(
-              7.r,
-            ),
+            color: context.appColors.error.withValues(alpha: 0.07),
+            borderRadius: BorderRadius.circular(7.r),
             child: InkWell(
-              borderRadius:
-                  BorderRadius.circular(
-                7.r,
-              ),
+              borderRadius: BorderRadius.circular(7.r),
               onTap: () {
-                onDeletePacking(
-                  rate,
-                );
+                onDeletePacking(rate);
               },
               child: SizedBox(
                 width: 28.w,
                 height: 32.h,
                 child: Icon(
                   Icons.close,
-                  color:
-                      Colors.redAccent,
+                  color: context.appColors.error,
                   size: 15.sp,
                 ),
               ),
@@ -468,66 +330,42 @@ class ProductCard extends StatelessWidget {
   // ADD / MORE BUTTON
   // ============================================================
 
-  Widget _buildCompactActionButton({
+  Widget _buildCompactActionButton(
+    BuildContext context, {
     required bool hasRates,
   }) {
     return Material(
       key: addButtonKey,
       color: hasRates
-          ? AppColors.primary
-              .withOpacity(0.08)
-          : AppColors.primary,
-      borderRadius:
-          BorderRadius.circular(
-        8.r,
-      ),
+          ? context.primaryColor.withValues(alpha: 0.08)
+          : context.primaryColor,
+      borderRadius: BorderRadius.circular(8.r),
       child: InkWell(
-        onTap: hasRates
-            ? onAddMore
-            : onAdd,
-        borderRadius:
-            BorderRadius.circular(
-          8.r,
-        ),
+        onTap: hasRates ? onAddMore : onAdd,
+        borderRadius: BorderRadius.circular(8.r),
         child: Container(
           height: 30.h,
-          padding:
-              EdgeInsets.symmetric(
-            horizontal: 8.w,
-          ),
-          alignment:
-              Alignment.center,
+          padding: EdgeInsets.symmetric(horizontal: 8.w),
+          alignment: Alignment.center,
           child: Row(
-            mainAxisSize:
-                MainAxisSize.min,
+            mainAxisSize: MainAxisSize.min,
             children: [
               Icon(
-                hasRates
-                    ? Icons
-                        .add_circle_outline_rounded
-                    : Icons
-                        .add_rounded,
+                hasRates ? Icons.add_circle_outline_rounded : Icons.add_rounded,
                 size: 14.sp,
-                color: hasRates
-                    ? AppColors
-                        .primary
-                    : Colors.white,
+                color: hasRates ? context.primaryColor : context.onPrimaryColor,
               ),
 
               SizedBox(width: 3.w),
 
               Text(
-                hasRates
-                    ? 'More'
-                    : 'Add',
+                hasRates ? 'More' : 'Add',
                 style: TextStyle(
                   fontSize: 9.sp,
-                  fontWeight:
-                      FontWeight.w800,
+                  fontWeight: FontWeight.w800,
                   color: hasRates
-                      ? AppColors
-                          .primary
-                      : Colors.white,
+                      ? context.primaryColor
+                      : context.onPrimaryColor,
                 ),
               ),
             ],
@@ -550,10 +388,7 @@ class ProductCard extends StatelessWidget {
 // Add More bottom sheet, this field also receives and displays the new value.
 // ============================================================================
 
-
-
-class _CaseQuantityField
-    extends StatefulWidget {
+class _CaseQuantityField extends StatefulWidget {
   final int quantity;
 
   final ValueChanged<int> onChanged;
@@ -565,36 +400,25 @@ class _CaseQuantityField
   });
 
   @override
-  State<_CaseQuantityField>
-      createState() =>
-          _CaseQuantityFieldState();
+  State<_CaseQuantityField> createState() => _CaseQuantityFieldState();
 }
 
-class _CaseQuantityFieldState
-    extends State<_CaseQuantityField> {
-  late final TextEditingController
-      _controller;
+class _CaseQuantityFieldState extends State<_CaseQuantityField> {
+  late final TextEditingController _controller;
 
-  late final FocusNode
-      _focusNode;
+  late final FocusNode _focusNode;
 
   @override
   void initState() {
     super.initState();
 
-    _controller =
-        TextEditingController(
-      text: widget.quantity > 0
-          ? widget.quantity.toString()
-          : '',
+    _controller = TextEditingController(
+      text: widget.quantity > 0 ? widget.quantity.toString() : '',
     );
 
-    _focusNode =
-        FocusNode();
+    _focusNode = FocusNode();
 
-    _focusNode.addListener(
-      _onFocusChanged,
-    );
+    _focusNode.addListener(_onFocusChanged);
   }
 
   // ============================================================
@@ -610,9 +434,7 @@ class _CaseQuantityFieldState
 
     // User finished typing.
     // Now sync external quantity if needed.
-    _syncText(
-      widget.quantity,
-    );
+    _syncText(widget.quantity);
   }
 
   // ============================================================
@@ -620,15 +442,10 @@ class _CaseQuantityFieldState
   // ============================================================
 
   @override
-  void didUpdateWidget(
-    covariant _CaseQuantityField oldWidget,
-  ) {
-    super.didUpdateWidget(
-      oldWidget,
-    );
+  void didUpdateWidget(covariant _CaseQuantityField oldWidget) {
+    super.didUpdateWidget(oldWidget);
 
-    if (oldWidget.quantity ==
-        widget.quantity) {
+    if (oldWidget.quantity == widget.quantity) {
       return;
     }
 
@@ -645,36 +462,23 @@ class _CaseQuantityFieldState
       return;
     }
 
-    _syncText(
-      widget.quantity,
-    );
+    _syncText(widget.quantity);
   }
 
   // ============================================================
   // SYNC CONTROLLER
   // ============================================================
 
-  void _syncText(
-    int quantity,
-  ) {
-    final String newText =
-        quantity > 0
-            ? quantity.toString()
-            : '';
+  void _syncText(int quantity) {
+    final String newText = quantity > 0 ? quantity.toString() : '';
 
-    if (_controller.text ==
-        newText) {
+    if (_controller.text == newText) {
       return;
     }
 
-    _controller.value =
-        TextEditingValue(
+    _controller.value = TextEditingValue(
       text: newText,
-      selection:
-          TextSelection.collapsed(
-        offset:
-            newText.length,
-      ),
+      selection: TextSelection.collapsed(offset: newText.length),
     );
   }
 
@@ -684,9 +488,7 @@ class _CaseQuantityFieldState
 
   @override
   void dispose() {
-    _focusNode.removeListener(
-      _onFocusChanged,
-    );
+    _focusNode.removeListener(_onFocusChanged);
 
     _focusNode.dispose();
     _controller.dispose();
@@ -699,162 +501,90 @@ class _CaseQuantityFieldState
   // ============================================================
 
   @override
-  Widget build(
-    BuildContext context,
-  ) {
+  Widget build(BuildContext context) {
     return SizedBox(
       width: 82.w,
       height: 34.h,
       child: TextFormField(
-        controller:
-            _controller,
+        controller: _controller,
 
-        focusNode:
-            _focusNode,
+        focusNode: _focusNode,
 
-        keyboardType:
-            TextInputType.number,
+        keyboardType: TextInputType.number,
 
-        inputFormatters: [
-          FilteringTextInputFormatter
-              .digitsOnly,
-        ],
+        inputFormatters: [FilteringTextInputFormatter.digitsOnly],
 
-        textAlign:
-            TextAlign.center,
+        textAlign: TextAlign.center,
 
-        textInputAction:
-            TextInputAction.done,
+        textInputAction: TextInputAction.done,
 
         style: TextStyle(
           fontSize: 10.sp,
-          fontWeight:
-              FontWeight.w800,
-          color:
-              AppColors.textPrimary,
+          fontWeight: FontWeight.w800,
+          color: context.primaryTextColor,
         ),
 
-        decoration:
-            InputDecoration(
-          hintText:
-              'Enter Case',
+        decoration: InputDecoration(
+          hintText: 'Enter Case',
 
-          hintStyle:
-              TextStyle(
+          hintStyle: TextStyle(
             fontSize: 8.sp,
-            fontWeight:
-                FontWeight.w500,
-            color:
-                AppColors.textSecondary,
+            fontWeight: FontWeight.w500,
+            color: context.secondaryTextColor,
           ),
 
-          isDense:
-              true,
+          isDense: true,
 
-          contentPadding:
-              EdgeInsets.symmetric(
-            horizontal:
-                5.w,
-            vertical:
-                8.h,
+          contentPadding: EdgeInsets.symmetric(horizontal: 5.w, vertical: 8.h),
+
+          filled: true,
+
+          fillColor: context.appTheme.inputBackground,
+
+          enabledBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(7.r),
+            borderSide: BorderSide(color: context.borderColor, width: 1),
           ),
 
-          filled:
-              true,
-
-          fillColor:
-              Colors.white,
-
-          enabledBorder:
-              OutlineInputBorder(
-            borderRadius:
-                BorderRadius.circular(
-              7.r,
-            ),
-            borderSide:
-                BorderSide(
-              color:
-                  AppColors.border,
-              width:
-                  1,
-            ),
+          focusedBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(7.r),
+            borderSide: BorderSide(color: context.primaryColor, width: 1.3),
           ),
 
-          focusedBorder:
-              OutlineInputBorder(
-            borderRadius:
-                BorderRadius.circular(
-              7.r,
-            ),
-            borderSide:
-                BorderSide(
-              color:
-                  AppColors.primary,
-              width:
-                  1.3,
-            ),
+          errorBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(7.r),
+            borderSide: BorderSide(color: context.appColors.error),
           ),
 
-          errorBorder:
-              OutlineInputBorder(
-            borderRadius:
-                BorderRadius.circular(
-              7.r,
-            ),
-            borderSide:
-                const BorderSide(
-              color:
-                  Colors.red,
-            ),
-          ),
-
-          focusedErrorBorder:
-              OutlineInputBorder(
-            borderRadius:
-                BorderRadius.circular(
-              7.r,
-            ),
-            borderSide:
-                const BorderSide(
-              color:
-                  Colors.red,
-              width:
-                  1.3,
-            ),
+          focusedErrorBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(7.r),
+            borderSide: BorderSide(color: context.appColors.error, width: 1.3),
           ),
         ),
 
         // ======================================================
         // USER ENTERS QUANTITY
         // ======================================================
-
         onChanged: (value) {
-          final String cleanValue =
-              value.trim();
+          final String cleanValue = value.trim();
 
           if (cleanValue.isEmpty) {
             widget.onChanged(0);
             return;
           }
 
-          final int? quantity =
-              int.tryParse(
-            cleanValue,
-          );
+          final int? quantity = int.tryParse(cleanValue);
 
           if (quantity == null) {
             return;
           }
 
-          widget.onChanged(
-            quantity,
-          );
+          widget.onChanged(quantity);
         },
 
         // ======================================================
         // DONE
         // ======================================================
-
         onFieldSubmitted: (_) {
           _focusNode.unfocus();
         },
