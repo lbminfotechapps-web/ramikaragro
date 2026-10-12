@@ -1,5 +1,5 @@
 import 'package:solufine/core/router/app_router.dart';
-import 'package:solufine/core/theme/app_colors.dart';
+import 'package:solufine/core/theme/app_theme_context.dart';
 import 'package:solufine/core/utility/widgets/custom_appbar.dart';
 import 'package:solufine/core/utility/widgets/custom_loader.dart';
 import 'package:flutter/material.dart';
@@ -54,9 +54,19 @@ class _TopTenDealerPageState extends State<TopTenDealerPage> {
         },
         builder: (context, state) {
           return Scaffold(
-            backgroundColor: AppColors.backgroundColor,
+            backgroundColor: context.backgroundColor,
             appBar: CustomAppBar(
               title: 'Top 10 Dealers',
+              backgroundColor: context.primaryColor,
+              titleStyle: TextStyle(color: context.onPrimaryColor),
+              leading: IconButton(
+                icon: Icon(
+                  Icons.arrow_back_ios_new_rounded,
+                  size: 20,
+                  color: context.onPrimaryColor,
+                ),
+                onPressed: () => context.go(AppRouter.home),
+              ),
               showBackButton: true,
               onBackTap: () => context.go(AppRouter.home),
               actionIcon: Icons.refresh_rounded,
@@ -69,7 +79,7 @@ class _TopTenDealerPageState extends State<TopTenDealerPage> {
             //   state.selectedDays,
             // ),
             body: RefreshIndicator(
-              color: const Color(0xFF2E7D32),
+              color: context.primaryColor,
               onRefresh: () async {
                 bloc.add(GetTopTenDealerEvent(days: state.selectedDays));
               },
@@ -110,11 +120,11 @@ class _TopTenDealerPageState extends State<TopTenDealerPage> {
   PreferredSizeWidget _buildAppBar(int selectedDays) {
     return AppBar(
       elevation: 0,
-      backgroundColor: Colors.green,
-      surfaceTintColor: Colors.white,
+      backgroundColor: context.primaryColor,
+      surfaceTintColor: context.cardBackgroundColor,
       titleSpacing: 20,
-      iconTheme: const IconThemeData(color: Colors.white),
-      title: const Column(
+      iconTheme: IconThemeData(color: context.cardBackgroundColor),
+      title: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
@@ -122,23 +132,23 @@ class _TopTenDealerPageState extends State<TopTenDealerPage> {
             style: TextStyle(
               fontSize: 21,
               fontWeight: FontWeight.w700,
-              color: Colors.white,
+              color: context.cardBackgroundColor,
             ),
           ),
 
           SizedBox(height: 2),
           Text(
             'Dealer visit performance',
-            style: TextStyle(fontSize: 12, color: Colors.white),
+            style: TextStyle(fontSize: 12, color: context.cardBackgroundColor),
           ),
         ],
       ),
 
       leading: IconButton(
-        icon: const Icon(
+        icon: Icon(
           Icons.arrow_back_ios_new,
           size: 19,
-          color: AppColors.backgroundColor,
+          color: context.backgroundColor,
         ),
         onPressed: () {
           context.go(AppRouter.home);
@@ -149,14 +159,14 @@ class _TopTenDealerPageState extends State<TopTenDealerPage> {
         Container(
           margin: const EdgeInsets.only(right: 16),
           decoration: BoxDecoration(
-            color: const Color(0xFFE8F5E9),
+            color: context.primaryColor.withValues(alpha: 0.08),
             borderRadius: BorderRadius.circular(12),
           ),
           child: IconButton(
             onPressed: () {
               bloc.add(GetTopTenDealerEvent(days: selectedDays));
             },
-            icon: const Icon(Icons.refresh_rounded, color: Color(0xFF2E7D32)),
+            icon: Icon(Icons.refresh_rounded, color: context.primaryColor),
           ),
         ),
       ],
@@ -194,10 +204,10 @@ class _TopTenDealerPageState extends State<TopTenDealerPage> {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 13),
       decoration: BoxDecoration(
-        color: const Color(0xFFE8F5E9),
+        color: context.primaryColor.withValues(alpha: 0.08),
         borderRadius: BorderRadius.circular(12),
       ),
-      child: const Row(
+      child: Row(
         children: [
           SizedBox(width: 34),
 
@@ -207,7 +217,7 @@ class _TopTenDealerPageState extends State<TopTenDealerPage> {
               style: TextStyle(
                 fontSize: 13,
                 fontWeight: FontWeight.w800,
-                color: Color(0xFF17202A),
+                color: context.cardTextColor,
               ),
             ),
           ),
@@ -215,7 +225,7 @@ class _TopTenDealerPageState extends State<TopTenDealerPage> {
           SizedBox(
             width: 1,
             height: 25,
-            child: ColoredBox(color: Color(0xFFD0D8D2)),
+            child: ColoredBox(color: context.borderColor),
           ),
 
           SizedBox(width: 12),
@@ -228,7 +238,7 @@ class _TopTenDealerPageState extends State<TopTenDealerPage> {
               style: TextStyle(
                 fontSize: 13,
                 fontWeight: FontWeight.w800,
-                color: Color(0xFF17202A),
+                color: context.cardTextColor,
               ),
             ),
           ),
@@ -238,16 +248,14 @@ class _TopTenDealerPageState extends State<TopTenDealerPage> {
   }
 
   Widget _buildLoading() {
-  return const CustomLoader(
-           
-            );
+    return CustomLoader(color: context.primaryColor);
   }
 
   Widget _buildNoRecords(int days) {
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 60),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: context.cardBackgroundColor,
         borderRadius: BorderRadius.circular(18),
       ),
       child: Column(
@@ -255,20 +263,20 @@ class _TopTenDealerPageState extends State<TopTenDealerPage> {
           Container(
             width: 80,
             height: 80,
-            decoration: const BoxDecoration(
-              color: Color(0xFFF1F3F5),
+            decoration: BoxDecoration(
+              color: context.appColors.surfaceContainerHighest,
               shape: BoxShape.circle,
             ),
-            child: const Icon(
+            child: Icon(
               Icons.storefront_outlined,
               size: 40,
-              color: Color(0xFF9AA3AF),
+              color: context.secondaryTextColor,
             ),
           ),
 
           const SizedBox(height: 16),
 
-          const Text(
+          Text(
             'No Dealers Found',
             style: TextStyle(fontSize: 17, fontWeight: FontWeight.w700),
           ),
@@ -278,7 +286,7 @@ class _TopTenDealerPageState extends State<TopTenDealerPage> {
           Text(
             'No dealer visits found for last $days days',
             textAlign: TextAlign.center,
-            style: const TextStyle(fontSize: 12, color: Color(0xFF8A94A6)),
+            style: TextStyle(fontSize: 12, color: context.secondaryTextColor),
           ),
         ],
       ),

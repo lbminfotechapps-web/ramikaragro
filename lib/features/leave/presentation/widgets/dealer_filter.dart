@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:solufine/core/theme/app_theme_context.dart';
 
 class DealerFilter extends StatelessWidget {
   final int selectedDays;
@@ -10,31 +11,20 @@ class DealerFilter extends StatelessWidget {
     required this.onChanged,
   });
 
-  static const Color primaryGreen = Color(0xFF168A4A);
-  static const Color darkText = Color(0xFF17212B);
-  static const Color greyText = Color(0xFF667085);
-  static const Color borderColor = Color(0xFFE7ECE9);
-  static const Color backgroundColor = Color(0xFFF5F8F6);
-
   @override
   Widget build(BuildContext context) {
     final today = DateTime.now();
-    final fromDate = today.subtract(
-      Duration(days: selectedDays),
-    );
+    final fromDate = today.subtract(Duration(days: selectedDays));
 
     return Container(
       padding: const EdgeInsets.all(8),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: context.cardBackgroundColor,
         borderRadius: BorderRadius.circular(18),
-        border: Border.all(
-          color: borderColor,
-          width: 1,
-        ),
+        border: Border.all(color: context.borderColor, width: 1),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.035),
+            color: context.appColors.shadow.withValues(alpha: 0.035),
             blurRadius: 14,
             offset: const Offset(0, 5),
           ),
@@ -52,32 +42,32 @@ class DealerFilter extends StatelessWidget {
                   width: 28,
                   height: 28,
                   decoration: BoxDecoration(
-                    color: primaryGreen.withOpacity(0.10),
+                    color: context.primaryColor.withValues(alpha: 0.10),
                     borderRadius: BorderRadius.circular(9),
                   ),
-                  child: const Icon(
+                  child: Icon(
                     Icons.calendar_month_rounded,
                     size: 16,
-                    color: primaryGreen,
+                    color: context.primaryColor,
                   ),
                 ),
                 const SizedBox(width: 8),
-                const Expanded(
+                Expanded(
                   child: Text(
                     'Follow-up Period',
                     style: TextStyle(
                       fontSize: 12,
                       fontWeight: FontWeight.w800,
-                      color: darkText,
+                      color: context.cardTextColor,
                     ),
                   ),
                 ),
                 Text(
                   '${_formatDate(fromDate)} - ${_formatDate(today)}',
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 9.5,
                     fontWeight: FontWeight.w600,
-                    color: greyText,
+                    color: context.secondaryTextColor,
                   ),
                 ),
               ],
@@ -87,10 +77,10 @@ class DealerFilter extends StatelessWidget {
           // Day selection
           Row(
             children: [
-              _button(30, '30'),
-              _button(45, '45'),
-              _button(60, '60'),
-              _button(90, '90'),
+              _button(context, 30, '30'),
+              _button(context, 45, '45'),
+              _button(context, 60, '60'),
+              _button(context, 90, '90'),
             ],
           ),
         ],
@@ -98,10 +88,7 @@ class DealerFilter extends StatelessWidget {
     );
   }
 
-  Widget _button(
-    int days,
-    String title,
-  ) {
+  Widget _button(BuildContext context, int days, String title) {
     final selected = selectedDays == days;
 
     return Expanded(
@@ -118,18 +105,16 @@ class DealerFilter extends StatelessWidget {
               height: 42,
               decoration: BoxDecoration(
                 color: selected
-                    ? primaryGreen
-                    : backgroundColor,
+                    ? context.primaryColor
+                    : context.appColors.surfaceContainerHighest,
                 borderRadius: BorderRadius.circular(12),
                 border: Border.all(
-                  color: selected
-                      ? primaryGreen
-                      : borderColor,
+                  color: selected ? context.primaryColor : context.borderColor,
                 ),
                 boxShadow: selected
                     ? [
                         BoxShadow(
-                          color: primaryGreen.withOpacity(0.18),
+                          color: context.primaryColor.withValues(alpha: 0.18),
                           blurRadius: 8,
                           offset: const Offset(0, 3),
                         ),
@@ -145,8 +130,8 @@ class DealerFilter extends StatelessWidget {
                       fontSize: 12,
                       fontWeight: FontWeight.w800,
                       color: selected
-                          ? Colors.white
-                          : darkText,
+                          ? context.onPrimaryColor
+                          : context.cardTextColor,
                     ),
                   ),
                   Text(
@@ -155,8 +140,8 @@ class DealerFilter extends StatelessWidget {
                       fontSize: 8,
                       fontWeight: FontWeight.w600,
                       color: selected
-                          ? Colors.white.withOpacity(0.85)
-                          : greyText,
+                          ? context.onPrimaryColor.withValues(alpha: 0.85)
+                          : context.secondaryTextColor,
                     ),
                   ),
                 ],

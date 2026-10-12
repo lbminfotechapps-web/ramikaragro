@@ -1,6 +1,6 @@
-
 import 'package:solufine/core/api_constant/api_client.dart';
 import 'package:flutter/material.dart';
+import 'package:solufine/core/theme/app_theme_context.dart';
 
 import '../../domain/entities/employee_activity.dart';
 
@@ -85,7 +85,6 @@ class ActivityTimelineItem extends StatelessWidget {
           // ========================================================
           // TIMELINE
           // ========================================================
-
           SizedBox(
             width: 42,
             child: Column(
@@ -100,9 +99,7 @@ class ActivityTimelineItem extends StatelessWidget {
                     ),
                   )
                 else
-                  const Expanded(
-                    child: SizedBox(),
-                  ),
+                  const Expanded(child: SizedBox()),
 
                 // ICON
                 Container(
@@ -116,11 +113,7 @@ class ActivityTimelineItem extends StatelessWidget {
                       width: 1.3,
                     ),
                   ),
-                  child: Icon(
-                    _activityIcon,
-                    color: _activityColor,
-                    size: 18,
-                  ),
+                  child: Icon(_activityIcon, color: _activityColor, size: 18),
                 ),
 
                 // BOTTOM LINE
@@ -133,9 +126,7 @@ class ActivityTimelineItem extends StatelessWidget {
                     ),
                   )
                 else
-                  const Expanded(
-                    child: SizedBox(),
-                  ),
+                  const Expanded(child: SizedBox()),
               ],
             ),
           ),
@@ -145,20 +136,17 @@ class ActivityTimelineItem extends StatelessWidget {
           // ========================================================
           // ACTIVITY CARD
           // ========================================================
-
           Expanded(
             child: Container(
               margin: const EdgeInsets.only(bottom: 10),
               padding: const EdgeInsets.all(11),
               decoration: BoxDecoration(
-                color: Colors.white,
+                color: context.cardBackgroundColor,
                 borderRadius: BorderRadius.circular(13),
-                border: Border.all(
-                  color: _activityColor.withOpacity(0.10),
-                ),
+                border: Border.all(color: _activityColor.withOpacity(0.10)),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.035),
+                    color: context.appColors.shadow.withValues(alpha: 0.035),
                     blurRadius: 7,
                     offset: const Offset(0, 2),
                   ),
@@ -170,7 +158,6 @@ class ActivityTimelineItem extends StatelessWidget {
                   // ==================================================
                   // TITLE + TIME
                   // ==================================================
-
                   Row(
                     children: [
                       Expanded(
@@ -203,7 +190,7 @@ class ActivityTimelineItem extends StatelessWidget {
                       Icon(
                         Icons.access_time_rounded,
                         size: 14,
-                        color: Colors.grey.shade600,
+                        color: context.secondaryTextColor,
                       ),
 
                       const SizedBox(width: 3),
@@ -211,7 +198,7 @@ class ActivityTimelineItem extends StatelessWidget {
                       Text(
                         activity.time,
                         style: TextStyle(
-                          color: Colors.grey.shade700,
+                          color: context.secondaryTextColor,
                           fontSize: 11,
                           fontWeight: FontWeight.w600,
                         ),
@@ -222,7 +209,6 @@ class ActivityTimelineItem extends StatelessWidget {
                   // ==================================================
                   // VISIT
                   // ==================================================
-
                   if (_visitName.isNotEmpty) ...[
                     const SizedBox(height: 9),
                     _DetailRow(
@@ -244,7 +230,6 @@ class ActivityTimelineItem extends StatelessWidget {
                   // ==================================================
                   // FARMER
                   // ==================================================
-
                   if (activity.farmerName.trim().isNotEmpty &&
                       activity.farmerName.trim() != _visitName) ...[
                     const SizedBox(height: 6),
@@ -258,7 +243,6 @@ class ActivityTimelineItem extends StatelessWidget {
                   // ==================================================
                   // OUTLET
                   // ==================================================
-
                   if (activity.outletName.trim().isNotEmpty &&
                       activity.outletName.trim() != _visitName) ...[
                     const SizedBox(height: 6),
@@ -269,7 +253,6 @@ class ActivityTimelineItem extends StatelessWidget {
                     ),
                   ],
 
-
                   if (activity.adminName.trim().isNotEmpty) ...[
                     const SizedBox(height: 6),
                     _DetailRow(
@@ -278,26 +261,19 @@ class ActivityTimelineItem extends StatelessWidget {
                       value: activity.adminName,
                     ),
                   ],
-                  
 
                   // ==================================================
                   // SELFIE
                   // ==================================================
-
                   if (activity.selfieImage.trim().isNotEmpty) ...[
                     const SizedBox(height: 10),
 
                     // TAP SELFIE TO ZOOM
                     GestureDetector(
                       onTap: () {
-                        _showSelfieImage(
-                          context,
-                          activity.selfieImage,
-                        );
+                        _showSelfieImage(context, activity.selfieImage);
                       },
-                      child: _SelfieImage(
-                        imageName: activity.selfieImage,
-                      ),
+                      child: _SelfieImage(imageName: activity.selfieImage),
                     ),
                   ],
                 ],
@@ -313,12 +289,8 @@ class ActivityTimelineItem extends StatelessWidget {
   // SHOW SELFIE IMAGE WITH ZOOM
   // ========================================================================
 
-  void _showSelfieImage(
-    BuildContext context,
-    String imageName,
-  ) {
-    final imageUrl =
-        '${ApiClient.imageEmployeeActivityReportUrl}$imageName';
+  void _showSelfieImage(BuildContext context, String imageName) {
+    final imageUrl = '${ApiClient.imageEmployeeActivityReportUrl}$imageName';
 
     showDialog(
       context: context,
@@ -332,7 +304,6 @@ class ActivityTimelineItem extends StatelessWidget {
               // ============================================================
               // IMAGE CONTAINER
               // ============================================================
-
               Container(
                 width: double.infinity,
                 height: MediaQuery.of(context).size.height * 0.80,
@@ -354,17 +325,12 @@ class ActivityTimelineItem extends StatelessWidget {
                       // ====================================================
                       // LOADING
                       // ====================================================
-
-                      loadingBuilder: (
-                        context,
-                        child,
-                        loadingProgress,
-                      ) {
+                      loadingBuilder: (context, child, loadingProgress) {
                         if (loadingProgress == null) {
                           return child;
                         }
 
-                        return const Center(
+                        return Center(
                           child: CircularProgressIndicator(
                             color: Colors.white,
                             strokeWidth: 2,
@@ -375,21 +341,12 @@ class ActivityTimelineItem extends StatelessWidget {
                       // ====================================================
                       // ERROR
                       // ====================================================
+                      errorBuilder: (context, error, stackTrace) {
+                        debugPrint('SELFIE ZOOM IMAGE ERROR: $error');
 
-                      errorBuilder: (
-                        context,
-                        error,
-                        stackTrace,
-                      ) {
-                        debugPrint(
-                          'SELFIE ZOOM IMAGE ERROR: $error',
-                        );
+                        debugPrint('SELFIE URL: $imageUrl');
 
-                        debugPrint(
-                          'SELFIE URL: $imageUrl',
-                        );
-
-                        return const Center(
+                        return Center(
                           child: Column(
                             mainAxisSize: MainAxisSize.min,
                             children: [
@@ -418,7 +375,6 @@ class ActivityTimelineItem extends StatelessWidget {
               // ============================================================
               // CLOSE BUTTON
               // ============================================================
-
               Positioned(
                 top: 8,
                 right: 8,
@@ -431,10 +387,7 @@ class ActivityTimelineItem extends StatelessWidget {
                     onPressed: () {
                       Navigator.pop(dialogContext);
                     },
-                    icon: const Icon(
-                      Icons.close_rounded,
-                      color: Colors.white,
-                    ),
+                    icon: Icon(Icons.close_rounded, color: Colors.white),
                   ),
                 ),
               ),
@@ -442,7 +395,6 @@ class ActivityTimelineItem extends StatelessWidget {
               // ============================================================
               // ZOOM HINT
               // ============================================================
-
               Positioned(
                 bottom: 15,
                 left: 0,
@@ -507,19 +459,15 @@ class _DetailRow extends StatelessWidget {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Icon(
-          icon,
-          size: 15,
-          color: const Color(0xFF78817B),
-        ),
+        Icon(icon, size: 15, color: context.secondaryTextColor),
 
         const SizedBox(width: 6),
 
         Text(
           '$title:',
-          style: const TextStyle(
+          style: TextStyle(
             fontSize: 11,
-            color: Color(0xFF7A827D),
+            color: context.secondaryTextColor,
             fontWeight: FontWeight.w600,
           ),
         ),
@@ -531,9 +479,9 @@ class _DetailRow extends StatelessWidget {
             value,
             maxLines: 2,
             overflow: TextOverflow.ellipsis,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 11,
-              color: Color(0xFF303632),
+              color: context.cardTextColor,
               fontWeight: FontWeight.w700,
             ),
           ),
@@ -550,14 +498,11 @@ class _DetailRow extends StatelessWidget {
 class _SelfieImage extends StatelessWidget {
   final String imageName;
 
-  const _SelfieImage({
-    required this.imageName,
-  });
+  const _SelfieImage({required this.imageName});
 
   @override
   Widget build(BuildContext context) {
-    final imageUrl =
-        '${ApiClient.imageEmployeeActivityReportUrl}$imageName';
+    final imageUrl = '${ApiClient.imageEmployeeActivityReportUrl}$imageName';
 
     return ClipOval(
       child: Stack(
@@ -565,7 +510,6 @@ class _SelfieImage extends StatelessWidget {
           // ================================================================
           // SELFIE PREVIEW
           // ================================================================
-
           SizedBox(
             height: 100,
             width: 100,
@@ -576,19 +520,14 @@ class _SelfieImage extends StatelessWidget {
               // ==========================================================
               // LOADING
               // ==========================================================
-
-              loadingBuilder: (
-                context,
-                child,
-                loadingProgress,
-              ) {
+              loadingBuilder: (context, child, loadingProgress) {
                 if (loadingProgress == null) {
                   return child;
                 }
 
                 return Container(
-                  color: const Color(0xFFF1F3F2),
-                  child: const Center(
+                  color: context.appColors.surfaceContainerHighest,
+                  child: Center(
                     child: CircularProgressIndicator(
                       strokeWidth: 2,
                       color: Color(0xFF168A45),
@@ -600,28 +539,23 @@ class _SelfieImage extends StatelessWidget {
               // ==========================================================
               // ERROR
               // ==========================================================
-
-              errorBuilder: (
-                context,
-                error,
-                stackTrace,
-              ) {
+              errorBuilder: (context, error, stackTrace) {
                 return Container(
-                  color: const Color(0xFFF1F3F2),
-                  child: const Center(
+                  color: context.appColors.surfaceContainerHighest,
+                  child: Center(
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         Icon(
                           Icons.image_not_supported_outlined,
-                          color: Color(0xFF8A918D),
+                          color: context.secondaryTextColor,
                           size: 28,
                         ),
                         SizedBox(height: 4),
                         Text(
                           'Image not available',
                           style: TextStyle(
-                            color: Color(0xFF8A918D),
+                            color: context.secondaryTextColor,
                             fontSize: 11,
                           ),
                         ),
@@ -633,11 +567,9 @@ class _SelfieImage extends StatelessWidget {
             ),
           ),
 
-         
           // ================================================================
           // TAP TO ZOOM INDICATOR
           // ================================================================
-
           Positioned(
             right: 16,
             bottom: 16,
@@ -647,11 +579,7 @@ class _SelfieImage extends StatelessWidget {
                 color: Colors.black.withOpacity(0.55),
                 shape: BoxShape.circle,
               ),
-              child: const Icon(
-                Icons.zoom_in_rounded,
-                color: Colors.white,
-                size: 15,
-              ),
+              child: Icon(Icons.zoom_in_rounded, color: Colors.white, size: 15),
             ),
           ),
         ],
@@ -659,4 +587,3 @@ class _SelfieImage extends StatelessWidget {
     );
   }
 }
-

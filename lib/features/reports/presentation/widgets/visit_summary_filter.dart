@@ -60,16 +60,12 @@ class VisitSummaryFilter extends StatelessWidget {
           // ============================================================
           // FILTER HEADER
           // ============================================================
-
           InkWell(
             borderRadius: BorderRadius.circular(14),
             onTap: onExpandChanged,
 
             child: Padding(
-              padding: const EdgeInsets.symmetric(
-                horizontal: 13,
-                vertical: 10,
-              ),
+              padding: const EdgeInsets.symmetric(horizontal: 13, vertical: 10),
 
               child: Row(
                 children: [
@@ -108,7 +104,7 @@ class VisitSummaryFilter extends StatelessWidget {
                         SizedBox(height: 1),
 
                         Text(
-                         // 'Select employee, date and visit status',
+                          // 'Select employee, date and visit status',
                           'Select date and visit status',
                           style: TextStyle(
                             fontSize: 10.5,
@@ -134,21 +130,11 @@ class VisitSummaryFilter extends StatelessWidget {
           // ============================================================
           // EXPANDED FILTER
           // ============================================================
-
           if (expanded) ...[
-            const Divider(
-              height: 1,
-              thickness: .7,
-              color: Color(0xFFE8ECE9),
-            ),
+            const Divider(height: 1, thickness: .7, color: Color(0xFFE8ECE9)),
 
             Padding(
-              padding: const EdgeInsets.fromLTRB(
-                12,
-                11,
-                12,
-                11,
-              ),
+              padding: const EdgeInsets.fromLTRB(12, 11, 12, 11),
 
               child: Column(
                 children: [
@@ -252,7 +238,6 @@ class VisitSummaryFilter extends StatelessWidget {
                   // ====================================================
                   // DATE
                   // ====================================================
-
                   Row(
                     children: [
                       Expanded(
@@ -280,7 +265,6 @@ class VisitSummaryFilter extends StatelessWidget {
                   // ====================================================
                   // STATUS
                   // ====================================================
-
                   const _FieldLabel(
                     icon: Icons.assessment_outlined,
                     title: 'Status',
@@ -303,8 +287,7 @@ class VisitSummaryFilter extends StatelessWidget {
 
                       isDense: true,
 
-                      contentPadding:
-                          const EdgeInsets.symmetric(
+                      contentPadding: const EdgeInsets.symmetric(
                         horizontal: 11,
                         vertical: 11,
                       ),
@@ -345,10 +328,7 @@ class VisitSummaryFilter extends StatelessWidget {
                         child: Text('Present'),
                       ),
 
-                      DropdownMenuItem(
-                        value: 'Absent',
-                        child: Text('Absent'),
-                      ),
+                      DropdownMenuItem(value: 'Absent', child: Text('Absent')),
                     ],
 
                     onChanged: (value) {
@@ -363,17 +343,13 @@ class VisitSummaryFilter extends StatelessWidget {
                   // ====================================================
                   // BUTTONS
                   // ====================================================
-
                   Row(
                     children: [
                       Expanded(
                         child: OutlinedButton.icon(
                           onPressed: onReset,
 
-                          icon: const Icon(
-                            Icons.restart_alt_rounded,
-                            size: 17,
-                          ),
+                          icon: const Icon(Icons.restart_alt_rounded, size: 17),
 
                           label: const Text(
                             'Reset',
@@ -384,20 +360,15 @@ class VisitSummaryFilter extends StatelessWidget {
                           ),
 
                           style: OutlinedButton.styleFrom(
-                            foregroundColor:
-                                const Color(0xFF59645E),
+                            foregroundColor: const Color(0xFF59645E),
 
-                            side: const BorderSide(
-                              color: Color(0xFFD8DEDA),
-                            ),
+                            side: const BorderSide(color: Color(0xFFD8DEDA)),
 
                             shape: RoundedRectangleBorder(
-                              borderRadius:
-                                  BorderRadius.circular(10),
+                              borderRadius: BorderRadius.circular(10),
                             ),
 
-                            minimumSize:
-                                const Size(0, 40),
+                            minimumSize: const Size(0, 40),
 
                             padding: EdgeInsets.zero,
                           ),
@@ -410,10 +381,7 @@ class VisitSummaryFilter extends StatelessWidget {
                         child: ElevatedButton.icon(
                           onPressed: onSearch,
 
-                          icon: const Icon(
-                            Icons.search_rounded,
-                            size: 17,
-                          ),
+                          icon: const Icon(Icons.search_rounded, size: 17),
 
                           label: const Text(
                             'Search',
@@ -424,20 +392,17 @@ class VisitSummaryFilter extends StatelessWidget {
                           ),
 
                           style: ElevatedButton.styleFrom(
-                            backgroundColor:
-                                const Color(0xFF287A4B),
+                            backgroundColor: const Color(0xFF287A4B),
 
                             foregroundColor: Colors.white,
 
                             elevation: 0,
 
                             shape: RoundedRectangleBorder(
-                              borderRadius:
-                                  BorderRadius.circular(10),
+                              borderRadius: BorderRadius.circular(10),
                             ),
 
-                            minimumSize:
-                                const Size(0, 40),
+                            minimumSize: const Size(0, 40),
 
                             padding: EdgeInsets.zero,
                           ),
@@ -463,20 +428,13 @@ class _FieldLabel extends StatelessWidget {
   final IconData icon;
   final String title;
 
-  const _FieldLabel({
-    required this.icon,
-    required this.title,
-  });
+  const _FieldLabel({required this.icon, required this.title});
 
   @override
   Widget build(BuildContext context) {
     return Row(
       children: [
-        Icon(
-          icon,
-          size: 15,
-          color: const Color(0xFF287A4B),
-        ),
+        Icon(icon, size: 15, color: const Color(0xFF287A4B)),
 
         const SizedBox(width: 5),
 
@@ -532,10 +490,7 @@ class _DateField extends StatelessWidget {
           child: Container(
             width: double.infinity,
 
-            padding: const EdgeInsets.symmetric(
-              horizontal: 10,
-              vertical: 11,
-            ),
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 11),
 
             decoration: BoxDecoration(
               color: const Color(0xFFF7F9F8),
@@ -554,9 +509,7 @@ class _DateField extends StatelessWidget {
 
                 Expanded(
                   child: Text(
-                    value.isEmpty
-                        ? 'Select date'
-                        : value,
+                    value.isEmpty ? 'Select date' : value,
 
                     overflow: TextOverflow.ellipsis,
 

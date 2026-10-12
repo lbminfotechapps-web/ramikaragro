@@ -1,5 +1,5 @@
 import 'package:solufine/core/router/app_router.dart';
-import 'package:solufine/core/theme/app_colors.dart';
+import 'package:solufine/core/theme/app_theme_context.dart';
 import 'package:solufine/core/utility/appname.dart';
 import 'package:solufine/core/utility/widgets/custom_appbar.dart';
 import 'package:solufine/core/utility/widgets/custom_loader.dart';
@@ -99,16 +99,26 @@ class _SocialMediaPageState extends State<SocialMediaPage> {
         },
         builder: (context, state) {
           return Scaffold(
-            backgroundColor: AppColors.backgroundColor,
+            backgroundColor: context.backgroundColor,
 
             appBar: CustomAppBar(
               title: 'Social Media',
+              backgroundColor: context.primaryColor,
+              titleStyle: TextStyle(color: context.onPrimaryColor),
+              leading: IconButton(
+                icon: Icon(
+                  Icons.arrow_back_ios_new_rounded,
+                  size: 20,
+                  color: context.onPrimaryColor,
+                ),
+                onPressed: () => context.go(AppRouter.home),
+              ),
               showBackButton: true,
               onBackTap: () => context.go(AppRouter.home),
             ),
 
             body: RefreshIndicator(
-              color: Colors.green,
+              color: context.primaryColor,
 
               onRefresh: () async {
                 await _loadSocialMedia();
@@ -124,7 +134,7 @@ class _SocialMediaPageState extends State<SocialMediaPage> {
 
   Widget _buildBody(SocialMediaState state) {
     if (state.status == SocialMediaStatus.loading) {
-      return const Center(child: CustomLoader(color: Colors.green));
+      return Center(child: CustomLoader(color: context.primaryColor));
     }
 
     if (state.status == SocialMediaStatus.failure) {
@@ -134,12 +144,12 @@ class _SocialMediaPageState extends State<SocialMediaPage> {
     if (state.socialMedia.isEmpty) {
       return ListView(
         physics: const AlwaysScrollableScrollPhysics(),
-        children: const [
+        children: [
           SizedBox(height: 250),
           Center(
             child: Text(
               'Social media links not available',
-              style: TextStyle(color: Colors.grey, fontSize: 15),
+              style: TextStyle(color: context.secondaryTextColor, fontSize: 15),
             ),
           ),
         ],
@@ -177,30 +187,26 @@ class _SocialMediaPageState extends State<SocialMediaPage> {
       width: double.infinity,
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: [Colors.green.shade700, Colors.green.shade500],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
+        color: context.primaryColor,
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: Colors.green.withOpacity(0.20),
+            color: context.primaryColor.withValues(alpha: 0.20),
             blurRadius: 12,
             offset: const Offset(0, 5),
           ),
         ],
       ),
-      child:  Column(
+      child: Column(
         children: [
-          Icon(Icons.share, color: Colors.white, size: 45),
+          Icon(Icons.share, color: context.onPrimaryColor, size: 45),
 
           SizedBox(height: 10),
 
           Text(
             'Connect With Us',
             style: TextStyle(
-              color: Colors.white,
+              color: context.onPrimaryColor,
               fontSize: 22,
               fontWeight: FontWeight.bold,
             ),
@@ -211,7 +217,10 @@ class _SocialMediaPageState extends State<SocialMediaPage> {
           Text(
             'Follow $appName Industries',
             textAlign: TextAlign.center,
-            style: TextStyle(color: Colors.white70, fontSize: 14),
+            style: TextStyle(
+              color: context.onPrimaryColor.withValues(alpha: 0.7),
+              fontSize: 14,
+            ),
           ),
         ],
       ),
@@ -225,7 +234,7 @@ class _SocialMediaPageState extends State<SocialMediaPage> {
       children: [
         const SizedBox(height: 120),
 
-        const Icon(Icons.error_outline, size: 55, color: Colors.red),
+        Icon(Icons.error_outline, size: 55, color: context.appColors.error),
 
         const SizedBox(height: 15),
 
@@ -243,7 +252,7 @@ class _SocialMediaPageState extends State<SocialMediaPage> {
           child: Text(
             error ?? 'Something went wrong',
             textAlign: TextAlign.center,
-            style: const TextStyle(color: Colors.grey),
+            style: TextStyle(color: context.secondaryTextColor),
           ),
         ),
 
@@ -255,8 +264,8 @@ class _SocialMediaPageState extends State<SocialMediaPage> {
             icon: const Icon(Icons.refresh),
             label: const Text('Retry'),
             style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.green,
-              foregroundColor: Colors.white,
+              backgroundColor: context.primaryColor,
+              foregroundColor: context.onPrimaryColor,
             ),
           ),
         ),
@@ -356,7 +365,7 @@ class _SocialMediaPageState extends State<SocialMediaPage> {
         return Colors.yellow.shade700;
 
       default:
-        return Colors.green;
+        return context.primaryColor;
     }
   }
 }

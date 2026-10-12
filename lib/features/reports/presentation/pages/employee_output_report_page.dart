@@ -1,4 +1,3 @@
-
 import 'dart:async';
 
 import 'package:flutter/material.dart';
@@ -8,7 +7,7 @@ import 'package:intl/intl.dart';
 
 import 'package:solufine/core/di/database_di.dart';
 import 'package:solufine/core/router/app_router.dart';
-import 'package:solufine/core/theme/app_colors.dart';
+import 'package:solufine/core/theme/app_theme_context.dart';
 import 'package:solufine/core/utility/widgets/custom_appbar.dart';
 import 'package:solufine/features/reports/domain/entities/assign_employee.dart';
 import 'package:solufine/features/reports/domain/entities/employee_output_report.dart';
@@ -24,25 +23,19 @@ import '../widgets/employee_output_statistics.dart';
 class EmployeeOutputReportPage extends StatefulWidget {
   final String userId;
 
-  const EmployeeOutputReportPage({
-    super.key,
-    required this.userId,
-  });
+  const EmployeeOutputReportPage({super.key, required this.userId});
 
   @override
   State<EmployeeOutputReportPage> createState() =>
       _EmployeeOutputReportPageState();
 }
 
-class _EmployeeOutputReportPageState
-    extends State<EmployeeOutputReportPage> {
-
+class _EmployeeOutputReportPageState extends State<EmployeeOutputReportPage> {
   // ============================================================
   // CONTROLLERS
   // ============================================================
 
-  final TextEditingController employeeController =
-      TextEditingController();
+  final TextEditingController employeeController = TextEditingController();
 
   // ============================================================
   // FILTER VALUES
@@ -82,8 +75,7 @@ class _EmployeeOutputReportPageState
   void initState() {
     super.initState();
 
-    final String today =
-        DateFormat('dd-MM-yyyy').format(DateTime.now());
+    final String today = DateFormat('dd-MM-yyyy').format(DateTime.now());
 
     fromDate = today;
     toDate = today;
@@ -135,19 +127,13 @@ class _EmployeeOutputReportPageState
       return;
     }
 
-    _employeeSearchTimer = Timer(
-      const Duration(milliseconds: 400),
-      () {
-        if (!mounted) return;
+    _employeeSearchTimer = Timer(const Duration(milliseconds: 400), () {
+      if (!mounted) return;
 
-        context.read<EmployeeOutputBloc>().add(
-          SearchEmployeesEvent(
-            logUserId: widget.userId,
-            search: search,
-          ),
-        );
-      },
-    );
+      context.read<EmployeeOutputBloc>().add(
+        SearchEmployeesEvent(logUserId: widget.userId, search: search),
+      );
+    });
   }
 
   // ============================================================
@@ -158,8 +144,7 @@ class _EmployeeOutputReportPageState
     setState(() {
       employeeId = employee.fldId.toString();
 
-      employeeController.text =
-          employee.fldAdmName.toString();
+      employeeController.text = employee.fldAdmName.toString();
     });
 
     context.read<EmployeeOutputBloc>().add(
@@ -184,7 +169,6 @@ class _EmployeeOutputReportPageState
     );
   }
 
-
   // ============================================================
   // SELECT FROM DATE
   // ============================================================
@@ -193,8 +177,7 @@ class _EmployeeOutputReportPageState
     DateTime initialDate;
 
     try {
-      initialDate =
-          DateFormat('dd-MM-yyyy').parse(fromDate);
+      initialDate = DateFormat('dd-MM-yyyy').parse(fromDate);
     } catch (_) {
       initialDate = DateTime.now();
     }
@@ -209,11 +192,9 @@ class _EmployeeOutputReportPageState
     if (picked == null || !mounted) return;
 
     setState(() {
-      fromDate =
-          DateFormat('dd-MM-yyyy').format(picked);
+      fromDate = DateFormat('dd-MM-yyyy').format(picked);
 
-      final DateTime currentTo =
-          DateFormat('dd-MM-yyyy').parse(toDate);
+      final DateTime currentTo = DateFormat('dd-MM-yyyy').parse(toDate);
 
       if (picked.isAfter(currentTo)) {
         toDate = fromDate;
@@ -230,15 +211,13 @@ class _EmployeeOutputReportPageState
     DateTime minimumDate;
 
     try {
-      initialDate =
-          DateFormat('dd-MM-yyyy').parse(toDate);
+      initialDate = DateFormat('dd-MM-yyyy').parse(toDate);
     } catch (_) {
       initialDate = DateTime.now();
     }
 
     try {
-      minimumDate =
-          DateFormat('dd-MM-yyyy').parse(fromDate);
+      minimumDate = DateFormat('dd-MM-yyyy').parse(fromDate);
     } catch (_) {
       minimumDate = DateTime.now();
     }
@@ -255,8 +234,7 @@ class _EmployeeOutputReportPageState
     if (picked == null || !mounted) return;
 
     setState(() {
-      toDate =
-          DateFormat('dd-MM-yyyy').format(picked);
+      toDate = DateFormat('dd-MM-yyyy').format(picked);
     });
   }
 
@@ -265,8 +243,7 @@ class _EmployeeOutputReportPageState
   // ============================================================
 
   void _resetFilters() {
-    final String today =
-        DateFormat('dd-MM-yyyy').format(DateTime.now());
+    final String today = DateFormat('dd-MM-yyyy').format(DateTime.now());
 
     _employeeSearchTimer?.cancel();
 
@@ -308,23 +285,17 @@ class _EmployeeOutputReportPageState
   Future<void> _refreshReport() async {
     _loadReport();
 
-    await Future.delayed(
-      const Duration(milliseconds: 300),
-    );
+    await Future.delayed(const Duration(milliseconds: 300));
   }
 
   // ============================================================
   // OPEN EMPLOYEE DETAILS
   // ============================================================
 
-  Future<void> _openEmployeeDetails(
-    EmployeeOutputReport report,
-  ) async {
+  Future<void> _openEmployeeDetails(EmployeeOutputReport report) async {
     final selectedEmpId = report.empId;
 
-    debugPrint(
-      '========== EMPLOYEE ROW CLICK ==========',
-    );
+    debugPrint('========== EMPLOYEE ROW CLICK ==========');
     debugPrint('Employee ID: $selectedEmpId');
     debugPrint('Employee Name: ${report.empName}');
     debugPrint('From Date: $fromDate');
@@ -332,9 +303,7 @@ class _EmployeeOutputReportPageState
 
     if (selectedEmpId.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Employee ID not available'),
-        ),
+        const SnackBar(content: Text('Employee ID not available')),
       );
       return;
     }
@@ -387,14 +356,23 @@ class _EmployeeOutputReportPageState
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.backgroundColor,
+      backgroundColor: context.backgroundColor,
 
       // ========================================================
       // APP BAR
       // ========================================================
-
       appBar: CustomAppBar(
         title: 'Employee Output Report',
+        backgroundColor: context.primaryColor,
+        titleStyle: TextStyle(color: context.onPrimaryColor),
+        leading: IconButton(
+          icon: Icon(
+            Icons.arrow_back_ios_new_rounded,
+            size: 20,
+            color: context.onPrimaryColor,
+          ),
+          onPressed: () => context.go(AppRouter.home),
+        ),
         showBackButton: true,
         onBackTap: () => context.go(AppRouter.home),
       ),
@@ -402,22 +380,14 @@ class _EmployeeOutputReportPageState
       // ========================================================
       // BODY
       // ========================================================
-
-      body: BlocListener<
-          EmployeeOutputBloc,
-          EmployeeOutputState>(
+      body: BlocListener<EmployeeOutputBloc, EmployeeOutputState>(
         listener: (context, state) {
-          if (state.status ==
-              EmployeeOutputStatus.failure) {
-            ScaffoldMessenger.of(context)
-                .hideCurrentSnackBar();
+          if (state.status == EmployeeOutputStatus.failure) {
+            ScaffoldMessenger.of(context).hideCurrentSnackBar();
 
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
-                content: Text(
-                  state.errorMessage ??
-                      'Something went wrong',
-                ),
+                content: Text(state.errorMessage ?? 'Something went wrong'),
                 behavior: SnackBarBehavior.floating,
               ),
             );
@@ -427,13 +397,10 @@ class _EmployeeOutputReportPageState
         child: RefreshIndicator(
           onRefresh: _refreshReport,
 
-          child: BlocBuilder<
-              EmployeeOutputBloc,
-              EmployeeOutputState>(
+          child: BlocBuilder<EmployeeOutputBloc, EmployeeOutputState>(
             builder: (context, state) {
               return SingleChildScrollView(
-                physics:
-                    const AlwaysScrollableScrollPhysics(),
+                physics: const AlwaysScrollableScrollPhysics(),
 
                 // OPTIMIZED PAGE PADDING
                 padding: const EdgeInsets.fromLTRB(
@@ -444,34 +411,27 @@ class _EmployeeOutputReportPageState
                 ),
 
                 child: Column(
-                  crossAxisAlignment:
-                      CrossAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.start,
 
                   children: [
                     // ========================================
                     // COMPACT HEADER
                     // ========================================
-
                     _buildHeader(),
 
-                    const SizedBox(
-                      height: _headerFilterSpacing,
-                    ),
+                    const SizedBox(height: _headerFilterSpacing),
 
                     // ========================================
                     // EMPLOYEE FILTER
                     // ========================================
-
                     EmployeeOutputFilter(
-                      employeeController:
-                          employeeController,
+                      employeeController: employeeController,
                       employeeId: employeeId,
                       fromDate: fromDate,
                       toDate: toDate,
                       expanded: showFilters,
                       employees: state.employees,
-                      employeeLoading:
-                          state.employeeLoading,
+                      employeeLoading: state.employeeLoading,
 
                       onExpandChanged: () {
                         setState(() {
@@ -487,36 +447,25 @@ class _EmployeeOutputReportPageState
                       onSearch: _searchReport,
                     ),
 
-                    const SizedBox(
-                      height: _filterContentSpacing,
-                    ),
+                    const SizedBox(height: _filterContentSpacing),
 
                     // ========================================
                     // LOADING
                     // ========================================
-
-                    if (state.status ==
-                        EmployeeOutputStatus.loading)
+                    if (state.status == EmployeeOutputStatus.loading)
                       _buildLoading()
-
                     // ========================================
                     // ERROR
                     // ========================================
-
-                    else if (state.status ==
-                        EmployeeOutputStatus.failure)
+                    else if (state.status == EmployeeOutputStatus.failure)
                       EmployeeOutputEmpty(
                         icon: Icons.error_outline_rounded,
                         title: 'Unable to load report',
-                        subtitle:
-                            state.errorMessage ??
-                            'Please try again',
+                        subtitle: state.errorMessage ?? 'Please try again',
                       )
-
                     // ========================================
                     // EMPTY
                     // ========================================
-
                     else if (state.reports.isEmpty)
                       const EmployeeOutputEmpty(
                         icon: Icons.analytics_outlined,
@@ -524,44 +473,30 @@ class _EmployeeOutputReportPageState
                         subtitle:
                             'No employee output records found for the selected filters.',
                       )
-
                     // ========================================
                     // REPORT DATA
                     // ========================================
-
                     else ...[
                       // ======================================
                       // STATISTICS
                       // ======================================
+                      EmployeeOutputStatistics(reports: state.reports),
 
-                      EmployeeOutputStatistics(
-                        reports: state.reports,
-                      ),
-
-                      const SizedBox(
-                        height: _statisticsTitleSpacing,
-                      ),
+                      const SizedBox(height: _statisticsTitleSpacing),
 
                       // ======================================
                       // COMPACT SECTION TITLE
                       // ======================================
+                      _buildReportTitle(state.reports.length),
 
-                      _buildReportTitle(
-                        state.reports.length,
-                      ),
-
-                      const SizedBox(
-                        height: _titleTableSpacing,
-                      ),
+                      const SizedBox(height: _titleTableSpacing),
 
                       // ======================================
                       // EMPLOYEE REPORT TABLE
                       // ======================================
-
                       EmployeeOutputCard(
                         reports: state.reports,
-                        onEmployeeTap:
-                            _openEmployeeDetails,
+                        onEmployeeTap: _openEmployeeDetails,
                       ),
                     ],
                   ],
@@ -582,18 +517,10 @@ class _EmployeeOutputReportPageState
     return Container(
       width: double.infinity,
 
-      padding: const EdgeInsets.symmetric(
-        horizontal: 12,
-        vertical: 10,
-      ),
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
 
       decoration: BoxDecoration(
-        gradient: const LinearGradient(
-          colors: [
-            Color(0xFF287A4B),
-            Color(0xFF45A36A),
-          ],
-        ),
+        color: context.primaryColor,
         borderRadius: BorderRadius.circular(12),
       ),
 
@@ -604,30 +531,29 @@ class _EmployeeOutputReportPageState
             height: 38,
 
             decoration: BoxDecoration(
-              color: Colors.white.withOpacity(.16),
+              color: context.onPrimaryColor.withValues(alpha: .16),
               borderRadius: BorderRadius.circular(10),
             ),
 
-            child: const Icon(
+            child: Icon(
               Icons.bar_chart_rounded,
-              color: Colors.white,
+              color: context.onPrimaryColor,
               size: 21,
             ),
           ),
 
           const SizedBox(width: 10),
 
-          const Expanded(
+          Expanded(
             child: Column(
-              crossAxisAlignment:
-                  CrossAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisSize: MainAxisSize.min,
 
               children: [
                 Text(
                   'Employee Output',
                   style: TextStyle(
-                    color: Colors.white,
+                    color: context.onPrimaryColor,
                     fontSize: 15,
                     fontWeight: FontWeight.w800,
                   ),
@@ -638,7 +564,7 @@ class _EmployeeOutputReportPageState
                 Text(
                   'Track employee visits and productivity',
                   style: TextStyle(
-                    color: Colors.white70,
+                    color: context.onPrimaryColor.withValues(alpha: 0.7),
                     fontSize: 10,
                   ),
                   maxLines: 2,
@@ -658,29 +584,27 @@ class _EmployeeOutputReportPageState
 
   Widget _buildReportTitle(int employeeCount) {
     return Padding(
-      padding: const EdgeInsets.symmetric(
-        horizontal: 2,
-      ),
+      padding: const EdgeInsets.symmetric(horizontal: 2),
 
       child: Row(
         children: [
-          const Expanded(
+          Expanded(
             child: Text(
               'Employee Output',
               style: TextStyle(
                 fontSize: 14,
                 fontWeight: FontWeight.w800,
-                color: Color(0xFF202923),
+                color: context.cardTextColor,
               ),
             ),
           ),
 
           Text(
             '$employeeCount Employees',
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 10,
               fontWeight: FontWeight.w600,
-              color: Color(0xFF7A837E),
+              color: context.secondaryTextColor,
             ),
           ),
         ],
@@ -693,10 +617,8 @@ class _EmployeeOutputReportPageState
   // ============================================================
 
   Widget _buildLoading() {
-    return const Padding(
-      padding: EdgeInsets.symmetric(
-        vertical: 35,
-      ),
+    return Padding(
+      padding: EdgeInsets.symmetric(vertical: 35),
 
       child: Center(
         child: SizedBox(
@@ -705,7 +627,7 @@ class _EmployeeOutputReportPageState
 
           child: CircularProgressIndicator(
             strokeWidth: 2.6,
-            color: Color(0xFF287A4B),
+            color: context.primaryColor,
           ),
         ),
       ),

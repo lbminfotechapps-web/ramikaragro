@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:solufine/core/theme/app_theme_context.dart';
 
 import '../../domain/entities/employee_output_report.dart';
 
@@ -32,12 +33,12 @@ class EmployeeOutputStatistics extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text(
+        Text(
           'Summary',
           style: TextStyle(
             fontSize: 16,
             fontWeight: FontWeight.w800,
-            color: Color(0xFF202923),
+            color: context.cardTextColor,
           ),
         ),
         const SizedBox(height: 7),
@@ -45,24 +46,26 @@ class EmployeeOutputStatistics extends StatelessWidget {
           borderRadius: BorderRadius.circular(12),
           child: Table(
             defaultVerticalAlignment: TableCellVerticalAlignment.middle,
-            border: TableBorder.all(color: const Color(0xFFDCE7DF)),
+            border: TableBorder.all(color: context.borderColor),
             children: [
               TableRow(
-                decoration: const BoxDecoration(color: Color(0xFFEAF6EE)),
+                decoration: BoxDecoration(
+                  color: context.primaryColor.withValues(alpha: 0.08),
+                ),
                 children: [
-                  _tableCell('Dealer', isHeader: true),
-                  _tableCell('Farmer', isHeader: true),
-                  _tableCell('Location', isHeader: true),
-                  _tableCell('Total Visits', isHeader: true),
+                  _tableCell(context, 'Dealer', isHeader: true),
+                  _tableCell(context, 'Farmer', isHeader: true),
+                  _tableCell(context, 'Location', isHeader: true),
+                  _tableCell(context, 'Total Visits', isHeader: true),
                 ],
               ),
               TableRow(
-                decoration: const BoxDecoration(color: Colors.white),
+                decoration: BoxDecoration(color: context.cardBackgroundColor),
                 children: [
-                  _tableCell('$totalDealerVisits'),
-                  _tableCell('$totalFarmerVisits'),
-                  _tableCell('$totalLocations'),
-                  _tableCell('$totalVisits'),
+                  _tableCell(context, '$totalDealerVisits'),
+                  _tableCell(context, '$totalFarmerVisits'),
+                  _tableCell(context, '$totalLocations'),
+                  _tableCell(context, '$totalVisits'),
                 ],
               ),
             ],
@@ -72,7 +75,11 @@ class EmployeeOutputStatistics extends StatelessWidget {
     );
   }
 
-  Widget _tableCell(String text, {bool isHeader = false}) {
+  Widget _tableCell(
+    BuildContext context,
+    String text, {
+    bool isHeader = false,
+  }) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 12),
       child: Text(
@@ -81,7 +88,7 @@ class EmployeeOutputStatistics extends StatelessWidget {
         style: TextStyle(
           fontSize: isHeader ? 12 : 14,
           fontWeight: isHeader ? FontWeight.w700 : FontWeight.w800,
-          color: isHeader ? const Color(0xFF287A4B) : const Color(0xFF202923),
+          color: isHeader ? context.primaryColor : context.cardTextColor,
         ),
       ),
     );

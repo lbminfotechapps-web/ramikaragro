@@ -2,6 +2,7 @@ import 'package:solufine/core/di/global_di.dart';
 import 'package:solufine/core/router/app_router.dart';
 import 'package:solufine/core/utility/widgets/custom_appbar.dart';
 import 'package:flutter/material.dart';
+import 'package:solufine/core/theme/app_theme_context.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
@@ -170,10 +171,20 @@ class _NotVisitedDealerViewState extends State<NotVisitedDealerView> {
       canPop: true,
 
       child: Scaffold(
-        backgroundColor: const Color(0xFFF6F8FB),
+        backgroundColor: context.backgroundColor,
 
         appBar: CustomAppBar(
           title: 'Not Visited Dealers',
+          backgroundColor: context.primaryColor,
+          titleStyle: TextStyle(color: context.onPrimaryColor),
+          leading: IconButton(
+            icon: Icon(
+              Icons.arrow_back_ios_new_rounded,
+              size: 20,
+              color: context.onPrimaryColor,
+            ),
+            onPressed: () => context.go(AppRouter.home),
+          ),
           showBackButton: true,
           onBackTap: () => context.go(AppRouter.home),
 
@@ -185,7 +196,7 @@ class _NotVisitedDealerViewState extends State<NotVisitedDealerView> {
 
           // Show loader when refreshing
           action: _isRefreshing
-              ? const SizedBox(
+              ? SizedBox(
                   width: 50,
                   height: 50,
                   child: Center(
@@ -194,7 +205,9 @@ class _NotVisitedDealerViewState extends State<NotVisitedDealerView> {
                       height: 20,
                       child: CircularProgressIndicator(
                         strokeWidth: 2,
-                        valueColor: AlwaysStoppedAnimation<Color>(Colors.green),
+                        valueColor: AlwaysStoppedAnimation<Color>(
+                          context.onPrimaryColor,
+                        ),
                       ),
                     ),
                   ),
@@ -205,7 +218,7 @@ class _NotVisitedDealerViewState extends State<NotVisitedDealerView> {
         // appBar: AppBar(
         //   backgroundColor: const Color(0xFF287A4B),
 
-        //   foregroundColor: Colors.white,
+        //   foregroundColor: context.onPrimaryColor,
 
         //   elevation: 0,
 
@@ -215,10 +228,10 @@ class _NotVisitedDealerViewState extends State<NotVisitedDealerView> {
         //     onPressed: () {
         //       context.go(AppRouter.home);
         //     },
-        //     icon: const Icon(Icons.arrow_back_rounded, size: 25),
+        //     icon: Icon(Icons.arrow_back_rounded, size: 25),
         //   ),
 
-        //   title: const Text(
+        //   title: Text(
         //     'Not Visited Dealers',
         //     style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
         //   ),
@@ -230,18 +243,18 @@ class _NotVisitedDealerViewState extends State<NotVisitedDealerView> {
         //       onPressed: _isRefreshing ? null : _refreshDealers,
 
         //       icon: _isRefreshing
-        //           ? const SizedBox(
+        //           ? SizedBox(
         //               width: 20,
         //               height: 20,
         //               child: CircularProgressIndicator(
         //                 strokeWidth: 2,
-        //                 valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+        //                 valueColor: AlwaysStoppedAnimation<Color>(context.cardBackgroundColor),
         //               ),
         //             )
-        //           : const Icon(Icons.refresh_rounded, size: 25),
+        //           : Icon(Icons.refresh_rounded, size: 25),
         //     ),
 
-        //     const SizedBox(width: 6),
+        //     SizedBox(width: 6),
         //   ],
         // ),
 
@@ -281,9 +294,9 @@ class _NotVisitedDealerViewState extends State<NotVisitedDealerView> {
             // ================================================================
 
             return RefreshIndicator(
-              color: const Color(0xFF168A4A),
+              color: context.primaryColor,
 
-              backgroundColor: Colors.white,
+              backgroundColor: context.cardBackgroundColor,
 
               onRefresh: _refreshDealers,
 
@@ -315,12 +328,12 @@ class _NotVisitedDealerViewState extends State<NotVisitedDealerView> {
                   // PAGINATION LOADING
                   // ==========================================================
                   if (state.status == DealerStatus.loadingMore)
-                    const SliverToBoxAdapter(
+                    SliverToBoxAdapter(
                       child: Padding(
                         padding: EdgeInsets.symmetric(vertical: 20),
                         child: Center(
                           child: CircularProgressIndicator(
-                            color: Color(0xFF168A4A),
+                            color: context.primaryColor,
                           ),
                         ),
                       ),
@@ -330,7 +343,7 @@ class _NotVisitedDealerViewState extends State<NotVisitedDealerView> {
                   // NO MORE DATA
                   // ==========================================================
                   if (state.hasReachedMax && state.dealers.isNotEmpty)
-                    const SliverToBoxAdapter(
+                    SliverToBoxAdapter(
                       child: Padding(
                         padding: EdgeInsets.symmetric(vertical: 20),
                         child: Center(
@@ -339,14 +352,14 @@ class _NotVisitedDealerViewState extends State<NotVisitedDealerView> {
                             style: TextStyle(
                               fontSize: 13,
                               fontWeight: FontWeight.w500,
-                              color: Color(0xFF89939D),
+                              color: context.secondaryTextColor,
                             ),
                           ),
                         ),
                       ),
                     ),
 
-                  const SliverToBoxAdapter(child: SizedBox(height: 30)),
+                  SliverToBoxAdapter(child: SizedBox(height: 30)),
                 ],
               ),
             );
@@ -374,15 +387,15 @@ class _SummaryHeader extends StatelessWidget {
       padding: const EdgeInsets.all(16),
 
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: context.cardBackgroundColor,
 
         borderRadius: BorderRadius.circular(18),
 
-        border: Border.all(color: const Color(0xFFE5E9EC)),
+        border: Border.all(color: context.borderColor),
 
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.03),
+            color: context.appColors.shadow.withValues(alpha: 0.03),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
@@ -396,39 +409,39 @@ class _SummaryHeader extends StatelessWidget {
             width: 48,
 
             decoration: BoxDecoration(
-              color: const Color(0xFFEAF7EF),
+              color: context.primaryColor.withValues(alpha: 0.08),
 
               borderRadius: BorderRadius.circular(14),
             ),
 
-            child: const Icon(
+            child: Icon(
               Icons.storefront_rounded,
-              color: Color(0xFF168A4A),
+              color: context.primaryColor,
               size: 25,
             ),
           ),
 
-          const SizedBox(width: 13),
+          SizedBox(width: 13),
 
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text(
+                Text(
                   'Pending Visits',
                   style: TextStyle(
-                    color: Color(0xFF7B858E),
+                    color: context.secondaryTextColor,
                     fontSize: 12,
                     fontWeight: FontWeight.w500,
                   ),
                 ),
 
-                const SizedBox(height: 3),
+                SizedBox(height: 3),
 
                 Text(
                   '$dealerCount Dealers',
-                  style: const TextStyle(
-                    color: Color(0xFF20262D),
+                  style: TextStyle(
+                    color: context.cardTextColor,
                     fontSize: 18,
                     fontWeight: FontWeight.w800,
                   ),
@@ -441,15 +454,15 @@ class _SummaryHeader extends StatelessWidget {
             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
 
             decoration: BoxDecoration(
-              color: const Color(0xFFEAF7EF),
+              color: context.primaryColor.withValues(alpha: 0.08),
 
               borderRadius: BorderRadius.circular(10),
             ),
 
-            child: const Text(
+            child: Text(
               '30 Days',
               style: TextStyle(
-                color: Color(0xFF168A4A),
+                color: context.primaryColor,
                 fontSize: 11,
                 fontWeight: FontWeight.w700,
               ),
@@ -470,8 +483,8 @@ class _LoadingView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Center(
-      child: CircularProgressIndicator(color: Color(0xFF168A4A)),
+    return Center(
+      child: CircularProgressIndicator(color: context.primaryColor),
     );
   }
 }
@@ -495,27 +508,27 @@ class _ErrorView extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
 
           children: [
-            const Icon(
+            Icon(
               Icons.cloud_off_rounded,
               size: 60,
-              color: Colors.redAccent,
+              color: context.appColors.error,
             ),
 
-            const SizedBox(height: 16),
+            SizedBox(height: 16),
 
-            // const Text(
+            // Text(
             //   'Something went wrong',
             //   style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
             // ),
 
-            // const SizedBox(height: 8),
+            // SizedBox(height: 8),
             Text(
               "No Record Found",
               textAlign: TextAlign.center,
               style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500),
             ),
 
-            const SizedBox(height: 20),
+            SizedBox(height: 20),
 
             ElevatedButton(
               onPressed: () {
@@ -525,11 +538,11 @@ class _ErrorView extends StatelessWidget {
               },
 
               style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF168A4A),
-                foregroundColor: Colors.white,
+                backgroundColor: context.primaryColor,
+                foregroundColor: context.onPrimaryColor,
               ),
 
-              child: const Text('Try Again'),
+              child: Text('Try Again'),
             ),
           ],
         ),
@@ -559,38 +572,38 @@ class _EmptyView extends StatelessWidget {
               height: 80,
               width: 80,
 
-              decoration: const BoxDecoration(
-                color: Color(0xFFEAF7EF),
+              decoration: BoxDecoration(
+                color: context.primaryColor.withValues(alpha: 0.08),
                 shape: BoxShape.circle,
               ),
 
-              child: const Icon(
+              child: Icon(
                 Icons.store_rounded,
                 size: 40,
-                color: Color(0xFF168A4A),
+                color: context.primaryColor,
               ),
             ),
 
-            const SizedBox(height: 20),
+            SizedBox(height: 20),
 
-            const Text(
+            Text(
               'All Dealers Visited',
               style: TextStyle(fontSize: 20, fontWeight: FontWeight.w700),
             ),
 
-            const SizedBox(height: 8),
+            SizedBox(height: 8),
 
-            const Text(
+            Text(
               'There are no dealers who have not been visited in the last 30 days.',
               textAlign: TextAlign.center,
               style: TextStyle(
                 fontSize: 14,
                 height: 1.5,
-                color: Color(0xFF7A8491),
+                color: context.secondaryTextColor,
               ),
             ),
 
-            const SizedBox(height: 20),
+            SizedBox(height: 20),
 
             TextButton.icon(
               onPressed: () {
@@ -599,12 +612,12 @@ class _EmptyView extends StatelessWidget {
                 );
               },
 
-              icon: const Icon(Icons.refresh_rounded),
+              icon: Icon(Icons.refresh_rounded),
 
-              label: const Text('Refresh'),
+              label: Text('Refresh'),
 
               style: TextButton.styleFrom(
-                foregroundColor: const Color(0xFF168A4A),
+                foregroundColor: context.primaryColor,
               ),
             ),
           ],

@@ -1,17 +1,14 @@
-
 import 'package:solufine/core/api_constant/api_client.dart';
 import 'package:solufine/features/home/doman/home_entity/crop_schedule.dart';
 import 'package:flutter/material.dart';
+import 'package:solufine/core/theme/app_theme_context.dart';
 
 import 'crop_schedule_detail_card.dart';
 
 class CropScheduleCard extends StatefulWidget {
   final CropSchedule schedule;
 
-  const CropScheduleCard({
-    super.key,
-    required this.schedule,
-  });
+  const CropScheduleCard({super.key, required this.schedule});
 
   @override
   State<CropScheduleCard> createState() => _CropScheduleCardState();
@@ -21,11 +18,6 @@ class _CropScheduleCardState extends State<CropScheduleCard> {
   bool _showDetails = false;
 
   CropSchedule get schedule => widget.schedule;
-
-  static const Color primaryGreen = Color(0xFF1B4332);
-  static const Color mediumGreen = Color(0xFF2D6A4F);
-  static const Color lightGreen = Color(0xFFEAF5EE);
-  static const Color borderGreen = Color(0xFFD5E8DC);
 
   String get imageUrl {
     if (schedule.attachment.isNotEmpty) {
@@ -44,16 +36,16 @@ class _CropScheduleCardState extends State<CropScheduleCard> {
       curve: Curves.easeOut,
       margin: const EdgeInsets.only(bottom: 16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: context.cardBackgroundColor,
         borderRadius: BorderRadius.circular(24),
         border: Border.all(
           color: _showDetails
-              ? const Color(0xFFB7D8C3)
-              : const Color(0xFFE8EDE9),
+              ? context.primaryColor.withOpacity(0.3)
+              : context.borderColor,
         ),
         boxShadow: [
           BoxShadow(
-            color: primaryGreen.withOpacity(0.06),
+            color: context.primaryColor.withOpacity(0.06),
             blurRadius: 20,
             spreadRadius: 1,
             offset: const Offset(0, 8),
@@ -65,7 +57,6 @@ class _CropScheduleCardState extends State<CropScheduleCard> {
           // =========================================================
           // MAIN HEADER
           // =========================================================
-
           Padding(
             padding: const EdgeInsets.all(14),
             child: Row(
@@ -74,7 +65,6 @@ class _CropScheduleCardState extends State<CropScheduleCard> {
                 // =====================================================
                 // IMAGE
                 // =====================================================
-
                 Hero(
                   tag: 'crop-${schedule.cropId}',
                   child: Container(
@@ -82,10 +72,8 @@ class _CropScheduleCardState extends State<CropScheduleCard> {
                     height: 96,
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(20),
-                      color: lightGreen,
-                      border: Border.all(
-                        color: const Color(0xFFDCEBE1),
-                      ),
+                      color: context.primaryColor.withOpacity(0.08),
+                      border: Border.all(color: context.borderColor),
                     ),
                     child: ClipRRect(
                       borderRadius: BorderRadius.circular(19),
@@ -93,18 +81,10 @@ class _CropScheduleCardState extends State<CropScheduleCard> {
                           ? Image.network(
                               imageUrl,
                               fit: BoxFit.cover,
-                              errorBuilder: (
-                                context,
-                                error,
-                                stackTrace,
-                              ) {
+                              errorBuilder: (context, error, stackTrace) {
                                 return const _ImagePlaceholder();
                               },
-                              loadingBuilder: (
-                                context,
-                                child,
-                                progress,
-                              ) {
+                              loadingBuilder: (context, child, progress) {
                                 if (progress == null) {
                                   return child;
                                 }
@@ -122,7 +102,6 @@ class _CropScheduleCardState extends State<CropScheduleCard> {
                 // =====================================================
                 // INFORMATION
                 // =====================================================
-
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -136,16 +115,16 @@ class _CropScheduleCardState extends State<CropScheduleCard> {
                               vertical: 4,
                             ),
                             decoration: BoxDecoration(
-                              color: lightGreen,
+                              color: context.primaryColor.withOpacity(0.08),
                               borderRadius: BorderRadius.circular(7),
                             ),
-                            child: const Text(
+                            child: Text(
                               'CROP SCHEDULE',
                               style: TextStyle(
                                 fontSize: 9,
                                 fontWeight: FontWeight.w800,
                                 letterSpacing: 0.6,
-                                color: mediumGreen,
+                                color: context.primaryColor,
                               ),
                             ),
                           ),
@@ -159,19 +138,18 @@ class _CropScheduleCardState extends State<CropScheduleCard> {
                         schedule.cropName,
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 18,
                           height: 1.18,
                           fontWeight: FontWeight.w800,
                           letterSpacing: -0.35,
-                          color: Color(0xFF17221B),
+                          color: context.cardTextColor,
                         ),
                       ),
 
                       const SizedBox(height: 10),
 
                       // Schedule count
-                     
                     ],
                   ),
                 ),
@@ -182,15 +160,9 @@ class _CropScheduleCardState extends State<CropScheduleCard> {
           // =========================================================
           // VIEW DETAILS
           // =========================================================
-
           if (hasDetails)
             Padding(
-              padding: const EdgeInsets.fromLTRB(
-                14,
-                0,
-                14,
-                14,
-              ),
+              padding: const EdgeInsets.fromLTRB(14, 0, 14, 14),
               child: Material(
                 color: Colors.transparent,
                 child: InkWell(
@@ -209,22 +181,14 @@ class _CropScheduleCardState extends State<CropScheduleCard> {
                       vertical: 12,
                     ),
                     decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        colors: _showDetails
-                            ? const [
-                                Color(0xFFE3F2E9),
-                                Color(0xFFF2F9F4),
-                              ]
-                            : const [
-                                Color(0xFFF7FAF8),
-                                Color(0xFFF1F7F3),
-                              ],
+                      color: context.primaryColor.withOpacity(
+                        _showDetails ? 0.12 : 0.06,
                       ),
                       borderRadius: BorderRadius.circular(16),
                       border: Border.all(
                         color: _showDetails
-                            ? const Color(0xFFB8D8C4)
-                            : const Color(0xFFDDE9E1),
+                            ? context.primaryColor.withOpacity(0.3)
+                            : context.borderColor,
                       ),
                     ),
                     child: Row(
@@ -233,11 +197,11 @@ class _CropScheduleCardState extends State<CropScheduleCard> {
                           width: 34,
                           height: 34,
                           decoration: BoxDecoration(
-                            color: Colors.white,
+                            color: context.cardBackgroundColor,
                             borderRadius: BorderRadius.circular(10),
                             boxShadow: [
                               BoxShadow(
-                                color: primaryGreen.withOpacity(0.06),
+                                color: context.primaryColor.withOpacity(0.06),
                                 blurRadius: 7,
                                 offset: const Offset(0, 3),
                               ),
@@ -248,7 +212,7 @@ class _CropScheduleCardState extends State<CropScheduleCard> {
                                 ? Icons.keyboard_arrow_up_rounded
                                 : Icons.visibility_outlined,
                             size: 19,
-                            color: primaryGreen,
+                            color: context.primaryColor,
                           ),
                         ),
 
@@ -256,17 +220,14 @@ class _CropScheduleCardState extends State<CropScheduleCard> {
 
                         Expanded(
                           child: Column(
-                            crossAxisAlignment:
-                                CrossAxisAlignment.start,
+                            crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                _showDetails
-                                    ? 'Hide Details'
-                                    : 'View Details',
-                                style: const TextStyle(
+                                _showDetails ? 'Hide Details' : 'View Details',
+                                style: TextStyle(
                                   fontSize: 13,
                                   fontWeight: FontWeight.w800,
-                                  color: primaryGreen,
+                                  color: context.primaryColor,
                                 ),
                               ),
                               const SizedBox(height: 2),
@@ -274,9 +235,9 @@ class _CropScheduleCardState extends State<CropScheduleCard> {
                                 _showDetails
                                     ? 'Close schedule information'
                                     : 'View complete schedule',
-                                style: const TextStyle(
+                                style: TextStyle(
                                   fontSize: 10,
-                                  color: Color(0xFF7A857E),
+                                  color: context.secondaryTextColor,
                                 ),
                               ),
                             ],
@@ -289,13 +250,13 @@ class _CropScheduleCardState extends State<CropScheduleCard> {
                             vertical: 6,
                           ),
                           decoration: BoxDecoration(
-                            color: primaryGreen,
+                            color: context.primaryColor,
                             borderRadius: BorderRadius.circular(9),
                           ),
                           child: Text(
                             '${schedule.details.length}',
-                            style: const TextStyle(
-                              color: Colors.white,
+                            style: TextStyle(
+                              color: context.onPrimaryColor,
                               fontSize: 11,
                               fontWeight: FontWeight.w800,
                             ),
@@ -311,7 +272,6 @@ class _CropScheduleCardState extends State<CropScheduleCard> {
           // =========================================================
           // DETAILS SECTION
           // =========================================================
-
           AnimatedCrossFade(
             duration: const Duration(milliseconds: 280),
             crossFadeState: _showDetails && hasDetails
@@ -321,33 +281,22 @@ class _CropScheduleCardState extends State<CropScheduleCard> {
             secondChild: Column(
               children: [
                 Padding(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 14,
-                  ),
-                  child: Container(
-                    height: 1,
-                    color: const Color(0xFFEDF1EE),
-                  ),
+                  padding: const EdgeInsets.symmetric(horizontal: 14),
+                  child: Container(height: 1, color: context.borderColor),
                 ),
 
                 // ===================================================
                 // SECTION HEADER
                 // ===================================================
-
                 Padding(
-                  padding: const EdgeInsets.fromLTRB(
-                    14,
-                    16,
-                    14,
-                    8,
-                  ),
+                  padding: const EdgeInsets.fromLTRB(14, 16, 14, 8),
                   child: Row(
                     children: [
                       Container(
                         width: 5,
                         height: 28,
                         decoration: BoxDecoration(
-                          color: mediumGreen,
+                          color: context.primaryColor,
                           borderRadius: BorderRadius.circular(5),
                         ),
                       ),
@@ -356,15 +305,14 @@ class _CropScheduleCardState extends State<CropScheduleCard> {
 
                       Expanded(
                         child: Column(
-                          crossAxisAlignment:
-                              CrossAxisAlignment.start,
-                          children: const [
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
                             Text(
                               'Schedule Details',
                               style: TextStyle(
                                 fontSize: 15,
                                 fontWeight: FontWeight.w800,
-                                color: Color(0xFF1C271F),
+                                color: context.cardTextColor,
                               ),
                             ),
                             SizedBox(height: 2),
@@ -372,7 +320,7 @@ class _CropScheduleCardState extends State<CropScheduleCard> {
                               'Crop activity timeline',
                               style: TextStyle(
                                 fontSize: 10,
-                                color: Color(0xFF89928C),
+                                color: context.secondaryTextColor,
                               ),
                             ),
                           ],
@@ -385,17 +333,15 @@ class _CropScheduleCardState extends State<CropScheduleCard> {
                           vertical: 6,
                         ),
                         decoration: BoxDecoration(
-                          color: lightGreen,
+                          color: context.primaryColor.withOpacity(0.08),
                           borderRadius: BorderRadius.circular(10),
-                          border: Border.all(
-                            color: borderGreen,
-                          ),
+                          border: Border.all(color: context.borderColor),
                         ),
                         child: Text(
                           '${schedule.details.length} Steps',
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontSize: 10,
-                            color: mediumGreen,
+                            color: context.primaryColor,
                             fontWeight: FontWeight.w800,
                           ),
                         ),
@@ -407,32 +353,20 @@ class _CropScheduleCardState extends State<CropScheduleCard> {
                 // ===================================================
                 // DETAIL LIST
                 // ===================================================
-
                 Padding(
-                  padding: const EdgeInsets.fromLTRB(
-                    14,
-                    6,
-                    14,
-                    8,
-                  ),
+                  padding: const EdgeInsets.fromLTRB(14, 6, 14, 8),
                   child: Column(
-                    children: List.generate(
-                      schedule.details.length,
-                      (index) {
-                        final detail = schedule.details[index];
+                    children: List.generate(schedule.details.length, (index) {
+                      final detail = schedule.details[index];
 
-                        // return CropScheduleDetailCard(
-                        //   detail: detail,
-                        //   isLast: index ==
-                        //       schedule.details.length - 1,
-                        // );
+                      // return CropScheduleDetailCard(
+                      //   detail: detail,
+                      //   isLast: index ==
+                      //       schedule.details.length - 1,
+                      // );
 
-                          return CropScheduleDetailCard(
-                            detail: detail,
-                          );
-
-                      },
-                    ),
+                      return CropScheduleDetailCard(detail: detail);
+                    }),
                   ),
                 ),
               ],
@@ -442,15 +376,9 @@ class _CropScheduleCardState extends State<CropScheduleCard> {
           // =========================================================
           // NO DETAILS
           // =========================================================
-
           if (!hasDetails)
             Padding(
-              padding: const EdgeInsets.fromLTRB(
-                14,
-                0,
-                14,
-                14,
-              ),
+              padding: const EdgeInsets.fromLTRB(14, 0, 14, 14),
               child: Container(
                 width: double.infinity,
                 padding: const EdgeInsets.symmetric(
@@ -458,11 +386,9 @@ class _CropScheduleCardState extends State<CropScheduleCard> {
                   vertical: 13,
                 ),
                 decoration: BoxDecoration(
-                  color: const Color(0xFFF8F9F8),
+                  color: context.appColors.surfaceContainerHighest,
                   borderRadius: BorderRadius.circular(14),
-                  border: Border.all(
-                    color: const Color(0xFFE8ECE9),
-                  ),
+                  border: Border.all(color: context.borderColor),
                 ),
                 child: Row(
                   children: [
@@ -470,25 +396,25 @@ class _CropScheduleCardState extends State<CropScheduleCard> {
                       width: 32,
                       height: 32,
                       decoration: BoxDecoration(
-                        color: Colors.white,
+                        color: context.cardBackgroundColor,
                         borderRadius: BorderRadius.circular(9),
                       ),
-                      child: const Icon(
+                      child: Icon(
                         Icons.info_outline_rounded,
                         size: 18,
-                        color: Color(0xFF8A938D),
+                        color: context.secondaryTextColor,
                       ),
                     ),
 
                     const SizedBox(width: 10),
 
-                    const Expanded(
+                    Expanded(
                       child: Text(
                         'No schedule details available.',
                         style: TextStyle(
                           fontSize: 12,
                           fontWeight: FontWeight.w600,
-                          color: Color(0xFF7A837D),
+                          color: context.secondaryTextColor,
                         ),
                       ),
                     ),
@@ -512,28 +438,19 @@ class _ImagePlaceholder extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      decoration: const BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [
-            Color(0xFFEAF5EE),
-            Color(0xFFDDEFE4),
-          ],
-        ),
-      ),
+      decoration: BoxDecoration(color: context.primaryColor.withOpacity(0.08)),
       child: Center(
         child: Container(
           width: 48,
           height: 48,
           decoration: BoxDecoration(
-            color: Colors.white.withOpacity(0.75),
+            color: context.cardBackgroundColor.withOpacity(0.75),
             shape: BoxShape.circle,
           ),
-          child: const Icon(
+          child: Icon(
             Icons.agriculture_rounded,
             size: 27,
-            color: Color(0xFF2D6A4F),
+            color: context.primaryColor,
           ),
         ),
       ),
@@ -551,18 +468,17 @@ class _ImageLoading extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      color: const Color(0xFFF3F7F4),
-      child: const Center(
+      color: context.primaryColor.withOpacity(0.08),
+      child: Center(
         child: SizedBox(
           width: 23,
           height: 23,
           child: CircularProgressIndicator(
             strokeWidth: 2.2,
-            color: Color(0xFF2D6A4F),
+            color: context.primaryColor,
           ),
         ),
       ),
     );
   }
 }
-
