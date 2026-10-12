@@ -1,6 +1,6 @@
 import 'package:solufine/core/di/leave_list_di.dart';
 import 'package:solufine/core/router/app_router.dart';
-import 'package:solufine/core/theme/app_colors.dart';
+import 'package:solufine/core/theme/app_theme_context.dart';
 import 'package:solufine/core/utility/widgets/custom_appbar.dart';
 import 'package:solufine/core/utility/widgets/custom_textformfield.dart';
 import 'package:flutter/material.dart';
@@ -24,10 +24,10 @@ class _AddLeavePageState extends State<AddLeavePage> {
   // COLORS
   // ============================================================
 
-  static const Color primaryGreen = Color(0xFF168A45);
-  static const Color darkGreen = Color(0xFF0C6632);
-  static const Color lightGreen = Color(0xFFEAF7EF);
-  static const Color backgroundColor = Color(0xFFF7F9F8);
+  Color get primaryGreen => context.primaryColor;
+  Color get darkGreen => context.primaryColor;
+  Color get lightGreen => context.primaryColor.withValues(alpha: 0.1);
+  Color get backgroundColor => context.backgroundColor;
 
   // ============================================================
   // CONTROLLER
@@ -88,14 +88,7 @@ class _AddLeavePageState extends State<AddLeavePage> {
       lastDate: DateTime(2100),
       builder: (context, child) {
         return Theme(
-          data: Theme.of(context).copyWith(
-            colorScheme: const ColorScheme.light(
-              primary: primaryGreen,
-              onPrimary: Colors.white,
-              surface: Colors.white,
-              onSurface: Colors.black87,
-            ),
-          ),
+          data: Theme.of(context).copyWith(colorScheme: context.appColors),
           child: child!,
         );
       },
@@ -141,14 +134,7 @@ class _AddLeavePageState extends State<AddLeavePage> {
       lastDate: DateTime(2100),
       builder: (context, child) {
         return Theme(
-          data: Theme.of(context).copyWith(
-            colorScheme: const ColorScheme.light(
-              primary: primaryGreen,
-              onPrimary: Colors.white,
-              surface: Colors.white,
-              onSurface: Colors.black87,
-            ),
-          ),
+          data: Theme.of(context).copyWith(colorScheme: context.appColors),
           child: child!,
         );
       },
@@ -391,12 +377,16 @@ class _AddLeavePageState extends State<AddLeavePage> {
       SnackBar(
         content: Row(
           children: [
-            const Icon(Icons.error_outline, color: Colors.white, size: 20),
+            Icon(
+              Icons.error_outline,
+              color: context.appColors.onError,
+              size: 20,
+            ),
             const SizedBox(width: 8),
             Expanded(child: Text(message)),
           ],
         ),
-        backgroundColor: Colors.red.shade600,
+        backgroundColor: context.appColors.error,
         behavior: SnackBarBehavior.floating,
         margin: const EdgeInsets.all(12),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
@@ -425,9 +415,9 @@ class _AddLeavePageState extends State<AddLeavePage> {
               SnackBar(
                 content: Row(
                   children: [
-                    const Icon(
+                    Icon(
                       Icons.check_circle,
-                      color: Colors.white,
+                      color: context.onPrimaryColor,
                       size: 20,
                     ),
                     const SizedBox(width: 8),
@@ -465,9 +455,9 @@ class _AddLeavePageState extends State<AddLeavePage> {
               SnackBar(
                 content: Row(
                   children: [
-                    const Icon(
+                    Icon(
                       Icons.error_outline,
-                      color: Colors.white,
+                      color: context.appColors.onError,
                       size: 20,
                     ),
                     const SizedBox(width: 8),
@@ -478,7 +468,7 @@ class _AddLeavePageState extends State<AddLeavePage> {
                     ),
                   ],
                 ),
-                backgroundColor: Colors.red.shade600,
+                backgroundColor: context.appColors.error,
                 behavior: SnackBarBehavior.floating,
                 margin: const EdgeInsets.all(12),
                 shape: RoundedRectangleBorder(
@@ -592,10 +582,10 @@ class _AddLeavePageState extends State<AddLeavePage> {
         const SizedBox(width: 6),
         Text(
           title,
-          style: const TextStyle(
+          style: TextStyle(
             fontSize: 14,
             fontWeight: FontWeight.w700,
-            color: Color(0xFF222622),
+            color: context.primaryTextColor,
           ),
         ),
       ],
@@ -650,12 +640,12 @@ class _AddLeavePageState extends State<AddLeavePage> {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 9),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: context.cardBackgroundColor,
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
             color: selected
-                ? primaryGreen.withOpacity(0.35)
-                : Colors.grey.shade200,
+                ? primaryGreen.withValues(alpha: 0.35)
+                : context.borderColor,
           ),
         ),
         child: Row(
@@ -664,13 +654,13 @@ class _AddLeavePageState extends State<AddLeavePage> {
               height: 32,
               width: 32,
               decoration: BoxDecoration(
-                color: selected ? lightGreen : Colors.grey.shade100,
+                color: selected ? lightGreen : context.appTheme.inputBackground,
                 borderRadius: BorderRadius.circular(8),
               ),
               child: Icon(
                 icon,
                 size: 16,
-                color: selected ? primaryGreen : Colors.grey.shade500,
+                color: selected ? primaryGreen : context.secondaryTextColor,
               ),
             ),
 
@@ -686,7 +676,7 @@ class _AddLeavePageState extends State<AddLeavePage> {
                       fontSize: 8,
                       fontWeight: FontWeight.w700,
                       letterSpacing: 0.6,
-                      color: Colors.grey.shade500,
+                      color: context.secondaryTextColor,
                     ),
                   ),
 
@@ -702,8 +692,8 @@ class _AddLeavePageState extends State<AddLeavePage> {
                       fontSize: 12,
                       fontWeight: FontWeight.w700,
                       color: date == null
-                          ? Colors.grey.shade400
-                          : const Color(0xFF202522),
+                          ? context.secondaryTextColor
+                          : context.cardTextColor,
                     ),
                   ),
                 ],
@@ -763,9 +753,11 @@ class _AddLeavePageState extends State<AddLeavePage> {
       height: 62,
       padding: const EdgeInsets.fromLTRB(11, 6, 6, 2),
       decoration: BoxDecoration(
-        color: enabled ? Colors.white : Colors.grey.shade100,
+        color: enabled
+            ? context.cardBackgroundColor
+            : context.appTheme.inputBackground,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.grey.shade200),
+        border: Border.all(color: context.borderColor),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -776,7 +768,7 @@ class _AddLeavePageState extends State<AddLeavePage> {
               fontSize: 8,
               fontWeight: FontWeight.w700,
               letterSpacing: 0.6,
-              color: Colors.grey.shade500,
+              color: context.secondaryTextColor,
             ),
           ),
 
@@ -789,14 +781,14 @@ class _AddLeavePageState extends State<AddLeavePage> {
                 icon: Icon(
                   Icons.keyboard_arrow_down_rounded,
                   size: 18,
-                  color: enabled ? primaryGreen : Colors.grey.shade400,
+                  color: enabled ? primaryGreen : context.secondaryTextColor,
                 ),
                 style: TextStyle(
                   fontSize: 12,
                   fontWeight: FontWeight.w600,
                   color: enabled
-                      ? const Color(0xFF202522)
-                      : Colors.grey.shade400,
+                      ? context.cardTextColor
+                      : context.secondaryTextColor,
                 ),
                 onChanged: enabled ? onChanged : null,
                 items: const [
@@ -831,7 +823,7 @@ class _AddLeavePageState extends State<AddLeavePage> {
       decoration: BoxDecoration(
         color: lightGreen,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: primaryGreen.withOpacity(0.12)),
+        border: Border.all(color: primaryGreen.withValues(alpha: 0.12)),
       ),
       child: Row(
         children: [
@@ -842,16 +834,16 @@ class _AddLeavePageState extends State<AddLeavePage> {
               color: primaryGreen,
               borderRadius: BorderRadius.circular(9),
             ),
-            child: const Icon(
+            child: Icon(
               Icons.calendar_month_rounded,
-              color: Colors.white,
+              color: context.onPrimaryColor,
               size: 19,
             ),
           ),
 
           const SizedBox(width: 9),
 
-          const Expanded(
+          Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -867,7 +859,10 @@ class _AddLeavePageState extends State<AddLeavePage> {
                 SizedBox(height: 2),
                 Text(
                   "Calculated automatically",
-                  style: TextStyle(fontSize: 10, color: Colors.black54),
+                  style: TextStyle(
+                    fontSize: 10,
+                    color: context.secondaryTextColor,
+                  ),
                 ),
               ],
             ),
@@ -875,7 +870,7 @@ class _AddLeavePageState extends State<AddLeavePage> {
 
           Text(
             hasDates ? _formatLeaveDays(totalLeaveDays) : "0",
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 21,
               fontWeight: FontWeight.w800,
               color: primaryGreen,
@@ -889,8 +884,6 @@ class _AddLeavePageState extends State<AddLeavePage> {
   // ============================================================
   // REASON FIELD
   // ============================================================
-
-
 
   Widget _buildReasonField() {
     return CustomTextFormField(
@@ -911,10 +904,10 @@ class _AddLeavePageState extends State<AddLeavePage> {
     return Container(
       padding: const EdgeInsets.fromLTRB(14, 8, 14, 9),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: context.cardBackgroundColor,
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.07),
+            color: context.appColors.shadow.withValues(alpha: 0.07),
             blurRadius: 10,
             offset: const Offset(0, -3),
           ),
@@ -933,8 +926,8 @@ class _AddLeavePageState extends State<AddLeavePage> {
                 child: OutlinedButton(
                   onPressed: isLoading ? null : () => context.pop(),
                   style: OutlinedButton.styleFrom(
-                    foregroundColor: Colors.grey.shade700,
-                    side: BorderSide(color: Colors.grey.shade300),
+                    foregroundColor: context.secondaryTextColor,
+                    side: BorderSide(color: context.borderColor),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(10),
                     ),
@@ -960,19 +953,19 @@ class _AddLeavePageState extends State<AddLeavePage> {
                   onPressed: isLoading ? null : _submit,
                   style: ElevatedButton.styleFrom(
                     backgroundColor: primaryGreen,
-                    foregroundColor: Colors.white,
+                    foregroundColor: context.onPrimaryColor,
                     elevation: 0,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(10),
                     ),
                   ),
                   child: isLoading
-                      ? const SizedBox(
+                      ? SizedBox(
                           height: 18,
                           width: 18,
                           child: CircularProgressIndicator(
                             strokeWidth: 2,
-                            color: Colors.white,
+                            color: context.onPrimaryColor,
                           ),
                         )
                       : const Row(

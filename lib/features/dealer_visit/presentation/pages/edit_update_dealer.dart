@@ -2,7 +2,7 @@ import 'dart:io';
 
 import 'package:solufine/core/router/app_router.dart';
 import 'package:solufine/core/secure_storage/secure_storage.dart';
-import 'package:solufine/core/theme/app_colors.dart';
+import 'package:solufine/core/theme/app_theme_context.dart';
 import 'package:solufine/core/utility/app_image_picker.dart';
 import 'package:solufine/core/utility/data_list.dart';
 import 'package:solufine/core/utility/widgets/custom_appbar.dart'
@@ -633,7 +633,7 @@ class _EditUpdateDealerState extends State<EditUpdateDealer> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: context.backgroundColor,
       appBar: CustomAppBar(
         title: 'Dealer Details',
         showBackButton: true,
@@ -650,8 +650,8 @@ class _EditUpdateDealerState extends State<EditUpdateDealer> {
                 width: double.infinity,
                 height: 52,
                 borderRadius: 22,
-                backgroundColor: const Color(0xFF087C3A),
-                textColor: Colors.white,
+                backgroundColor: context.primaryColor,
+                textColor: context.onPrimaryColor,
               );
             },
           ),
@@ -673,9 +673,9 @@ class _EditUpdateDealerState extends State<EditUpdateDealer> {
             });
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
-                backgroundColor: AppColors.backgroundColor,
+                backgroundColor: context.primaryColor,
                 content: Text(
-                  style: TextStyle(color: AppColors.accentGreen),
+                  style: TextStyle(color: context.onPrimaryColor),
                   state.errorMessage ?? 'Dealer Updated Successfully',
                 ),
               ),
@@ -692,8 +692,11 @@ class _EditUpdateDealerState extends State<EditUpdateDealer> {
             });
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
-                backgroundColor: AppColors.darkErrorColor,
-                content: Text(state.errorMessage ?? 'Submission failed'),
+                backgroundColor: context.appColors.error,
+                content: Text(
+                  state.errorMessage ?? 'Submission failed',
+                  style: TextStyle(color: context.appColors.onError),
+                ),
               ),
             );
           }
@@ -835,12 +838,12 @@ class _EditUpdateDealerState extends State<EditUpdateDealer> {
                   children: [
                     SizedBox(height: 10.h),
 
-                    const Text(
+                    Text(
                       'Dealer Type *',
                       style: TextStyle(
                         fontSize: 15,
                         fontWeight: FontWeight.w600,
-                        color: Colors.black87,
+                        color: context.primaryTextColor,
                       ),
                     ),
 
@@ -1004,12 +1007,12 @@ class _EditUpdateDealerState extends State<EditUpdateDealer> {
 
                     SizedBox(height: 10.h),
 
-                    const Text(
+                    Text(
                       'State *',
                       style: TextStyle(
                         fontSize: 15,
                         fontWeight: FontWeight.w600,
-                        color: Colors.black87,
+                        color: context.primaryTextColor,
                       ),
                     ),
 
@@ -1059,12 +1062,12 @@ class _EditUpdateDealerState extends State<EditUpdateDealer> {
                     // ),
                     SizedBox(height: 10.h),
 
-                    const Text(
+                    Text(
                       'District *',
                       style: TextStyle(
                         fontSize: 15,
                         fontWeight: FontWeight.w600,
-                        color: Colors.black87,
+                        color: context.primaryTextColor,
                       ),
                     ),
 
@@ -1091,12 +1094,12 @@ class _EditUpdateDealerState extends State<EditUpdateDealer> {
 
                     SizedBox(height: 10.h),
 
-                    const Text(
+                    Text(
                       'Taluka *',
                       style: TextStyle(
                         fontSize: 15,
                         fontWeight: FontWeight.w600,
-                        color: Colors.black87,
+                        color: context.primaryTextColor,
                       ),
                     ),
 
@@ -1171,12 +1174,12 @@ class _EditUpdateDealerState extends State<EditUpdateDealer> {
                     ),
                     SizedBox(height: 10.h),
 
-                    const Text(
+                    Text(
                       'Follow Up Type *',
                       style: TextStyle(
                         fontSize: 15,
                         fontWeight: FontWeight.w600,
-                        color: Colors.black87,
+                        color: context.primaryTextColor,
                       ),
                     ),
                     CustomDropdown<String>(

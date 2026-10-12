@@ -168,6 +168,8 @@ canvasColor:
         filled: true,
         fillColor: palette.inputBackground,
 
+
+
         hintStyle: TextStyle(
           color: palette.textSecondary,
         ),

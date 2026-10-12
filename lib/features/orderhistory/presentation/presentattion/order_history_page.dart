@@ -1,6 +1,7 @@
+import 'package:solufine/core/theme/app_dynamic_colors.dart';
 import 'package:solufine/core/router/app_router.dart';
 import 'package:solufine/core/secure_storage/secure_storage.dart';
-import 'package:solufine/core/theme/app_colors.dart';
+import 'package:solufine/core/theme/app_theme_context.dart';
 import 'package:solufine/core/utility/widgets/custom_appbar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -265,6 +266,7 @@ class _OrderHistoryPageState extends State<OrderHistoryPage> {
       barrierDismissible: false,
       builder: (dialogContext) {
         return AlertDialog(
+          backgroundColor: dialogContext.cardBackgroundColor,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(18.r),
           ),
@@ -275,7 +277,7 @@ class _OrderHistoryPageState extends State<OrderHistoryPage> {
             decoration: InputDecoration(
               hintText: 'Enter cancellation reason',
               filled: true,
-              fillColor: Colors.grey.shade50,
+              fillColor: context.appTheme.inputBackground,
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12.r),
               ),
@@ -299,8 +301,8 @@ class _OrderHistoryPageState extends State<OrderHistoryPage> {
                 Navigator.pop(dialogContext, remark);
               },
               style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.red,
-                foregroundColor: Colors.white,
+                backgroundColor: context.appColors.error,
+                foregroundColor: context.appColors.onError,
               ),
               child: const Text('Submit'),
             ),
@@ -353,7 +355,7 @@ class _OrderHistoryPageState extends State<OrderHistoryPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xffF5F7F9),
+      backgroundColor: context.backgroundColor,
 
       appBar: CustomAppBar(
         title: 'Order History',
@@ -397,9 +399,10 @@ class _OrderHistoryPageState extends State<OrderHistoryPage> {
     final filterCount = _getFilterCount();
 
     return Card(
+      color: context.cardBackgroundColor,
       margin: EdgeInsets.fromLTRB(10.w, 10.h, 10.w, 6.h),
       elevation: 3,
-      shadowColor: Colors.black.withOpacity(0.10),
+      shadowColor: context.appColors.shadow.withValues(alpha: 0.10),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16.r)),
       child: Column(
         children: [
@@ -424,12 +427,12 @@ class _OrderHistoryPageState extends State<OrderHistoryPage> {
                     width: 42.w,
                     height: 42.w,
                     decoration: BoxDecoration(
-                      color: AppColors.gradientStartColor.withOpacity(0.10),
+                      color: context.primaryColor.withValues(alpha: 0.10),
                       borderRadius: BorderRadius.circular(12.r),
                     ),
                     child: Icon(
                       Icons.tune_rounded,
-                      color: AppColors.gradientStartColor,
+                      color: context.primaryColor,
                       size: 22.sp,
                     ),
                   ),
@@ -450,7 +453,7 @@ class _OrderHistoryPageState extends State<OrderHistoryPage> {
                               style: TextStyle(
                                 fontSize: 16.sp,
                                 fontWeight: FontWeight.w700,
-                                color: const Color(0xFF202124),
+                                color: context.cardTextColor,
                               ),
                             ),
 
@@ -463,13 +466,13 @@ class _OrderHistoryPageState extends State<OrderHistoryPage> {
                                   vertical: 2.h,
                                 ),
                                 decoration: BoxDecoration(
-                                  color: AppColors.gradientStartColor,
+                                  color: context.primaryColor,
                                   borderRadius: BorderRadius.circular(20.r),
                                 ),
                                 child: Text(
                                   '$filterCount',
                                   style: TextStyle(
-                                    color: Colors.white,
+                                    color: context.onPrimaryColor,
                                     fontSize: 10.sp,
                                     fontWeight: FontWeight.w700,
                                   ),
@@ -489,7 +492,7 @@ class _OrderHistoryPageState extends State<OrderHistoryPage> {
                               : 'Filters applied',
                           style: TextStyle(
                             fontSize: 12.sp,
-                            color: Colors.grey.shade600,
+                            color: context.secondaryTextColor,
                           ),
                         ),
                       ],
@@ -504,7 +507,7 @@ class _OrderHistoryPageState extends State<OrderHistoryPage> {
                     duration: const Duration(milliseconds: 250),
                     child: Icon(
                       Icons.keyboard_arrow_down_rounded,
-                      color: Colors.grey.shade700,
+                      color: context.secondaryTextColor,
                       size: 26.sp,
                     ),
                   ),
@@ -538,7 +541,7 @@ class _OrderHistoryPageState extends State<OrderHistoryPage> {
       padding: EdgeInsets.fromLTRB(14.w, 0, 14.w, 14.h),
       child: Column(
         children: [
-          Divider(height: 1, color: Colors.grey.shade200),
+          Divider(height: 1, color: context.borderColor),
 
           SizedBox(height: 14.h),
 
@@ -556,25 +559,22 @@ class _OrderHistoryPageState extends State<OrderHistoryPage> {
 
               prefixIcon: const Icon(Icons.search_rounded),
               filled: true,
-              fillColor: Colors.grey.shade50,
+              fillColor: context.appTheme.inputBackground,
               contentPadding: EdgeInsets.symmetric(
                 horizontal: 12.w,
                 vertical: 14.h,
               ),
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12.r),
-                borderSide: BorderSide(color: Colors.grey.shade300),
+                borderSide: BorderSide(color: context.borderColor),
               ),
               enabledBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12.r),
-                borderSide: BorderSide(color: Colors.grey.shade300),
+                borderSide: BorderSide(color: context.borderColor),
               ),
               focusedBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12.r),
-                borderSide: BorderSide(
-                  color: AppColors.gradientStartColor,
-                  width: 1.5,
-                ),
+                borderSide: BorderSide(color: context.primaryColor, width: 1.5),
               ),
             ),
           ),
@@ -592,25 +592,22 @@ class _OrderHistoryPageState extends State<OrderHistoryPage> {
               labelText: 'Order Status',
               prefixIcon: const Icon(Icons.assignment_rounded),
               filled: true,
-              fillColor: Colors.grey.shade50,
+              fillColor: context.appTheme.inputBackground,
               contentPadding: EdgeInsets.symmetric(
                 horizontal: 12.w,
                 vertical: 4.h,
               ),
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12.r),
-                borderSide: BorderSide(color: Colors.grey.shade300),
+                borderSide: BorderSide(color: context.borderColor),
               ),
               enabledBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12.r),
-                borderSide: BorderSide(color: Colors.grey.shade300),
+                borderSide: BorderSide(color: context.borderColor),
               ),
               focusedBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12.r),
-                borderSide: BorderSide(
-                  color: AppColors.gradientStartColor,
-                  width: 1.5,
-                ),
+                borderSide: BorderSide(color: context.primaryColor, width: 1.5),
               ),
             ),
             items: const [
@@ -668,9 +665,9 @@ class _OrderHistoryPageState extends State<OrderHistoryPage> {
                   icon: Icon(Icons.refresh_rounded, size: 19.sp),
                   label: const Text('Reset'),
                   style: OutlinedButton.styleFrom(
-                    foregroundColor: AppColors.gradientStartColor,
+                    foregroundColor: context.primaryColor,
                     side: BorderSide(
-                      color: AppColors.gradientStartColor.withOpacity(0.5),
+                      color: context.primaryColor.withValues(alpha: 0.5),
                     ),
                     padding: EdgeInsets.symmetric(vertical: 13.h),
                     shape: RoundedRectangleBorder(
@@ -689,8 +686,8 @@ class _OrderHistoryPageState extends State<OrderHistoryPage> {
                   icon: Icon(Icons.search_rounded, size: 19.sp),
                   label: const Text('Search Orders'),
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.gradientStartColor,
-                    foregroundColor: Colors.white,
+                    backgroundColor: context.primaryColor,
+                    foregroundColor: context.onPrimaryColor,
                     elevation: 0,
                     padding: EdgeInsets.symmetric(vertical: 13.h),
                     shape: RoundedRectangleBorder(
@@ -724,22 +721,19 @@ class _OrderHistoryPageState extends State<OrderHistoryPage> {
         labelText: label,
         prefixIcon: const Icon(Icons.calendar_month_rounded),
         filled: true,
-        fillColor: Colors.grey.shade50,
+        fillColor: context.appTheme.inputBackground,
         contentPadding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 14.h),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12.r),
-          borderSide: BorderSide(color: Colors.grey.shade300),
+          borderSide: BorderSide(color: context.borderColor),
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12.r),
-          borderSide: BorderSide(color: Colors.grey.shade300),
+          borderSide: BorderSide(color: context.borderColor),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12.r),
-          borderSide: BorderSide(
-            color: AppColors.gradientStartColor,
-            width: 1.5,
-          ),
+          borderSide: BorderSide(color: context.primaryColor, width: 1.5),
         ),
       ),
     );
@@ -771,10 +765,13 @@ class _OrderHistoryPageState extends State<OrderHistoryPage> {
     // -------------------------------------------------------
 
     if (state is OrderHistoryEmpty) {
-      return const Center(
+      return Center(
         child: Text(
           'NO RECORDS FOUND',
-          style: TextStyle(fontWeight: FontWeight.w600, color: Colors.grey),
+          style: TextStyle(
+            fontWeight: FontWeight.w600,
+            color: context.secondaryTextColor,
+          ),
         ),
       );
     }
@@ -790,7 +787,11 @@ class _OrderHistoryPageState extends State<OrderHistoryPage> {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Icon(Icons.error_outline_rounded, size: 50.sp, color: Colors.red),
+              Icon(
+                Icons.error_outline_rounded,
+                size: 50.sp,
+                color: context.appColors.error,
+              ),
 
               SizedBox(height: 10.h),
 
@@ -903,9 +904,10 @@ class _OrderHistoryPageState extends State<OrderHistoryPage> {
         isPending && isReportingEmployee && order.statusReportingEmp == '0';
 
     return Card(
+      color: context.cardBackgroundColor,
       margin: EdgeInsets.only(bottom: 10.h),
       elevation: 3,
-      shadowColor: Colors.black.withOpacity(0.5),
+      shadowColor: context.appColors.shadow.withValues(alpha: 0.5),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14.r)),
       child: Padding(
         padding: EdgeInsets.all(14.w),
@@ -921,12 +923,12 @@ class _OrderHistoryPageState extends State<OrderHistoryPage> {
                   width: 42.w,
                   height: 42.w,
                   decoration: BoxDecoration(
-                    color: AppColors.gradientStartColor.withOpacity(0.10),
+                    color: context.primaryColor.withValues(alpha: 0.10),
                     borderRadius: BorderRadius.circular(12.r),
                   ),
                   child: Icon(
                     Icons.receipt_long_rounded,
-                    color: AppColors.gradientStartColor,
+                    color: context.primaryColor,
                     size: 21.sp,
                   ),
                 ),
@@ -944,7 +946,7 @@ class _OrderHistoryPageState extends State<OrderHistoryPage> {
                         style: TextStyle(
                           fontSize: 15.sp,
                           fontWeight: FontWeight.w700,
-                          color: const Color(0xFF202124),
+                          color: context.cardTextColor,
                         ),
                       ),
 
@@ -954,7 +956,7 @@ class _OrderHistoryPageState extends State<OrderHistoryPage> {
                         order.orderDate,
                         style: TextStyle(
                           fontSize: 11.sp,
-                          color: Colors.grey.shade600,
+                          color: context.secondaryTextColor,
                         ),
                       ),
                     ],
@@ -973,7 +975,7 @@ class _OrderHistoryPageState extends State<OrderHistoryPage> {
             Container(
               padding: EdgeInsets.all(10.w),
               decoration: BoxDecoration(
-                color: Colors.grey.shade50,
+                color: context.appTheme.inputBackground,
                 borderRadius: BorderRadius.circular(12.r),
               ),
               child: Column(
@@ -1011,9 +1013,9 @@ class _OrderHistoryPageState extends State<OrderHistoryPage> {
                 icon: const Icon(Icons.visibility_outlined),
                 label: const Text('View Details'),
                 style: OutlinedButton.styleFrom(
-                  foregroundColor: AppColors.gradientStartColor,
+                  foregroundColor: context.primaryColor,
                   side: BorderSide(
-                    color: AppColors.gradientStartColor.withOpacity(0.4),
+                    color: context.primaryColor.withValues(alpha: 0.4),
                   ),
                   padding: EdgeInsets.symmetric(vertical: 11.h),
                   shape: RoundedRectangleBorder(
@@ -1123,7 +1125,10 @@ class _OrderHistoryPageState extends State<OrderHistoryPage> {
             width: 95.w,
             child: Text(
               title,
-              style: TextStyle(fontSize: 12.sp, color: Colors.grey.shade600),
+              style: TextStyle(
+                fontSize: 12.sp,
+                color: context.secondaryTextColor,
+              ),
             ),
           ),
 
@@ -1133,7 +1138,7 @@ class _OrderHistoryPageState extends State<OrderHistoryPage> {
               style: TextStyle(
                 fontSize: 12.sp,
                 fontWeight: FontWeight.w600,
-                color: const Color(0xFF303030),
+                color: context.cardTextColor,
               ),
             ),
           ),
@@ -1153,40 +1158,40 @@ class _OrderHistoryPageState extends State<OrderHistoryPage> {
     switch (status) {
       case '0':
         text = 'Pending';
-        color = Colors.orange;
+        color = context.appWarning;
         break;
 
       case '1':
         text = 'Approved';
-        color = Colors.green;
+        color = context.appSuccess;
         break;
 
       case '2':
         text = 'Partial Dispatch';
-        color = Colors.blue;
+        color = context.primaryColor;
         break;
 
       case '3':
         text = 'Cancelled';
-        color = Colors.red;
+        color = context.appColors.error;
         break;
 
       case '5':
         text = 'Dispatch';
-        color = Colors.teal;
+        color = context.appColors.secondary;
         break;
 
       default:
         text = 'Unknown';
-        color = Colors.grey;
+        color = context.secondaryTextColor;
     }
 
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 9.w, vertical: 5.h),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.10),
+        color: color.withValues(alpha: 0.10),
         borderRadius: BorderRadius.circular(20.r),
-        border: Border.all(color: color.withOpacity(0.18)),
+        border: Border.all(color: color.withValues(alpha: 0.18)),
       ),
       child: Text(
         text,
@@ -1211,8 +1216,8 @@ class _OrderHistoryPageState extends State<OrderHistoryPage> {
       builder: (context) {
         return Container(
           height: 0.80.sh,
-          decoration: const BoxDecoration(
-            color: Colors.grey,
+          decoration: BoxDecoration(
+            color: context.cardBackgroundColor,
             borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
           ),
           child: SafeArea(
@@ -1227,7 +1232,7 @@ class _OrderHistoryPageState extends State<OrderHistoryPage> {
                   width: 42.w,
                   height: 4.h,
                   decoration: BoxDecoration(
-                    color: Colors.grey.shade300,
+                    color: context.borderColor,
                     borderRadius: BorderRadius.circular(10.r),
                   ),
                 ),
@@ -1245,12 +1250,12 @@ class _OrderHistoryPageState extends State<OrderHistoryPage> {
                         width: 42.w,
                         height: 42.w,
                         decoration: BoxDecoration(
-                          color: AppColors.gradientStartColor.withOpacity(0.10),
+                          color: context.primaryColor.withValues(alpha: 0.10),
                           borderRadius: BorderRadius.circular(12.r),
                         ),
                         child: Icon(
                           Icons.receipt_long_rounded,
-                          color: AppColors.gradientStartColor,
+                          color: context.primaryColor,
                         ),
                       ),
 
@@ -1272,7 +1277,7 @@ class _OrderHistoryPageState extends State<OrderHistoryPage> {
                               'Order :${order.orderNo}',
                               style: TextStyle(
                                 fontSize: 12.sp,
-                                color: Colors.black,
+                                color: context.cardTextColor,
                               ),
                             ),
                           ],
@@ -1321,9 +1326,10 @@ class _OrderHistoryPageState extends State<OrderHistoryPage> {
 
   Widget _buildDetailCard(dynamic detail) {
     return Card(
+      color: context.cardBackgroundColor,
       margin: EdgeInsets.only(bottom: 10.h),
       elevation: 2,
-      shadowColor: Colors.black12,
+      shadowColor: context.appColors.shadow.withValues(alpha: 0.12),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14.r)),
       child: Padding(
         padding: EdgeInsets.all(12.w),

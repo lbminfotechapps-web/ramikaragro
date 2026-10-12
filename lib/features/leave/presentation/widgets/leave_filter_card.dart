@@ -1,3 +1,4 @@
+import 'package:solufine/core/theme/app_theme_context.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
@@ -24,17 +25,10 @@ class LeaveFilterCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Card(
+      color: context.cardBackgroundColor,
       elevation: 2,
-      margin: const EdgeInsets.fromLTRB(
-        16,
-        8,
-        16,
-        8,
-      ),
-      shape: RoundedRectangleBorder(
-        borderRadius:
-            BorderRadius.circular(14),
-      ),
+      margin: const EdgeInsets.fromLTRB(16, 8, 16, 8),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
       child: Padding(
         padding: const EdgeInsets.all(14),
         child: Column(
@@ -64,9 +58,11 @@ class LeaveFilterCard extends StatelessWidget {
                 Expanded(
                   child: OutlinedButton(
                     onPressed: onClear,
-                    child: const Text(
-                      "Clear",
+                    style: OutlinedButton.styleFrom(
+                      foregroundColor: context.primaryColor,
+                      side: BorderSide(color: context.borderColor),
                     ),
+                    child: const Text("Clear"),
                   ),
                 ),
 
@@ -75,9 +71,11 @@ class LeaveFilterCard extends StatelessWidget {
                 Expanded(
                   child: ElevatedButton(
                     onPressed: onApply,
-                    child: const Text(
-                      "Apply",
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: context.primaryColor,
+                      foregroundColor: context.onPrimaryColor,
                     ),
+                    child: const Text("Apply"),
                   ),
                 ),
               ],
@@ -89,8 +87,6 @@ class LeaveFilterCard extends StatelessWidget {
   }
 
   String formatDate(DateTime date) {
-    return DateFormat(
-      "yyyy-MM-dd",
-    ).format(date);
+    return DateFormat("yyyy-MM-dd").format(date);
   }
 }

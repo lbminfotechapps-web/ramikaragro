@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:solufine/core/api_constant/api_client.dart';
 import 'package:solufine/core/router/app_router.dart';
-import 'package:solufine/core/theme/app_colors.dart';
+import 'package:solufine/core/theme/app_theme_context.dart';
 import 'package:solufine/core/utility/widgets/custom_appbar.dart';
 import 'package:solufine/features/quickchartreport/presentation/bloc/gallerybloc.dart';
 import 'package:solufine/features/quickchartreport/presentation/bloc/galleryevent.dart';
@@ -31,7 +31,7 @@ class _QuickReferencePageState extends State<QuickReferencePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.backgroundColor,
+      backgroundColor: context.backgroundColor,
       appBar: CustomAppBar(
         title: 'Quick Reference Chart Report',
 
@@ -83,15 +83,19 @@ class _QuickReferencePageState extends State<QuickReferencePage> {
   }
 
   Widget _buildEmpty() {
-    return const Center(
+    return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(Icons.menu_book_outlined, size: 70, color: Colors.grey),
+          Icon(
+            Icons.menu_book_outlined,
+            size: 70,
+            color: context.secondaryTextColor,
+          ),
           SizedBox(height: 12),
           Text(
             'No quick reference found',
-            style: TextStyle(fontSize: 15, color: Colors.grey),
+            style: TextStyle(fontSize: 15, color: context.secondaryTextColor),
           ),
         ],
       ),
@@ -105,10 +109,10 @@ class _QuickReferencePageState extends State<QuickReferencePage> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Icon(
+            Icon(
               Icons.error_outline_rounded,
               size: 60,
-              color: Colors.redAccent,
+              color: context.appColors.error,
             ),
             const SizedBox(height: 12),
             Text(message, textAlign: TextAlign.center),
@@ -144,12 +148,12 @@ class _QuickReferenceCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: context.cardBackgroundColor,
         borderRadius: BorderRadius.circular(18),
-        border: Border.all(color: const Color(0xFFE5E7EB)),
+        border: Border.all(color: context.borderColor),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.04),
+            color: context.appColors.shadow.withValues(alpha: 0.04),
             blurRadius: 14,
             offset: const Offset(0, 4),
           ),
@@ -167,12 +171,12 @@ class _QuickReferenceCard extends StatelessWidget {
                   width: 44,
                   height: 44,
                   decoration: BoxDecoration(
-                    color: const Color(0xFFE8F5EE),
+                    color: context.primaryColor.withValues(alpha: 0.08),
                     borderRadius: BorderRadius.circular(12),
                   ),
-                  child: const Icon(
+                  child: Icon(
                     Icons.menu_book_rounded,
-                    color: Color(0xFF17864B),
+                    color: context.primaryColor,
                   ),
                 ),
                 const SizedBox(width: 12),
@@ -182,27 +186,27 @@ class _QuickReferenceCard extends StatelessWidget {
                     children: [
                       Text(
                         title,
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 16,
                           height: 1.3,
                           fontWeight: FontWeight.w700,
-                          color: Color(0xFF1F2937),
+                          color: context.primaryTextColor,
                         ),
                       ),
                       const SizedBox(height: 6),
                       Row(
                         children: [
-                          const Icon(
+                          Icon(
                             Icons.calendar_today_outlined,
                             size: 14,
-                            color: Colors.grey,
+                            color: context.secondaryTextColor,
                           ),
                           const SizedBox(width: 5),
                           Text(
                             date,
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontSize: 12,
-                              color: Colors.grey,
+                              color: context.secondaryTextColor,
                             ),
                           ),
                         ],
@@ -215,16 +219,16 @@ class _QuickReferenceCard extends StatelessWidget {
 
             const SizedBox(height: 14),
 
-            const Divider(height: 1, color: Color(0xFFEEEEEE)),
+            Divider(height: 1, color: context.borderColor),
 
             const SizedBox(height: 14),
 
             Text(
               files.length > 1 ? 'Available References' : 'Available Reference',
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 13,
                 fontWeight: FontWeight.w600,
-                color: Color(0xFF6B7280),
+                color: context.secondaryTextColor,
               ),
             ),
 
@@ -312,13 +316,13 @@ class _ReferenceFileTile extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.all(10),
         decoration: BoxDecoration(
-          color: const Color(0xFFF8FAFC),
+          color: context.appTheme.inputBackground,
           borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: const Color(0xFFE5E7EB)),
+          border: Border.all(color: context.borderColor),
         ),
         child: Row(
           children: [
-            _buildPreview(),
+            _buildPreview(context),
 
             const SizedBox(width: 12),
 
@@ -328,10 +332,10 @@ class _ReferenceFileTile extends StatelessWidget {
                 children: [
                   Text(
                     language,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.w600,
-                      color: Color(0xFF1F2937),
+                      color: context.primaryTextColor,
                     ),
                   ),
                   const SizedBox(height: 3),
@@ -341,7 +345,10 @@ class _ReferenceFileTile extends StatelessWidget {
                         : isImage
                         ? 'Image Reference'
                         : 'Reference File',
-                    style: const TextStyle(fontSize: 11, color: Colors.grey),
+                    style: TextStyle(
+                      fontSize: 11,
+                      color: context.secondaryTextColor,
+                    ),
                   ),
                 ],
               ),
@@ -351,13 +358,13 @@ class _ReferenceFileTile extends StatelessWidget {
               width: 36,
               height: 36,
               decoration: BoxDecoration(
-                color: const Color(0xFFE8F5EE),
+                color: context.primaryColor.withValues(alpha: 0.08),
                 borderRadius: BorderRadius.circular(10),
               ),
-              child: const Icon(
+              child: Icon(
                 Icons.visibility_outlined,
                 size: 19,
-                color: Color(0xFF17864B),
+                color: context.primaryColor,
               ),
             ),
           ],
@@ -366,7 +373,7 @@ class _ReferenceFileTile extends StatelessWidget {
     );
   }
 
-  Widget _buildPreview() {
+  Widget _buildPreview(BuildContext context) {
     if (isImage) {
       return ClipRRect(
         borderRadius: BorderRadius.circular(10),
@@ -376,28 +383,28 @@ class _ReferenceFileTile extends StatelessWidget {
           height: 58,
           fit: BoxFit.cover,
           errorBuilder: (context, error, stackTrace) {
-            return _buildIconBox(Icons.broken_image_outlined);
+            return _buildIconBox(context, Icons.broken_image_outlined);
           },
         ),
       );
     }
 
     if (isPdf) {
-      return _buildIconBox(Icons.picture_as_pdf_outlined);
+      return _buildIconBox(context, Icons.picture_as_pdf_outlined);
     }
 
-    return _buildIconBox(Icons.insert_drive_file_outlined);
+    return _buildIconBox(context, Icons.insert_drive_file_outlined);
   }
 
-  Widget _buildIconBox(IconData icon) {
+  Widget _buildIconBox(BuildContext context, IconData icon) {
     return Container(
       width: 58,
       height: 58,
       decoration: BoxDecoration(
-        color: const Color(0xFFF1F5F9),
+        color: context.appTheme.inputBackground,
         borderRadius: BorderRadius.circular(10),
       ),
-      child: Icon(icon, size: 28, color: Colors.grey.shade600),
+      child: Icon(icon, size: 28, color: context.secondaryTextColor),
     );
   }
 }
@@ -496,10 +503,10 @@ class _QuickReferenceImagePageState extends State<QuickReferenceImagePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.black,
+      backgroundColor: context.backgroundColor,
       appBar: AppBar(
-        backgroundColor: Colors.black,
-        foregroundColor: Colors.white,
+        backgroundColor: context.backgroundColor,
+        foregroundColor: context.primaryTextColor,
         title: Text(_title),
         actions: [
           Builder(
@@ -507,12 +514,12 @@ class _QuickReferenceImagePageState extends State<QuickReferenceImagePage> {
               tooltip: 'Share image',
               onPressed: _sharing ? null : () => _shareImage(buttonContext),
               icon: _sharing
-                  ? const SizedBox(
+                  ? SizedBox(
                       width: 20,
                       height: 20,
                       child: CircularProgressIndicator(
                         strokeWidth: 2,
-                        color: Colors.white,
+                        color: context.primaryColor,
                       ),
                     )
                   : const Icon(Icons.share_outlined),
@@ -537,23 +544,23 @@ class _QuickReferenceImagePageState extends State<QuickReferenceImagePage> {
                     loadingBuilder: (context, child, progress) =>
                         progress == null
                         ? child
-                        : const Center(
+                        : Center(
                             child: CircularProgressIndicator(
-                              color: Colors.white,
+                              color: context.primaryColor,
                             ),
                           ),
-                    errorBuilder: (context, error, stackTrace) => const Column(
+                    errorBuilder: (context, error, stackTrace) => Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Icon(
                           Icons.broken_image_outlined,
                           size: 60,
-                          color: Colors.white54,
+                          color: context.secondaryTextColor,
                         ),
                         SizedBox(height: 10),
                         Text(
                           'Unable to load image',
-                          style: TextStyle(color: Colors.white70),
+                          style: TextStyle(color: context.secondaryTextColor),
                         ),
                       ],
                     ),
@@ -569,7 +576,7 @@ class _QuickReferenceImagePageState extends State<QuickReferenceImagePage> {
                 padding: const EdgeInsets.all(12),
                 child: Text(
                   '${_index + 1} / ${_images.length} · Swipe to browse',
-                  style: const TextStyle(color: Colors.white70),
+                  style: TextStyle(color: context.secondaryTextColor),
                 ),
               ),
             ),

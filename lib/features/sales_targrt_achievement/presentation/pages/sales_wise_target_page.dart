@@ -1,7 +1,8 @@
 import 'package:solufine/core/di/sales_target_di.dart';
 import 'package:solufine/core/router/app_router.dart';
 import 'package:solufine/core/secure_storage/secure_storage.dart';
-import 'package:solufine/core/theme/app_colors.dart';
+import 'package:solufine/core/theme/app_theme_context.dart';
+import 'package:solufine/core/theme/app_dynamic_colors.dart';
 import 'package:solufine/core/utility/widgets/custom_appbar.dart';
 import 'package:solufine/core/utility/widgets/custom_loader.dart';
 import 'package:solufine/features/sales_targrt_achievement/domain/entities/target_date_entity.dart';
@@ -26,15 +27,15 @@ class _SalesWiseTargetPageState extends State<SalesWiseTargetPage> {
 
   String userId = '';
 
-  static const Color primaryGreen = Color(0xff0F8A4B);
+  Color get primaryGreen => context.primaryColor;
 
-  static const Color darkGreen = Color(0xff08713D);
+  Color get darkGreen => context.primaryColor;
 
-  static const Color background = Color(0xffF5F7F9);
+  Color get background => context.backgroundColor;
 
-  static const Color pendingColor = Color(0xffF2B93B);
+  Color get pendingColor => context.appWarning;
 
-  static const Color achievedColor = Color(0xff75B943);
+  Color get achievedColor => context.appSuccess;
   String selectedTargetId = '';
   @override
   void initState() {
@@ -116,19 +117,19 @@ class _SalesWiseTargetPageState extends State<SalesWiseTargetPage> {
         // APP BAR
         // ===================================================
         appBar: CustomAppBar(
-          backgroundColor: AppColors.backgroundColor,
+      //  backgroundColor: context.appBackground,
           leading: IconButton(
-            icon: const Icon(
+            icon: Icon(
               Icons.arrow_back_ios_new,
               size: 19,
-              color: AppColors.darkBackgroundColor,
+              color: context.primaryTextColor,
             ),
             onPressed: () {
               context.go(AppRouter.home);
             },
           ),
-           title: ' Target And Achievement ',
-           subtitle: ' Sales Wise',
+          title: ' Target And Achievement ',
+          subtitle: ' Sales Wise',
         ),
 
         // ===================================================
@@ -138,7 +139,7 @@ class _SalesWiseTargetPageState extends State<SalesWiseTargetPage> {
           bottom: false,
           child: Column(
             children: [
-              _buildHeader(),
+              // _buildHeader(),
 
               Expanded(
                 child: BlocConsumer<SalesTargetBloc, SalesTargetState>(
@@ -230,7 +231,7 @@ class _SalesWiseTargetPageState extends State<SalesWiseTargetPage> {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.fromLTRB(18, 14, 18, 18),
-      decoration: const BoxDecoration(
+      decoration: BoxDecoration(
         color: primaryGreen,
         borderRadius: BorderRadius.only(
           bottomLeft: Radius.circular(24),
@@ -243,26 +244,26 @@ class _SalesWiseTargetPageState extends State<SalesWiseTargetPage> {
             height: 42,
             width: 42,
             decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.16),
+              color: context.onPrimaryColor.withValues(alpha: 0.16),
               borderRadius: BorderRadius.circular(13),
             ),
-            child: const Icon(
+            child: Icon(
               Icons.analytics_outlined,
-              color: Colors.white,
+              color: context.onPrimaryColor,
               size: 23,
             ),
           ),
 
           const SizedBox(width: 12),
 
-          const Expanded(
+          Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
                   'Target Achievement',
                   style: TextStyle(
-                    color: Colors.white,
+                    color: context.onPrimaryColor,
                     fontSize: 19,
                     fontWeight: FontWeight.w700,
                     letterSpacing: -0.3,
@@ -274,7 +275,7 @@ class _SalesWiseTargetPageState extends State<SalesWiseTargetPage> {
                 Text(
                   'Sales performance overview',
                   style: TextStyle(
-                    color: Colors.white70,
+                    color: context.onPrimaryColor.withValues(alpha: 0.7),
                     fontSize: 12,
                     fontWeight: FontWeight.w400,
                   ),
@@ -295,12 +296,12 @@ class _SalesWiseTargetPageState extends State<SalesWiseTargetPage> {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 2),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: context.cardBackgroundColor,
         borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: Colors.grey.shade200),
+        border: Border.all(color: context.borderColor),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.035),
+            color: context.appColors.shadow.withValues(alpha: 0.035),
             blurRadius: 10,
             offset: const Offset(0, 3),
           ),
@@ -312,10 +313,10 @@ class _SalesWiseTargetPageState extends State<SalesWiseTargetPage> {
             height: 36,
             width: 36,
             decoration: BoxDecoration(
-              color: primaryGreen.withOpacity(0.10),
+              color: primaryGreen.withValues(alpha: 0.10),
               borderRadius: BorderRadius.circular(10),
             ),
-            child: const Icon(
+            child: Icon(
               Icons.calendar_month_outlined,
               color: primaryGreen,
               size: 19,
@@ -331,14 +332,17 @@ class _SalesWiseTargetPageState extends State<SalesWiseTargetPage> {
 
                 isExpanded: true,
 
-                icon: const Icon(
+                icon: Icon(
                   Icons.keyboard_arrow_down_rounded,
-                  color: Colors.black54,
+                  color: context.secondaryTextColor,
                 ),
 
-                hint: const Text(
+                hint: Text(
                   'Select Month',
-                  style: TextStyle(fontSize: 14, color: Colors.black54),
+                  style: TextStyle(
+                    fontSize: 14,
+                    color: context.secondaryTextColor,
+                  ),
                 ),
 
                 items: state.targetDates
@@ -347,10 +351,10 @@ class _SalesWiseTargetPageState extends State<SalesWiseTargetPage> {
                         value: date,
                         child: Text(
                           date.monthName,
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontSize: 14,
                             fontWeight: FontWeight.w600,
-                            color: Colors.black87,
+                            color: context.primaryTextColor,
                           ),
                         ),
                       ),
@@ -362,7 +366,6 @@ class _SalesWiseTargetPageState extends State<SalesWiseTargetPage> {
                     return;
                   }
 
-                
                   _loadProductGroups(value.monthlyCollectionId);
                   print('selectedTargetId$selectedTargetId');
                   bloc.add(
@@ -444,18 +447,18 @@ class _SalesWiseTargetPageState extends State<SalesWiseTargetPage> {
           width: double.infinity,
           padding: const EdgeInsets.all(12),
           decoration: BoxDecoration(
-            color: Colors.white,
+            color: context.cardBackgroundColor,
             borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: const Color(0xFFE5EAE7)),
+            border: Border.all(color: context.borderColor),
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Row(
                 children: [
-                  const Icon(Icons.category_rounded, color: primaryGreen),
+                  Icon(Icons.category_rounded, color: primaryGreen),
                   const SizedBox(width: 9),
-                  const Expanded(
+                  Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -468,7 +471,10 @@ class _SalesWiseTargetPageState extends State<SalesWiseTargetPage> {
                         ),
                         Text(
                           'Group-wise point details',
-                          style: TextStyle(fontSize: 11, color: Colors.black45),
+                          style: TextStyle(
+                            fontSize: 11,
+                            color: context.secondaryTextColor,
+                          ),
                         ),
                       ],
                     ),
@@ -476,7 +482,7 @@ class _SalesWiseTargetPageState extends State<SalesWiseTargetPage> {
                   // if (state.targetStatus == SalesTargetStatus.success)
                   //   Text(
                   //     '${_formatGroupPoints(totalPoints)} Pts',
-                  //     style: const TextStyle(
+                  //     style: TextStyle(
                   //       color: primaryGreen,
                   //       fontWeight: FontWeight.w800,
                   //     ),
@@ -513,9 +519,9 @@ class _SalesWiseTargetPageState extends State<SalesWiseTargetPage> {
                     child: Container(
                       padding: const EdgeInsets.all(12),
                       decoration: BoxDecoration(
-                        color: const Color(0xFFF8FAF9),
+                        color: context.appTheme.inputBackground,
                         borderRadius: BorderRadius.circular(12),
-                        border: Border.all(color: const Color(0xFFE7ECE9)),
+                        border: Border.all(color: context.borderColor),
                       ),
                       child: Row(
                         children: [
@@ -535,12 +541,14 @@ class _SalesWiseTargetPageState extends State<SalesWiseTargetPage> {
                               vertical: 6,
                             ),
                             decoration: BoxDecoration(
-                              color: const Color(0xFFEAF6EE),
+                              color: context.primaryColor.withValues(
+                                alpha: 0.08,
+                              ),
                               borderRadius: BorderRadius.circular(10),
                             ),
                             child: Text(
                               '${_formatGroupPoints(double.tryParse(group.pointAssign.toString()) ?? 0.0)} Amt - ${_formatGroupPoints(double.tryParse(group.groupPointsValue.toString()) ?? 0.0)} pts',
-                              style: const TextStyle(
+                              style: TextStyle(
                                 color: primaryGreen,
                                 fontWeight: FontWeight.w800,
                               ),
@@ -570,18 +578,18 @@ class _SalesWiseTargetPageState extends State<SalesWiseTargetPage> {
   //         width: double.infinity,
   //         padding: const EdgeInsets.all(12),
   //         decoration: BoxDecoration(
-  //           color: Colors.white,
+  //           color: context.cardBackgroundColor,
   //           borderRadius: BorderRadius.circular(16),
-  //           border: Border.all(color: const Color(0xFFE5EAE7)),
+  //           border: Border.all(color: context.borderColor),
   //         ),
   //         child: Column(
   //           crossAxisAlignment: CrossAxisAlignment.start,
   //           children: [
   //             Row(
   //               children: [
-  //                 const Icon(Icons.category_rounded, color: primaryGreen),
+  //                 Icon(Icons.category_rounded, color: primaryGreen),
   //                 const SizedBox(width: 9),
-  //                 const Expanded(
+  //                 Expanded(
   //                   child: Column(
   //                     crossAxisAlignment: CrossAxisAlignment.start,
   //                     children: [
@@ -594,7 +602,7 @@ class _SalesWiseTargetPageState extends State<SalesWiseTargetPage> {
   //                       ),
   //                       Text(
   //                         'Group-wise point details',
-  //                         style: TextStyle(fontSize: 11, color: Colors.black45),
+  //                         style: TextStyle(fontSize: 11, color: context.secondaryTextColor),
   //                       ),
   //                     ],
   //                   ),
@@ -602,7 +610,7 @@ class _SalesWiseTargetPageState extends State<SalesWiseTargetPage> {
   //                 if (state.status == SelfTargetStatus.success)
   //                   Text(
   //                     '${_formatGroupPoints(totalPoints)} Amt/Pts',
-  //                     style: const TextStyle(
+  //                     style: TextStyle(
   //                       color: primaryGreen,
   //                       fontWeight: FontWeight.w800,
   //                     ),
@@ -644,9 +652,9 @@ class _SalesWiseTargetPageState extends State<SalesWiseTargetPage> {
   //                   child: Container(
   //                     padding: const EdgeInsets.all(12),
   //                     decoration: BoxDecoration(
-  //                       color: const Color(0xFFF8FAF9),
+  //                       color: context.appTheme.inputBackground,
   //                       borderRadius: BorderRadius.circular(12),
-  //                       border: Border.all(color: const Color(0xFFE7ECE9)),
+  //                       border: Border.all(color: context.borderColor),
   //                     ),
   //                     child: Row(
   //                       children: [
@@ -666,12 +674,12 @@ class _SalesWiseTargetPageState extends State<SalesWiseTargetPage> {
   //                             vertical: 6,
   //                           ),
   //                           decoration: BoxDecoration(
-  //                             color: const Color(0xFFEAF6EE),
+  //                             color: context.primaryColor.withValues(alpha: 0.08),
   //                             borderRadius: BorderRadius.circular(10),
   //                           ),
   //                           child: Text(
   //                             '${_formatGroupPoints(group.groupPointsValue)} Amt/Pts',
-  //                             style: const TextStyle(
+  //                             style: TextStyle(
   //                               color: primaryGreen,
   //                               fontWeight: FontWeight.w800,
   //                             ),
@@ -705,7 +713,7 @@ class _SalesWiseTargetPageState extends State<SalesWiseTargetPage> {
                 title: 'Target in Pts.',
                 value: target.totalTarget.toString(),
                 icon: Icons.flag_outlined,
-                color: const Color(0xff4776E6),
+                color: context.appColors.secondary,
               ),
             ),
 
@@ -779,12 +787,12 @@ class _SalesWiseTargetPageState extends State<SalesWiseTargetPage> {
     return Container(
       padding: const EdgeInsets.all(13),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: context.cardBackgroundColor,
         borderRadius: BorderRadius.circular(15),
-        border: Border.all(color: Colors.grey.shade200),
+        border: Border.all(color: context.borderColor),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.035),
+            color: context.appColors.shadow.withValues(alpha: 0.035),
             blurRadius: 9,
             offset: const Offset(0, 3),
           ),
@@ -796,7 +804,7 @@ class _SalesWiseTargetPageState extends State<SalesWiseTargetPage> {
             height: 38,
             width: 38,
             decoration: BoxDecoration(
-              color: color.withOpacity(0.11),
+              color: color.withValues(alpha: 0.11),
               borderRadius: BorderRadius.circular(11),
             ),
             child: Icon(icon, color: color, size: 20),
@@ -814,7 +822,7 @@ class _SalesWiseTargetPageState extends State<SalesWiseTargetPage> {
                   overflow: TextOverflow.ellipsis,
                   style: TextStyle(
                     fontSize: 11,
-                    color: Colors.grey.shade600,
+                    color: context.secondaryTextColor,
                     fontWeight: FontWeight.w500,
                   ),
                 ),
@@ -825,9 +833,9 @@ class _SalesWiseTargetPageState extends State<SalesWiseTargetPage> {
                   value,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 16,
-                    color: Color(0xff202124),
+                    color: context.primaryTextColor,
                     fontWeight: FontWeight.w700,
                     letterSpacing: -0.2,
                   ),
@@ -863,12 +871,12 @@ class _SalesWiseTargetPageState extends State<SalesWiseTargetPage> {
     return Container(
       padding: const EdgeInsets.fromLTRB(16, 16, 16, 14),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: context.cardBackgroundColor,
         borderRadius: BorderRadius.circular(18),
-        border: Border.all(color: Colors.grey.shade200),
+        border: Border.all(color: context.borderColor),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.035),
+            color: context.appColors.shadow.withValues(alpha: 0.035),
             blurRadius: 10,
             offset: const Offset(0, 3),
           ),
@@ -885,10 +893,10 @@ class _SalesWiseTargetPageState extends State<SalesWiseTargetPage> {
                 height: 34,
                 width: 34,
                 decoration: BoxDecoration(
-                  color: primaryGreen.withOpacity(0.10),
+                  color: primaryGreen.withValues(alpha: 0.10),
                   borderRadius: BorderRadius.circular(10),
                 ),
-                child: const Icon(
+                child: Icon(
                   Icons.donut_large_outlined,
                   color: primaryGreen,
                   size: 18,
@@ -897,7 +905,7 @@ class _SalesWiseTargetPageState extends State<SalesWiseTargetPage> {
 
               const SizedBox(width: 10),
 
-              const Expanded(
+              Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -906,7 +914,7 @@ class _SalesWiseTargetPageState extends State<SalesWiseTargetPage> {
                       style: TextStyle(
                         fontSize: 15,
                         fontWeight: FontWeight.w700,
-                        color: Color(0xff202124),
+                        color: context.primaryTextColor,
                       ),
                     ),
 
@@ -914,7 +922,10 @@ class _SalesWiseTargetPageState extends State<SalesWiseTargetPage> {
 
                     Text(
                       'Target vs sales',
-                      style: TextStyle(fontSize: 11, color: Colors.black45),
+                      style: TextStyle(
+                        fontSize: 11,
+                        color: context.secondaryTextColor,
+                      ),
                     ),
                   ],
                 ),
@@ -969,10 +980,10 @@ class _SalesWiseTargetPageState extends State<SalesWiseTargetPage> {
                   children: [
                     Text(
                       '${achievedPercent.toStringAsFixed(2)}%',
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 20,
                         fontWeight: FontWeight.w800,
-                        color: Color(0xff202124),
+                        color: context.primaryTextColor,
                         letterSpacing: -1,
                       ),
                     ),
@@ -983,7 +994,7 @@ class _SalesWiseTargetPageState extends State<SalesWiseTargetPage> {
                       'Achieved',
                       style: TextStyle(
                         fontSize: 11,
-                        color: Colors.grey.shade600,
+                        color: context.secondaryTextColor,
                         fontWeight: FontWeight.w500,
                       ),
                     ),
@@ -1050,16 +1061,19 @@ class _SalesWiseTargetPageState extends State<SalesWiseTargetPage> {
                 title,
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 11,
                   fontWeight: FontWeight.w600,
-                  color: Color(0xff333333),
+                  color: context.primaryTextColor,
                 ),
               ),
 
               Text(
                 value,
-                style: TextStyle(fontSize: 10, color: Colors.grey.shade600),
+                style: TextStyle(
+                  fontSize: 10,
+                  color: context.secondaryTextColor,
+                ),
               ),
             ],
           ),
@@ -1083,10 +1097,10 @@ class _SalesWiseTargetPageState extends State<SalesWiseTargetPage> {
               height: 70,
               width: 70,
               decoration: BoxDecoration(
-                color: primaryGreen.withOpacity(0.08),
+                color: primaryGreen.withValues(alpha: 0.08),
                 shape: BoxShape.circle,
               ),
-              child: const Icon(
+              child: Icon(
                 Icons.analytics_outlined,
                 size: 34,
                 color: primaryGreen,
@@ -1100,7 +1114,7 @@ class _SalesWiseTargetPageState extends State<SalesWiseTargetPage> {
               textAlign: TextAlign.center,
               style: TextStyle(
                 fontSize: 14,
-                color: Colors.grey.shade600,
+                color: context.secondaryTextColor,
                 fontWeight: FontWeight.w500,
               ),
             ),

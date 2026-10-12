@@ -8,7 +8,7 @@ import 'package:tutorial_coach_mark/tutorial_coach_mark.dart';
 import 'package:solufine/core/di/place_order_target_di.dart';
 import 'package:solufine/core/router/app_router.dart';
 import 'package:solufine/core/secure_storage/secure_storage.dart';
-import 'package:solufine/core/theme/app_colors.dart';
+import 'package:solufine/core/theme/app_theme_context.dart';
 import 'package:solufine/core/utility/widgets/custom_appbar.dart';
 import 'package:solufine/core/utility/widgets/custom_textformfield.dart';
 
@@ -97,17 +97,17 @@ class _PlaceOrderPageState extends State<PlaceOrderPage> {
   @override
   Widget build(BuildContext context) {
     if (isLoadingUser) {
-      return const Scaffold(
-        backgroundColor: AppColors.background,
+      return Scaffold(
+        backgroundColor: context.backgroundColor,
         body: Center(
-          child: CircularProgressIndicator(color: AppColors.primary),
+          child: CircularProgressIndicator(color: context.primaryColor),
         ),
       );
     }
 
     if (userId == null || userId! <= 0) {
       return Scaffold(
-        backgroundColor: AppColors.background,
+        backgroundColor: context.backgroundColor,
         body: Center(
           child: Padding(
             padding: EdgeInsets.all(24.w),
@@ -116,14 +116,14 @@ class _PlaceOrderPageState extends State<PlaceOrderPage> {
               children: [
                 Container(
                   padding: EdgeInsets.all(18.w),
-                  decoration: const BoxDecoration(
-                    color: AppColors.lightGreen,
+                  decoration: BoxDecoration(
+                    color: context.primaryColor.withValues(alpha: 0.1),
                     shape: BoxShape.circle,
                   ),
                   child: Icon(
                     Icons.person_off_rounded,
                     size: 50.sp,
-                    color: AppColors.primary,
+                    color: context.primaryColor,
                   ),
                 ),
                 SizedBox(height: 18.h),
@@ -132,7 +132,7 @@ class _PlaceOrderPageState extends State<PlaceOrderPage> {
                   style: TextStyle(
                     fontSize: 17.sp,
                     fontWeight: FontWeight.w800,
-                    color: AppColors.textPrimary,
+                    color: context.primaryTextColor,
                   ),
                 ),
                 SizedBox(height: 8.h),
@@ -141,7 +141,7 @@ class _PlaceOrderPageState extends State<PlaceOrderPage> {
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     fontSize: 13.sp,
-                    color: AppColors.textSecondary,
+                    color: context.secondaryTextColor,
                   ),
                 ),
               ],
@@ -292,7 +292,6 @@ class _PlaceOrderViewState extends State<_PlaceOrderView> {
       }
     });
   }
-
 
   // ===========================================================================
   // CONTROLLERS
@@ -538,9 +537,9 @@ class _PlaceOrderViewState extends State<_PlaceOrderView> {
       margin: EdgeInsets.only(top: 8.h),
       padding: EdgeInsets.all(10.w),
       decoration: BoxDecoration(
-        color: AppColors.lightGreen,
+        color: context.primaryColor.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(12.r),
-        border: Border.all(color: AppColors.primary.withOpacity(0.15)),
+        border: Border.all(color: context.primaryColor.withValues(alpha: 0.15)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -550,7 +549,7 @@ class _PlaceOrderViewState extends State<_PlaceOrderView> {
               Icon(
                 Icons.check_circle_rounded,
                 size: 16.sp,
-                color: AppColors.primary,
+                color: context.primaryColor,
               ),
               SizedBox(width: 6.w),
               Text(
@@ -558,7 +557,7 @@ class _PlaceOrderViewState extends State<_PlaceOrderView> {
                 style: TextStyle(
                   fontSize: 11.sp,
                   fontWeight: FontWeight.w800,
-                  color: AppColors.textPrimary,
+                  color: context.primaryTextColor,
                 ),
               ),
             ],
@@ -576,10 +575,10 @@ class _PlaceOrderViewState extends State<_PlaceOrderView> {
                   bottom: 5.h,
                 ),
                 decoration: BoxDecoration(
-                  color: Colors.white,
+                  color: context.cardBackgroundColor,
                   borderRadius: BorderRadius.circular(20.r),
                   border: Border.all(
-                    color: AppColors.primary.withOpacity(0.25),
+                    color: context.primaryColor.withValues(alpha: 0.25),
                   ),
                 ),
                 child: Row(
@@ -588,7 +587,7 @@ class _PlaceOrderViewState extends State<_PlaceOrderView> {
                     Icon(
                       Icons.category_rounded,
                       size: 14.sp,
-                      color: AppColors.primary,
+                      color: context.primaryColor,
                     ),
                     SizedBox(width: 5.w),
                     Text(
@@ -596,7 +595,7 @@ class _PlaceOrderViewState extends State<_PlaceOrderView> {
                       style: TextStyle(
                         fontSize: 11.sp,
                         fontWeight: FontWeight.w700,
-                        color: AppColors.textPrimary,
+                        color: context.primaryTextColor,
                       ),
                     ),
                     SizedBox(width: 3.w),
@@ -610,7 +609,7 @@ class _PlaceOrderViewState extends State<_PlaceOrderView> {
                         child: Icon(
                           Icons.close_rounded,
                           size: 14.sp,
-                          color: AppColors.primary,
+                          color: context.primaryColor,
                         ),
                       ),
                     ),
@@ -653,7 +652,7 @@ class _PlaceOrderViewState extends State<_PlaceOrderView> {
             : null,
 
         filled: true,
-        fillColor: Colors.white,
+        fillColor: context.appTheme.inputBackground,
 
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12.r),
@@ -662,12 +661,12 @@ class _PlaceOrderViewState extends State<_PlaceOrderView> {
 
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12.r),
-          borderSide: BorderSide(color: AppColors.border),
+          borderSide: BorderSide(color: context.borderColor),
         ),
 
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12.r),
-          borderSide: BorderSide(color: AppColors.primary, width: 1.4),
+          borderSide: BorderSide(color: context.primaryColor, width: 1.4),
         ),
 
         contentPadding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 12.h),
@@ -684,13 +683,13 @@ class _PlaceOrderViewState extends State<_PlaceOrderView> {
         padding: EdgeInsets.fromLTRB(10.w, 9.h, 10.w, 9.h),
 
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: context.cardBackgroundColor,
 
-          border: Border(top: BorderSide(color: AppColors.border, width: 1)),
+          border: Border(top: BorderSide(color: context.borderColor, width: 1)),
 
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.06),
+              color: context.appColors.shadow.withValues(alpha: 0.06),
               blurRadius: 12,
               offset: const Offset(0, -3),
             ),
@@ -725,475 +724,421 @@ class _PlaceOrderViewState extends State<_PlaceOrderView> {
   // ===========================================================================
 
   Future<void> _openAddDetailsDialog() async {
-  String? validationMessage;
+    String? validationMessage;
 
-  await showDialog(
-    context: context,
-    barrierDismissible: false,
-    builder: (dialogContext) {
-      return Dialog(
-        backgroundColor: Colors.transparent,
-        insetPadding: EdgeInsets.symmetric(
-          horizontal: 14.w,
-          vertical: 20.h,
-        ),
-        child: StatefulBuilder(
-          builder: (context, dialogSetState) {
-            final bool hasImage =
-                imagePath != null &&
-                imagePath!.trim().isNotEmpty;
+    await showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (dialogContext) {
+        return Dialog(
+          backgroundColor: Colors.transparent,
+          insetPadding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 20.h),
+          child: StatefulBuilder(
+            builder: (context, dialogSetState) {
+              final bool hasImage =
+                  imagePath != null && imagePath!.trim().isNotEmpty;
 
-            final bool hasSignature =
-                signatureBytes != null &&
-                signatureBytes!.isNotEmpty;
+              final bool hasSignature =
+                  signatureBytes != null && signatureBytes!.isNotEmpty;
 
-            return Container(
-              width: double.infinity,
-              constraints: BoxConstraints(
-                maxHeight:
-                    MediaQuery.of(context).size.height * 0.88,
-              ),
-              decoration: BoxDecoration(
-                color: AppColors.background,
-                borderRadius: BorderRadius.circular(20.r),
-              ),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  // HEADER
-                  Container(
-                    padding: EdgeInsets.symmetric(
-                      horizontal: 15.w,
-                      vertical: 13.h,
-                    ),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.vertical(
-                        top: Radius.circular(20.r),
+              return Container(
+                width: double.infinity,
+                constraints: BoxConstraints(
+                  maxHeight: MediaQuery.of(context).size.height * 0.88,
+                ),
+                decoration: BoxDecoration(
+                  color: context.backgroundColor,
+                  borderRadius: BorderRadius.circular(20.r),
+                ),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    // HEADER
+                    Container(
+                      padding: EdgeInsets.symmetric(
+                        horizontal: 15.w,
+                        vertical: 13.h,
                       ),
-                      border: Border(
-                        bottom: BorderSide(
-                          color: AppColors.border,
+                      decoration: BoxDecoration(
+                        color: context.cardBackgroundColor,
+                        borderRadius: BorderRadius.vertical(
+                          top: Radius.circular(20.r),
+                        ),
+                        border: Border(
+                          bottom: BorderSide(color: context.borderColor),
                         ),
                       ),
-                    ),
-                    child: Row(
-                      children: [
-                        Container(
-                          width: 38.w,
-                          height: 38.w,
-                          decoration: BoxDecoration(
-                            color: AppColors.lightGreen,
-                            borderRadius:
-                                BorderRadius.circular(11.r),
-                          ),
-                          child: Icon(
-                            Icons.edit_note_rounded,
-                            color: AppColors.primary,
-                            size: 21.sp,
-                          ),
-                        ),
-                        SizedBox(width: 10.w),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment:
-                                CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                'Add Order Details',
-                                style: TextStyle(
-                                  fontSize: 16.sp,
-                                  fontWeight: FontWeight.w800,
-                                  color: AppColors.textPrimary,
-                                ),
-                              ),
-                              SizedBox(height: 2.h),
-                              Text(
-                                'Add photo, signature and remark',
-                                style: TextStyle(
-                                  fontSize: 10.5.sp,
-                                  fontWeight: FontWeight.w500,
-                                  color:
-                                      AppColors.textSecondary,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                        InkWell(
-                          onTap: () {
-                            Navigator.pop(dialogContext);
-                          },
-                          borderRadius:
-                              BorderRadius.circular(30.r),
-                          child: Container(
-                            width: 34.w,
-                            height: 34.w,
+                      child: Row(
+                        children: [
+                          Container(
+                            width: 38.w,
+                            height: 38.w,
                             decoration: BoxDecoration(
-                              color: Colors.grey.shade100,
-                              shape: BoxShape.circle,
+                              color: context.primaryColor.withValues(
+                                alpha: 0.1,
+                              ),
+                              borderRadius: BorderRadius.circular(11.r),
                             ),
                             child: Icon(
-                              Icons.close_rounded,
-                              size: 20.sp,
-                              color: AppColors.textPrimary,
+                              Icons.edit_note_rounded,
+                              color: context.primaryColor,
+                              size: 21.sp,
                             ),
                           ),
-                        ),
-                      ],
-                    ),
-                  ),
-
-                  // CONTENT
-                  Flexible(
-                    child: SingleChildScrollView(
-                      physics:
-                          const BouncingScrollPhysics(),
-                      padding: EdgeInsets.all(12.w),
-                      child: Column(
-                        crossAxisAlignment:
-                            CrossAxisAlignment.start,
-                        children: [
-                          // VALIDATION MESSAGE
-                          if (validationMessage != null) ...[
-                            Container(
-                              width: double.infinity,
-                              padding: EdgeInsets.symmetric(
-                                horizontal: 12.w,
-                                vertical: 10.h,
-                              ),
-                              decoration: BoxDecoration(
-                                color: Colors.red.shade50,
-                                borderRadius:
-                                    BorderRadius.circular(10.r),
-                                border: Border.all(
-                                  color:
-                                      Colors.red.shade200,
-                                ),
-                              ),
-                              child: Row(
-                                children: [
-                                  Icon(
-                                    Icons.error_outline,
-                                    color:
-                                        Colors.red.shade700,
-                                    size: 20.sp,
-                                  ),
-                                  SizedBox(width: 8.w),
-                                  Expanded(
-                                    child: Text(
-                                      validationMessage!,
-                                      style: TextStyle(
-                                        color:
-                                            Colors.red.shade700,
-                                        fontSize: 12.sp,
-                                        fontWeight:
-                                            FontWeight.w600,
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                            SizedBox(height: 10.h),
-                          ],
-
-                          // STATUS
-                          Container(
-                            width: double.infinity,
-                            padding: EdgeInsets.symmetric(
-                              horizontal: 11.w,
-                              vertical: 9.h,
-                            ),
-                            decoration: BoxDecoration(
-                              color: AppColors.lightGreen
-                                  .withOpacity(0.45),
-                              borderRadius:
-                                  BorderRadius.circular(12.r),
-                              border: Border.all(
-                                color: AppColors.primary
-                                    .withOpacity(0.12),
-                              ),
-                            ),
-                            child: Row(
-                              children: [
-                                _buildDetailStatus(
-                                  icon:
-                                      Icons.photo_camera_rounded,
-                                  title: 'Photo',
-                                  completed: hasImage,
-                                ),
-                                Container(
-                                  height: 26.h,
-                                  width: 1,
-                                  color: AppColors.border,
-                                ),
-                                _buildDetailStatus(
-                                  icon: Icons.draw_rounded,
-                                  title: 'Signature',
-                                  completed: hasSignature,
-                                ),
-                                Container(
-                                  height: 26.h,
-                                  width: 1,
-                                  color: AppColors.border,
-                                ),
-                                _buildDetailStatus(
-                                  icon: Icons.notes_rounded,
-                                  title: 'Remark',
-                                  completed: remarkController
-                                      .text
-                                      .trim()
-                                      .isNotEmpty,
-                                ),
-                              ],
-                            ),
-                          ),
-
-                          SizedBox(height: 11.h),
-
-                          // PHOTO
-                          ImagePickerSection(
-                            imagePath: imagePath,
-                            onChanged: (path) {
-                              imagePath = path;
-
-                              dialogSetState(() {
-                                validationMessage = null;
-                              });
-
-                              setState(() {});
-                            },
-                          ),
-
-                          SizedBox(height: 10.h),
-
-                          // SIGNATURE
-                          SignatureSection(
-                            controller:
-                                signatureController,
-                            onClear: () {
-                              signatureController.clear();
-                              signatureBytes = null;
-
-                              dialogSetState(() {
-                                validationMessage = null;
-                              });
-
-                              setState(() {});
-                            },
-                            onSignatureChanged: (bytes) {
-                              signatureBytes = bytes;
-
-                              dialogSetState(() {
-                                validationMessage = null;
-                              });
-
-                              setState(() {});
-                            },
-                          ),
-
-                          SizedBox(height: 10.h),
-
-                          // REMARK
-                          Container(
-                            padding: EdgeInsets.all(10.w),
-                            decoration: BoxDecoration(
-                              color: Colors.white,
-                              borderRadius:
-                                  BorderRadius.circular(14.r),
-                              border: Border.all(
-                                color: AppColors.border,
-                              ),
-                            ),
+                          SizedBox(width: 10.w),
+                          Expanded(
                             child: Column(
-                              crossAxisAlignment:
-                                  CrossAxisAlignment.start,
+                              crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Row(
-                                  children: [
-                                    Container(
-                                      width: 32.w,
-                                      height: 32.w,
-                                      decoration:
-                                          BoxDecoration(
-                                        color:
-                                            AppColors.lightGreen,
-                                        borderRadius:
-                                            BorderRadius.circular(
-                                          9.r,
-                                        ),
-                                      ),
-                                      child: Icon(
-                                        Icons.notes_rounded,
-                                        color:
-                                            AppColors.primary,
-                                        size: 17.sp,
-                                      ),
-                                    ),
-                                    SizedBox(width: 8.w),
-                                    Text(
-                                      'Remark',
-                                      style: TextStyle(
-                                        fontSize: 11.5.sp,
-                                        fontWeight:
-                                            FontWeight.w800,
-                                        color: AppColors
-                                            .textPrimary,
-                                      ),
-                                    ),
-                                  ],
+                                Text(
+                                  'Add Order Details',
+                                  style: TextStyle(
+                                    fontSize: 16.sp,
+                                    fontWeight: FontWeight.w800,
+                                    color: context.primaryTextColor,
+                                  ),
                                 ),
-                                SizedBox(height: 8.h),
-                                TextField(
-                                  controller:
-                                      remarkController,
-                                  maxLines: 3,
-                                  minLines: 3,
-                                  onChanged: (_) {
-                                    dialogSetState(() {});
-                                  },
-                                  decoration:
-                                      InputDecoration(
-                                    hintText:
-                                        'Enter additional order remark...',
-                                    filled: true,
-                                    fillColor: const Color(
-                                      0xFFFAFCFA,
-                                    ),
-                                    border:
-                                        OutlineInputBorder(
-                                      borderRadius:
-                                          BorderRadius.circular(
-                                        11.r,
-                                      ),
-                                    ),
+                                SizedBox(height: 2.h),
+                                Text(
+                                  'Add photo, signature and remark',
+                                  style: TextStyle(
+                                    fontSize: 10.5.sp,
+                                    fontWeight: FontWeight.w500,
+                                    color: context.secondaryTextColor,
                                   ),
                                 ),
                               ],
+                            ),
+                          ),
+                          InkWell(
+                            onTap: () {
+                              Navigator.pop(dialogContext);
+                            },
+                            borderRadius: BorderRadius.circular(30.r),
+                            child: Container(
+                              width: 34.w,
+                              height: 34.w,
+                              decoration: BoxDecoration(
+                                color: context.appTheme.inputBackground,
+                                shape: BoxShape.circle,
+                              ),
+                              child: Icon(
+                                Icons.close_rounded,
+                                size: 20.sp,
+                                color: context.primaryTextColor,
+                              ),
                             ),
                           ),
                         ],
                       ),
                     ),
-                  ),
 
-                  // BUTTONS
-                  Container(
-                    padding: EdgeInsets.fromLTRB(
-                      12.w,
-                      10.h,
-                      12.w,
-                      12.h,
-                    ),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.vertical(
-                        bottom: Radius.circular(20.r),
-                      ),
-                      border: Border(
-                        top: BorderSide(
-                          color: AppColors.border,
-                        ),
-                      ),
-                    ),
-                    child: Row(
-                      children: [
-                        Expanded(
-                          child: SizedBox(
-                            height: 45.h,
-                            child: OutlinedButton(
-                              onPressed: () {
-                                Navigator.pop(
-                                  dialogContext,
-                                );
-                              },
-                              child: const Text('Cancel'),
-                            ),
-                          ),
-                        ),
-                        SizedBox(width: 9.w),
-                        Expanded(
-                          child: SizedBox(
-                            height: 45.h,
-                            child: ElevatedButton.icon(
-                              onPressed: () {
-                                if (imagePath == null ||
-                                    imagePath!
+                    // CONTENT
+                    Flexible(
+                      child: SingleChildScrollView(
+                        physics: const BouncingScrollPhysics(),
+                        padding: EdgeInsets.all(12.w),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            // VALIDATION MESSAGE
+                            if (validationMessage != null) ...[
+                              Container(
+                                width: double.infinity,
+                                padding: EdgeInsets.symmetric(
+                                  horizontal: 12.w,
+                                  vertical: 10.h,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: context.appColors.error.withValues(
+                                    alpha: 0.08,
+                                  ),
+                                  borderRadius: BorderRadius.circular(10.r),
+                                  border: Border.all(
+                                    color: context.appColors.error.withValues(
+                                      alpha: 0.25,
+                                    ),
+                                  ),
+                                ),
+                                child: Row(
+                                  children: [
+                                    Icon(
+                                      Icons.error_outline,
+                                      color: context.appColors.error,
+                                      size: 20.sp,
+                                    ),
+                                    SizedBox(width: 8.w),
+                                    Expanded(
+                                      child: Text(
+                                        validationMessage!,
+                                        style: TextStyle(
+                                          color: context.appColors.error,
+                                          fontSize: 12.sp,
+                                          fontWeight: FontWeight.w600,
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              SizedBox(height: 10.h),
+                            ],
+
+                            // STATUS
+                            Container(
+                              width: double.infinity,
+                              padding: EdgeInsets.symmetric(
+                                horizontal: 11.w,
+                                vertical: 9.h,
+                              ),
+                              decoration: BoxDecoration(
+                                color: context.primaryColor
+                                    .withValues(alpha: 0.1)
+                                    .withValues(alpha: 0.45),
+                                borderRadius: BorderRadius.circular(12.r),
+                                border: Border.all(
+                                  color: context.primaryColor.withValues(
+                                    alpha: 0.12,
+                                  ),
+                                ),
+                              ),
+                              child: Row(
+                                children: [
+                                  _buildDetailStatus(
+                                    icon: Icons.photo_camera_rounded,
+                                    title: 'Photo',
+                                    completed: hasImage,
+                                  ),
+                                  Container(
+                                    height: 26.h,
+                                    width: 1,
+                                    color: context.borderColor,
+                                  ),
+                                  _buildDetailStatus(
+                                    icon: Icons.draw_rounded,
+                                    title: 'Signature',
+                                    completed: hasSignature,
+                                  ),
+                                  Container(
+                                    height: 26.h,
+                                    width: 1,
+                                    color: context.borderColor,
+                                  ),
+                                  _buildDetailStatus(
+                                    icon: Icons.notes_rounded,
+                                    title: 'Remark',
+                                    completed: remarkController.text
                                         .trim()
-                                        .isEmpty) {
-                                  dialogSetState(() {
-                                    validationMessage =
-                                        'Please add order photo';
-                                  });
-                                  return;
-                                }
+                                        .isNotEmpty,
+                                  ),
+                                ],
+                              ),
+                            ),
 
-                                if (signatureBytes ==
-                                        null ||
-                                    signatureBytes!
-                                        .isEmpty) {
-                                  dialogSetState(() {
-                                    validationMessage =
-                                        'Please add dealer signature';
-                                  });
-                                  return;
-                                }
+                            SizedBox(height: 11.h),
+
+                            // PHOTO
+                            ImagePickerSection(
+                              imagePath: imagePath,
+                              onChanged: (path) {
+                                imagePath = path;
 
                                 dialogSetState(() {
                                   validationMessage = null;
                                 });
 
                                 setState(() {});
-
-                                Navigator.pop(
-                                  dialogContext,
-                                );
                               },
-                              icon: Icon(
-                                Icons
-                                    .check_circle_rounded,
-                                size: 18.sp,
+                            ),
+
+                            SizedBox(height: 10.h),
+
+                            // SIGNATURE
+                            SignatureSection(
+                              controller: signatureController,
+                              onClear: () {
+                                signatureController.clear();
+                                signatureBytes = null;
+
+                                dialogSetState(() {
+                                  validationMessage = null;
+                                });
+
+                                setState(() {});
+                              },
+                              onSignatureChanged: (bytes) {
+                                signatureBytes = bytes;
+
+                                dialogSetState(() {
+                                  validationMessage = null;
+                                });
+
+                                setState(() {});
+                              },
+                            ),
+
+                            SizedBox(height: 10.h),
+
+                            // REMARK
+                            Container(
+                              padding: EdgeInsets.all(10.w),
+                              decoration: BoxDecoration(
+                                color: context.cardBackgroundColor,
+                                borderRadius: BorderRadius.circular(14.r),
+                                border: Border.all(color: context.borderColor),
                               ),
-                              label: Text(
-                                'Save Details',
-                                style: TextStyle(
-                                  fontSize: 12.sp,
-                                  fontWeight:
-                                      FontWeight.w800,
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Row(
+                                    children: [
+                                      Container(
+                                        width: 32.w,
+                                        height: 32.w,
+                                        decoration: BoxDecoration(
+                                          color: context.primaryColor
+                                              .withValues(alpha: 0.1),
+                                          borderRadius: BorderRadius.circular(
+                                            9.r,
+                                          ),
+                                        ),
+                                        child: Icon(
+                                          Icons.notes_rounded,
+                                          color: context.primaryColor,
+                                          size: 17.sp,
+                                        ),
+                                      ),
+                                      SizedBox(width: 8.w),
+                                      Text(
+                                        'Remark',
+                                        style: TextStyle(
+                                          fontSize: 11.5.sp,
+                                          fontWeight: FontWeight.w800,
+                                          color: context.primaryTextColor,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  SizedBox(height: 8.h),
+                                  TextField(
+                                    controller: remarkController,
+                                    maxLines: 3,
+                                    minLines: 3,
+                                    onChanged: (_) {
+                                      dialogSetState(() {});
+                                    },
+                                    decoration: InputDecoration(
+                                      hintText:
+                                          'Enter additional order remark...',
+                                      filled: true,
+                                      fillColor:
+                                          context.appTheme.inputBackground,
+                                      border: OutlineInputBorder(
+                                        borderRadius: BorderRadius.circular(
+                                          11.r,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+
+                    // BUTTONS
+                    Container(
+                      padding: EdgeInsets.fromLTRB(12.w, 10.h, 12.w, 12.h),
+                      decoration: BoxDecoration(
+                        color: context.cardBackgroundColor,
+                        borderRadius: BorderRadius.vertical(
+                          bottom: Radius.circular(20.r),
+                        ),
+                        border: Border(
+                          top: BorderSide(color: context.borderColor),
+                        ),
+                      ),
+                      child: Row(
+                        children: [
+                          Expanded(
+                            child: SizedBox(
+                              height: 45.h,
+                              child: OutlinedButton(
+                                onPressed: () {
+                                  Navigator.pop(dialogContext);
+                                },
+                                child: const Text('Cancel'),
+                              ),
+                            ),
+                          ),
+                          SizedBox(width: 9.w),
+                          Expanded(
+                            child: SizedBox(
+                              height: 45.h,
+                              child: ElevatedButton.icon(
+                                onPressed: () {
+                                  if (imagePath == null ||
+                                      imagePath!.trim().isEmpty) {
+                                    dialogSetState(() {
+                                      validationMessage =
+                                          'Please add order photo';
+                                    });
+                                    return;
+                                  }
+
+                                  if (signatureBytes == null ||
+                                      signatureBytes!.isEmpty) {
+                                    dialogSetState(() {
+                                      validationMessage =
+                                          'Please add dealer signature';
+                                    });
+                                    return;
+                                  }
+
+                                  dialogSetState(() {
+                                    validationMessage = null;
+                                  });
+
+                                  setState(() {});
+
+                                  Navigator.pop(dialogContext);
+                                },
+                                icon: Icon(
+                                  Icons.check_circle_rounded,
+                                  size: 18.sp,
                                 ),
-                              ),
-                              style:
-                                  ElevatedButton.styleFrom(
-                                backgroundColor:
-                                    AppColors.primary,
-                                foregroundColor:
-                                    Colors.white,
-                                elevation: 0,
-                                shape:
-                                    RoundedRectangleBorder(
-                                  borderRadius:
-                                      BorderRadius.circular(
-                                    11.r,
+                                label: Text(
+                                  'Save Details',
+                                  style: TextStyle(
+                                    fontSize: 12.sp,
+                                    fontWeight: FontWeight.w800,
+                                  ),
+                                ),
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: context.primaryColor,
+                                  foregroundColor: context.onPrimaryColor,
+                                  elevation: 0,
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(11.r),
                                   ),
                                 ),
                               ),
                             ),
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
-                  ),
-                ],
-              ),
-            );
-          },
-        ),
-      );
-    },
-  );
-}
-
+                  ],
+                ),
+              );
+            },
+          ),
+        );
+      },
+    );
+  }
 
   Widget _buildDetailStatus({
     required IconData icon,
@@ -1208,16 +1153,20 @@ class _PlaceOrderViewState extends State<_PlaceOrderView> {
             width: 27.w,
             height: 27.w,
             decoration: BoxDecoration(
-              color: completed ? AppColors.primary : Colors.white,
+              color: completed
+                  ? context.primaryColor
+                  : context.cardBackgroundColor,
               shape: BoxShape.circle,
               border: Border.all(
-                color: completed ? AppColors.primary : AppColors.border,
+                color: completed ? context.primaryColor : context.borderColor,
               ),
             ),
             child: Icon(
               completed ? Icons.check_rounded : icon,
               size: 14.sp,
-              color: completed ? Colors.white : AppColors.textSecondary,
+              color: completed
+                  ? context.onPrimaryColor
+                  : context.secondaryTextColor,
             ),
           ),
 
@@ -1230,7 +1179,9 @@ class _PlaceOrderViewState extends State<_PlaceOrderView> {
             style: TextStyle(
               fontSize: 9.sp,
               fontWeight: FontWeight.w700,
-              color: completed ? AppColors.primary : AppColors.textSecondary,
+              color: completed
+                  ? context.primaryColor
+                  : context.secondaryTextColor,
             ),
           ),
         ],
@@ -1252,12 +1203,14 @@ class _PlaceOrderViewState extends State<_PlaceOrderView> {
         key: _orderDetailsKey,
         onPressed: _openAddDetailsDialog,
         style: OutlinedButton.styleFrom(
-          backgroundColor: detailsAdded ? AppColors.lightGreen : Colors.white,
-          foregroundColor: AppColors.primary,
+          backgroundColor: detailsAdded
+              ? context.primaryColor.withValues(alpha: 0.1)
+              : context.cardBackgroundColor,
+          foregroundColor: context.primaryColor,
           side: BorderSide(
             color: detailsAdded
-                ? AppColors.primary.withOpacity(0.45)
-                : AppColors.border,
+                ? context.primaryColor.withValues(alpha: 0.45)
+                : context.borderColor,
             width: 1.1,
           ),
           shape: RoundedRectangleBorder(
@@ -1303,9 +1256,9 @@ class _PlaceOrderViewState extends State<_PlaceOrderView> {
                 _submit(state);
               },
         style: ElevatedButton.styleFrom(
-          backgroundColor: AppColors.primary,
-          foregroundColor: Colors.white,
-          disabledBackgroundColor: AppColors.primary.withOpacity(0.55),
+          backgroundColor: context.primaryColor,
+          foregroundColor: context.onPrimaryColor,
+          disabledBackgroundColor: context.primaryColor.withValues(alpha: 0.55),
           elevation: 0,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(12.r),
@@ -1316,9 +1269,9 @@ class _PlaceOrderViewState extends State<_PlaceOrderView> {
             ? SizedBox(
                 width: 19.w,
                 height: 19.w,
-                child: const CircularProgressIndicator(
+                child: CircularProgressIndicator(
                   strokeWidth: 2,
-                  color: Colors.white,
+                  color: context.onPrimaryColor,
                 ),
               )
             : Row(
@@ -1430,7 +1383,7 @@ class _PlaceOrderViewState extends State<_PlaceOrderView> {
             context: context,
             isScrollControlled: true,
             backgroundColor: Colors.transparent,
-            barrierColor: Colors.black.withOpacity(0.45),
+            barrierColor: context.appColors.shadow.withValues(alpha: 0.45),
             builder: (bottomSheetContext) {
               return MultiProductRateBottomSheet(
                 products: currentProducts,
@@ -1765,7 +1718,7 @@ class _PlaceOrderViewState extends State<_PlaceOrderView> {
               style: TextStyle(
                 fontSize: 14.sp,
                 fontWeight: FontWeight.w600,
-                color: AppColors.textPrimary,
+                color: context.primaryTextColor,
               ),
             ),
           ),
@@ -1802,7 +1755,7 @@ class _PlaceOrderViewState extends State<_PlaceOrderView> {
               style: TextStyle(
                 fontSize: 14.sp,
                 fontWeight: FontWeight.w600,
-                color: AppColors.textPrimary,
+                color: context.primaryTextColor,
               ),
             ),
           ),
@@ -1823,7 +1776,7 @@ class _PlaceOrderViewState extends State<_PlaceOrderView> {
       barrierDismissible: false,
       builder: (dialogContext) {
         return AlertDialog(
-          backgroundColor: Colors.white,
+          backgroundColor: context.cardBackgroundColor,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(18.r),
           ),
@@ -1835,13 +1788,13 @@ class _PlaceOrderViewState extends State<_PlaceOrderView> {
               Container(
                 width: 44.w,
                 height: 44.w,
-                decoration: const BoxDecoration(
-                  color: AppColors.lightGreen,
+                decoration: BoxDecoration(
+                  color: context.primaryColor.withValues(alpha: 0.1),
                   shape: BoxShape.circle,
                 ),
                 child: Icon(
                   Icons.shopping_cart_checkout_rounded,
-                  color: AppColors.primary,
+                  color: context.primaryColor,
                   size: 23.sp,
                 ),
               ),
@@ -1852,7 +1805,7 @@ class _PlaceOrderViewState extends State<_PlaceOrderView> {
                   style: TextStyle(
                     fontSize: 18.sp,
                     fontWeight: FontWeight.w800,
-                    color: AppColors.textPrimary,
+                    color: context.primaryTextColor,
                   ),
                 ),
               ),
@@ -1868,7 +1821,7 @@ class _PlaceOrderViewState extends State<_PlaceOrderView> {
                   fontSize: 14.sp,
                   height: 1.4,
                   fontWeight: FontWeight.w600,
-                  color: AppColors.textPrimary,
+                  color: context.primaryTextColor,
                 ),
               ),
               SizedBox(height: 14.h),
@@ -1876,9 +1829,9 @@ class _PlaceOrderViewState extends State<_PlaceOrderView> {
                 width: double.infinity,
                 padding: EdgeInsets.all(12.w),
                 decoration: BoxDecoration(
-                  color: AppColors.background,
+                  color: context.backgroundColor,
                   borderRadius: BorderRadius.circular(12.r),
-                  border: Border.all(color: AppColors.border),
+                  border: Border.all(color: context.borderColor),
                 ),
                 child: Column(
                   children: [
@@ -1887,7 +1840,7 @@ class _PlaceOrderViewState extends State<_PlaceOrderView> {
                         Icon(
                           Icons.storefront_rounded,
                           size: 18.sp,
-                          color: AppColors.primary,
+                          color: context.primaryColor,
                         ),
                         SizedBox(width: 8.w),
                         Expanded(
@@ -1898,7 +1851,7 @@ class _PlaceOrderViewState extends State<_PlaceOrderView> {
                             style: TextStyle(
                               fontSize: 13.sp,
                               fontWeight: FontWeight.w700,
-                              color: AppColors.textPrimary,
+                              color: context.primaryTextColor,
                             ),
                           ),
                         ),
@@ -1910,7 +1863,7 @@ class _PlaceOrderViewState extends State<_PlaceOrderView> {
                         Icon(
                           Icons.warehouse_rounded,
                           size: 18.sp,
-                          color: AppColors.primary,
+                          color: context.primaryColor,
                         ),
                         SizedBox(width: 8.w),
                         Expanded(
@@ -1921,20 +1874,20 @@ class _PlaceOrderViewState extends State<_PlaceOrderView> {
                             style: TextStyle(
                               fontSize: 13.sp,
                               fontWeight: FontWeight.w700,
-                              color: AppColors.textPrimary,
+                              color: context.primaryTextColor,
                             ),
                           ),
                         ),
                       ],
                     ),
                     SizedBox(height: 9.h),
-                  
+
                     Row(
                       children: [
                         Icon(
                           Icons.photo_camera_rounded,
                           size: 18.sp,
-                          color: AppColors.primary,
+                          color: context.primaryColor,
                         ),
                         SizedBox(width: 8.w),
                         Expanded(
@@ -1945,7 +1898,7 @@ class _PlaceOrderViewState extends State<_PlaceOrderView> {
                             style: TextStyle(
                               fontSize: 13.sp,
                               fontWeight: FontWeight.w700,
-                              color: AppColors.textPrimary,
+                              color: context.primaryTextColor,
                             ),
                           ),
                         ),
@@ -1957,7 +1910,7 @@ class _PlaceOrderViewState extends State<_PlaceOrderView> {
                         Icon(
                           Icons.draw_rounded,
                           size: 18.sp,
-                          color: AppColors.primary,
+                          color: context.primaryColor,
                         ),
                         SizedBox(width: 8.w),
                         Expanded(
@@ -1968,7 +1921,7 @@ class _PlaceOrderViewState extends State<_PlaceOrderView> {
                             style: TextStyle(
                               fontSize: 13.sp,
                               fontWeight: FontWeight.w700,
-                              color: AppColors.textPrimary,
+                              color: context.primaryTextColor,
                             ),
                           ),
                         ),
@@ -1987,7 +1940,7 @@ class _PlaceOrderViewState extends State<_PlaceOrderView> {
                   Navigator.of(dialogContext).pop(false);
                 },
                 style: OutlinedButton.styleFrom(
-                  side: const BorderSide(color: AppColors.border),
+                  side: BorderSide(color: context.borderColor),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(11.r),
                   ),
@@ -1995,7 +1948,7 @@ class _PlaceOrderViewState extends State<_PlaceOrderView> {
                 child: Text(
                   'Cancel',
                   style: TextStyle(
-                    color: AppColors.textSecondary,
+                    color: context.secondaryTextColor,
                     fontSize: 13.sp,
                     fontWeight: FontWeight.w700,
                   ),
@@ -2010,8 +1963,8 @@ class _PlaceOrderViewState extends State<_PlaceOrderView> {
                   Navigator.of(dialogContext).pop(true);
                 },
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.primary,
-                  foregroundColor: Colors.white,
+                  backgroundColor: context.primaryColor,
+                  foregroundColor: context.onPrimaryColor,
                   elevation: 0,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(11.r),
@@ -2267,7 +2220,7 @@ class _PlaceOrderViewState extends State<_PlaceOrderView> {
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
-      barrierColor: Colors.black.withOpacity(0.45),
+      barrierColor: context.appColors.shadow.withValues(alpha: 0.45),
 
       builder: (previewContext) {
         return OrderPreviewSheet(
@@ -2321,7 +2274,7 @@ class _PlaceOrderViewState extends State<_PlaceOrderView> {
       barrierDismissible: false,
       builder: (dialogContext) {
         return AlertDialog(
-          backgroundColor: Colors.white,
+          backgroundColor: context.cardBackgroundColor,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(20.r),
           ),
@@ -2332,19 +2285,19 @@ class _PlaceOrderViewState extends State<_PlaceOrderView> {
               Container(
                 width: 76.w,
                 height: 76.w,
-                decoration: const BoxDecoration(
-                  color: AppColors.lightGreen,
+                decoration: BoxDecoration(
+                  color: context.primaryColor.withValues(alpha: 0.1),
                   shape: BoxShape.circle,
                 ),
                 child: Container(
                   margin: EdgeInsets.all(9.w),
-                  decoration: const BoxDecoration(
-                    color: AppColors.primary,
+                  decoration: BoxDecoration(
+                    color: context.primaryColor,
                     shape: BoxShape.circle,
                   ),
                   child: Icon(
                     Icons.check_rounded,
-                    color: Colors.white,
+                    color: context.onPrimaryColor,
                     size: 40.sp,
                   ),
                 ),
@@ -2356,7 +2309,7 @@ class _PlaceOrderViewState extends State<_PlaceOrderView> {
                 style: TextStyle(
                   fontSize: 19.sp,
                   fontWeight: FontWeight.w800,
-                  color: AppColors.textPrimary,
+                  color: context.primaryTextColor,
                 ),
               ),
               SizedBox(height: 10.h),
@@ -2367,7 +2320,7 @@ class _PlaceOrderViewState extends State<_PlaceOrderView> {
                   fontSize: 13.sp,
                   height: 1.45,
                   fontWeight: FontWeight.w500,
-                  color: AppColors.textSecondary,
+                  color: context.secondaryTextColor,
                 ),
               ),
               SizedBox(height: 24.h),
@@ -2379,8 +2332,8 @@ class _PlaceOrderViewState extends State<_PlaceOrderView> {
                     Navigator.of(dialogContext).pop(true);
                   },
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.primary,
-                    foregroundColor: Colors.white,
+                    backgroundColor: context.primaryColor,
+                    foregroundColor: context.onPrimaryColor,
                     elevation: 0,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(14.r),
@@ -2423,12 +2376,12 @@ class _PlaceOrderViewState extends State<_PlaceOrderView> {
         SnackBar(
           content: Text(
             message,
-            style: const TextStyle(
-              color: Colors.white,
+            style: TextStyle(
+              color: context.appColors.onError,
               fontWeight: FontWeight.w600,
             ),
           ),
-          backgroundColor: AppColors.error,
+          backgroundColor: context.appColors.error,
           behavior: SnackBarBehavior.floating,
           margin: EdgeInsets.all(12.w),
           shape: RoundedRectangleBorder(
@@ -2445,7 +2398,7 @@ class _PlaceOrderViewState extends State<_PlaceOrderView> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: context.backgroundColor,
 
       // ============================================================
       // APP BAR
@@ -2500,8 +2453,8 @@ class _PlaceOrderViewState extends State<_PlaceOrderView> {
               state.dealers.isEmpty &&
               state.godowns.isEmpty &&
               state.categories.isEmpty) {
-            return const Center(
-              child: CircularProgressIndicator(color: AppColors.primary),
+            return Center(
+              child: CircularProgressIndicator(color: context.primaryColor),
             );
           }
 
@@ -2510,7 +2463,9 @@ class _PlaceOrderViewState extends State<_PlaceOrderView> {
           final List<ProductEntity> filteredProducts = _getFilteredProducts();
 
           if (state.status == PlaceOrderStatus.loaded) {
-            _showOrderTutorialIfNeeded(hasProducts: filteredProducts.isNotEmpty);
+            _showOrderTutorialIfNeeded(
+              hasProducts: filteredProducts.isNotEmpty,
+            );
           }
 
           final bool hasSelectedProducts = _getSelectedProducts(
@@ -2589,7 +2544,7 @@ class _PlaceOrderViewState extends State<_PlaceOrderView> {
                   // =================================================
                   Container(
                     padding: EdgeInsets.all(12.w),
-                    color: Colors.white,
+                    color: context.cardBackgroundColor,
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
                       children: [
@@ -2612,7 +2567,6 @@ class _PlaceOrderViewState extends State<_PlaceOrderView> {
                             ),
 
                             SizedBox(width: 5.w),
-                     
                           ],
                         ),
 
@@ -2658,83 +2612,68 @@ class _PlaceOrderViewState extends State<_PlaceOrderView> {
                                 selectedRates[productId] ??
                                 <ProductRateEntity>[];
 
-                          
-                                return ProductCard(
-                                  addButtonKey: identical(product, filteredProducts.first)
-                                      ? _orderProductAddKey
-                                      : null,
-                                  product: product,
+                            return ProductCard(
+                              addButtonKey:
+                                  identical(product, filteredProducts.first)
+                                  ? _orderProductAddKey
+                                  : null,
+                              product: product,
 
-                                  selectedRates: productRates,
+                              selectedRates: productRates,
 
-                                  packingQuantities:
-                                      state.packingQuantities[productId] ??
-                                      <String, int>{},
+                              packingQuantities:
+                                  state.packingQuantities[productId] ??
+                                  <String, int>{},
 
-                                  // ===========================================================
-                                  // ADD PRODUCT
-                                  // ===========================================================
+                              // ===========================================================
+                              // ADD PRODUCT
+                              // ===========================================================
+                              onAdd: () async {
+                                await _addProduct(product);
+                              },
 
-                                  onAdd: () async {
-                                    await _addProduct(product);
-                                  },
-
-                                  // ===========================================================
-                                  // ADD MORE PACKING
-                                  // ===========================================================
-
-                                  onAddMore: () async {
-                                    await _openMultiProductSelector(
-                                      initialProductId: productId,
-                                    );
-                                  },
-
-                                  // ===========================================================
-                                  // NEW - DIRECT ENTER CASE QUANTITY
-                                  // ===========================================================
-
-                                  onQuantityChanged: (
-                                    rate,
-                                    quantity,
-                                  ) {
-                                    context.read<PlaceOrderBloc>().add(
-                                      SetPackingQuantityEvent(
-                                        productId:
-                                            product.id.toString(),
-
-                                        productDetailsId:
-                                            rate.productDetailsId
-                                                .toString(),
-
-                                        quantity: quantity,
-                                      ),
-                                    );
-                                  },
-
-                                  // ===========================================================
-                                  // DELETE PARTICULAR PACKING
-                                  // ===========================================================
-
-                                  onDeletePacking: (rate) {
-                                    _deleteProductPacking(
-                                      product: product,
-                                      rate: rate,
-                                    );
-                                  },
-
-                                  // ===========================================================
-                                  // DELETE PRODUCT
-                                  // ===========================================================
-
-                                  onDelete: () {
-                                    _deleteProduct(product);
-                                  },
+                              // ===========================================================
+                              // ADD MORE PACKING
+                              // ===========================================================
+                              onAddMore: () async {
+                                await _openMultiProductSelector(
+                                  initialProductId: productId,
                                 );
-                                                            
-                    
+                              },
 
+                              // ===========================================================
+                              // NEW - DIRECT ENTER CASE QUANTITY
+                              // ===========================================================
+                              onQuantityChanged: (rate, quantity) {
+                                context.read<PlaceOrderBloc>().add(
+                                  SetPackingQuantityEvent(
+                                    productId: product.id.toString(),
 
+                                    productDetailsId: rate.productDetailsId
+                                        .toString(),
 
+                                    quantity: quantity,
+                                  ),
+                                );
+                              },
+
+                              // ===========================================================
+                              // DELETE PARTICULAR PACKING
+                              // ===========================================================
+                              onDeletePacking: (rate) {
+                                _deleteProductPacking(
+                                  product: product,
+                                  rate: rate,
+                                );
+                              },
+
+                              // ===========================================================
+                              // DELETE PRODUCT
+                              // ===========================================================
+                              onDelete: () {
+                                _deleteProduct(product);
+                              },
+                            );
                           }),
                       ],
                     ),
@@ -2799,22 +2738,22 @@ class _PlaceOrderViewState extends State<_PlaceOrderView> {
       width: double.infinity,
       padding: EdgeInsets.symmetric(horizontal: 11.w, vertical: 9.h),
       decoration: BoxDecoration(
-        color: AppColors.lightGreen,
+        color: context.primaryColor.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(13.r),
-        border: Border.all(color: AppColors.primary.withOpacity(0.12)),
+        border: Border.all(color: context.primaryColor.withValues(alpha: 0.12)),
       ),
       child: Row(
         children: [
           Container(
             width: 34.w,
             height: 34.w,
-            decoration: const BoxDecoration(
-              color: AppColors.primary,
+            decoration: BoxDecoration(
+              color: context.primaryColor,
               shape: BoxShape.circle,
             ),
             child: Icon(
               Icons.shopping_cart_rounded,
-              color: Colors.white,
+              color: context.onPrimaryColor,
               size: 17.sp,
             ),
           ),
@@ -2829,17 +2768,16 @@ class _PlaceOrderViewState extends State<_PlaceOrderView> {
                   style: TextStyle(
                     fontSize: 12.sp,
                     fontWeight: FontWeight.w800,
-                    color: AppColors.textPrimary,
+                    color: context.primaryTextColor,
                   ),
                 ),
                 SizedBox(height: 1.h),
                 Text(
-                 
                   'Total quantity: $totalQuantity',
                   style: TextStyle(
                     fontSize: 10.sp,
                     fontWeight: FontWeight.w600,
-                    color: AppColors.textSecondary,
+                    color: context.secondaryTextColor,
                   ),
                 ),
               ],
@@ -2850,7 +2788,7 @@ class _PlaceOrderViewState extends State<_PlaceOrderView> {
             style: TextStyle(
               fontSize: 13.sp,
               fontWeight: FontWeight.w900,
-              color: AppColors.primary,
+              color: context.primaryColor,
             ),
           ),
         ],
@@ -2867,11 +2805,11 @@ class _PlaceOrderViewState extends State<_PlaceOrderView> {
       width: double.infinity,
       padding: EdgeInsets.all(14.w),
       decoration: BoxDecoration(
-        color: AppColors.primary,
+        color: context.primaryColor,
         borderRadius: BorderRadius.circular(17.r),
         boxShadow: [
           BoxShadow(
-            color: AppColors.primary.withOpacity(0.16),
+            color: context.primaryColor.withValues(alpha: 0.16),
             blurRadius: 14,
             offset: const Offset(0, 6),
           ),
@@ -2884,12 +2822,12 @@ class _PlaceOrderViewState extends State<_PlaceOrderView> {
             width: 46.w,
             height: 46.w,
             decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.16),
+              color: context.cardBackgroundColor.withValues(alpha: 0.16),
               borderRadius: BorderRadius.circular(13.r),
             ),
             child: Icon(
               Icons.shopping_cart_checkout_rounded,
-              color: Colors.white,
+              color: context.onPrimaryColor,
               size: 24.sp,
             ),
           ),
@@ -2901,7 +2839,7 @@ class _PlaceOrderViewState extends State<_PlaceOrderView> {
                 Text(
                   'Create New Order',
                   style: TextStyle(
-                    color: Colors.white,
+                    color: context.onPrimaryColor,
                     fontSize: 16.sp,
                     fontWeight: FontWeight.w800,
                   ),
@@ -2910,7 +2848,7 @@ class _PlaceOrderViewState extends State<_PlaceOrderView> {
                 Text(
                   'Select dealer, products and order details',
                   style: TextStyle(
-                    color: Colors.white.withOpacity(0.82),
+                    color: context.onPrimaryColor.withValues(alpha: 0.82),
                     fontSize: 11.sp,
                     fontWeight: FontWeight.w500,
                   ),
@@ -2938,10 +2876,10 @@ class _PlaceOrderViewState extends State<_PlaceOrderView> {
           width: 36.w,
           height: 36.w,
           decoration: BoxDecoration(
-            color: AppColors.lightGreen,
+            color: context.primaryColor.withValues(alpha: 0.1),
             borderRadius: BorderRadius.circular(11.r),
           ),
-          child: Icon(icon, size: 18.sp, color: AppColors.primary),
+          child: Icon(icon, size: 18.sp, color: context.primaryColor),
         ),
         SizedBox(width: 9.w),
         Expanded(
@@ -2953,7 +2891,7 @@ class _PlaceOrderViewState extends State<_PlaceOrderView> {
                 style: TextStyle(
                   fontSize: 14.sp,
                   fontWeight: FontWeight.w800,
-                  color: AppColors.textPrimary,
+                  color: context.primaryTextColor,
                 ),
               ),
               SizedBox(height: 1.h),
@@ -2964,7 +2902,7 @@ class _PlaceOrderViewState extends State<_PlaceOrderView> {
                 style: TextStyle(
                   fontSize: 10.5.sp,
                   fontWeight: FontWeight.w500,
-                  color: AppColors.textSecondary,
+                  color: context.secondaryTextColor,
                 ),
               ),
             ],
@@ -2983,20 +2921,20 @@ class _PlaceOrderViewState extends State<_PlaceOrderView> {
       width: double.infinity,
       padding: EdgeInsets.symmetric(vertical: 24.h),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: context.cardBackgroundColor,
         borderRadius: BorderRadius.circular(15.r),
-        border: Border.all(color: AppColors.border),
+        border: Border.all(color: context.borderColor),
       ),
       child: Column(
         children: [
-          const CircularProgressIndicator(color: AppColors.primary),
+          CircularProgressIndicator(color: context.primaryColor),
           SizedBox(height: 8.h),
           Text(
             'Loading products...',
             style: TextStyle(
               fontSize: 12.sp,
               fontWeight: FontWeight.w600,
-              color: AppColors.textSecondary,
+              color: context.secondaryTextColor,
             ),
           ),
         ],
@@ -3013,19 +2951,19 @@ class _PlaceOrderViewState extends State<_PlaceOrderView> {
       width: double.infinity,
       padding: EdgeInsets.symmetric(vertical: 24.h, horizontal: 18.w),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: context.cardBackgroundColor,
         borderRadius: BorderRadius.circular(15.r),
-        border: Border.all(color: AppColors.border),
+        border: Border.all(color: context.borderColor),
       ),
       child: Column(
         children: [
           Container(
             padding: EdgeInsets.all(11.w),
-            decoration: const BoxDecoration(
-              color: AppColors.lightGreen,
+            decoration: BoxDecoration(
+              color: context.primaryColor.withValues(alpha: 0.1),
               shape: BoxShape.circle,
             ),
-            child: Icon(icon, size: 25.sp, color: AppColors.primary),
+            child: Icon(icon, size: 25.sp, color: context.primaryColor),
           ),
           SizedBox(height: 8.h),
           Text(
@@ -3033,7 +2971,7 @@ class _PlaceOrderViewState extends State<_PlaceOrderView> {
             style: TextStyle(
               fontSize: 12.sp,
               fontWeight: FontWeight.w600,
-              color: AppColors.textSecondary,
+              color: context.secondaryTextColor,
             ),
           ),
         ],
@@ -3070,9 +3008,9 @@ class _PlaceOrderViewState extends State<_PlaceOrderView> {
       child: ElevatedButton(
         onPressed: isSubmitting ? null : () => _submit(state),
         style: ElevatedButton.styleFrom(
-          backgroundColor: AppColors.primary,
-          foregroundColor: Colors.white,
-          disabledBackgroundColor: AppColors.primary.withOpacity(0.55),
+          backgroundColor: context.primaryColor,
+          foregroundColor: context.onPrimaryColor,
+          disabledBackgroundColor: context.primaryColor.withValues(alpha: 0.55),
           elevation: 2,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(15.r),
@@ -3082,9 +3020,9 @@ class _PlaceOrderViewState extends State<_PlaceOrderView> {
             ? SizedBox(
                 width: 23.w,
                 height: 23.w,
-                child: const CircularProgressIndicator(
+                child: CircularProgressIndicator(
                   strokeWidth: 2.5,
-                  color: Colors.white,
+                  color: context.onPrimaryColor,
                 ),
               )
             : Row(
@@ -3093,7 +3031,7 @@ class _PlaceOrderViewState extends State<_PlaceOrderView> {
                   Icon(
                     Icons.shopping_cart_checkout_rounded,
                     size: 19.sp,
-                    color: Colors.white,
+                    color: context.onPrimaryColor,
                   ),
                   SizedBox(width: 8.w),
                   Text(

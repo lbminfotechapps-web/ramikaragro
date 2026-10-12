@@ -1,6 +1,5 @@
-
 import 'package:flutter/services.dart';
-import 'package:solufine/core/theme/app_colors.dart';
+import 'package:solufine/core/theme/app_theme_context.dart';
 import 'package:solufine/features/place_order/domain/entities/product_entity.dart';
 import 'package:solufine/features/place_order/domain/entities/product_rate_entity.dart';
 import 'package:solufine/features/place_order/domain/usecases/get_product_detail_rates_usecase.dart';
@@ -117,13 +116,11 @@ class _MultiProductRateBottomSheetState
 
     if (widget.initialProductId != null &&
         widget.products.any(
-          (product) =>
-              product.id.toString() == widget.initialProductId,
+          (product) => product.id.toString() == widget.initialProductId,
         )) {
       _selectedProductId = widget.initialProductId;
     } else if (widget.products.isNotEmpty) {
-      _selectedProductId =
-          widget.products.first.id.toString();
+      _selectedProductId = widget.products.first.id.toString();
     }
 
     // -------------------------------------------------------------------------
@@ -199,8 +196,7 @@ class _MultiProductRateBottomSheetState
         return;
       }
 
-      _ratesCache[productId] =
-          List<ProductRateEntity>.from(rates);
+      _ratesCache[productId] = List<ProductRateEntity>.from(rates);
 
       setState(() {
         _isLoadingRates = false;
@@ -264,63 +260,44 @@ class _MultiProductRateBottomSheetState
   //   return _packingQuantities[productId]?[productDetailsId] ?? 1;
   // }
 
-  
-  int _quantity(
-  String productId,
-  String productDetailsId,
-) {
-  return _packingQuantities[productId]?[productDetailsId] ?? 0;
-}
+  int _quantity(String productId, String productDetailsId) {
+    return _packingQuantities[productId]?[productDetailsId] ?? 0;
+  }
 
-// ===========================================================================
-// SET CASE QUANTITY
-// ===========================================================================
-
-void _setQuantity(
-  String productId,
-  String productDetailsId,
-  int quantity,
-) {
-  final productQuantities =
-      _packingQuantities
-          .putIfAbsent(
-    productId,
-    () => <String, int>{},
-  );
-
-  productQuantities[
-          productDetailsId] =
-      quantity;
-
-  debugPrint(
-    'BOTTOM SHEET QUANTITY => '
-    'product=$productId | '
-    'details=$productDetailsId | '
-    'quantity=$quantity',
-  );
-}
-
-  
   // ===========================================================================
-  // INCREASE QUANTITY
+  // SET CASE QUANTITY
   // ===========================================================================
 
-  void _increaseQuantity(
-    String productId,
-    String productDetailsId,
-  ) {
-    final productQuantities =
-        _packingQuantities.putIfAbsent(
+  void _setQuantity(String productId, String productDetailsId, int quantity) {
+    final productQuantities = _packingQuantities.putIfAbsent(
       productId,
       () => <String, int>{},
     );
 
-    final currentQuantity =
-        productQuantities[productDetailsId] ?? 1;
+    productQuantities[productDetailsId] = quantity;
+
+    debugPrint(
+      'BOTTOM SHEET QUANTITY => '
+      'product=$productId | '
+      'details=$productDetailsId | '
+      'quantity=$quantity',
+    );
+  }
+
+  // ===========================================================================
+  // INCREASE QUANTITY
+  // ===========================================================================
+
+  void _increaseQuantity(String productId, String productDetailsId) {
+    final productQuantities = _packingQuantities.putIfAbsent(
+      productId,
+      () => <String, int>{},
+    );
+
+    final currentQuantity = productQuantities[productDetailsId] ?? 1;
 
     setState(() {
-      productQuantities[productDetailsId] =
-          currentQuantity + 1;
+      productQuantities[productDetailsId] = currentQuantity + 1;
     });
 
     debugPrint(
@@ -335,27 +312,21 @@ void _setQuantity(
   // DECREASE QUANTITY
   // ===========================================================================
 
-  void _decreaseQuantity(
-    String productId,
-    String productDetailsId,
-  ) {
-    final productQuantities =
-        _packingQuantities[productId];
+  void _decreaseQuantity(String productId, String productDetailsId) {
+    final productQuantities = _packingQuantities[productId];
 
     if (productQuantities == null) {
       return;
     }
 
-    final currentQuantity =
-        productQuantities[productDetailsId] ?? 1;
+    final currentQuantity = productQuantities[productDetailsId] ?? 1;
 
     if (currentQuantity <= 1) {
       return;
     }
 
     setState(() {
-      productQuantities[productDetailsId] =
-          currentQuantity - 1;
+      productQuantities[productDetailsId] = currentQuantity - 1;
     });
 
     debugPrint(
@@ -370,10 +341,7 @@ void _setQuantity(
   // CHECK RATE
   // ===========================================================================
 
-  bool _isRateSelected(
-    String productId,
-    ProductRateEntity rate,
-  ) {
+  bool _isRateSelected(String productId, ProductRateEntity rate) {
     final selected = _selectedRates[productId];
 
     if (selected == null) {
@@ -381,9 +349,7 @@ void _setQuantity(
     }
 
     return selected.any(
-      (item) =>
-          item.productDetailsId ==
-          rate.productDetailsId,
+      (item) => item.productDetailsId == rate.productDetailsId,
     );
   }
 
@@ -391,21 +357,13 @@ void _setQuantity(
   // TOGGLE RATE
   // ===========================================================================
 
-  void _toggleRate(
-    String productId,
-    ProductRateEntity rate,
-  )
-  
-   {
+  void _toggleRate(String productId, ProductRateEntity rate) {
     final current = List<ProductRateEntity>.from(
-      _selectedRates[productId] ??
-          <ProductRateEntity>[],
+      _selectedRates[productId] ?? <ProductRateEntity>[],
     );
 
     final existingIndex = current.indexWhere(
-      (item) =>
-          item.productDetailsId ==
-          rate.productDetailsId,
+      (item) => item.productDetailsId == rate.productDetailsId,
     );
 
     // -------------------------------------------------------------------------
@@ -415,11 +373,9 @@ void _setQuantity(
     if (existingIndex >= 0) {
       current.removeAt(existingIndex);
 
-      final productDetailsId =
-          rate.productDetailsId.toString();
+      final productDetailsId = rate.productDetailsId.toString();
 
-      _packingQuantities[productId]
-          ?.remove(productDetailsId);
+      _packingQuantities[productId]?.remove(productDetailsId);
 
       if (current.isEmpty) {
         _selectedRates.remove(productId);
@@ -428,29 +384,22 @@ void _setQuantity(
         _selectedRates[productId] = current;
       }
     }
-
     // -------------------------------------------------------------------------
     // ADD
     // -------------------------------------------------------------------------
-
     else {
       current.add(rate);
 
       _selectedRates[productId] = current;
 
-      final productQuantities =
-          _packingQuantities.putIfAbsent(
+      final productQuantities = _packingQuantities.putIfAbsent(
         productId,
         () => <String, int>{},
       );
 
-      final productDetailsId =
-          rate.productDetailsId.toString();
+      final productDetailsId = rate.productDetailsId.toString();
 
-      productQuantities.putIfAbsent(
-  productDetailsId,
-  () => 0,
-);
+      productQuantities.putIfAbsent(productDetailsId, () => 0);
 
       debugPrint(
         'Packing selected: '
@@ -467,9 +416,7 @@ void _setQuantity(
   // CLEAR
   // ===========================================================================
 
-  void _clearProductRates(
-    String productId,
-  ) {
+  void _clearProductRates(String productId) {
     setState(() {
       _selectedRates.remove(productId);
       _packingQuantities.remove(productId);
@@ -484,27 +431,17 @@ void _setQuantity(
     debugPrint('========================================');
     debugPrint('BOTTOM SHEET RESULT');
     debugPrint('Selected rates: $_selectedRates');
-    debugPrint(
-      'Packing quantities: $_packingQuantities',
-    );
+    debugPrint('Packing quantities: $_packingQuantities');
     debugPrint('========================================');
 
-    final result =
-        MultiProductRateSelectionResult(
+    final result = MultiProductRateSelectionResult(
       selectedRates: {
         for (final entry in _selectedRates.entries)
-          entry.key:
-              List<ProductRateEntity>.from(
-            entry.value,
-          ),
+          entry.key: List<ProductRateEntity>.from(entry.value),
       },
       packingQuantities: {
-        for (final entry
-            in _packingQuantities.entries)
-          entry.key:
-              Map<String, int>.from(
-            entry.value,
-          ),
+        for (final entry in _packingQuantities.entries)
+          entry.key: Map<String, int>.from(entry.value),
       },
     );
 
@@ -522,27 +459,21 @@ void _setQuantity(
         bottom: MediaQuery.of(context).viewInsets.bottom,
       ),
       child: SafeArea(
-      child: Container(
-        height:
-            MediaQuery.of(context).size.height * 0.88,
-        decoration: BoxDecoration(
-          color: AppColors.background,
-          borderRadius:
-              BorderRadius.vertical(
-            top: Radius.circular(22.r),
+        child: Container(
+          height: MediaQuery.of(context).size.height * 0.88,
+          decoration: BoxDecoration(
+            color:  context.appTheme.inputBackground,
+            borderRadius: BorderRadius.vertical(top: Radius.circular(22.r)),
+          ),
+          child: Column(
+            children: [
+              _buildHeader(),
+              _buildSelectedProduct(),
+              Expanded(child: _buildRatesArea()),
+              _buildBottomButton(),
+            ],
           ),
         ),
-        child: Column(
-          children: [
-            _buildHeader(),
-            _buildSelectedProduct(),
-            Expanded(
-              child: _buildRatesArea(),
-            ),
-            _buildBottomButton(),
-          ],
-        ),
-      ),
       ),
     );
   }
@@ -553,18 +484,10 @@ void _setQuantity(
 
   Widget _buildHeader() {
     return Container(
-      padding: EdgeInsets.fromLTRB(
-        16.w,
-        9.h,
-        7.w,
-        9.h,
-      ),
+      padding: EdgeInsets.fromLTRB(16.w, 9.h, 7.w, 9.h),
       decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius:
-            BorderRadius.vertical(
-          top: Radius.circular(22.r),
-        ),
+        color: context.cardBackgroundColor,
+        borderRadius: BorderRadius.vertical(top: Radius.circular(22.r)),
       ),
       child: Column(
         children: [
@@ -573,9 +496,8 @@ void _setQuantity(
             width: 36.w,
             height: 3.h,
             decoration: BoxDecoration(
-              color: AppColors.border,
-              borderRadius:
-                  BorderRadius.circular(20.r),
+              color: context.borderColor,
+              borderRadius: BorderRadius.circular(20.r),
             ),
           ),
 
@@ -586,14 +508,13 @@ void _setQuantity(
               Container(
                 width: 38.w,
                 height: 38.w,
-                decoration:
-                    const BoxDecoration(
-                  color: AppColors.lightGreen,
+                decoration: BoxDecoration(
+                  color: context.primaryColor.withValues(alpha: 0.1),
                   shape: BoxShape.circle,
                 ),
                 child: Icon(
                   Icons.price_check_rounded,
-                  color: AppColors.primary,
+                  color: context.primaryColor,
                   size: 20.sp,
                 ),
               ),
@@ -602,25 +523,21 @@ void _setQuantity(
 
               Expanded(
                 child: Column(
-                  crossAxisAlignment:
-                      CrossAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
                       'Select Products',
                       style: TextStyle(
                         fontSize: 15.sp,
-                        fontWeight:
-                            FontWeight.w800,
-                        color:
-                            AppColors.textPrimary,
+                        fontWeight: FontWeight.w800,
+                        color: context.cardTextColor,
                       ),
                     ),
                     Text(
                       'Select one or more packings',
                       style: TextStyle(
                         fontSize: 9.5.sp,
-                        color:
-                            AppColors.textSecondary,
+                        color: context.secondaryTextColor,
                       ),
                     ),
                   ],
@@ -632,14 +549,10 @@ void _setQuantity(
                   Navigator.pop(context);
                 },
                 padding: EdgeInsets.zero,
-                constraints: BoxConstraints(
-                  minWidth: 34.w,
-                  minHeight: 34.w,
-                ),
+                constraints: BoxConstraints(minWidth: 34.w, minHeight: 34.w),
                 icon: Icon(
                   Icons.close_rounded,
-                  color:
-                      AppColors.textSecondary,
+                  color: context.secondaryTextColor,
                   size: 20.sp,
                 ),
               ),
@@ -661,29 +574,18 @@ void _setQuantity(
       return const SizedBox.shrink();
     }
 
-    final productId =
-        product.id.toString();
+    final productId = product.id.toString();
 
-    final selectedCount =
-        _selectedCount(productId);
+    final selectedCount = _selectedCount(productId);
 
     return Container(
       width: double.infinity,
-      margin: EdgeInsets.fromLTRB(
-        12.w,
-        7.h,
-        12.w,
-        2.h,
-      ),
+      margin: EdgeInsets.fromLTRB(12.w, 7.h, 12.w, 2.h),
       padding: EdgeInsets.all(8.w),
       decoration: BoxDecoration(
-        color: AppColors.lightGreen,
-        borderRadius:
-            BorderRadius.circular(11.r),
-        border: Border.all(
-          color:
-              AppColors.primary.withOpacity(0.14),
-        ),
+        color: context.primaryColor.withValues(alpha: 0.1),
+        borderRadius: BorderRadius.circular(11.r),
+        border: Border.all(color: context.primaryColor.withValues(alpha: 0.14)),
       ),
       child: Row(
         children: [
@@ -691,13 +593,12 @@ void _setQuantity(
             width: 36.w,
             height: 36.w,
             decoration: BoxDecoration(
-              color: AppColors.primary,
-              borderRadius:
-                  BorderRadius.circular(8.r),
+              color: context.primaryColor,
+              borderRadius: BorderRadius.circular(8.r),
             ),
             child: Icon(
               Icons.inventory_2_rounded,
-              color: Colors.white,
+              color: context.onPrimaryColor,
               size: 18.sp,
             ),
           ),
@@ -706,20 +607,16 @@ void _setQuantity(
 
           Expanded(
             child: Column(
-              crossAxisAlignment:
-                  CrossAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
                   product.name,
                   maxLines: 1,
-                  overflow:
-                      TextOverflow.ellipsis,
+                  overflow: TextOverflow.ellipsis,
                   style: TextStyle(
                     fontSize: 12.sp,
-                    fontWeight:
-                        FontWeight.w800,
-                    color:
-                        AppColors.textPrimary,
+                    fontWeight: FontWeight.w800,
+                    color: context.cardTextColor,
                   ),
                 ),
                 SizedBox(height: 1.h),
@@ -729,11 +626,10 @@ void _setQuantity(
                       : '$selectedCount packing selected',
                   style: TextStyle(
                     fontSize: 8.5.sp,
-                    fontWeight:
-                        FontWeight.w600,
+                    fontWeight: FontWeight.w600,
                     color: selectedCount == 0
-                        ? AppColors.textSecondary
-                        : AppColors.primary,
+                        ? context.secondaryTextColor
+                        : context.primaryColor,
                   ),
                 ),
               ],
@@ -751,27 +647,23 @@ void _setQuantity(
   Widget _buildRatesArea() {
     if (_selectedProductId == null) {
       return _buildEmptyState(
-        icon:
-            Icons.inventory_2_outlined,
+        icon: Icons.inventory_2_outlined,
         title: 'Select a product',
-        subtitle:
-            'Choose a product to view available rates',
+        subtitle: 'Choose a product to view available rates',
       );
     }
 
     if (_isLoadingRates) {
       return Center(
         child: Column(
-          mainAxisSize:
-              MainAxisSize.min,
+          mainAxisSize: MainAxisSize.min,
           children: [
             SizedBox(
               width: 27.w,
               height: 27.w,
-              child:
-                  const CircularProgressIndicator(
+              child: CircularProgressIndicator(
                 strokeWidth: 2.5,
-                color: AppColors.primary,
+                color: context.primaryColor,
               ),
             ),
             SizedBox(height: 8.h),
@@ -779,10 +671,8 @@ void _setQuantity(
               'Loading rates...',
               style: TextStyle(
                 fontSize: 11.sp,
-                fontWeight:
-                    FontWeight.w600,
-                color:
-                    AppColors.textSecondary,
+                fontWeight: FontWeight.w600,
+                color: context.secondaryTextColor,
               ),
             ),
           ],
@@ -792,50 +682,32 @@ void _setQuantity(
 
     if (_errorMessage != null) {
       return _buildEmptyState(
-        icon:
-            Icons.error_outline_rounded,
-        title:
-            'Unable to load rates',
-        subtitle:
-            _errorMessage!,
+        icon: Icons.error_outline_rounded,
+        title: 'Unable to load rates',
+        subtitle: _errorMessage!,
       );
     }
 
-    final rates =
-        _ratesCache[_selectedProductId!] ??
-            <ProductRateEntity>[];
+    final rates = _ratesCache[_selectedProductId!] ?? <ProductRateEntity>[];
 
     if (rates.isEmpty) {
       return _buildEmptyState(
-        icon:
-            Icons.price_change_outlined,
-        title:
-            'No rates available',
-        subtitle:
-            'No rates were found for this product',
+        icon: Icons.price_change_outlined,
+        title: 'No rates available',
+        subtitle: 'No rates were found for this product',
       );
     }
 
-    final selectedCount =
-        _selectedCount(
-      _selectedProductId!,
-    );
+    final selectedCount = _selectedCount(_selectedProductId!);
 
     return Column(
-      crossAxisAlignment:
-          CrossAxisAlignment.start,
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         // ---------------------------------------------------------------------
         // SECTION TITLE
         // ---------------------------------------------------------------------
-
         Padding(
-          padding: EdgeInsets.fromLTRB(
-            13.w,
-            7.h,
-            13.w,
-            6.h,
-          ),
+          padding: EdgeInsets.fromLTRB(13.w, 7.h, 13.w, 6.h),
           child: Row(
             children: [
               Expanded(
@@ -843,10 +715,8 @@ void _setQuantity(
                   'Available Packings',
                   style: TextStyle(
                     fontSize: 13.5.sp,
-                    fontWeight:
-                        FontWeight.w800,
-                    color:
-                        AppColors.textPrimary,
+                    fontWeight: FontWeight.w800,
+                    color: context.cardTextColor,
                   ),
                 ),
               ),
@@ -854,31 +724,22 @@ void _setQuantity(
               if (selectedCount > 0)
                 TextButton(
                   onPressed: () {
-                    _clearProductRates(
-                      _selectedProductId!,
-                    );
+                    _clearProductRates(_selectedProductId!);
                   },
-                  style:
-                      TextButton.styleFrom(
-                    padding:
-                        EdgeInsets.symmetric(
+                  style: TextButton.styleFrom(
+                    padding: EdgeInsets.symmetric(
                       horizontal: 6.w,
                       vertical: 1.h,
                     ),
-                    minimumSize:
-                        Size.zero,
-                    tapTargetSize:
-                        MaterialTapTargetSize
-                            .shrinkWrap,
+                    minimumSize: Size.zero,
+                    tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                   ),
                   child: Text(
                     'Clear',
                     style: TextStyle(
-                      color:
-                          AppColors.primary,
+                      color: context.primaryColor,
                       fontSize: 10.5.sp,
-                      fontWeight:
-                          FontWeight.w700,
+                      fontWeight: FontWeight.w700,
                     ),
                   ),
                 ),
@@ -889,31 +750,16 @@ void _setQuantity(
         // ---------------------------------------------------------------------
         // RATE LIST
         // ---------------------------------------------------------------------
-
         Expanded(
-          child:
-              ListView.separated(
-            padding:
-                EdgeInsets.fromLTRB(
-              12.w,
-              0,
-              12.w,
-              10.h,
-            ),
-            physics:
-                const BouncingScrollPhysics(),
-            itemCount:
-                rates.length,
-            separatorBuilder:
-                (_, __) =>
-                    SizedBox(height: 6.h),
-            itemBuilder:
-                (context, index) {
+          child: ListView.separated(
+            padding: EdgeInsets.fromLTRB(12.w, 0, 12.w, 10.h),
+            physics: const BouncingScrollPhysics(),
+            itemCount: rates.length,
+            separatorBuilder: (_, __) => SizedBox(height: 6.h),
+            itemBuilder: (context, index) {
               return _buildRateCard(
-                productId:
-                    _selectedProductId!,
-                rate:
-                    rates[index],
+                productId: _selectedProductId!,
+                rate: rates[index],
               );
             },
           ),
@@ -975,24 +821,24 @@ void _setQuantity(
   //       ),
   //       decoration: BoxDecoration(
   //         color: selected
-  //             ? AppColors.lightGreen
-  //             : Colors.white,
+  //             ? context.primaryColor.withValues(alpha: 0.1)
+  //             : context.cardBackgroundColor,
   //         borderRadius:
   //             BorderRadius.circular(13.r),
   //         border: Border.all(
   //           color: selected
-  //               ? AppColors.primary
-  //               : AppColors.border,
+  //               ? context.primaryColor
+  //               : context.borderColor,
   //           width:
   //               selected ? 1.3 : 1,
   //         ),
   //         boxShadow: [
   //           BoxShadow(
   //             color: selected
-  //                 ? AppColors.primary
-  //                     .withOpacity(0.07)
-  //                 : Colors.black
-  //                     .withOpacity(0.018),
+  //                 ? context.primaryColor
+  //                     .withValues(alpha: 0.07)
+  //                 : context.appColors.shadow
+  //                     .withValues(alpha: 0.018),
   //             blurRadius:
   //                 selected ? 7 : 5,
   //             offset:
@@ -1016,9 +862,9 @@ void _setQuantity(
   //                 child: Checkbox(
   //                   value: selected,
   //                   activeColor:
-  //                       AppColors.primary,
+  //                       context.primaryColor,
   //                   checkColor:
-  //                       Colors.white,
+  //                       context.cardBackgroundColor,
   //                   materialTapTargetSize:
   //                       MaterialTapTargetSize
   //                           .shrinkWrap,
@@ -1054,7 +900,7 @@ void _setQuantity(
   //                     fontWeight:
   //                         FontWeight.w800,
   //                     color:
-  //                         AppColors.textPrimary,
+  //                         context.cardTextColor,
   //                   ),
   //                 ),
   //               ),
@@ -1069,7 +915,7 @@ void _setQuantity(
   //                   fontWeight:
   //                       FontWeight.w900,
   //                   color:
-  //                       AppColors.primary,
+  //                       context.primaryColor,
   //                 ),
   //               ),
   //             ],
@@ -1127,260 +973,179 @@ void _setQuantity(
   //   );
   // }
 
+  Widget _buildRateCard({
+    required String productId,
+    required ProductRateEntity rate,
+  }) {
+    final selected = _isRateSelected(productId, rate);
 
+    final productDetailsId = rate.productDetailsId.toString();
 
+    final quantity = _quantity(productId, productDetailsId);
 
-Widget _buildRateCard({
-  required String productId,
-  required ProductRateEntity rate,
-}) {
-  final selected =
-      _isRateSelected(
-    productId,
-    rate,
-  );
+    debugPrint(
+      'RATE CARD => '
+      'Product=$productId | '
+      'Details=$productDetailsId | '
+      'Packing=${rate.packing} ${rate.unit} | '
+      'UnitsPerCase="${rate.unitsPerCase}" | '
+      'DisplayCase="${rate.displayCase}"',
+    );
 
-  final productDetailsId =
-      rate.productDetailsId.toString();
+    return AnimatedContainer(
+      duration: const Duration(milliseconds: 150),
 
-  final quantity =
-      _quantity(
-    productId,
-    productDetailsId,
-  );
+      padding: EdgeInsets.symmetric(horizontal: 9.w, vertical: 8.h),
 
-  debugPrint(
-    'RATE CARD => '
-    'Product=$productId | '
-    'Details=$productDetailsId | '
-    'Packing=${rate.packing} ${rate.unit} | '
-    'UnitsPerCase="${rate.unitsPerCase}" | '
-    'DisplayCase="${rate.displayCase}"',
-  );
-
-  return AnimatedContainer(
-    duration:
-        const Duration(
-      milliseconds: 150,
-    ),
-
-    padding:
-        EdgeInsets.symmetric(
-      horizontal: 9.w,
-      vertical: 8.h,
-    ),
-
-    decoration:
-        BoxDecoration(
-      color: selected
-          ? AppColors.lightGreen
-          : Colors.white,
-
-      borderRadius:
-          BorderRadius.circular(
-        13.r,
-      ),
-
-      border: Border.all(
+      decoration: BoxDecoration(
         color: selected
-            ? AppColors.primary
-            : AppColors.border,
+            ? context.primaryColor.withValues(alpha: 0.1)
+            : context.cardBackgroundColor,
 
-        width:
-            selected ? 1.3 : 1,
+        borderRadius: BorderRadius.circular(13.r),
+
+        border: Border.all(
+          color: selected ? context.primaryColor : context.borderColor,
+
+          width: selected ? 1.3 : 1,
+        ),
+
+        boxShadow: [
+          BoxShadow(
+            color: selected
+                ? context.primaryColor.withValues(alpha: 0.07)
+                : context.appColors.shadow.withValues(alpha: 0.018),
+
+            blurRadius: selected ? 7 : 5,
+
+            offset: const Offset(0, 2),
+          ),
+        ],
       ),
 
-      boxShadow: [
-        BoxShadow(
-          color: selected
-              ? AppColors.primary
-                  .withOpacity(
-                  0.07,
-                )
-              : Colors.black
-                  .withOpacity(
-                  0.018,
+      child: Column(
+        children: [
+          // =========================================================
+          // FIRST ROW
+          // Packing + Price
+          // =========================================================
+          Row(
+            children: [
+              // =====================================================
+              // CHECKBOX
+              // ONLY THIS WILL SELECT / UNSELECT
+              // =====================================================
+              SizedBox(
+                width: 28.w,
+                height: 28.w,
+
+                child: Checkbox(
+                  value: selected,
+
+                  activeColor: context.primaryColor,
+
+                  checkColor: context.onPrimaryColor,
+
+                  materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+
+                  visualDensity: VisualDensity.compact,
+
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(5.r),
+                  ),
+
+                  onChanged: (value) {
+                    _toggleRate(productId, rate);
+                  },
                 ),
+              ),
 
-          blurRadius:
-              selected ? 7 : 5,
+              SizedBox(width: 6.w),
 
-          offset:
-              const Offset(
-            0,
-            2,
-          ),
-        ),
-      ],
-    ),
+              // =====================================================
+              // PACKING
+              // CLICKING HERE DOES NOTHING
+              // =====================================================
+              Expanded(
+                child: Text(
+                  'Packing: ${rate.packing} ${rate.unit}',
 
-    child: Column(
-      children: [
-        // =========================================================
-        // FIRST ROW
-        // Packing + Price
-        // =========================================================
+                  maxLines: 1,
 
-        Row(
-          children: [
-            // =====================================================
-            // CHECKBOX
-            // ONLY THIS WILL SELECT / UNSELECT
-            // =====================================================
+                  overflow: TextOverflow.ellipsis,
 
-            SizedBox(
-              width: 28.w,
-              height: 28.w,
+                  style: TextStyle(
+                    fontSize: 12.5.sp,
 
-              child: Checkbox(
-                value: selected,
+                    fontWeight: FontWeight.w800,
 
-                activeColor:
-                    AppColors.primary,
-
-                checkColor:
-                    Colors.white,
-
-                materialTapTargetSize:
-                    MaterialTapTargetSize
-                        .shrinkWrap,
-
-                visualDensity:
-                    VisualDensity.compact,
-
-                shape:
-                    RoundedRectangleBorder(
-                  borderRadius:
-                      BorderRadius.circular(
-                    5.r,
+                    color: context.cardTextColor,
                   ),
                 ),
-
-                onChanged: (value) {
-                  _toggleRate(
-                    productId,
-                    rate,
-                  );
-                },
               ),
-            ),
 
-            SizedBox(
-              width: 6.w,
-            ),
+              SizedBox(width: 7.w),
 
-            // =====================================================
-            // PACKING
-            // CLICKING HERE DOES NOTHING
-            // =====================================================
+              // =====================================================
+              // PRICE
+              // CLICKING HERE DOES NOTHING
+              // =====================================================
+              Text(
+                rate.displayRate,
 
-            Expanded(
-              child: Text(
-                'Packing: ${rate.packing} ${rate.unit}',
+                style: TextStyle(
+                  fontSize: 14.sp,
 
-                maxLines: 1,
+                  fontWeight: FontWeight.w900,
 
-                overflow:
-                    TextOverflow.ellipsis,
-
-                style:
-                    TextStyle(
-                  fontSize:
-                      12.5.sp,
-
-                  fontWeight:
-                      FontWeight.w800,
-
-                  color:
-                      AppColors.textPrimary,
+                  color: context.primaryColor,
                 ),
               ),
-            ),
+            ],
+          ),
 
-            SizedBox(
-              width: 7.w,
-            ),
+          SizedBox(height: 6.h),
 
-            // =====================================================
-            // PRICE
-            // CLICKING HERE DOES NOTHING
-            // =====================================================
+          // =========================================================
+          // SECOND ROW
+          // Unit Per Case + Quantity
+          // =========================================================
+          Row(
+            children: [
+              // =====================================================
+              // UNIT PER CASE
+              // =====================================================
+              _rateInfoBadge(
+                icon: Icons.inventory_2_rounded,
 
-            Text(
-              rate.displayRate,
+                label: 'Unit/Case',
 
-              style: TextStyle(
-                fontSize: 14.sp,
+                value: rate.displayCase,
 
-                fontWeight:
-                    FontWeight.w900,
-
-                color:
-                    AppColors.primary,
+                highlighted: true,
               ),
-            ),
-          ],
-        ),
 
-        SizedBox(
-          height: 6.h,
-        ),
+              SizedBox(width: 5.w),
 
-        // =========================================================
-        // SECOND ROW
-        // Unit Per Case + Quantity
-        // =========================================================
+              const Spacer(),
 
-        Row(
-          children: [
-            // =====================================================
-            // UNIT PER CASE
-            // =====================================================
+              // =====================================================
+              // QUANTITY
+              // =====================================================
+              if (selected)
+                _buildQuantityControl(
+                  productId: productId,
 
-            _rateInfoBadge(
-              icon:
-                  Icons.inventory_2_rounded,
+                  productDetailsId: productDetailsId,
 
-              label:
-                  'Unit/Case',
-
-              value:
-                  rate.displayCase,
-
-              highlighted:
-                  true,
-            ),
-
-            SizedBox(
-              width: 5.w,
-            ),
-
-            const Spacer(),
-
-            // =====================================================
-            // QUANTITY
-            // =====================================================
-
-            if (selected)
-              _buildQuantityControl(
-                productId:
-                    productId,
-
-                productDetailsId:
-                    productDetailsId,
-
-                quantity:
-                    quantity,
-              ),
-          ],
-        ),
-      ],
-    ),
-  );
-}
-
-
-
+                  quantity: quantity,
+                ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
 
   // ===========================================================================
   // INFO BADGE
@@ -1393,33 +1158,31 @@ Widget _buildRateCard({
     required bool highlighted,
   }) {
     return Container(
-      padding: EdgeInsets.symmetric(
-        horizontal: 6.w,
-        vertical: 4.h,
-      ),
+      padding: EdgeInsets.symmetric(horizontal: 6.w, vertical: 4.h),
       decoration: BoxDecoration(
-        color: highlighted
-            ? AppColors.lightGreen.withOpacity(0.85)
-            : Colors.grey.shade100,
-        borderRadius:
-            BorderRadius.circular(6.r),
+        color:
+        //  highlighted
+            // ? context.primaryColor
+            //       .withValues(alpha: 0.1)
+            //       .withValues(alpha: 0.85)
+            // : 
+            context.appTheme.inputBackground,
+        borderRadius: BorderRadius.circular(6.r),
         border: Border.all(
           color: highlighted
-              ? AppColors.primary
-                  .withOpacity(0.12)
-              : Colors.grey.shade200,
+              ? context.primaryColor.withValues(alpha: 0.12)
+              : context.borderColor,
         ),
       ),
       child: Row(
-        mainAxisSize:
-            MainAxisSize.min,
+        mainAxisSize: MainAxisSize.min,
         children: [
           Icon(
             icon,
             size: 10.sp,
             color: highlighted
-                ? AppColors.primary
-                : AppColors.textSecondary,
+                ? context.primaryColor
+                : context.secondaryTextColor,
           ),
 
           SizedBox(width: 3.w),
@@ -1428,10 +1191,8 @@ Widget _buildRateCard({
             '$label: ',
             style: TextStyle(
               fontSize: 8.sp,
-              fontWeight:
-                  FontWeight.w600,
-              color:
-                  AppColors.textSecondary,
+              fontWeight: FontWeight.w600,
+              color: context.secondaryTextColor,
             ),
           ),
 
@@ -1439,11 +1200,8 @@ Widget _buildRateCard({
             value,
             style: TextStyle(
               fontSize: 8.5.sp,
-              fontWeight:
-                  FontWeight.w800,
-              color: highlighted
-                  ? AppColors.primary
-                  : AppColors.textPrimary,
+              fontWeight: FontWeight.w800,
+              color: highlighted ? context.primaryColor : context.cardTextColor,
             ),
           ),
         ],
@@ -1455,56 +1213,34 @@ Widget _buildRateCard({
   // QUANTITY CONTROL
   // ===========================================================================
 
-Widget _buildQuantityControl({
-  required String productId,
-  required String productDetailsId,
-  required int quantity,
-}) {
-  return SizedBox(
-    width: 95.w,
-    height: 36.h,
-    child: TextFormField(
-      key: ValueKey(
-        'case_${productId}_$productDetailsId',
-      ),
-      initialValue:
-          quantity > 0
-              ? quantity.toString()
-              : '',
-      keyboardType:
-          TextInputType.number,
-      inputFormatters: [
-        FilteringTextInputFormatter.digitsOnly,
-      ],
-      textInputAction:
-          TextInputAction.done,
-      textAlign:
-          TextAlign.center,
-      decoration:
-          InputDecoration(
-        hintText: 'Case',
-        isDense: true,
-        border: OutlineInputBorder(
-          borderRadius:
-              BorderRadius.circular(7.r),
+  Widget _buildQuantityControl({
+    required String productId,
+    required String productDetailsId,
+    required int quantity,
+  }) {
+    return SizedBox(
+      width: 95.w,
+      height: 36.h,
+      child: TextFormField(
+        key: ValueKey('case_${productId}_$productDetailsId'),
+        initialValue: quantity > 0 ? quantity.toString() : '',
+        keyboardType: TextInputType.number,
+        inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+        textInputAction: TextInputAction.done,
+        textAlign: TextAlign.center,
+        decoration: InputDecoration(
+          hintText: 'Case',
+          isDense: true,
+          border: OutlineInputBorder(borderRadius: BorderRadius.circular(7.r)),
         ),
-      ),
-      onChanged: (value) {
-        final int enteredQuantity =
-            int.tryParse(
-                  value.trim(),
-                ) ??
-                0;
+        onChanged: (value) {
+          final int enteredQuantity = int.tryParse(value.trim()) ?? 0;
 
-        _setQuantity(
-          productId,
-          productDetailsId,
-          enteredQuantity,
-        );
-      },
-    ),
-  );
-}
+          _setQuantity(productId, productDetailsId, enteredQuantity);
+        },
+      ),
+    );
+  }
 
   // ===========================================================================
   // EMPTY STATE
@@ -1517,42 +1253,29 @@ Widget _buildQuantityControl({
   }) {
     return Center(
       child: Padding(
-        padding:
-            EdgeInsets.all(20.w),
+        padding: EdgeInsets.all(20.w),
         child: Column(
-          mainAxisSize:
-              MainAxisSize.min,
+          mainAxisSize: MainAxisSize.min,
           children: [
             Container(
               width: 56.w,
               height: 56.w,
-              decoration:
-                  const BoxDecoration(
-                color:
-                    AppColors.lightGreen,
-                shape:
-                    BoxShape.circle,
+              decoration: BoxDecoration(
+                color: context.primaryColor.withValues(alpha: 0.1),
+                shape: BoxShape.circle,
               ),
-              child: Icon(
-                icon,
-                color:
-                    AppColors.primary,
-                size: 27.sp,
-              ),
+              child: Icon(icon, color: context.primaryColor, size: 27.sp),
             ),
 
             SizedBox(height: 10.h),
 
             Text(
               title,
-              textAlign:
-                  TextAlign.center,
+              textAlign: TextAlign.center,
               style: TextStyle(
                 fontSize: 14.sp,
-                fontWeight:
-                    FontWeight.w800,
-                color:
-                    AppColors.textPrimary,
+                fontWeight: FontWeight.w800,
+                color: context.cardTextColor,
               ),
             ),
 
@@ -1560,14 +1283,11 @@ Widget _buildQuantityControl({
 
             Text(
               subtitle,
-              textAlign:
-                  TextAlign.center,
+              textAlign: TextAlign.center,
               style: TextStyle(
                 fontSize: 10.5.sp,
-                fontWeight:
-                    FontWeight.w500,
-                color:
-                    AppColors.textSecondary,
+                fontWeight: FontWeight.w500,
+                color: context.secondaryTextColor,
               ),
             ),
           ],
@@ -1581,72 +1301,44 @@ Widget _buildQuantityControl({
   // ===========================================================================
 
   Widget _buildBottomButton() {
-    final enabled =
-        _totalSelectedRates > 0;
+    final enabled = _totalSelectedRates > 0;
 
     return Container(
-      padding:
-          EdgeInsets.fromLTRB(
-        13.w,
-        8.h,
-        13.w,
-        10.h,
-      ),
-      decoration:
-          BoxDecoration(
-        color: Colors.white,
+      padding: EdgeInsets.fromLTRB(13.w, 8.h, 13.w, 10.h),
+      decoration: BoxDecoration(
+        color: context.cardBackgroundColor,
         boxShadow: [
           BoxShadow(
-            color:
-                Colors.black.withOpacity(
-              0.07,
-            ),
+            color: context.appColors.shadow.withValues(alpha: 0.07),
             blurRadius: 10,
-            offset:
-                const Offset(0, -3),
+            offset: const Offset(0, -3),
           ),
         ],
       ),
       child: SafeArea(
         top: false,
         child: SizedBox(
-          width:
-              double.infinity,
+          width: double.infinity,
           height: 46.h,
-          child:
-              ElevatedButton(
-            onPressed:
-                enabled ? _done : null,
-            style:
-                ElevatedButton.styleFrom(
-              backgroundColor:
-                  AppColors.primary,
-              disabledBackgroundColor:
-                  Colors.grey.shade300,
-              disabledForegroundColor:
-                  Colors.grey.shade600,
-              foregroundColor:
-                  Colors.white,
+          child: ElevatedButton(
+            onPressed: enabled ? _done : null,
+            style: ElevatedButton.styleFrom(
+              backgroundColor: context.primaryColor,
+              disabledBackgroundColor: context.appColors.onSurface.withValues(
+                alpha: 0.12,
+              ),
+              disabledForegroundColor: context.secondaryTextColor,
+              foregroundColor: context.onPrimaryColor,
               elevation: 0,
-              padding:
-                  EdgeInsets.zero,
-              shape:
-                  RoundedRectangleBorder(
-                borderRadius:
-                    BorderRadius.circular(
-                  12.r,
-                ),
+              padding: EdgeInsets.zero,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12.r),
               ),
             ),
             child: Row(
-              mainAxisAlignment:
-                  MainAxisAlignment.center,
+              mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Icon(
-                  Icons
-                      .check_circle_outline_rounded,
-                  size: 18.sp,
-                ),
+                Icon(Icons.check_circle_outline_rounded, size: 18.sp),
 
                 SizedBox(width: 7.w),
 
@@ -1656,8 +1348,7 @@ Widget _buildQuantityControl({
                       : 'Select Rate',
                   style: TextStyle(
                     fontSize: 13.sp,
-                    fontWeight:
-                        FontWeight.w800,
+                    fontWeight: FontWeight.w800,
                   ),
                 ),
               ],
@@ -1668,5 +1359,3 @@ Widget _buildQuantityControl({
     );
   }
 }
-
-

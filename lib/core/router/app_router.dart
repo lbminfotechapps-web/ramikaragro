@@ -585,8 +585,7 @@ class AppRouter {
         },
       ),
 
-
-         GoRoute(
+      GoRoute(
         path: calendarReport,
         name: 'calendarReport',
         builder: (context, state) {
@@ -597,7 +596,6 @@ class AppRouter {
         },
       ),
 
-       
       GoRoute(
         path: dealrFollowUpAdd,
         name: 'dealrFollowUpAdd',

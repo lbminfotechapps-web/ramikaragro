@@ -16,6 +16,7 @@ import 'package:intl/intl.dart';
 import 'package:solufine/core/di/leave_list_di.dart';
 import 'package:solufine/core/router/app_router.dart';
 import 'package:solufine/core/secure_storage/secure_storage.dart';
+import 'package:solufine/core/theme/app_theme_context.dart';
 import 'package:solufine/core/utility/widgets/custom_appbar.dart';
 import 'package:solufine/features/dealer_visit/domain/entities/dealer_followup_list_entity.dart';
 import 'package:solufine/features/home/presentation/quick_aceess_bloc/quick_access_event.dart';
@@ -44,15 +45,15 @@ class _AddDealerVisitPageState extends State<AddDealerVisitPage> {
   // COLORS
   // ============================================================
 
-  static const Color primaryGreen = Color(0xFF0A9F4D);
+  Color get primaryGreen => context.primaryColor;
 
-  static const Color darkGreen = Color(0xFF087A3A);
+  Color get darkGreen => context.primaryColor;
 
-  static const Color lightGreen = Color(0xFFEAF8F0);
+  Color get lightGreen => context.primaryColor.withValues(alpha: 0.1);
 
-  static const Color backgroundColor = Color(0xFFF6F8F7);
+  Color get backgroundColor => context.backgroundColor;
 
-  static const Color textColor = Color(0xFF202522);
+  Color get textColor => context.primaryTextColor;
 
   // ============================================================
   // CONTROLLERS
@@ -371,14 +372,7 @@ class _AddDealerVisitPageState extends State<AddDealerVisitPage> {
       lastDate: DateTime(2100),
       builder: (context, child) {
         return Theme(
-          data: Theme.of(context).copyWith(
-            colorScheme: const ColorScheme.light(
-              primary: primaryGreen,
-              onPrimary: Colors.white,
-              surface: Colors.white,
-              onSurface: textColor,
-            ),
-          ),
+          data: Theme.of(context).copyWith(colorScheme: context.appColors),
           child: child!,
         );
       },
@@ -565,9 +559,9 @@ class _AddDealerVisitPageState extends State<AddDealerVisitPage> {
       SnackBar(
         content: Row(
           children: [
-            const Icon(
+            Icon(
               Icons.error_outline_rounded,
-              color: Colors.white,
+              color: context.appColors.onError,
               size: 20,
             ),
 
@@ -585,7 +579,7 @@ class _AddDealerVisitPageState extends State<AddDealerVisitPage> {
           ],
         ),
 
-        backgroundColor: Colors.red.shade600,
+        backgroundColor: context.appColors.error,
 
         behavior: SnackBarBehavior.floating,
 
@@ -660,9 +654,9 @@ class _AddDealerVisitPageState extends State<AddDealerVisitPage> {
               SnackBar(
                 content: Row(
                   children: [
-                    const Icon(
+                    Icon(
                       Icons.error_outline_rounded,
-                      color: Colors.white,
+                      color: context.appColors.onError,
                       size: 20,
                     ),
 
@@ -676,7 +670,7 @@ class _AddDealerVisitPageState extends State<AddDealerVisitPage> {
                   ],
                 ),
 
-                backgroundColor: Colors.red.shade600,
+                backgroundColor: context.appColors.error,
 
                 behavior: SnackBarBehavior.floating,
 
@@ -875,7 +869,7 @@ class _AddDealerVisitPageState extends State<AddDealerVisitPage> {
 
   Widget _buildHistoryStrip() {
     return Material(
-      color: Colors.white,
+      color: context.cardBackgroundColor,
       borderRadius: BorderRadius.circular(16),
       child: InkWell(
         onTap: _showFollowupHistory,
@@ -885,7 +879,7 @@ class _AddDealerVisitPageState extends State<AddDealerVisitPage> {
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: const Color(0xFFDCE5E1)),
+            border: Border.all(color: context.borderColor),
           ),
           child: Row(
             children: [
@@ -893,26 +887,26 @@ class _AddDealerVisitPageState extends State<AddDealerVisitPage> {
                 height: 40,
                 width: 40,
                 decoration: BoxDecoration(
-                  color: const Color(0xFFE8F5F0),
+                  color: context.primaryColor.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(12),
                 ),
-                child: const Icon(
+                child: Icon(
                   Icons.history_rounded,
-                  color: Color(0xFF087F5B),
+                  color: context.primaryColor,
                   size: 22,
                 ),
               ),
 
               const SizedBox(width: 12),
 
-              const Expanded(
+              Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
                       'Follow-up History',
                       style: TextStyle(
-                        color: Color(0xFF172B24),
+                        color: context.cardTextColor,
                         fontSize: 14,
                         fontWeight: FontWeight.w700,
                       ),
@@ -923,7 +917,7 @@ class _AddDealerVisitPageState extends State<AddDealerVisitPage> {
                     Text(
                       'View previous dealer follow-ups',
                       style: TextStyle(
-                        color: Color(0xFF7A8983),
+                        color: context.secondaryTextColor,
                         fontSize: 11.5,
                       ),
                     ),
@@ -935,13 +929,13 @@ class _AddDealerVisitPageState extends State<AddDealerVisitPage> {
                 height: 34,
                 width: 34,
                 decoration: BoxDecoration(
-                  color: const Color(0xFFF3F8F6),
+                  color: context.primaryColor.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(10),
                 ),
-                child: const Icon(
+                child: Icon(
                   Icons.arrow_forward_ios_rounded,
                   size: 14,
-                  color: Color(0xFF087F5B),
+                  color: context.primaryColor,
                 ),
               ),
             ],
@@ -962,15 +956,15 @@ class _AddDealerVisitPageState extends State<AddDealerVisitPage> {
       padding: const EdgeInsets.all(12),
 
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: context.cardBackgroundColor,
 
         borderRadius: BorderRadius.circular(14),
 
-        border: Border.all(color: Colors.grey.shade200),
+        border: Border.all(color: context.borderColor),
 
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(.025),
+            color: context.appColors.shadow.withValues(alpha: .025),
 
             blurRadius: 8,
 
@@ -991,7 +985,7 @@ class _AddDealerVisitPageState extends State<AddDealerVisitPage> {
               borderRadius: BorderRadius.circular(11),
             ),
 
-            child: const Icon(
+            child: Icon(
               Icons.storefront_rounded,
 
               color: primaryGreen,
@@ -1007,14 +1001,14 @@ class _AddDealerVisitPageState extends State<AddDealerVisitPage> {
               crossAxisAlignment: CrossAxisAlignment.start,
 
               children: [
-                const Text(
+                Text(
                   'DEALER',
 
                   style: TextStyle(
                     fontSize: 8,
                     fontWeight: FontWeight.w700,
                     letterSpacing: .8,
-                    color: Colors.black45,
+                    color: context.secondaryTextColor,
                   ),
                 ),
 
@@ -1027,7 +1021,7 @@ class _AddDealerVisitPageState extends State<AddDealerVisitPage> {
 
                   overflow: TextOverflow.ellipsis,
 
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 15,
                     fontWeight: FontWeight.w700,
                     color: textColor,
@@ -1046,7 +1040,7 @@ class _AddDealerVisitPageState extends State<AddDealerVisitPage> {
               borderRadius: BorderRadius.circular(20),
             ),
 
-            child: const Text(
+            child: Text(
               'VISIT',
 
               style: TextStyle(
@@ -1075,7 +1069,7 @@ class _AddDealerVisitPageState extends State<AddDealerVisitPage> {
         Text(
           title,
 
-          style: const TextStyle(
+          style: TextStyle(
             fontSize: 14,
             fontWeight: FontWeight.w700,
             color: textColor,
@@ -1103,14 +1097,14 @@ class _AddDealerVisitPageState extends State<AddDealerVisitPage> {
         padding: const EdgeInsets.symmetric(horizontal: 12),
 
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: context.cardBackgroundColor,
 
           borderRadius: BorderRadius.circular(11),
 
           border: Border.all(
             color: selected
                 ? primaryGreen.withOpacity(.35)
-                : Colors.grey.shade200,
+                : context.borderColor,
           ),
         ),
 
@@ -1121,7 +1115,7 @@ class _AddDealerVisitPageState extends State<AddDealerVisitPage> {
               width: 34,
 
               decoration: BoxDecoration(
-                color: selected ? lightGreen : Colors.grey.shade100,
+                color: selected ? lightGreen : context.appTheme.inputBackground,
 
                 borderRadius: BorderRadius.circular(8),
               ),
@@ -1131,7 +1125,7 @@ class _AddDealerVisitPageState extends State<AddDealerVisitPage> {
 
                 size: 17,
 
-                color: selected ? primaryGreen : Colors.grey.shade500,
+                color: selected ? primaryGreen : context.secondaryTextColor,
               ),
             ),
 
@@ -1144,14 +1138,14 @@ class _AddDealerVisitPageState extends State<AddDealerVisitPage> {
                 crossAxisAlignment: CrossAxisAlignment.start,
 
                 children: [
-                  const Text(
+                  Text(
                     'NEXT FOLLOW-UP DATE *',
 
                     style: TextStyle(
                       fontSize: 8,
                       fontWeight: FontWeight.w700,
                       letterSpacing: .6,
-                      color: Colors.black45,
+                      color: context.secondaryTextColor,
                     ),
                   ),
 
@@ -1166,20 +1160,14 @@ class _AddDealerVisitPageState extends State<AddDealerVisitPage> {
                       fontSize: 12,
                       fontWeight: FontWeight.w600,
 
-                      color: selected ? textColor : Colors.grey.shade400,
+                      color: selected ? textColor : context.secondaryTextColor,
                     ),
                   ),
                 ],
               ),
             ),
 
-            const Icon(
-              Icons.calendar_month_rounded,
-
-              size: 19,
-
-              color: primaryGreen,
-            ),
+            Icon(Icons.calendar_month_rounded, size: 19, color: primaryGreen),
           ],
         ),
       ),
@@ -1193,9 +1181,9 @@ class _AddDealerVisitPageState extends State<AddDealerVisitPage> {
       height: 58,
       padding: const EdgeInsets.fromLTRB(11, 5, 7, 2),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: context.cardBackgroundColor,
         borderRadius: BorderRadius.circular(11),
-        border: Border.all(color: Colors.grey.shade200),
+        border: Border.all(color: context.borderColor),
       ),
       child: Row(
         children: [
@@ -1206,11 +1194,7 @@ class _AddDealerVisitPageState extends State<AddDealerVisitPage> {
               color: lightGreen,
               borderRadius: BorderRadius.circular(8),
             ),
-            child: const Icon(
-              Icons.flag_rounded,
-              size: 17,
-              color: primaryGreen,
-            ),
+            child: Icon(Icons.flag_rounded, size: 17, color: primaryGreen),
           ),
 
           const SizedBox(width: 9),
@@ -1219,13 +1203,13 @@ class _AddDealerVisitPageState extends State<AddDealerVisitPage> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text(
+                Text(
                   'PURPOSE TYPE *',
                   style: TextStyle(
                     fontSize: 8,
                     fontWeight: FontWeight.w700,
                     letterSpacing: .6,
-                    color: Colors.black45,
+                    color: context.secondaryTextColor,
                   ),
                 ),
 
@@ -1243,17 +1227,17 @@ class _AddDealerVisitPageState extends State<AddDealerVisitPage> {
                         style: TextStyle(
                           fontSize: 12,
                           fontWeight: FontWeight.w600,
-                          color: Colors.grey.shade400,
+                          color: context.secondaryTextColor,
                         ),
                       ),
 
-                      icon: const Icon(
+                      icon: Icon(
                         Icons.keyboard_arrow_down_rounded,
                         size: 19,
                         color: primaryGreen,
                       ),
 
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 12,
                         fontWeight: FontWeight.w600,
                         color: textColor,
@@ -1300,11 +1284,11 @@ class _AddDealerVisitPageState extends State<AddDealerVisitPage> {
       padding: const EdgeInsets.fromLTRB(11, 5, 7, 2),
 
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: context.cardBackgroundColor,
 
         borderRadius: BorderRadius.circular(11),
 
-        border: Border.all(color: Colors.grey.shade200),
+        border: Border.all(color: context.borderColor),
       ),
 
       child: Row(
@@ -1332,11 +1316,11 @@ class _AddDealerVisitPageState extends State<AddDealerVisitPage> {
                 Text(
                   label,
 
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 8,
                     fontWeight: FontWeight.w700,
                     letterSpacing: .6,
-                    color: Colors.black45,
+                    color: context.secondaryTextColor,
                   ),
                 ),
 
@@ -1349,13 +1333,13 @@ class _AddDealerVisitPageState extends State<AddDealerVisitPage> {
 
                       isDense: true,
 
-                      icon: const Icon(
+                      icon: Icon(
                         Icons.keyboard_arrow_down_rounded,
                         size: 19,
                         color: primaryGreen,
                       ),
 
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 12,
                         fontWeight: FontWeight.w600,
                         color: textColor,
@@ -1388,11 +1372,11 @@ class _AddDealerVisitPageState extends State<AddDealerVisitPage> {
   Widget _buildRemarkField() {
     return Container(
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: context.cardBackgroundColor,
 
         borderRadius: BorderRadius.circular(11),
 
-        border: Border.all(color: Colors.grey.shade200),
+        border: Border.all(color: context.borderColor),
       ),
 
       child: TextField(
@@ -1402,14 +1386,14 @@ class _AddDealerVisitPageState extends State<AddDealerVisitPage> {
 
         textCapitalization: TextCapitalization.sentences,
 
-        style: const TextStyle(fontSize: 13, color: textColor),
+        style: TextStyle(fontSize: 13, color: textColor),
 
         decoration: InputDecoration(
           hintText: 'Enter visit remark...',
 
-          hintStyle: TextStyle(color: Colors.grey.shade400, fontSize: 12),
+          hintStyle: TextStyle(color: context.secondaryTextColor, fontSize: 12),
 
-          prefixIcon: const Padding(
+          prefixIcon: Padding(
             padding: EdgeInsets.only(left: 11, right: 3, top: 9),
 
             child: Icon(Icons.edit_note_rounded, color: primaryGreen, size: 21),
@@ -1438,11 +1422,11 @@ class _AddDealerVisitPageState extends State<AddDealerVisitPage> {
       padding: const EdgeInsets.symmetric(horizontal: 11, vertical: 8),
 
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: context.cardBackgroundColor,
 
         borderRadius: BorderRadius.circular(11),
 
-        border: Border.all(color: Colors.grey.shade200),
+        border: Border.all(color: context.borderColor),
       ),
 
       child: ListView.separated(
@@ -1453,7 +1437,7 @@ class _AddDealerVisitPageState extends State<AddDealerVisitPage> {
         itemCount: lastRemarks.length,
 
         separatorBuilder: (_, __) =>
-            Divider(height: 1, color: Colors.grey.shade100),
+            Divider(height: 1, color: context.appTheme.inputBackground),
 
         itemBuilder: (context, index) {
           return Padding(
@@ -1469,7 +1453,7 @@ class _AddDealerVisitPageState extends State<AddDealerVisitPage> {
 
                   margin: const EdgeInsets.only(top: 5, right: 8),
 
-                  decoration: const BoxDecoration(
+                  decoration: BoxDecoration(
                     color: primaryGreen,
                     shape: BoxShape.circle,
                   ),
@@ -1479,7 +1463,7 @@ class _AddDealerVisitPageState extends State<AddDealerVisitPage> {
                   child: Text(
                     lastRemarks[index],
 
-                    style: const TextStyle(fontSize: 11, color: textColor),
+                    style: TextStyle(fontSize: 11, color: textColor),
                   ),
                 ),
               ],
@@ -1541,9 +1525,9 @@ class _AddDealerVisitPageState extends State<AddDealerVisitPage> {
         width: double.infinity,
         height: 170,
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: context.cardBackgroundColor,
           borderRadius: BorderRadius.circular(20),
-          border: Border.all(color: const Color(0xFFD8E5E0), width: 1.2),
+          border: Border.all(color: context.borderColor, width: 1.2),
         ),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -1552,22 +1536,22 @@ class _AddDealerVisitPageState extends State<AddDealerVisitPage> {
               height: 54,
               width: 54,
               decoration: BoxDecoration(
-                color: const Color(0xFFE8F5F0),
+                color: context.primaryColor.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(17),
               ),
-              child: const Icon(
+              child: Icon(
                 Icons.add_a_photo_rounded,
-                color: Color(0xFF087F5B),
+                color: context.primaryColor,
                 size: 27,
               ),
             ),
 
             const SizedBox(height: 12),
 
-            const Text(
+            Text(
               'Add Image',
               style: TextStyle(
-                color: Color(0xFF172B24),
+                color: context.cardTextColor,
                 fontSize: 14.5,
                 fontWeight: FontWeight.w700,
               ),
@@ -1575,9 +1559,9 @@ class _AddDealerVisitPageState extends State<AddDealerVisitPage> {
 
             const SizedBox(height: 4),
 
-            const Text(
+            Text(
               'Tap to take a photo',
-              style: TextStyle(color: Color(0xFF8A9792), fontSize: 12),
+              style: TextStyle(color: context.secondaryTextColor, fontSize: 12),
             ),
           ],
         ),
@@ -1590,14 +1574,14 @@ class _AddDealerVisitPageState extends State<AddDealerVisitPage> {
     required VoidCallback onTap,
   }) {
     return Material(
-      color: Colors.black.withOpacity(.60),
+      color: context.primaryColor,
       borderRadius: BorderRadius.circular(12),
       child: InkWell(
         onTap: onTap,
         borderRadius: BorderRadius.circular(12),
         child: Padding(
           padding: const EdgeInsets.all(9),
-          child: Icon(icon, color: Colors.white, size: 21),
+          child: Icon(icon, color: context.onPrimaryColor, size: 21),
         ),
       ),
     );
@@ -1633,11 +1617,11 @@ class _AddDealerVisitPageState extends State<AddDealerVisitPage> {
       padding: const EdgeInsets.fromLTRB(14, 8, 14, 9),
 
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: context.cardBackgroundColor,
 
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(.07),
+            color: context.appColors.shadow.withValues(alpha: .07),
 
             blurRadius: 10,
 
@@ -1659,9 +1643,9 @@ class _AddDealerVisitPageState extends State<AddDealerVisitPage> {
             style: ElevatedButton.styleFrom(
               backgroundColor: primaryGreen,
 
-              disabledBackgroundColor: Colors.grey.shade400,
+              disabledBackgroundColor: context.secondaryTextColor,
 
-              foregroundColor: Colors.white,
+              foregroundColor: context.onPrimaryColor,
 
               elevation: 0,
 
@@ -1671,13 +1655,13 @@ class _AddDealerVisitPageState extends State<AddDealerVisitPage> {
             ),
 
             child: isLoading
-                ? const SizedBox(
+                ? SizedBox(
                     height: 19,
                     width: 19,
 
                     child: CircularProgressIndicator(
                       strokeWidth: 2,
-                      color: Colors.white,
+                      color: context.onPrimaryColor,
                     ),
                   )
                 : const Row(
@@ -1757,7 +1741,7 @@ class _FollowupHistoryDialogState extends State<_FollowupHistoryDialog> {
         child: Container(
           constraints: const BoxConstraints(maxHeight: 650),
           decoration: BoxDecoration(
-            color: const Color(0xFFF6F8F7),
+            color: context.backgroundColor,
             borderRadius: BorderRadius.circular(24),
           ),
           child: Column(
@@ -1779,9 +1763,9 @@ class _FollowupHistoryDialogState extends State<_FollowupHistoryDialog> {
                     // ==============================================
 
                     if (state.addLeaveStatus == AddDealerVisitStatus.loading) {
-                      return const Center(
+                      return Center(
                         child: CircularProgressIndicator(
-                          color: Color(0xFF087F5B),
+                          color: context.primaryColor,
                         ),
                       );
                     }
@@ -1806,7 +1790,7 @@ class _FollowupHistoryDialogState extends State<_FollowupHistoryDialog> {
                     // ==============================================
 
                     return RefreshIndicator(
-                      color: const Color(0xFF087F5B),
+                      color: context.primaryColor,
                       onRefresh: () async {
                         dealerVisitBloc.add(GetFollowupEvent(widget.dealerId));
 
@@ -1844,10 +1828,8 @@ class _FollowupHistoryDialogState extends State<_FollowupHistoryDialog> {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.fromLTRB(18, 18, 10, 16),
-      decoration: const BoxDecoration(
-        gradient: LinearGradient(
-          colors: [Color(0xFF087F5B), Color(0xFF0B9A70)],
-        ),
+      decoration: BoxDecoration(
+        color: context.primaryColor,
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
       child: Row(
@@ -1856,12 +1838,12 @@ class _FollowupHistoryDialogState extends State<_FollowupHistoryDialog> {
             height: 42,
             width: 42,
             decoration: BoxDecoration(
-              color: Colors.white.withOpacity(.16),
+              color: context.onPrimaryColor.withValues(alpha: .16),
               borderRadius: BorderRadius.circular(13),
             ),
-            child: const Icon(
+            child: Icon(
               Icons.history_rounded,
-              color: Colors.white,
+              color: context.onPrimaryColor,
               size: 23,
             ),
           ),
@@ -1872,10 +1854,10 @@ class _FollowupHistoryDialogState extends State<_FollowupHistoryDialog> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text(
+                Text(
                   'Dealer Follow-up History',
                   style: TextStyle(
-                    color: Colors.white,
+                    color: context.onPrimaryColor,
                     fontSize: 17,
                     fontWeight: FontWeight.w700,
                   ),
@@ -1914,7 +1896,7 @@ class _FollowupHistoryDialogState extends State<_FollowupHistoryDialog> {
             onPressed: () {
               dealerVisitBloc.add(GetFollowupEvent(widget.dealerId));
             },
-            icon: const Icon(Icons.refresh_rounded, color: Colors.white),
+            icon: Icon(Icons.refresh_rounded, color: context.onPrimaryColor),
           ),
 
           // =======================================================
@@ -1925,7 +1907,7 @@ class _FollowupHistoryDialogState extends State<_FollowupHistoryDialog> {
             onPressed: () {
               Navigator.pop(context);
             },
-            icon: const Icon(Icons.close_rounded, color: Colors.white),
+            icon: Icon(Icons.close_rounded, color: context.onPrimaryColor),
           ),
         ],
       ),
@@ -1941,12 +1923,12 @@ class _FollowupHistoryDialogState extends State<_FollowupHistoryDialog> {
       width: double.infinity,
       padding: const EdgeInsets.all(15),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: context.cardBackgroundColor,
         borderRadius: BorderRadius.circular(17),
-        border: Border.all(color: const Color(0xFFDCE5E1)),
+        border: Border.all(color: context.borderColor),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(.035),
+            color: context.appColors.shadow.withValues(alpha: .035),
             blurRadius: 8,
             offset: const Offset(0, 3),
           ),
@@ -1973,24 +1955,24 @@ class _FollowupHistoryDialogState extends State<_FollowupHistoryDialog> {
                           vertical: 6,
                         ),
                         decoration: BoxDecoration(
-                          color: const Color(0xFFE8F5F0),
+                          color: context.primaryColor.withValues(alpha: 0.1),
                           borderRadius: BorderRadius.circular(9),
                         ),
                         child: Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            const Icon(
+                            Icon(
                               Icons.calendar_today_rounded,
                               size: 13,
-                              color: Color(0xFF087F5B),
+                              color: context.primaryColor,
                             ),
 
                             const SizedBox(width: 5),
 
                             Text(
                               item.followupDate,
-                              style: const TextStyle(
-                                color: Color(0xFF087F5B),
+                              style: TextStyle(
+                                color: context.primaryColor,
                                 fontSize: 11.5,
                                 fontWeight: FontWeight.w700,
                               ),
@@ -2007,24 +1989,24 @@ class _FollowupHistoryDialogState extends State<_FollowupHistoryDialog> {
                           vertical: 6,
                         ),
                         decoration: BoxDecoration(
-                          color: const Color(0xFFF3F6F5),
+                          color: context.appTheme.inputBackground,
                           borderRadius: BorderRadius.circular(9),
                         ),
                         child: Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            const Icon(
+                            Icon(
                               Icons.access_time_rounded,
                               size: 13,
-                              color: Color(0xFF7A8983),
+                              color: context.secondaryTextColor,
                             ),
 
                             const SizedBox(width: 5),
 
                             Text(
                               item.followupTime,
-                              style: const TextStyle(
-                                color: Color(0xFF7A8983),
+                              style: TextStyle(
+                                color: context.secondaryTextColor,
                                 fontSize: 11.5,
                                 fontWeight: FontWeight.w600,
                               ),
@@ -2043,13 +2025,13 @@ class _FollowupHistoryDialogState extends State<_FollowupHistoryDialog> {
                 width: 28,
                 alignment: Alignment.center,
                 decoration: BoxDecoration(
-                  color: const Color(0xFFF0F7F4),
+                  color: context.primaryColor.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Text(
                   '$index',
-                  style: const TextStyle(
-                    color: Color(0xFF087F5B),
+                  style: TextStyle(
+                    color: context.primaryColor,
                     fontSize: 11,
                     fontWeight: FontWeight.w700,
                   ),
@@ -2089,18 +2071,18 @@ class _FollowupHistoryDialogState extends State<_FollowupHistoryDialog> {
             width: double.infinity,
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
-              color: const Color(0xFFF5F8F6),
+              color: context.appTheme.inputBackground,
               borderRadius: BorderRadius.circular(12),
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Row(
+                Row(
                   children: [
                     Icon(
                       Icons.notes_rounded,
                       size: 17,
-                      color: Color(0xFF087F5B),
+                      color: context.primaryColor,
                     ),
 
                     SizedBox(width: 7),
@@ -2108,7 +2090,7 @@ class _FollowupHistoryDialogState extends State<_FollowupHistoryDialog> {
                     Text(
                       'Remark',
                       style: TextStyle(
-                        color: Color(0xFF087F5B),
+                        color: context.primaryColor,
                         fontSize: 12,
                         fontWeight: FontWeight.w700,
                       ),
@@ -2122,8 +2104,8 @@ class _FollowupHistoryDialogState extends State<_FollowupHistoryDialog> {
                   item.followupRemark.isEmpty
                       ? 'No remark'
                       : item.followupRemark,
-                  style: const TextStyle(
-                    color: Color(0xFF40534B),
+                  style: TextStyle(
+                    color: context.cardTextColor,
                     fontSize: 12.5,
                     height: 1.4,
                   ),
@@ -2152,10 +2134,10 @@ class _FollowupHistoryDialogState extends State<_FollowupHistoryDialog> {
           height: 32,
           width: 32,
           decoration: BoxDecoration(
-            color: const Color(0xFFE8F5E9),
+            color: context.primaryColor.withValues(alpha: 0.1),
             borderRadius: BorderRadius.circular(8),
           ),
-          child: Icon(icon, size: 17, color: const Color(0xFF087C3A)),
+          child: Icon(icon, size: 17, color: context.primaryColor),
         ),
 
         const SizedBox(width: 10),
@@ -2166,8 +2148,8 @@ class _FollowupHistoryDialogState extends State<_FollowupHistoryDialog> {
             children: [
               Text(
                 title,
-                style: const TextStyle(
-                  color: Colors.grey,
+                style: TextStyle(
+                  color: context.secondaryTextColor,
                   fontSize: 11,
                   fontWeight: FontWeight.w500,
                 ),
@@ -2177,8 +2159,8 @@ class _FollowupHistoryDialogState extends State<_FollowupHistoryDialog> {
 
               Text(
                 value,
-                style: const TextStyle(
-                  color: Color(0xFF263238),
+                style: TextStyle(
+                  color: context.cardTextColor,
                   fontSize: 13,
                   fontWeight: FontWeight.w600,
                 ),
@@ -2195,7 +2177,7 @@ class _FollowupHistoryDialogState extends State<_FollowupHistoryDialog> {
   // ===============================================================
 
   Widget _buildEmpty() {
-    return const Center(
+    return Center(
       child: Padding(
         padding: EdgeInsets.all(30),
         child: Column(
@@ -2204,7 +2186,7 @@ class _FollowupHistoryDialogState extends State<_FollowupHistoryDialog> {
             Icon(
               Icons.history_toggle_off_rounded,
               size: 55,
-              color: Color(0xFFB4C3BD),
+              color: context.secondaryTextColor,
             ),
 
             SizedBox(height: 14),
@@ -2212,7 +2194,7 @@ class _FollowupHistoryDialogState extends State<_FollowupHistoryDialog> {
             Text(
               'No Follow-up History',
               style: TextStyle(
-                color: Color(0xFF172B24),
+                color: context.cardTextColor,
                 fontSize: 15,
                 fontWeight: FontWeight.w700,
               ),
@@ -2223,7 +2205,7 @@ class _FollowupHistoryDialogState extends State<_FollowupHistoryDialog> {
             Text(
               'No previous follow-ups found for this dealer.',
               textAlign: TextAlign.center,
-              style: TextStyle(color: Color(0xFF7A8983), fontSize: 12),
+              style: TextStyle(color: context.secondaryTextColor, fontSize: 12),
             ),
           ],
         ),

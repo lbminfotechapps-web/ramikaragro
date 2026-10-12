@@ -1,5 +1,5 @@
 import 'package:solufine/core/router/app_router.dart';
-import 'package:solufine/core/theme/app_colors.dart';
+import 'package:solufine/core/theme/app_theme_context.dart';
 import 'package:solufine/core/utility/widgets/custom_appbar.dart';
 import 'package:solufine/core/utility/widgets/custom_loader.dart';
 import 'package:solufine/features/leave/presentation/pages/add_leave_page.dart';
@@ -85,9 +85,7 @@ class _LeaveListPageState extends State<LeaveListPage>
       lastDate: DateTime(2100),
       builder: (context, child) {
         return Theme(
-          data: Theme.of(context).copyWith(
-            colorScheme: ColorScheme.fromSeed(seedColor: Colors.green),
-          ),
+          data: Theme.of(context).copyWith(colorScheme: context.appColors),
           child: child!,
         );
       },
@@ -132,9 +130,7 @@ class _LeaveListPageState extends State<LeaveListPage>
       lastDate: DateTime(2100),
       builder: (context, child) {
         return Theme(
-          data: Theme.of(context).copyWith(
-            colorScheme: ColorScheme.fromSeed(seedColor: Colors.green),
-          ),
+          data: Theme.of(context).copyWith(colorScheme: context.appColors),
           child: child!,
         );
       },
@@ -168,7 +164,7 @@ class _LeaveListPageState extends State<LeaveListPage>
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: const Text("Please select both From Date and To Date"),
-          backgroundColor: Colors.red,
+          backgroundColor: context.appColors.error,
           behavior: SnackBarBehavior.floating,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(12),
@@ -183,7 +179,7 @@ class _LeaveListPageState extends State<LeaveListPage>
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: const Text("To Date cannot be before From Date"),
-          backgroundColor: Colors.red,
+          backgroundColor: context.appColors.error,
           behavior: SnackBarBehavior.floating,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(12),
@@ -202,7 +198,6 @@ class _LeaveListPageState extends State<LeaveListPage>
     });
   }
 
- 
   // ============================================================
   // CLEAR FILTER
   // ============================================================
@@ -262,7 +257,7 @@ class _LeaveListPageState extends State<LeaveListPage>
     return BlocProvider.value(
       value: leaveBloc,
       child: Scaffold(
-        backgroundColor: AppColors.backgroundColor,
+        backgroundColor: context.backgroundColor,
 
         // ======================================================
         // APP BAR
@@ -282,7 +277,6 @@ class _LeaveListPageState extends State<LeaveListPage>
           },
         ),
 
-      
         // ======================================================
         // FAB
         // ======================================================
@@ -294,8 +288,8 @@ class _LeaveListPageState extends State<LeaveListPage>
               MaterialPageRoute(builder: (context) => AddLeavePage()),
             );
           },
-          backgroundColor: Colors.green,
-          foregroundColor: Colors.white,
+          backgroundColor: context.primaryColor,
+          foregroundColor: context.onPrimaryColor,
           elevation: 5,
           icon: const Icon(Icons.add_rounded),
           label: const Text(
@@ -314,7 +308,7 @@ class _LeaveListPageState extends State<LeaveListPage>
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(
                   content: Text(state.errorMessage!),
-                  backgroundColor: Colors.red,
+                  backgroundColor: context.appColors.error,
                   behavior: SnackBarBehavior.floating,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12),
@@ -386,19 +380,19 @@ class _LeaveListPageState extends State<LeaveListPage>
             height: 42,
             width: 42,
             decoration: BoxDecoration(
-              color: Colors.green.withOpacity(0.10),
+              color: context.primaryColor.withValues(alpha: 0.10),
               borderRadius: BorderRadius.circular(13),
             ),
-            child: const Icon(
+            child: Icon(
               Icons.event_note_rounded,
-              color: Colors.green,
+              color: context.primaryColor,
               size: 22,
             ),
           ),
 
           const SizedBox(width: 11),
 
-          const Expanded(
+          Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -409,7 +403,10 @@ class _LeaveListPageState extends State<LeaveListPage>
                 SizedBox(height: 2),
                 Text(
                   "Your leave history",
-                  style: TextStyle(fontSize: 11, color: Colors.grey),
+                  style: TextStyle(
+                    fontSize: 11,
+                    color: context.secondaryTextColor,
+                  ),
                 ),
               ],
             ),
@@ -419,13 +416,13 @@ class _LeaveListPageState extends State<LeaveListPage>
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 11, vertical: 7),
             decoration: BoxDecoration(
-              color: Colors.green.withOpacity(0.10),
+              color: context.primaryColor.withValues(alpha: 0.10),
               borderRadius: BorderRadius.circular(20),
             ),
             child: Text(
               "${state.leaves.length} Records",
-              style: const TextStyle(
-                color: Colors.green,
+              style: TextStyle(
+                color: context.primaryColor,
                 fontSize: 11,
                 fontWeight: FontWeight.bold,
               ),
@@ -445,32 +442,32 @@ class _LeaveListPageState extends State<LeaveListPage>
       margin: const EdgeInsets.fromLTRB(16, 8, 16, 2),
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 9),
       decoration: BoxDecoration(
-        color: Colors.green.withOpacity(0.08),
+        color: context.primaryColor.withValues(alpha: 0.08),
         borderRadius: BorderRadius.circular(13),
-        border: Border.all(color: Colors.green.withOpacity(0.18)),
+        border: Border.all(color: context.primaryColor.withValues(alpha: 0.18)),
       ),
       child: Row(
         children: [
           Container(
             padding: const EdgeInsets.all(6),
             decoration: BoxDecoration(
-              color: Colors.green.withOpacity(0.12),
+              color: context.primaryColor.withValues(alpha: 0.12),
               shape: BoxShape.circle,
             ),
-            child: const Icon(
+            child: Icon(
               Icons.filter_alt_rounded,
               size: 15,
-              color: Colors.green,
+              color: context.primaryColor,
             ),
           ),
 
           const SizedBox(width: 8),
 
-          const Text(
+          Text(
             "Filter",
             style: TextStyle(
               fontSize: 11,
-              color: Colors.grey,
+              color: context.secondaryTextColor,
               fontWeight: FontWeight.w600,
             ),
           ),
@@ -480,9 +477,9 @@ class _LeaveListPageState extends State<LeaveListPage>
           Expanded(
             child: Text(
               _filterText(),
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 12,
-                color: Colors.green,
+                color: context.primaryColor,
                 fontWeight: FontWeight.bold,
               ),
             ),
@@ -491,9 +488,13 @@ class _LeaveListPageState extends State<LeaveListPage>
           InkWell(
             borderRadius: BorderRadius.circular(20),
             onTap: _clearFilter,
-            child: const Padding(
+            child: Padding(
               padding: EdgeInsets.all(5),
-              child: Icon(Icons.close_rounded, size: 17, color: Colors.red),
+              child: Icon(
+                Icons.close_rounded,
+                size: 17,
+                color: context.appColors.error,
+              ),
             ),
           ),
         ],
@@ -535,7 +536,7 @@ class _LeaveListPageState extends State<LeaveListPage>
     // ==========================================================
 
     return RefreshIndicator(
-      color: Colors.green,
+      color: context.primaryColor,
       onRefresh: () async {
         _getLeaveList();
       },
@@ -563,28 +564,28 @@ class _LeaveListPageState extends State<LeaveListPage>
             height: 65,
             width: 65,
             decoration: BoxDecoration(
-              color: Colors.green.withOpacity(0.08),
+              color: context.primaryColor.withValues(alpha: 0.08),
               shape: BoxShape.circle,
             ),
-            child: const CustomLoader(strokeWidth: 3, color: Colors.green),
+            child: CustomLoader(strokeWidth: 3, color: context.primaryColor),
           ),
 
           const SizedBox(height: 18),
 
-          const Text(
+          Text(
             "Loading leave history...",
             style: TextStyle(
               fontSize: 14,
               fontWeight: FontWeight.w600,
-              color: Colors.black87,
+              color: context.cardTextColor,
             ),
           ),
 
           const SizedBox(height: 5),
 
-          const Text(
+          Text(
             "Please wait",
-            style: TextStyle(fontSize: 12, color: Colors.grey),
+            style: TextStyle(fontSize: 12, color: context.secondaryTextColor),
           ),
         ],
       ),
@@ -597,7 +598,7 @@ class _LeaveListPageState extends State<LeaveListPage>
 
   Widget _buildError(String message) {
     return RefreshIndicator(
-      color: Colors.green,
+      color: context.primaryColor,
       onRefresh: () async {
         _getLeaveList();
       },
@@ -611,22 +612,22 @@ class _LeaveListPageState extends State<LeaveListPage>
               height: 90,
               width: 90,
               decoration: BoxDecoration(
-                color: Colors.red.withOpacity(0.08),
+                color: context.appColors.error.withValues(alpha: 0.08),
                 shape: BoxShape.circle,
               ),
-              child: const Icon(
+              child: Icon(
                 Icons.cloud_off_rounded,
                 size: 43,
-                color: Colors.red,
+                color: context.appColors.error,
               ),
             ),
           ),
 
           const SizedBox(height: 20),
 
-           Center(
+          Center(
             child: Text(
-             message,
+              message,
               style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
           ),
@@ -641,15 +642,14 @@ class _LeaveListPageState extends State<LeaveListPage>
           //     style: const TextStyle(fontSize: 13, color: Colors.grey),
           //   ),
           // ),
-
           const SizedBox(height: 20),
 
           Center(
             child: ElevatedButton.icon(
               onPressed: _getLeaveList,
               style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.green,
-                foregroundColor: Colors.white,
+                backgroundColor: context.primaryColor,
+                foregroundColor: context.onPrimaryColor,
                 elevation: 0,
                 padding: const EdgeInsets.symmetric(
                   horizontal: 20,
@@ -676,7 +676,7 @@ class _LeaveListPageState extends State<LeaveListPage>
     final bool isFiltered = fromDate != null || toDate != null;
 
     return RefreshIndicator(
-      color: Colors.green,
+      color: context.primaryColor,
       onRefresh: () async {
         _getLeaveList();
       },
@@ -690,25 +690,25 @@ class _LeaveListPageState extends State<LeaveListPage>
               height: 120,
               width: 120,
               decoration: BoxDecoration(
-                color: Colors.green.withOpacity(0.07),
+                color: context.primaryColor.withValues(alpha: 0.07),
                 shape: BoxShape.circle,
               ),
               child: Container(
                 margin: const EdgeInsets.all(15),
                 decoration: BoxDecoration(
-                  color: Colors.white,
+                  color: context.cardBackgroundColor,
                   shape: BoxShape.circle,
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withOpacity(0.05),
+                      color: context.appColors.shadow.withValues(alpha: 0.05),
                       blurRadius: 15,
                     ),
                   ],
                 ),
-                child: const Icon(
+                child: Icon(
                   Icons.event_busy_rounded,
                   size: 48,
-                  color: Colors.green,
+                  color: context.primaryColor,
                 ),
               ),
             ),
@@ -732,9 +732,9 @@ class _LeaveListPageState extends State<LeaveListPage>
                   ? "No leave applications were found for the selected date range."
                   : "You don't have any leave applications yet.",
               textAlign: TextAlign.center,
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 13,
-                color: Colors.grey,
+                color: context.secondaryTextColor,
                 height: 1.5,
               ),
             ),
@@ -747,8 +747,8 @@ class _LeaveListPageState extends State<LeaveListPage>
               child: OutlinedButton.icon(
                 onPressed: _clearFilter,
                 style: OutlinedButton.styleFrom(
-                  foregroundColor: Colors.green,
-                  side: const BorderSide(color: Colors.green),
+                  foregroundColor: context.primaryColor,
+                  side: BorderSide(color: context.primaryColor),
                   padding: const EdgeInsets.symmetric(
                     horizontal: 18,
                     vertical: 11,
@@ -766,8 +766,8 @@ class _LeaveListPageState extends State<LeaveListPage>
               child: ElevatedButton.icon(
                 onPressed: () {},
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.green,
-                  foregroundColor: Colors.white,
+                  backgroundColor: context.primaryColor,
+                  foregroundColor: context.onPrimaryColor,
                   elevation: 0,
                   padding: const EdgeInsets.symmetric(
                     horizontal: 18,

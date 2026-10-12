@@ -1,3 +1,5 @@
+import 'package:solufine/core/theme/app_dynamic_colors.dart';
+import 'package:solufine/core/theme/app_theme_context.dart';
 import 'package:solufine/core/api_constant/api_client.dart';
 import 'package:flutter/material.dart';
 
@@ -15,9 +17,9 @@ class MyExpenseCard extends StatefulWidget {
 class _MyExpenseCardState extends State<MyExpenseCard> {
   bool showDetails = false;
 
-  static const Color primaryGreen = Color(0xFF1B4332);
-  static const Color mediumGreen = Color(0xFF2D6A4F);
-  static const Color lightGreen = Color(0xFFE8F5ED);
+  Color get primaryGreen => context.primaryColor;
+  Color get mediumGreen => context.primaryColor;
+  Color get lightGreen => context.primaryColor.withValues(alpha: 0.1);
 
   @override
   Widget build(BuildContext context) {
@@ -30,12 +32,12 @@ class _MyExpenseCardState extends State<MyExpenseCard> {
       margin: const EdgeInsets.only(bottom: 8),
 
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: context.cardBackgroundColor,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: const Color(0xFFE3EAE5)),
+        border: Border.all(color: context.borderColor),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.03),
+            color: context.appColors.shadow.withValues(alpha: 0.03),
             blurRadius: 8,
             offset: const Offset(0, 3),
           ),
@@ -61,14 +63,12 @@ class _MyExpenseCardState extends State<MyExpenseCard> {
                       width: 30,
                       height: 30,
                       decoration: BoxDecoration(
-                        gradient: const LinearGradient(
-                          colors: [Color(0xFFE8F5ED), Color(0xFFD8EEE0)],
-                        ),
+                        color: context.primaryColor,
                         borderRadius: BorderRadius.circular(13),
                       ),
-                      child: const Icon(
+                      child: Icon(
                         Icons.receipt_long_rounded,
-                        color: mediumGreen,
+                        color: context.onPrimaryColor,
                         size: 21,
                       ),
                     ),
@@ -79,12 +79,12 @@ class _MyExpenseCardState extends State<MyExpenseCard> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const Text(
+                          Text(
                             'EXPENSE DATE',
                             style: TextStyle(
                               fontSize: 8,
                               letterSpacing: 0.5,
-                              color: Color(0xFF8A938D),
+                              color: context.secondaryTextColor,
                               fontWeight: FontWeight.w800,
                             ),
                           ),
@@ -93,10 +93,10 @@ class _MyExpenseCardState extends State<MyExpenseCard> {
 
                           Text(
                             expense.expenseDate,
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontSize: 14,
                               fontWeight: FontWeight.w900,
-                              color: Color(0xFF18231C),
+                              color: context.cardTextColor,
                             ),
                           ),
                         ],
@@ -107,12 +107,12 @@ class _MyExpenseCardState extends State<MyExpenseCard> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const Text(
+                          Text(
                             'Daily Total',
                             style: TextStyle(
                               fontSize: 8,
                               letterSpacing: 0.5,
-                              color: Color(0xFF8A938D),
+                              color: context.secondaryTextColor,
                               fontWeight: FontWeight.w800,
                             ),
                           ),
@@ -121,10 +121,10 @@ class _MyExpenseCardState extends State<MyExpenseCard> {
 
                           Text(
                             '₹ ${expense.dailyTotal}',
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontSize: 14,
                               fontWeight: FontWeight.w900,
-                              color: Color(0xFF18231C),
+                              color: context.cardTextColor,
                             ),
                           ),
                         ],
@@ -233,7 +233,9 @@ class _MyExpenseCardState extends State<MyExpenseCard> {
                                 ? Icons.keyboard_arrow_up_rounded
                                 : Icons.keyboard_arrow_down_rounded,
                             size: 19,
-                            color: showDetails ? Colors.white : primaryGreen,
+                            color: showDetails
+                                ? context.onPrimaryColor
+                                : primaryGreen,
                           ),
 
                           const SizedBox(width: 5),
@@ -245,7 +247,9 @@ class _MyExpenseCardState extends State<MyExpenseCard> {
                             style: TextStyle(
                               fontSize: 10,
                               fontWeight: FontWeight.w800,
-                              color: showDetails ? Colors.white : primaryGreen,
+                              color: showDetails
+                                  ? context.onPrimaryColor
+                                  : primaryGreen,
                             ),
                           ),
 
@@ -258,8 +262,10 @@ class _MyExpenseCardState extends State<MyExpenseCard> {
                             ),
                             decoration: BoxDecoration(
                               color: showDetails
-                                  ? Colors.white.withOpacity(0.15)
-                                  : Colors.white,
+                                  ? context.onPrimaryColor.withValues(
+                                      alpha: 0.15,
+                                    )
+                                  : context.cardBackgroundColor,
                               borderRadius: BorderRadius.circular(8),
                             ),
                             child: Text(
@@ -267,7 +273,9 @@ class _MyExpenseCardState extends State<MyExpenseCard> {
                               style: TextStyle(
                                 fontSize: 9,
                                 fontWeight: FontWeight.w900,
-                                color: showDetails ? Colors.white : mediumGreen,
+                                color: showDetails
+                                    ? context.onPrimaryColor
+                                    : mediumGreen,
                               ),
                             ),
                           ),
@@ -302,9 +310,21 @@ class _MyExpenseCardState extends State<MyExpenseCard> {
 
   Widget _statusBadge(String status) {
     final (label, backgroundColor, foregroundColor) = switch (status.trim()) {
-      '1' => ('Approved', const Color(0xFFE8F5E9), const Color(0xFF2E7D32)),
-      '2' => ('Cancelled', const Color(0xFFFFEBEE), const Color(0xFFC62828)),
-      _ => ('Pending', const Color(0xFFFFF4E5), const Color(0xFFE65100)),
+      '1' => (
+        'Approved',
+        context.appSuccess.withValues(alpha: 0.1),
+        context.appSuccess,
+      ),
+      '2' => (
+        'Cancelled',
+        context.appColors.error.withValues(alpha: 0.1),
+        context.appColors.error,
+      ),
+      _ => (
+        'Pending',
+        context.appWarning.withValues(alpha: 0.1),
+        context.appWarning,
+      ),
     };
 
     return Container(
@@ -345,17 +365,17 @@ class _MyExpenseCardState extends State<MyExpenseCard> {
     switch (status.trim().toLowerCase()) {
       case '0':
       case 'pending':
-        return Colors.orange;
+        return context.appWarning;
 
       case '1':
       case 'approved':
       case 'approve':
-        return Colors.green;
+        return context.appSuccess;
 
       case '2':
       case 'rejected':
       case 'reject':
-        return Colors.red;
+        return context.appError;
 
       default:
         return mediumGreen;
@@ -407,9 +427,9 @@ class _MyExpenseCardState extends State<MyExpenseCard> {
       width: double.infinity,
       padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 7),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.055),
+        color: color.withValues(alpha: 0.055),
         borderRadius: BorderRadius.circular(10),
-        border: Border.all(color: color.withOpacity(0.13)),
+        border: Border.all(color: color.withValues(alpha: 0.13)),
       ),
       child: Row(
         children: [
@@ -417,7 +437,7 @@ class _MyExpenseCardState extends State<MyExpenseCard> {
             width: 29,
             height: 29,
             decoration: BoxDecoration(
-              color: color.withOpacity(0.10),
+              color: color.withValues(alpha: 0.10),
               shape: BoxShape.circle,
             ),
             child: Icon(icon, size: 15, color: color),
@@ -470,9 +490,9 @@ class _MyExpenseCardState extends State<MyExpenseCard> {
       width: double.infinity,
       padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 7),
       decoration: BoxDecoration(
-        color: const Color(0xFFF3F7FF),
+        color: context.appTheme.inputBackground,
         borderRadius: BorderRadius.circular(10),
-        border: Border.all(color: const Color(0xFFDCE7FA)),
+        border: Border.all(color: context.borderColor),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -480,14 +500,14 @@ class _MyExpenseCardState extends State<MyExpenseCard> {
           Container(
             width: 29,
             height: 29,
-            decoration: const BoxDecoration(
-              color: Color(0xFFE6EEFF),
+            decoration: BoxDecoration(
+              color: context.primaryColor.withValues(alpha: 0.1),
               shape: BoxShape.circle,
             ),
-            child: const Icon(
+            child: Icon(
               Icons.notes_rounded,
               size: 15,
-              color: Color(0xFF4267A8),
+              color: context.primaryColor,
             ),
           ),
 
@@ -497,12 +517,12 @@ class _MyExpenseCardState extends State<MyExpenseCard> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text(
+                Text(
                   'REMARK',
                   style: TextStyle(
                     fontSize: 7,
                     letterSpacing: 0.4,
-                    color: Color(0xFF4267A8),
+                    color: context.primaryColor,
                     fontWeight: FontWeight.w900,
                   ),
                 ),
@@ -511,9 +531,9 @@ class _MyExpenseCardState extends State<MyExpenseCard> {
 
                 Text(
                   remark,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 9,
-                    color: Color(0xFF37474F),
+                    color: context.cardTextColor,
                     fontWeight: FontWeight.w600,
                     height: 1.2,
                   ),
@@ -538,9 +558,9 @@ class _MyExpenseCardState extends State<MyExpenseCard> {
     return Container(
       padding: const EdgeInsets.all(8),
       decoration: BoxDecoration(
-        color: const Color(0xFFFAFCFA),
+        color: context.appTheme.inputBackground,
         borderRadius: BorderRadius.circular(11),
-        border: Border.all(color: const Color(0xFFEDF1EE)),
+        border: Border.all(color: context.borderColor),
       ),
       child: Row(
         children: [
@@ -564,9 +584,9 @@ class _MyExpenseCardState extends State<MyExpenseCard> {
                   title,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 7,
-                    color: Color(0xFF8A938D),
+                    color: context.secondaryTextColor,
                     fontWeight: FontWeight.w700,
                   ),
                 ),
@@ -577,10 +597,10 @@ class _MyExpenseCardState extends State<MyExpenseCard> {
                   value.isEmpty ? '-' : value,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 9,
                     fontWeight: FontWeight.w800,
-                    color: Color(0xFF263229),
+                    color: context.cardTextColor,
                   ),
                 ),
               ],
@@ -599,8 +619,8 @@ class _MyExpenseCardState extends State<MyExpenseCard> {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.fromLTRB(11, 0, 11, 11),
-      decoration: const BoxDecoration(
-        color: Color(0xFFF7FAF8),
+      decoration: BoxDecoration(
+        color: context.appTheme.inputBackground,
         borderRadius: BorderRadius.only(
           bottomLeft: Radius.circular(16),
           bottomRight: Radius.circular(16),
@@ -608,11 +628,11 @@ class _MyExpenseCardState extends State<MyExpenseCard> {
       ),
       child: Column(
         children: [
-          const Divider(height: 1, color: Color(0xFFE3EAE5)),
+          Divider(height: 1, color: context.borderColor),
 
           const SizedBox(height: 9),
 
-          const Align(
+          Align(
             alignment: Alignment.centerLeft,
             child: Text(
               'EXPENSE BREAKDOWN',
@@ -620,7 +640,7 @@ class _MyExpenseCardState extends State<MyExpenseCard> {
                 fontSize: 9,
                 letterSpacing: 0.6,
                 fontWeight: FontWeight.w900,
-                color: Color(0xFF6D7971),
+                color: context.secondaryTextColor,
               ),
             ),
           ),
@@ -676,9 +696,9 @@ class _MyExpenseCardState extends State<MyExpenseCard> {
       margin: const EdgeInsets.only(bottom: 7),
       padding: const EdgeInsets.all(8),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: context.cardBackgroundColor,
         borderRadius: BorderRadius.circular(11),
-        border: Border.all(color: const Color(0xFFE6ECE8)),
+        border: Border.all(color: context.borderColor),
       ),
       child: Column(
         children: [
@@ -702,17 +722,17 @@ class _MyExpenseCardState extends State<MyExpenseCard> {
               Expanded(
                 child: Text(
                   name.isEmpty ? 'Expense' : name,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 10,
                     fontWeight: FontWeight.w800,
-                    color: Color(0xFF263229),
+                    color: context.cardTextColor,
                   ),
                 ),
               ),
 
               Text(
                 '₹ $amount',
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 11,
                   fontWeight: FontWeight.w900,
                   color: primaryGreen,
@@ -751,7 +771,7 @@ class _MyExpenseCardState extends State<MyExpenseCard> {
                           width: double.infinity,
                           height: 135,
                           decoration: BoxDecoration(
-                            color: const Color(0xFFF1F5F2),
+                            color: context.appTheme.inputBackground,
                             borderRadius: BorderRadius.circular(10),
                           ),
                           child: Center(
@@ -773,26 +793,28 @@ class _MyExpenseCardState extends State<MyExpenseCard> {
                           width: double.infinity,
                           height: 135,
                           decoration: BoxDecoration(
-                            color: const Color(0xFFFFF5F5),
+                            color: context.appColors.error.withValues(
+                              alpha: 0.06,
+                            ),
                             borderRadius: BorderRadius.circular(10),
                           ),
                           child: Column(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              const Icon(
+                              Icon(
                                 Icons.broken_image_outlined,
                                 size: 28,
-                                color: Color(0xFFC62828),
+                                color: context.appColors.error,
                               ),
 
                               const SizedBox(height: 5),
 
-                              const Text(
+                              Text(
                                 'Unable to load image',
                                 style: TextStyle(
                                   fontSize: 9,
                                   fontWeight: FontWeight.w700,
-                                  color: Color(0xFFC62828),
+                                  color: context.appColors.error,
                                 ),
                               ),
 
@@ -807,9 +829,9 @@ class _MyExpenseCardState extends State<MyExpenseCard> {
                                   maxLines: 1,
                                   textAlign: TextAlign.center,
                                   overflow: TextOverflow.ellipsis,
-                                  style: const TextStyle(
+                                  style: TextStyle(
                                     fontSize: 8,
-                                    color: Color(0xFF8A938D),
+                                    color: context.secondaryTextColor,
                                   ),
                                 ),
                               ),
@@ -828,15 +850,15 @@ class _MyExpenseCardState extends State<MyExpenseCard> {
                           vertical: 4,
                         ),
                         decoration: BoxDecoration(
-                          color: Colors.black.withOpacity(0.65),
+                          color: context.primaryColor,
                           borderRadius: BorderRadius.circular(14),
                         ),
-                        child: const Row(
+                        child: Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
                             Icon(
                               Icons.zoom_in_rounded,
-                              color: Colors.white,
+                              color: context.onPrimaryColor,
                               size: 12,
                             ),
 
@@ -845,7 +867,7 @@ class _MyExpenseCardState extends State<MyExpenseCard> {
                             Text(
                               'View',
                               style: TextStyle(
-                                color: Colors.white,
+                                color: context.onPrimaryColor,
                                 fontSize: 8,
                                 fontWeight: FontWeight.w800,
                               ),
@@ -877,7 +899,7 @@ class _MyExpenseCardState extends State<MyExpenseCard> {
 
     showDialog(
       context: context,
-      barrierColor: Colors.black.withOpacity(0.88),
+      barrierColor: context.appColors.shadow.withValues(alpha: 0.88),
       builder: (dialogContext) {
         return Dialog(
           backgroundColor: Colors.transparent,
@@ -885,7 +907,7 @@ class _MyExpenseCardState extends State<MyExpenseCard> {
           child: Container(
             width: double.infinity,
             decoration: BoxDecoration(
-              color: Colors.black,
+              color: context.cardBackgroundColor,
               borderRadius: BorderRadius.circular(16),
             ),
             child: Column(
@@ -903,8 +925,8 @@ class _MyExpenseCardState extends State<MyExpenseCard> {
                           expenseName.isEmpty ? 'Expense Image' : expenseName,
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
-                          style: const TextStyle(
-                            color: Colors.white,
+                          style: TextStyle(
+                            color: context.cardTextColor,
                             fontSize: 13,
                             fontWeight: FontWeight.w800,
                           ),
@@ -916,9 +938,9 @@ class _MyExpenseCardState extends State<MyExpenseCard> {
                         onPressed: () {
                           Navigator.pop(dialogContext);
                         },
-                        icon: const Icon(
+                        icon: Icon(
                           Icons.close_rounded,
-                          color: Colors.white,
+                          color: context.cardTextColor,
                           size: 21,
                         ),
                       ),
@@ -942,18 +964,18 @@ class _MyExpenseCardState extends State<MyExpenseCard> {
                           return child;
                         }
 
-                        return const SizedBox(
+                        return SizedBox(
                           height: 300,
                           child: Center(
                             child: CircularProgressIndicator(
-                              color: Colors.white,
+                              color: context.cardTextColor,
                             ),
                           ),
                         );
                       },
 
                       errorBuilder: (context, error, stackTrace) {
-                        return const SizedBox(
+                        return SizedBox(
                           height: 300,
                           child: Center(
                             child: Column(
@@ -961,7 +983,7 @@ class _MyExpenseCardState extends State<MyExpenseCard> {
                               children: [
                                 Icon(
                                   Icons.broken_image_outlined,
-                                  color: Colors.white70,
+                                  color: context.secondaryTextColor,
                                   size: 42,
                                 ),
 
@@ -970,7 +992,7 @@ class _MyExpenseCardState extends State<MyExpenseCard> {
                                 Text(
                                   'Unable to load image',
                                   style: TextStyle(
-                                    color: Colors.white70,
+                                    color: context.secondaryTextColor,
                                     fontSize: 11,
                                   ),
                                 ),
@@ -995,7 +1017,10 @@ class _MyExpenseCardState extends State<MyExpenseCard> {
                     maxLines: 1,
                     textAlign: TextAlign.center,
                     overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(color: Colors.white54, fontSize: 9),
+                    style: TextStyle(
+                      color: context.secondaryTextColor,
+                      fontSize: 9,
+                    ),
                   ),
                 ),
               ],

@@ -4,7 +4,7 @@ import 'dart:typed_data';
 import 'package:solufine/core/di/auth_di.dart';
 import 'package:solufine/core/router/app_router.dart';
 import 'package:solufine/core/secure_storage/secure_storage.dart';
-import 'package:solufine/core/theme/app_colors.dart';
+import 'package:solufine/core/theme/app_theme_context.dart';
 import 'package:solufine/core/utility/widgets/custom_appbar.dart';
 import 'package:solufine/core/utility/widgets/custom_textformfield.dart';
 import 'package:flutter/material.dart';
@@ -89,17 +89,17 @@ class _SalesReturnPageState extends State<SalesReturnPage> {
   @override
   Widget build(BuildContext context) {
     if (isLoadingUser) {
-      return const Scaffold(
-        backgroundColor: AppColors.background,
+      return Scaffold(
+        backgroundColor: context.backgroundColor,
         body: Center(
-          child: CircularProgressIndicator(color: AppColors.primary),
+          child: CircularProgressIndicator(color: context.primaryColor),
         ),
       );
     }
 
     if (userId == null || userId! <= 0) {
       return Scaffold(
-        backgroundColor: AppColors.background,
+        backgroundColor: context.backgroundColor,
         body: Center(
           child: Padding(
             padding: EdgeInsets.all(24.w),
@@ -108,14 +108,14 @@ class _SalesReturnPageState extends State<SalesReturnPage> {
               children: [
                 Container(
                   padding: EdgeInsets.all(18.w),
-                  decoration: const BoxDecoration(
-                    color: AppColors.lightGreen,
+                  decoration: BoxDecoration(
+                    color: context.primaryColor.withValues(alpha: 0.08),
                     shape: BoxShape.circle,
                   ),
                   child: Icon(
                     Icons.person_off_rounded,
                     size: 50.sp,
-                    color: AppColors.primary,
+                    color: context.primaryColor,
                   ),
                 ),
                 SizedBox(height: 18.h),
@@ -124,7 +124,7 @@ class _SalesReturnPageState extends State<SalesReturnPage> {
                   style: TextStyle(
                     fontSize: 17.sp,
                     fontWeight: FontWeight.w800,
-                    color: AppColors.textPrimary,
+                    color: context.primaryTextColor,
                   ),
                 ),
                 SizedBox(height: 8.h),
@@ -133,7 +133,7 @@ class _SalesReturnPageState extends State<SalesReturnPage> {
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     fontSize: 13.sp,
-                    color: AppColors.textSecondary,
+                    color: context.secondaryTextColor,
                   ),
                 ),
               ],
@@ -375,9 +375,9 @@ class _SalesReurnViewState extends State<_SalesReturnView> {
       margin: EdgeInsets.only(top: 8.h),
       padding: EdgeInsets.all(10.w),
       decoration: BoxDecoration(
-        color: AppColors.lightGreen,
+        color: context.primaryColor.withValues(alpha: 0.08),
         borderRadius: BorderRadius.circular(12.r),
-        border: Border.all(color: AppColors.primary.withOpacity(0.15)),
+        border: Border.all(color: context.primaryColor.withValues(alpha: 0.15)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -387,7 +387,7 @@ class _SalesReurnViewState extends State<_SalesReturnView> {
               Icon(
                 Icons.check_circle_rounded,
                 size: 16.sp,
-                color: AppColors.primary,
+                color: context.primaryColor,
               ),
               SizedBox(width: 6.w),
               Text(
@@ -395,7 +395,7 @@ class _SalesReurnViewState extends State<_SalesReturnView> {
                 style: TextStyle(
                   fontSize: 11.sp,
                   fontWeight: FontWeight.w800,
-                  color: AppColors.textPrimary,
+                  color: context.primaryTextColor,
                 ),
               ),
             ],
@@ -413,10 +413,10 @@ class _SalesReurnViewState extends State<_SalesReturnView> {
                   bottom: 5.h,
                 ),
                 decoration: BoxDecoration(
-                  color: Colors.white,
+                  color: context.cardBackgroundColor,
                   borderRadius: BorderRadius.circular(20.r),
                   border: Border.all(
-                    color: AppColors.primary.withOpacity(0.25),
+                    color: context.primaryColor.withValues(alpha: 0.25),
                   ),
                 ),
                 child: Row(
@@ -425,7 +425,7 @@ class _SalesReurnViewState extends State<_SalesReturnView> {
                     Icon(
                       Icons.category_rounded,
                       size: 14.sp,
-                      color: AppColors.primary,
+                      color: context.primaryColor,
                     ),
                     SizedBox(width: 5.w),
                     Text(
@@ -433,7 +433,7 @@ class _SalesReurnViewState extends State<_SalesReturnView> {
                       style: TextStyle(
                         fontSize: 11.sp,
                         fontWeight: FontWeight.w700,
-                        color: AppColors.textPrimary,
+                        color: context.primaryTextColor,
                       ),
                     ),
                     SizedBox(width: 3.w),
@@ -447,7 +447,7 @@ class _SalesReurnViewState extends State<_SalesReturnView> {
                         child: Icon(
                           Icons.close_rounded,
                           size: 14.sp,
-                          color: AppColors.primary,
+                          color: context.primaryColor,
                         ),
                       ),
                     ),
@@ -490,7 +490,7 @@ class _SalesReurnViewState extends State<_SalesReturnView> {
             : null,
 
         filled: true,
-        fillColor: Colors.white,
+        fillColor: context.appTheme.inputBackground,
 
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12.r),
@@ -499,12 +499,12 @@ class _SalesReurnViewState extends State<_SalesReturnView> {
 
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12.r),
-          borderSide: BorderSide(color: AppColors.border),
+          borderSide: BorderSide(color: context.borderColor),
         ),
 
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12.r),
-          borderSide: BorderSide(color: AppColors.primary, width: 1.4),
+          borderSide: BorderSide(color: context.primaryColor, width: 1.4),
         ),
 
         contentPadding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 12.h),
@@ -521,13 +521,13 @@ class _SalesReurnViewState extends State<_SalesReturnView> {
         padding: EdgeInsets.fromLTRB(10.w, 9.h, 10.w, 9.h),
 
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: context.cardBackgroundColor,
 
-          border: Border(top: BorderSide(color: AppColors.border, width: 1)),
+          border: Border(top: BorderSide(color: context.borderColor, width: 1)),
 
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.06),
+              color: context.appColors.shadow.withValues(alpha: 0.06),
               blurRadius: 12,
               offset: const Offset(0, -3),
             ),
@@ -571,7 +571,7 @@ class _SalesReurnViewState extends State<_SalesReturnView> {
                   maxHeight: MediaQuery.of(context).size.height * 0.88,
                 ),
                 decoration: BoxDecoration(
-                  color: AppColors.background,
+                  color: context.backgroundColor,
                   borderRadius: BorderRadius.circular(20.r),
                 ),
                 child: Column(
@@ -584,12 +584,12 @@ class _SalesReurnViewState extends State<_SalesReturnView> {
                         vertical: 13.h,
                       ),
                       decoration: BoxDecoration(
-                        color: Colors.white,
+                        color: context.cardBackgroundColor,
                         borderRadius: BorderRadius.vertical(
                           top: Radius.circular(20.r),
                         ),
                         border: Border(
-                          bottom: BorderSide(color: AppColors.border),
+                          bottom: BorderSide(color: context.borderColor),
                         ),
                       ),
                       child: Row(
@@ -598,12 +598,14 @@ class _SalesReurnViewState extends State<_SalesReturnView> {
                             width: 38.w,
                             height: 38.w,
                             decoration: BoxDecoration(
-                              color: AppColors.lightGreen,
+                              color: context.primaryColor.withValues(
+                                alpha: 0.08,
+                              ),
                               borderRadius: BorderRadius.circular(11.r),
                             ),
                             child: Icon(
                               Icons.edit_note_rounded,
-                              color: AppColors.primary,
+                              color: context.primaryColor,
                               size: 21.sp,
                             ),
                           ),
@@ -617,7 +619,7 @@ class _SalesReurnViewState extends State<_SalesReturnView> {
                                   style: TextStyle(
                                     fontSize: 16.sp,
                                     fontWeight: FontWeight.w800,
-                                    color: AppColors.textPrimary,
+                                    color: context.primaryTextColor,
                                   ),
                                 ),
                                 SizedBox(height: 2.h),
@@ -626,7 +628,7 @@ class _SalesReurnViewState extends State<_SalesReturnView> {
                                   style: TextStyle(
                                     fontSize: 10.5.sp,
                                     fontWeight: FontWeight.w500,
-                                    color: AppColors.textSecondary,
+                                    color: context.secondaryTextColor,
                                   ),
                                 ),
                               ],
@@ -641,13 +643,13 @@ class _SalesReurnViewState extends State<_SalesReturnView> {
                               width: 34.w,
                               height: 34.w,
                               decoration: BoxDecoration(
-                                color: Colors.grey.shade100,
+                                color: context.appTheme.inputBackground,
                                 shape: BoxShape.circle,
                               ),
                               child: Icon(
                                 Icons.close_rounded,
                                 size: 20.sp,
-                                color: AppColors.textPrimary,
+                                color: context.primaryTextColor,
                               ),
                             ),
                           ),
@@ -671,17 +673,21 @@ class _SalesReurnViewState extends State<_SalesReturnView> {
                                   vertical: 10.h,
                                 ),
                                 decoration: BoxDecoration(
-                                  color: Colors.red.shade50,
+                                  color: context.appColors.error.withValues(
+                                    alpha: 0.08,
+                                  ),
                                   borderRadius: BorderRadius.circular(10.r),
                                   border: Border.all(
-                                    color: Colors.red.shade200,
+                                    color: context.appColors.error.withValues(
+                                      alpha: 0.3,
+                                    ),
                                   ),
                                 ),
                                 child: Row(
                                   children: [
                                     Icon(
                                       Icons.error_outline,
-                                      color: Colors.red.shade700,
+                                      color: context.appColors.error,
                                       size: 20.sp,
                                     ),
                                     SizedBox(width: 8.w),
@@ -689,7 +695,7 @@ class _SalesReurnViewState extends State<_SalesReturnView> {
                                       child: Text(
                                         validationMessage!,
                                         style: TextStyle(
-                                          color: Colors.red.shade700,
+                                          color: context.appColors.error,
                                           fontSize: 12.sp,
                                           fontWeight: FontWeight.w600,
                                         ),
@@ -709,10 +715,14 @@ class _SalesReurnViewState extends State<_SalesReturnView> {
                                 vertical: 9.h,
                               ),
                               decoration: BoxDecoration(
-                                color: AppColors.lightGreen.withOpacity(0.45),
+                                color: context.primaryColor.withValues(
+                                  alpha: 0.04,
+                                ),
                                 borderRadius: BorderRadius.circular(12.r),
                                 border: Border.all(
-                                  color: AppColors.primary.withOpacity(0.12),
+                                  color: context.primaryColor.withValues(
+                                    alpha: 0.12,
+                                  ),
                                 ),
                               ),
                               child: Row(
@@ -725,7 +735,7 @@ class _SalesReurnViewState extends State<_SalesReturnView> {
                                   Container(
                                     height: 26.h,
                                     width: 1,
-                                    color: AppColors.border,
+                                    color: context.borderColor,
                                   ),
                                   _buildDetailStatus(
                                     icon: Icons.draw_rounded,
@@ -735,7 +745,7 @@ class _SalesReurnViewState extends State<_SalesReturnView> {
                                   Container(
                                     height: 26.h,
                                     width: 1,
-                                    color: AppColors.border,
+                                    color: context.borderColor,
                                   ),
                                   _buildDetailStatus(
                                     icon: Icons.notes_rounded,
@@ -794,9 +804,9 @@ class _SalesReurnViewState extends State<_SalesReturnView> {
                             Container(
                               padding: EdgeInsets.all(10.w),
                               decoration: BoxDecoration(
-                                color: Colors.white,
+                                color: context.cardBackgroundColor,
                                 borderRadius: BorderRadius.circular(14.r),
-                                border: Border.all(color: AppColors.border),
+                                border: Border.all(color: context.borderColor),
                               ),
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -807,14 +817,15 @@ class _SalesReurnViewState extends State<_SalesReturnView> {
                                         width: 32.w,
                                         height: 32.w,
                                         decoration: BoxDecoration(
-                                          color: AppColors.lightGreen,
+                                          color: context.primaryColor
+                                              .withValues(alpha: 0.08),
                                           borderRadius: BorderRadius.circular(
                                             9.r,
                                           ),
                                         ),
                                         child: Icon(
                                           Icons.notes_rounded,
-                                          color: AppColors.primary,
+                                          color: context.primaryColor,
                                           size: 17.sp,
                                         ),
                                       ),
@@ -824,7 +835,7 @@ class _SalesReurnViewState extends State<_SalesReturnView> {
                                         style: TextStyle(
                                           fontSize: 11.5.sp,
                                           fontWeight: FontWeight.w800,
-                                          color: AppColors.textPrimary,
+                                          color: context.primaryTextColor,
                                         ),
                                       ),
                                     ],
@@ -840,17 +851,18 @@ class _SalesReurnViewState extends State<_SalesReturnView> {
                                     style: TextStyle(
                                       fontSize: 12.sp,
                                       fontWeight: FontWeight.w500,
-                                      color: AppColors.textPrimary,
+                                      color: context.primaryTextColor,
                                     ),
                                     decoration: InputDecoration(
                                       hintText:
                                           'Enter additional order remark...',
                                       hintStyle: TextStyle(
                                         fontSize: 11.sp,
-                                        color: AppColors.textSecondary,
+                                        color: context.secondaryTextColor,
                                       ),
                                       filled: true,
-                                      fillColor: const Color(0xFFFAFCFA),
+                                      fillColor:
+                                          context.appTheme.inputBackground,
                                       border: OutlineInputBorder(
                                         borderRadius: BorderRadius.circular(
                                           11.r,
@@ -871,12 +883,12 @@ class _SalesReurnViewState extends State<_SalesReturnView> {
                     Container(
                       padding: EdgeInsets.fromLTRB(12.w, 10.h, 12.w, 12.h),
                       decoration: BoxDecoration(
-                        color: Colors.white,
+                        color: context.cardBackgroundColor,
                         borderRadius: BorderRadius.vertical(
                           bottom: Radius.circular(20.r),
                         ),
                         border: Border(
-                          top: BorderSide(color: AppColors.border),
+                          top: BorderSide(color: context.borderColor),
                         ),
                       ),
                       child: Row(
@@ -941,8 +953,8 @@ class _SalesReurnViewState extends State<_SalesReturnView> {
                                   ),
                                 ),
                                 style: ElevatedButton.styleFrom(
-                                  backgroundColor: AppColors.primary,
-                                  foregroundColor: Colors.white,
+                                  backgroundColor: context.primaryColor,
+                                  foregroundColor: context.onPrimaryColor,
                                   elevation: 0,
                                   shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(11.r),
@@ -977,16 +989,20 @@ class _SalesReurnViewState extends State<_SalesReturnView> {
             width: 27.w,
             height: 27.w,
             decoration: BoxDecoration(
-              color: completed ? AppColors.primary : Colors.white,
+              color: completed
+                  ? context.primaryColor
+                  : context.cardBackgroundColor,
               shape: BoxShape.circle,
               border: Border.all(
-                color: completed ? AppColors.primary : AppColors.border,
+                color: completed ? context.primaryColor : context.borderColor,
               ),
             ),
             child: Icon(
               completed ? Icons.check_rounded : icon,
               size: 14.sp,
-              color: completed ? Colors.white : AppColors.textSecondary,
+              color: completed
+                  ? context.onPrimaryColor
+                  : context.secondaryTextColor,
             ),
           ),
 
@@ -999,7 +1015,9 @@ class _SalesReurnViewState extends State<_SalesReturnView> {
             style: TextStyle(
               fontSize: 9.sp,
               fontWeight: FontWeight.w700,
-              color: completed ? AppColors.primary : AppColors.textSecondary,
+              color: completed
+                  ? context.primaryColor
+                  : context.secondaryTextColor,
             ),
           ),
         ],
@@ -1020,12 +1038,14 @@ class _SalesReurnViewState extends State<_SalesReturnView> {
       child: OutlinedButton(
         onPressed: _openAddDetailsDialog,
         style: OutlinedButton.styleFrom(
-          backgroundColor: detailsAdded ? AppColors.lightGreen : Colors.white,
-          foregroundColor: AppColors.primary,
+          backgroundColor: detailsAdded
+              ? context.primaryColor.withValues(alpha: 0.08)
+              : context.cardBackgroundColor,
+          foregroundColor: context.primaryColor,
           side: BorderSide(
             color: detailsAdded
-                ? AppColors.primary.withOpacity(0.45)
-                : AppColors.border,
+                ? context.primaryColor.withValues(alpha: 0.45)
+                : context.borderColor,
             width: 1.1,
           ),
           shape: RoundedRectangleBorder(
@@ -1071,9 +1091,9 @@ class _SalesReurnViewState extends State<_SalesReturnView> {
                 _submit(state);
               },
         style: ElevatedButton.styleFrom(
-          backgroundColor: AppColors.primary,
-          foregroundColor: Colors.white,
-          disabledBackgroundColor: AppColors.primary.withOpacity(0.55),
+          backgroundColor: context.primaryColor,
+          foregroundColor: context.onPrimaryColor,
+          disabledBackgroundColor: context.primaryColor.withValues(alpha: 0.55),
           elevation: 0,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(12.r),
@@ -1084,9 +1104,9 @@ class _SalesReurnViewState extends State<_SalesReturnView> {
             ? SizedBox(
                 width: 19.w,
                 height: 19.w,
-                child: const CircularProgressIndicator(
+                child: CircularProgressIndicator(
                   strokeWidth: 2,
-                  color: Colors.white,
+                  color: context.onPrimaryColor,
                 ),
               )
             : Row(
@@ -1183,7 +1203,7 @@ class _SalesReurnViewState extends State<_SalesReturnView> {
             context: context,
             isScrollControlled: true,
             backgroundColor: Colors.transparent,
-            barrierColor: Colors.black.withOpacity(0.45),
+            barrierColor: context.appColors.shadow.withValues(alpha: 0.45),
             builder: (bottomSheetContext) {
               return MultiProductRateBottomSheet(
                 products: currentProducts,
@@ -1447,7 +1467,7 @@ class _SalesReurnViewState extends State<_SalesReturnView> {
               style: TextStyle(
                 fontSize: 14.sp,
                 fontWeight: FontWeight.w600,
-                color: AppColors.textPrimary,
+                color: context.primaryTextColor,
               ),
             ),
           ),
@@ -1464,7 +1484,7 @@ class _SalesReurnViewState extends State<_SalesReturnView> {
       barrierDismissible: false,
       builder: (dialogContext) {
         return AlertDialog(
-          backgroundColor: Colors.white,
+          backgroundColor: context.cardBackgroundColor,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(18.r),
           ),
@@ -1476,13 +1496,13 @@ class _SalesReurnViewState extends State<_SalesReturnView> {
               Container(
                 width: 44.w,
                 height: 44.w,
-                decoration: const BoxDecoration(
-                  color: AppColors.lightGreen,
+                decoration: BoxDecoration(
+                  color: context.primaryColor.withValues(alpha: 0.08),
                   shape: BoxShape.circle,
                 ),
                 child: Icon(
                   Icons.shopping_cart_checkout_rounded,
-                  color: AppColors.primary,
+                  color: context.primaryColor,
                   size: 23.sp,
                 ),
               ),
@@ -1493,7 +1513,7 @@ class _SalesReurnViewState extends State<_SalesReturnView> {
                   style: TextStyle(
                     fontSize: 18.sp,
                     fontWeight: FontWeight.w800,
-                    color: AppColors.textPrimary,
+                    color: context.primaryTextColor,
                   ),
                 ),
               ),
@@ -1509,7 +1529,7 @@ class _SalesReurnViewState extends State<_SalesReturnView> {
                   fontSize: 14.sp,
                   height: 1.4,
                   fontWeight: FontWeight.w600,
-                  color: AppColors.textPrimary,
+                  color: context.primaryTextColor,
                 ),
               ),
               SizedBox(height: 14.h),
@@ -1517,9 +1537,9 @@ class _SalesReurnViewState extends State<_SalesReturnView> {
                 width: double.infinity,
                 padding: EdgeInsets.all(12.w),
                 decoration: BoxDecoration(
-                  color: AppColors.background,
+                  color: context.backgroundColor,
                   borderRadius: BorderRadius.circular(12.r),
-                  border: Border.all(color: AppColors.border),
+                  border: Border.all(color: context.borderColor),
                 ),
                 child: Column(
                   children: [
@@ -1528,7 +1548,7 @@ class _SalesReurnViewState extends State<_SalesReturnView> {
                         Icon(
                           Icons.storefront_rounded,
                           size: 18.sp,
-                          color: AppColors.primary,
+                          color: context.primaryColor,
                         ),
                         SizedBox(width: 8.w),
                         Expanded(
@@ -1539,7 +1559,7 @@ class _SalesReurnViewState extends State<_SalesReturnView> {
                             style: TextStyle(
                               fontSize: 13.sp,
                               fontWeight: FontWeight.w700,
-                              color: AppColors.textPrimary,
+                              color: context.primaryTextColor,
                             ),
                           ),
                         ),
@@ -1551,7 +1571,7 @@ class _SalesReurnViewState extends State<_SalesReturnView> {
                         Icon(
                           Icons.warehouse_rounded,
                           size: 18.sp,
-                          color: AppColors.primary,
+                          color: context.primaryColor,
                         ),
                         SizedBox(width: 8.w),
                         Expanded(
@@ -1562,20 +1582,20 @@ class _SalesReurnViewState extends State<_SalesReturnView> {
                             style: TextStyle(
                               fontSize: 13.sp,
                               fontWeight: FontWeight.w700,
-                              color: AppColors.textPrimary,
+                              color: context.primaryTextColor,
                             ),
                           ),
                         ),
                       ],
                     ),
                     SizedBox(height: 9.h),
-                  
+
                     Row(
                       children: [
                         Icon(
                           Icons.photo_camera_rounded,
                           size: 18.sp,
-                          color: AppColors.primary,
+                          color: context.primaryColor,
                         ),
                         SizedBox(width: 8.w),
                         Expanded(
@@ -1586,7 +1606,7 @@ class _SalesReurnViewState extends State<_SalesReturnView> {
                             style: TextStyle(
                               fontSize: 13.sp,
                               fontWeight: FontWeight.w700,
-                              color: AppColors.textPrimary,
+                              color: context.primaryTextColor,
                             ),
                           ),
                         ),
@@ -1598,7 +1618,7 @@ class _SalesReurnViewState extends State<_SalesReturnView> {
                         Icon(
                           Icons.draw_rounded,
                           size: 18.sp,
-                          color: AppColors.primary,
+                          color: context.primaryColor,
                         ),
                         SizedBox(width: 8.w),
                         Expanded(
@@ -1609,7 +1629,7 @@ class _SalesReurnViewState extends State<_SalesReturnView> {
                             style: TextStyle(
                               fontSize: 13.sp,
                               fontWeight: FontWeight.w700,
-                              color: AppColors.textPrimary,
+                              color: context.primaryTextColor,
                             ),
                           ),
                         ),
@@ -1628,7 +1648,7 @@ class _SalesReurnViewState extends State<_SalesReturnView> {
                   Navigator.of(dialogContext).pop(false);
                 },
                 style: OutlinedButton.styleFrom(
-                  side: const BorderSide(color: AppColors.border),
+                  side: BorderSide(color: context.borderColor),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(11.r),
                   ),
@@ -1636,7 +1656,7 @@ class _SalesReurnViewState extends State<_SalesReturnView> {
                 child: Text(
                   'Cancel',
                   style: TextStyle(
-                    color: AppColors.textSecondary,
+                    color: context.secondaryTextColor,
                     fontSize: 13.sp,
                     fontWeight: FontWeight.w700,
                   ),
@@ -1651,8 +1671,8 @@ class _SalesReurnViewState extends State<_SalesReturnView> {
                   Navigator.of(dialogContext).pop(true);
                 },
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.primary,
-                  foregroundColor: Colors.white,
+                  backgroundColor: context.primaryColor,
+                  foregroundColor: context.onPrimaryColor,
                   elevation: 0,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(11.r),
@@ -1847,7 +1867,7 @@ class _SalesReurnViewState extends State<_SalesReturnView> {
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
-      barrierColor: Colors.black.withOpacity(0.45),
+      barrierColor: context.appColors.shadow.withValues(alpha: 0.45),
 
       builder: (previewContext) {
         return OrderPreviewSheet(
@@ -1895,7 +1915,7 @@ class _SalesReurnViewState extends State<_SalesReturnView> {
       barrierDismissible: false,
       builder: (dialogContext) {
         return AlertDialog(
-          backgroundColor: Colors.white,
+          backgroundColor: context.cardBackgroundColor,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(20.r),
           ),
@@ -1906,19 +1926,19 @@ class _SalesReurnViewState extends State<_SalesReturnView> {
               Container(
                 width: 76.w,
                 height: 76.w,
-                decoration: const BoxDecoration(
-                  color: AppColors.lightGreen,
+                decoration: BoxDecoration(
+                  color: context.primaryColor.withValues(alpha: 0.08),
                   shape: BoxShape.circle,
                 ),
                 child: Container(
                   margin: EdgeInsets.all(9.w),
-                  decoration: const BoxDecoration(
-                    color: AppColors.primary,
+                  decoration: BoxDecoration(
+                    color: context.primaryColor,
                     shape: BoxShape.circle,
                   ),
                   child: Icon(
                     Icons.check_rounded,
-                    color: Colors.white,
+                    color: context.onPrimaryColor,
                     size: 40.sp,
                   ),
                 ),
@@ -1930,7 +1950,7 @@ class _SalesReurnViewState extends State<_SalesReturnView> {
                 style: TextStyle(
                   fontSize: 19.sp,
                   fontWeight: FontWeight.w800,
-                  color: AppColors.textPrimary,
+                  color: context.primaryTextColor,
                 ),
               ),
               SizedBox(height: 10.h),
@@ -1941,7 +1961,7 @@ class _SalesReurnViewState extends State<_SalesReturnView> {
                   fontSize: 13.sp,
                   height: 1.45,
                   fontWeight: FontWeight.w500,
-                  color: AppColors.textSecondary,
+                  color: context.secondaryTextColor,
                 ),
               ),
               SizedBox(height: 24.h),
@@ -1953,8 +1973,8 @@ class _SalesReurnViewState extends State<_SalesReturnView> {
                     Navigator.of(dialogContext).pop(true);
                   },
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.primary,
-                    foregroundColor: Colors.white,
+                    backgroundColor: context.primaryColor,
+                    foregroundColor: context.onPrimaryColor,
                     elevation: 0,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(14.r),
@@ -1993,12 +2013,12 @@ class _SalesReurnViewState extends State<_SalesReturnView> {
         SnackBar(
           content: Text(
             message,
-            style: const TextStyle(
-              color: Colors.white,
+            style: TextStyle(
+              color: context.appColors.onError,
               fontWeight: FontWeight.w600,
             ),
           ),
-          backgroundColor: AppColors.error,
+          backgroundColor: context.appColors.error,
           behavior: SnackBarBehavior.floating,
           margin: EdgeInsets.all(12.w),
           shape: RoundedRectangleBorder(
@@ -2011,7 +2031,7 @@ class _SalesReurnViewState extends State<_SalesReturnView> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: context.backgroundColor,
 
       appBar: CustomAppBar(
         title: 'Sales Return',
@@ -2044,8 +2064,8 @@ class _SalesReurnViewState extends State<_SalesReturnView> {
               state.dealers.isEmpty &&
               state.godowns.isEmpty &&
               state.categories.isEmpty) {
-            return const Center(
-              child: CircularProgressIndicator(color: AppColors.primary),
+            return Center(
+              child: CircularProgressIndicator(color: context.primaryColor),
             );
           }
 
@@ -2113,7 +2133,7 @@ class _SalesReurnViewState extends State<_SalesReturnView> {
 
                   Container(
                     padding: EdgeInsets.all(12.w),
-                    color: Colors.white,
+                    color: context.cardBackgroundColor,
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
                       children: [
@@ -2269,22 +2289,22 @@ class _SalesReurnViewState extends State<_SalesReturnView> {
       width: double.infinity,
       padding: EdgeInsets.symmetric(horizontal: 11.w, vertical: 9.h),
       decoration: BoxDecoration(
-        color: AppColors.lightGreen,
+        color: context.primaryColor.withValues(alpha: 0.08),
         borderRadius: BorderRadius.circular(13.r),
-        border: Border.all(color: AppColors.primary.withOpacity(0.12)),
+        border: Border.all(color: context.primaryColor.withValues(alpha: 0.12)),
       ),
       child: Row(
         children: [
           Container(
             width: 34.w,
             height: 34.w,
-            decoration: const BoxDecoration(
-              color: AppColors.primary,
+            decoration: BoxDecoration(
+              color: context.primaryColor,
               shape: BoxShape.circle,
             ),
             child: Icon(
               Icons.shopping_cart_rounded,
-              color: Colors.white,
+              color: context.onPrimaryColor,
               size: 17.sp,
             ),
           ),
@@ -2299,7 +2319,7 @@ class _SalesReurnViewState extends State<_SalesReturnView> {
                   style: TextStyle(
                     fontSize: 12.sp,
                     fontWeight: FontWeight.w800,
-                    color: AppColors.textPrimary,
+                    color: context.primaryTextColor,
                   ),
                 ),
                 SizedBox(height: 1.h),
@@ -2308,7 +2328,7 @@ class _SalesReurnViewState extends State<_SalesReturnView> {
                   style: TextStyle(
                     fontSize: 10.sp,
                     fontWeight: FontWeight.w600,
-                    color: AppColors.textSecondary,
+                    color: context.secondaryTextColor,
                   ),
                 ),
               ],
@@ -2319,7 +2339,7 @@ class _SalesReurnViewState extends State<_SalesReturnView> {
             style: TextStyle(
               fontSize: 13.sp,
               fontWeight: FontWeight.w900,
-              color: AppColors.primary,
+              color: context.primaryColor,
             ),
           ),
         ],
@@ -2338,10 +2358,10 @@ class _SalesReurnViewState extends State<_SalesReturnView> {
           width: 36.w,
           height: 36.w,
           decoration: BoxDecoration(
-            color: AppColors.lightGreen,
+            color: context.primaryColor.withValues(alpha: 0.08),
             borderRadius: BorderRadius.circular(11.r),
           ),
-          child: Icon(icon, size: 18.sp, color: AppColors.primary),
+          child: Icon(icon, size: 18.sp, color: context.primaryColor),
         ),
         SizedBox(width: 9.w),
         Expanded(
@@ -2353,7 +2373,7 @@ class _SalesReurnViewState extends State<_SalesReturnView> {
                 style: TextStyle(
                   fontSize: 14.sp,
                   fontWeight: FontWeight.w800,
-                  color: AppColors.textPrimary,
+                  color: context.primaryTextColor,
                 ),
               ),
               SizedBox(height: 1.h),
@@ -2364,7 +2384,7 @@ class _SalesReurnViewState extends State<_SalesReturnView> {
                 style: TextStyle(
                   fontSize: 10.5.sp,
                   fontWeight: FontWeight.w500,
-                  color: AppColors.textSecondary,
+                  color: context.secondaryTextColor,
                 ),
               ),
             ],
@@ -2379,20 +2399,20 @@ class _SalesReurnViewState extends State<_SalesReturnView> {
       width: double.infinity,
       padding: EdgeInsets.symmetric(vertical: 24.h),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: context.cardBackgroundColor,
         borderRadius: BorderRadius.circular(15.r),
-        border: Border.all(color: AppColors.border),
+        border: Border.all(color: context.borderColor),
       ),
       child: Column(
         children: [
-          const CircularProgressIndicator(color: AppColors.primary),
+          CircularProgressIndicator(color: context.primaryColor),
           SizedBox(height: 8.h),
           Text(
             'Loading products...',
             style: TextStyle(
               fontSize: 12.sp,
               fontWeight: FontWeight.w600,
-              color: AppColors.textSecondary,
+              color: context.secondaryTextColor,
             ),
           ),
         ],
@@ -2405,19 +2425,19 @@ class _SalesReurnViewState extends State<_SalesReturnView> {
       width: double.infinity,
       padding: EdgeInsets.symmetric(vertical: 24.h, horizontal: 18.w),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: context.cardBackgroundColor,
         borderRadius: BorderRadius.circular(15.r),
-        border: Border.all(color: AppColors.border),
+        border: Border.all(color: context.borderColor),
       ),
       child: Column(
         children: [
           Container(
             padding: EdgeInsets.all(11.w),
-            decoration: const BoxDecoration(
-              color: AppColors.lightGreen,
+            decoration: BoxDecoration(
+              color: context.primaryColor.withValues(alpha: 0.08),
               shape: BoxShape.circle,
             ),
-            child: Icon(icon, size: 25.sp, color: AppColors.primary),
+            child: Icon(icon, size: 25.sp, color: context.primaryColor),
           ),
           SizedBox(height: 8.h),
           Text(
@@ -2425,7 +2445,7 @@ class _SalesReurnViewState extends State<_SalesReturnView> {
             style: TextStyle(
               fontSize: 12.sp,
               fontWeight: FontWeight.w600,
-              color: AppColors.textSecondary,
+              color: context.secondaryTextColor,
             ),
           ),
         ],

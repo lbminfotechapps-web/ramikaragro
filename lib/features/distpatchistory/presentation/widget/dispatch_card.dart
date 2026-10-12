@@ -1,4 +1,5 @@
-import 'package:solufine/core/theme/app_colors.dart';
+import 'package:solufine/core/theme/app_dynamic_colors.dart';
+import 'package:solufine/core/theme/app_theme_context.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil_plus/flutter_screenutil_plus.dart';
 
@@ -17,11 +18,11 @@ class DispatchCard extends StatelessWidget {
     return Container(
       margin: EdgeInsets.only(bottom: 12.h),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: context.cardBackgroundColor,
         borderRadius: BorderRadius.circular(18.r),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.055),
+            color: context.appColors.shadow.withValues(alpha: 0.055),
             blurRadius: 12,
             offset: const Offset(0, 4),
           ),
@@ -39,10 +40,11 @@ class DispatchCard extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      _buildHeader(),
+                      _buildHeader(context),
                       SizedBox(height: 12.h),
 
                       _buildInfoRow(
+                        context,
                         icon: Icons.storefront_outlined,
                         label: 'Dealer',
                         value: _dealerName(),
@@ -51,18 +53,21 @@ class DispatchCard extends StatelessWidget {
                       SizedBox(height: 7.h),
 
                       _buildInfoRow(
+                        context,
                         icon: Icons.receipt_long_outlined,
                         label: 'Order No.',
                         value: _orderNumber(),
                       ),
 
                       _buildInfoRow(
+                        context,
                         icon: Icons.receipt_long_outlined,
                         label: 'Dispatch No.',
                         value: _dispatchNumber(),
                       ),
 
                       _buildInfoRow(
+                        context,
                         icon: Icons.receipt_long_outlined,
                         label: 'Dispatch Date',
                         value: _orderDate(),
@@ -70,11 +75,12 @@ class DispatchCard extends StatelessWidget {
 
                       SizedBox(height: 12.h),
 
-                      _buildQuantitySection(),
+                      _buildQuantitySection(context),
 
                       SizedBox(height: 10.h),
 
                       _buildInfoRow(
+                        context,
                         icon: Icons.local_shipping_outlined,
                         label: 'LR No.',
                         value: _lrNumber(),
@@ -83,6 +89,7 @@ class DispatchCard extends StatelessWidget {
                       SizedBox(height: 7.h),
 
                       _buildInfoRow(
+                        context,
                         icon: Icons.fire_truck_outlined,
                         label: 'Transport',
                         value: _transportDetails(),
@@ -95,12 +102,12 @@ class DispatchCard extends StatelessWidget {
                       Divider(
                         height: 1,
                         thickness: 1,
-                        color: Colors.grey.shade200,
+                        color: context.borderColor,
                       ),
 
                       SizedBox(height: 5.h),
 
-                      _buildBottomAction(),
+                      _buildBottomAction(context),
                     ],
                   ),
                 ),
@@ -116,7 +123,7 @@ class DispatchCard extends StatelessWidget {
   // HEADER
   // ============================================================
 
-  Widget _buildHeader() {
+  Widget _buildHeader(BuildContext context) {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
@@ -124,10 +131,10 @@ class DispatchCard extends StatelessWidget {
           width: 34.w,
           height: 34.w,
           decoration: BoxDecoration(
-            color: _statusColor().withOpacity(0.10),
+            color: _statusColor(context).withValues(alpha: 0.10),
             borderRadius: BorderRadius.circular(10.r),
           ),
-          child: Icon(_statusIcon(), color: _statusColor(), size: 19.sp),
+          child: Icon(_statusIcon(), color: _statusColor(context), size: 19.sp),
         ),
 
         SizedBox(width: 9.w),
@@ -143,14 +150,14 @@ class DispatchCard extends StatelessWidget {
                 style: TextStyle(
                   fontSize: 14.sp,
                   fontWeight: FontWeight.w800,
-                  color: _statusColor(),
+                  color: _statusColor(context),
                 ),
               ),
             ],
           ),
         ),
 
-        _buildStatusBadge(),
+        _buildStatusBadge(context),
       ],
     );
   }
@@ -159,13 +166,13 @@ class DispatchCard extends StatelessWidget {
   // STATUS BADGE
   // ============================================================
 
-  Widget _buildStatusBadge() {
-    final color = _statusColor();
+  Widget _buildStatusBadge(BuildContext context) {
+    final color = _statusColor(context);
 
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 9.w, vertical: 5.h),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.09),
+        color: color.withValues(alpha: 0.09),
         borderRadius: BorderRadius.circular(20.r),
       ),
       child: Text(
@@ -183,7 +190,8 @@ class DispatchCard extends StatelessWidget {
   // INFORMATION ROW
   // ============================================================
 
-  Widget _buildInfoRow({
+  Widget _buildInfoRow(
+    BuildContext context, {
     required IconData icon,
     required String label,
     required String value,
@@ -195,10 +203,10 @@ class DispatchCard extends StatelessWidget {
           width: 27.w,
           height: 27.w,
           decoration: BoxDecoration(
-            color: const Color(0xFFF5F7F6),
+            color: context.appTheme.inputBackground,
             borderRadius: BorderRadius.circular(8.r),
           ),
-          child: Icon(icon, size: 15.sp, color: Colors.grey.shade600),
+          child: Icon(icon, size: 15.sp, color: context.secondaryTextColor),
         ),
 
         SizedBox(width: 8.w),
@@ -209,7 +217,7 @@ class DispatchCard extends StatelessWidget {
             label,
             style: TextStyle(
               fontSize: 10.sp,
-              color: Colors.grey.shade500,
+              color: context.secondaryTextColor,
               fontWeight: FontWeight.w500,
             ),
           ),
@@ -224,7 +232,7 @@ class DispatchCard extends StatelessWidget {
             overflow: TextOverflow.ellipsis,
             style: TextStyle(
               fontSize: 12.sp,
-              color: const Color(0xFF26332C),
+              color: context.cardTextColor,
               fontWeight: FontWeight.w700,
             ),
           ),
@@ -237,16 +245,17 @@ class DispatchCard extends StatelessWidget {
   // QUANTITY SECTION
   // ============================================================
 
-  Widget _buildQuantitySection() {
+  Widget _buildQuantitySection(BuildContext context) {
     return Row(
       children: [
         Expanded(
           child: _quantityCard(
+            context,
             title: 'Order Case Qty',
             value: _orderQty(),
             icon: Icons.inventory_2_outlined,
-            background: const Color(0xFFF4F7F5),
-            valueColor: AppColors.darkPrimaryColor,
+            background: context.appTheme.inputBackground,
+            valueColor: context.primaryColor,
           ),
         ),
 
@@ -254,11 +263,12 @@ class DispatchCard extends StatelessWidget {
 
         Expanded(
           child: _quantityCard(
+            context,
             title: 'Dispatch Case',
             value: _dispatchQty(),
             icon: Icons.local_shipping_outlined,
-            background: const Color(0xFFF0F8F2),
-            valueColor: const Color(0xFF2E7D32),
+            background: context.appSuccess.withValues(alpha: 0.1),
+            valueColor: context.appSuccess,
           ),
         ),
 
@@ -266,18 +276,20 @@ class DispatchCard extends StatelessWidget {
 
         Expanded(
           child: _quantityCard(
+            context,
             title: 'Remaining Case',
             value: _remainingQty(),
             icon: Icons.pending_actions_outlined,
-            background: const Color(0xFFFFF7ED),
-            valueColor: const Color(0xFFE65100),
+            background: context.appWarning.withValues(alpha: 0.1),
+            valueColor: context.appWarning,
           ),
         ),
       ],
     );
   }
 
-  Widget _quantityCard({
+  Widget _quantityCard(
+    BuildContext context, {
     required String title,
     required String value,
     required IconData icon,
@@ -295,7 +307,7 @@ class DispatchCard extends StatelessWidget {
         children: [
           Row(
             children: [
-              Icon(icon, size: 12.sp, color: Colors.grey.shade600),
+              Icon(icon, size: 12.sp, color: context.secondaryTextColor),
               SizedBox(width: 3.w),
               Expanded(
                 child: Text(
@@ -304,7 +316,7 @@ class DispatchCard extends StatelessWidget {
                   overflow: TextOverflow.ellipsis,
                   style: TextStyle(
                     fontSize: 8.5.sp,
-                    color: Colors.grey.shade600,
+                    color: context.secondaryTextColor,
                     fontWeight: FontWeight.w600,
                   ),
                 ),
@@ -333,24 +345,20 @@ class DispatchCard extends StatelessWidget {
   // BOTTOM ACTION
   // ============================================================
 
-  Widget _buildBottomAction() {
+  Widget _buildBottomAction(BuildContext context) {
     return Row(
       children: [
         if (_isCancelled())
           Row(
             children: [
-              Icon(
-                Icons.cancel_outlined,
-                size: 14.sp,
-                color: Colors.red.shade600,
-              ),
+              Icon(Icons.cancel_outlined, size: 14.sp, color: context.appError),
               SizedBox(width: 4.w),
               Text(
                 'Cancelled',
                 style: TextStyle(
                   fontSize: 10.sp,
                   fontWeight: FontWeight.w700,
-                  color: Colors.red.shade600,
+                  color: context.appError,
                 ),
               ),
             ],
@@ -373,14 +381,14 @@ class DispatchCard extends StatelessWidget {
                 style: TextStyle(
                   fontSize: 11.sp,
                   fontWeight: FontWeight.w800,
-                  color: AppColors.darkPrimaryColor,
+                  color: context.primaryColor,
                 ),
               ),
               SizedBox(width: 3.w),
               Icon(
                 Icons.arrow_forward_rounded,
                 size: 15.sp,
-                color: AppColors.darkPrimaryColor,
+                color: context.primaryColor,
               ),
             ],
           ),
@@ -599,34 +607,34 @@ class DispatchCard extends StatelessWidget {
   // STATUS
   // ============================================================
 
-  Color _statusColor() {
+  Color _statusColor(BuildContext context) {
     final status = _statusText().toLowerCase();
 
     if (status.contains('cancel')) {
-      return const Color(0xFFD32F2F);
+      return context.appError;
     }
 
     if (status.contains('pending')) {
-      return const Color(0xFFF57C00);
+      return context.appWarning;
     }
 
     if (status.contains('hold')) {
-      return const Color(0xFF7B1FA2);
+      return context.appColors.secondary;
     }
 
     if (status.contains('partial')) {
-      return const Color(0xFF1976D2);
+      return context.primaryColor;
     }
 
     if (status.contains('dispatch')) {
-      return const Color(0xFF2E7D32);
+      return context.appSuccess;
     }
 
     if (status.contains('approve')) {
-      return const Color(0xFF2E7D32);
+      return context.appSuccess;
     }
 
-    return AppColors.darkPrimaryColor;
+    return context.primaryColor;
   }
 
   IconData _statusIcon() {

@@ -1,4 +1,4 @@
-import 'package:solufine/core/theme/app_colors.dart';
+import 'package:solufine/core/theme/app_theme_context.dart';
 import 'package:solufine/features/place_order/domain/entities/dealer_entity.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil_plus/flutter_screenutil_plus.dart';
@@ -31,9 +31,7 @@ class DealerSearchField extends StatelessWidget {
 
         // Show dealer list ONLY when user is typing
         final bool showDealers =
-            query.isNotEmpty &&
-            dealers.isNotEmpty &&
-            selectedDealer == null;
+            query.isNotEmpty && dealers.isNotEmpty && selectedDealer == null;
 
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -43,7 +41,7 @@ class DealerSearchField extends StatelessWidget {
               style: TextStyle(
                 fontSize: 13.sp,
                 fontWeight: FontWeight.w700,
-                color: AppColors.textPrimary,
+                color: context.primaryTextColor,
               ),
             ),
 
@@ -56,20 +54,20 @@ class DealerSearchField extends StatelessWidget {
               style: TextStyle(
                 fontSize: 14.sp,
                 fontWeight: FontWeight.w600,
-                color: AppColors.textPrimary,
+                color: context.primaryTextColor,
               ),
               decoration: InputDecoration(
                 hintText: 'Type dealer name...',
                 hintStyle: TextStyle(
-                  color: AppColors.textSecondary,
+                  color: context.secondaryTextColor,
                   fontSize: 13.sp,
                 ),
                 prefixIcon: Icon(
                   Icons.search_rounded,
-                  color: AppColors.primary,
+                  color: context.primaryColor,
                   size: 22.sp,
                 ),
-                
+
                 suffixIcon: query.isNotEmpty
                     ? IconButton(
                         onPressed: () {
@@ -80,35 +78,30 @@ class DealerSearchField extends StatelessWidget {
                         },
                         icon: Icon(
                           Icons.close_rounded,
-                          color: AppColors.textSecondary,
+                          color: context.secondaryTextColor,
                           size: 19.sp,
                         ),
                       )
                     : null,
                 filled: true,
 
-
-                fillColor: Colors.white,
+                fillColor: context.appTheme.inputBackground,
                 contentPadding: EdgeInsets.symmetric(
                   horizontal: 14.w,
                   vertical: 15.h,
                 ),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(16.r),
-                  borderSide: const BorderSide(
-                    color: AppColors.border,
-                  ),
+                  borderSide: BorderSide(color: context.borderColor),
                 ),
                 enabledBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(16.r),
-                  borderSide: const BorderSide(
-                    color: AppColors.border,
-                  ),
+                  borderSide: BorderSide(color: context.borderColor),
                 ),
                 focusedBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(16.r),
-                  borderSide: const BorderSide(
-                    color: AppColors.primary,
+                  borderSide: BorderSide(
+                    color: context.primaryColor,
                     width: 1.5,
                   ),
                 ),
@@ -120,18 +113,14 @@ class DealerSearchField extends StatelessWidget {
               SizedBox(height: 8.h),
 
               Container(
-                constraints: BoxConstraints(
-                  maxHeight: 260.h,
-                ),
+                constraints: BoxConstraints(maxHeight: 260.h),
                 decoration: BoxDecoration(
-                  color: Colors.white,
+                  color: context.cardBackgroundColor,
                   borderRadius: BorderRadius.circular(16.r),
-                  border: Border.all(
-                    color: AppColors.border,
-                  ),
+                  border: Border.all(color: context.borderColor),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withOpacity(0.06),
+                      color: context.appColors.shadow.withValues(alpha: 0.06),
                       blurRadius: 15,
                       offset: const Offset(0, 6),
                     ),
@@ -139,14 +128,12 @@ class DealerSearchField extends StatelessWidget {
                 ),
                 child: ListView.separated(
                   shrinkWrap: true,
-                  padding: EdgeInsets.symmetric(
-                    vertical: 6.h,
-                  ),
+                  padding: EdgeInsets.symmetric(vertical: 6.h),
                   itemCount: dealers.length,
                   separatorBuilder: (_, __) {
                     return Divider(
                       height: 1,
-                      color: AppColors.border.withOpacity(0.6),
+                      color: context.borderColor.withValues(alpha: 0.6),
                     );
                   },
                   itemBuilder: (context, index) {
@@ -167,13 +154,14 @@ class DealerSearchField extends StatelessWidget {
                               width: 42.w,
                               height: 42.w,
                               decoration: BoxDecoration(
-                                color: AppColors.lightGreen,
-                                borderRadius:
-                                    BorderRadius.circular(12.r),
+                                color: context.primaryColor.withValues(
+                                  alpha: 0.1,
+                                ),
+                                borderRadius: BorderRadius.circular(12.r),
                               ),
                               child: Icon(
                                 Icons.storefront_rounded,
-                                color: AppColors.primary,
+                                color: context.primaryColor,
                                 size: 20.sp,
                               ),
                             ),
@@ -182,19 +170,16 @@ class DealerSearchField extends StatelessWidget {
 
                             Expanded(
                               child: Column(
-                                crossAxisAlignment:
-                                    CrossAxisAlignment.start,
+                                crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Text(
                                     dealer.name,
                                     maxLines: 1,
-                                    overflow:
-                                        TextOverflow.ellipsis,
+                                    overflow: TextOverflow.ellipsis,
                                     style: TextStyle(
                                       fontSize: 13.sp,
                                       fontWeight: FontWeight.w800,
-                                      color:
-                                          AppColors.textPrimary,
+                                      color: context.primaryTextColor,
                                     ),
                                   ),
 
@@ -204,8 +189,7 @@ class DealerSearchField extends StatelessWidget {
                                       dealer.mobile,
                                       style: TextStyle(
                                         fontSize: 11.sp,
-                                        color:
-                                            AppColors.textSecondary,
+                                        color: context.secondaryTextColor,
                                       ),
                                     ),
                                   ],
@@ -216,7 +200,7 @@ class DealerSearchField extends StatelessWidget {
                             Icon(
                               Icons.arrow_forward_ios_rounded,
                               size: 14.sp,
-                              color: AppColors.textSecondary,
+                              color: context.secondaryTextColor,
                             ),
                           ],
                         ),
@@ -228,11 +212,7 @@ class DealerSearchField extends StatelessWidget {
             ],
 
             // Selected dealer
-            if (selectedDealer != null) ...[
-              SizedBox(height: 10.h),
-
-        
-            ],
+            if (selectedDealer != null) ...[SizedBox(height: 10.h)],
           ],
         );
       },

@@ -1,3 +1,4 @@
+import 'package:solufine/core/theme/app_theme_context.dart';
 
 import 'package:solufine/core/di/my_expense_di.dart';
 import 'package:solufine/core/router/app_router.dart';
@@ -13,9 +14,7 @@ import '../bloc/my_expense_state.dart';
 import '../widgets/my_expense_card.dart';
 
 class MyExpensePage extends StatefulWidget {
-  const MyExpensePage({
-    super.key,
-  });
+  const MyExpensePage({super.key});
 
   @override
   State<MyExpensePage> createState() => _MyExpensePageState();
@@ -42,13 +41,7 @@ class _MyExpensePageState extends State<MyExpensePage> {
     final now = DateTime.now();
 
     // First day of current month
-    fromDate = _formatDate(
-      DateTime(
-        now.year,
-        now.month,
-        1,
-      ),
-    );
+    fromDate = _formatDate(DateTime(now.year, now.month, 1));
 
     // Today's date
     toDate = _formatDate(now);
@@ -86,7 +79,7 @@ class _MyExpensePageState extends State<MyExpensePage> {
       child: Builder(
         builder: (blocContext) {
           return Scaffold(
-            backgroundColor: const Color(0xFFF5F8F6),
+            backgroundColor: context.backgroundColor,
 
             appBar: _buildAppBar(),
 
@@ -95,13 +88,11 @@ class _MyExpensePageState extends State<MyExpensePage> {
                 // -------------------------------------------------------------
                 // DATE FILTER
                 // -------------------------------------------------------------
-
                 _buildFilterSection(),
 
                 // -------------------------------------------------------------
                 // EXPENSE CONTENT
                 // -------------------------------------------------------------
-
                 Expanded(
                   child: BlocBuilder<MyExpenseBloc, MyExpenseState>(
                     builder: (context, state) {
@@ -111,9 +102,9 @@ class _MyExpensePageState extends State<MyExpensePage> {
 
                       if (state is MyExpenseInitial ||
                           state is MyExpenseLoading) {
-                        return const Center(
+                        return Center(
                           child: CircularProgressIndicator(
-                            color: Color(0xFF2D6A4F),
+                            color: context.primaryColor,
                           ),
                         );
                       }
@@ -123,10 +114,7 @@ class _MyExpensePageState extends State<MyExpensePage> {
                       // -------------------------------------------------------
 
                       if (state is MyExpenseError) {
-                        return _buildError(
-                          context,
-                          state.message,
-                        );
+                        return _buildError(context, state.message);
                       }
 
                       // -------------------------------------------------------
@@ -142,10 +130,7 @@ class _MyExpensePageState extends State<MyExpensePage> {
                       // -------------------------------------------------------
 
                       if (state is MyExpenseLoaded) {
-                        return _buildExpenseList(
-                          context,
-                          state.expenses,
-                        );
+                        return _buildExpenseList(context, state.expenses);
                       }
 
                       return const SizedBox.shrink();
@@ -180,20 +165,13 @@ class _MyExpensePageState extends State<MyExpensePage> {
   Widget _buildFilterSection() {
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.fromLTRB(
-        14,
-        14,
-        14,
-        12,
-      ),
-      decoration: const BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.vertical(
-          bottom: Radius.circular(22),
-        ),
+      padding: const EdgeInsets.fromLTRB(14, 14, 14, 12),
+      decoration: BoxDecoration(
+        color: context.cardBackgroundColor,
+        borderRadius: BorderRadius.vertical(bottom: Radius.circular(22)),
         boxShadow: [
           BoxShadow(
-            color: Color(0x12000000),
+            color: context.appColors.shadow.withValues(alpha: 0.07),
             blurRadius: 12,
             offset: Offset(0, 4),
           ),
@@ -204,7 +182,6 @@ class _MyExpensePageState extends State<MyExpensePage> {
           // ---------------------------------------------------------------
           // FROM DATE
           // ---------------------------------------------------------------
-
           Expanded(
             child: _dateFilter(
               title: 'From Date',
@@ -219,7 +196,6 @@ class _MyExpensePageState extends State<MyExpensePage> {
           // ---------------------------------------------------------------
           // TO DATE
           // ---------------------------------------------------------------
-
           Expanded(
             child: _dateFilter(
               title: 'To Date',
@@ -247,24 +223,15 @@ class _MyExpensePageState extends State<MyExpensePage> {
       onTap: onTap,
       borderRadius: BorderRadius.circular(14),
       child: Container(
-        padding: const EdgeInsets.symmetric(
-          horizontal: 12,
-          vertical: 10,
-        ),
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
         decoration: BoxDecoration(
-          color: const Color(0xFFF5F8F6),
+          color: context.appTheme.inputBackground,
           borderRadius: BorderRadius.circular(14),
-          border: Border.all(
-            color: const Color(0xFFE2EAE4),
-          ),
+          border: Border.all(color: context.borderColor),
         ),
         child: Row(
           children: [
-            Icon(
-              icon,
-              size: 18,
-              color: const Color(0xFF2D6A4F),
-            ),
+            Icon(icon, size: 18, color: context.primaryColor),
 
             const SizedBox(width: 8),
 
@@ -274,10 +241,10 @@ class _MyExpensePageState extends State<MyExpensePage> {
                 children: [
                   Text(
                     title,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 9,
                       fontWeight: FontWeight.w700,
-                      color: Color(0xFF8A938D),
+                      color: context.secondaryTextColor,
                     ),
                   ),
 
@@ -285,20 +252,20 @@ class _MyExpensePageState extends State<MyExpensePage> {
 
                   Text(
                     value,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 11,
                       fontWeight: FontWeight.w800,
-                      color: Color(0xFF263229),
+                      color: context.cardTextColor,
                     ),
                   ),
                 ],
               ),
             ),
 
-            const Icon(
+            Icon(
               Icons.keyboard_arrow_down_rounded,
               size: 18,
-              color: Color(0xFF7A857E),
+              color: context.secondaryTextColor,
             ),
           ],
         ),
@@ -325,16 +292,11 @@ class _MyExpensePageState extends State<MyExpensePage> {
     final selectedToDate = _parseDate(toDate);
 
     // From date cannot be greater than To date.
-    if (selectedToDate != null &&
-        selectedDate.isAfter(selectedToDate)) {
+    if (selectedToDate != null && selectedDate.isAfter(selectedToDate)) {
       if (!mounted) return;
 
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text(
-            'From Date cannot be after To Date',
-          ),
-        ),
+        const SnackBar(content: Text('From Date cannot be after To Date')),
       );
 
       return;
@@ -367,16 +329,11 @@ class _MyExpensePageState extends State<MyExpensePage> {
     final selectedFromDate = _parseDate(fromDate);
 
     // To date cannot be less than From date.
-    if (selectedFromDate != null &&
-        selectedDate.isBefore(selectedFromDate)) {
+    if (selectedFromDate != null && selectedDate.isBefore(selectedFromDate)) {
       if (!mounted) return;
 
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text(
-            'To Date cannot be before From Date',
-          ),
-        ),
+        const SnackBar(content: Text('To Date cannot be before From Date')),
       );
 
       return;
@@ -410,11 +367,7 @@ class _MyExpensePageState extends State<MyExpensePage> {
       final month = int.parse(parts[1]);
       final year = int.parse(parts[2]);
 
-      return DateTime(
-        year,
-        month,
-        day,
-      );
+      return DateTime(year, month, day);
     } catch (_) {
       return null;
     }
@@ -437,37 +390,24 @@ class _MyExpensePageState extends State<MyExpensePage> {
   // ---------------------------------------------------------------------------
 
   Future<void> _loadExpenses() async {
-    final userData =
-        await SecureStorage.instance.getUserData();
+    final userData = await SecureStorage.instance.getUserData();
 
-    print(
-      'My Expense User Data: $userData',
-    );
+    print('My Expense User Data: $userData');
 
-    final userId = int.tryParse(
-      userData?['user_id']?.toString() ?? '',
-    );
+    final userId = int.tryParse(userData?['user_id']?.toString() ?? '');
 
-    print(
-      'My Expense User ID: $userId',
-    );
+    print('My Expense User ID: $userId');
 
-    print(
-      'My Expense From Date: $fromDate',
-    );
+    print('My Expense From Date: $fromDate');
 
-    print(
-      'My Expense To Date: $toDate',
-    );
+    print('My Expense To Date: $toDate');
 
     // ---------------------------------------------------------------
     // USER ID CHECK
     // ---------------------------------------------------------------
 
     if (userId == null) {
-      print(
-        'My Expense: User ID is null',
-      );
+      print('My Expense: User ID is null');
 
       return;
     }
@@ -477,9 +417,7 @@ class _MyExpensePageState extends State<MyExpensePage> {
     // ---------------------------------------------------------------
 
     if (_myExpenseBloc == null) {
-      print(
-        'My Expense: MyExpenseBloc is not initialized',
-      );
+      print('My Expense: MyExpenseBloc is not initialized');
 
       return;
     }
@@ -502,61 +440,41 @@ class _MyExpensePageState extends State<MyExpensePage> {
   // EXPENSE LIST
   // ---------------------------------------------------------------------------
 
-  Widget _buildExpenseList(
-    BuildContext context,
-    List expenses,
-  ) {
-    final total = expenses.fold<double>(
-      0,
-      (sum, expense) {
-        return sum +
-            (double.tryParse(
-                  expense.dailyTotal.toString(),
-                ) ??
-                0);
-      },
-    );
+  Widget _buildExpenseList(BuildContext context, List expenses) {
+    final total = expenses.fold<double>(0, (sum, expense) {
+      return sum + (double.tryParse(expense.dailyTotal.toString()) ?? 0);
+    });
 
     return RefreshIndicator(
-      color: const Color(0xFF2D6A4F),
+      color: context.primaryColor,
 
       onRefresh: () => _loadExpenses(),
 
       child: ListView(
         physics: const AlwaysScrollableScrollPhysics(),
 
-        padding: const EdgeInsets.fromLTRB(
-          16,
-          18,
-          16,
-          30,
-        ),
+        padding: const EdgeInsets.fromLTRB(16, 18, 16, 30),
 
         children: [
           // ---------------------------------------------------------------
           // SUMMARY
           // ---------------------------------------------------------------
-
-          _buildSummaryCard(
-            total: total,
-            count: expenses.length,
-          ),
+          _buildSummaryCard(total: total, count: expenses.length),
 
           const SizedBox(height: 10),
 
           // ---------------------------------------------------------------
           // HISTORY HEADER
           // ---------------------------------------------------------------
-
           Row(
             children: [
-              const Expanded(
+              Expanded(
                 child: Text(
                   'Expense History',
                   style: TextStyle(
                     fontSize: 17,
                     fontWeight: FontWeight.w800,
-                    color: Color(0xFF18231C),
+                    color: context.cardTextColor,
                   ),
                 ),
               ),
@@ -567,15 +485,15 @@ class _MyExpensePageState extends State<MyExpensePage> {
                   vertical: 6,
                 ),
                 decoration: BoxDecoration(
-                  color: const Color(0xFFE8F5ED),
+                  color: context.primaryColor.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(20),
                 ),
                 child: Text(
                   '${expenses.length} Records',
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 10,
                     fontWeight: FontWeight.w800,
-                    color: Color(0xFF2D6A4F),
+                    color: context.primaryColor,
                   ),
                 ),
               ),
@@ -587,15 +505,9 @@ class _MyExpensePageState extends State<MyExpensePage> {
           // ---------------------------------------------------------------
           // EXPENSE CARDS
           // ---------------------------------------------------------------
-
-          ...List.generate(
-            expenses.length,
-            (index) {
-              return MyExpenseCard(
-                expense: expenses[index],
-              );
-            },
-          ),
+          ...List.generate(expenses.length, (index) {
+            return MyExpenseCard(expense: expenses[index]);
+          }),
         ],
       ),
     );
@@ -605,31 +517,20 @@ class _MyExpensePageState extends State<MyExpensePage> {
   // SUMMARY CARD
   // ---------------------------------------------------------------------------
 
-  Widget _buildSummaryCard({
-    required double total,
-    required int count,
-  }) {
+  Widget _buildSummaryCard({required double total, required int count}) {
     return Container(
       width: double.infinity,
 
       padding: const EdgeInsets.all(20),
 
       decoration: BoxDecoration(
-        gradient: const LinearGradient(
-          colors: [
-            Color(0xFF1B4332),
-            Color(0xFF2D6A4F),
-          ],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
+        color: context.primaryColor,
 
         borderRadius: BorderRadius.circular(24),
 
         boxShadow: [
           BoxShadow(
-            color: const Color(0xFF1B4332)
-                .withOpacity(0.20),
+            color: context.primaryColor.withValues(alpha: 0.20),
             blurRadius: 18,
             offset: const Offset(0, 8),
           ),
@@ -643,7 +544,6 @@ class _MyExpensePageState extends State<MyExpensePage> {
           // -------------------------------------------------------------
           // TITLE ROW
           // -------------------------------------------------------------
-
           Row(
             children: [
               Container(
@@ -651,24 +551,24 @@ class _MyExpensePageState extends State<MyExpensePage> {
                 height: 34,
 
                 decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.14),
+                  color: context.onPrimaryColor.withValues(alpha: 0.14),
                   borderRadius: BorderRadius.circular(14),
                 ),
 
-                child: const Icon(
+                child: Icon(
                   Icons.account_balance_wallet_rounded,
-                  color: Colors.white,
+                  color: context.onPrimaryColor,
                   size: 22,
                 ),
               ),
 
               const SizedBox(width: 12),
 
-              const Expanded(
+              Expanded(
                 child: Text(
                   'Total Expenses',
                   style: TextStyle(
-                    color: Color(0xFFD7E9DE),
+                    color: context.onPrimaryColor,
                     fontSize: 13,
                     fontWeight: FontWeight.w600,
                   ),
@@ -682,14 +582,14 @@ class _MyExpensePageState extends State<MyExpensePage> {
                 ),
 
                 decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.12),
+                  color: context.onPrimaryColor.withValues(alpha: 0.12),
                   borderRadius: BorderRadius.circular(20),
                 ),
 
                 child: Text(
                   '$count Entries',
-                  style: const TextStyle(
-                    color: Colors.white,
+                  style: TextStyle(
+                    color: context.onPrimaryColor,
                     fontSize: 10,
                     fontWeight: FontWeight.w700,
                   ),
@@ -698,22 +598,18 @@ class _MyExpensePageState extends State<MyExpensePage> {
             ],
           ),
 
-         
           // -------------------------------------------------------------
           // TOTAL
           // -------------------------------------------------------------
-
           Text(
             '₹ ${total.toStringAsFixed(2)}',
-            style: const TextStyle(
-              color: Colors.white,
+            style: TextStyle(
+              color: context.onPrimaryColor,
               fontSize: 20,
               fontWeight: FontWeight.w900,
               letterSpacing: -0.8,
             ),
           ),
-
-      
         ],
       ),
     );
@@ -723,10 +619,7 @@ class _MyExpensePageState extends State<MyExpensePage> {
   // ERROR
   // ---------------------------------------------------------------------------
 
-  Widget _buildError(
-    BuildContext context,
-    String message,
-  ) {
+  Widget _buildError(BuildContext context, String message) {
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(24),
@@ -735,11 +628,9 @@ class _MyExpensePageState extends State<MyExpensePage> {
           padding: const EdgeInsets.all(24),
 
           decoration: BoxDecoration(
-            color: Colors.white,
+            color: context.cardBackgroundColor,
             borderRadius: BorderRadius.circular(24),
-            border: Border.all(
-              color: const Color(0xFFE5ECE7),
-            ),
+            border: Border.all(color: context.borderColor),
           ),
 
           child: Column(
@@ -749,20 +640,19 @@ class _MyExpensePageState extends State<MyExpensePage> {
               // ---------------------------------------------------------
               // ERROR ICON
               // ---------------------------------------------------------
-
               Container(
                 width: 68,
                 height: 68,
 
                 decoration: BoxDecoration(
-                  color: const Color(0xFFFFEBEE),
+                  color: context.appColors.error.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(20),
                 ),
 
-                child: const Icon(
+                child: Icon(
                   Icons.cloud_off_rounded,
                   size: 32,
-                  color: Color(0xFFC62828),
+                  color: context.appColors.error,
                 ),
               ),
 
@@ -771,15 +661,14 @@ class _MyExpensePageState extends State<MyExpensePage> {
               // ---------------------------------------------------------
               // ERROR TITLE
               // ---------------------------------------------------------
-
-              const Text(
+              Text(
                 'No Record Found',
                 textAlign: TextAlign.center,
 
                 style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.w800,
-                  color: Color(0xFF26332B),
+                  color: context.cardTextColor,
                 ),
               ),
 
@@ -804,7 +693,6 @@ class _MyExpensePageState extends State<MyExpensePage> {
               // ---------------------------------------------------------
               // TRY AGAIN
               // ---------------------------------------------------------
-
               SizedBox(
                 width: double.infinity,
                 height: 46,
@@ -812,28 +700,22 @@ class _MyExpensePageState extends State<MyExpensePage> {
                 child: ElevatedButton.icon(
                   onPressed: () => _loadExpenses(),
 
-                  icon: const Icon(
-                    Icons.refresh_rounded,
-                  ),
+                  icon: const Icon(Icons.refresh_rounded),
 
                   label: const Text(
                     'Try Again',
-                    style: TextStyle(
-                      fontWeight: FontWeight.w700,
-                    ),
+                    style: TextStyle(fontWeight: FontWeight.w700),
                   ),
 
                   style: ElevatedButton.styleFrom(
-                    backgroundColor:
-                        const Color(0xFF2D6A4F),
+                    backgroundColor: context.primaryColor,
 
-                    foregroundColor: Colors.white,
+                    foregroundColor: context.onPrimaryColor,
 
                     elevation: 0,
 
                     shape: RoundedRectangleBorder(
-                      borderRadius:
-                          BorderRadius.circular(14),
+                      borderRadius: BorderRadius.circular(14),
                     ),
                   ),
                 ),
@@ -851,7 +733,7 @@ class _MyExpensePageState extends State<MyExpensePage> {
 
   Widget _buildEmpty(BuildContext context) {
     return RefreshIndicator(
-      color: const Color(0xFF2D6A4F),
+      color: context.primaryColor,
 
       onRefresh: () => _loadExpenses(),
 
@@ -864,21 +746,20 @@ class _MyExpensePageState extends State<MyExpensePage> {
           // ---------------------------------------------------------------
           // ICON
           // ---------------------------------------------------------------
-
           Center(
             child: Container(
               width: 90,
               height: 90,
 
               decoration: BoxDecoration(
-                color: const Color(0xFFE8F5ED),
+                color: context.primaryColor.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(28),
               ),
 
-              child: const Icon(
+              child: Icon(
                 Icons.receipt_long_rounded,
                 size: 42,
-                color: Color(0xFF2D6A4F),
+                color: context.primaryColor,
               ),
             ),
           ),
@@ -888,14 +769,13 @@ class _MyExpensePageState extends State<MyExpensePage> {
           // ---------------------------------------------------------------
           // TITLE
           // ---------------------------------------------------------------
-
-          const Center(
+          Center(
             child: Text(
               'No Expenses Found',
               style: TextStyle(
                 fontSize: 19,
                 fontWeight: FontWeight.w800,
-                color: Color(0xFF26332B),
+                color: context.cardTextColor,
               ),
             ),
           ),
@@ -905,14 +785,10 @@ class _MyExpensePageState extends State<MyExpensePage> {
           // ---------------------------------------------------------------
           // DESCRIPTION
           // ---------------------------------------------------------------
-
-          const Center(
+          Center(
             child: Text(
               'Your expense records will appear here.',
-              style: TextStyle(
-                fontSize: 12,
-                color: Color(0xFF7A857E),
-              ),
+              style: TextStyle(fontSize: 12, color: context.secondaryTextColor),
             ),
           ),
         ],
@@ -920,5 +796,3 @@ class _MyExpensePageState extends State<MyExpensePage> {
     );
   }
 }
-
-
