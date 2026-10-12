@@ -6,18 +6,17 @@ import 'package:go_router/go_router.dart';
 import 'package:solufine/core/di/notification_di.dart';
 import 'package:solufine/core/router/app_router.dart';
 import 'package:solufine/core/secure_storage/secure_storage.dart';
+import 'package:solufine/core/theme/app_theme_context.dart';
+import 'package:solufine/core/utility/widgets/custom_appbar.dart';
 import '../../data/datasource/monthly_collection_remote_datasource.dart';
-
 
 import '../bloc/dealer_bloc.dart';
 import '../bloc/dealer_event.dart';
 import '../bloc/dealer_state.dart';
 
-
 import '../bloc/collection_type_bloc.dart';
 import '../bloc/collection_type_event.dart';
 import '../bloc/collection_type_state.dart';
-
 
 import '../../domain/entities/collection_type_entity.dart';
 
@@ -31,12 +30,8 @@ class AssignSelfCollectionTargetPage extends StatefulWidget {
 
 class _AssignSelfCollectionTargetPageState
     extends State<AssignSelfCollectionTargetPage> {
-
-
   late final DealerBloc _dealerBloc;
   late final CollectionTypeBloc _collectionTypeBloc;
-
- 
 
   final Map<String, Map<String, String>> _targetValues = {};
   late final List<DateTime> _availableMonths;
@@ -59,13 +54,10 @@ class _AssignSelfCollectionTargetPageState
   String _monthValue(DateTime month) =>
       '${month.month.toString().padLeft(2, '0')}-${month.year}';
 
-
   int userId = 0;
 
   bool _isUserLoaded = false;
   bool _isSubmitting = false;
-
-
 
   @override
   void initState() {
@@ -82,15 +74,10 @@ class _AssignSelfCollectionTargetPageState
 
     _collectionTypeBloc = sl<CollectionTypeBloc>();
 
-
     _collectionTypeBloc.add(const GetCollectionTypeEvent());
-
-
 
     _loadUser();
   }
-
- 
 
   Future<void> _loadUser() async {
     try {
@@ -125,8 +112,6 @@ class _AssignSelfCollectionTargetPageState
     }
   }
 
-  
-
   void _fetchDealerList() {
     if (userId <= 0) {
       return;
@@ -134,7 +119,6 @@ class _AssignSelfCollectionTargetPageState
 
     _dealerBloc.add(GetDealerListEvent(userId: userId));
   }
-
 
   Future<void> _refreshDealerList() async {
     if (userId <= 0) {
@@ -144,13 +128,9 @@ class _AssignSelfCollectionTargetPageState
     _dealerBloc.add(RefreshDealerListEvent(userId: userId));
   }
 
-
-
   Future<void> _refreshCollectionTypes() async {
     _collectionTypeBloc.add(const RefreshCollectionTypeEvent());
   }
-
-
 
   String _getTargetValue({
     required String dealerId,
@@ -158,8 +138,6 @@ class _AssignSelfCollectionTargetPageState
   }) {
     return _targetValues[dealerId]?[collectionTypeId] ?? '';
   }
-
-
 
   void _setTargetValue({
     required String dealerId,
@@ -171,8 +149,6 @@ class _AssignSelfCollectionTargetPageState
     _targetValues[dealerId]![collectionTypeId] = value;
   }
 
-
-
   Future<void> _submitTargets() async {
     if (_isSubmitting) return;
     FocusScope.of(context).unfocus();
@@ -183,7 +159,6 @@ class _AssignSelfCollectionTargetPageState
 
     final collectionTypes = _collectionTypeBloc.state.collectionTypes;
 
-
     if (collectionTypes.isEmpty) {
       _showSubmitMessage('Collection types not available.');
 
@@ -192,11 +167,7 @@ class _AssignSelfCollectionTargetPageState
 
     final List<Map<String, dynamic>> targets = [];
 
-
-
     for (final dealer in _dealerBloc.state.dealers) {
-
-
       for (final collectionType in collectionTypes) {
         final String value = _getTargetValue(
           dealerId: dealer.outletId,
@@ -210,7 +181,6 @@ class _AssignSelfCollectionTargetPageState
 
         final double? amount = double.tryParse(value);
 
-
         if (amount == null || !amount.isFinite) {
           _showSubmitMessage(
             'Enter valid ${collectionType.collectionType} '
@@ -219,7 +189,6 @@ class _AssignSelfCollectionTargetPageState
 
           return;
         }
-
 
         targets.add({
           'fld_outlet_id': dealer.outletId,
@@ -232,14 +201,11 @@ class _AssignSelfCollectionTargetPageState
       }
     }
 
-
     if (targets.isEmpty) {
       _showSubmitMessage('Enter targets for at least one dealer.');
 
       return;
     }
-
-
 
     setState(() => _isSubmitting = true);
     try {
@@ -255,12 +221,22 @@ class _AssignSelfCollectionTargetPageState
         builder: (dialogContext) => PopScope(
           canPop: false,
           child: AlertDialog(
-            title: const Text('Success'),
-            content: Text(message),
+            backgroundColor: dialogContext.cardBackgroundColor,
+            title: Text(
+              'Success',
+              style: TextStyle(color: dialogContext.primaryTextColor),
+            ),
+            content: Text(
+              message,
+              style: TextStyle(color: dialogContext.primaryTextColor),
+            ),
             actions: [
               TextButton(
                 onPressed: () => Navigator.of(dialogContext).pop(true),
-                child: const Text('OK'),
+                child: Text(
+                  'OK',
+                  style: TextStyle(color: dialogContext.primaryColor),
+                ),
               ),
             ],
           ),
@@ -276,24 +252,22 @@ class _AssignSelfCollectionTargetPageState
     }
   }
 
-void _showSubmitMessage(String message) {
-  ScaffoldMessenger.of(context)
-    ..hideCurrentSnackBar()
-    ..showSnackBar(
-      SnackBar(
-        content: Text(
-          message,
-          style: const TextStyle(
-            color: Colors.white,
-            fontWeight: FontWeight.w600,
+  void _showSubmitMessage(String message) {
+    ScaffoldMessenger.of(context)
+      ..hideCurrentSnackBar()
+      ..showSnackBar(
+        SnackBar(
+          content: Text(
+            message,
+            style: TextStyle(
+              color: context.appColors.onError,
+              fontWeight: FontWeight.w600,
+            ),
           ),
+          backgroundColor: context.appColors.error,
         ),
-        backgroundColor: Colors.red,
-      ),
-    );
-}
-
-
+      );
+  }
 
   @override
   void dispose() {
@@ -304,31 +278,20 @@ void _showSubmitMessage(String message) {
     super.dispose();
   }
 
-
-
   @override
   Widget build(BuildContext context) {
     return MultiBlocProvider(
       providers: [
-
         BlocProvider<DealerBloc>.value(value: _dealerBloc),
 
-    
         BlocProvider<CollectionTypeBloc>.value(value: _collectionTypeBloc),
       ],
       child: Scaffold(
-        backgroundColor: const Color(0xFFF4F7F5),
-
-        appBar: AppBar(
-          title: const Text(
-            'Add Collectionwise Target',
-            style: TextStyle(fontSize: 20, fontWeight: FontWeight.w700),
-          ),
-          centerTitle: false,
-          backgroundColor: const Color(0xFFF4F7F5),
-          foregroundColor: const Color(0xFF183D30),
-          surfaceTintColor: Colors.transparent,
-          elevation: 0,
+        backgroundColor: context.backgroundColor,
+        appBar: CustomAppBar(
+          title: 'Add Collectionwise Target',
+          showBackButton: true,
+          onBackTap: () => Navigator.pop(context),
         ),
 
         bottomNavigationBar:
@@ -347,10 +310,10 @@ void _showSubmitMessage(String message) {
                     }
 
                     return Container(
-                      decoration: const BoxDecoration(
-                        color: Colors.white,
+                      decoration: BoxDecoration(
+                        color: context.cardBackgroundColor,
                         border: Border(
-                          top: BorderSide(color: Color(0xFFE3EBE5)),
+                          top: BorderSide(color: context.borderColor),
                         ),
                       ),
                       child: SafeArea(
@@ -359,22 +322,24 @@ void _showSubmitMessage(String message) {
                         child: FilledButton.icon(
                           onPressed: _isSubmitting ? null : _submitTargets,
                           icon: _isSubmitting
-                              ? const SizedBox(
+                              ? SizedBox(
                                   width: 20,
                                   height: 20,
                                   child: CircularProgressIndicator(
                                     strokeWidth: 2,
+                                    color: context.appColors.onSurface
+                                        .withValues(alpha: 0.38),
                                   ),
                                 )
-                              : const Icon(Icons.check_circle_outline_rounded),
+                              : Icon(Icons.check_circle_outline_rounded),
                           label: Text(
                             _isSubmitting ? 'Submitting…' : 'Submit Targets',
                           ),
                           style: FilledButton.styleFrom(
-                            backgroundColor: const Color(0xFF1E6046),
-                            foregroundColor: Colors.white,
+                            backgroundColor: context.primaryColor,
+                            foregroundColor: context.onPrimaryColor,
                             minimumSize: const Size.fromHeight(52),
-                            textStyle: const TextStyle(
+                            textStyle: TextStyle(
                               fontSize: 16,
                               fontWeight: FontWeight.w700,
                             ),
@@ -390,11 +355,12 @@ void _showSubmitMessage(String message) {
               },
             ),
 
-
         body: !_isUserLoaded
-            ? const Center(child: CircularProgressIndicator())
+            ? Center(
+                child: CircularProgressIndicator(color: context.primaryColor),
+              )
             : userId <= 0
-            ? const Center(
+            ? Center(
                 child: Text(
                   'User not found',
                   style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
@@ -402,14 +368,14 @@ void _showSubmitMessage(String message) {
               )
             : BlocBuilder<CollectionTypeBloc, CollectionTypeState>(
                 builder: (context, collectionState) {
-        
-
                   if (collectionState.status == CollectionTypeStatus.loading ||
                       collectionState.status == CollectionTypeStatus.initial) {
-                    return const Center(child: CircularProgressIndicator());
+                    return Center(
+                      child: CircularProgressIndicator(
+                        color: context.primaryColor,
+                      ),
+                    );
                   }
-
-             
 
                   if (collectionState.status == CollectionTypeStatus.failure) {
                     return _ErrorView(
@@ -420,13 +386,14 @@ void _showSubmitMessage(String message) {
                     );
                   }
 
-
                   if (collectionState.collectionTypes.isEmpty) {
                     return RefreshIndicator(
+                      color: context.primaryColor,
+                      backgroundColor: context.cardBackgroundColor,
                       onRefresh: _refreshCollectionTypes,
                       child: ListView(
                         physics: const AlwaysScrollableScrollPhysics(),
-                        children: const [
+                        children: [
                           SizedBox(height: 250),
                           Center(
                             child: Text(
@@ -442,16 +409,15 @@ void _showSubmitMessage(String message) {
                     );
                   }
 
-  
-
                   return BlocBuilder<DealerBloc, DealerState>(
                     builder: (context, dealerState) {
-    
-
                       if (dealerState.status == DealerStatus.loading) {
-                        return const Center(child: CircularProgressIndicator());
+                        return Center(
+                          child: CircularProgressIndicator(
+                            color: context.primaryColor,
+                          ),
+                        );
                       }
-
 
                       if (dealerState.status == DealerStatus.failure) {
                         return _ErrorView(
@@ -460,14 +426,14 @@ void _showSubmitMessage(String message) {
                         );
                       }
 
-      
-
                       if (dealerState.dealers.isEmpty) {
                         return RefreshIndicator(
+                          color: context.primaryColor,
+                          backgroundColor: context.cardBackgroundColor,
                           onRefresh: _refreshDealerList,
                           child: ListView(
                             physics: const AlwaysScrollableScrollPhysics(),
-                            children: const [
+                            children: [
                               SizedBox(height: 250),
                               Center(
                                 child: Text(
@@ -483,26 +449,16 @@ void _showSubmitMessage(String message) {
                         );
                       }
 
-                    
-
                       return SafeArea(
                         top: false,
                         child: Column(
                           children: [
- 
                             Container(
                               width: double.infinity,
                               margin: const EdgeInsets.fromLTRB(16, 12, 16, 16),
                               padding: const EdgeInsets.all(10),
                               decoration: BoxDecoration(
-                                gradient: const LinearGradient(
-                                  colors: [
-                                    Color(0xFF164C38),
-                                    Color(0xFF287356),
-                                  ],
-                                  begin: Alignment.topLeft,
-                                  end: Alignment.bottomRight,
-                                ),
+                                color: context.primaryColor,
                                 borderRadius: BorderRadius.circular(24),
                               ),
                               child: Column(
@@ -510,19 +466,19 @@ void _showSubmitMessage(String message) {
                                 children: [
                                   Row(
                                     children: [
-                                      const Icon(
+                                      Icon(
                                         Icons.trending_up_rounded,
-                                        color: Color(0xFFBCE8CA),
+                                        color: context.onPrimaryColor,
                                         size: 24,
                                       ),
 
-                                      const SizedBox(width: 8),
+                                      SizedBox(width: 8),
 
-                                      const Expanded(
+                                      Expanded(
                                         child: Text(
                                           'SELF COLLECTION',
                                           style: TextStyle(
-                                            color: Color(0xFFBCE8CA),
+                                            color: context.onPrimaryColor,
                                             fontSize: 11,
                                             fontWeight: FontWeight.w700,
                                             letterSpacing: 1.3,
@@ -536,15 +492,16 @@ void _showSubmitMessage(String message) {
                                           vertical: 6,
                                         ),
                                         decoration: BoxDecoration(
-                                          color: const Color(0xFF398363),
+                                          color: context.onPrimaryColor
+                                              .withValues(alpha: 0.15),
                                           borderRadius: BorderRadius.circular(
                                             20,
                                           ),
                                         ),
                                         child: Text(
                                           '${dealerState.dealers.length} dealers',
-                                          style: const TextStyle(
-                                            color: Colors.white,
+                                          style: TextStyle(
+                                            color: context.onPrimaryColor,
                                             fontSize: 12,
                                             fontWeight: FontWeight.w600,
                                           ),
@@ -553,23 +510,21 @@ void _showSubmitMessage(String message) {
                                     ],
                                   ),
 
-                            
-
-                                  const Text(
+                                  Text(
                                     'Plan your collection',
                                     style: TextStyle(
-                                      color: Colors.white,
-                                      fontSize:18,
+                                      color: context.onPrimaryColor,
+                                      fontSize: 18,
                                       fontWeight: FontWeight.w700,
                                     ),
                                   ),
 
-                    
-
-                                  const Text(
+                                  Text(
                                     'Enter collection targets for each dealer below.',
                                     style: TextStyle(
-                                      color: Color(0xFFD2E8DC),
+                                      color: context.onPrimaryColor.withValues(
+                                        alpha: 0.8,
+                                      ),
                                       fontSize: 11,
                                       height: 1.5,
                                     ),
@@ -578,16 +533,20 @@ void _showSubmitMessage(String message) {
                               ),
                             ),
 
-                         
                             Padding(
                               padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
                               child: DropdownButtonFormField<String>(
                                 initialValue: _selectedMonth,
+                                dropdownColor: context.cardBackgroundColor,
+                                iconEnabledColor: context.primaryColor,
+                                style: TextStyle(
+                                  color: context.primaryTextColor,
+                                ),
                                 isExpanded: true,
                                 decoration: InputDecoration(
                                   labelText: 'Target month',
                                   filled: true,
-                                  fillColor: Colors.white,
+                                  fillColor: context.appTheme.inputBackground,
                                   border: OutlineInputBorder(
                                     borderRadius: BorderRadius.circular(12),
                                   ),
@@ -607,7 +566,6 @@ void _showSubmitMessage(String message) {
                               ),
                             ),
 
-                          
                             Expanded(
                               child: LayoutBuilder(
                                 builder: (context, constraints) {
@@ -617,7 +575,7 @@ void _showSubmitMessage(String message) {
                                     final painter = TextPainter(
                                       text: TextSpan(
                                         text: '${type.collectionType} Target',
-                                        style: const TextStyle(
+                                        style: TextStyle(
                                           fontSize: 11,
                                           fontWeight: FontWeight.w700,
                                         ),
@@ -629,7 +587,9 @@ void _showSubmitMessage(String message) {
                                       maxLines: 1,
                                     )..layout();
                                     final width = painter.width + 24;
-                                    if (width > columnWidth) { columnWidth = width; }
+                                    if (width > columnWidth) {
+                                      columnWidth = width;
+                                    }
                                     painter.dispose();
                                   }
                                   final minimumWidth =
@@ -660,9 +620,11 @@ void _showSubmitMessage(String message) {
                                             ),
                                           ),
 
-                                         
                                           Expanded(
                                             child: RefreshIndicator(
+                                              color: context.primaryColor,
+                                              backgroundColor:
+                                                  context.cardBackgroundColor,
                                               onRefresh: _refreshDealerList,
                                               child: ListView.builder(
                                                 physics:
@@ -688,9 +650,10 @@ void _showSubmitMessage(String message) {
                                                       dealer.outletId,
                                                     ),
 
-                                                    dealer: dealer.outletName+"\n(${dealer.outletMobile})",
+                                                    dealer:
+                                                        dealer.outletName +
+                                                        "\n(${dealer.outletMobile})",
 
-                                                  
                                                     collectionTypes:
                                                         collectionState
                                                             .collectionTypes,
@@ -742,11 +705,8 @@ void _showSubmitMessage(String message) {
   }
 }
 
-
-
 class _DealerTargetRow extends StatelessWidget {
   final String dealer;
-
 
   final List<CollectionTypeEntity> collectionTypes;
 
@@ -774,19 +734,22 @@ class _DealerTargetRow extends StatelessWidget {
         vertical: isHeader ? 10 : 18,
       ),
       decoration: BoxDecoration(
-        color: isHeader ? const Color(0xFFE8EFEA) : Colors.white,
+        color: isHeader
+            ? context.appColors.primaryContainer
+            : context.cardBackgroundColor,
         borderRadius: BorderRadius.circular(isHeader ? 12 : 18),
-        border: isHeader ? null : Border.all(color: const Color(0xFFE3EBE5)),
+        border: isHeader ? null : Border.all(color: context.borderColor),
       ),
       child: DefaultTextStyle(
         style: TextStyle(
           fontSize: isHeader ? 11 : 14,
           fontWeight: isHeader ? FontWeight.w700 : FontWeight.w500,
-          color: isHeader ? const Color(0xFF5A7163) : const Color(0xFF203C2D),
+          color: isHeader
+              ? context.appColors.onPrimaryContainer
+              : context.cardTextColor,
         ),
         child: Row(
           children: [
-        
             Expanded(
               flex: 4,
               child: Text(
@@ -796,16 +759,14 @@ class _DealerTargetRow extends StatelessWidget {
               ),
             ),
 
-            const SizedBox(width: 4),
+            SizedBox(width: 4),
 
-        
             ...collectionTypes.map((collectionType) {
               return Expanded(
                 flex: 3,
                 child: Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 4),
                   child: isHeader
-      
                       ? Text(
                           '${collectionType.collectionType} Target',
                           textAlign: TextAlign.center,
@@ -813,8 +774,8 @@ class _DealerTargetRow extends StatelessWidget {
                           softWrap: false,
                           overflow: TextOverflow.ellipsis,
                         )
-                      
                       : _targetField(
+                          context,
                           getTargetValue?.call(
                                 collectionType.collectionTypeId,
                               ) ??
@@ -836,9 +797,8 @@ class _DealerTargetRow extends StatelessWidget {
     );
   }
 
-
-
   Widget _targetField(
+    BuildContext context,
     String value,
     String label,
     ValueChanged<String>? onChanged,
@@ -856,13 +816,12 @@ class _DealerTargetRow extends StatelessWidget {
 
         textAlign: TextAlign.center,
 
-        style: const TextStyle(
+        style: TextStyle(
           fontSize: 14,
           fontWeight: FontWeight.w600,
-          color: Color(0xFF183D30),
+          color: context.primaryTextColor,
         ),
 
-   
         inputFormatters: [
           TextInputFormatter.withFunction((oldValue, newValue) {
             final RegExp regex = RegExp(r'^\d*\.?\d*$');
@@ -874,14 +833,14 @@ class _DealerTargetRow extends StatelessWidget {
         decoration: InputDecoration(
           hintText: '0.00',
 
-          hintStyle: const TextStyle(
-            color: Color(0xFF94A39A),
+          hintStyle: TextStyle(
+            color: context.secondaryTextColor,
             fontWeight: FontWeight.w400,
           ),
 
           filled: true,
 
-          fillColor: const Color(0xFFF6F9F7),
+          fillColor: context.appTheme.inputBackground,
 
           isDense: true,
 
@@ -892,19 +851,18 @@ class _DealerTargetRow extends StatelessWidget {
 
           enabledBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(10),
-            borderSide: const BorderSide(color: Color(0xFFDDE7E0)),
+            borderSide: BorderSide(color: context.borderColor),
           ),
 
           focusedBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(10),
-            borderSide: const BorderSide(color: Color(0xFF287356), width: 1.5),
+            borderSide: BorderSide(color: context.primaryColor, width: 1.5),
           ),
         ),
       ),
     );
   }
 }
-
 
 class _ErrorView extends StatelessWidget {
   final String message;
@@ -921,22 +879,26 @@ class _ErrorView extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Icon(Icons.error_outline, size: 50, color: Colors.red),
+            Icon(Icons.error_outline, size: 50, color: context.appColors.error),
 
-            const SizedBox(height: 12),
+            SizedBox(height: 12),
 
             Text(
               message,
               textAlign: TextAlign.center,
-              style: const TextStyle(fontSize: 14),
+              style: TextStyle(fontSize: 14),
             ),
 
-            const SizedBox(height: 16),
+            SizedBox(height: 16),
 
             ElevatedButton.icon(
               onPressed: onRetry,
-              icon: const Icon(Icons.refresh),
-              label: const Text('Retry'),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: context.primaryColor,
+                foregroundColor: context.onPrimaryColor,
+              ),
+              icon: Icon(Icons.refresh),
+              label: Text('Retry'),
             ),
           ],
         ),

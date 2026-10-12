@@ -1,3 +1,4 @@
+import 'package:solufine/core/theme/app_theme_context.dart';
 import 'package:flutter/material.dart';
 
 import '../../domain/entities/top_ten_dealer.dart';
@@ -17,7 +18,7 @@ class DealerCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Material(
-      color: Colors.white,
+      color: context.cardBackgroundColor,
       borderRadius: BorderRadius.circular(16),
       child: InkWell(
         onTap: onTap,
@@ -25,15 +26,11 @@ class DealerCard extends StatelessWidget {
         child: Container(
           padding: const EdgeInsets.all(14),
           decoration: BoxDecoration(
-            borderRadius:
-                BorderRadius.circular(16),
-            border: Border.all(
-              color: const Color(0xFFEDF0F2),
-            ),
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(color: context.borderColor),
             boxShadow: [
               BoxShadow(
-                color:
-                    Colors.black.withOpacity(0.035),
+                color: context.appColors.shadow.withValues(alpha: 0.035),
                 blurRadius: 10,
                 offset: const Offset(0, 4),
               ),
@@ -41,58 +38,50 @@ class DealerCard extends StatelessWidget {
           ),
           child: Row(
             children: [
-              _buildRank(),
+              _buildRank(context),
 
-              const SizedBox(width: 10),
+              SizedBox(width: 10),
 
               Expanded(
                 child: Column(
-                  crossAxisAlignment:
-                      CrossAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
                       dealer.outletName.isNotEmpty
                           ? dealer.outletName
                           : 'Unknown Dealer',
                       maxLines: 2,
-                      overflow:
-                          TextOverflow.ellipsis,
-                      style: const TextStyle(
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
                         fontSize: 14,
-                        fontWeight:
-                            FontWeight.w700,
-                        color: Color(0xFF17202A),
+                        fontWeight: FontWeight.w700,
+                        color: context.primaryTextColor,
                       ),
                     ),
 
-                    const SizedBox(height: 5),
+                    SizedBox(height: 5),
 
                     Row(
-                      crossAxisAlignment:
-                          CrossAxisAlignment.start,
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Icon(
+                        Icon(
                           Icons.location_on_outlined,
                           size: 14,
-                          color: Color(0xFF8A94A6),
+                          color: context.secondaryTextColor,
                         ),
 
-                        const SizedBox(width: 3),
+                        SizedBox(width: 3),
 
                         Expanded(
                           child: Text(
-                            dealer.outletAddress
-                                    .isNotEmpty
+                            dealer.outletAddress.isNotEmpty
                                 ? dealer.outletAddress
                                 : 'Address not available',
                             maxLines: 2,
-                            overflow:
-                                TextOverflow.ellipsis,
-                            style:
-                                const TextStyle(
+                            overflow: TextOverflow.ellipsis,
+                            style: TextStyle(
                               fontSize: 11,
-                              color:
-                                  Color(0xFF8A94A6),
+                              color: context.secondaryTextColor,
                             ),
                           ),
                         ),
@@ -102,42 +91,32 @@ class DealerCard extends StatelessWidget {
                 ),
               ),
 
-              const SizedBox(width: 8),
+              SizedBox(width: 8),
 
               Container(
                 width: 62,
-                padding:
-                    const EdgeInsets.symmetric(
-                  vertical: 9,
-                ),
+                padding: const EdgeInsets.symmetric(vertical: 9),
                 decoration: BoxDecoration(
-                  color:
-                      const Color(0xFFE8F5E9),
-                  borderRadius:
-                      BorderRadius.circular(12),
+                  color: context.appColors.primaryContainer,
+                  borderRadius: BorderRadius.circular(12),
                 ),
                 child: Column(
                   children: [
                     Text(
                       dealer.visitCount,
-                      textAlign:
-                          TextAlign.center,
-                      style:
-                          const TextStyle(
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
                         fontSize: 19,
-                        fontWeight:
-                            FontWeight.w800,
-                        color:
-                            Color(0xFF2E7D32),
+                        fontWeight: FontWeight.w800,
+                        color: context.primaryColor,
                       ),
                     ),
 
-                    const Text(
+                    Text(
                       'visits',
                       style: TextStyle(
                         fontSize: 9,
-                        color:
-                            Color(0xFF6B7280),
+                        color: context.secondaryTextColor,
                       ),
                     ),
                   ],
@@ -150,7 +129,7 @@ class DealerCard extends StatelessWidget {
     );
   }
 
-  Widget _buildRank() {
+  Widget _buildRank(BuildContext context) {
     final rank = index + 1;
 
     return Container(
@@ -158,12 +137,12 @@ class DealerCard extends StatelessWidget {
       height: 34,
       decoration: BoxDecoration(
         color: rank == 1
-            ? const Color(0xFFFFF3CD)
+            ? context.appColors.tertiaryContainer
             : rank == 2
-                ? const Color(0xFFE9ECEF)
-                : rank == 3
-                    ? const Color(0xFFFDE2C5)
-                    : const Color(0xFFF1F3F5),
+            ? context.appColors.secondaryContainer
+            : rank == 3
+            ? context.appColors.primaryContainer
+            : context.appTheme.inputBackground,
         shape: BoxShape.circle,
       ),
       child: Center(
@@ -173,8 +152,8 @@ class DealerCard extends StatelessWidget {
             fontSize: 12,
             fontWeight: FontWeight.w800,
             color: rank == 1
-                ? const Color(0xFFB7791F)
-                : const Color(0xFF667085),
+                ? context.appColors.onTertiaryContainer
+                : context.secondaryTextColor,
           ),
         ),
       ),

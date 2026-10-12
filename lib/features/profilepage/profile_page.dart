@@ -1,7 +1,7 @@
 import 'dart:convert';
 
 import 'package:solufine/core/router/app_router.dart';
-import 'package:solufine/core/theme/app_colors.dart';
+import 'package:solufine/core/theme/app_theme_context.dart';
 import 'package:solufine/core/utility/widgets/custom_appbar.dart';
 import 'package:solufine/core/utility/widgets/custom_button.dart';
 import 'package:flutter/material.dart';
@@ -163,24 +163,20 @@ class _ProfilePageState extends State<ProfilePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.backgroundColor,
+      backgroundColor: context.backgroundColor,
       appBar: CustomAppBar(
         title: 'My Profile',
         showBackButton: true,
         onBackTap: () {
-     context.go(
-            AppRouter.home,
-          );
+          context.go(AppRouter.home);
         },
       ),
       body: _isLoading
           ? Center(
-              child: CircularProgressIndicator(
-                color: AppColors.darkPrimaryColor,
-              ),
+              child: CircularProgressIndicator(color: context.primaryColor),
             )
           : RefreshIndicator(
-              color: AppColors.accentGreen,
+              color: context.primaryColor,
               onRefresh: _loadProfile,
               child: SingleChildScrollView(
                 physics: const AlwaysScrollableScrollPhysics(),
@@ -197,6 +193,8 @@ class _ProfilePageState extends State<ProfilePage> {
 
                     CustomButton(
                       text: 'Change Password',
+                      backgroundColor: context.primaryColor,
+                      textColor: context.onPrimaryColor,
                       icon: Icon(Icons.lock_outline_rounded, size: 20.sp),
                       onPressed: () {
                         context.push('/changePassword');
@@ -218,11 +216,11 @@ class _ProfilePageState extends State<ProfilePage> {
       width: double.infinity,
       padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 24.h),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: context.cardBackgroundColor,
         borderRadius: BorderRadius.circular(22.r),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: context.appColors.shadow.withValues(alpha: 0.05),
             blurRadius: 15,
             offset: const Offset(0, 6),
           ),
@@ -236,9 +234,9 @@ class _ProfilePageState extends State<ProfilePage> {
             height: 88.w,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
-              color: AppColors.accentGreen.withOpacity(0.10),
+              color: context.primaryColor.withValues(alpha: 0.10),
               border: Border.all(
-                color: AppColors.accentGreen.withOpacity(0.20),
+                color: context.primaryColor.withValues(alpha: 0.20),
                 width: 2,
               ),
             ),
@@ -248,7 +246,7 @@ class _ProfilePageState extends State<ProfilePage> {
                 style: TextStyle(
                   fontSize: 28.sp,
                   fontWeight: FontWeight.w900,
-                  color: AppColors.accentGreen,
+                  color: context.primaryColor,
                 ),
               ),
             ),
@@ -262,7 +260,7 @@ class _ProfilePageState extends State<ProfilePage> {
             style: TextStyle(
               fontSize: 19.sp,
               fontWeight: FontWeight.w900,
-              color: const Color(0xFF26332C),
+              color: context.primaryTextColor,
             ),
           ),
 
@@ -275,14 +273,14 @@ class _ProfilePageState extends State<ProfilePage> {
                 Icon(
                   Icons.phone_outlined,
                   size: 14.sp,
-                  color: Colors.grey.shade600,
+                  color: context.secondaryTextColor,
                 ),
                 SizedBox(width: 5.w),
                 Text(
                   _mobile,
                   style: TextStyle(
                     fontSize: 12.sp,
-                    color: Colors.grey.shade600,
+                    color: context.secondaryTextColor,
                     fontWeight: FontWeight.w600,
                   ),
                 ),
@@ -302,11 +300,11 @@ class _ProfilePageState extends State<ProfilePage> {
       width: double.infinity,
       padding: EdgeInsets.all(16.w),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: context.cardBackgroundColor,
         borderRadius: BorderRadius.circular(20.r),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.04),
+            color: context.appColors.shadow.withValues(alpha: 0.04),
             blurRadius: 14,
             offset: const Offset(0, 5),
           ),
@@ -320,7 +318,7 @@ class _ProfilePageState extends State<ProfilePage> {
             style: TextStyle(
               fontSize: 15.sp,
               fontWeight: FontWeight.w800,
-              color: const Color(0xFF26332C),
+              color: context.primaryTextColor,
             ),
           ),
 
@@ -400,10 +398,10 @@ class _ProfilePageState extends State<ProfilePage> {
               width: 42.w,
               height: 42.w,
               decoration: BoxDecoration(
-                color: AppColors.accentGreen.withOpacity(0.08),
+                color: context.primaryColor.withValues(alpha: 0.08),
                 borderRadius: BorderRadius.circular(12.r),
               ),
-              child: Icon(icon, color: AppColors.accentGreen, size: 20.sp),
+              child: Icon(icon, color: context.primaryColor, size: 20.sp),
             ),
 
             SizedBox(width: 12.w),
@@ -416,7 +414,7 @@ class _ProfilePageState extends State<ProfilePage> {
                     title,
                     style: TextStyle(
                       fontSize: 10.sp,
-                      color: Colors.grey.shade500,
+                      color: context.secondaryTextColor,
                       fontWeight: FontWeight.w600,
                     ),
                   ),
@@ -432,7 +430,7 @@ class _ProfilePageState extends State<ProfilePage> {
                       overflow: TextOverflow.ellipsis,
                       style: TextStyle(
                         fontSize: 13.sp,
-                        color: const Color(0xFF26332C),
+                        color: context.primaryTextColor,
                         fontWeight: FontWeight.w700,
                       ),
                     ),
@@ -448,7 +446,7 @@ class _ProfilePageState extends State<ProfilePage> {
                             isExpanded ? 'Show less' : 'Show more',
                             style: TextStyle(
                               fontSize: 9.sp,
-                              color: AppColors.accentGreen,
+                              color: context.primaryColor,
                               fontWeight: FontWeight.w700,
                             ),
                           ),
@@ -458,7 +456,7 @@ class _ProfilePageState extends State<ProfilePage> {
                                 ? Icons.keyboard_arrow_up_rounded
                                 : Icons.keyboard_arrow_down_rounded,
                             size: 15.sp,
-                            color: AppColors.accentGreen,
+                            color: context.primaryColor,
                           ),
                         ],
                       ),
@@ -473,6 +471,6 @@ class _ProfilePageState extends State<ProfilePage> {
   }
 
   Widget _divider() {
-    return Divider(height: 1, thickness: 0.7, color: Colors.grey.shade200);
+    return Divider(height: 1, thickness: 0.7, color: context.borderColor);
   }
 }
