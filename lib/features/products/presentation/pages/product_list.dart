@@ -1,4 +1,4 @@
-import 'package:solufine/core/theme/app_colors.dart';
+import 'package:solufine/core/theme/app_theme_context.dart';
 
 import 'package:solufine/core/utility/widgets/custom_appbar.dart';
 import 'package:solufine/features/products/domain/entity/fertilizer_category_entity.dart';
@@ -14,13 +14,21 @@ class ProductList extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (category == null) {
-      return const Scaffold(body: Center(child: Text('Category Not Found')));
+      return Scaffold(
+        backgroundColor: context.backgroundColor,
+        body: Center(
+          child: Text(
+            'Category Not Found',
+            style: TextStyle(color: context.primaryTextColor),
+          ),
+        ),
+      );
     }
 
     final products = category!.products;
 
     return Scaffold(
-      backgroundColor: AppColors.backgroundColor,
+      backgroundColor: context.backgroundColor,
       appBar: CustomAppBar(
         title: category!.categoryName,
         showBackButton: true,
@@ -33,7 +41,11 @@ class ProductList extends StatelessWidget {
           ? Center(
               child: Text(
                 'No products found',
-                style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.w500),
+                style: TextStyle(
+                  fontSize: 16.sp,
+                  fontWeight: FontWeight.w500,
+                  color: context.secondaryTextColor,
+                ),
               ),
             )
           : GridView.builder(

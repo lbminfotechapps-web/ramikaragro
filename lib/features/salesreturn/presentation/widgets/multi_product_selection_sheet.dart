@@ -1,5 +1,5 @@
 import 'package:flutter/services.dart';
-import 'package:solufine/core/theme/app_colors.dart';
+import 'package:solufine/core/theme/app_theme_context.dart';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil_plus/flutter_screenutil_plus.dart';
@@ -309,7 +309,7 @@ class _MultiProductRateBottomSheetState
         child: Container(
           height: MediaQuery.of(context).size.height * 0.88,
           decoration: BoxDecoration(
-            color: AppColors.background,
+            color: context.backgroundColor,
             borderRadius: BorderRadius.vertical(top: Radius.circular(22.r)),
           ),
           child: Column(
@@ -329,7 +329,7 @@ class _MultiProductRateBottomSheetState
     return Container(
       padding: EdgeInsets.fromLTRB(16.w, 9.h, 7.w, 9.h),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: context.cardBackgroundColor,
         borderRadius: BorderRadius.vertical(top: Radius.circular(22.r)),
       ),
       child: Column(
@@ -339,7 +339,7 @@ class _MultiProductRateBottomSheetState
             width: 36.w,
             height: 3.h,
             decoration: BoxDecoration(
-              color: AppColors.border,
+              color: context.borderColor,
               borderRadius: BorderRadius.circular(20.r),
             ),
           ),
@@ -351,13 +351,13 @@ class _MultiProductRateBottomSheetState
               Container(
                 width: 38.w,
                 height: 38.w,
-                decoration: const BoxDecoration(
-                  color: AppColors.lightGreen,
+                decoration: BoxDecoration(
+                  color: context.primaryColor.withValues(alpha: 0.08),
                   shape: BoxShape.circle,
                 ),
                 child: Icon(
                   Icons.price_check_rounded,
-                  color: AppColors.primary,
+                  color: context.primaryColor,
                   size: 20.sp,
                 ),
               ),
@@ -373,14 +373,14 @@ class _MultiProductRateBottomSheetState
                       style: TextStyle(
                         fontSize: 15.sp,
                         fontWeight: FontWeight.w800,
-                        color: AppColors.textPrimary,
+                        color: context.primaryTextColor,
                       ),
                     ),
                     Text(
                       'Select one or more packings',
                       style: TextStyle(
                         fontSize: 9.5.sp,
-                        color: AppColors.textSecondary,
+                        color: context.secondaryTextColor,
                       ),
                     ),
                   ],
@@ -395,7 +395,7 @@ class _MultiProductRateBottomSheetState
                 constraints: BoxConstraints(minWidth: 34.w, minHeight: 34.w),
                 icon: Icon(
                   Icons.close_rounded,
-                  color: AppColors.textSecondary,
+                  color: context.secondaryTextColor,
                   size: 20.sp,
                 ),
               ),
@@ -422,9 +422,9 @@ class _MultiProductRateBottomSheetState
       margin: EdgeInsets.fromLTRB(12.w, 7.h, 12.w, 2.h),
       padding: EdgeInsets.all(8.w),
       decoration: BoxDecoration(
-        color: AppColors.lightGreen,
+        color: context.primaryColor.withValues(alpha: 0.08),
         borderRadius: BorderRadius.circular(11.r),
-        border: Border.all(color: AppColors.primary.withOpacity(0.14)),
+        border: Border.all(color: context.primaryColor.withValues(alpha: 0.14)),
       ),
       child: Row(
         children: [
@@ -432,12 +432,12 @@ class _MultiProductRateBottomSheetState
             width: 36.w,
             height: 36.w,
             decoration: BoxDecoration(
-              color: AppColors.primary,
+              color: context.primaryColor,
               borderRadius: BorderRadius.circular(8.r),
             ),
             child: Icon(
               Icons.inventory_2_rounded,
-              color: Colors.white,
+              color: context.onPrimaryColor,
               size: 18.sp,
             ),
           ),
@@ -455,7 +455,7 @@ class _MultiProductRateBottomSheetState
                   style: TextStyle(
                     fontSize: 12.sp,
                     fontWeight: FontWeight.w800,
-                    color: AppColors.textPrimary,
+                    color: context.primaryTextColor,
                   ),
                 ),
                 SizedBox(height: 1.h),
@@ -467,8 +467,8 @@ class _MultiProductRateBottomSheetState
                     fontSize: 8.5.sp,
                     fontWeight: FontWeight.w600,
                     color: selectedCount == 0
-                        ? AppColors.textSecondary
-                        : AppColors.primary,
+                        ? context.secondaryTextColor
+                        : context.primaryColor,
                   ),
                 ),
               ],
@@ -496,9 +496,9 @@ class _MultiProductRateBottomSheetState
             SizedBox(
               width: 27.w,
               height: 27.w,
-              child: const CircularProgressIndicator(
+              child: CircularProgressIndicator(
                 strokeWidth: 2.5,
-                color: AppColors.primary,
+                color: context.primaryColor,
               ),
             ),
             SizedBox(height: 8.h),
@@ -507,7 +507,7 @@ class _MultiProductRateBottomSheetState
               style: TextStyle(
                 fontSize: 11.sp,
                 fontWeight: FontWeight.w600,
-                color: AppColors.textSecondary,
+                color: context.secondaryTextColor,
               ),
             ),
           ],
@@ -551,7 +551,7 @@ class _MultiProductRateBottomSheetState
                   style: TextStyle(
                     fontSize: 13.5.sp,
                     fontWeight: FontWeight.w800,
-                    color: AppColors.textPrimary,
+                    color: context.primaryTextColor,
                   ),
                 ),
               ),
@@ -572,7 +572,7 @@ class _MultiProductRateBottomSheetState
                   child: Text(
                     'Clear',
                     style: TextStyle(
-                      color: AppColors.primary,
+                      color: context.primaryColor,
                       fontSize: 10.5.sp,
                       fontWeight: FontWeight.w700,
                     ),
@@ -656,24 +656,24 @@ class _MultiProductRateBottomSheetState
   //       ),
   //       decoration: BoxDecoration(
   //         color: selected
-  //             ? AppColors.lightGreen
-  //             : Colors.white,
+  //             ? context.primaryColor.withValues(alpha: 0.08)
+  //             : context.onPrimaryColor,
   //         borderRadius:
   //             BorderRadius.circular(13.r),
   //         border: Border.all(
   //           color: selected
-  //               ? AppColors.primary
-  //               : AppColors.border,
+  //               ? context.primaryColor
+  //               : context.borderColor,
   //           width:
   //               selected ? 1.3 : 1,
   //         ),
   //         boxShadow: [
   //           BoxShadow(
   //             color: selected
-  //                 ? AppColors.primary
-  //                     .withOpacity(0.07)
-  //                 : Colors.black
-  //                     .withOpacity(0.018),
+  //                 ? context.primaryColor
+  //                     .withValues(alpha: 0.07)
+  //                 : context.appColors.shadow
+  //                     .withValues(alpha: 0.018),
   //             blurRadius:
   //                 selected ? 7 : 5,
   //             offset:
@@ -697,9 +697,9 @@ class _MultiProductRateBottomSheetState
   //                 child: Checkbox(
   //                   value: selected,
   //                   activeColor:
-  //                       AppColors.primary,
+  //                       context.primaryColor,
   //                   checkColor:
-  //                       Colors.white,
+  //                       context.onPrimaryColor,
   //                   materialTapTargetSize:
   //                       MaterialTapTargetSize
   //                           .shrinkWrap,
@@ -735,7 +735,7 @@ class _MultiProductRateBottomSheetState
   //                     fontWeight:
   //                         FontWeight.w800,
   //                     color:
-  //                         AppColors.textPrimary,
+  //                         context.primaryTextColor,
   //                   ),
   //                 ),
   //               ),
@@ -750,7 +750,7 @@ class _MultiProductRateBottomSheetState
   //                   fontWeight:
   //                       FontWeight.w900,
   //                   color:
-  //                       AppColors.primary,
+  //                       context.primaryColor,
   //                 ),
   //               ),
   //             ],
@@ -833,12 +833,14 @@ class _MultiProductRateBottomSheetState
       padding: EdgeInsets.symmetric(horizontal: 9.w, vertical: 8.h),
 
       decoration: BoxDecoration(
-        color: selected ? AppColors.lightGreen : Colors.white,
+        color: selected
+            ? context.primaryColor.withValues(alpha: 0.08)
+            : context.cardBackgroundColor,
 
         borderRadius: BorderRadius.circular(13.r),
 
         border: Border.all(
-          color: selected ? AppColors.primary : AppColors.border,
+          color: selected ? context.primaryColor : context.borderColor,
 
           width: selected ? 1.3 : 1,
         ),
@@ -846,8 +848,8 @@ class _MultiProductRateBottomSheetState
         boxShadow: [
           BoxShadow(
             color: selected
-                ? AppColors.primary.withOpacity(0.07)
-                : Colors.black.withOpacity(0.018),
+                ? context.primaryColor.withValues(alpha: 0.07)
+                : context.appColors.shadow.withValues(alpha: 0.018),
 
             blurRadius: selected ? 7 : 5,
 
@@ -875,9 +877,9 @@ class _MultiProductRateBottomSheetState
                 child: Checkbox(
                   value: selected,
 
-                  activeColor: AppColors.primary,
+                  activeColor: context.primaryColor,
 
-                  checkColor: Colors.white,
+                  checkColor: context.onPrimaryColor,
 
                   materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
 
@@ -912,7 +914,7 @@ class _MultiProductRateBottomSheetState
 
                     fontWeight: FontWeight.w800,
 
-                    color: AppColors.textPrimary,
+                    color: context.primaryTextColor,
                   ),
                 ),
               ),
@@ -931,7 +933,7 @@ class _MultiProductRateBottomSheetState
 
                   fontWeight: FontWeight.w900,
 
-                  color: AppColors.primary,
+                  color: context.primaryColor,
                 ),
               ),
             ],
@@ -994,13 +996,13 @@ class _MultiProductRateBottomSheetState
       padding: EdgeInsets.symmetric(horizontal: 6.w, vertical: 4.h),
       decoration: BoxDecoration(
         color: highlighted
-            ? AppColors.lightGreen.withOpacity(0.85)
-            : Colors.grey.shade100,
+            ? context.primaryColor.withValues(alpha: 0.04)
+            : context.appTheme.inputBackground,
         borderRadius: BorderRadius.circular(6.r),
         border: Border.all(
           color: highlighted
-              ? AppColors.primary.withOpacity(0.12)
-              : Colors.grey.shade200,
+              ? context.primaryColor.withValues(alpha: 0.12)
+              : context.borderColor,
         ),
       ),
       child: Row(
@@ -1009,7 +1011,9 @@ class _MultiProductRateBottomSheetState
           Icon(
             icon,
             size: 10.sp,
-            color: highlighted ? AppColors.primary : AppColors.textSecondary,
+            color: highlighted
+                ? context.primaryColor
+                : context.secondaryTextColor,
           ),
 
           SizedBox(width: 3.w),
@@ -1019,7 +1023,7 @@ class _MultiProductRateBottomSheetState
             style: TextStyle(
               fontSize: 8.sp,
               fontWeight: FontWeight.w600,
-              color: AppColors.textSecondary,
+              color: context.secondaryTextColor,
             ),
           ),
 
@@ -1028,7 +1032,9 @@ class _MultiProductRateBottomSheetState
             style: TextStyle(
               fontSize: 8.5.sp,
               fontWeight: FontWeight.w800,
-              color: highlighted ? AppColors.primary : AppColors.textPrimary,
+              color: highlighted
+                  ? context.primaryColor
+                  : context.primaryTextColor,
             ),
           ),
         ],
@@ -1058,7 +1064,7 @@ class _MultiProductRateBottomSheetState
           hintText: 'Case',
           isDense: true,
           filled: true,
-          fillColor: Colors.white,
+          fillColor: context.appTheme.inputBackground,
           border: OutlineInputBorder(borderRadius: BorderRadius.circular(7.r)),
         ),
         onChanged: (value) {
@@ -1088,11 +1094,11 @@ class _MultiProductRateBottomSheetState
             Container(
               width: 56.w,
               height: 56.w,
-              decoration: const BoxDecoration(
-                color: AppColors.lightGreen,
+              decoration: BoxDecoration(
+                color: context.primaryColor.withValues(alpha: 0.08),
                 shape: BoxShape.circle,
               ),
-              child: Icon(icon, color: AppColors.primary, size: 27.sp),
+              child: Icon(icon, color: context.primaryColor, size: 27.sp),
             ),
 
             SizedBox(height: 10.h),
@@ -1103,7 +1109,7 @@ class _MultiProductRateBottomSheetState
               style: TextStyle(
                 fontSize: 14.sp,
                 fontWeight: FontWeight.w800,
-                color: AppColors.textPrimary,
+                color: context.primaryTextColor,
               ),
             ),
 
@@ -1115,7 +1121,7 @@ class _MultiProductRateBottomSheetState
               style: TextStyle(
                 fontSize: 10.5.sp,
                 fontWeight: FontWeight.w500,
-                color: AppColors.textSecondary,
+                color: context.secondaryTextColor,
               ),
             ),
           ],
@@ -1134,10 +1140,10 @@ class _MultiProductRateBottomSheetState
     return Container(
       padding: EdgeInsets.fromLTRB(13.w, 8.h, 13.w, 10.h),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: context.cardBackgroundColor,
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.07),
+            color: context.appColors.shadow.withValues(alpha: 0.07),
             blurRadius: 10,
             offset: const Offset(0, -3),
           ),
@@ -1151,10 +1157,14 @@ class _MultiProductRateBottomSheetState
           child: ElevatedButton(
             onPressed: enabled ? _done : null,
             style: ElevatedButton.styleFrom(
-              backgroundColor: AppColors.primary,
-              disabledBackgroundColor: Colors.grey.shade300,
-              disabledForegroundColor: Colors.grey.shade600,
-              foregroundColor: Colors.white,
+              backgroundColor: context.primaryColor,
+              disabledBackgroundColor: context.primaryTextColor.withValues(
+                alpha: 0.12,
+              ),
+              disabledForegroundColor: context.primaryTextColor.withValues(
+                alpha: 0.38,
+              ),
+              foregroundColor: context.onPrimaryColor,
               elevation: 0,
               padding: EdgeInsets.zero,
               shape: RoundedRectangleBorder(

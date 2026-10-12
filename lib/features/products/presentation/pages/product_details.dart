@@ -10,6 +10,7 @@ import 'package:webview_flutter/webview_flutter.dart';
 
 import 'package:solufine/core/api_constant/api_client.dart';
 import 'package:solufine/core/secure_storage/secure_storage.dart';
+import 'package:solufine/core/theme/app_theme_context.dart';
 import 'package:solufine/core/utility/widgets/custom_appbar.dart';
 import 'package:solufine/features/products/domain/entity/fertilizer_product_entity.dart';
 
@@ -45,6 +46,17 @@ class DynamicHtmlContent extends StatefulWidget {
     super.key,
     required this.contents,
     required this.selectedLanguage,
+  final String htmlContent;
+  final Color textColor;
+  final Color primaryColor;
+  final Color borderColor;
+
+  const DynamicHtmlContent({
+    super.key,
+    required this.htmlContent,
+    required this.textColor,
+    required this.primaryColor,
+    required this.borderColor,
   });
 
   @override
@@ -177,6 +189,95 @@ td,th { border: 1px solid #E6ECE8; padding: 7px; text-align: left;
   overflow-wrap: anywhere; }
 pre { white-space: pre-wrap; }
 .greenLine { width: 42px; border-bottom: 3px solid #16834B; margin: 6px 0; }
+
+html,
+body {
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  background: transparent;
+}
+
+body {
+  font-family:
+    Arial,
+    "Noto Sans",
+    sans-serif;
+
+  font-size: 14px;
+
+  line-height: 1.55;
+
+  color: rgba(${widget.textColor.r * 255}, ${widget.textColor.g * 255}, ${widget.textColor.b * 255}, ${widget.textColor.a});
+
+  overflow: hidden;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  margin-top: 4px;
+  margin-bottom: 6px;
+}
+
+h4 {
+  font-size: 17px;
+}
+
+p {
+  margin-top: 4px;
+  margin-bottom: 7px;
+}
+
+ul,
+ol {
+  margin-top: 4px;
+  margin-bottom: 8px;
+  padding-left: 22px;
+}
+
+li {
+  margin-top: 0;
+  margin-bottom: 4px;
+  padding: 0;
+}
+
+img {
+  max-width: 100%;
+  height: auto;
+  display: block;
+}
+
+.greenLine {
+  width: 50px;
+  border-bottom: 3px solid rgba(${widget.primaryColor.r * 255}, ${widget.primaryColor.g * 255}, ${widget.primaryColor.b * 255}, ${widget.primaryColor.a});
+  margin: 4px 0 8px 0;
+}
+
+.languageBlock {
+  margin: 0;
+  padding: 0;
+}
+
+.languageSeparator {
+  width: 100%;
+  height: 1px;
+  background-color: rgba(${widget.borderColor.r * 255}, ${widget.borderColor.g * 255}, ${widget.borderColor.b * 255}, ${widget.borderColor.a});
+
+  margin-top: 12px;
+  margin-bottom: 12px;
+}
+
+meta,
+title,
+link,
+style {
+  display: none;
+}
+
 </style>
 </head>
 <body>
@@ -273,6 +374,16 @@ class _ProductDetailsState extends State<ProductDetails> {
 
     if (item == null) {
       return const Scaffold(body: Center(child: Text('Product Not Found')));
+    if (product == null) {
+      return Scaffold(
+        backgroundColor: context.backgroundColor,
+        body: Center(
+          child: Text(
+            'Product Not Found',
+            style: TextStyle(color: context.primaryTextColor),
+          ),
+        ),
+      );
     }
 
     final languages = _contents;
@@ -286,6 +397,11 @@ class _ProductDetailsState extends State<ProductDetails> {
 
     return Scaffold(
       backgroundColor: ProductUI.background,
+      backgroundColor: context.backgroundColor,
+
+      // ============================================================
+      // APP BAR
+      // ============================================================
       appBar: CustomAppBar(
         title: 'Product Details',
         showBackButton: true,
@@ -417,6 +533,98 @@ class _ProductDetailsState extends State<ProductDetails> {
                             color: ProductUI.primary,
                             size: 18,
                           ),
+                        ),
+                if (languages.isNotEmpty)
+                  DefaultTabController(
+                    key: ValueKey(
+                      '${product!.productId}:${languages.join(',')}',
+                    ),
+                    length: languages.length,
+                    initialIndex: languages.indexOf(selected),
+                    child: TabBar(
+                      isScrollable: true,
+                      labelColor: context.primaryColor,
+                      indicatorColor: context.primaryColor,
+                      unselectedLabelColor: context.secondaryTextColor,
+                      onTap: (index) =>
+                          setState(() => _selectedLanguage = languages[index]),
+                      tabs: [
+                        for (final language in languages)
+                          Tab(text: _languageLabel(language)),
+                      ],
+                    ),
+                  ),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      // ======================================================
+                      // PRODUCT NAME
+                      // ======================================================
+                      Text(
+                        product!.productName,
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          fontSize: 22.sp,
+                          fontWeight: FontWeight.w700,
+                          color: context.primaryTextColor,
+                        ),
+                      ),
+
+                      const SizedBox(height: 6),
+                      Container(
+                        decoration: BoxDecoration(
+                          border: Border(
+                            bottom: BorderSide(color: context.primaryColor),
+                          ),
+                        ),
+                        child: Row(
+                          children: [
+                            Expanded(
+                              child: TextButton.icon(
+                                onPressed: () => _openProductEnquiry(context),
+                                icon: const Icon(
+                                  Icons.contact_support_outlined,
+                                  size: 18,
+                                ),
+                                label: const FittedBox(
+                                  fit: BoxFit.scaleDown,
+                                  child: Text('Product Enquiry'),
+                                ),
+                                style: _actionTabStyle(),
+                              ),
+                            ),
+                            Container(
+                              height: 20,
+                              width: 1,
+                              color: context.borderColor,
+                            ),
+                            Expanded(
+                              child: Builder(
+                                builder: (shareContext) => TextButton.icon(
+                                  onPressed: _isSharing
+                                      ? null
+                                      : () => _shareProduct(shareContext),
+                                  icon: _isSharing
+                                      ? SizedBox(
+                                          width: 16,
+                                          height: 16,
+                                          child: CircularProgressIndicator(
+                                            strokeWidth: 2,
+                                            color: context.primaryColor,
+                                          ),
+                                        )
+                                      : const Icon(
+                                          Icons.share_outlined,
+                                          size: 18,
+                                        ),
+                                  label: const Text('Share'),
+                                  style: _actionTabStyle(),
+                                ),
+                              ),
+                            ),
+                          ],
                         ),
                       ),
                     ),
@@ -602,6 +810,58 @@ class _ProductDetailsState extends State<ProductDetails> {
           _sectionTitle(Icons.menu_book_outlined, 'Product Contents'),
 
           const SizedBox(height: 12),
+                ),
+                Expanded(
+                  child: SingleChildScrollView(
+                    padding: const EdgeInsets.fromLTRB(16, 8, 16, 24),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        // ======================================================
+                        // SHORT DETAILS
+                        // ======================================================
+                        if (product!.productShortDetails.trim().isNotEmpty)
+                          _buildSection(
+                            title: 'Product Details',
+                            child: Text(
+                              product!.productShortDetails,
+                              style: TextStyle(
+                                fontSize: 14.sp,
+                                height: 1.5,
+                                color: context.secondaryTextColor,
+                              ),
+                            ),
+                          ),
+
+                        // ======================================================
+                        // DOSAGE
+                        // ======================================================
+                        if (product!.productDosage.trim().isNotEmpty)
+                          _buildSection(
+                            title: 'Dosage',
+                            child: Text(
+                              product!.productDosage,
+                              style: TextStyle(
+                                fontSize: 14.sp,
+                                height: 1.5,
+                                color: context.secondaryTextColor,
+                              ),
+                            ),
+                          ),
+
+                        // ======================================================
+                        // PRODUCT CONTENT
+                        // ======================================================
+                        if (productContent.isNotEmpty)
+                          _buildSection(
+                            title: 'Product Contents',
+                            child: DynamicHtmlContent(
+                              htmlContent: productContent,
+                              textColor: context.primaryTextColor,
+                              primaryColor: context.primaryColor,
+                              borderColor: context.borderColor,
+                            ),
+                          ),
 
           Container(height: 1, color: ProductUI.border),
 
@@ -799,6 +1059,14 @@ class _ProductDetailsState extends State<ProductDetails> {
   // ==========================================================
   // HTML TO PLAIN TEXT
   // ==========================================================
+  ButtonStyle _actionTabStyle() => TextButton.styleFrom(
+    foregroundColor: context.primaryColor,
+    minimumSize: const Size(0, 36),
+    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+    visualDensity: VisualDensity.compact,
+    textStyle: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
+    shape: const RoundedRectangleBorder(),
+  );
 
   String _plainText(String content) {
     final document = html_parser.parse(content);
@@ -954,6 +1222,141 @@ class _ProductDetailsState extends State<ProductDetails> {
         setState(() => _isSharing = false);
       }
     }
+
+    if (uniqueParts.isEmpty) {
+      return '';
+    }
+
+    // Only one language from API.
+    if (uniqueParts.length == 1) {
+      return uniqueParts.first;
+    }
+
+    // Multiple unique languages.
+    return uniqueParts
+        .map(
+          (content) =>
+              '''
+<div class="languageBlock">
+  $content
+</div>
+''',
+        )
+        .join('''
+<div class="languageSeparator"></div>
+''');
+  }
+
+  // ============================================================
+  // NORMALIZE HTML FOR DUPLICATE CHECK
+  // ============================================================
+
+  String _normalizeHtmlForComparison(String html) {
+    return html
+        .replaceAll(
+          RegExp(r'<style[^>]*>[\s\S]*?</style>', caseSensitive: false),
+          '',
+        )
+        .replaceAll(RegExp(r'<link[^>]*>', caseSensitive: false), '')
+        .replaceAll(RegExp(r'<meta[^>]*>', caseSensitive: false), '')
+        .replaceAll(
+          RegExp(r'<title[^>]*>[\s\S]*?</title>', caseSensitive: false),
+          '',
+        )
+        .replaceAll(RegExp(r'<[^>]*>'), '')
+        .replaceAll('&nbsp;', ' ')
+        .replaceAll('&amp;', '&')
+        .replaceAll('&bull;', '•')
+        .replaceAll(RegExp(r'\s+'), ' ')
+        .trim()
+        .toLowerCase();
+  }
+
+  // ============================================================
+  // PRODUCT ENQUIRY
+  // ============================================================
+
+  Future<void> _openProductEnquiry(BuildContext context) async {
+    final userData = await SecureStorage.instance.getUserData();
+
+    if (!context.mounted) {
+      return;
+    }
+
+    final String userId = userData?['user_id']?.toString() ?? '';
+
+    debugPrint('======================================');
+    debugPrint('OPEN PRODUCT ENQUIRY');
+    debugPrint('USER ID      : $userId');
+    debugPrint('PRODUCT ID   : ${product!.productId}');
+    debugPrint('PRODUCT NAME : ${product!.productName}');
+    debugPrint('======================================');
+
+    context.push(
+      '/productEnquiry',
+      extra: {
+        'productId': product!.productId.toString(),
+        'productName': product!.productName.toString(),
+      },
+    );
+  }
+
+  // ============================================================
+  // PRODUCT IMAGE
+  // ============================================================
+
+  Widget _buildProductImage(BuildContext context) {
+    if (product!.productPath.trim().isEmpty) {
+      return _imagePlaceholder();
+    }
+
+    final imageUrl =
+        '${ApiClient.imageBaseUrl}/products/${product!.productPath}';
+
+    return GestureDetector(
+      onTap: () {
+        _showZoomImage(context, imageUrl);
+      },
+      child: Container(
+        height: 260,
+        width: double.infinity,
+        decoration: BoxDecoration(
+          color: context.cardBackgroundColor,
+          borderRadius: BorderRadius.circular(20),
+        ),
+        padding: const EdgeInsets.all(16),
+        child: Stack(
+          children: [
+            Center(
+              child: Image.network(
+                imageUrl,
+                fit: BoxFit.contain,
+                errorBuilder: (_, __, ___) {
+                  return _imagePlaceholder();
+                },
+              ),
+            ),
+
+            Positioned(
+              right: 8,
+              bottom: 8,
+              child: Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: context.primaryColor.withValues(alpha: 0.55),
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(
+                  Icons.zoom_in,
+                  color: context.onPrimaryColor,
+                  size: 22,
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 
   // ==========================================================
@@ -963,7 +1366,7 @@ class _ProductDetailsState extends State<ProductDetails> {
   void _showZoomImage(String imageUrl) {
     showDialog(
       context: context,
-      barrierColor: Colors.black,
+      barrierColor: context.backgroundColor,
       builder: (dialogContext) {
         return Dialog(
           backgroundColor: Colors.transparent,
@@ -982,6 +1385,13 @@ class _ProductDetailsState extends State<ProductDetails> {
                       color: Colors.white,
                       size: 65,
                     ),
+                    errorBuilder: (_, __, ___) {
+                      return Icon(
+                        Icons.image_not_supported_outlined,
+                        color: context.secondaryTextColor,
+                        size: 70,
+                      );
+                    },
                   ),
                 ),
               ),
@@ -1006,6 +1416,120 @@ class _ProductDetailsState extends State<ProductDetails> {
   }
 
   // ==========================================================
+                right: 20,
+                child: GestureDetector(
+                  onTap: () {
+                    Navigator.of(dialogContext).pop();
+                  },
+                  child: Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: context.primaryColor.withValues(alpha: 0.54),
+                      shape: BoxShape.circle,
+                    ),
+                    child: Icon(
+                      Icons.close,
+                      color: context.onPrimaryColor,
+                      size: 28,
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  // ============================================================
+  // SECTION
+  // ============================================================
+
+  Widget _buildSection({required String title, required Widget child}) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 14),
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: context.cardBackgroundColor,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: context.appColors.shadow.withValues(alpha: 0.04),
+            blurRadius: 8,
+            offset: const Offset(0, 3),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            title,
+            style: TextStyle(
+              fontSize: 16.sp,
+              fontWeight: FontWeight.w700,
+              color: context.primaryColor,
+            ),
+          ),
+
+          const SizedBox(height: 8),
+
+          child,
+        ],
+      ),
+    );
+  }
+
+  // ============================================================
+  // DISEASE IMAGE
+  // ============================================================
+
+  Widget _buildDiseaseImage() {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 14),
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: context.cardBackgroundColor,
+        borderRadius: BorderRadius.circular(16),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'Disease',
+            style: TextStyle(
+              fontSize: 16.sp,
+              fontWeight: FontWeight.w700,
+              color: context.primaryColor,
+            ),
+          ),
+
+          const SizedBox(height: 10),
+
+          Image.network(
+            '${ApiClient.imageBaseUrl}/disease/${product!.diseasePath}',
+            width: double.infinity,
+            fit: BoxFit.contain,
+            errorBuilder: (_, __, ___) {
+              return SizedBox(
+                height: 140,
+                child: Center(
+                  child: Icon(
+                    Icons.image_not_supported_outlined,
+                    size: 60,
+                    color: context.secondaryTextColor,
+                  ),
+                ),
+              );
+            },
+          ),
+        ],
+      ),
+    );
+  }
+
+  // ============================================================
   // IMAGE PLACEHOLDER
   // ==========================================================
 
@@ -1015,6 +1539,19 @@ class _ProductDetailsState extends State<ProductDetails> {
         Icons.inventory_2_outlined,
         size: 60,
         color: Color(0xFFB1C5B7),
+    return Container(
+      height: 260,
+      width: double.infinity,
+      decoration: BoxDecoration(
+        color: context.appTheme.inputBackground,
+        borderRadius: BorderRadius.circular(20),
+      ),
+      child: Center(
+        child: Icon(
+          Icons.inventory_2_rounded,
+          size: 80,
+          color: context.secondaryTextColor,
+        ),
       ),
     );
   }

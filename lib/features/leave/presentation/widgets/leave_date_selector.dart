@@ -1,3 +1,4 @@
+import 'package:solufine/core/theme/app_theme_context.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
@@ -17,34 +18,26 @@ class LeaveDateSelector extends StatelessWidget {
   Widget build(BuildContext context) {
     final formattedDate = date == null
         ? "Select Date"
-        : DateFormat(
-            "dd-MM-yyyy",
-          ).format(date!);
+        : DateFormat("dd-MM-yyyy").format(date!);
 
     return Expanded(
       child: InkWell(
         onTap: onTap,
-        borderRadius:
-            BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(12),
         child: Container(
-          padding:
-              const EdgeInsets.all(14),
+          padding: const EdgeInsets.all(14),
           decoration: BoxDecoration(
-            border: Border.all(
-              color: Colors.grey.shade300,
-            ),
-            borderRadius:
-                BorderRadius.circular(12),
+            border: Border.all(color: context.borderColor),
+            borderRadius: BorderRadius.circular(12),
           ),
           child: Column(
-            crossAxisAlignment:
-                CrossAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
                 label,
                 style: TextStyle(
                   fontSize: 12,
-                  color: Colors.grey.shade600,
+                  color: context.secondaryTextColor,
                 ),
               ),
 
@@ -52,8 +45,9 @@ class LeaveDateSelector extends StatelessWidget {
 
               Row(
                 children: [
-                  const Icon(
+                  Icon(
                     Icons.calendar_month,
+                    color: context.primaryColor,
                     size: 18,
                   ),
 
@@ -62,10 +56,7 @@ class LeaveDateSelector extends StatelessWidget {
                   Expanded(
                     child: Text(
                       formattedDate,
-                      style: const TextStyle(
-                        fontWeight:
-                            FontWeight.w600,
-                      ),
+                      style: const TextStyle(fontWeight: FontWeight.w600),
                     ),
                   ),
                 ],

@@ -5,7 +5,7 @@ import 'package:flutter/services.dart';
 import 'package:solufine/core/di/collection_di.dart';
 import 'package:solufine/core/router/app_router.dart';
 import 'package:solufine/core/secure_storage/secure_storage.dart';
-import 'package:solufine/core/theme/app_colors.dart';
+import 'package:solufine/core/theme/app_theme_context.dart';
 import 'package:solufine/core/utility/image_compression.dart';
 import 'package:solufine/core/utility/widgets/custom_appbar.dart';
 import 'package:solufine/features/collection/domain/entities/collection_type_entity.dart';
@@ -31,7 +31,9 @@ class _CollectionWiseFormPageState extends State<CollectionWiseFormPage> {
   // CONTROLLERS
   // ============================================================
 
-  final TextEditingController amountController = TextEditingController(text: '0.00');
+  final TextEditingController amountController = TextEditingController(
+    text: '0.00',
+  );
 
   final TextEditingController rtgsController = TextEditingController();
 
@@ -198,39 +200,33 @@ class _CollectionWiseFormPageState extends State<CollectionWiseFormPage> {
   // CHEQUE DATE
   // ============================================================
 
- Future<void> _selectChequeDate() async {
-  final today = DateTime.now();
+  Future<void> _selectChequeDate() async {
+    final today = DateTime.now();
 
-  final pickedDate = await showDatePicker(
-    context: context,
-    initialDate: today,
-    firstDate: today,
-    lastDate: DateTime(2100),
-    builder: (context, child) {
-      return Theme(
-        data: Theme.of(context).copyWith(
-          colorScheme: const ColorScheme.light(
-            primary: Color(0xFF166534),
-          ),
-        ),
-        child: child!,
-      );
-    },
-  );
+    final pickedDate = await showDatePicker(
+      context: context,
+      initialDate: today,
+      firstDate: today,
+      lastDate: DateTime(2100),
+      builder: (context, child) {
+        return Theme(
+          data: Theme.of(context).copyWith(colorScheme: context.appColors),
+          child: child!,
+        );
+      },
+    );
 
-  if (!mounted || pickedDate == null) {
-    return;
+    if (!mounted || pickedDate == null) {
+      return;
+    }
+
+    final day = pickedDate.day.toString().padLeft(2, '0');
+    final month = pickedDate.month.toString().padLeft(2, '0');
+
+    chequeDateController.text = '$day-$month-${pickedDate.year}';
+
+    setState(() {});
   }
-
-  final day = pickedDate.day.toString().padLeft(2, '0');
-  final month = pickedDate.month.toString().padLeft(2, '0');
-
-  chequeDateController.text =
-      '$day-$month-${pickedDate.year}';
-
-  setState(() {});
-}
-
 
   Future<void> _pickImages() async {
     try {
@@ -437,8 +433,6 @@ class _CollectionWiseFormPageState extends State<CollectionWiseFormPage> {
 
       return false;
     }
-
-  
 
     // ----------------------------------------------------------
     // AMOUNT
@@ -770,13 +764,13 @@ class _CollectionWiseFormPageState extends State<CollectionWiseFormPage> {
               Container(
                 height: 76,
                 width: 76,
-                decoration: const BoxDecoration(
-                  color: Color(0xFFE8F7ED),
+                decoration: BoxDecoration(
+                  color: context.primaryColor.withValues(alpha: 0.1),
                   shape: BoxShape.circle,
                 ),
-                child: const Icon(
+                child: Icon(
                   Icons.check_circle_rounded,
-                  color: Color(0xFF166534),
+                  color: context.primaryColor,
                   size: 54,
                 ),
               ),
@@ -786,13 +780,13 @@ class _CollectionWiseFormPageState extends State<CollectionWiseFormPage> {
               // ==================================================
               // TITLE
               // ==================================================
-              const Text(
+              Text(
                 'Collection Submitted!',
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   fontSize: 20,
                   fontWeight: FontWeight.w800,
-                  color: Color(0xFF17201B),
+                  color: context.cardTextColor,
                 ),
               ),
 
@@ -804,10 +798,10 @@ class _CollectionWiseFormPageState extends State<CollectionWiseFormPage> {
               Text(
                 message,
                 textAlign: TextAlign.center,
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 13,
                   height: 1.45,
-                  color: Color(0xFF66736B),
+                  color: context.secondaryTextColor,
                 ),
               ),
 
@@ -821,13 +815,13 @@ class _CollectionWiseFormPageState extends State<CollectionWiseFormPage> {
                 height: 48,
                 child: ElevatedButton(
                   onPressed: () {
-                    Navigator.of(dialogContext).pop();
+                    Navigator.pop(context, true);
                   },
 
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF166534),
+                    backgroundColor: context.primaryColor,
 
-                    foregroundColor: Colors.white,
+                    foregroundColor: context.onPrimaryColor,
 
                     elevation: 0,
 
@@ -921,38 +915,36 @@ class _CollectionWiseFormPageState extends State<CollectionWiseFormPage> {
         // },
         builder: (context, state) {
           return Scaffold(
-            backgroundColor: const Color(0xFFF6F8F7),
+            backgroundColor: context.backgroundColor,
 
-          // ====================================================================
-          // APP BAR
-          // ====================================================================
-          appBar: CustomAppBar(
-            backgroundColor: AppColors.backgroundColor,
-            leading: IconButton(
-              icon: const Icon(
-                Icons.arrow_back_ios_new,
-                size: 19,
-                color: AppColors.darkBackgroundColor,
+            // ====================================================================
+            // APP BAR
+            // ====================================================================
+            appBar: CustomAppBar(
+              leading: IconButton(
+                icon: Icon(
+                  Icons.arrow_back_ios_new,
+                  size: 19,
+                  color: context.appThemeData.appBarTheme.foregroundColor,
+                ),
+                onPressed: () {
+                  context.go(AppRouter.home);
+                },
               ),
-              onPressed: () {
-                context.go(AppRouter.home);
-              },
+              title: 'Add Collection',
+              // titleStyle: const TextStyle(
+              //   fontSize: 22,
+              //   fontWeight: FontWeight.w600,
+              //   color: AppColors.backgroundColor,
+              // ),
             ),
-            title: 'Add Collection',
-            // titleStyle: const TextStyle(
-            //   fontSize: 22,
-            //   fontWeight: FontWeight.w600,
-            //   color: AppColors.backgroundColor,
-            // ),
-          ),
 
-         
-          body: CustomScrollView(
-            slivers: [
-              // ==================================================
-              // HEADER
-              // ==================================================
-              // _buildHeader(),
+            body: CustomScrollView(
+              slivers: [
+                // ==================================================
+                // HEADER
+                // ==================================================
+                // _buildHeader(),
 
                 // ==================================================
                 // BODY
@@ -969,12 +961,12 @@ class _CollectionWiseFormPageState extends State<CollectionWiseFormPage> {
                         const SizedBox(height: 12),
 
                         if (state.collectionTypes.isNotEmpty) ...[
-                          const Text(
+                          Text(
                             'Collection Type',
                             style: TextStyle(
                               fontSize: 13,
                               fontWeight: FontWeight.w600,
-                              color: Color(0xFF17201B),
+                              color: context.cardTextColor,
                             ),
                           ),
                           const SizedBox(height: 8),
@@ -992,7 +984,7 @@ class _CollectionWiseFormPageState extends State<CollectionWiseFormPage> {
                           width: double.infinity,
                           padding: const EdgeInsets.all(12),
                           decoration: BoxDecoration(
-                            color: const Color(0xFFEAF7EF),
+                            color: context.primaryColor.withValues(alpha: 0.1),
                             borderRadius: BorderRadius.circular(12),
                           ),
                           child: Row(
@@ -1009,10 +1001,10 @@ class _CollectionWiseFormPageState extends State<CollectionWiseFormPage> {
 
                               Text(
                                 '₹ ${collectionTotalAmount.toStringAsFixed(2)}',
-                                style: const TextStyle(
+                                style: TextStyle(
                                   fontSize: 16,
                                   fontWeight: FontWeight.w800,
-                                  color: Color(0xFF166534),
+                                  color: context.primaryColor,
                                 ),
                               ),
                             ],
@@ -1063,19 +1055,19 @@ class _CollectionWiseFormPageState extends State<CollectionWiseFormPage> {
           margin: const EdgeInsets.only(bottom: 10),
           padding: const EdgeInsets.all(10),
           decoration: BoxDecoration(
-            color: Colors.white,
+            color: context.cardBackgroundColor,
             borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: const Color(0xFFE0E6E2)),
+            border: Border.all(color: context.borderColor),
           ),
           child: Row(
             children: [
               Expanded(
                 child: Text(
                   item.collectionType,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 13,
                     fontWeight: FontWeight.w700,
-                    color: Color(0xFF17201B),
+                    color: context.cardTextColor,
                   ),
                 ),
               ),
@@ -1098,7 +1090,8 @@ class _CollectionWiseFormPageState extends State<CollectionWiseFormPage> {
                   ],
 
                   onChanged: (_) {
-                    amountController.text = collectionTotalAmount.toStringAsFixed(2);
+                    amountController.text = collectionTotalAmount
+                        .toStringAsFixed(2);
                     setState(() {});
                   },
 
@@ -1111,7 +1104,7 @@ class _CollectionWiseFormPageState extends State<CollectionWiseFormPage> {
 
                     filled: true,
 
-                    fillColor: const Color(0xFFF7F9F7),
+                    fillColor: context.appTheme.inputBackground,
 
                     contentPadding: const EdgeInsets.symmetric(
                       horizontal: 10,
@@ -1161,11 +1154,11 @@ class _CollectionWiseFormPageState extends State<CollectionWiseFormPage> {
               padding: const EdgeInsets.all(13),
 
               decoration: BoxDecoration(
-                color: const Color(0xFFF5F7F6),
+                color: context.appTheme.inputBackground,
 
                 borderRadius: BorderRadius.circular(14),
 
-                border: Border.all(color: const Color(0xFFE2E8E5)),
+                border: Border.all(color: context.borderColor),
               ),
 
               child: Row(
@@ -1175,14 +1168,14 @@ class _CollectionWiseFormPageState extends State<CollectionWiseFormPage> {
                     width: 40,
 
                     decoration: BoxDecoration(
-                      color: const Color(0xFFE7F5EC),
+                      color: context.primaryColor.withValues(alpha: 0.1),
 
                       borderRadius: BorderRadius.circular(12),
                     ),
 
-                    child: const Icon(
+                    child: Icon(
                       Icons.store_rounded,
-                      color: Color(0xFF166534),
+                      color: context.primaryColor,
                       size: 21,
                     ),
                   ),
@@ -1207,14 +1200,12 @@ class _CollectionWiseFormPageState extends State<CollectionWiseFormPage> {
                             fontWeight: FontWeight.w700,
 
                             color: dealerName.isEmpty
-                                ? Colors.black54
-                                : const Color(0xFF17201B),
+                                ? context.secondaryTextColor
+                                : context.cardTextColor,
                           ),
                         ),
 
                         const SizedBox(height: 3),
-
-                     
                       ],
                     ),
                   ),
@@ -1224,14 +1215,14 @@ class _CollectionWiseFormPageState extends State<CollectionWiseFormPage> {
                     width: 34,
 
                     decoration: BoxDecoration(
-                      color: const Color(0xFFE7F5EC),
+                      color: context.primaryColor.withValues(alpha: 0.1),
 
                       borderRadius: BorderRadius.circular(10),
                     ),
 
-                    child: const Icon(
+                    child: Icon(
                       Icons.search_rounded,
-                      color: Color(0xFF166534),
+                      color: context.primaryColor,
                       size: 19,
                     ),
                   ),
@@ -1660,13 +1651,11 @@ class _CollectionWiseFormPageState extends State<CollectionWiseFormPage> {
       padding: const EdgeInsets.symmetric(horizontal: 13, vertical: 3),
 
       decoration: BoxDecoration(
-        gradient: const LinearGradient(
-          colors: [Color(0xFFF0FDF4), Color(0xFFE7F8ED)],
-        ),
+        color: context.primaryColor,
 
         borderRadius: BorderRadius.circular(16),
 
-        border: Border.all(color: const Color(0xFFBBE8C9)),
+        border: Border.all(color: context.borderColor),
       ),
 
       child: Row(
@@ -1676,14 +1665,14 @@ class _CollectionWiseFormPageState extends State<CollectionWiseFormPage> {
             width: 40,
 
             decoration: BoxDecoration(
-              color: const Color(0xFF166534),
+              color: context.primaryColor,
 
               borderRadius: BorderRadius.circular(12),
             ),
 
-            child: const Icon(
+            child: Icon(
               Icons.currency_rupee_rounded,
-              color: Colors.white,
+              color: context.onPrimaryColor,
               size: 21,
             ),
           ),
@@ -1699,20 +1688,22 @@ class _CollectionWiseFormPageState extends State<CollectionWiseFormPage> {
                 decimal: true,
               ),
 
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 20,
                 fontWeight: FontWeight.w800,
-                color: Color(0xFF17201B),
+                color: Colors.black,
               ),
 
-              decoration: const InputDecoration(
+              decoration: InputDecoration(
                 border: InputBorder.none,
 
                 labelText: 'Collection Amount *',
 
                 hintText: '0.00',
+                hintStyle: TextStyle(color: context.onPrimaryColor),
 
                 labelStyle: TextStyle(
+                  color: context.onPrimaryColor,
                   fontSize: 11,
                   fontWeight: FontWeight.w600,
                 ),
@@ -1739,15 +1730,15 @@ class _CollectionWiseFormPageState extends State<CollectionWiseFormPage> {
 
         hintText: 'Select payment method',
 
-        prefixIcon: const Icon(
+        prefixIcon: Icon(
           Icons.account_balance_wallet_rounded,
           size: 20,
-          color: Color(0xFF166534),
+          color: context.primaryColor,
         ),
 
         filled: true,
 
-        fillColor: const Color(0xFFF6F8F7),
+        fillColor: context.appTheme.inputBackground,
 
         contentPadding: const EdgeInsets.symmetric(
           horizontal: 12,
@@ -1763,19 +1754,19 @@ class _CollectionWiseFormPageState extends State<CollectionWiseFormPage> {
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(14),
 
-          borderSide: const BorderSide(color: Color(0xFFE1E7E3)),
+          borderSide: BorderSide(color: context.borderColor),
         ),
 
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(14),
 
-          borderSide: const BorderSide(color: Color(0xFF166534), width: 1.4),
+          borderSide: BorderSide(color: context.primaryColor, width: 1.4),
         ),
       ),
 
-      icon: const Icon(
+      icon: Icon(
         Icons.keyboard_arrow_down_rounded,
-        color: Color(0xFF166534),
+        color: context.primaryColor,
       ),
 
       items: paymentModes.map((mode) {
@@ -1784,23 +1775,17 @@ class _CollectionWiseFormPageState extends State<CollectionWiseFormPage> {
 
           child: Row(
             children: [
-              Icon(
-                _paymentIcon(mode),
-
-                size: 19,
-
-                color: const Color(0xFF166534),
-              ),
+              Icon(_paymentIcon(mode), size: 19, color: context.primaryColor),
 
               const SizedBox(width: 10),
 
               Text(
                 mode,
 
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.w600,
-                  color: Color(0xFF17201B),
+                  color: context.cardTextColor,
                 ),
               ),
             ],
@@ -1897,18 +1882,18 @@ class _CollectionWiseFormPageState extends State<CollectionWiseFormPage> {
       padding: const EdgeInsets.all(12),
 
       decoration: BoxDecoration(
-        color: const Color(0xFFF0FDF4),
+        color: context.primaryColor.withValues(alpha: 0.1),
 
         borderRadius: BorderRadius.circular(12),
 
-        border: Border.all(color: const Color(0xFFBBE8C9)),
+        border: Border.all(color: context.borderColor),
       ),
 
-      child: const Row(
+      child: Row(
         children: [
           Icon(
             Icons.check_circle_outline_rounded,
-            color: Color(0xFF166534),
+            color: context.primaryColor,
             size: 20,
           ),
 
@@ -1920,7 +1905,7 @@ class _CollectionWiseFormPageState extends State<CollectionWiseFormPage> {
               style: TextStyle(
                 fontSize: 12,
                 fontWeight: FontWeight.w600,
-                color: Color(0xFF166534),
+                color: context.primaryColor,
               ),
             ),
           ),
@@ -1940,11 +1925,11 @@ class _CollectionWiseFormPageState extends State<CollectionWiseFormPage> {
       padding: const EdgeInsets.all(12),
 
       decoration: BoxDecoration(
-        color: const Color(0xFFFFFBEB),
+        color: context.appTheme.inputBackground,
 
         borderRadius: BorderRadius.circular(14),
 
-        border: Border.all(color: const Color(0xFFF5D98B)),
+        border: Border.all(color: context.borderColor),
       ),
 
       child: Column(
@@ -2014,11 +1999,11 @@ class _CollectionWiseFormPageState extends State<CollectionWiseFormPage> {
       padding: const EdgeInsets.all(12),
 
       decoration: BoxDecoration(
-        color: const Color(0xFFF5F3FF),
+        color: context.appTheme.inputBackground,
 
         borderRadius: BorderRadius.circular(14),
 
-        border: Border.all(color: const Color(0xFFDCD2FF)),
+        border: Border.all(color: context.borderColor),
       ),
 
       child: Column(
@@ -2068,11 +2053,11 @@ class _CollectionWiseFormPageState extends State<CollectionWiseFormPage> {
       padding: const EdgeInsets.all(12),
 
       decoration: BoxDecoration(
-        color: const Color(0xFFF5F7F6),
+        color: context.appTheme.inputBackground,
 
         borderRadius: BorderRadius.circular(14),
 
-        border: Border.all(color: const Color(0xFFE3E8E5)),
+        border: Border.all(color: context.borderColor),
       ),
 
       child: _buildInput(
@@ -2134,11 +2119,11 @@ class _CollectionWiseFormPageState extends State<CollectionWiseFormPage> {
 
         hintText: hint,
 
-        prefixIcon: Icon(icon, size: 19, color: const Color(0xFF607068)),
+        prefixIcon: Icon(icon, size: 19, color: context.secondaryTextColor),
 
         filled: true,
 
-        fillColor: Colors.white,
+        fillColor: context.cardBackgroundColor,
 
         contentPadding: const EdgeInsets.symmetric(
           horizontal: 12,
@@ -2154,13 +2139,13 @@ class _CollectionWiseFormPageState extends State<CollectionWiseFormPage> {
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(13),
 
-          borderSide: const BorderSide(color: Color(0xFFE1E7E3)),
+          borderSide: BorderSide(color: context.borderColor),
         ),
 
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(13),
 
-          borderSide: const BorderSide(color: Color(0xFF166534), width: 1.3),
+          borderSide: BorderSide(color: context.primaryColor, width: 1.3),
         ),
 
         labelStyle: const TextStyle(fontSize: 12),
@@ -2200,7 +2185,7 @@ class _CollectionWiseFormPageState extends State<CollectionWiseFormPage> {
 
               filled: true,
 
-              fillColor: const Color(0xFFF6F8F7),
+              fillColor: context.appTheme.inputBackground,
 
               prefixIcon: const Padding(
                 padding: EdgeInsets.only(bottom: 35),
@@ -2253,11 +2238,11 @@ class _CollectionWiseFormPageState extends State<CollectionWiseFormPage> {
               padding: const EdgeInsets.symmetric(vertical: 16),
 
               decoration: BoxDecoration(
-                color: const Color(0xFFF5F7F6),
+                color: context.appTheme.inputBackground,
 
                 borderRadius: BorderRadius.circular(14),
 
-                border: Border.all(color: const Color(0xFFD9E1DC)),
+                border: Border.all(color: context.borderColor),
               ),
 
               child: Column(
@@ -2267,15 +2252,15 @@ class _CollectionWiseFormPageState extends State<CollectionWiseFormPage> {
                     width: 42,
 
                     decoration: BoxDecoration(
-                      color: const Color(0xFFE7F5EC),
+                      color: context.primaryColor.withValues(alpha: 0.1),
 
                       borderRadius: BorderRadius.circular(13),
                     ),
 
-                    child: const Icon(
+                    child: Icon(
                       Icons.add_photo_alternate_rounded,
 
-                      color: Color(0xFF166534),
+                      color: context.primaryColor,
 
                       size: 22,
                     ),
@@ -2295,7 +2280,10 @@ class _CollectionWiseFormPageState extends State<CollectionWiseFormPage> {
                         ? 'Tap to select photos'
                         : '${selectedImages.length} image(s) selected',
 
-                    style: const TextStyle(fontSize: 11, color: Colors.black45),
+                    style: TextStyle(
+                      fontSize: 11,
+                      color: context.secondaryTextColor,
+                    ),
                   ),
                 ],
               ),
@@ -2349,16 +2337,16 @@ class _CollectionWiseFormPageState extends State<CollectionWiseFormPage> {
                           height: 25,
                           width: 25,
 
-                          decoration: const BoxDecoration(
-                            color: Colors.black54,
+                          decoration: BoxDecoration(
+                            color: context.primaryColor,
 
                             shape: BoxShape.circle,
                           ),
 
-                          child: const Icon(
+                          child: Icon(
                             Icons.close_rounded,
 
-                            color: Colors.white,
+                            color: context.onPrimaryColor,
 
                             size: 16,
                           ),
@@ -2390,7 +2378,7 @@ class _CollectionWiseFormPageState extends State<CollectionWiseFormPage> {
 
             boxShadow: [
               BoxShadow(
-                color: const Color(0xFF166534).withValues(alpha: 0.20),
+                color: context.primaryColor.withValues(alpha: 0.20),
 
                 blurRadius: 15,
 
@@ -2412,11 +2400,13 @@ class _CollectionWiseFormPageState extends State<CollectionWiseFormPage> {
                     },
 
               style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF166534),
+                backgroundColor: context.primaryColor,
 
-                foregroundColor: Colors.white,
+                foregroundColor: context.onPrimaryColor,
 
-                disabledBackgroundColor: const Color(0xFF86A891),
+                disabledBackgroundColor: context.appColors.onSurface.withValues(
+                  alpha: 0.12,
+                ),
 
                 elevation: 0,
 
@@ -2426,7 +2416,7 @@ class _CollectionWiseFormPageState extends State<CollectionWiseFormPage> {
               ),
 
               child: loading
-                  ? const SizedBox(
+                  ? SizedBox(
                       height: 21,
 
                       width: 21,
@@ -2434,7 +2424,7 @@ class _CollectionWiseFormPageState extends State<CollectionWiseFormPage> {
                       child: CircularProgressIndicator(
                         strokeWidth: 2.4,
 
-                        color: Colors.white,
+                        color: context.onPrimaryColor,
                       ),
                     )
                   : const Row(
@@ -2473,15 +2463,15 @@ class _CollectionWiseFormPageState extends State<CollectionWiseFormPage> {
       padding: const EdgeInsets.all(14),
 
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: context.cardBackgroundColor,
 
         borderRadius: BorderRadius.circular(18),
 
-        border: Border.all(color: const Color(0xFFE8ECE9)),
+        border: Border.all(color: context.borderColor),
 
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.025),
+            color: context.appColors.shadow.withValues(alpha: 0.025),
 
             blurRadius: 12,
 
@@ -2511,12 +2501,12 @@ class _CollectionWiseFormPageState extends State<CollectionWiseFormPage> {
           width: 38,
 
           decoration: BoxDecoration(
-            color: const Color(0xFFEAF6EE),
+            color: context.primaryColor.withValues(alpha: 0.1),
 
             borderRadius: BorderRadius.circular(11),
           ),
 
-          child: Icon(icon, color: const Color(0xFF166534), size: 20),
+          child: Icon(icon, color: context.primaryColor, size: 20),
         ),
 
         const SizedBox(width: 10),
@@ -2529,12 +2519,12 @@ class _CollectionWiseFormPageState extends State<CollectionWiseFormPage> {
               Text(
                 title,
 
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 15,
 
                   fontWeight: FontWeight.w800,
 
-                  color: Color(0xFF17201B),
+                  color: context.cardTextColor,
                 ),
               ),
 
@@ -2547,10 +2537,10 @@ class _CollectionWiseFormPageState extends State<CollectionWiseFormPage> {
 
                 overflow: TextOverflow.ellipsis,
 
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 10.5,
 
-                  color: Color(0xFF7A867F),
+                  color: context.secondaryTextColor,
                 ),
               ),
             ],

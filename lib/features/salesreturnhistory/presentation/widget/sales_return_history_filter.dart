@@ -1,3 +1,4 @@
+import 'package:solufine/core/theme/app_theme_context.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil_plus/flutter_screenutil_plus.dart';
 
@@ -35,14 +36,21 @@ class SalesReturnHistoryFilter extends StatelessWidget {
     required this.onDealerSelected,
   });
 
-  InputDecoration _decoration(String label, IconData icon) {
+  InputDecoration _decoration(
+    BuildContext context,
+    String label,
+    IconData icon,
+  ) {
     return InputDecoration(
       labelText: label,
-      prefixIcon: Icon(icon),
+      filled: true,
+      fillColor: context.appTheme.inputBackground,
+      labelStyle: TextStyle(color: context.secondaryTextColor),
+      prefixIcon: Icon(icon, color: context.primaryColor),
       border: OutlineInputBorder(borderRadius: BorderRadius.circular(10.r)),
       enabledBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(10.r),
-        borderSide: BorderSide(color: Colors.grey.shade300),
+        borderSide: BorderSide(color: context.borderColor),
       ),
       focusedBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(10.r),
@@ -79,6 +87,7 @@ class SalesReturnHistoryFilter extends StatelessWidget {
               focusNode: focusNode,
               onChanged: onDealerChanged,
               decoration: _decoration(
+                context,
                 'Search Dealer Name',
                 Icons.store_outlined,
               ).copyWith(hintText: 'Search dealer name'),
@@ -96,6 +105,7 @@ class SalesReturnHistoryFilter extends StatelessWidget {
                 readOnly: true,
                 onTap: onFromDate,
                 decoration: _decoration(
+                  context,
                   'From Date',
                   Icons.calendar_today_outlined,
                 ),
@@ -110,6 +120,7 @@ class SalesReturnHistoryFilter extends StatelessWidget {
                 readOnly: true,
                 onTap: onToDate,
                 decoration: _decoration(
+                  context,
                   'To Date',
                   Icons.calendar_month_outlined,
                 ),
@@ -122,7 +133,9 @@ class SalesReturnHistoryFilter extends StatelessWidget {
 
         DropdownButtonFormField<String>(
           value: selectedStatus,
-          decoration: _decoration('Status', Icons.filter_alt_outlined),
+          dropdownColor: context.cardBackgroundColor,
+          style: TextStyle(color: context.primaryTextColor),
+          decoration: _decoration(context, 'Status', Icons.filter_alt_outlined),
           items: const [
             DropdownMenuItem(
               value: 'Select Status',
@@ -149,8 +162,8 @@ class SalesReturnHistoryFilter extends StatelessWidget {
                 icon: const Icon(Icons.search),
                 label: const Text('Search'),
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF1B4332),
-                  foregroundColor: Colors.white,
+                  backgroundColor: context.primaryColor,
+                  foregroundColor: context.onPrimaryColor,
                   minimumSize: Size(double.infinity, 48.h),
                 ),
               ),
@@ -164,7 +177,8 @@ class SalesReturnHistoryFilter extends StatelessWidget {
                 icon: const Icon(Icons.refresh),
                 label: const Text('Reset'),
                 style: OutlinedButton.styleFrom(
-                  foregroundColor: const Color(0xFF1B4332),
+                  foregroundColor: context.primaryColor,
+                  side: BorderSide(color: context.borderColor),
                   minimumSize: Size(double.infinity, 48.h),
                 ),
               ),

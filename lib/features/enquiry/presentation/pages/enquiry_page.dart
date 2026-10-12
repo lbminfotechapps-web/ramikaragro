@@ -1,5 +1,5 @@
 import 'package:solufine/core/secure_storage/secure_storage.dart';
-import 'package:solufine/core/theme/app_colors.dart';
+import 'package:solufine/core/theme/app_theme_context.dart';
 import 'package:solufine/core/utility/widgets/custom_appbar.dart';
 import 'package:solufine/core/utility/widgets/custom_textformfield.dart';
 import 'package:solufine/features/enquiry/domain/entities/district_entity.dart';
@@ -32,24 +32,17 @@ class _EnquiryPageState extends State<EnquiryPage> {
   // CONTROLLERS
   // ============================================================
 
-  final TextEditingController _nameController =
-      TextEditingController();
+  final TextEditingController _nameController = TextEditingController();
 
-  final TextEditingController _mobileController =
-      TextEditingController();
+  final TextEditingController _mobileController = TextEditingController();
 
-  final TextEditingController _emailController =
-      TextEditingController();
+  final TextEditingController _emailController = TextEditingController();
 
-  final TextEditingController _villageController =
-      TextEditingController();
+  final TextEditingController _villageController = TextEditingController();
 
-  final TextEditingController _addressController =
-      TextEditingController();
+  final TextEditingController _addressController = TextEditingController();
 
-  final TextEditingController _messageController =TextEditingController();
-
-   
+  final TextEditingController _messageController = TextEditingController();
 
   // ============================================================
   // SELECTED VALUES
@@ -69,8 +62,7 @@ class _EnquiryPageState extends State<EnquiryPage> {
   void initState() {
     super.initState();
 
-       _messageController.text =
-      'I would like to buy this product.';
+    _messageController.text = 'I would like to buy this product.';
     debugPrint('======================================');
     debugPrint('PRODUCT ENQUIRY PAGE');
     debugPrint('PRODUCT ID   : ${widget.productId}');
@@ -86,15 +78,11 @@ class _EnquiryPageState extends State<EnquiryPage> {
 
   Future<void> _loadUser() async {
     try {
-      final userData =
-          await SecureStorage.instance.getUserData();
+      final userData = await SecureStorage.instance.getUserData();
 
-      final storedUserId =
-          userData?['user_id']?.toString().trim() ?? '';
+      final storedUserId = userData?['user_id']?.toString().trim() ?? '';
 
-      debugPrint(
-        'STORED USER ID = $storedUserId',
-      );
+      debugPrint('STORED USER ID = $storedUserId');
 
       // if (storedUserId.isEmpty) {
       //   debugPrint(
@@ -117,9 +105,7 @@ class _EnquiryPageState extends State<EnquiryPage> {
         userId = storedUserId;
       });
 
-      debugPrint(
-        'PRODUCT ENQUIRY USER ID = $userId',
-      );
+      debugPrint('PRODUCT ENQUIRY USER ID = $userId');
 
       // ========================================================
       // GET STATES
@@ -130,25 +116,14 @@ class _EnquiryPageState extends State<EnquiryPage> {
       debugPrint('USER ID: $userId');
       debugPrint('======================================');
 
-      context.read<EnquiryBloc>().add(
-        GetStatesEvent(
-          userId: userId,
-        ),
-      );
+      context.read<EnquiryBloc>().add(GetStatesEvent(userId: userId));
     } catch (e, stackTrace) {
-      debugPrint(
-        'LOAD USER ERROR = $e',
-      );
+      debugPrint('LOAD USER ERROR = $e');
 
-      debugPrint(
-        '$stackTrace',
-      );
+      debugPrint('$stackTrace');
 
       if (mounted) {
-        _showMessage(
-          'Unable to load user information',
-          isError: true,
-        );
+        _showMessage('Unable to load user information', isError: true);
       }
     }
   }
@@ -174,109 +149,102 @@ class _EnquiryPageState extends State<EnquiryPage> {
   // ============================================================
 
   @override
-Widget build(BuildContext context) {
-  return BlocListener<EnquiryBloc, EnquiryState>(
-    listenWhen: (previous, current) {
-      // Listen ONLY when submit status changes.
-      return previous.submitStatus != current.submitStatus;
-    },
-    listener: (context, state) {
-      // ------------------------------------------------------
-      // SUBMIT SUCCESS
-      // ------------------------------------------------------
+  Widget build(BuildContext context) {
+    return BlocListener<EnquiryBloc, EnquiryState>(
+      listenWhen: (previous, current) {
+        // Listen ONLY when submit status changes.
+        return previous.submitStatus != current.submitStatus;
+      },
+      listener: (context, state) {
+        // ------------------------------------------------------
+        // SUBMIT SUCCESS
+        // ------------------------------------------------------
 
-      if (state.submitStatus == SubmitEnquiryStatus.success) {
-        _showSuccessDialog(
-          state.submitMessage.isNotEmpty
-              ? state.submitMessage
-              : 'Enquiry submitted successfully.',
-        );
-        return;
-      }
+        if (state.submitStatus == SubmitEnquiryStatus.success) {
+          _showSuccessDialog(
+            state.submitMessage.isNotEmpty
+                ? state.submitMessage
+                : 'Enquiry submitted successfully.',
+          );
+          return;
+        }
 
-      // ------------------------------------------------------
-      // SUBMIT ERROR
-      // ------------------------------------------------------
+        // ------------------------------------------------------
+        // SUBMIT ERROR
+        // ------------------------------------------------------
 
-      if (state.submitStatus == SubmitEnquiryStatus.error) {
-        _showErrorSnackBar(
-          state.submitMessage.isNotEmpty
-              ? state.submitMessage
-              : 'Something went wrong.',
-        );
-        return;
-      }
-    },
-    child: Scaffold(
-      backgroundColor: const Color(0xFFF6F9F7),
-      appBar: _buildAppBar(),
-      body: SafeArea(
-        child: Form(
-          key: _formKey,
-          child: SingleChildScrollView(
-            physics: const BouncingScrollPhysics(),
-            padding: const EdgeInsets.fromLTRB(
-              16,
-              12,
-              16,
-              30,
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                _buildProductCard(),
+        if (state.submitStatus == SubmitEnquiryStatus.error) {
+          _showErrorSnackBar(
+            state.submitMessage.isNotEmpty
+                ? state.submitMessage
+                : 'Something went wrong.',
+          );
+          return;
+        }
+      },
+      child: Scaffold(
+        backgroundColor: context.backgroundColor,
+        appBar: _buildAppBar(),
+        body: SafeArea(
+          child: Form(
+            key: _formKey,
+            child: SingleChildScrollView(
+              physics: const BouncingScrollPhysics(),
+              padding: const EdgeInsets.fromLTRB(16, 12, 16, 30),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  _buildProductCard(),
 
-                const SizedBox(height: 20),
+                  const SizedBox(height: 20),
 
-                _buildSectionTitle(
-                  icon: Icons.person_outline_rounded,
-                  title: 'Contact Details',
-                  subtitle: 'Enter your basic contact information',
-                ),
+                  _buildSectionTitle(
+                    icon: Icons.person_outline_rounded,
+                    title: 'Contact Details',
+                    subtitle: 'Enter your basic contact information',
+                  ),
 
-                const SizedBox(height: 14),
+                  const SizedBox(height: 14),
 
-                _buildContactFields(),
+                  _buildContactFields(),
 
-                const SizedBox(height: 24),
+                  const SizedBox(height: 24),
 
-                _buildSectionTitle(
-                  icon: Icons.location_on_outlined,
-                  title: 'Location Details',
-                  subtitle: 'Select your location',
-                ),
+                  _buildSectionTitle(
+                    icon: Icons.location_on_outlined,
+                    title: 'Location Details',
+                    subtitle: 'Select your location',
+                  ),
 
-                const SizedBox(height: 14),
+                  const SizedBox(height: 14),
 
-                _buildLocationFields(),
+                  _buildLocationFields(),
 
-                const SizedBox(height: 24),
+                  const SizedBox(height: 24),
 
-                _buildSectionTitle(
-                  icon: Icons.description_outlined,
-                  title: 'Enquiry Details',
-                  subtitle: 'Tell us what you would like to know',
-                ),
+                  _buildSectionTitle(
+                    icon: Icons.description_outlined,
+                    title: 'Enquiry Details',
+                    subtitle: 'Tell us what you would like to know',
+                  ),
 
-                const SizedBox(height: 14),
+                  const SizedBox(height: 14),
 
-                _buildEnquiryFields(),
+                  _buildEnquiryFields(),
 
-                const SizedBox(height: 28),
+                  const SizedBox(height: 28),
 
-                _buildSubmitButton(),
+                  _buildSubmitButton(),
 
-                const SizedBox(height: 10),
-              ],
+                  const SizedBox(height: 10),
+                ],
+              ),
             ),
           ),
         ),
       ),
-    ),
-  );
-}
-
-
+    );
+  }
 
   // ============================================================
   // APP BAR
@@ -284,11 +252,10 @@ Widget build(BuildContext context) {
 
   PreferredSizeWidget _buildAppBar() {
     return CustomAppBar(
-     title: 'Product Enquiry',
-        showBackButton: true,
-        onBackTap: () => Navigator.pop(context),
-       
-      );
+      title: 'Product Enquirydcds',
+      showBackButton: true,
+      onBackTap: () => Navigator.pop(context),
+    );
   }
 
   // ============================================================
@@ -296,54 +263,36 @@ Widget build(BuildContext context) {
   // ============================================================
 
   Widget _buildProductCard() {
-    final productName =
-        widget.productName.trim();
+    final productName = widget.productName.trim();
 
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        gradient:
-            const LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [
-            Color(0xFFE8F7ED),
-            Color(0xFFF5FBF7),
-          ],
-        ),
-        borderRadius:
-            BorderRadius.circular(18),
-        border: Border.all(
-          color:
-              const Color(0xFFD5ECDD),
-        ),
+        color: context.primaryColor,
+        borderRadius: BorderRadius.circular(18),
+        border: Border.all(color: context.borderColor),
       ),
       child: Row(
-        crossAxisAlignment:
-            CrossAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Container(
             height: 48,
             width: 48,
             decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius:
-                  BorderRadius.circular(14),
+              color: context.cardBackgroundColor,
+              borderRadius: BorderRadius.circular(14),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black
-                      .withOpacity(0.05),
+                  color: context.appColors.shadow.withValues(alpha: 0.05),
                   blurRadius: 8,
-                  offset:
-                      const Offset(0, 3),
+                  offset: const Offset(0, 3),
                 ),
               ],
             ),
-            child: const Icon(
+            child: Icon(
               Icons.inventory_2_outlined,
-              color:
-                  AppColors.accentGreen,
+              color: context.primaryColor,
               size: 25,
             ),
           ),
@@ -352,36 +301,27 @@ Widget build(BuildContext context) {
 
           Expanded(
             child: Column(
-              crossAxisAlignment:
-                  CrossAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
                   'Product',
                   style: TextStyle(
                     fontSize: 12,
-                    color:
-                        Colors.grey.shade600,
-                    fontWeight:
-                        FontWeight.w500,
+                    color: context.onPrimaryColor.withValues(alpha: 0.75),
+                    fontWeight: FontWeight.w500,
                   ),
                 ),
 
                 const SizedBox(height: 4),
 
                 Text(
-                  productName.isNotEmpty
-                      ? productName
-                      : 'Product Enquiry',
+                  productName.isNotEmpty ? productName : 'Product Enquiry',
                   maxLines: 2,
-                  overflow:
-                      TextOverflow.ellipsis,
-                  style:
-                      const TextStyle(
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
                     fontSize: 16,
-                    color:
-                        Color(0xFF1D2A22),
-                    fontWeight:
-                        FontWeight.w700,
+                    color: context.onPrimaryColor,
+                    fontWeight: FontWeight.w700,
                   ),
                 ),
               ],
@@ -389,26 +329,17 @@ Widget build(BuildContext context) {
           ),
 
           Container(
-            padding:
-                const EdgeInsets.symmetric(
-              horizontal: 9,
-              vertical: 5,
+            padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 5),
+            decoration: BoxDecoration(
+              color: context.primaryColor.withValues(alpha: 0.08),
+              borderRadius: BorderRadius.circular(20),
             ),
-            decoration:
-                BoxDecoration(
-              color:
-                  const Color(0xFFD8F0DF),
-              borderRadius:
-                  BorderRadius.circular(20),
-            ),
-            child: const Text(
+            child: Text(
               'ENQUIRY',
               style: TextStyle(
                 fontSize: 9,
-                fontWeight:
-                    FontWeight.w800,
-                color:
-                    Color(0xFF087C3A),
+                fontWeight: FontWeight.w800,
+                color: context.primaryColor,
                 letterSpacing: .5,
               ),
             ),
@@ -428,43 +359,30 @@ Widget build(BuildContext context) {
     required String subtitle,
   }) {
     return Row(
-      crossAxisAlignment:
-          CrossAxisAlignment.center,
+      crossAxisAlignment: CrossAxisAlignment.center,
       children: [
         Container(
           height: 38,
           width: 38,
-          decoration:
-              BoxDecoration(
-            color:
-                const Color(0xFFE3F3E8),
-            borderRadius:
-                BorderRadius.circular(11),
+          decoration: BoxDecoration(
+            color: context.primaryColor.withValues(alpha: 0.08),
+            borderRadius: BorderRadius.circular(11),
           ),
-          child: Icon(
-            icon,
-            color:
-                AppColors.accentGreen,
-            size: 21,
-          ),
+          child: Icon(icon, color: context.primaryColor, size: 21),
         ),
 
         const SizedBox(width: 11),
 
         Expanded(
           child: Column(
-            crossAxisAlignment:
-                CrossAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
                 title,
-                style:
-                    const TextStyle(
+                style: TextStyle(
                   fontSize: 16,
-                  fontWeight:
-                      FontWeight.w700,
-                  color:
-                      Color(0xFF202A24),
+                  fontWeight: FontWeight.w700,
+                  color: context.primaryTextColor,
                 ),
               ),
               const SizedBox(height: 2),
@@ -472,8 +390,7 @@ Widget build(BuildContext context) {
                 subtitle,
                 style: TextStyle(
                   fontSize: 11.5,
-                  color:
-                      Colors.grey.shade600,
+                  color: context.secondaryTextColor,
                 ),
               ),
             ],
@@ -491,50 +408,32 @@ Widget build(BuildContext context) {
     return Column(
       children: [
         CustomTextFormField(
-          controller:
-              _nameController,
-          hintText:
-              'Enter your name',
+          controller: _nameController,
+          hintText: 'Enter your name',
           labelText: 'Name *',
-          prefixIcon:
-              Icons.person_outline_rounded,
+          prefixIcon: Icons.person_outline_rounded,
           suffixIcon: null,
-          keyboardType:
-              TextInputType.name,
-          validator:
-              _validateName,
+          keyboardType: TextInputType.name,
+          validator: _validateName,
         ),
 
         const SizedBox(height: 14),
 
         CustomTextFormField(
-          controller:
-              _mobileController,
-          hintText:
-              'Enter 10 digit mobile number',
-          labelText:
-              'Mobile Number *',
-          prefixIcon:
-              Icons.phone_outlined,
+          controller: _mobileController,
+          hintText: 'Enter 10 digit mobile number',
+          labelText: 'Mobile Number *',
+          prefixIcon: Icons.phone_outlined,
           suffixIcon: null,
-          keyboardType:
-              TextInputType.phone,
+          keyboardType: TextInputType.phone,
           maxLength: 10,
-          validator:
-              _validateMobile,
+          validator: _validateMobile,
           onChanged: (value) {
             if (value.length > 10) {
-              _mobileController.text =
-                  value.substring(0, 10);
+              _mobileController.text = value.substring(0, 10);
 
-              _mobileController.selection =
-                  TextSelection.fromPosition(
-                TextPosition(
-                  offset:
-                      _mobileController
-                          .text
-                          .length,
-                ),
+              _mobileController.selection = TextSelection.fromPosition(
+                TextPosition(offset: _mobileController.text.length),
               );
             }
           },
@@ -543,18 +442,13 @@ Widget build(BuildContext context) {
         const SizedBox(height: 14),
 
         CustomTextFormField(
-          controller:
-              _emailController,
-          hintText:
-              'Enter email address',
+          controller: _emailController,
+          hintText: 'Enter email address',
           labelText: 'Email',
-          prefixIcon:
-              Icons.email_outlined,
+          prefixIcon: Icons.email_outlined,
           suffixIcon: null,
-          keyboardType:
-              TextInputType.emailAddress,
-          validator:
-              _validateEmail,
+          keyboardType: TextInputType.emailAddress,
+          validator: _validateEmail,
         ),
       ],
     );
@@ -565,9 +459,7 @@ Widget build(BuildContext context) {
   // ============================================================
 
   Widget _buildLocationFields() {
-    return BlocBuilder<
-        EnquiryBloc,
-        EnquiryState>(
+    return BlocBuilder<EnquiryBloc, EnquiryState>(
       builder: (context, state) {
         return Column(
           children: [
@@ -584,36 +476,26 @@ Widget build(BuildContext context) {
             const SizedBox(height: 14),
 
             CustomTextFormField(
-              controller:
-                  _villageController,
-              hintText:
-                  'Enter village name',
+              controller: _villageController,
+              hintText: 'Enter village name',
               labelText: 'Village *',
-              prefixIcon: Icons
-                  .holiday_village_outlined,
+              prefixIcon: Icons.holiday_village_outlined,
               suffixIcon: null,
-              keyboardType:
-                  TextInputType.text,
-              validator:
-                  _validateVillage,
+              keyboardType: TextInputType.text,
+              validator: _validateVillage,
             ),
 
             const SizedBox(height: 14),
 
             CustomTextFormField(
-              controller:
-                  _addressController,
-              hintText:
-                  'Enter complete address',
+              controller: _addressController,
+              hintText: 'Enter complete address',
               labelText: 'Address *',
-              prefixIcon: Icons
-                  .location_on_outlined,
+              prefixIcon: Icons.location_on_outlined,
               suffixIcon: null,
-              keyboardType:
-                  TextInputType.streetAddress,
+              keyboardType: TextInputType.streetAddress,
               maxLines: 3,
-              validator:
-                  _validateAddress,
+              validator: _validateAddress,
             ),
           ],
         );
@@ -625,29 +507,17 @@ Widget build(BuildContext context) {
   // STATE DROPDOWN
   // ============================================================
 
-  Widget _buildStateDropdown(
-    EnquiryState state,
-  ) {
-    final List<StateEntity> states =
-        state.states;
+  Widget _buildStateDropdown(EnquiryState state) {
+    final List<StateEntity> states = state.states;
 
-    final validValue = states.any(
-      (item) =>
-          item.id.trim() ==
-          selectedStateId?.trim(),
-    )
+    final validValue =
+        states.any((item) => item.id.trim() == selectedStateId?.trim())
         ? selectedStateId
         : null;
 
-    debugPrint(
-      '========== STATE DROPDOWN ==========',
-    );
-    debugPrint(
-      'State Status: ${state.stateStatus}',
-    );
-    debugPrint(
-      'States Count: ${states.length}',
-    );
+    debugPrint('========== STATE DROPDOWN ==========');
+    debugPrint('State Status: ${state.stateStatus}');
+    debugPrint('States Count: ${states.length}');
 
     for (final item in states) {
       debugPrint(
@@ -657,78 +527,54 @@ Widget build(BuildContext context) {
       );
     }
 
-    debugPrint(
-      'Selected State: $selectedStateId',
-    );
-    debugPrint(
-      'Valid Value: $validValue',
-    );
-    debugPrint(
-      '====================================',
-    );
+    debugPrint('Selected State: $selectedStateId');
+    debugPrint('Valid Value: $validValue');
+    debugPrint('====================================');
 
-    final bool isLoading =
-        state.stateStatus ==
-            EnquiryStatus.loading;
+    final bool isLoading = state.stateStatus == EnquiryStatus.loading;
 
     return _buildDropdownContainer(
-      child:
-          DropdownButtonFormField<String>(
+      child: DropdownButtonFormField<String>(
         value: validValue,
         isExpanded: true,
 
-        icon: _dropdownIcon(
-          isLoading,
-        ),
+        icon: _dropdownIcon(isLoading),
 
-        decoration:
-            _dropdownDecoration(
+        decoration: _dropdownDecoration(
           icon: Icons.map_outlined,
           label: 'State *',
           hint: isLoading
               ? 'Loading states...'
               : states.isEmpty
-                  ? 'No states available'
-                  : 'Select state',
+              ? 'No states available'
+              : 'Select state',
         ),
 
         items: states
             .where(
               (item) =>
-                  item.id
-                      .trim()
-                      .isNotEmpty &&
+                  item.id.trim().isNotEmpty &&
                   item.id.trim() != '0' &&
-                  item.name
-                      .trim()
-                      .isNotEmpty,
+                  item.name.trim().isNotEmpty,
             )
-            .map(
-              (StateEntity item) {
-                return DropdownMenuItem<
-                    String>(
-                  value: item.id.trim(),
-                  child: Text(
-                    item.name.trim(),
-                    overflow:
-                        TextOverflow.ellipsis,
-                    style:
-                        const TextStyle(
-                      fontSize: 15,
-                      color:
-                          Color(0xFF202A24),
-                      fontWeight:
-                          FontWeight.w500,
-                    ),
+            .map((StateEntity item) {
+              return DropdownMenuItem<String>(
+                value: item.id.trim(),
+                child: Text(
+                  item.name.trim(),
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    fontSize: 15,
+                    color: context.primaryTextColor,
+                    fontWeight: FontWeight.w500,
                   ),
-                );
-              },
-            )
+                ),
+              );
+            })
             .toList(),
 
         validator: (value) {
-          if (value == null ||
-              value.trim().isEmpty) {
+          if (value == null || value.trim().isEmpty) {
             return 'Please select state';
           }
 
@@ -738,40 +584,28 @@ Widget build(BuildContext context) {
         onChanged: isLoading
             ? null
             : states.isEmpty
-                ? null
-                : (value) {
-                    if (value == null ||
-                        value.trim().isEmpty) {
-                      return;
-                    }
+            ? null
+            : (value) {
+                if (value == null || value.trim().isEmpty) {
+                  return;
+                }
 
-                    final String stateId =
-                        value.trim();
+                final String stateId = value.trim();
 
-                    debugPrint(
-                      'SELECTED STATE ID = $stateId',
-                    );
+                debugPrint('SELECTED STATE ID = $stateId');
 
-                    setState(() {
-                      selectedStateId =
-                          stateId;
+                setState(() {
+                  selectedStateId = stateId;
 
-                      selectedDistrictId =
-                          null;
+                  selectedDistrictId = null;
 
-                      selectedTalukaId =
-                          null;
-                    });
+                  selectedTalukaId = null;
+                });
 
-                    context
-                        .read<EnquiryBloc>()
-                        .add(
-                          GetDistrictsEvent(
-                            userId: userId,
-                            stateId: stateId,
-                          ),
-                        );
-                  },
+                context.read<EnquiryBloc>().add(
+                  GetDistrictsEvent(userId: userId, stateId: stateId),
+                );
+              },
       ),
     );
   }
@@ -780,90 +614,63 @@ Widget build(BuildContext context) {
   // DISTRICT DROPDOWN
   // ============================================================
 
-  Widget _buildDistrictDropdown(
-    EnquiryState state,
-  ) {
-    final List<DistrictEntity> districts =
-        state.districts;
+  Widget _buildDistrictDropdown(EnquiryState state) {
+    final List<DistrictEntity> districts = state.districts;
 
-    final validValue = districts.any(
-      (item) =>
-          item.id.trim() ==
-          selectedDistrictId?.trim(),
-    )
+    final validValue =
+        districts.any((item) => item.id.trim() == selectedDistrictId?.trim())
         ? selectedDistrictId
         : null;
 
-    final bool isLoading =
-        state.districtStatus ==
-            EnquiryStatus.loading;
+    final bool isLoading = state.districtStatus == EnquiryStatus.loading;
 
     final bool disabled =
-        selectedStateId == null ||
-        selectedStateId!.trim().isEmpty ||
-        isLoading;
+        selectedStateId == null || selectedStateId!.trim().isEmpty || isLoading;
 
     return _buildDropdownContainer(
-      child:
-          DropdownButtonFormField<String>(
+      child: DropdownButtonFormField<String>(
         value: validValue,
         isExpanded: true,
 
-        icon: _dropdownIcon(
-          isLoading,
-        ),
+        icon: _dropdownIcon(isLoading),
 
-        decoration:
-            _dropdownDecoration(
-          icon:
-              Icons.location_city_outlined,
+        decoration: _dropdownDecoration(
+          icon: Icons.location_city_outlined,
           label: 'District *',
           hint: selectedStateId == null
               ? 'Select state first'
               : isLoading
-                  ? 'Loading districts...'
-                  : districts.isEmpty
-                      ? 'No districts available'
-                      : 'Select district',
+              ? 'Loading districts...'
+              : districts.isEmpty
+              ? 'No districts available'
+              : 'Select district',
         ),
 
         items: districts
             .where(
               (item) =>
-                  item.id
-                      .trim()
-                      .isNotEmpty &&
+                  item.id.trim().isNotEmpty &&
                   item.id.trim() != '0' &&
-                  item.name
-                      .trim()
-                      .isNotEmpty,
+                  item.name.trim().isNotEmpty,
             )
-            .map(
-              (DistrictEntity item) {
-                return DropdownMenuItem<
-                    String>(
-                  value: item.id.trim(),
-                  child: Text(
-                    item.name.trim(),
-                    overflow:
-                        TextOverflow.ellipsis,
-                    style:
-                        const TextStyle(
-                      fontSize: 15,
-                      color:
-                          Color(0xFF202A24),
-                      fontWeight:
-                          FontWeight.w500,
-                    ),
+            .map((DistrictEntity item) {
+              return DropdownMenuItem<String>(
+                value: item.id.trim(),
+                child: Text(
+                  item.name.trim(),
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    fontSize: 15,
+                    color: context.primaryTextColor,
+                    fontWeight: FontWeight.w500,
                   ),
-                );
-              },
-            )
+                ),
+              );
+            })
             .toList(),
 
         validator: (value) {
-          if (value == null ||
-              value.trim().isEmpty) {
+          if (value == null || value.trim().isEmpty) {
             return 'Please select district';
           }
 
@@ -873,13 +680,11 @@ Widget build(BuildContext context) {
         onChanged: disabled
             ? null
             : (value) {
-                if (value == null ||
-                    value.trim().isEmpty) {
+                if (value == null || value.trim().isEmpty) {
                   return;
                 }
 
-                final String districtId =
-                    value.trim();
+                final String districtId = value.trim();
 
                 debugPrint(
                   'SELECTED DISTRICT ID = '
@@ -887,22 +692,14 @@ Widget build(BuildContext context) {
                 );
 
                 setState(() {
-                  selectedDistrictId =
-                      districtId;
+                  selectedDistrictId = districtId;
 
-                  selectedTalukaId =
-                      null;
+                  selectedTalukaId = null;
                 });
 
-                context
-                    .read<EnquiryBloc>()
-                    .add(
-                      GetTalukasEvent(
-                        userId: userId,
-                        districtId:
-                            districtId,
-                      ),
-                    );
+                context.read<EnquiryBloc>().add(
+                  GetTalukasEvent(userId: userId, districtId: districtId),
+                );
               },
       ),
     );
@@ -912,23 +709,15 @@ Widget build(BuildContext context) {
   // TALUKA DROPDOWN
   // ============================================================
 
-  Widget _buildTalukaDropdown(
-    EnquiryState state,
-  ) {
-    final List<TalukaEntity> talukas =
-        state.talukas;
+  Widget _buildTalukaDropdown(EnquiryState state) {
+    final List<TalukaEntity> talukas = state.talukas;
 
-    final validValue = talukas.any(
-      (item) =>
-          item.talukaId.trim() ==
-          selectedTalukaId?.trim(),
-    )
+    final validValue =
+        talukas.any((item) => item.talukaId.trim() == selectedTalukaId?.trim())
         ? selectedTalukaId
         : null;
 
-    final bool isLoading =
-        state.talukaStatus ==
-            EnquiryStatus.loading;
+    final bool isLoading = state.talukaStatus == EnquiryStatus.loading;
 
     final bool disabled =
         selectedDistrictId == null ||
@@ -936,67 +725,49 @@ Widget build(BuildContext context) {
         isLoading;
 
     return _buildDropdownContainer(
-      child:
-          DropdownButtonFormField<String>(
+      child: DropdownButtonFormField<String>(
         value: validValue,
         isExpanded: true,
 
-        icon: _dropdownIcon(
-          isLoading,
-        ),
+        icon: _dropdownIcon(isLoading),
 
-        decoration:
-            _dropdownDecoration(
-          icon: Icons
-              .account_balance_outlined,
+        decoration: _dropdownDecoration(
+          icon: Icons.account_balance_outlined,
           label: 'Taluka *',
           hint: selectedDistrictId == null
               ? 'Select district first'
               : isLoading
-                  ? 'Loading talukas...'
-                  : talukas.isEmpty
-                      ? 'No talukas available'
-                      : 'Select taluka',
+              ? 'Loading talukas...'
+              : talukas.isEmpty
+              ? 'No talukas available'
+              : 'Select taluka',
         ),
 
         items: talukas
             .where(
               (item) =>
-                  item.talukaId
-                      .trim()
-                      .isNotEmpty &&
+                  item.talukaId.trim().isNotEmpty &&
                   item.talukaId.trim() != '0' &&
-                  item.name
-                      .trim()
-                      .isNotEmpty,
+                  item.name.trim().isNotEmpty,
             )
-            .map(
-              (TalukaEntity item) {
-                return DropdownMenuItem<
-                    String>(
-                  value:
-                      item.talukaId.trim(),
-                  child: Text(
-                    item.name.trim(),
-                    overflow:
-                        TextOverflow.ellipsis,
-                    style:
-                        const TextStyle(
-                      fontSize: 15,
-                      color:
-                          Color(0xFF202A24),
-                      fontWeight:
-                          FontWeight.w500,
-                    ),
+            .map((TalukaEntity item) {
+              return DropdownMenuItem<String>(
+                value: item.talukaId.trim(),
+                child: Text(
+                  item.name.trim(),
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    fontSize: 15,
+                    color: context.primaryTextColor,
+                    fontWeight: FontWeight.w500,
                   ),
-                );
-              },
-            )
+                ),
+              );
+            })
             .toList(),
 
         validator: (value) {
-          if (value == null ||
-              value.trim().isEmpty) {
+          if (value == null || value.trim().isEmpty) {
             return 'Please select taluka';
           }
 
@@ -1006,13 +777,11 @@ Widget build(BuildContext context) {
         onChanged: disabled
             ? null
             : (value) {
-                if (value == null ||
-                    value.trim().isEmpty) {
+                if (value == null || value.trim().isEmpty) {
                   return;
                 }
 
-                final String talukaId =
-                    value.trim();
+                final String talukaId = value.trim();
 
                 debugPrint(
                   'SELECTED TALUKA ID = '
@@ -1020,8 +789,7 @@ Widget build(BuildContext context) {
                 );
 
                 setState(() {
-                  selectedTalukaId =
-                      talukaId;
+                  selectedTalukaId = talukaId;
                 });
               },
       ),
@@ -1052,39 +820,33 @@ Widget build(BuildContext context) {
   //   );
   // }
 
+  // ============================================================
+  // ENQUIRY FIELDS
+  // ============================================================
 
-   // ============================================================
-// ENQUIRY FIELDS
-// ============================================================
-
-Widget _buildEnquiryFields() {
-  return CustomTextFormField(
-    controller: _messageController,
-    hintText: 'Write your enquiry here...',
-    labelText: 'Message / Remark *',
-    prefixIcon: Icons.chat_bubble_outline_rounded,
-    suffixIcon: null,
-    keyboardType: TextInputType.multiline,
-    maxLines: 5,
-    maxLength: 500,
-    validator: _validateMessage,
-  );
-}
-
+  Widget _buildEnquiryFields() {
+    return CustomTextFormField(
+      controller: _messageController,
+      hintText: 'Write your enquiry here...',
+      labelText: 'Message / Remark *',
+      prefixIcon: Icons.chat_bubble_outline_rounded,
+      suffixIcon: null,
+      keyboardType: TextInputType.multiline,
+      maxLines: 5,
+      maxLength: 500,
+      validator: _validateMessage,
+    );
+  }
 
   // ============================================================
   // DROPDOWN CONTAINER
   // ============================================================
 
-  Widget _buildDropdownContainer({
-    required Widget child,
-  }) {
+  Widget _buildDropdownContainer({required Widget child}) {
     return Container(
-      decoration:
-          BoxDecoration(
-        color: Colors.white,
-        borderRadius:
-            BorderRadius.circular(10),
+      decoration: BoxDecoration(
+        color: context.cardBackgroundColor,
+        borderRadius: BorderRadius.circular(10),
       ),
       child: child,
     );
@@ -1104,104 +866,59 @@ Widget _buildEnquiryFields() {
       hintText: hint,
 
       labelStyle: TextStyle(
-        color: Colors.grey.shade500,
+        color: context.secondaryTextColor,
         fontSize: 16,
-        fontWeight:
-            FontWeight.w400,
+        fontWeight: FontWeight.w400,
       ),
 
-      floatingLabelStyle:
-          const TextStyle(
-        color:
-            AppColors.accentGreen,
+      floatingLabelStyle: TextStyle(
+        color: context.primaryColor,
         fontSize: 14,
-        fontWeight:
-            FontWeight.w600,
+        fontWeight: FontWeight.w600,
       ),
 
       hintStyle: TextStyle(
-        color: Colors.grey.shade500,
+        color: context.secondaryTextColor,
         fontSize: 15,
-        fontWeight:
-            FontWeight.w400,
+        fontWeight: FontWeight.w400,
       ),
 
       prefixIcon: Padding(
-        padding:
-            const EdgeInsets.all(10),
+        padding: const EdgeInsets.all(10),
         child: Container(
-          decoration:
-              const BoxDecoration(
+          decoration: BoxDecoration(
             shape: BoxShape.circle,
-            color:
-                Color(0xFFE4F4E9),
+            color: context.primaryColor.withValues(alpha: 0.08),
           ),
-          child: Icon(
-            icon,
-            color:
-                AppColors.accentGreen,
-            size: 22,
-          ),
+          child: Icon(icon, color: context.primaryColor, size: 22),
         ),
       ),
 
-      contentPadding:
-          const EdgeInsets.symmetric(
-        horizontal: 16,
-        vertical: 16,
+      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+
+      border: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(10),
+        borderSide: BorderSide(color: context.borderColor),
       ),
 
-      border:
-          OutlineInputBorder(
-        borderRadius:
-            BorderRadius.circular(10),
-        borderSide: BorderSide(
-          color:
-              Colors.grey.shade200,
-        ),
+      enabledBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(10),
+        borderSide: BorderSide(color: context.borderColor),
       ),
 
-      enabledBorder:
-          OutlineInputBorder(
-        borderRadius:
-            BorderRadius.circular(10),
-        borderSide: BorderSide(
-          color:
-              Colors.grey.shade200,
-        ),
+      focusedBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(10),
+        borderSide: BorderSide(color: context.primaryColor, width: 1.5),
       ),
 
-      focusedBorder:
-          OutlineInputBorder(
-        borderRadius:
-            BorderRadius.circular(10),
-        borderSide:
-            const BorderSide(
-          color:
-              Color(0xFF087C3A),
-          width: 1.5,
-        ),
+      errorBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(10),
+        borderSide: BorderSide(color: context.appColors.error),
       ),
 
-      errorBorder:
-          OutlineInputBorder(
-        borderRadius:
-            BorderRadius.circular(10),
-        borderSide:
-            const BorderSide(
-          color: Colors.red,
-        ),
-      ),
-
-      focusedErrorBorder:
-          OutlineInputBorder(
-        borderRadius:
-            BorderRadius.circular(10),
-        borderSide:
-            const BorderSide(
-          color: Colors.red,
-          width: 1.5,
-        ),
+      focusedErrorBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(10),
+        borderSide: BorderSide(color: context.appColors.error, width: 1.5),
       ),
     );
   }
@@ -1210,29 +927,24 @@ Widget _buildEnquiryFields() {
   // DROPDOWN ICON
   // ============================================================
 
-  Widget _dropdownIcon(
-    bool loading,
-  ) {
+  Widget _dropdownIcon(bool loading) {
     if (loading) {
-      return const Padding(
-        padding:
-            EdgeInsets.only(right: 14),
+      return Padding(
+        padding: EdgeInsets.only(right: 14),
         child: SizedBox(
           height: 18,
           width: 18,
-          child:
-              CircularProgressIndicator(
+          child: CircularProgressIndicator(
             strokeWidth: 2,
-            color:
-                AppColors.accentGreen,
+            color: context.primaryColor,
           ),
         ),
       );
     }
 
-    return const Icon(
+    return Icon(
       Icons.keyboard_arrow_down_rounded,
-      color: Colors.grey,
+      color: context.secondaryTextColor,
     );
   }
 
@@ -1241,83 +953,54 @@ Widget _buildEnquiryFields() {
   // ============================================================
 
   Widget _buildSubmitButton() {
-    return BlocBuilder<
-        EnquiryBloc,
-        EnquiryState>(
-      buildWhen:
-          (previous, current) =>
-              previous.submitStatus !=
-              current.submitStatus,
+    return BlocBuilder<EnquiryBloc, EnquiryState>(
+      buildWhen: (previous, current) =>
+          previous.submitStatus != current.submitStatus,
       builder: (context, state) {
         final bool isLoading =
-            state.submitStatus ==
-                SubmitEnquiryStatus.loading;
+            state.submitStatus == SubmitEnquiryStatus.loading;
 
         return SizedBox(
           width: double.infinity,
           height: 54,
           child: ElevatedButton(
-            onPressed: isLoading
-                ? null
-                : _submitEnquiry,
-            style:
-                ElevatedButton.styleFrom(
-              backgroundColor:
-                  AppColors.accentGreen,
-              foregroundColor:
-                  Colors.white,
-              disabledBackgroundColor:
-                  AppColors.accentGreen
-                      .withOpacity(.55),
+            onPressed: isLoading ? null : _submitEnquiry,
+            style: ElevatedButton.styleFrom(
+              backgroundColor: context.primaryColor,
+              foregroundColor: context.onPrimaryColor,
+              disabledBackgroundColor: context.primaryColor.withValues(
+                alpha: .55,
+              ),
               elevation: 0,
-              shape:
-                  RoundedRectangleBorder(
-                borderRadius:
-                    BorderRadius.circular(15),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(15),
               ),
             ),
             child: AnimatedSwitcher(
-              duration:
-                  const Duration(
-                milliseconds: 200,
-              ),
+              duration: const Duration(milliseconds: 200),
               child: isLoading
-                  ? const SizedBox(
-                      key: ValueKey(
-                        'loading',
-                      ),
+                  ? SizedBox(
+                      key: ValueKey('loading'),
                       height: 23,
                       width: 23,
-                      child:
-                          CircularProgressIndicator(
+                      child: CircularProgressIndicator(
                         strokeWidth: 2.5,
-                        valueColor:
-                            AlwaysStoppedAnimation<
-                                Color>(
-                          Colors.white,
+                        valueColor: AlwaysStoppedAnimation<Color>(
+                          context.onPrimaryColor,
                         ),
                       ),
                     )
                   : const Row(
-                      key: ValueKey(
-                        'submit',
-                      ),
-                      mainAxisAlignment:
-                          MainAxisAlignment
-                              .center,
+                      key: ValueKey('submit'),
+                      mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Icon(
-                          Icons.send_rounded,
-                          size: 20,
-                        ),
+                        Icon(Icons.send_rounded, size: 20),
                         SizedBox(width: 9),
                         Text(
                           'Submit Enquiry',
-                          style:
-                              TextStyle(
+                          style: TextStyle(
                             fontSize: 15,
-                            fontWeight:
-                                FontWeight.w700,
+                            fontWeight: FontWeight.w700,
                           ),
                         ),
                       ],
@@ -1336,8 +1019,7 @@ Widget _buildEnquiryFields() {
   void _submitEnquiry() {
     FocusScope.of(context).unfocus();
 
-    if (!_formKey.currentState!
-        .validate()) {
+    if (!_formKey.currentState!.validate()) {
       return;
     }
 
@@ -1359,9 +1041,7 @@ Widget _buildEnquiryFields() {
     if (selectedStateId == null ||
         selectedStateId!.trim().isEmpty ||
         selectedStateId == '0') {
-      _showErrorSnackBar(
-        'Please select state.',
-      );
+      _showErrorSnackBar('Please select state.');
       return;
     }
 
@@ -1370,13 +1050,9 @@ Widget _buildEnquiryFields() {
     // ----------------------------------------------------------
 
     if (selectedDistrictId == null ||
-        selectedDistrictId!
-            .trim()
-            .isEmpty ||
+        selectedDistrictId!.trim().isEmpty ||
         selectedDistrictId == '0') {
-      _showErrorSnackBar(
-        'Please select district.',
-      );
+      _showErrorSnackBar('Please select district.');
       return;
     }
 
@@ -1385,13 +1061,9 @@ Widget _buildEnquiryFields() {
     // ----------------------------------------------------------
 
     if (selectedTalukaId == null ||
-        selectedTalukaId!
-            .trim()
-            .isEmpty ||
+        selectedTalukaId!.trim().isEmpty ||
         selectedTalukaId == '0') {
-      _showErrorSnackBar(
-        'Please select taluka.',
-      );
+      _showErrorSnackBar('Please select taluka.');
       return;
     }
 
@@ -1399,13 +1071,10 @@ Widget _buildEnquiryFields() {
     // PRODUCT
     // ----------------------------------------------------------
 
-    final String productName =
-        widget.productName.trim();
+    final String productName = widget.productName.trim();
 
     if (productName.isEmpty) {
-      _showErrorSnackBar(
-        'Product name is missing.',
-      );
+      _showErrorSnackBar('Product name is missing.');
       return;
     }
 
@@ -1416,107 +1085,68 @@ Widget _buildEnquiryFields() {
     final Map<String, String> params = {
       'userId': userId.trim(),
 
-      'productId':
-          widget.productId.trim(),
+      'productId': widget.productId.trim(),
 
-      'product_name':
-          productName,
+      'product_name': productName,
 
-      'name':
-          _nameController.text.trim(),
+      'name': _nameController.text.trim(),
 
-      'mobileNo':
-          _mobileController.text.trim(),
+      'mobileNo': _mobileController.text.trim(),
 
-      'email':
-          _emailController.text.trim(),
+      'email': _emailController.text.trim(),
 
-      'stateId':
-          selectedStateId!.trim(),
+      'stateId': selectedStateId!.trim(),
 
-      'districtId':
-          selectedDistrictId!.trim(),
+      'districtId': selectedDistrictId!.trim(),
 
-      'talukaId':
-          selectedTalukaId!.trim(),
+      'talukaId': selectedTalukaId!.trim(),
 
-      'village':
-          _villageController.text.trim(),
+      'village': _villageController.text.trim(),
 
-      'city':
-          _villageController.text.trim(),
+      'city': _villageController.text.trim(),
 
-      'address':
-          _addressController.text.trim(),
+      'address': _addressController.text.trim(),
 
-      'message':
-          _messageController.text.trim(),
+      'message': _messageController.text.trim(),
     };
 
     // ==========================================================
     // DEBUG
     // ==========================================================
 
-    debugPrint(
-      '======================================',
-    );
+    debugPrint('======================================');
 
-    debugPrint(
-      'SUBMIT ENQUIRY',
-    );
+    debugPrint('SUBMIT ENQUIRY');
 
-    debugPrint(
-      'USER ID      : $userId',
-    );
+    debugPrint('USER ID      : $userId');
 
-    debugPrint(
-      'PRODUCT ID   : ${widget.productId}',
-    );
+    debugPrint('PRODUCT ID   : ${widget.productId}');
 
-    debugPrint(
-      'PRODUCT NAME : $productName',
-    );
+    debugPrint('PRODUCT NAME : $productName');
 
-    debugPrint(
-      'STATE ID     : $selectedStateId',
-    );
+    debugPrint('STATE ID     : $selectedStateId');
 
-    debugPrint(
-      'DISTRICT ID  : $selectedDistrictId',
-    );
+    debugPrint('DISTRICT ID  : $selectedDistrictId');
 
-    debugPrint(
-      'TALUKA ID    : $selectedTalukaId',
-    );
+    debugPrint('TALUKA ID    : $selectedTalukaId');
 
-    debugPrint(
-      'REQUEST DATA : $params',
-    );
+    debugPrint('REQUEST DATA : $params');
 
-    debugPrint(
-      '======================================',
-    );
+    debugPrint('======================================');
 
     // ==========================================================
     // SEND
     // ==========================================================
 
-    context.read<EnquiryBloc>().add(
-      SubmitEnquiryEvent(
-        params: params,
-      ),
-    );
+    context.read<EnquiryBloc>().add(SubmitEnquiryEvent(params: params));
   }
 
   // ============================================================
   // VALIDATORS
   // ============================================================
 
-  String? _validateName(
-    String? value,
-  ) {
-    final name =
-        value?.trim() ?? '';
+  String? _validateName(String? value) {
+    final name = value?.trim() ?? '';
 
     if (name.isEmpty) {
       return 'Please enter your name';
@@ -1525,37 +1155,28 @@ Widget _buildEnquiryFields() {
     return null;
   }
 
-  String? _validateMobile(
-    String? value,
-  ) {
-    final mobile =
-        value?.trim() ?? '';
+  String? _validateMobile(String? value) {
+    final mobile = value?.trim() ?? '';
 
     if (mobile.isEmpty) {
       return 'Please enter mobile number';
     }
 
-    if (!RegExp(r'^\d{10}$')
-        .hasMatch(mobile)) {
+    if (!RegExp(r'^\d{10}$').hasMatch(mobile)) {
       return 'Mobile number must be 10 digits';
     }
 
     return null;
   }
 
-  String? _validateEmail(
-    String? value,
-  ) {
-    final email =
-        value?.trim() ?? '';
+  String? _validateEmail(String? value) {
+    final email = value?.trim() ?? '';
 
     if (email.isEmpty) {
       return null;
     }
 
-    final emailRegex = RegExp(
-      r'^[^@\s]+@[^@\s]+\.[^@\s]+$',
-    );
+    final emailRegex = RegExp(r'^[^@\s]+@[^@\s]+\.[^@\s]+$');
 
     if (!emailRegex.hasMatch(email)) {
       return 'Please enter a valid email';
@@ -1564,33 +1185,24 @@ Widget _buildEnquiryFields() {
     return null;
   }
 
-  String? _validateVillage(
-    String? value,
-  ) {
-    if (value == null ||
-        value.trim().isEmpty) {
+  String? _validateVillage(String? value) {
+    if (value == null || value.trim().isEmpty) {
       return 'Please enter village';
     }
 
     return null;
   }
 
-  String? _validateAddress(
-    String? value,
-  ) {
-    if (value == null ||
-        value.trim().isEmpty) {
+  String? _validateAddress(String? value) {
+    if (value == null || value.trim().isEmpty) {
       return 'Please enter address';
     }
 
     return null;
   }
 
-  String? _validateMessage(
-    String? value,
-  ) {
-    if (value == null ||
-        value.trim().isEmpty) {
+  String? _validateMessage(String? value) {
+    if (value == null || value.trim().isEmpty) {
       return 'Please enter your enquiry';
     }
 
@@ -1601,63 +1213,43 @@ Widget _buildEnquiryFields() {
   // SUCCESS DIALOG
   // ============================================================
 
-  void _showSuccessDialog(
-    String message,
-  ) {
+  void _showSuccessDialog(String message) {
     showDialog(
       context: context,
       barrierDismissible: false,
       builder: (dialogContext) {
         return AlertDialog(
-          backgroundColor:
-              Colors.white,
-          shape:
-              RoundedRectangleBorder(
-            borderRadius:
-                BorderRadius.circular(22),
+          backgroundColor: context.cardBackgroundColor,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(22),
           ),
-          contentPadding:
-              const EdgeInsets.fromLTRB(
-            24,
-            26,
-            24,
-            20,
-          ),
+          contentPadding: const EdgeInsets.fromLTRB(24, 26, 24, 20),
           content: Column(
-            mainAxisSize:
-                MainAxisSize.min,
+            mainAxisSize: MainAxisSize.min,
             children: [
               Container(
                 height: 68,
                 width: 68,
-                decoration:
-                    const BoxDecoration(
-                  shape:
-                      BoxShape.circle,
-                  color:
-                      Color(0xFFE2F5E8),
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: context.primaryColor.withValues(alpha: 0.08),
                 ),
-                child: const Icon(
+                child: Icon(
                   Icons.check_rounded,
-                  color:
-                      AppColors.accentGreen,
+                  color: context.primaryColor,
                   size: 38,
                 ),
               ),
 
               const SizedBox(height: 18),
 
-              const Text(
+              Text(
                 'Enquiry Submitted',
-                textAlign:
-                    TextAlign.center,
-                style:
-                    TextStyle(
+                textAlign: TextAlign.center,
+                style: TextStyle(
                   fontSize: 19,
-                  fontWeight:
-                      FontWeight.w700,
-                  color:
-                      Color(0xFF202A24),
+                  fontWeight: FontWeight.w700,
+                  color: context.primaryTextColor,
                 ),
               ),
 
@@ -1665,60 +1257,36 @@ Widget _buildEnquiryFields() {
 
               Text(
                 message,
-                textAlign:
-                    TextAlign.center,
+                textAlign: TextAlign.center,
                 style: TextStyle(
                   fontSize: 13,
                   height: 1.4,
-                  color:
-                      Colors.grey.shade600,
+                  color: context.secondaryTextColor,
                 ),
               ),
 
               const SizedBox(height: 22),
 
               SizedBox(
-                width:
-                    double.infinity,
+                width: double.infinity,
                 height: 46,
-                child:
-                    ElevatedButton(
+                child: ElevatedButton(
                   onPressed: () {
-                    Navigator.of(
-                      dialogContext,
-                    ).pop();
+                    Navigator.of(dialogContext).pop();
 
-                    Navigator.of(
-                      context,
-                    ).pop();
+                    Navigator.of(context).pop();
                   },
-                  style:
-                      ElevatedButton
-                          .styleFrom(
-                    backgroundColor:
-                        AppColors
-                            .accentGreen,
-                    foregroundColor:
-                        Colors.white,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: context.primaryColor,
+                    foregroundColor: context.onPrimaryColor,
                     elevation: 0,
-                    shape:
-                        RoundedRectangleBorder(
-                      borderRadius:
-                          BorderRadius
-                              .circular(
-                        13,
-                      ),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(13),
                     ),
                   ),
-                  child:
-                      const Text(
+                  child: const Text(
                     'Done',
-                    style:
-                        TextStyle(
-                      fontSize: 14,
-                      fontWeight:
-                          FontWeight.w700,
-                    ),
+                    style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700),
                   ),
                 ),
               ),
@@ -1733,46 +1301,32 @@ Widget _buildEnquiryFields() {
   // ERROR SNACKBAR
   // ============================================================
 
-  void _showErrorSnackBar(
-    String message,
-  ) {
+  void _showErrorSnackBar(String message) {
     if (!mounted) return;
 
     ScaffoldMessenger.of(context)
       ..hideCurrentSnackBar()
       ..showSnackBar(
         SnackBar(
-          behavior:
-              SnackBarBehavior.floating,
-          margin:
-              const EdgeInsets.fromLTRB(
-            16,
-            0,
-            16,
-            16,
-          ),
-          backgroundColor:
-              const Color(0xFFB3261E),
+          behavior: SnackBarBehavior.floating,
+          margin: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+          backgroundColor: context.appColors.error,
           elevation: 4,
-          shape:
-              RoundedRectangleBorder(
-            borderRadius:
-                BorderRadius.circular(12),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
           ),
           content: Row(
             children: [
-              const Icon(
-                Icons
-                    .error_outline_rounded,
-                color: Colors.white,
+              Icon(
+                Icons.error_outline_rounded,
+                color: context.appColors.onError,
               ),
               const SizedBox(width: 10),
               Expanded(
                 child: Text(
                   message,
-                  style:
-                      const TextStyle(
-                    color: Colors.white,
+                  style: TextStyle(
+                    color: context.appColors.onError,
                     fontSize: 13,
                   ),
                 ),
@@ -1787,22 +1341,21 @@ Widget _buildEnquiryFields() {
   // MESSAGE
   // ============================================================
 
-  void _showMessage(
-    String message, {
-    required bool isError,
-  }) {
+  void _showMessage(String message, {required bool isError}) {
     if (!mounted) return;
 
-    ScaffoldMessenger.of(context)
-        .showSnackBar(
+    ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        behavior:
-            SnackBarBehavior.floating,
+        behavior: SnackBarBehavior.floating,
         backgroundColor: isError
-            ? Colors.red
-            : const Color(0xff0F8A4B),
-        content:
-            Text(message),
+            ? context.appColors.error
+            : context.primaryColor,
+        content: Text(
+          message,
+          style: TextStyle(
+            color: isError ? context.appColors.onError : context.onPrimaryColor,
+          ),
+        ),
       ),
     );
   }
