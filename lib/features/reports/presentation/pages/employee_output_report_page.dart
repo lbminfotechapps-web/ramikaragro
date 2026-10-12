@@ -1,21 +1,21 @@
+
 import 'dart:async';
 
-import 'package:solufine/core/di/database_di.dart';
-import 'package:solufine/core/router/app_router.dart';
-import 'package:solufine/core/theme/app_colors.dart';
-import 'package:solufine/core/utility/widgets/custom_appbar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 
+import 'package:solufine/core/di/database_di.dart';
+import 'package:solufine/core/router/app_router.dart';
+import 'package:solufine/core/theme/app_colors.dart';
+import 'package:solufine/core/utility/widgets/custom_appbar.dart';
 import 'package:solufine/features/reports/domain/entities/assign_employee.dart';
 import 'package:solufine/features/reports/domain/entities/employee_output_report.dart';
 import 'package:solufine/features/reports/presentation/bloc/employee_output_bloc.dart';
 import 'package:solufine/features/reports/presentation/bloc/employee_output_event.dart';
 import 'package:solufine/features/reports/presentation/bloc/employee_output_state.dart';
 import 'package:solufine/features/reports/presentation/widgets/employee_output_details_dialog.dart';
-
 import '../widgets/employee_output_card.dart';
 import '../widgets/employee_output_empty.dart';
 import '../widgets/employee_output_filter.dart';
@@ -24,19 +24,25 @@ import '../widgets/employee_output_statistics.dart';
 class EmployeeOutputReportPage extends StatefulWidget {
   final String userId;
 
-  const EmployeeOutputReportPage({super.key, required this.userId});
+  const EmployeeOutputReportPage({
+    super.key,
+    required this.userId,
+  });
 
   @override
   State<EmployeeOutputReportPage> createState() =>
       _EmployeeOutputReportPageState();
 }
 
-class _EmployeeOutputReportPageState extends State<EmployeeOutputReportPage> {
+class _EmployeeOutputReportPageState
+    extends State<EmployeeOutputReportPage> {
+
   // ============================================================
-  // CONTROLLER
+  // CONTROLLERS
   // ============================================================
 
-  final TextEditingController employeeController = TextEditingController();
+  final TextEditingController employeeController =
+      TextEditingController();
 
   // ============================================================
   // FILTER VALUES
@@ -56,6 +62,19 @@ class _EmployeeOutputReportPageState extends State<EmployeeOutputReportPage> {
   Timer? _employeeSearchTimer;
 
   // ============================================================
+  // COMPACT SPACING
+  // ============================================================
+
+  static const double _pageHorizontalPadding = 10;
+  static const double _pageTopPadding = 8;
+  static const double _pageBottomPadding = 12;
+
+  static const double _headerFilterSpacing = 6;
+  static const double _filterContentSpacing = 8;
+  static const double _statisticsTitleSpacing = 8;
+  static const double _titleTableSpacing = 5;
+
+  // ============================================================
   // INIT
   // ============================================================
 
@@ -63,7 +82,8 @@ class _EmployeeOutputReportPageState extends State<EmployeeOutputReportPage> {
   void initState() {
     super.initState();
 
-    final String today = DateFormat('dd-MM-yyyy').format(DateTime.now());
+    final String today =
+        DateFormat('dd-MM-yyyy').format(DateTime.now());
 
     fromDate = today;
     toDate = today;
@@ -74,33 +94,6 @@ class _EmployeeOutputReportPageState extends State<EmployeeOutputReportPage> {
       _loadReport();
     });
   }
-
-  // ============================================================
-  // BACK PRESS
-  // ============================================================
-
-  // void _handleBackPress() {
-  //   if (!mounted) return;
-
-  //   debugPrint('========================================');
-  //   debugPrint('EMPLOYEE OUTPUT → BACK PRESSED');
-  //   debugPrint('========================================');
-
-  //   final NavigatorState navigator =
-  //       Navigator.of(context);
-
-  //   debugPrint(
-  //     'CAN POP: ${navigator.canPop()}',
-  //   );
-
-  //   if (navigator.canPop()) {
-  //     navigator.pop();
-  //   } else {
-  //     debugPrint(
-  //       'NO PREVIOUS ROUTE FOUND',
-  //     );
-  //   }
-  // }
 
   // ============================================================
   // LOAD REPORT
@@ -142,13 +135,19 @@ class _EmployeeOutputReportPageState extends State<EmployeeOutputReportPage> {
       return;
     }
 
-    _employeeSearchTimer = Timer(const Duration(milliseconds: 400), () {
-      if (!mounted) return;
+    _employeeSearchTimer = Timer(
+      const Duration(milliseconds: 400),
+      () {
+        if (!mounted) return;
 
-      context.read<EmployeeOutputBloc>().add(
-        SearchEmployeesEvent(logUserId: widget.userId, search: search),
-      );
-    });
+        context.read<EmployeeOutputBloc>().add(
+          SearchEmployeesEvent(
+            logUserId: widget.userId,
+            search: search,
+          ),
+        );
+      },
+    );
   }
 
   // ============================================================
@@ -159,7 +158,8 @@ class _EmployeeOutputReportPageState extends State<EmployeeOutputReportPage> {
     setState(() {
       employeeId = employee.fldId.toString();
 
-      employeeController.text = employee.fldAdmName.toString();
+      employeeController.text =
+          employee.fldAdmName.toString();
     });
 
     context.read<EmployeeOutputBloc>().add(
@@ -184,15 +184,17 @@ class _EmployeeOutputReportPageState extends State<EmployeeOutputReportPage> {
     );
   }
 
+
   // ============================================================
-  // FROM DATE
+  // SELECT FROM DATE
   // ============================================================
 
   Future<void> _selectFromDate() async {
     DateTime initialDate;
 
     try {
-      initialDate = DateFormat('dd-MM-yyyy').parse(fromDate);
+      initialDate =
+          DateFormat('dd-MM-yyyy').parse(fromDate);
     } catch (_) {
       initialDate = DateTime.now();
     }
@@ -204,12 +206,14 @@ class _EmployeeOutputReportPageState extends State<EmployeeOutputReportPage> {
       lastDate: DateTime(2100),
     );
 
-    if (picked == null) return;
+    if (picked == null || !mounted) return;
 
     setState(() {
-      fromDate = DateFormat('dd-MM-yyyy').format(picked);
+      fromDate =
+          DateFormat('dd-MM-yyyy').format(picked);
 
-      final DateTime currentTo = DateFormat('dd-MM-yyyy').parse(toDate);
+      final DateTime currentTo =
+          DateFormat('dd-MM-yyyy').parse(toDate);
 
       if (picked.isAfter(currentTo)) {
         toDate = fromDate;
@@ -218,7 +222,7 @@ class _EmployeeOutputReportPageState extends State<EmployeeOutputReportPage> {
   }
 
   // ============================================================
-  // TO DATE
+  // SELECT TO DATE
   // ============================================================
 
   Future<void> _selectToDate() async {
@@ -226,13 +230,15 @@ class _EmployeeOutputReportPageState extends State<EmployeeOutputReportPage> {
     DateTime minimumDate;
 
     try {
-      initialDate = DateFormat('dd-MM-yyyy').parse(toDate);
+      initialDate =
+          DateFormat('dd-MM-yyyy').parse(toDate);
     } catch (_) {
       initialDate = DateTime.now();
     }
 
     try {
-      minimumDate = DateFormat('dd-MM-yyyy').parse(fromDate);
+      minimumDate =
+          DateFormat('dd-MM-yyyy').parse(fromDate);
     } catch (_) {
       minimumDate = DateTime.now();
     }
@@ -246,10 +252,11 @@ class _EmployeeOutputReportPageState extends State<EmployeeOutputReportPage> {
       lastDate: DateTime(2100),
     );
 
-    if (picked == null) return;
+    if (picked == null || !mounted) return;
 
     setState(() {
-      toDate = DateFormat('dd-MM-yyyy').format(picked);
+      toDate =
+          DateFormat('dd-MM-yyyy').format(picked);
     });
   }
 
@@ -258,13 +265,13 @@ class _EmployeeOutputReportPageState extends State<EmployeeOutputReportPage> {
   // ============================================================
 
   void _resetFilters() {
-    final String today = DateFormat('dd-MM-yyyy').format(DateTime.now());
+    final String today =
+        DateFormat('dd-MM-yyyy').format(DateTime.now());
 
     _employeeSearchTimer?.cancel();
 
     setState(() {
       employeeController.clear();
-
       employeeId = '';
 
       fromDate = today;
@@ -295,21 +302,29 @@ class _EmployeeOutputReportPageState extends State<EmployeeOutputReportPage> {
   }
 
   // ============================================================
-  // REFRESH
+  // REFRESH REPORT
   // ============================================================
 
   Future<void> _refreshReport() async {
     _loadReport();
 
-    await Future.delayed(const Duration(milliseconds: 300));
+    await Future.delayed(
+      const Duration(milliseconds: 300),
+    );
   }
 
-  Future<void> _openEmployeeDetails(EmployeeOutputReport report) async {
-    // Replace empId with the actual employee ID
-    // property from your EmployeeOutputReport model.
+  // ============================================================
+  // OPEN EMPLOYEE DETAILS
+  // ============================================================
+
+  Future<void> _openEmployeeDetails(
+    EmployeeOutputReport report,
+  ) async {
     final selectedEmpId = report.empId;
 
-    debugPrint('========== EMPLOYEE ROW CLICK ==========');
+    debugPrint(
+      '========== EMPLOYEE ROW CLICK ==========',
+    );
     debugPrint('Employee ID: $selectedEmpId');
     debugPrint('Employee Name: ${report.empName}');
     debugPrint('From Date: $fromDate');
@@ -317,15 +332,15 @@ class _EmployeeOutputReportPageState extends State<EmployeeOutputReportPage> {
 
     if (selectedEmpId.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Employee ID not available')),
+        const SnackBar(
+          content: Text('Employee ID not available'),
+        ),
       );
       return;
     }
 
-    // Use your existing GetIt setup.
     final detailsBloc = getIt<EmployeeOutputBloc>();
 
-    // Trigger API event.
     detailsBloc.add(
       EmployeeOutRepoDetailsEvent(
         empId: selectedEmpId,
@@ -334,27 +349,32 @@ class _EmployeeOutputReportPageState extends State<EmployeeOutputReportPage> {
       ),
     );
 
-    await showDialog<void>(
-      context: context,
-      builder: (dialogContext) {
-        return BlocProvider.value(
-          value: detailsBloc,
-          child: EmployeeOutputDetailsDialog(
-            employeeName: report.empName,
-            fromDate: fromDate,
-            toDate: toDate,
-          ),
-        );
-      },
-    );
-
-    await detailsBloc.close();
+    try {
+      await showDialog<void>(
+        context: context,
+        builder: (dialogContext) {
+          return BlocProvider.value(
+            value: detailsBloc,
+            child: EmployeeOutputDetailsDialog(
+              employeeName: report.empName,
+              fromDate: fromDate,
+              toDate: toDate,
+            ),
+          );
+        },
+      );
+    } finally {
+      await detailsBloc.close();
+    }
   }
+
+  // ============================================================
+  // DISPOSE
+  // ============================================================
 
   @override
   void dispose() {
     _employeeSearchTimer?.cancel();
-
     employeeController.dispose();
 
     super.dispose();
@@ -369,26 +389,35 @@ class _EmployeeOutputReportPageState extends State<EmployeeOutputReportPage> {
     return Scaffold(
       backgroundColor: AppColors.backgroundColor,
 
-      // ==========================================================
+      // ========================================================
       // APP BAR
-      // ==========================================================
+      // ========================================================
+
       appBar: CustomAppBar(
         title: 'Employee Output Report',
         showBackButton: true,
         onBackTap: () => context.go(AppRouter.home),
       ),
 
-      // ==========================================================
+      // ========================================================
       // BODY
-      // ==========================================================
-      body: BlocListener<EmployeeOutputBloc, EmployeeOutputState>(
+      // ========================================================
+
+      body: BlocListener<
+          EmployeeOutputBloc,
+          EmployeeOutputState>(
         listener: (context, state) {
-          if (state.status == EmployeeOutputStatus.failure) {
-            ScaffoldMessenger.of(context).hideCurrentSnackBar();
+          if (state.status ==
+              EmployeeOutputStatus.failure) {
+            ScaffoldMessenger.of(context)
+                .hideCurrentSnackBar();
 
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
-                content: Text(state.errorMessage ?? 'Something went wrong'),
+                content: Text(
+                  state.errorMessage ??
+                      'Something went wrong',
+                ),
                 behavior: SnackBarBehavior.floating,
               ),
             );
@@ -398,35 +427,51 @@ class _EmployeeOutputReportPageState extends State<EmployeeOutputReportPage> {
         child: RefreshIndicator(
           onRefresh: _refreshReport,
 
-          child: BlocBuilder<EmployeeOutputBloc, EmployeeOutputState>(
+          child: BlocBuilder<
+              EmployeeOutputBloc,
+              EmployeeOutputState>(
             builder: (context, state) {
               return SingleChildScrollView(
-                physics: const AlwaysScrollableScrollPhysics(),
+                physics:
+                    const AlwaysScrollableScrollPhysics(),
 
-                padding: const EdgeInsets.fromLTRB(12, 12, 12, 20),
+                // OPTIMIZED PAGE PADDING
+                padding: const EdgeInsets.fromLTRB(
+                  _pageHorizontalPadding,
+                  _pageTopPadding,
+                  _pageHorizontalPadding,
+                  _pageBottomPadding,
+                ),
 
                 child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+                  crossAxisAlignment:
+                      CrossAxisAlignment.start,
 
                   children: [
+                    // ========================================
+                    // COMPACT HEADER
+                    // ========================================
+
                     _buildHeader(),
 
-                    const SizedBox(height: 10),
+                    const SizedBox(
+                      height: _headerFilterSpacing,
+                    ),
+
+                    // ========================================
+                    // EMPLOYEE FILTER
+                    // ========================================
 
                     EmployeeOutputFilter(
-                      employeeController: employeeController,
-
+                      employeeController:
+                          employeeController,
                       employeeId: employeeId,
-
                       fromDate: fromDate,
-
                       toDate: toDate,
-
                       expanded: showFilters,
-
                       employees: state.employees,
-
-                      employeeLoading: state.employeeLoading,
+                      employeeLoading:
+                          state.employeeLoading,
 
                       onExpandChanged: () {
                         setState(() {
@@ -435,88 +480,88 @@ class _EmployeeOutputReportPageState extends State<EmployeeOutputReportPage> {
                       },
 
                       onEmployeeChanged: _searchEmployee,
-
                       onEmployeeSelected: _selectEmployee,
-
                       onFromDateTap: _selectFromDate,
-
                       onToDateTap: _selectToDate,
-
                       onReset: _resetFilters,
-
                       onSearch: _searchReport,
                     ),
 
-                    const SizedBox(height: 14),
+                    const SizedBox(
+                      height: _filterContentSpacing,
+                    ),
 
-                    if (state.status == EmployeeOutputStatus.loading)
+                    // ========================================
+                    // LOADING
+                    // ========================================
+
+                    if (state.status ==
+                        EmployeeOutputStatus.loading)
                       _buildLoading()
-                    // ==================================================
+
+                    // ========================================
                     // ERROR
-                    // ==================================================
-                    else if (state.status == EmployeeOutputStatus.failure)
+                    // ========================================
+
+                    else if (state.status ==
+                        EmployeeOutputStatus.failure)
                       EmployeeOutputEmpty(
                         icon: Icons.error_outline_rounded,
-
                         title: 'Unable to load report',
-
-                        subtitle: state.errorMessage ?? 'Please try again',
+                        subtitle:
+                            state.errorMessage ??
+                            'Please try again',
                       )
-                    // ==================================================
+
+                    // ========================================
                     // EMPTY
-                    // ==================================================
+                    // ========================================
+
                     else if (state.reports.isEmpty)
                       const EmployeeOutputEmpty(
                         icon: Icons.analytics_outlined,
-
                         title: 'No Output Found',
-
                         subtitle:
                             'No employee output records found for the selected filters.',
                       )
-                    // ==================================================
-                    // DATA
-                    // ==================================================
+
+                    // ========================================
+                    // REPORT DATA
+                    // ========================================
+
                     else ...[
-                      // ================================================
+                      // ======================================
                       // STATISTICS
-                      // ================================================
-                      EmployeeOutputStatistics(reports: state.reports),
+                      // ======================================
 
-                      const SizedBox(height: 14),
-
-                      // ================================================
-                      // TITLE
-                      // ================================================
-                      Row(
-                        children: [
-                          const Expanded(
-                            child: Text(
-                              'Employee Output',
-                              style: TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.w800,
-                                color: Color(0xFF202923),
-                              ),
-                            ),
-                          ),
-
-                          Text(
-                            '${state.reports.length} Employees',
-                            style: const TextStyle(
-                              fontSize: 11,
-                              fontWeight: FontWeight.w600,
-                              color: Color(0xFF7A837E),
-                            ),
-                          ),
-                        ],
+                      EmployeeOutputStatistics(
+                        reports: state.reports,
                       ),
 
-                      const SizedBox(height: 8),
+                      const SizedBox(
+                        height: _statisticsTitleSpacing,
+                      ),
+
+                      // ======================================
+                      // COMPACT SECTION TITLE
+                      // ======================================
+
+                      _buildReportTitle(
+                        state.reports.length,
+                      ),
+
+                      const SizedBox(
+                        height: _titleTableSpacing,
+                      ),
+
+                      // ======================================
+                      // EMPLOYEE REPORT TABLE
+                      // ======================================
 
                       EmployeeOutputCard(
                         reports: state.reports,
-                        onEmployeeTap: _openEmployeeDetails,
+                        onEmployeeTap:
+                            _openEmployeeDetails,
                       ),
                     ],
                   ],
@@ -530,63 +575,74 @@ class _EmployeeOutputReportPageState extends State<EmployeeOutputReportPage> {
   }
 
   // ============================================================
-  // HEADER
+  // COMPACT HEADER
   // ============================================================
 
   Widget _buildHeader() {
     return Container(
       width: double.infinity,
 
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.symmetric(
+        horizontal: 12,
+        vertical: 10,
+      ),
 
       decoration: BoxDecoration(
         gradient: const LinearGradient(
-          colors: [Color(0xFF287A4B), Color(0xFF45A36A)],
+          colors: [
+            Color(0xFF287A4B),
+            Color(0xFF45A36A),
+          ],
         ),
-
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(12),
       ),
 
       child: Row(
         children: [
           Container(
-            height: 46,
-            width: 46,
+            width: 38,
+            height: 38,
 
             decoration: BoxDecoration(
               color: Colors.white.withOpacity(.16),
-
-              borderRadius: BorderRadius.circular(13),
+              borderRadius: BorderRadius.circular(10),
             ),
 
             child: const Icon(
               Icons.bar_chart_rounded,
               color: Colors.white,
-              size: 25,
+              size: 21,
             ),
           ),
 
-          const SizedBox(width: 12),
+          const SizedBox(width: 10),
 
           const Expanded(
             child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+              crossAxisAlignment:
+                  CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
 
               children: [
                 Text(
                   'Employee Output',
                   style: TextStyle(
                     color: Colors.white,
-                    fontSize: 17,
+                    fontSize: 15,
                     fontWeight: FontWeight.w800,
                   ),
                 ),
 
-                SizedBox(height: 3),
+                SizedBox(height: 2),
 
                 Text(
                   'Track employee visits and productivity',
-                  style: TextStyle(color: Colors.white70, fontSize: 11),
+                  style: TextStyle(
+                    color: Colors.white70,
+                    fontSize: 10,
+                  ),
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
                 ),
               ],
             ),
@@ -597,14 +653,62 @@ class _EmployeeOutputReportPageState extends State<EmployeeOutputReportPage> {
   }
 
   // ============================================================
-  // LOADING
+  // COMPACT REPORT TITLE
+  // ============================================================
+
+  Widget _buildReportTitle(int employeeCount) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(
+        horizontal: 2,
+      ),
+
+      child: Row(
+        children: [
+          const Expanded(
+            child: Text(
+              'Employee Output',
+              style: TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.w800,
+                color: Color(0xFF202923),
+              ),
+            ),
+          ),
+
+          Text(
+            '$employeeCount Employees',
+            style: const TextStyle(
+              fontSize: 10,
+              fontWeight: FontWeight.w600,
+              color: Color(0xFF7A837E),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // ============================================================
+  // COMPACT LOADING
   // ============================================================
 
   Widget _buildLoading() {
     return const Padding(
-      padding: EdgeInsets.symmetric(vertical: 80),
+      padding: EdgeInsets.symmetric(
+        vertical: 35,
+      ),
 
-      child: Center(child: CircularProgressIndicator(color: Color(0xFF287A4B))),
+      child: Center(
+        child: SizedBox(
+          width: 26,
+          height: 26,
+
+          child: CircularProgressIndicator(
+            strokeWidth: 2.6,
+            color: Color(0xFF287A4B),
+          ),
+        ),
+      ),
     );
   }
 }
