@@ -4,34 +4,34 @@ import 'app_theme_palette.dart';
 class AppThemeColors {
   AppThemeColors._();
 
-  static const AppThemePalette defaultTheme = AppThemePalette(
-    id: 'default',
-    name: 'Default',
-    primary: Color(0xFF088DC4),
-    onPrimary: Colors.white,
-    secondary: Color(0xFF088DC4),
-    onSecondary: Colors.white,
-    background: Color(0xFF3F9D39),
-    onBackground: Colors.white,
-    surface: Colors.white,
-    onSurface: Color(0xFF000000),
-    appBarBackground: Colors.white,
-    appBarForeground: Colors.black,
-    cardBackground: Colors.white,
-    onCard: Color(0xFF000000),
-    textPrimary: Color(0xFF000000),
-    textSecondary: Color(0xFF666666),
-    border: Color(0xFFE0E0E0),
-   inputBackground: Colors.white,
-    gradientStart: Color(0xFF3F9D39),
-    gradientEnd: Color(0xFFA9E6A5),
-  );
+  // static const AppThemePalette defaultTheme = AppThemePalette(
+  //   id: 'default',
+  //   name: 'Default',
+  //   primary: Color(0xFF088DC4),
+  //   onPrimary: Colors.white,
+  //   secondary: Color(0xFF088DC4),
+  //   onSecondary: Colors.white,
+  //   background: Color(0xFF3F9D39),
+  //   onBackground: Colors.white,
+  //   surface: Colors.white,
+  //   onSurface: Color(0xFF000000),
+  //   appBarBackground: Colors.white,
+  //   appBarForeground: Colors.black,
+  //   cardBackground: Colors.white,
+  //   onCard: Color(0xFF000000),
+  //   textPrimary: Color(0xFF000000),
+  //   textSecondary: Color(0xFF666666),
+  //   border: Color(0xFFE0E0E0),
+  //  inputBackground: Colors.white,
+  //   gradientStart: Color(0xFF3F9D39),
+  //   gradientEnd: Color(0xFFA9E6A5),
+  // );
 
   // ============================================================
   // FOREST GREEN
   // ============================================================
 
-  static const AppThemePalette forestGreen = AppThemePalette(
+  static const AppThemePalette defaultTheme = AppThemePalette(
     id: 'forest_green',
     name: 'Forest Green',
     primary: Color(0xFF1B4332),
@@ -76,7 +76,7 @@ class AppThemeColors {
     textPrimary: Color(0xFF17324D),
     textSecondary: Color(0xFF61758A),
     border: Color(0xFFD5E5F1),
-   inputBackground: Colors.white,
+    inputBackground: Colors.white,
     gradientStart: Color(0xFF075985),
     gradientEnd: Color(0xFF38BDF8),
   );
@@ -103,7 +103,7 @@ class AppThemeColors {
     textPrimary: Color(0xFF332452),
     textSecondary: Color(0xFF76698B),
     border: Color(0xFFE5DDF4),
-   inputBackground: Colors.white,
+    inputBackground: Colors.white,
     gradientStart: Color(0xFF6D28D9),
     gradientEnd: Color(0xFFB794F6),
   );
@@ -184,7 +184,7 @@ class AppThemeColors {
     textPrimary: Color(0xFF174B38),
     textSecondary: Color(0xFF597D6B),
     border: Color(0xFFCEE8D8),
-   inputBackground: Colors.white,
+    inputBackground: Colors.white,
     gradientStart: Color(0xFFBCEACD),
     gradientEnd: Color(0xFFEAF9F0),
   );
@@ -192,7 +192,6 @@ class AppThemeColors {
   // All theme options shown in the selection bottom sheet.
   static const List<AppThemePalette> all = [
     defaultTheme,
-    forestGreen,
     oceanBlue,
     royalPurple,
     warmCream,
@@ -201,11 +200,17 @@ class AppThemeColors {
   ];
 
   static AppThemePalette fromId(String? id) {
+    // Migrate users from the old blue default theme.
+    if (id == null || id == 'default' || id.isEmpty) {
+      return defaultTheme;
+    }
+
     for (final palette in all) {
       if (palette.id == id) {
         return palette;
       }
     }
+
     return defaultTheme;
   }
 }

@@ -1,7 +1,7 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:solufine/core/secure_storage/secure_storage.dart';
-import 'package:solufine/core/theme/app_colors.dart';
+import 'package:solufine/core/theme/app_theme_context.dart';
 import 'package:solufine/core/utility/app_toast.dart';
 import 'package:solufine/core/utility/widgets/custom_appbar.dart';
 import 'package:solufine/core/utility/widgets/custom_button.dart';
@@ -13,7 +13,6 @@ import 'package:solufine/features/auth/presentation/bloc/auth_event.dart';
 import 'package:solufine/features/auth/presentation/bloc/auth_state.dart';
 
 class ChangePassword extends StatefulWidget {
-  
   const ChangePassword({super.key});
 
   @override
@@ -63,16 +62,29 @@ class _ChangePasswordState extends State<ChangePassword> {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (dialogContext) => AlertDialog(
-        title: const Text('Change password?'),
-        content: const Text('Do you want to change your password?'),
+        backgroundColor: dialogContext.cardBackgroundColor,
+        title: Text(
+          'Change password?',
+          style: TextStyle(color: dialogContext.primaryTextColor),
+        ),
+        content: Text(
+          'Do you want to change your password?',
+          style: TextStyle(color: dialogContext.secondaryTextColor),
+        ),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(dialogContext).pop(false),
-            child: const Text('Cancel'),
+            child: Text(
+              'Cancel',
+              style: TextStyle(color: dialogContext.secondaryTextColor),
+            ),
           ),
           TextButton(
             onPressed: () => Navigator.of(dialogContext).pop(true),
-            child: const Text('Yes, change it'),
+            child: Text(
+              'Yes, change it',
+              style: TextStyle(color: dialogContext.primaryColor),
+            ),
           ),
         ],
       ),
@@ -92,7 +104,7 @@ class _ChangePasswordState extends State<ChangePassword> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF5F7F5),
+      backgroundColor: context.backgroundColor,
 
       appBar: CustomAppBar(
         title: 'Change Password',
@@ -135,11 +147,13 @@ class _ChangePasswordState extends State<ChangePassword> {
                         vertical: 24.h,
                       ),
                       decoration: BoxDecoration(
-                        color: Colors.white,
+                        color: context.cardBackgroundColor,
                         borderRadius: BorderRadius.circular(22.r),
                         boxShadow: [
                           BoxShadow(
-                            color: Colors.black.withValues(alpha: 0.04),
+                            color: context.appColors.shadow.withValues(
+                              alpha: 0.04,
+                            ),
                             blurRadius: 12,
                             offset: const Offset(0, 6),
                           ),
@@ -151,12 +165,12 @@ class _ChangePasswordState extends State<ChangePassword> {
                             width: 70.w,
                             height: 70.h,
                             decoration: BoxDecoration(
-                              color: const Color(0xFFE8F5E9),
+                              color: context.appColors.primaryContainer,
                               shape: BoxShape.circle,
                             ),
                             child: Icon(
                               Icons.lock_reset_rounded,
-                              color: AppColors.primaryGreen,
+                              color: context.backgroundColor,
                               size: 34.sp,
                             ),
                           ),
@@ -166,7 +180,7 @@ class _ChangePasswordState extends State<ChangePassword> {
                             style: TextStyle(
                               fontSize: 22.sp,
                               fontWeight: FontWeight.w700,
-                              color: AppColors.textDark,
+                              color: context.primaryTextColor,
                             ),
                           ),
                           SizedBox(height: 8.h),
@@ -175,7 +189,7 @@ class _ChangePasswordState extends State<ChangePassword> {
                             textAlign: TextAlign.center,
                             style: TextStyle(
                               fontSize: 13.sp,
-                              color: AppColors.textGrey,
+                              color: context.secondaryTextColor,
                               height: 1.5,
                             ),
                           ),
@@ -188,7 +202,7 @@ class _ChangePasswordState extends State<ChangePassword> {
                       style: TextStyle(
                         fontSize: 14.sp,
                         fontWeight: FontWeight.w600,
-                        color: AppColors.textDark,
+                        color: context.primaryTextColor,
                       ),
                     ),
                     SizedBox(height: 8.h),
@@ -216,7 +230,7 @@ class _ChangePasswordState extends State<ChangePassword> {
                       style: TextStyle(
                         fontSize: 14.sp,
                         fontWeight: FontWeight.w600,
-                        color: AppColors.textDark,
+                        color: context.primaryTextColor,
                       ),
                     ),
                     SizedBox(height: 8.h),
@@ -247,7 +261,7 @@ class _ChangePasswordState extends State<ChangePassword> {
                     //   style: TextStyle(
                     //     fontSize: 14.sp,
                     //     fontWeight: FontWeight.w600,
-                    //     color: AppColors.textDark,
+                    //     color: context.primaryTextColor,
                     //   ),
                     // ),
                     // SizedBox(height: 8.h),
@@ -275,6 +289,8 @@ class _ChangePasswordState extends State<ChangePassword> {
                     SizedBox(height: 26.h),
                     CustomButton(
                       text: 'Update Password',
+                      backgroundColor: context.primaryColor,
+                      textColor: context.onPrimaryColor,
                       icon: Icon(Icons.check_rounded, size: 20.sp),
                       onPressed: _submitPasswordChange,
                     ),

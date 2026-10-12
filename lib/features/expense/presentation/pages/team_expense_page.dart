@@ -1,3 +1,4 @@
+import 'package:solufine/core/theme/app_theme_context.dart';
 import 'package:solufine/core/di/auth_di.dart';
 import 'package:solufine/core/router/app_router.dart';
 import 'package:solufine/core/utility/widgets/custom_appbar.dart';
@@ -212,7 +213,7 @@ class _TeamExpenseViewState extends State<_TeamExpenseView> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF6F9F7),
+      backgroundColor: context.backgroundColor,
 
       appBar: CustomAppBar(
         title: 'Team Expense List',
@@ -251,12 +252,12 @@ class _TeamExpenseViewState extends State<_TeamExpenseView> {
   Widget _buildFilterSection() {
     return Container(
       padding: const EdgeInsets.fromLTRB(14, 14, 14, 12),
-      decoration: const BoxDecoration(
-        color: Colors.white,
+      decoration: BoxDecoration(
+        color: context.cardBackgroundColor,
         borderRadius: BorderRadius.vertical(bottom: Radius.circular(22)),
         boxShadow: [
           BoxShadow(
-            color: Color(0x12000000),
+            color: context.appColors.shadow.withValues(alpha: 0.07),
             blurRadius: 12,
             offset: Offset(0, 4),
           ),
@@ -266,19 +267,20 @@ class _TeamExpenseViewState extends State<_TeamExpenseView> {
         children: [
           TextField(
             controller: searchController,
+            style: TextStyle(color: context.primaryTextColor),
             textInputAction: TextInputAction.search,
             onSubmitted: (_) {
               _search();
             },
             decoration: InputDecoration(
               hintText: 'Search employee',
-              hintStyle: const TextStyle(
-                color: Color(0xFF98A29C),
+              hintStyle: TextStyle(
+                color: context.secondaryTextColor,
                 fontSize: 13,
               ),
-              prefixIcon: const Icon(
+              prefixIcon: Icon(
                 Icons.search_rounded,
-                color: Color(0xFF2D6A4F),
+                color: context.primaryColor,
               ),
               suffixIcon: searchController.text.isNotEmpty
                   ? IconButton(
@@ -287,17 +289,17 @@ class _TeamExpenseViewState extends State<_TeamExpenseView> {
                         setState(() {});
                         _search();
                       },
-                      icon: const Icon(Icons.close_rounded, size: 20),
+                      icon: Icon(Icons.close_rounded, size: 20),
                     )
                   : IconButton(
                       onPressed: _search,
-                      icon: const Icon(
+                      icon: Icon(
                         Icons.search_rounded,
-                        color: Color(0xFF2D6A4F),
+                        color: context.primaryColor,
                       ),
                     ),
               filled: true,
-              fillColor: const Color(0xFFF5F8F6),
+              fillColor: context.appTheme.inputBackground,
               contentPadding: const EdgeInsets.symmetric(
                 horizontal: 14,
                 vertical: 13,
@@ -312,10 +314,7 @@ class _TeamExpenseViewState extends State<_TeamExpenseView> {
               ),
               focusedBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(15),
-                borderSide: const BorderSide(
-                  color: Color(0xFF2D6A4F),
-                  width: 1.2,
-                ),
+                borderSide: BorderSide(color: context.primaryColor, width: 1.2),
               ),
             ),
             onChanged: (_) {
@@ -323,7 +322,7 @@ class _TeamExpenseViewState extends State<_TeamExpenseView> {
             },
           ),
 
-          const SizedBox(height: 12),
+          SizedBox(height: 12),
 
           Row(
             children: [
@@ -336,7 +335,7 @@ class _TeamExpenseViewState extends State<_TeamExpenseView> {
                 ),
               ),
 
-              const SizedBox(width: 10),
+              SizedBox(width: 10),
 
               Expanded(
                 child: _dateFilter(
@@ -365,34 +364,34 @@ class _TeamExpenseViewState extends State<_TeamExpenseView> {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
         decoration: BoxDecoration(
-          color: const Color(0xFFF5F8F6),
+          color: context.appTheme.inputBackground,
           borderRadius: BorderRadius.circular(14),
-          border: Border.all(color: const Color(0xFFE2EAE4)),
+          border: Border.all(color: context.borderColor),
         ),
         child: Row(
           children: [
-            const SizedBox(width: 2),
-            Icon(icon, size: 18, color: const Color(0xFF2D6A4F)),
-            const SizedBox(width: 8),
+            SizedBox(width: 2),
+            Icon(icon, size: 18, color: context.primaryColor),
+            SizedBox(width: 8),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
                     title,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 9,
                       fontWeight: FontWeight.w700,
-                      color: Color(0xFF8A938D),
+                      color: context.secondaryTextColor,
                     ),
                   ),
-                  const SizedBox(height: 3),
+                  SizedBox(height: 3),
                   Text(
                     value,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 11,
                       fontWeight: FontWeight.w800,
-                      color: Color(0xFF263229),
+                      color: context.primaryTextColor,
                     ),
                   ),
                 ],
@@ -413,11 +412,11 @@ class _TeamExpenseViewState extends State<_TeamExpenseView> {
               TeamExpenseLoaded(expenses: state.expenses),
             ),
           ),
-          const Positioned(
+          Positioned(
             top: 0,
             left: 0,
             right: 0,
-            child: LinearProgressIndicator(),
+            child: LinearProgressIndicator(color: context.primaryColor),
           ),
         ],
       );
@@ -429,8 +428,8 @@ class _TeamExpenseViewState extends State<_TeamExpenseView> {
       return _buildExpenseContent(TeamExpenseLoaded(expenses: state.expenses));
     }
     if (state is TeamExpenseLoading) {
-      return const Center(
-        child: CircularProgressIndicator(color: Color(0xFF2D6A4F)),
+      return Center(
+        child: CircularProgressIndicator(color: context.primaryColor),
       );
     }
 
@@ -463,7 +462,7 @@ class _TeamExpenseViewState extends State<_TeamExpenseView> {
           return false;
         },
         child: RefreshIndicator(
-          color: const Color(0xFF2D6A4F),
+          color: context.primaryColor,
           onRefresh: () async {
             _loadExpenses();
 
@@ -475,12 +474,12 @@ class _TeamExpenseViewState extends State<_TeamExpenseView> {
             itemCount: state.expenses.length + (state.isLoadingMore ? 1 : 0),
             itemBuilder: (context, index) {
               if (index >= state.expenses.length) {
-                return const Padding(
+                return Padding(
                   padding: EdgeInsets.symmetric(vertical: 18),
                   child: Center(
                     child: CircularProgressIndicator(
                       strokeWidth: 2.5,
-                      color: Color(0xFF2D6A4F),
+                      color: context.primaryColor,
                     ),
                   ),
                 );
@@ -500,7 +499,7 @@ class _TeamExpenseViewState extends State<_TeamExpenseView> {
 
   Widget _buildEmpty() {
     return RefreshIndicator(
-      color: const Color(0xFF2D6A4F),
+      color: context.primaryColor,
       onRefresh: () async {
         _loadExpenses();
 
@@ -515,34 +514,34 @@ class _TeamExpenseViewState extends State<_TeamExpenseView> {
               width: 90,
               height: 90,
               decoration: BoxDecoration(
-                color: const Color(0xFFE8F5ED),
+                color: context.appColors.primaryContainer,
                 borderRadius: BorderRadius.circular(28),
               ),
-              child: const Icon(
+              child: Icon(
                 Icons.receipt_long_outlined,
                 size: 42,
-                color: Color(0xFF2D6A4F),
+                color: context.backgroundColor,
               ),
             ),
           ),
-          const SizedBox(height: 18),
-          const Center(
+          SizedBox(height: 18),
+          Center(
             child: Text(
               'No Expense Found',
               style: TextStyle(
                 fontSize: 17,
                 fontWeight: FontWeight.w900,
-                color: Color(0xFF263229),
+                color: context.primaryTextColor,
               ),
             ),
           ),
-          const SizedBox(height: 6),
-          const Center(
+          SizedBox(height: 6),
+          Center(
             child: Text(
               'No team expense records are available\n'
               'for the selected date or search.',
               textAlign: TextAlign.center,
-              style: TextStyle(fontSize: 12, color: Color(0xFF7A857E)),
+              style: TextStyle(fontSize: 12, color: context.secondaryTextColor),
             ),
           ),
         ],
@@ -552,7 +551,7 @@ class _TeamExpenseViewState extends State<_TeamExpenseView> {
 
   Widget _buildError(String message) {
     return RefreshIndicator(
-      color: const Color(0xFF2D6A4F),
+      color: context.primaryColor,
       onRefresh: () async {
         _loadExpenses();
 
@@ -567,45 +566,45 @@ class _TeamExpenseViewState extends State<_TeamExpenseView> {
               width: 85,
               height: 85,
               decoration: BoxDecoration(
-                color: const Color(0xFFFFEBEE),
+                color: context.appColors.errorContainer,
                 borderRadius: BorderRadius.circular(26),
               ),
-              child: const Icon(
+              child: Icon(
                 Icons.error_outline_rounded,
                 size: 42,
-                color: Colors.redAccent,
+                color: context.appColors.onErrorContainer,
               ),
             ),
           ),
-          const SizedBox(height: 18),
-          const Center(
+          SizedBox(height: 18),
+          Center(
             child: Text(
               'Something went wrong',
               style: TextStyle(
                 fontSize: 17,
                 fontWeight: FontWeight.w900,
-                color: Color(0xFF263229),
+                color: context.primaryTextColor,
               ),
             ),
           ),
-          const SizedBox(height: 8),
+          SizedBox(height: 8),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 30),
             child: Text(
               message,
               textAlign: TextAlign.center,
-              style: const TextStyle(fontSize: 12, color: Color(0xFF7A857E)),
+              style: TextStyle(fontSize: 12, color: context.secondaryTextColor),
             ),
           ),
-          const SizedBox(height: 18),
+          SizedBox(height: 18),
           Center(
             child: ElevatedButton.icon(
               onPressed: _loadExpenses,
-              icon: const Icon(Icons.refresh_rounded, size: 18),
-              label: const Text('Retry'),
+              icon: Icon(Icons.refresh_rounded, size: 18),
+              label: Text('Retry'),
               style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF2D6A4F),
-                foregroundColor: Colors.white,
+                backgroundColor: context.primaryColor,
+                foregroundColor: context.onPrimaryColor,
                 elevation: 0,
                 padding: const EdgeInsets.symmetric(
                   horizontal: 22,

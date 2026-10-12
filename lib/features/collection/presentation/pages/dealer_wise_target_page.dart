@@ -1,7 +1,7 @@
 import 'package:solufine/core/di/collection_target_di.dart';
 import 'package:solufine/core/router/app_router.dart';
 import 'package:solufine/core/secure_storage/secure_storage.dart';
-import 'package:solufine/core/theme/app_colors.dart';
+import 'package:solufine/core/theme/app_theme_context.dart';
 import 'package:solufine/core/utility/widgets/custom_appbar.dart';
 import 'package:solufine/core/utility/widgets/custom_loader.dart';
 import 'package:solufine/features/collection/domain/entities/target_date_entity.dart';
@@ -82,12 +82,6 @@ class _DealerWiseTargetPageState extends State<DealerWiseTargetPage> {
     );
   }
 
-  static const Color primaryGreen = Color(0xff237653);
-  static const Color darkGreen = Color(0xff123F32);
-  static const Color background = Color(0xffF3F7F4);
-  static const Color pendingColor = Color(0xffF2B93B);
-  static const Color achievedColor = Color(0xff75B943);
-
   @override
   void initState() {
     super.initState();
@@ -150,15 +144,15 @@ class _DealerWiseTargetPageState extends State<DealerWiseTargetPage> {
     return BlocProvider.value(
       value: bloc,
       child: Scaffold(
-        backgroundColor: background,
+        backgroundColor: context.backgroundColor,
 
         appBar: CustomAppBar(
-          backgroundColor: AppColors.backgroundColor,
+      
           leading: IconButton(
-            icon: const Icon(
+            icon: Icon(
               Icons.arrow_back_ios_new,
               size: 19,
-              color: AppColors.darkBackgroundColor,
+            color: context.appThemeData.appBarTheme.foregroundColor,
             ),
             onPressed: () {
               context.go(AppRouter.home);
@@ -178,7 +172,7 @@ class _DealerWiseTargetPageState extends State<DealerWiseTargetPage> {
                 child: BlocBuilder<DealerTargetBloc, DealerTargetState>(
                   builder: (context, state) {
                     if (state.datesStatus == TargetDatesStatus.loading) {
-                      return const CustomLoader();
+                      return CustomLoader(color: context.primaryColor);
                     }
 
                     if (state.datesStatus == TargetDatesStatus.failure) {
@@ -192,7 +186,7 @@ class _DealerWiseTargetPageState extends State<DealerWiseTargetPage> {
                     }
 
                     return RefreshIndicator(
-                      color: primaryGreen,
+                      color: context.primaryColor,
                       onRefresh: () async {
                         if (userId.isEmpty) {
                           return;
@@ -240,31 +234,31 @@ class _DealerWiseTargetPageState extends State<DealerWiseTargetPage> {
   InputDecoration _optionDecoration(String label, IconData icon) {
     return InputDecoration(
       labelText: label,
-      labelStyle: const TextStyle(color: Color(0xff61766B), fontSize: 13),
-      prefixIcon: Icon(icon, color: primaryGreen, size: 20),
+      labelStyle: TextStyle(color: context.secondaryTextColor, fontSize: 13),
+      prefixIcon: Icon(icon, color: context.primaryColor, size: 20),
       filled: true,
-      fillColor: const Color(0xffF6F9F7),
+      fillColor: context.appTheme.inputBackground,
       contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 16),
       enabledBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(14),
-        borderSide: const BorderSide(color: Color(0xffDFE9E2)),
+        borderSide: BorderSide(color: context.borderColor),
       ),
       disabledBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(14),
-        borderSide: const BorderSide(color: Color(0xffDFE9E2)),
+        borderSide: BorderSide(color: context.borderColor),
       ),
       focusedBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(14),
-        borderSide: const BorderSide(color: primaryGreen, width: 1.5),
+        borderSide: BorderSide(color: context.primaryColor, width: 1.5),
       ),
     );
   }
 
   Widget _buildOptions() {
     if (_loadingOptions) {
-      return const Padding(
+      return Padding(
         padding: EdgeInsets.all(16),
-        child: LinearProgressIndicator(),
+        child: LinearProgressIndicator(color: context.primaryColor),
       );
     }
     if (_optionsError != null) {
@@ -273,7 +267,7 @@ class _DealerWiseTargetPageState extends State<DealerWiseTargetPage> {
         child: Column(
           children: [
             Text(_optionsError!),
-            TextButton(onPressed: _loadOptions, child: const Text('Retry')),
+            TextButton(onPressed: _loadOptions, child: Text('Retry')),
           ],
         ),
       );
@@ -282,12 +276,12 @@ class _DealerWiseTargetPageState extends State<DealerWiseTargetPage> {
       margin: const EdgeInsets.fromLTRB(14, 16, 14, 0),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: context.cardBackgroundColor,
         borderRadius: BorderRadius.circular(22),
-        border: Border.all(color: const Color(0xffE1EBE4)),
-        boxShadow: const [
+        border: Border.all(color: context.borderColor),
+        boxShadow: [
           BoxShadow(
-            color: Color(0x080D3B28),
+            color: context.appColors.shadow.withValues(alpha: 0.03),
             blurRadius: 18,
             offset: Offset(0, 6),
           ),
@@ -296,16 +290,16 @@ class _DealerWiseTargetPageState extends State<DealerWiseTargetPage> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Row(
+          Row(
             children: [
-              Icon(Icons.tune_rounded, color: primaryGreen, size: 19),
+              Icon(Icons.tune_rounded, color: context.primaryColor, size: 19),
               SizedBox(width: 8),
               Text(
                 'Collection details',
                 style: TextStyle(
                   fontSize: 15,
                   fontWeight: FontWeight.w700,
-                  color: darkGreen,
+                  color: context.primaryTextColor,
                 ),
               ),
             ],
@@ -344,92 +338,79 @@ class _DealerWiseTargetPageState extends State<DealerWiseTargetPage> {
           //           _reloadTarget();
           //         },
           // ),
-
-
-            DropdownButtonFormField<String>(
-              initialValue: _selectedDealerId,
-              isExpanded: true,
-              borderRadius: BorderRadius.circular(16),
-              dropdownColor: Colors.white,
-              icon: const Icon(
-                Icons.expand_more_rounded,
-                color: primaryGreen,
-              ),
-              style: const TextStyle(
-                color: darkGreen,
-                fontSize: 14,
-                fontWeight: FontWeight.w600,
-              ),
-              decoration: _optionDecoration(
-                'Dealer',
-                Icons.storefront_outlined,
-              ),
-              hint: Text(
-                _dealers.isEmpty ? 'No dealers found' : 'Select dealer',
-              ),
-
-              // Dealer dropdown items
-              items: _dealers.map((dealer) {
-                final bool isAll = dealer.outletId.toString() == '0';
-
-                final String dealerName = dealer.outletName.toString();
-                final String mobileNumber = dealer.outletMobile.toString().trim();
-
-                String displayName;
-
-                if (isAll) {
-                  // If outlet ID is 0, show only All
-                  displayName = 'All';
-                } else if (mobileNumber.isEmpty || mobileNumber == 'null') {
-                  // If mobile number is empty, show only dealer name
-                  displayName = dealerName;
-                } else {
-                  // Show dealer name with mobile number
-                  displayName = '$dealerName - ($mobileNumber)';
-                }
-
-                return DropdownMenuItem<String>(
-                  value: dealer.outletId,
-                  child: Text(
-                    displayName,
-                    overflow: TextOverflow.ellipsis,
-                    maxLines: 1,
-                    style: const TextStyle(
-                      fontSize: 13,
-                      color: darkGreen,
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                );
-              }).toList(),
-
-              // Dealer selection
-              onChanged: _dealers.isEmpty
-                  ? null
-                  : (String? value) {
-                      if (value == null) return;
-
-                      setState(() {
-                        _selectedDealerId = value;
-                      });
-
-                      // Reload target based on selected dealer
-                      _reloadTarget();
-                    },
+          DropdownButtonFormField<String>(
+            initialValue: _selectedDealerId,
+            isExpanded: true,
+            borderRadius: BorderRadius.circular(16),
+            dropdownColor: context.cardBackgroundColor,
+            icon: Icon(Icons.expand_more_rounded, color: context.primaryColor),
+            style: TextStyle(
+              color: context.primaryTextColor,
+              fontSize: 14,
+              fontWeight: FontWeight.w600,
             ),
+            decoration: _optionDecoration('Dealer', Icons.storefront_outlined),
+            hint: Text(_dealers.isEmpty ? 'No dealers found' : 'Select dealer'),
 
+            // Dealer dropdown items
+            items: _dealers.map((dealer) {
+              final bool isAll = dealer.outletId.toString() == '0';
 
+              final String dealerName = dealer.outletName.toString();
+              final String mobileNumber = dealer.outletMobile.toString().trim();
 
+              String displayName;
+
+              if (isAll) {
+                // If outlet ID is 0, show only All
+                displayName = 'All';
+              } else if (mobileNumber.isEmpty || mobileNumber == 'null') {
+                // If mobile number is empty, show only dealer name
+                displayName = dealerName;
+              } else {
+                // Show dealer name with mobile number
+                displayName = '$dealerName - ($mobileNumber)';
+              }
+
+              return DropdownMenuItem<String>(
+                value: dealer.outletId,
+                child: Text(
+                  displayName,
+                  overflow: TextOverflow.ellipsis,
+                  maxLines: 1,
+                  style: TextStyle(
+                    fontSize: 13,
+                    color: context.primaryTextColor,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              );
+            }).toList(),
+
+            // Dealer selection
+            onChanged: _dealers.isEmpty
+                ? null
+                : (String? value) {
+                    if (value == null) return;
+
+                    setState(() {
+                      _selectedDealerId = value;
+                    });
+
+                    // Reload target based on selected dealer
+                    _reloadTarget();
+                  },
+          ),
 
           const SizedBox(height: 12),
           DropdownButtonFormField<String>(
             initialValue: _selectedCollectionTypeId,
             isExpanded: true,
             borderRadius: BorderRadius.circular(16),
-            dropdownColor: Colors.white,
-            icon: const Icon(Icons.expand_more_rounded, color: primaryGreen),
-            style: const TextStyle(
-              color: darkGreen,
+            dropdownColor: context.cardBackgroundColor,
+            icon: Icon(Icons.expand_more_rounded, color: context.primaryColor),
+            style: TextStyle(
+              color: context.primaryTextColor,
               fontSize: 14,
               fontWeight: FontWeight.w600,
             ),
@@ -473,12 +454,12 @@ class _DealerWiseTargetPageState extends State<DealerWiseTargetPage> {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 2),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: context.cardBackgroundColor,
         borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: Colors.grey.shade200),
+        border: Border.all(color: context.borderColor),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.035),
+            color: context.appColors.shadow.withValues(alpha: 0.035),
             blurRadius: 10,
             offset: const Offset(0, 3),
           ),
@@ -490,12 +471,12 @@ class _DealerWiseTargetPageState extends State<DealerWiseTargetPage> {
             height: 36,
             width: 36,
             decoration: BoxDecoration(
-              color: primaryGreen.withOpacity(0.10),
+              color: context.primaryColor.withValues(alpha: 0.10),
               borderRadius: BorderRadius.circular(10),
             ),
-            child: const Icon(
+            child: Icon(
               Icons.calendar_month_outlined,
-              color: primaryGreen,
+              color: context.primaryColor,
               size: 19,
             ),
           ),
@@ -506,14 +487,18 @@ class _DealerWiseTargetPageState extends State<DealerWiseTargetPage> {
             child: DropdownButtonHideUnderline(
               child: DropdownButton<TargetDateEntity>(
                 value: state.selectedDate,
+                dropdownColor: context.cardBackgroundColor,
                 isExpanded: true,
-                icon: const Icon(
+                icon: Icon(
                   Icons.keyboard_arrow_down_rounded,
-                  color: Colors.black54,
+                  color: context.secondaryTextColor,
                 ),
-                hint: const Text(
+                hint: Text(
                   'Select Month',
-                  style: TextStyle(fontSize: 14, color: Colors.black54),
+                  style: TextStyle(
+                    fontSize: 14,
+                    color: context.secondaryTextColor,
+                  ),
                 ),
                 items: state.targetDates
                     .map(
@@ -521,10 +506,10 @@ class _DealerWiseTargetPageState extends State<DealerWiseTargetPage> {
                         value: date,
                         child: Text(
                           date.monthName,
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontSize: 14,
                             fontWeight: FontWeight.w600,
-                            color: Colors.black87,
+                            color: context.primaryTextColor,
                           ),
                         ),
                       ),
@@ -558,7 +543,7 @@ class _DealerWiseTargetPageState extends State<DealerWiseTargetPage> {
 
   Widget _buildTargetContent(DealerTargetState state) {
     if (state.targetStatus == CollectionTargetStatus.loading) {
-      return const CustomLoader();
+      return CustomLoader(color: context.primaryColor);
     }
 
     if (state.targetStatus == CollectionTargetStatus.failure) {
@@ -602,7 +587,7 @@ class _DealerWiseTargetPageState extends State<DealerWiseTargetPage> {
                 title: 'Target in Rs.',
                 value: target.totalTarget,
                 icon: Icons.flag_outlined,
-                color: const Color(0xff4776E6),
+                color: context.appColors.secondary,
               ),
             ),
 
@@ -613,7 +598,7 @@ class _DealerWiseTargetPageState extends State<DealerWiseTargetPage> {
                 title: 'Achieved in Rs.',
                 value: target.totalAchieved,
                 icon: Icons.check_circle_outline,
-                color: achievedColor,
+                color: context.primaryColor,
               ),
             ),
           ],
@@ -628,7 +613,7 @@ class _DealerWiseTargetPageState extends State<DealerWiseTargetPage> {
                 title: 'Pending in Rs.',
                 value: target.totalPending,
                 icon: Icons.pending_actions_outlined,
-                color: pendingColor,
+                color: context.appColors.tertiary,
               ),
             ),
 
@@ -639,7 +624,7 @@ class _DealerWiseTargetPageState extends State<DealerWiseTargetPage> {
                 title: 'Achievement',
                 value: '${target.percentage}%',
                 icon: Icons.percent_rounded,
-                color: primaryGreen,
+                color: context.primaryColor,
               ),
             ),
           ],
@@ -661,12 +646,12 @@ class _DealerWiseTargetPageState extends State<DealerWiseTargetPage> {
     return Container(
       padding: const EdgeInsets.all(13),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: context.cardBackgroundColor,
         borderRadius: BorderRadius.circular(15),
-        border: Border.all(color: Colors.grey.shade200),
+        border: Border.all(color: context.borderColor),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.035),
+            color: context.appColors.shadow.withValues(alpha: 0.035),
             blurRadius: 9,
             offset: const Offset(0, 3),
           ),
@@ -678,7 +663,7 @@ class _DealerWiseTargetPageState extends State<DealerWiseTargetPage> {
             height: 38,
             width: 38,
             decoration: BoxDecoration(
-              color: color.withOpacity(0.11),
+              color: color.withValues(alpha: 0.11),
               borderRadius: BorderRadius.circular(11),
             ),
             child: Icon(icon, color: color, size: 20),
@@ -696,7 +681,7 @@ class _DealerWiseTargetPageState extends State<DealerWiseTargetPage> {
                   overflow: TextOverflow.ellipsis,
                   style: TextStyle(
                     fontSize: 11,
-                    color: Colors.grey.shade600,
+                    color: context.secondaryTextColor,
                     fontWeight: FontWeight.w500,
                   ),
                 ),
@@ -707,9 +692,9 @@ class _DealerWiseTargetPageState extends State<DealerWiseTargetPage> {
                   value,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 16,
-                    color: Color(0xff202124),
+                    color: context.primaryTextColor,
                     fontWeight: FontWeight.w700,
                     letterSpacing: -0.2,
                   ),
@@ -745,12 +730,12 @@ class _DealerWiseTargetPageState extends State<DealerWiseTargetPage> {
     return Container(
       padding: const EdgeInsets.fromLTRB(16, 16, 16, 14),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: context.cardBackgroundColor,
         borderRadius: BorderRadius.circular(18),
-        border: Border.all(color: Colors.grey.shade200),
+        border: Border.all(color: context.borderColor),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.035),
+            color: context.appColors.shadow.withValues(alpha: 0.035),
             blurRadius: 10,
             offset: const Offset(0, 3),
           ),
@@ -765,19 +750,19 @@ class _DealerWiseTargetPageState extends State<DealerWiseTargetPage> {
                 height: 34,
                 width: 34,
                 decoration: BoxDecoration(
-                  color: primaryGreen.withOpacity(0.10),
+                  color: context.primaryColor.withValues(alpha: 0.10),
                   borderRadius: BorderRadius.circular(10),
                 ),
-                child: const Icon(
+                child: Icon(
                   Icons.donut_large_outlined,
-                  color: primaryGreen,
+                  color: context.primaryColor,
                   size: 18,
                 ),
               ),
 
               const SizedBox(width: 10),
 
-              const Expanded(
+              Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -786,13 +771,16 @@ class _DealerWiseTargetPageState extends State<DealerWiseTargetPage> {
                       style: TextStyle(
                         fontSize: 15,
                         fontWeight: FontWeight.w700,
-                        color: Color(0xff202124),
+                        color: context.primaryTextColor,
                       ),
                     ),
                     SizedBox(height: 2),
                     Text(
                       'Target vs collection',
-                      style: TextStyle(fontSize: 11, color: Colors.black45),
+                      style: TextStyle(
+                        fontSize: 11,
+                        color: context.secondaryTextColor,
+                      ),
                     ),
                   ],
                 ),
@@ -820,7 +808,7 @@ class _DealerWiseTargetPageState extends State<DealerWiseTargetPage> {
                           value: pendingPercent,
                           title: '',
                           radius: 72,
-                          color: pendingColor,
+                          color: context.appColors.tertiary,
                           showTitle: false,
                         ),
 
@@ -829,7 +817,7 @@ class _DealerWiseTargetPageState extends State<DealerWiseTargetPage> {
                           value: achievedPercent,
                           title: '',
                           radius: 72,
-                          color: achievedColor,
+                          color: context.primaryColor,
                           showTitle: false,
                         ),
                     ],
@@ -844,10 +832,10 @@ class _DealerWiseTargetPageState extends State<DealerWiseTargetPage> {
                       // '${achievedPercent.toStringAsFixed(0)}%',
                       '${achievedPercent.toStringAsFixed(2)}%',
 
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 20,
                         fontWeight: FontWeight.w800,
-                        color: Color(0xff202124),
+                        color: context.primaryTextColor,
                         letterSpacing: -1,
                       ),
                     ),
@@ -856,7 +844,7 @@ class _DealerWiseTargetPageState extends State<DealerWiseTargetPage> {
                       'Achieved',
                       style: TextStyle(
                         fontSize: 11,
-                        color: Colors.grey.shade600,
+                        color: context.secondaryTextColor,
                         fontWeight: FontWeight.w500,
                       ),
                     ),
@@ -871,7 +859,7 @@ class _DealerWiseTargetPageState extends State<DealerWiseTargetPage> {
             children: [
               Expanded(
                 child: _buildLegendItem(
-                  color: achievedColor,
+                  color: context.primaryColor,
                   title: 'Collection',
                   value: '${achievedPercent.toStringAsFixed(0)}%',
                 ),
@@ -879,7 +867,7 @@ class _DealerWiseTargetPageState extends State<DealerWiseTargetPage> {
 
               Expanded(
                 child: _buildLegendItem(
-                  color: pendingColor,
+                  color: context.appColors.tertiary,
                   title: 'Pending Target',
                   value: '${pendingPercent.toStringAsFixed(0)}%',
                 ),
@@ -919,16 +907,19 @@ class _DealerWiseTargetPageState extends State<DealerWiseTargetPage> {
                 title,
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 11,
                   fontWeight: FontWeight.w600,
-                  color: Color(0xff333333),
+                  color: context.primaryTextColor,
                 ),
               ),
 
               Text(
                 value,
-                style: TextStyle(fontSize: 10, color: Colors.grey.shade600),
+                style: TextStyle(
+                  fontSize: 10,
+                  color: context.secondaryTextColor,
+                ),
               ),
             ],
           ),
@@ -952,13 +943,13 @@ class _DealerWiseTargetPageState extends State<DealerWiseTargetPage> {
               height: 70,
               width: 70,
               decoration: BoxDecoration(
-                color: primaryGreen.withOpacity(0.08),
+                color: context.primaryColor.withValues(alpha: 0.08),
                 shape: BoxShape.circle,
               ),
-              child: const Icon(
+              child: Icon(
                 Icons.analytics_outlined,
                 size: 34,
-                color: primaryGreen,
+                color: context.primaryColor,
               ),
             ),
 
@@ -969,7 +960,7 @@ class _DealerWiseTargetPageState extends State<DealerWiseTargetPage> {
               textAlign: TextAlign.center,
               style: TextStyle(
                 fontSize: 14,
-                color: Colors.grey.shade600,
+                color: context.secondaryTextColor,
                 fontWeight: FontWeight.w500,
               ),
             ),
