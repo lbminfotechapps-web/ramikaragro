@@ -92,7 +92,7 @@ class _TopTenDealerPageState extends State<TopTenDealerPage> {
                     count: state.dealers.length,
                   ),
 
-                  const SizedBox(height: 18),
+                  SizedBox(height: 18),
 
                   DealerFilter(
                     selectedDays: state.selectedDays,
@@ -101,11 +101,11 @@ class _TopTenDealerPageState extends State<TopTenDealerPage> {
                     },
                   ),
 
-                  const SizedBox(height: 22),
+                  SizedBox(height: 22),
 
                   _buildTableHeader(),
 
-                  const SizedBox(height: 10),
+                  SizedBox(height: 10),
 
                   _buildContent(state),
                 ],
@@ -274,14 +274,14 @@ class _TopTenDealerPageState extends State<TopTenDealerPage> {
             ),
           ),
 
-          const SizedBox(height: 16),
+          SizedBox(height: 16),
 
           Text(
             'No Dealers Found',
             style: TextStyle(fontSize: 17, fontWeight: FontWeight.w700),
           ),
 
-          const SizedBox(height: 6),
+          SizedBox(height: 6),
 
           Text(
             'No dealer visits found for last $days days',

@@ -510,7 +510,7 @@ class _AiChatbotState extends State<AiChatbot> {
             child: IconButton(
               icon: Icon(
                 Icons.menu_rounded,
-                color: context.appPrimary,
+                // color: context.appPrimary,
               ),
               onPressed: () {
                 _scaffoldKey.currentState?.openDrawer();

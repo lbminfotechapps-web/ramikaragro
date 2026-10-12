@@ -2,7 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:keyboard_actions/keyboard_actions.dart';
 import 'package:solufine/core/di/auth_di.dart';
 import 'package:solufine/core/router/app_router.dart';
-import 'package:solufine/core/theme/app_colors.dart';
+import 'package:solufine/core/theme/app_theme_context.dart';
 import 'package:solufine/core/utility/app_toast.dart';
 import 'package:solufine/core/utility/widgets/custom_button.dart';
 import 'package:solufine/core/utility/widgets/custom_loader.dart';
@@ -47,7 +47,7 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: context.backgroundColor,
       resizeToAvoidBottomInset: true,
       body: BlocConsumer<AuthBloc, AuthState>(
         listener: (context, state) async {
@@ -79,8 +79,9 @@ class _LoginScreenState extends State<LoginScreen> {
 
         builder: (context, state) {
           if (state.loginStatus == LoginStatus.loading) {
-            return const CustomLoader(
+            return CustomLoader(
               showMessage: true,
+              color: context.primaryColor,
               message: 'Authentication....',
             );
           }
@@ -88,9 +89,9 @@ class _LoginScreenState extends State<LoginScreen> {
           return KeyboardActions(
             enabled: !kIsWeb && defaultTargetPlatform == TargetPlatform.iOS,
             doneText: 'Done',
-            theme: const KeyboardActionsThemeData(
-              barColor: Colors.white,
-              foregroundColor: AppColors.accentGreen,
+            theme: KeyboardActionsThemeData(
+              barColor: context.cardBackgroundColor,
+              foregroundColor: context.primaryColor,
               doneTextStyle: TextStyle(fontWeight: FontWeight.w700),
             ),
             child: SafeArea(
@@ -216,7 +217,7 @@ class _LoginScreenState extends State<LoginScreen> {
             Text(
               'Login to your account',
               style: TextStyle(
-                color: Color(0xFF087C3A),
+                color: context.primaryColor,
                 fontSize: 25.sp,
                 fontWeight: FontWeight.w700,
               ),
@@ -228,7 +229,7 @@ class _LoginScreenState extends State<LoginScreen> {
             Text(
               'Welcome, Please login to continue.',
               style: TextStyle(
-                color: Colors.grey.shade600,
+                color: context.secondaryTextColor,
                 fontSize: 14.sp,
                 fontWeight: FontWeight.w500,
               ),
@@ -367,6 +368,8 @@ class _LoginScreenState extends State<LoginScreen> {
       width: double.infinity,
       textSize: 15.sp,
       text: 'LOGIN',
+      backgroundColor: context.primaryColor,
+      textColor: context.onPrimaryColor,
       onPressed: () {
         if (_formKey.currentState!.validate()) {
           context.read<AuthBloc>().add(

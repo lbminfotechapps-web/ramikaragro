@@ -1,3 +1,4 @@
+import 'package:solufine/core/theme/app_theme_context.dart';
 import 'package:flutter/material.dart';
 import 'package:solufine/core/theme/app_theme_context.dart';
 
@@ -42,7 +43,7 @@ class TopTenHeader extends StatelessWidget {
             ),
           ),
 
-          const SizedBox(width: 14),
+          SizedBox(width: 14),
 
           Expanded(
             child: Column(
@@ -56,7 +57,7 @@ class TopTenHeader extends StatelessWidget {
                     fontWeight: FontWeight.w700,
                   ),
                 ),
-                const SizedBox(height: 5),
+                SizedBox(height: 5),
                 Text(
                   'Top 10 dealers in last $selectedDays days',
                   style: TextStyle(

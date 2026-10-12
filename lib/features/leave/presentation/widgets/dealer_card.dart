@@ -1,3 +1,4 @@
+import 'package:solufine/core/theme/app_theme_context.dart';
 import 'package:flutter/material.dart';
 import 'package:solufine/core/theme/app_theme_context.dart';
 
@@ -40,7 +41,7 @@ class DealerCard extends StatelessWidget {
             children: [
               _buildRank(context),
 
-              const SizedBox(width: 10),
+              SizedBox(width: 10),
 
               Expanded(
                 child: Column(
@@ -59,7 +60,7 @@ class DealerCard extends StatelessWidget {
                       ),
                     ),
 
-                    const SizedBox(height: 5),
+                    SizedBox(height: 5),
 
                     Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -70,7 +71,7 @@ class DealerCard extends StatelessWidget {
                           color: context.secondaryTextColor,
                         ),
 
-                        const SizedBox(width: 3),
+                        SizedBox(width: 3),
 
                         Expanded(
                           child: Text(
@@ -91,7 +92,7 @@ class DealerCard extends StatelessWidget {
                 ),
               ),
 
-              const SizedBox(width: 8),
+              SizedBox(width: 8),
 
               Container(
                 width: 62,

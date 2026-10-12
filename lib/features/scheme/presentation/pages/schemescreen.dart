@@ -1,5 +1,5 @@
 import 'package:solufine/core/api_constant/api_client.dart';
-import 'package:solufine/core/theme/app_colors.dart';
+import 'package:solufine/core/theme/app_theme_context.dart';
 import 'package:solufine/core/utility/appdialog.dart';
 import 'package:solufine/core/utility/fullimage.dart';
 import 'package:solufine/core/utility/pdfviewerscreen.dart';
@@ -22,8 +22,6 @@ class SchemeScreen extends StatefulWidget {
 }
 
 class _SchemeScreenState extends State<SchemeScreen> {
-
-
   final List<String> months = List.generate(
     12,
     (i) => DateFormat.MMMM().format(DateTime(0, i + 1)),
@@ -31,12 +29,9 @@ class _SchemeScreenState extends State<SchemeScreen> {
 
   late String selectedMonth;
 
-
   late List<String> years;
 
   late String selectedYear;
-
-
 
   Statedata? selectedState;
 
@@ -62,12 +57,10 @@ class _SchemeScreenState extends State<SchemeScreen> {
     super.dispose();
   }
 
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.backgroundColor
-      ,
+      backgroundColor: context.backgroundColor,
 
       appBar: CustomAppBar(
         title: 'Schemes',
@@ -77,8 +70,6 @@ class _SchemeScreenState extends State<SchemeScreen> {
 
       body: BlocConsumer<SchemeBloc, SchemeState>(
         listener: (context, state) {
-
-
           if (state is SchemeStatesLoaded) {
             setState(() {
               stateList = state.states;
@@ -87,14 +78,11 @@ class _SchemeScreenState extends State<SchemeScreen> {
             });
           }
 
-
           if (state is SchemeError) {
             ScaffoldMessenger.of(
               context,
             ).showSnackBar(SnackBar(content: Text(state.message)));
           }
-
-
 
           if (state is SchemeLoaded && state.schemes.isEmpty) {
             ScaffoldMessenger.of(
@@ -111,7 +99,6 @@ class _SchemeScreenState extends State<SchemeScreen> {
                 SizedBox(height: 14.h),
                 _buildFilter(state),
 
-               
                 Expanded(child: _buildSchemeList(state)),
               ],
             ),
@@ -120,8 +107,6 @@ class _SchemeScreenState extends State<SchemeScreen> {
       ),
     );
   }
-
-
 
   Widget _buildFilter(SchemeState state) {
     final bool stateLoading = state is SchemeStatesLoading;
@@ -132,7 +117,6 @@ class _SchemeScreenState extends State<SchemeScreen> {
       child: _buildCard(
         child: Column(
           children: [
-    
             Row(
               children: [
                 Expanded(
@@ -175,7 +159,6 @@ class _SchemeScreenState extends State<SchemeScreen> {
 
             const SizedBox(height: 10),
 
-          
             stateLoading ? _buildStateLoading() : _buildStateDropdown(),
 
             const SizedBox(height: 12),
@@ -186,8 +169,8 @@ class _SchemeScreenState extends State<SchemeScreen> {
 
               child: ElevatedButton(
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.green,
-                  foregroundColor: Colors.white,
+                  backgroundColor: context.primaryColor,
+                  foregroundColor: context.onPrimaryColor,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12),
                   ),
@@ -207,7 +190,6 @@ class _SchemeScreenState extends State<SchemeScreen> {
     );
   }
 
-
   void _onSearch() {
     final String? stateId = selectedState?.stateId;
 
@@ -221,7 +203,6 @@ class _SchemeScreenState extends State<SchemeScreen> {
       return;
     }
 
-   
     final int month = months.indexOf(selectedMonth) + 1;
 
     print('Search Scheme:');
@@ -241,19 +222,18 @@ class _SchemeScreenState extends State<SchemeScreen> {
     );
   }
 
-
   Widget _buildStateDropdown() {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10),
 
       decoration: BoxDecoration(
-        color: const Color(0xFFF3F6F9),
+        color: context.appTheme.inputBackground,
         borderRadius: BorderRadius.circular(12),
       ),
 
       child: Row(
         children: [
-          const Icon(Icons.map, color: Colors.green, size: 18),
+          Icon(Icons.map, color: context.primaryColor, size: 18),
 
           const SizedBox(width: 8),
 
@@ -261,10 +241,16 @@ class _SchemeScreenState extends State<SchemeScreen> {
             child: DropdownButtonHideUnderline(
               child: DropdownButton<Statedata>(
                 value: selectedState,
+                dropdownColor: context.cardBackgroundColor,
+                iconEnabledColor: context.primaryColor,
+                style: TextStyle(color: context.primaryTextColor),
 
                 isExpanded: true,
 
-                hint: const Text('Select State'),
+                hint: Text(
+                  'Select State',
+                  style: TextStyle(color: context.secondaryTextColor),
+                ),
 
                 items: stateList.map((Statedata state) {
                   return DropdownMenuItem<Statedata>(
@@ -297,8 +283,6 @@ class _SchemeScreenState extends State<SchemeScreen> {
     );
   }
 
-
-
   Widget _buildStateLoading() {
     return Container(
       height: 50,
@@ -306,30 +290,36 @@ class _SchemeScreenState extends State<SchemeScreen> {
       padding: const EdgeInsets.symmetric(horizontal: 12),
 
       decoration: BoxDecoration(
-        color: const Color(0xFFF3F6F9),
+        color: context.appTheme.inputBackground,
         borderRadius: BorderRadius.circular(12),
       ),
 
-      child: const Row(
+      child: Row(
         children: [
-          Icon(Icons.map, color: Colors.green, size: 18),
+          Icon(Icons.map, color: context.primaryColor, size: 18),
 
           SizedBox(width: 8),
 
-          Expanded(child: Text('Loading states...')),
+          Expanded(
+            child: Text(
+              'Loading states...',
+              style: TextStyle(color: context.secondaryTextColor),
+            ),
+          ),
 
           SizedBox(
             width: 18,
             height: 18,
 
-            child: CircularProgressIndicator(strokeWidth: 2),
+            child: CircularProgressIndicator(
+              strokeWidth: 2,
+              color: context.primaryColor,
+            ),
           ),
         ],
       ),
     );
   }
-
-  
 
   Widget _buildDropdownn({
     required IconData icon,
@@ -341,13 +331,13 @@ class _SchemeScreenState extends State<SchemeScreen> {
       padding: const EdgeInsets.symmetric(horizontal: 10),
 
       decoration: BoxDecoration(
-        color: const Color(0xFFF3F6F9),
+        color: context.appTheme.inputBackground,
         borderRadius: BorderRadius.circular(12),
       ),
 
       child: Row(
         children: [
-          Icon(icon, color: Colors.green, size: 18),
+          Icon(icon, color: context.primaryColor, size: 18),
 
           const SizedBox(width: 8),
 
@@ -355,6 +345,9 @@ class _SchemeScreenState extends State<SchemeScreen> {
             child: DropdownButtonHideUnderline(
               child: DropdownButton<String>(
                 value: value,
+                dropdownColor: context.cardBackgroundColor,
+                iconEnabledColor: context.primaryColor,
+                style: TextStyle(color: context.primaryTextColor),
 
                 isExpanded: true,
 
@@ -375,31 +368,28 @@ class _SchemeScreenState extends State<SchemeScreen> {
     );
   }
 
- 
-
   Widget _buildSchemeList(SchemeState state) {
-
-
     if (state is SchemeLoading) {
-      return const Center(child: CircularProgressIndicator());
-    }
-
-   
-
-    if (state is SchemeError) {
       return Center(
-        child: Text(state.message, style: const TextStyle(color: Colors.red)),
+        child: CircularProgressIndicator(color: context.primaryColor),
       );
     }
 
-
+    if (state is SchemeError) {
+      return Center(
+        child: Text(
+          state.message,
+          style: TextStyle(color: context.appColors.error),
+        ),
+      );
+    }
 
     if (state is SchemeLoaded) {
       if (state.schemes.isEmpty) {
-        return const Center(
+        return Center(
           child: Text(
             'No Scheme Found',
-            style: TextStyle(color: Colors.grey, fontSize: 15),
+            style: TextStyle(color: context.secondaryTextColor, fontSize: 15),
           ),
         );
       }
@@ -417,17 +407,13 @@ class _SchemeScreenState extends State<SchemeScreen> {
       );
     }
 
-   
-
-    return const Center(
+    return Center(
       child: Text(
         'No Scheme Found',
-        style: TextStyle(color: Colors.grey, fontSize: 15),
+        style: TextStyle(color: context.secondaryTextColor, fontSize: 15),
       ),
     );
   }
-
- 
 
   Widget _buildSchemeCard(SchemeEntity item) {
     final String image = item.fldImage ?? '';
@@ -438,13 +424,13 @@ class _SchemeScreenState extends State<SchemeScreen> {
       margin: const EdgeInsets.only(bottom: 12),
 
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: context.cardBackgroundColor,
 
         borderRadius: BorderRadius.circular(18),
 
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: context.appColors.shadow.withValues(alpha: 0.05),
 
             blurRadius: 10,
 
@@ -457,7 +443,6 @@ class _SchemeScreenState extends State<SchemeScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
 
         children: [
-         
           GestureDetector(
             onTap: () {
               if (image.isEmpty) {
@@ -493,13 +478,13 @@ class _SchemeScreenState extends State<SchemeScreen> {
 
                 child: isPdf(image)
                     ? Container(
-                        color: Colors.red.shade50,
+                        color: context.appColors.primaryContainer,
 
-                        child: const Center(
+                        child: Center(
                           child: Icon(
                             Icons.picture_as_pdf,
                             size: 60,
-                            color: Colors.red,
+                            color: context.appColors.error,
                           ),
                         ),
                       )
@@ -509,11 +494,11 @@ class _SchemeScreenState extends State<SchemeScreen> {
                         fit: BoxFit.cover,
 
                         errorBuilder: (context, error, stackTrace) {
-                          return const Center(
+                          return Center(
                             child: Icon(
                               Icons.broken_image,
                               size: 50,
-                              color: Colors.grey,
+                              color: context.secondaryTextColor,
                             ),
                           );
                         },
@@ -522,7 +507,6 @@ class _SchemeScreenState extends State<SchemeScreen> {
             ),
           ),
 
-       
           Padding(
             padding: const EdgeInsets.all(12),
 
@@ -530,14 +514,12 @@ class _SchemeScreenState extends State<SchemeScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
 
               children: [
-            
                 Text(
                   item.fldRemark ?? '',
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(color: Colors.black),
+                  style: TextStyle(color: context.cardTextColor),
                 ),
-
               ],
             ),
           ),
@@ -545,7 +527,6 @@ class _SchemeScreenState extends State<SchemeScreen> {
       ),
     );
   }
-
 
   String fileUrl(String file) {
     final String value = file.trim();
@@ -557,24 +538,24 @@ class _SchemeScreenState extends State<SchemeScreen> {
     return '${ApiClient.imageBaseUrl}Scheme/$value';
   }
 
-  
-
   bool isPdf(String url) {
     return url.toLowerCase().endsWith('.pdf');
   }
-
 
   Widget _buildCard({required Widget child}) {
     return Container(
       padding: const EdgeInsets.all(12),
 
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: context.cardBackgroundColor,
 
         borderRadius: BorderRadius.circular(18),
 
         boxShadow: [
-          BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 10),
+          BoxShadow(
+            color: context.appColors.shadow.withValues(alpha: 0.05),
+            blurRadius: 10,
+          ),
         ],
       ),
 

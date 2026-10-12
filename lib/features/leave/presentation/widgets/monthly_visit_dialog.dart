@@ -1,3 +1,4 @@
+import 'package:solufine/core/theme/app_theme_context.dart';
 import 'package:flutter/material.dart';
 import 'package:solufine/core/theme/app_theme_context.dart';
 
@@ -96,7 +97,7 @@ Widget _header(BuildContext context, TopTenDealer dealer) {
           ),
         ),
 
-        const SizedBox(width: 12),
+        SizedBox(width: 12),
 
         Expanded(
           child: Column(
@@ -110,7 +111,7 @@ Widget _header(BuildContext context, TopTenDealer dealer) {
                   fontWeight: FontWeight.w700,
                 ),
               ),
-              const SizedBox(height: 4),
+              SizedBox(height: 4),
               Text(
                 dealer.outletName,
                 maxLines: 2,
@@ -159,7 +160,7 @@ Widget _monthlyItem(BuildContext context, PreDetails item) {
           ),
         ),
 
-        const SizedBox(width: 12),
+        SizedBox(width: 12),
 
         Expanded(
           child: Text(

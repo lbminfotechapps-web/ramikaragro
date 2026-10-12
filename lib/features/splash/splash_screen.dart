@@ -1,6 +1,6 @@
 import 'package:solufine/core/di/auth_di.dart';
 import 'package:solufine/core/router/app_router.dart';
-import 'package:solufine/core/theme/app_colors.dart';
+import 'package:solufine/core/theme/app_theme_context.dart';
 import 'package:solufine/core/utility/appname.dart';
 import 'package:solufine/features/auth/provider/auth_provider.dart';
 import 'package:flutter/material.dart';
@@ -20,16 +20,16 @@ class _SplashScreenState extends State<SplashScreen> {
     _checkLogin();
   }
 
-Future<void> _checkLogin() async {
-  final authProvider = sl<AuthProvider>();
+  Future<void> _checkLogin() async {
+    final authProvider = sl<AuthProvider>();
 
-  await authProvider.checkLoginStatus();
+    await authProvider.checkLoginStatus();
 
-  if (!mounted) return;
+    if (!mounted) return;
 
-  // Always open home.
-  context.go(AppRouter.home);
-}
+    // Always open home.
+    context.go(AppRouter.home);
+  }
   // Future<void> _checkLogin() async {
   //   final authProvider = sl<AuthProvider>();
 
@@ -42,11 +42,10 @@ Future<void> _checkLogin() async {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-    
       body: Container(
         width: double.infinity,
         height: double.infinity,
-        decoration: const BoxDecoration(gradient: AppColors.appGradient),
+        decoration: BoxDecoration(color: context.primaryColor),
         child: Center(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -58,7 +57,7 @@ Future<void> _checkLogin() async {
                   shape: BoxShape.circle,
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withOpacity(0.3),
+                      color: context.appColors.shadow.withValues(alpha: 0.3),
                       blurRadius: 20,
                       spreadRadius: 3,
                     ),
@@ -75,20 +74,27 @@ Future<void> _checkLogin() async {
                 style: TextStyle(
                   fontSize: 30,
                   fontWeight: FontWeight.bold,
-                  color: Colors.white,
+                  color: context.onPrimaryColor,
                 ),
               ),
               const SizedBox(height: 12),
-              const Text(
+              Text(
                 'Loading your workspace...',
-                style: TextStyle(fontSize: 16, color: Colors.white70),
+                style: TextStyle(
+                  fontSize: 16,
+                  color: context.onPrimaryColor.withValues(alpha: 0.7),
+                ),
               ),
               const SizedBox(height: 32),
-              const SizedBox(
+              SizedBox(
                 width: 180,
                 child: LinearProgressIndicator(
-                  backgroundColor: Colors.white24,
-                  valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                  backgroundColor: context.onPrimaryColor.withValues(
+                    alpha: 0.24,
+                  ),
+                  valueColor: AlwaysStoppedAnimation<Color>(
+                    context.onPrimaryColor,
+                  ),
                 ),
               ),
             ],

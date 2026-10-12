@@ -6,7 +6,7 @@ import 'package:go_router/go_router.dart';
 import 'package:solufine/core/di/self_target_di.dart';
 import 'package:solufine/core/router/app_router.dart';
 import 'package:solufine/core/secure_storage/secure_storage.dart';
-import 'package:solufine/core/theme/app_colors.dart';
+import 'package:solufine/core/theme/app_theme_context.dart';
 import 'package:solufine/core/utility/widgets/custom_appbar.dart';
 
 import 'package:solufine/features/assign_target_point_wise/domain/entities/target_group_entity.dart';
@@ -281,7 +281,7 @@ class _SelfTargetPageState extends State<SelfTargetPage> {
         SnackBar(
           behavior: SnackBarBehavior.floating,
 
-          backgroundColor: AppColors.error,
+          backgroundColor: context.appColors.error,
 
           margin: const EdgeInsets.all(12),
 
@@ -292,8 +292,8 @@ class _SelfTargetPageState extends State<SelfTargetPage> {
           content: Text(
             message,
 
-            style: const TextStyle(
-              color: Colors.white,
+            style: TextStyle(
+              color: context.appColors.onError,
 
               fontWeight: FontWeight.w600,
             ),
@@ -318,7 +318,7 @@ class _SelfTargetPageState extends State<SelfTargetPage> {
 
       builder: (dialogContext) {
         return AlertDialog(
-          backgroundColor: Colors.white,
+          backgroundColor: context.cardBackgroundColor,
 
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(20),
@@ -334,24 +334,24 @@ class _SelfTargetPageState extends State<SelfTargetPage> {
                 width: 68,
                 height: 68,
 
-                decoration: const BoxDecoration(
-                  color: Color(0xFFEAF7EE),
+                decoration: BoxDecoration(
+                  color: context.appColors.primaryContainer,
 
                   shape: BoxShape.circle,
                 ),
 
-                child: const Icon(
+                child: Icon(
                   Icons.check_circle_rounded,
 
-                  color: Color(0xFF166534),
+                  color: context.primaryColor,
 
                   size: 46,
                 ),
               ),
 
-              const SizedBox(height: 14),
+              SizedBox(height: 14),
 
-              const Text(
+              Text(
                 'Target Submitted',
 
                 textAlign: TextAlign.center,
@@ -361,27 +361,27 @@ class _SelfTargetPageState extends State<SelfTargetPage> {
 
                   fontWeight: FontWeight.w800,
 
-                  color: Color(0xFF17201B),
+                  color: context.primaryTextColor,
                 ),
               ),
 
-              const SizedBox(height: 6),
+              SizedBox(height: 6),
 
               Text(
                 message,
 
                 textAlign: TextAlign.center,
 
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 12,
 
                   height: 1.4,
 
-                  color: Color(0xFF66736B),
+                  color: context.secondaryTextColor,
                 ),
               ),
 
-              const SizedBox(height: 18),
+              SizedBox(height: 18),
 
               // SizedBox(
               //   width:
@@ -446,9 +446,9 @@ class _SelfTargetPageState extends State<SelfTargetPage> {
                   },
 
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF166534),
+                    backgroundColor: context.primaryColor,
 
-                    foregroundColor: Colors.white,
+                    foregroundColor: context.onPrimaryColor,
 
                     elevation: 0,
 
@@ -457,7 +457,7 @@ class _SelfTargetPageState extends State<SelfTargetPage> {
                     ),
                   ),
 
-                  child: const Text(
+                  child: Text(
                     'Done',
 
                     style: TextStyle(fontWeight: FontWeight.w700),
@@ -477,7 +477,7 @@ class _SelfTargetPageState extends State<SelfTargetPage> {
     await showDialog<void>(
       context: context,
       barrierDismissible: false,
-      barrierColor: Colors.black.withOpacity(0.45),
+      barrierColor: context.appColors.shadow.withValues(alpha: 0.45),
       builder: (dialogContext) {
         return Dialog(
           backgroundColor: Colors.transparent,
@@ -493,11 +493,11 @@ class _SelfTargetPageState extends State<SelfTargetPage> {
               width: double.infinity,
               padding: const EdgeInsets.fromLTRB(22, 28, 22, 20),
               decoration: BoxDecoration(
-                color: Colors.white,
+                color: context.cardBackgroundColor,
                 borderRadius: BorderRadius.circular(24),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.15),
+                    color: context.appColors.shadow.withValues(alpha: 0.15),
                     blurRadius: 30,
                     offset: const Offset(0, 12),
                   ),
@@ -534,33 +534,33 @@ class _SelfTargetPageState extends State<SelfTargetPage> {
                   //     ),
                   //   ),
                   // ),
-                  const SizedBox(height: 20),
+                  SizedBox(height: 20),
 
-                  const Text(
+                  Text(
                     'Target Already Added',
                     textAlign: TextAlign.center,
                     style: TextStyle(
                       fontSize: 20,
                       fontWeight: FontWeight.w800,
-                      color: Color(0xFF17201B),
+                      color: context.primaryTextColor,
                     ),
                   ),
 
-                  const SizedBox(height: 8),
+                  SizedBox(height: 8),
 
                   // API MESSAGE
                   Text(
                     message,
                     textAlign: TextAlign.center,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 13,
                       height: 1.5,
-                      color: Color(0xFF66736B),
+                      color: context.secondaryTextColor,
                       fontWeight: FontWeight.w500,
                     ),
                   ),
 
-                  const SizedBox(height: 24),
+                  SizedBox(height: 24),
 
                   SizedBox(
                     height: 50,
@@ -570,8 +570,8 @@ class _SelfTargetPageState extends State<SelfTargetPage> {
                         Navigator.pop(dialogContext);
                       },
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFFDC2626),
-                        foregroundColor: Colors.white,
+                        backgroundColor: context.appColors.error,
+                        foregroundColor: context.appColors.onError,
                         elevation: 0,
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(14),
@@ -644,7 +644,7 @@ class _SelfTargetPageState extends State<SelfTargetPage> {
 
         builder: (context, state) {
           return Scaffold(
-            backgroundColor: const Color(0xFFF5F7F6),
+            backgroundColor: context.backgroundColor,
 
             appBar: CustomAppBar(
               title: 'Self Assign Target Point Wise(Sales)',
@@ -671,19 +671,19 @@ class _SelfTargetPageState extends State<SelfTargetPage> {
 
   Widget _buildBody(SelfTargetState state) {
     if (isLoadingUser) {
-      return const Center(
-        child: CircularProgressIndicator(color: Color(0xFF166534)),
+      return Center(
+        child: CircularProgressIndicator(color: context.primaryColor),
       );
     }
 
     if (state.status == SelfTargetStatus.loading && state.groups.isEmpty) {
-      return const Center(
-        child: CircularProgressIndicator(color: Color(0xFF166534)),
+      return Center(
+        child: CircularProgressIndicator(color: context.primaryColor),
       );
     }
 
     return RefreshIndicator(
-      color: const Color(0xFF166534),
+      color: context.primaryColor,
 
       onRefresh: () async {
         bloc.add(const GetSelfTargetEvent());
@@ -703,21 +703,21 @@ class _SelfTargetPageState extends State<SelfTargetPage> {
             // ==================================================
             _buildHeroCard(),
 
-            const SizedBox(height: 10),
+            SizedBox(height: 10),
 
             // ==================================================
             // PRODUCT GROUP FIRST
             // ==================================================
             _buildGroupSection(state),
 
-            const SizedBox(height: 10),
+            SizedBox(height: 10),
 
             // ==================================================
             // MONTH BELOW GROUP
             // ==================================================
             _buildMonthCard(),
 
-            const SizedBox(height: 8),
+            SizedBox(height: 8),
 
             // ==================================================
             // POINT BELOW MONTH
@@ -740,19 +740,13 @@ class _SelfTargetPageState extends State<SelfTargetPage> {
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
 
       decoration: BoxDecoration(
-        gradient: const LinearGradient(
-          begin: Alignment.topLeft,
-
-          end: Alignment.bottomRight,
-
-          colors: [Color(0xFF14532D), Color(0xFF1C7A45)],
-        ),
+        color: context.primaryColor,
 
         borderRadius: BorderRadius.circular(16),
 
         boxShadow: [
           BoxShadow(
-            color: const Color(0xFF166534).withOpacity(.14),
+            color: context.primaryColor.withValues(alpha: .14),
 
             blurRadius: 12,
 
@@ -768,23 +762,23 @@ class _SelfTargetPageState extends State<SelfTargetPage> {
             height: 42,
 
             decoration: BoxDecoration(
-              color: Colors.white.withOpacity(.15),
+              color: context.onPrimaryColor.withValues(alpha: .15),
 
               borderRadius: BorderRadius.circular(12),
             ),
 
-            child: const Icon(
+            child: Icon(
               Icons.track_changes_rounded,
 
-              color: Colors.white,
+              color: context.onPrimaryColor,
 
               size: 23,
             ),
           ),
 
-          const SizedBox(width: 10),
+          SizedBox(width: 10),
 
-          const Expanded(
+          Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
 
@@ -793,7 +787,7 @@ class _SelfTargetPageState extends State<SelfTargetPage> {
                   'Self Target',
 
                   style: TextStyle(
-                    color: Colors.white,
+                    color: context.onPrimaryColor,
 
                     fontSize: 16,
 
@@ -806,7 +800,10 @@ class _SelfTargetPageState extends State<SelfTargetPage> {
                 Text(
                   'Review group points and assign your monthly target.',
 
-                  style: TextStyle(color: Colors.white70, fontSize: 9.5),
+                  style: TextStyle(
+                    color: context.onPrimaryColor.withValues(alpha: 0.7),
+                    fontSize: 9.5,
+                  ),
                 ),
               ],
             ),
@@ -833,15 +830,15 @@ class _SelfTargetPageState extends State<SelfTargetPage> {
       padding: const EdgeInsets.all(12),
 
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: context.cardBackgroundColor,
 
         borderRadius: BorderRadius.circular(16),
 
-        border: Border.all(color: const Color(0xFFE5EAE7)),
+        border: Border.all(color: context.borderColor),
 
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(.02),
+            color: context.appColors.shadow.withValues(alpha: .02),
 
             blurRadius: 8,
 
@@ -864,23 +861,23 @@ class _SelfTargetPageState extends State<SelfTargetPage> {
                 width: 34,
 
                 decoration: BoxDecoration(
-                  color: const Color(0xFFEAF6EE),
+                  color: context.appColors.primaryContainer,
 
                   borderRadius: BorderRadius.circular(10),
                 ),
 
-                child: const Icon(
+                child: Icon(
                   Icons.category_rounded,
 
                   size: 18,
 
-                  color: Color(0xFF166534),
+                  color:  context.backgroundColor,
                 ),
               ),
 
-              const SizedBox(width: 9),
+              SizedBox(width: 9),
 
-              const Expanded(
+              Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
 
@@ -893,14 +890,17 @@ class _SelfTargetPageState extends State<SelfTargetPage> {
 
                         fontWeight: FontWeight.w800,
 
-                        color: Color(0xFF17201B),
+                        color: context.primaryTextColor,
                       ),
                     ),
 
                     Text(
                       'Group-wise point details',
 
-                      style: TextStyle(fontSize: 9, color: Colors.black45),
+                      style: TextStyle(
+                        fontSize: 9,
+                        color: context.secondaryTextColor,
+                      ),
                     ),
                   ],
                 ),
@@ -910,7 +910,7 @@ class _SelfTargetPageState extends State<SelfTargetPage> {
                 padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 5),
 
                 decoration: BoxDecoration(
-                  color: const Color(0xFFF0FDF4),
+                  color: context.appColors.primaryContainer,
 
                   borderRadius: BorderRadius.circular(20),
                 ),
@@ -919,19 +919,19 @@ class _SelfTargetPageState extends State<SelfTargetPage> {
                   //'${_formatPoint(totalPoints)} Amt/Pts',
                   'Amt/Pts',
 
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 10,
 
                     fontWeight: FontWeight.w800,
 
-                    color: Color(0xFF166534),
+                    color:  context.backgroundColor,
                   ),
                 ),
               ),
             ],
           ),
 
-          const SizedBox(height: 9),
+          SizedBox(height: 9),
 
           if (state.groups.isEmpty)
             _buildEmpty()
@@ -961,11 +961,11 @@ class _SelfTargetPageState extends State<SelfTargetPage> {
       padding: const EdgeInsets.symmetric(horizontal: 10),
 
       decoration: BoxDecoration(
-        color: const Color(0xFFF8FAF9),
+        color: context.appTheme.inputBackground,
 
         borderRadius: BorderRadius.circular(12),
 
-        border: Border.all(color: const Color(0xFFE7ECE9)),
+        border: Border.all(color: context.borderColor),
       ),
 
       child: Row(
@@ -975,14 +975,17 @@ class _SelfTargetPageState extends State<SelfTargetPage> {
             height: 36,
             width: 36,
 
-     
             alignment: Alignment.center,
+            decoration: BoxDecoration(
+              color: context.primaryColor,
+              borderRadius: BorderRadius.circular(10),
+            ),
 
             child: Text(
               group.groupType,
 
-              style: const TextStyle(
-                color: Colors.white,
+              style: TextStyle(
+                color: context.onPrimaryColor,
 
                 fontSize: 16,
 
@@ -991,7 +994,7 @@ class _SelfTargetPageState extends State<SelfTargetPage> {
             ),
           ),
 
-          const SizedBox(width: 9),
+          SizedBox(width: 9),
 
           // GROUP TITLE
           Expanded(
@@ -1004,16 +1007,16 @@ class _SelfTargetPageState extends State<SelfTargetPage> {
                 Text(
                   '${group.groupType}',
 
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 12.5,
 
                     fontWeight: FontWeight.w700,
 
-                    color: Color(0xFF17201B),
+                    color: context.primaryTextColor,
                   ),
                 ),
 
-                const SizedBox(height: 1),
+                SizedBox(height: 1),
               ],
             ),
           ),
@@ -1025,7 +1028,7 @@ class _SelfTargetPageState extends State<SelfTargetPage> {
             padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 6),
 
             decoration: BoxDecoration(
-              color: const Color(0xFFEAF6EE),
+              color: context.appColors.primaryContainer,
 
               borderRadius: BorderRadius.circular(10),
             ),
@@ -1037,15 +1040,14 @@ class _SelfTargetPageState extends State<SelfTargetPage> {
                 Text(
                   _formatPoint(group.groupPointsValue),
 
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 13,
 
                     fontWeight: FontWeight.w900,
 
-                    color: Color(0xFF166534),
+                    color: context.backgroundColor,
                   ),
                 ),
-
               ],
             ),
           ),
@@ -1063,11 +1065,11 @@ class _SelfTargetPageState extends State<SelfTargetPage> {
       padding: const EdgeInsets.all(12),
 
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: context.cardBackgroundColor,
 
         borderRadius: BorderRadius.circular(16),
 
-        border: Border.all(color: const Color(0xFFE5EAE7)),
+        border: Border.all(color: context.borderColor),
       ),
 
       child: Row(
@@ -1077,23 +1079,23 @@ class _SelfTargetPageState extends State<SelfTargetPage> {
             width: 38,
 
             decoration: BoxDecoration(
-              color: const Color(0xFFEAF6EE),
+              color: context.appColors.primaryContainer,
 
               borderRadius: BorderRadius.circular(11),
             ),
 
-            child: const Icon(
+            child: Icon(
               Icons.calendar_month_rounded,
 
-              color: Color(0xFF166534),
+              color: context.backgroundColor,
 
               size: 19,
             ),
           ),
 
-          const SizedBox(width: 10),
+          SizedBox(width: 10),
 
-          const Expanded(
+          Expanded(
             flex: 2,
 
             child: Column(
@@ -1109,34 +1111,39 @@ class _SelfTargetPageState extends State<SelfTargetPage> {
                 Text(
                   'Select month',
 
-                  style: TextStyle(fontSize: 8.5, color: Colors.black45),
+                  style: TextStyle(
+                    fontSize: 8.5,
+                    color: context.secondaryTextColor,
+                  ),
                 ),
               ],
             ),
           ),
 
-          const SizedBox(width: 8),
+          SizedBox(width: 8),
 
           Expanded(
             flex: 3,
 
             child: DropdownButtonFormField<TargetMonth>(
               value: selectedMonth,
+              dropdownColor: context.cardBackgroundColor,
+              style: TextStyle(color: context.primaryTextColor),
 
               isExpanded: true,
 
-              icon: const Icon(
+              icon: Icon(
                 Icons.keyboard_arrow_down_rounded,
 
                 size: 20,
 
-                color: Color(0xFF166534),
+                color: context.primaryColor,
               ),
 
               decoration: InputDecoration(
                 filled: true,
 
-                fillColor: const Color(0xFFF7F9F8),
+                fillColor: context.appTheme.inputBackground,
 
                 contentPadding: const EdgeInsets.symmetric(
                   horizontal: 9,
@@ -1152,13 +1159,13 @@ class _SelfTargetPageState extends State<SelfTargetPage> {
                 enabledBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(10),
 
-                  borderSide: const BorderSide(color: Color(0xFFE2E8E4)),
+                  borderSide: BorderSide(color: context.borderColor),
                 ),
 
                 focusedBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(10),
 
-                  borderSide: const BorderSide(color: Color(0xFF166534)),
+                  borderSide: BorderSide(color: context.primaryColor),
                 ),
               ),
 
@@ -1171,11 +1178,7 @@ class _SelfTargetPageState extends State<SelfTargetPage> {
 
                     overflow: TextOverflow.ellipsis,
 
-                    style: const TextStyle(
-                      fontSize: 11,
-
-                      fontWeight: FontWeight.w600,
-                    ),
+                    style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600),
                   ),
                 );
               }).toList(),
@@ -1207,11 +1210,11 @@ class _SelfTargetPageState extends State<SelfTargetPage> {
       padding: const EdgeInsets.all(12),
 
       decoration: BoxDecoration(
-        color: const Color(0xFFF0FDF4),
+        color: context.appColors.primaryContainer,
 
         borderRadius: BorderRadius.circular(16),
 
-        border: Border.all(color: const Color(0xFFC6E6CF)),
+        border: Border.all(color: context.borderColor),
       ),
 
       child: Row(
@@ -1221,23 +1224,23 @@ class _SelfTargetPageState extends State<SelfTargetPage> {
             width: 40,
 
             decoration: BoxDecoration(
-              color: const Color(0xFF166534),
-
+              color: context.primaryColor,
+border: Border.all(color:  context.backgroundColor,),
               borderRadius: BorderRadius.circular(11),
             ),
 
-            child: const Icon(
+            child: Icon(
               Icons.edit_note_rounded,
 
-              color: Colors.white,
+              color: context.onPrimaryColor,
 
               size: 22,
             ),
           ),
 
-          const SizedBox(width: 10),
+          SizedBox(width: 10),
 
-          const Expanded(
+          Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
 
@@ -1250,7 +1253,7 @@ class _SelfTargetPageState extends State<SelfTargetPage> {
 
                     fontWeight: FontWeight.w800,
 
-                    color: Color(0xFF17201B),
+                    color:  context.backgroundColor,
                   ),
                 ),
 
@@ -1259,13 +1262,16 @@ class _SelfTargetPageState extends State<SelfTargetPage> {
                 Text(
                   'Monthly target',
 
-                  style: TextStyle(fontSize: 8.5, color: Color(0xFF66736B)),
+                  style: TextStyle(
+                    fontSize: 8.5,
+                    color: context.secondaryTextColor,
+                  ),
                 ),
               ],
             ),
           ),
 
-          const SizedBox(width: 8),
+          SizedBox(width: 8),
 
           SizedBox(
             width: 145,
@@ -1285,12 +1291,12 @@ class _SelfTargetPageState extends State<SelfTargetPage> {
 
               textAlign: TextAlign.center,
 
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 15,
 
                 fontWeight: FontWeight.w800,
 
-                color: Color(0xFF17201B),
+                color: context.primaryTextColor,
               ),
 
               decoration: InputDecoration(
@@ -1298,17 +1304,17 @@ class _SelfTargetPageState extends State<SelfTargetPage> {
 
                 suffixText: 'Pts',
 
-                suffixStyle: const TextStyle(
+                suffixStyle: TextStyle(
                   fontSize: 9,
 
-                  color: Color(0xFF166534),
+                  color: context.primaryColor,
 
                   fontWeight: FontWeight.w700,
                 ),
 
                 filled: true,
 
-                fillColor: Colors.white,
+                fillColor: context.appTheme.inputBackground,
 
                 contentPadding: const EdgeInsets.symmetric(
                   horizontal: 10,
@@ -1318,14 +1324,14 @@ class _SelfTargetPageState extends State<SelfTargetPage> {
                 enabledBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(10),
 
-                  borderSide: const BorderSide(color: Color(0xFFCCE4D3)),
+                  borderSide: BorderSide(color: context.borderColor),
                 ),
 
                 focusedBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(10),
 
-                  borderSide: const BorderSide(
-                    color: Color(0xFF166534),
+                  borderSide: BorderSide(
+                    color: context.primaryColor,
 
                     width: 1.4,
                   ),
@@ -1353,14 +1359,18 @@ class _SelfTargetPageState extends State<SelfTargetPage> {
       padding: const EdgeInsets.symmetric(vertical: 22),
 
       decoration: BoxDecoration(
-        color: const Color(0xFFF8FAF9),
+        color: context.appTheme.inputBackground,
 
         borderRadius: BorderRadius.circular(12),
       ),
 
-      child: const Column(
+      child: Column(
         children: [
-          Icon(Icons.inventory_2_outlined, size: 30, color: Color(0xFF92A099)),
+          Icon(
+            Icons.inventory_2_outlined,
+            size: 30,
+            color: context.secondaryTextColor,
+          ),
 
           SizedBox(height: 5),
 
@@ -1372,7 +1382,7 @@ class _SelfTargetPageState extends State<SelfTargetPage> {
 
               fontWeight: FontWeight.w600,
 
-              color: Colors.black54,
+              color: context.secondaryTextColor,
             ),
           ),
         ],
@@ -1394,13 +1404,13 @@ class _SelfTargetPageState extends State<SelfTargetPage> {
         padding: const EdgeInsets.fromLTRB(12, 8, 12, 8),
 
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: context.cardBackgroundColor,
 
-          border: const Border(top: BorderSide(color: Color(0xFFE6EBE8))),
+          border: Border(top: BorderSide(color: context.borderColor)),
 
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(.045),
+              color: context.appColors.shadow.withValues(alpha: .045),
 
               blurRadius: 10,
 
@@ -1418,11 +1428,13 @@ class _SelfTargetPageState extends State<SelfTargetPage> {
             onPressed: loading ? null : _submit,
 
             style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFF166534),
+              backgroundColor: context.primaryColor,
 
-              foregroundColor: Colors.white,
+              foregroundColor: context.onPrimaryColor,
 
-              disabledBackgroundColor: const Color(0xFF8EB398),
+              disabledBackgroundColor: context.appColors.onSurface.withValues(
+                alpha: 0.12,
+              ),
 
               elevation: 0,
 
@@ -1432,7 +1444,7 @@ class _SelfTargetPageState extends State<SelfTargetPage> {
             ),
 
             child: loading
-                ? const SizedBox(
+                ? SizedBox(
                     width: 20,
 
                     height: 20,
@@ -1440,7 +1452,7 @@ class _SelfTargetPageState extends State<SelfTargetPage> {
                     child: CircularProgressIndicator(
                       strokeWidth: 2.2,
 
-                      color: Colors.white,
+                      color: context.onPrimaryColor,
                     ),
                   )
                 : const Row(

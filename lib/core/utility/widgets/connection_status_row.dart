@@ -1,6 +1,6 @@
 import 'dart:async';
 
-import 'package:solufine/core/theme/app_colors.dart';
+import 'package:solufine/core/theme/app_theme_context.dart';
 
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
@@ -159,9 +159,9 @@ class _ConnectionStatusRowState extends State<ConnectionStatusRow>
   Widget build(BuildContext context) => Container(
     width: double.infinity,
     padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-    decoration: const BoxDecoration(color: AppColors.primary),
+    decoration: BoxDecoration(color: context.primaryColor),
     child: DefaultTextStyle(
-      style: const TextStyle(fontSize: 10, color: Colors.white),
+      style: TextStyle(fontSize: 10, color: context.onPrimaryColor),
       child: Wrap(
         alignment: WrapAlignment.spaceBetween,
         crossAxisAlignment: WrapCrossAlignment.center,
@@ -174,13 +174,14 @@ class _ConnectionStatusRowState extends State<ConnectionStatusRow>
           Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Icon(_icon, size: 13, color: Colors.white),
+              Icon(_icon, size: 13, color: context.onPrimaryColor),
               const SizedBox(width: 4),
               Text(_network),
             ],
           ),
           Semantics(
-            label: 'Current device download and upload traffic: '
+            label:
+                'Current device download and upload traffic: '
                 '${formatNetworkSpeed(_speed)}',
             excludeSemantics: true,
             child: Text('↕ ${formatNetworkSpeed(_speed)}'),
