@@ -5,9 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:internet_connection_checker_plus/internet_connection_checker_plus.dart';
 import 'package:solufine/core/utility/app_toast.dart';
 import 'package:solufine/core/router/app_router.dart';
-
 import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:internet_connection_checker_plus/internet_connection_checker_plus.dart';

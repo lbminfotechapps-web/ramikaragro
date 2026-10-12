@@ -754,7 +754,7 @@ class _SalesWiseTargetPageState extends State<SalesWiseTargetPage> {
           children: [
             Expanded(
               child: _buildStatCard(
-                title: 'Achieved in Rs.',
+                title: 'Achieved in Rs.(Dispatch - Sales Return)',
                 value: target.achievementAmount.toString(),
                 icon: Icons.check_circle_outline,
                 color: achievedColor,

@@ -311,38 +311,116 @@ class _DealerWiseTargetPageState extends State<DealerWiseTargetPage> {
             ],
           ),
           const SizedBox(height: 18),
-          DropdownButtonFormField<String>(
-            initialValue: _selectedDealerId,
-            isExpanded: true,
-            borderRadius: BorderRadius.circular(16),
-            dropdownColor: Colors.white,
-            icon: const Icon(Icons.expand_more_rounded, color: primaryGreen),
-            style: const TextStyle(
-              color: darkGreen,
-              fontSize: 14,
-              fontWeight: FontWeight.w600,
-            ),
-            decoration: _optionDecoration('Dealer', Icons.storefront_outlined),
-            hint: Text(_dealers.isEmpty ? 'No dealers found' : 'Select dealer'),
-            items: _dealers
-                .map(
-                  (dealer) => DropdownMenuItem(
-                    value: dealer.outletId,
-                    child: Text(
-                      dealer.outletName+' - (${dealer.outletMobile})',
-                      overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(fontSize: 13),
+
+          // DropdownButtonFormField<String>(
+          //   initialValue: _selectedDealerId,
+          //   isExpanded: true,
+          //   borderRadius: BorderRadius.circular(16),
+          //   dropdownColor: Colors.white,
+          //   icon: const Icon(Icons.expand_more_rounded, color: primaryGreen),
+          //   style: const TextStyle(
+          //     color: darkGreen,
+          //     fontSize: 14,
+          //     fontWeight: FontWeight.w600,
+          //   ),
+          //   decoration: _optionDecoration('Dealer', Icons.storefront_outlined),
+          //   hint: Text(_dealers.isEmpty ? 'No dealers found' : 'Select dealer'),
+          //   items: _dealers
+          //       .map(
+          //         (dealer) => DropdownMenuItem(
+          //           value: dealer.outletId,
+          //           child: Text(
+          //             dealer.outletName+' - (${dealer.outletMobile})',
+          //             overflow: TextOverflow.ellipsis,
+          //             style: const TextStyle(fontSize: 13),
+          //           ),
+          //         ),
+          //       )
+          //       .toList(),
+          //   onChanged: _dealers.isEmpty
+          //       ? null
+          //       : (value) {
+          //           setState(() => _selectedDealerId = value);
+          //           _reloadTarget();
+          //         },
+          // ),
+
+
+            DropdownButtonFormField<String>(
+              initialValue: _selectedDealerId,
+              isExpanded: true,
+              borderRadius: BorderRadius.circular(16),
+              dropdownColor: Colors.white,
+              icon: const Icon(
+                Icons.expand_more_rounded,
+                color: primaryGreen,
+              ),
+              style: const TextStyle(
+                color: darkGreen,
+                fontSize: 14,
+                fontWeight: FontWeight.w600,
+              ),
+              decoration: _optionDecoration(
+                'Dealer',
+                Icons.storefront_outlined,
+              ),
+              hint: Text(
+                _dealers.isEmpty ? 'No dealers found' : 'Select dealer',
+              ),
+
+              // Dealer dropdown items
+              items: _dealers.map((dealer) {
+                final bool isAll = dealer.outletId.toString() == '0';
+
+                final String dealerName = dealer.outletName.toString();
+                final String mobileNumber = dealer.outletMobile.toString().trim();
+
+                String displayName;
+
+                if (isAll) {
+                  // If outlet ID is 0, show only All
+                  displayName = 'All';
+                } else if (mobileNumber.isEmpty || mobileNumber == 'null') {
+                  // If mobile number is empty, show only dealer name
+                  displayName = dealerName;
+                } else {
+                  // Show dealer name with mobile number
+                  displayName = '$dealerName - ($mobileNumber)';
+                }
+
+                return DropdownMenuItem<String>(
+                  value: dealer.outletId,
+                  child: Text(
+                    displayName,
+                    overflow: TextOverflow.ellipsis,
+                    maxLines: 1,
+                    style: const TextStyle(
+                      fontSize: 13,
+                      color: darkGreen,
+                      fontWeight: FontWeight.w500,
                     ),
                   ),
-                )
-                .toList(),
-            onChanged: _dealers.isEmpty
-                ? null
-                : (value) {
-                    setState(() => _selectedDealerId = value);
-                    _reloadTarget();
-                  },
-          ),
+                );
+              }).toList(),
+
+              // Dealer selection
+              onChanged: _dealers.isEmpty
+                  ? null
+                  : (String? value) {
+                      if (value == null) return;
+
+                      setState(() {
+                        _selectedDealerId = value;
+                      });
+
+                      // Reload target based on selected dealer
+                      _reloadTarget();
+                    },
+            ),
+
+
+
+
           const SizedBox(height: 12),
           DropdownButtonFormField<String>(
             initialValue: _selectedCollectionTypeId,
