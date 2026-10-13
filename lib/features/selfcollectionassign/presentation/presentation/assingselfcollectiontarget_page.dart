@@ -167,7 +167,7 @@ class _AssignSelfCollectionTargetPageState
 
     final List<Map<String, dynamic>> targets = [];
 
-    for (final dealer in _dealerBloc.state.dealers) {
+    for (final dealer in _dealerBloc.state.dealers.skip(1)) {
       for (final collectionType in collectionTypes) {
         final String value = _getTargetValue(
           dealerId: dealer.outletId,
@@ -302,7 +302,7 @@ class _AssignSelfCollectionTargetPageState
                     if (!_isUserLoaded ||
                         userId <= 0 ||
                         dealerState.status != DealerStatus.success ||
-                        dealerState.dealers.isEmpty ||
+                        dealerState.dealers.length <= 1 ||
                         collectionState.status !=
                             CollectionTypeStatus.success ||
                         collectionState.collectionTypes.isEmpty) {
@@ -426,7 +426,7 @@ class _AssignSelfCollectionTargetPageState
                         );
                       }
 
-                      if (dealerState.dealers.isEmpty) {
+                      if (dealerState.dealers.length <= 1) {
                         return RefreshIndicator(
                           color: context.primaryColor,
                           backgroundColor: context.cardBackgroundColor,
@@ -499,7 +499,7 @@ class _AssignSelfCollectionTargetPageState
                                           ),
                                         ),
                                         child: Text(
-                                          '${dealerState.dealers.length} dealers',
+                                          '${dealerState.dealers.length - 1} dealers',
                                           style: TextStyle(
                                             color: context.onPrimaryColor,
                                             fontSize: 12,
@@ -640,10 +640,11 @@ class _AssignSelfCollectionTargetPageState
                                                     ScrollViewKeyboardDismissBehavior
                                                         .onDrag,
                                                 itemCount:
-                                                    dealerState.dealers.length,
+                                                    dealerState.dealers.length -
+                                                    1,
                                                 itemBuilder: (context, index) {
                                                   final dealer = dealerState
-                                                      .dealers[index];
+                                                      .dealers[index + 1];
 
                                                   return _DealerTargetRow(
                                                     key: ValueKey(

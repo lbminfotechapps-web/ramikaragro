@@ -98,6 +98,7 @@
 //   });
 // }
 
+import 'package:solufine/core/theme/app_theme_context.dart';
 import 'package:solufine/core/utility/appname.dart';
 import 'package:flutter/material.dart';
 
@@ -112,13 +113,14 @@ class AppDialog {
     String buttonText = 'OK',
     VoidCallback? onButtonPressed,
   }) {
-    final config = _getConfig(type);
-
     showDialog(
       context: context,
       barrierDismissible: false,
       builder: (dialogContext) {
+        final config = _getConfig(dialogContext, type);
         return AlertDialog(
+          backgroundColor: dialogContext.cardBackgroundColor,
+          surfaceTintColor: Colors.transparent,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(16),
           ),
@@ -129,7 +131,8 @@ class AppDialog {
               Expanded(
                 child: Text(
                   title ?? config.title,
-                  style: const TextStyle(
+                  style: TextStyle(
+                    color: dialogContext.cardTextColor,
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
                   ),
@@ -137,7 +140,10 @@ class AppDialog {
               ),
             ],
           ),
-          content: Text(message, style: const TextStyle(fontSize: 15)),
+          content: Text(
+            message,
+            style: TextStyle(fontSize: 15, color: dialogContext.cardTextColor),
+          ),
           actions: [
             TextButton(
               onPressed: () {
@@ -161,34 +167,34 @@ class AppDialog {
     );
   }
 
-  static _DialogConfig _getConfig(DialogType type) {
+  static _DialogConfig _getConfig(BuildContext context, DialogType type) {
     switch (type) {
       case DialogType.success:
-        return const _DialogConfig(
+        return _DialogConfig(
           title: 'Success',
           icon: Icons.check_circle,
-          color: Colors.green,
+          color: context.primaryColor,
         );
 
       case DialogType.error:
-        return const _DialogConfig(
+        return _DialogConfig(
           title: 'Error',
           icon: Icons.error,
-          color: Colors.red,
+          color: context.appColors.error,
         );
 
       case DialogType.warning:
-        return const _DialogConfig(
+        return _DialogConfig(
           title: 'Warning',
           icon: Icons.warning,
-          color: Colors.orange,
+          color: context.appColors.tertiary,
         );
 
       case DialogType.info:
-        return  _DialogConfig(
+        return _DialogConfig(
           title: appName,
           icon: Icons.info,
-          color: Colors.blue,
+          color: context.appColors.secondary,
         );
     }
   }

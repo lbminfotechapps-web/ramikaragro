@@ -647,7 +647,8 @@ class _SelfTargetPageState extends State<SelfTargetPage> {
             backgroundColor: context.backgroundColor,
 
             appBar: CustomAppBar(
-              title: 'Self Assign Target Point Wise(Sales)',
+              title: 'Self Assign Target ',
+              subtitle: 'Point Wise Sales',
 
               showBackButton: true,
 

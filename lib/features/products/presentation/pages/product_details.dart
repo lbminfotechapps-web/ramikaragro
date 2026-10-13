@@ -17,20 +17,6 @@ import 'package:solufine/core/utility/widgets/custom_appbar.dart';
 import 'package:solufine/features/products/domain/entity/fertilizer_product_entity.dart';
 
 // ============================================================
-// THEME
-// ============================================================
-
-class ProductUI {
-  static const Color primary = Color(0xFF16834B);
-  static const Color darkGreen = Color(0xFF106539);
-  static const Color lightGreen = Color(0xFFEAF6EE);
-  static const Color background = Color(0xFFF5F8F6);
-  static const Color textDark = Color(0xFF1D3027);
-  static const Color textGrey = Color(0xFF718078);
-  static const Color border = Color(0xFFE7EEE9);
-}
-
-// ============================================================
 // LANGUAGES
 // ============================================================
 
@@ -59,6 +45,10 @@ class _DynamicHtmlContentState extends State<DynamicHtmlContent> {
   double _height = 120;
   bool _ready = false;
   bool _loading = true;
+  ColorScheme? _htmlColorScheme;
+  Color? _htmlTextColor;
+  Color? _htmlHeadingColor;
+  Color? _htmlBorderColor;
 
   @override
   void initState() {
@@ -93,13 +83,36 @@ class _DynamicHtmlContentState extends State<DynamicHtmlContent> {
             _selectLanguage();
           },
         ),
-      )
-      ..loadHtmlString(
-        _buildHtml(),
-        baseUrl: '${ApiClient.imageBaseUrl}/products/',
       );
   }
 
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final scheme = context.appColors;
+    final text = context.secondaryTextColor;
+    final heading = context.cardTextColor;
+    final border = context.borderColor;
+    if (_htmlColorScheme == scheme &&
+        _htmlTextColor == text &&
+        _htmlHeadingColor == heading &&
+        _htmlBorderColor == border) {
+      return;
+    }
+    _htmlColorScheme = scheme;
+    _htmlTextColor = text;
+    _htmlHeadingColor = heading;
+    _htmlBorderColor = border;
+    _ready = false;
+    _loading = true;
+    _controller.loadHtmlString(
+      _buildHtml(),
+      baseUrl: '${ApiClient.imageBaseUrl}/products/',
+    );
+  }
+
+  String _cssColor(Color color) =>
+      '#${(color.toARGB32() & 0xFFFFFF).toRadixString(16).padLeft(6, '0')}';
   @override
   void didUpdateWidget(covariant DynamicHtmlContent oldWidget) {
     super.didUpdateWidget(oldWidget);
@@ -165,22 +178,22 @@ class _DynamicHtmlContentState extends State<DynamicHtmlContent> {
 * { box-sizing: border-box; }
 html, body { margin: 0; padding: 0; width: 100%; background: transparent; }
 body { font-family: Arial, "Noto Sans", sans-serif; font-size: 14px;
-  line-height: 1.65; color: #506057; overflow-wrap: anywhere; }
+  line-height: 1.65; color: ${_cssColor(_htmlTextColor!)}; overflow-wrap: anywhere; }
 html { overflow-x: hidden; overflow-y: auto; }
 #content { display: flow-root; width: 100%; }
 section { display: flow-root; width: 100%; }
 section[hidden] { display: none !important; }
-section * { max-width: 100% !important; }
-h1,h2,h3,h4,h5,h6 { color: #1D3027; margin: 6px 0; }
+section * { max-width: 100% !important; color: inherit !important; background-color: transparent !important; }
+section h1,section h2,section h3,section h4,section h5,section h6 { color: ${_cssColor(_htmlHeadingColor!)} !important; margin: 6px 0; }
 p { margin: 4px 0 8px; }
 ul,ol { padding-left: 22px; margin: 4px 0 8px; }
 li { margin-bottom: 4px; }
 img,video { max-width: 100%; height: auto !important; }
 table { width: 100% !important; border-collapse: collapse; table-layout: fixed; }
-td,th { border: 1px solid #E6ECE8; padding: 7px; text-align: left;
+td,th { border: 1px solid ${_cssColor(_htmlBorderColor!)}; padding: 7px; text-align: left;
   overflow-wrap: anywhere; }
 pre { white-space: pre-wrap; }
-.greenLine { width: 42px; border-bottom: 3px solid #16834B; margin: 6px 0; }
+.greenLine { width: 42px; border-bottom: 3px solid ${_cssColor(_htmlColorScheme!.primary)}; margin: 6px 0; }
 </style>
 </head>
 <body>
@@ -243,9 +256,9 @@ sendHeight();
             ),
           ),
           if (_loading)
-            const Positioned.fill(
+            Positioned.fill(
               child: ColoredBox(
-                color: Colors.white,
+                color: context.cardBackgroundColor,
                 child: Center(child: CircularProgressIndicator()),
               ),
             ),
@@ -342,7 +355,7 @@ class _ProductDetailsState extends State<ProductDetails> {
             children: [
               _buildProductHero(item),
 
-              const SizedBox(height: 12),
+              SizedBox(height: 12),
 
               if (item.productShortDetails.trim().isNotEmpty)
                 _buildInfoCard(
@@ -386,9 +399,9 @@ class _ProductDetailsState extends State<ProductDetails> {
 
     return Container(
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: context.cardBackgroundColor,
         borderRadius: BorderRadius.circular(18),
-        border: Border.all(color: ProductUI.border),
+        border: Border.all(color: context.borderColor),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -397,7 +410,7 @@ class _ProductDetailsState extends State<ProductDetails> {
             height: 174,
             margin: const EdgeInsets.all(9),
             decoration: BoxDecoration(
-              color: const Color(0xFFF4F8F4),
+              color: context.appTheme.inputBackground,
               borderRadius: BorderRadius.circular(13),
             ),
             child: Stack(
@@ -416,9 +429,9 @@ class _ProductDetailsState extends State<ProductDetails> {
                                   return child;
                                 }
 
-                                return const Center(
+                                return Center(
                                   child: CircularProgressIndicator(
-                                    color: ProductUI.primary,
+                                    color: context.primaryColor,
                                     strokeWidth: 2,
                                   ),
                                 );
@@ -441,16 +454,16 @@ class _ProductDetailsState extends State<ProductDetails> {
                     bottom: 10,
                     right: 10,
                     child: Material(
-                      color: Colors.white,
+                      color: context.cardBackgroundColor,
                       borderRadius: BorderRadius.circular(10),
                       child: InkWell(
                         onTap: () => _showZoomImage(imageUrl),
                         borderRadius: BorderRadius.circular(10),
-                        child: const Padding(
+                        child: Padding(
                           padding: EdgeInsets.all(8),
                           child: Icon(
                             Icons.zoom_out_map_rounded,
-                            color: ProductUI.primary,
+                            color: context.primaryColor,
                             size: 18,
                           ),
                         ),
@@ -466,10 +479,10 @@ class _ProductDetailsState extends State<ProductDetails> {
             child: Text(
               item.productName,
               textAlign: TextAlign.center,
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 19,
                 fontWeight: FontWeight.w800,
-                color: ProductUI.textDark,
+                color: context.cardTextColor,
                 height: 1.25,
               ),
             ),
@@ -483,20 +496,20 @@ class _ProductDetailsState extends State<ProductDetails> {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 6),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: context.cardBackgroundColor,
         borderRadius: BorderRadius.circular(8),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(icon, color: ProductUI.primary, size: 14),
-          const SizedBox(width: 5),
+          Icon(icon, color: context.primaryColor, size: 14),
+          SizedBox(width: 5),
           Text(
             label,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 11,
               fontWeight: FontWeight.w700,
-              color: ProductUI.darkGreen,
+              color: context.primaryColor,
             ),
           ),
         ],
@@ -517,17 +530,13 @@ class _ProductDetailsState extends State<ProductDetails> {
       margin: const EdgeInsets.only(bottom: 11),
       padding: const EdgeInsets.all(13),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: context.cardBackgroundColor,
         borderRadius: BorderRadius.circular(15),
-        border: Border.all(color: ProductUI.border),
+        border: Border.all(color: context.borderColor),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          _sectionTitle(icon, title),
-          const SizedBox(height: 9),
-          child,
-        ],
+        children: [_sectionTitle(icon, title), SizedBox(height: 9), child],
       ),
     );
   }
@@ -539,19 +548,23 @@ class _ProductDetailsState extends State<ProductDetails> {
           width: 31,
           height: 31,
           decoration: BoxDecoration(
-            color: ProductUI.lightGreen,
+            color: context.appColors.primaryContainer,
             borderRadius: BorderRadius.circular(9),
           ),
-          child: Icon(icon, size: 17, color: ProductUI.primary),
+          child: Icon(
+            icon,
+            size: 17,
+            color: context.appColors.onPrimaryContainer,
+          ),
         ),
-        const SizedBox(width: 9),
+        SizedBox(width: 9),
         Expanded(
           child: Text(
             title,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 14.5,
               fontWeight: FontWeight.w700,
-              color: ProductUI.textDark,
+              color: context.cardTextColor,
             ),
           ),
         ),
@@ -560,10 +573,10 @@ class _ProductDetailsState extends State<ProductDetails> {
   }
 
   TextStyle _bodyStyle() {
-    return const TextStyle(
+    return TextStyle(
       fontSize: 13.5,
       height: 1.55,
-      color: ProductUI.textGrey,
+      color: context.secondaryTextColor,
       fontWeight: FontWeight.w400,
     );
   }
@@ -581,9 +594,9 @@ class _ProductDetailsState extends State<ProductDetails> {
       margin: const EdgeInsets.only(bottom: 11),
       padding: const EdgeInsets.fromLTRB(13, 13, 13, 12),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: context.cardBackgroundColor,
         borderRadius: BorderRadius.circular(15),
-        border: Border.all(color: ProductUI.border),
+        border: Border.all(color: context.borderColor),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -605,18 +618,20 @@ class _ProductDetailsState extends State<ProductDetails> {
                         _selectedLanguage = language;
                       });
                     },
-                    backgroundColor: ProductUI.background,
-                    selectedColor: ProductUI.lightGreen,
+                    backgroundColor: context.appTheme.inputBackground,
+                    selectedColor: context.appColors.primaryContainer,
                     side: BorderSide(
-                      color: isSelected ? ProductUI.primary : ProductUI.border,
+                      color: isSelected
+                          ? context.appColors.onPrimaryContainer
+                          : context.borderColor,
                     ),
                     showCheckmark: false,
                     labelStyle: TextStyle(
                       fontSize: 12,
                       fontWeight: FontWeight.w700,
                       color: isSelected
-                          ? ProductUI.primary
-                          : ProductUI.textGrey,
+                          ? context.appColors.onPrimaryContainer
+                          : context.secondaryTextColor,
                     ),
                     padding: const EdgeInsets.symmetric(
                       horizontal: 5,
@@ -633,14 +648,14 @@ class _ProductDetailsState extends State<ProductDetails> {
             ),
           ),
 
-          const SizedBox(height: 12),
+          SizedBox(height: 12),
 
           _sectionTitle(Icons.menu_book_outlined, 'Product Contents'),
 
-          const SizedBox(height: 12),
-          Container(height: 1, color: ProductUI.border),
+          SizedBox(height: 12),
+          Container(height: 1, color: context.borderColor),
 
-          const SizedBox(height: 12),
+          SizedBox(height: 12),
 
           DynamicHtmlContent(
             key: ValueKey(product!.productId),
@@ -686,9 +701,9 @@ class _ProductDetailsState extends State<ProductDetails> {
       top: false,
       child: Container(
         padding: const EdgeInsets.fromLTRB(14, 10, 14, 10),
-        decoration: const BoxDecoration(
-          color: Colors.white,
-          border: Border(top: BorderSide(color: ProductUI.border)),
+        decoration: BoxDecoration(
+          color: context.cardBackgroundColor,
+          border: Border(top: BorderSide(color: context.borderColor)),
         ),
         child: Row(
           children: [
@@ -698,16 +713,16 @@ class _ProductDetailsState extends State<ProductDetails> {
                 height: 46,
                 child: ElevatedButton.icon(
                   onPressed: () => _openProductEnquiry(context),
-                  icon: const Icon(Icons.headset_mic_outlined, size: 19),
+                  icon: Icon(Icons.headset_mic_outlined, size: 19),
                   label: const FittedBox(
                     fit: BoxFit.scaleDown,
                     child: Text('Product Enquiry'),
                   ),
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: ProductUI.primary,
-                    foregroundColor: Colors.white,
+                    backgroundColor: context.primaryColor,
+                    foregroundColor: context.onPrimaryColor,
                     elevation: 0,
-                    textStyle: const TextStyle(
+                    textStyle: TextStyle(
                       fontSize: 13,
                       fontWeight: FontWeight.w700,
                     ),
@@ -719,7 +734,7 @@ class _ProductDetailsState extends State<ProductDetails> {
               ),
             ),
 
-            const SizedBox(width: 10),
+            SizedBox(width: 10),
 
             Expanded(
               flex: 3,
@@ -732,20 +747,20 @@ class _ProductDetailsState extends State<ProductDetails> {
                           ? null
                           : () => _shareProduct(shareContext),
                       icon: _isSharing
-                          ? const SizedBox(
+                          ? SizedBox(
                               width: 17,
                               height: 17,
                               child: CircularProgressIndicator(
                                 strokeWidth: 2,
-                                color: ProductUI.primary,
+                                color: context.primaryColor,
                               ),
                             )
-                          : const Icon(Icons.ios_share_outlined, size: 18),
+                          : Icon(Icons.ios_share_outlined, size: 18),
                       label: const Text('Share'),
                       style: OutlinedButton.styleFrom(
-                        foregroundColor: ProductUI.primary,
-                        side: const BorderSide(color: ProductUI.primary),
-                        textStyle: const TextStyle(
+                        foregroundColor: context.primaryColor,
+                        side: BorderSide(color: context.primaryColor),
+                        textStyle: TextStyle(
                           fontSize: 13,
                           fontWeight: FontWeight.w700,
                         ),
@@ -1012,9 +1027,9 @@ class _ProductDetailsState extends State<ProductDetails> {
                   child: Image.network(
                     imageUrl,
                     fit: BoxFit.contain,
-                    errorBuilder: (_, __, ___) => const Icon(
+                    errorBuilder: (_, __, ___) => Icon(
                       Icons.image_not_supported_outlined,
-                      color: Colors.white,
+                      color: dialogContext.cardTextColor,
                       size: 65,
                     ),
                   ),
@@ -1025,11 +1040,11 @@ class _ProductDetailsState extends State<ProductDetails> {
                 top: 40,
                 right: 18,
                 child: Material(
-                  color: Colors.black54,
+                  color: dialogContext.cardBackgroundColor,
                   shape: const CircleBorder(),
                   child: IconButton(
                     onPressed: () => Navigator.of(dialogContext).pop(),
-                    icon: const Icon(Icons.close, color: Colors.white),
+                    icon: Icon(Icons.close, color: dialogContext.cardTextColor),
                   ),
                 ),
               ),
@@ -1045,11 +1060,11 @@ class _ProductDetailsState extends State<ProductDetails> {
   // ==========================================================
 
   Widget _imagePlaceholder() {
-    return const Center(
+    return Center(
       child: Icon(
         Icons.inventory_2_outlined,
         size: 60,
-        color: Color(0xFFB1C5B7),
+        color: context.secondaryTextColor,
       ),
     );
   }

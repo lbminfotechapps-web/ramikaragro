@@ -1225,18 +1225,34 @@ class _MonthlyPerformanceReportPageState
 
   Widget _monthlyTable(MonthlyPerformance report, _MonthSummary summary) {
     return Container(
+      clipBehavior: Clip.antiAlias,
       decoration: _cardDecoration(),
-      padding: const EdgeInsets.only(top: 6),
       child: Column(
         children: [
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 10),
-            child: _sectionHeader(
-              number: '${_selectedMonthKeys.length}/${report.months.length}',
-              title: 'Monthly Details',
-              subtitle:
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+            color: context.primaryColor,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Monthly Details (${_selectedMonthKeys.length}/${report.months.length})',
+                  style: TextStyle(
+                    color: context.onPrimaryColor,
+                    fontSize: 10.5,
+                    fontWeight: FontWeight.w800,
+                  ),
+                ),
+                const SizedBox(height: 3),
+                Text(
                   'Select months for daily, hourly, area, dealer and expense analysis',
-              color: _primary,
+                  style: TextStyle(
+                    color: context.onPrimaryColor.withValues(alpha: 0.85),
+                    fontSize: 9,
+                  ),
+                ),
+              ],
             ),
           ),
           _detailTableViewport(
@@ -1262,7 +1278,7 @@ class _MonthlyPerformanceReportPageState
   Widget _monthlyHeader() {
     return Container(
       height: 30 * MediaQuery.textScalerOf(context).scale(1),
-      color: context.appColors.surfaceContainerHighest,
+      color: context.appColors.secondary.withValues(alpha: 0.08),
       child: Row(
         children: [
           _headerCell('', _checkWidth),
@@ -2130,7 +2146,7 @@ class _MonthlyPerformanceReportPageState
   Widget _areaTableHeader() {
     return Container(
       height: 28 * MediaQuery.textScalerOf(context).scale(1),
-      color: context.appColors.surfaceContainerHighest,
+      color: context.appColors.secondary.withValues(alpha: 0.08),
       child: Row(
         children: [
           _headerCell('AREA / TALUKA', _areaWidth),
@@ -3075,7 +3091,7 @@ class _MonthlyPerformanceReportPageState
   Widget _expenseHeader() {
     return Container(
       height: 28 * MediaQuery.textScalerOf(context).scale(1),
-      color: context.appColors.surfaceContainerHighest,
+      color: context.appColors.secondary.withValues(alpha: 0.08),
       child: Row(
         children: [
           _headerCell('EXPENSE PARAMETER', _expenseParameterWidth),
@@ -3575,7 +3591,7 @@ class _MonthlyPerformanceReportPageState
   Widget _dailyTableHeader() {
     return Container(
       height: 30 * MediaQuery.textScalerOf(context).scale(1),
-      color: context.appColors.surfaceContainerHighest,
+      color: context.appColors.secondary.withValues(alpha: 0.08),
       child: Row(
         children: [
           _headerCell('DAY', _dayWidth),
@@ -3741,7 +3757,7 @@ class _MonthlyPerformanceReportPageState
   Widget _hourHeader() {
     return Container(
       height: 30 * MediaQuery.textScalerOf(context).scale(1),
-      color: context.appColors.surfaceContainerHighest,
+      color: context.appColors.secondary.withValues(alpha: 0.08),
       child: Row(
         children: [
           _headerCell('HOUR', _hourWidth),
@@ -3895,17 +3911,17 @@ class _MonthlyPerformanceReportPageState
           Container(
             width: double.infinity,
             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-            color: context.appColors.surfaceContainerHighest,
+            color: context.primaryColor,
             child: Row(
               children: [
-                Icon(Icons.table_rows_outlined, size: 14, color: _primary),
+                Icon(Icons.table_rows_outlined, size: 14, color: context.onPrimaryColor),
 
                 SizedBox(width: 6),
 
                 Text(
                   title,
                   style: TextStyle(
-                    color: _text,
+                    color: context.onPrimaryColor,
                     fontSize: 10,
                     fontWeight: FontWeight.w800,
                   ),

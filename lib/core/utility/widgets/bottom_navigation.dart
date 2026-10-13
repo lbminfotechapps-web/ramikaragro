@@ -361,10 +361,9 @@ class HomeShellState extends State<HomeShell> {
     final colors = Theme.of(context).colorScheme;
 
     final backgroundColor = context.appBackground;
-    final navBackground = context.appCard;
+
     final selectedColor = context.appPrimary;
     final unselectedColor = context.appSubText;
-    final textColor = context.appText;
 
     if (!_isUserLoaded) {
       return Scaffold(
@@ -567,7 +566,13 @@ class HomeShellState extends State<HomeShell> {
                                           ],
                                         ),
 
-                                        child: Icon(
+                                        child: 
+                                        // Image.asset(
+                                        //   'assets/icons/ai.png',
+                                        //   width: 20,
+                                        //   color: selectedColor,
+                                        // ),
+                                         Icon(
                                           Icons.auto_awesome_rounded,
                                           color: selectedColor,
                                           size: 28,

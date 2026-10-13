@@ -424,7 +424,7 @@ class _PunchOutScreenState extends State<PunchOutScreen> {
           : 'Your punch out has been submitted successfully. Location history could not be synced. Any saved locations have been kept on this device.',
       buttonText: 'OK',
       onButtonPressed: () {
-        context.go('${AppRouter.addExpense}?refresh=true');
+        context.push('${AppRouter.addExpense}?refresh=true');
       },
     );
   }
@@ -629,8 +629,7 @@ class _PunchOutScreenState extends State<PunchOutScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      // backgroundColor: context.appBackground,
-    backgroundColor: Colors.white,
+      backgroundColor: context.appBackground,
       appBar: CustomAppBar(
         title: 'Punch Out',
 
@@ -1730,26 +1729,27 @@ class _PunchOutScreenState extends State<PunchOutScreen> {
                     mainAxisAlignment: MainAxisAlignment.center,
 
                     children: [
-                      Container(
-                        width: 28.w,
+                      Icon(Icons.fingerprint_rounded, size: 18.sp),
 
-                        height: 28.w,
+                      // Container(
+                      //   width: 28.w,
 
-                        decoration: BoxDecoration(
-                          color: context.appOnPrimary.withValues(alpha: 0.15),
+                      //   height: 28.w,
 
-                          borderRadius: BorderRadius.circular(8.r),
-                        ),
+                      //   decoration: BoxDecoration(
+                      //     color: context.appOnPrimary.withValues(alpha: 0.15),
 
-                        child: Icon(
-                          Icons.logout_rounded,
+                      //     borderRadius: BorderRadius.circular(8.r),
+                      //   ),
 
-                          color: context.appOnPrimary,
+                      //   child: Icon(
+                      //     Icons.logout_rounded,
 
-                          size: 16.sp,
-                        ),
-                      ),
+                      //     color: context.appOnPrimary,
 
+                      //     size: 16.sp,
+                      //   ),
+                      // ),
                       SizedBox(width: 8.w),
 
                       Text(
@@ -1764,9 +1764,9 @@ class _PunchOutScreenState extends State<PunchOutScreen> {
                         ),
                       ),
 
-                      SizedBox(width: 6.w),
+                      // SizedBox(width: 6.w),
 
-                      Icon(Icons.arrow_forward_rounded, size: 17.sp),
+                      // Icon(Icons.arrow_forward_rounded, size: 17.sp),
                     ],
                   ),
           ),

@@ -5,6 +5,7 @@ import 'package:flutter/services.dart';
 import 'package:solufine/core/di/collection_di.dart';
 import 'package:solufine/core/router/app_router.dart';
 import 'package:solufine/core/secure_storage/secure_storage.dart';
+import 'package:solufine/core/theme/app_dynamic_colors.dart';
 import 'package:solufine/core/theme/app_theme_context.dart';
 import 'package:solufine/core/utility/image_compression.dart';
 import 'package:solufine/core/utility/widgets/custom_appbar.dart';
@@ -917,9 +918,7 @@ class _CollectionWiseFormPageState extends State<CollectionWiseFormPage> {
           return Scaffold(
             backgroundColor: context.backgroundColor,
 
-            // ====================================================================
-            // APP BAR
-            // ====================================================================
+   floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
             appBar: CustomAppBar(
               leading: IconButton(
                 icon: Icon(
@@ -1691,13 +1690,13 @@ class _CollectionWiseFormPageState extends State<CollectionWiseFormPage> {
               style: TextStyle(
                 fontSize: 20,
                 fontWeight: FontWeight.w800,
-                color: Colors.black,
+                color: context.appText
               ),
 
               decoration: InputDecoration(
                 border: InputBorder.none,
 
-                labelText: 'Collection Amount *',
+               // labelText: 'Collection Amount *',
 
                 hintText: '0.00',
                 hintStyle: TextStyle(color: context.onPrimaryColor),

@@ -1,9 +1,9 @@
-
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil_plus/flutter_screenutil_plus.dart';
 import 'package:solufine/core/theme/app_theme_colors.dart';
 import 'package:solufine/core/theme/app_theme_extension.dart';
 import 'package:solufine/core/theme/app_theme_palette.dart';
+
 class AppColor {
   AppColor._();
 
@@ -17,10 +17,7 @@ class AppColor {
   //
   static const BoxDecoration appGradientDecoration = BoxDecoration(
     gradient: LinearGradient(
-      colors: [
-        Color(0xFF3F9D39),
-        Color(0xFFA9E6A5),
-      ],
+      colors: [Color(0xFF3F9D39), Color(0xFFA9E6A5)],
       begin: Alignment.topLeft,
       end: Alignment.bottomRight,
     ),
@@ -35,19 +32,31 @@ class AppColor {
   ]) {
     final bool isDark = palette.id == AppThemeColors.charcoalDark.id;
 
-    final ColorScheme colorScheme = ColorScheme(
-      brightness: isDark ? Brightness.dark : Brightness.light,
-      primary: palette.primary,
-      onPrimary: palette.onPrimary,
-      secondary: palette.secondary,
-      onSecondary: palette.onSecondary,
-      surface: palette.surface,
-      onSurface: palette.onSurface,
-      error: isDark
-          ? const Color(0xFFE57373)
-          : const Color(0xFFD32F2F),
-      onError: isDark ? Colors.black : Colors.white,
-    );
+    final ColorScheme colorScheme =
+        ColorScheme.fromSeed(
+          seedColor: palette.primary,
+          brightness: isDark ? Brightness.dark : Brightness.light,
+        ).copyWith(
+          primary: palette.primary,
+          onPrimary: palette.onPrimary,
+          secondary: palette.secondary,
+          onSecondary: palette.onSecondary,
+          surface: palette.surface,
+          onSurface: palette.onSurface,
+          onSurfaceVariant: palette.textSecondary,
+          outline: palette.border,
+          outlineVariant: palette.border,
+          surfaceContainerLowest: isDark
+              ? const Color(0xFF15171B)
+              : Colors.white,
+          surfaceContainerLow: palette.surface,
+          surfaceContainer: palette.cardBackground,
+          surfaceContainerHigh: isDark
+              ? const Color(0xFF30343D)
+              : palette.cardBackground,
+          error: isDark ? const Color(0xFFFF8A80) : const Color(0xFFD32F2F),
+          onError: isDark ? Colors.black : Colors.white,
+        );
 
     return ThemeData(
       useMaterial3: true,
@@ -57,31 +66,25 @@ class AppColor {
       // ========================================================
       // MAIN COLORS
       // ========================================================
-
       primaryColor: palette.primary,
-   scaffoldBackgroundColor:
-    isDark ? Colors.black : Colors.white,
+      scaffoldBackgroundColor: isDark ? Colors.black : Colors.white,
 
-canvasColor:
-    isDark ? Colors.black : Colors.white,
+      canvasColor: isDark ? Colors.black : Colors.white,
       dividerColor: palette.border,
       disabledColor: palette.textSecondary.withValues(alpha: 0.5),
 
-      // ========================================================
-      // APP BAR
-      // ========================================================
-
+  textSelectionTheme: TextSelectionThemeData(
+  cursorColor: palette.primary,
+  selectionColor: palette.primary.withValues(alpha: 0.25),
+  selectionHandleColor: palette.primary,
+),
       appBarTheme: AppBarTheme(
         backgroundColor: palette.appBarBackground,
         foregroundColor: palette.appBarForeground,
         surfaceTintColor: Colors.transparent,
         elevation: 0,
-        iconTheme: IconThemeData(
-          color: palette.appBarForeground,
-        ),
-        actionsIconTheme: IconThemeData(
-          color: palette.appBarForeground,
-        ),
+        iconTheme: IconThemeData(color: palette.appBarForeground),
+        actionsIconTheme: IconThemeData(color: palette.appBarForeground),
         titleTextStyle: TextStyle(
           color: palette.appBarForeground,
           fontSize: 18,
@@ -92,7 +95,6 @@ canvasColor:
       // ========================================================
       // CARDS
       // ========================================================
-
       cardColor: palette.cardBackground,
 
       cardTheme: CardThemeData(
@@ -101,25 +103,19 @@ canvasColor:
         elevation: 2,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(12.r),
-          side: BorderSide(
-            color: palette.border,
-            width: 0.5,
-          ),
+          side: BorderSide(color: palette.border, width: 0.5),
         ),
       ),
 
       // ========================================================
       // ELEVATED BUTTONS
       // ========================================================
-
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
           backgroundColor: palette.primary,
           foregroundColor: palette.onPrimary,
-          disabledBackgroundColor:
-              palette.primary.withValues(alpha: 0.35),
-          disabledForegroundColor:
-              palette.onPrimary.withValues(alpha: 0.7),
+          disabledBackgroundColor: palette.primary.withValues(alpha: 0.35),
+          disabledForegroundColor: palette.onPrimary.withValues(alpha: 0.7),
           elevation: 2,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(8.r),
@@ -130,17 +126,13 @@ canvasColor:
       // ========================================================
       // TEXT BUTTONS
       // ========================================================
-
       textButtonTheme: TextButtonThemeData(
-        style: TextButton.styleFrom(
-          foregroundColor: palette.primary,
-        ),
+        style: TextButton.styleFrom(foregroundColor: palette.primary),
       ),
 
       // ========================================================
       // OUTLINED BUTTONS
       // ========================================================
-
       outlinedButtonTheme: OutlinedButtonThemeData(
         style: OutlinedButton.styleFrom(
           foregroundColor: palette.primary,
@@ -154,7 +146,6 @@ canvasColor:
       // ========================================================
       // FLOATING ACTION BUTTON
       // ========================================================
-
       floatingActionButtonTheme: FloatingActionButtonThemeData(
         backgroundColor: palette.primary,
         foregroundColor: palette.onPrimary,
@@ -163,67 +154,45 @@ canvasColor:
       // ========================================================
       // INPUT DECORATION
       // ========================================================
-
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
         fillColor: palette.inputBackground,
 
+        hintStyle: TextStyle(color: palette.textSecondary),
 
+        labelStyle: TextStyle(color: palette.textSecondary),
 
-        hintStyle: TextStyle(
-          color: palette.textSecondary,
-        ),
-
-        labelStyle: TextStyle(
-          color: palette.textSecondary,
-        ),
-
-        floatingLabelStyle: TextStyle(
-          color: palette.primary,
-        ),
+        floatingLabelStyle: TextStyle(color: palette.primary),
 
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(8.r),
-          borderSide: BorderSide(
-            color: palette.border,
-          ),
+          borderSide: BorderSide(color: palette.border),
         ),
 
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(8.r),
-          borderSide: BorderSide(
-            color: palette.border,
-          ),
+          borderSide: BorderSide(color: palette.border),
         ),
 
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(8.r),
-          borderSide: BorderSide(
-            color: palette.primary,
-            width: 1.5,
-          ),
+          borderSide: BorderSide(color: palette.primary, width: 1.5),
         ),
 
         errorBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(8.r),
-          borderSide: BorderSide(
-            color: colorScheme.error,
-          ),
+          borderSide: BorderSide(color: colorScheme.error),
         ),
 
         focusedErrorBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(8.r),
-          borderSide: BorderSide(
-            color: colorScheme.error,
-            width: 1.5,
-          ),
+          borderSide: BorderSide(color: colorScheme.error, width: 1.5),
         ),
       ),
 
       // ========================================================
       // TEXT THEME
       // ========================================================
-
       textTheme: TextTheme(
         displayLarge: TextStyle(color: palette.textPrimary),
         displayMedium: TextStyle(color: palette.textPrimary),
@@ -267,22 +236,17 @@ canvasColor:
       // ========================================================
       // ICONS
       // ========================================================
-
-      iconTheme: IconThemeData(
-        color: palette.textPrimary,
-      ),
+      iconTheme: IconThemeData(color: palette.textPrimary),
 
       // ========================================================
       // BOTTOM NAVIGATION
       // ========================================================
-
       bottomNavigationBarTheme: BottomNavigationBarThemeData(
         backgroundColor: palette.surface,
         selectedItemColor: palette.primary,
         unselectedItemColor: palette.textSecondary,
         selectedIconTheme: IconThemeData(color: palette.primary),
-        unselectedIconTheme:
-            IconThemeData(color: palette.textSecondary),
+        unselectedIconTheme: IconThemeData(color: palette.textSecondary),
         type: BottomNavigationBarType.fixed,
       ),
 
@@ -294,7 +258,6 @@ canvasColor:
       // ========================================================
       // TABS
       // ========================================================
-
       tabBarTheme: TabBarThemeData(
         labelColor: palette.primary,
         unselectedLabelColor: palette.textSecondary,
@@ -305,16 +268,11 @@ canvasColor:
       // ========================================================
       // DIVIDERS
       // ========================================================
-
-      dividerTheme: DividerThemeData(
-        color: palette.border,
-        thickness: 1,
-      ),
+      dividerTheme: DividerThemeData(color: palette.border, thickness: 1),
 
       // ========================================================
       // SWITCHES / CHECKBOXES
       // ========================================================
-
       checkboxTheme: CheckboxThemeData(
         fillColor: WidgetStateProperty.resolveWith((states) {
           if (states.contains(WidgetState.selected)) {
@@ -343,7 +301,6 @@ canvasColor:
       // ========================================================
       // DIALOGS AND BOTTOM SHEETS
       // ========================================================
-
       dialogTheme: DialogThemeData(
         backgroundColor: palette.surface,
         titleTextStyle: TextStyle(
@@ -351,10 +308,7 @@ canvasColor:
           fontSize: 18,
           fontWeight: FontWeight.w600,
         ),
-        contentTextStyle: TextStyle(
-          color: palette.textPrimary,
-          fontSize: 14,
-        ),
+        contentTextStyle: TextStyle(color: palette.textPrimary, fontSize: 14),
       ),
 
       bottomSheetTheme: BottomSheetThemeData(
@@ -366,20 +320,13 @@ canvasColor:
       // ========================================================
       // SNACKBAR
       // ========================================================
-
       snackBarTheme: SnackBarThemeData(
         backgroundColor: palette.primary,
-        contentTextStyle: TextStyle(
-          color: palette.onPrimary,
-        ),
+        contentTextStyle: TextStyle(color: palette.onPrimary),
         behavior: SnackBarBehavior.floating,
       ),
 
-      
-
-      extensions: [
-        AppThemeExtension.fromPalette(palette),
-      ],
+      extensions: [AppThemeExtension.fromPalette(palette)],
     );
   }
 }

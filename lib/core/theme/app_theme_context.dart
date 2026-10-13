@@ -18,16 +18,14 @@ extension AppThemeContext on BuildContext {
   Color get primaryTextColor => appColors.onSurface;
   Color get secondaryTextColor => appTheme.textSecondary;
 
-  // Background / card
+
   Color get backgroundColor => Theme.of(this).scaffoldBackgroundColor;
 
   Color get cardBackgroundColor => appTheme.cardBackground;
   Color get cardTextColor => appTheme.onCard;
 
-  // Border
   Color get borderColor => appTheme.borderColor;
 
-  // Gradient
   LinearGradient get appGradient => appTheme.appGradient;
 
   BoxDecoration get appGradientDecoration => appTheme.appGradientDecoration;

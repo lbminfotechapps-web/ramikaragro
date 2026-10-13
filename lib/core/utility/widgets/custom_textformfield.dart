@@ -78,13 +78,13 @@ class CustomTextFormField extends StatelessWidget {
         }
       },
 
-      style: TextStyle(fontSize: 14, color: context.appText),
+      style: TextStyle(fontSize: 14, color: context.appInputText),
 
       decoration: InputDecoration(
-         filled: true,
+        filled: true,
         hintText: hintText,
         labelText: labelText,
- fillColor: context.appInputBackground,
+        fillColor: context.appInputBackground,
 
         labelStyle: TextStyle(
           color: context.appSubText,
@@ -109,7 +109,10 @@ class CustomTextFormField extends StatelessWidget {
           child: Container(
             decoration: BoxDecoration(
               shape: BoxShape.circle,
-              color: Color.alphaBlend(context.appPrimary.withValues(alpha: 0.1), context.appCard),
+              color: Color.alphaBlend(
+                context.appPrimary.withValues(alpha: 0.1),
+                context.appCard,
+              ),
             ),
             child: Icon(prefixIcon, color: context.appPrimary, size: 22),
           ),
@@ -219,7 +222,9 @@ class _KeyboardDoneOverlayState extends State<_KeyboardDoneOverlay>
                   child: TextButton(
                     onPressed: () => FocusScope.of(context).unfocus(),
                     style: TextButton.styleFrom(
-                      foregroundColor: Theme.of(overlayContext).colorScheme.primary,
+                      foregroundColor: Theme.of(
+                        overlayContext,
+                      ).colorScheme.primary,
                       textStyle: const TextStyle(fontWeight: FontWeight.w700),
                     ),
                     child: const Text('Done'),

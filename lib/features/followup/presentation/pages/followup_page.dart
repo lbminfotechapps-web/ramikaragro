@@ -22,7 +22,9 @@ class FollowupPage extends StatefulWidget {
   State<FollowupPage> createState() => _FollowupPageState();
 }
 
-class _FollowupPageState extends State<FollowupPage> {
+class _FollowupPageState extends State<FollowupPage>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _calendarAttentionController;
   // ===========================================================================
   // VARIABLES
   // ===========================================================================
@@ -53,6 +55,11 @@ class _FollowupPageState extends State<FollowupPage> {
   void initState() {
     super.initState();
 
+    _calendarAttentionController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 650),
+    )..repeat(reverse: true);
+
     TabRefresh.followup.addListener(_onTabRefresh);
     _initializePage();
   }
@@ -62,14 +69,17 @@ class _FollowupPageState extends State<FollowupPage> {
   // ===========================================================================
 
   void _onTabRefresh() {
+    _calendarAttentionController.repeat(reverse: true);
     _initializePage();
   }
 
   @override
   void dispose() {
     TabRefresh.followup.removeListener(_onTabRefresh);
+    _calendarAttentionController.dispose();
     super.dispose();
   }
+
   Future<void> _initializePage() async {
     final userData = await SecureStorage.instance.getUserData();
 
@@ -209,6 +219,50 @@ class _FollowupPageState extends State<FollowupPage> {
     _loadFollowup();
   }
 
+  Widget _buildCalendarAction() {
+    final theme = Theme.of(context);
+    final background =
+        theme.appBarTheme.backgroundColor ?? theme.colorScheme.surface;
+    final foreground =
+        theme.appBarTheme.foregroundColor ??
+        (ThemeData.estimateBrightnessForColor(background) == Brightness.dark
+            ? Colors.white
+            : Colors.black);
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 4),
+      child: IconButton(
+        tooltip: 'View follow-ups in calendar',
+        style: IconButton.styleFrom(
+          backgroundColor: foreground.withValues(alpha: 0.12),
+          foregroundColor: foreground,
+          shape: const CircleBorder(),
+        ),
+        onPressed: () {
+          _calendarAttentionController.stop();
+          _calendarAttentionController.value = 0.5;
+          context.push(AppRouter.calendarReport);
+        },
+        icon: AnimatedBuilder(
+          animation: _calendarAttentionController,
+          child: const Icon(Icons.calendar_month_rounded, size: 20),
+          builder: (context, child) {
+            final progress = Curves.easeInOut.transform(
+              _calendarAttentionController.value,
+            );
+            return Transform.rotate(
+              angle: (progress - 0.5) * 0.3,
+              child: Transform.scale(
+                scale: 1 + (0.5 - (progress - 0.5).abs()) * 0.2,
+                child: child,
+              ),
+            );
+          },
+        ),
+      ),
+    );
+  }
+
   // ===========================================================================
   // BUILD
   // ===========================================================================
@@ -225,29 +279,15 @@ class _FollowupPageState extends State<FollowupPage> {
       //   showBackButton: true,
       //   onBackTap: () => context.go(AppRouter.home),
       // ),
+      appBar: CustomAppBar(
+        title: 'Upcoming Followup List',
 
+        action: _buildCalendarAction(),
 
-        appBar: CustomAppBar(
-          title: 'Upcoming Followup List',
+        showBackButton: true,
 
-          actionIcon: Icons.calendar_month_rounded,
-
-          onActionIconTap: () {
-            context.push(
-              AppRouter.calendarReport,
-            );
-          },
-
-          showBackButton: true,
-
-          onBackTap: () => context.go(
-            AppRouter.home,
-          ),
-        ),
-
-
-
-
+        onBackTap: () => context.go(AppRouter.home),
+      ),
 
       body: Column(
         children: [
@@ -325,7 +365,9 @@ class _FollowupPageState extends State<FollowupPage> {
             decoration: BoxDecoration(
               color: context.appOnPrimary.withValues(alpha: 0.15),
               borderRadius: BorderRadius.circular(15),
-              border: Border.all(color: context.appOnPrimary.withValues(alpha: 0.10)),
+              border: Border.all(
+                color: context.appOnPrimary.withValues(alpha: 0.10),
+              ),
             ),
             child: Icon(
               Icons.event_note_rounded,
@@ -437,7 +479,9 @@ class _FollowupPageState extends State<FollowupPage> {
         border: Border.all(color: context.appBorder),
         boxShadow: [
           BoxShadow(
-            color: Theme.of(context).colorScheme.shadow.withValues(alpha: 0.035),
+            color: Theme.of(
+              context,
+            ).colorScheme.shadow.withValues(alpha: 0.035),
             blurRadius: 12,
             offset: const Offset(0, 3),
           ),
@@ -674,7 +718,11 @@ class _FollowupPageState extends State<FollowupPage> {
         child: SizedBox(
           width: 48,
           height: 52,
-          child: Icon(Icons.search_rounded, color: enabled ? context.appOnPrimary : context.appSubText, size: 22),
+          child: Icon(
+            Icons.search_rounded,
+            color: enabled ? context.appOnPrimary : context.appSubText,
+            size: 22,
+          ),
         ),
       ),
     );
@@ -719,7 +767,9 @@ class _FollowupPageState extends State<FollowupPage> {
         border: Border.all(color: context.appBorder),
         boxShadow: [
           BoxShadow(
-            color: Theme.of(context).colorScheme.shadow.withValues(alpha: 0.035),
+            color: Theme.of(
+              context,
+            ).colorScheme.shadow.withValues(alpha: 0.035),
             blurRadius: 12,
             offset: const Offset(0, 3),
           ),
@@ -736,9 +786,7 @@ class _FollowupPageState extends State<FollowupPage> {
               // ---------------------------------------------------------------
               Container(
                 width: 4,
-                color: isPhone
-                    ? context.appPrimary
-                    : context.appPrimary,
+                color: isPhone ? context.appPrimary : context.appPrimary,
               ),
 
               Expanded(
@@ -1021,16 +1069,15 @@ class _FollowupPageState extends State<FollowupPage> {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 5),
       decoration: BoxDecoration(
-        color: Color.alphaBlend(context.appPrimary.withValues(alpha: 0.1), context.appCard),
+        color: Color.alphaBlend(
+          context.appPrimary.withValues(alpha: 0.1),
+          context.appCard,
+        ),
         borderRadius: BorderRadius.circular(9),
       ),
       child: Row(
         children: [
-          Icon(
-            Icons.event_repeat_rounded,
-            size: 13,
-            color: context.appPrimary,
-          ),
+          Icon(Icons.event_repeat_rounded, size: 13, color: context.appPrimary),
 
           const SizedBox(width: 4),
 

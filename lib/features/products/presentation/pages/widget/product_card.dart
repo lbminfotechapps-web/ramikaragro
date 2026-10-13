@@ -1,4 +1,5 @@
 import 'package:solufine/core/api_constant/api_client.dart';
+import 'package:solufine/core/theme/app_theme_context.dart';
 import 'package:solufine/features/products/domain/entity/fertilizer_product_entity.dart';
 import 'package:flutter/material.dart';
 
@@ -14,25 +15,12 @@ class ProductCard extends StatelessWidget {
     required this.index,
   });
 
-  static const List<Color> _backgroundColors = [
-    Color(0xFFF1FAF4),
-    Color(0xFFFFF8ED),
-    Color(0xFFF1F5FD),
-    Color(0xFFF5F5F5),
-    Color(0xFFF9F0FF),
-    Color(0xFFFFF0F3),
-  ];
-
-  Color get backgroundColor {
-    return _backgroundColors[index % _backgroundColors.length];
-  }
-
   @override
   Widget build(BuildContext context) {
     return Card(
       elevation: 2,
       margin: EdgeInsets.zero,
-      color: backgroundColor,
+      color: context.cardBackgroundColor,
       clipBehavior: Clip.antiAlias,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
       child: InkWell(
@@ -44,7 +32,7 @@ class ProductCard extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               // PRODUCT IMAGE
-              SizedBox(width: 140, height: 140, child: _buildImage()),
+              SizedBox(width: 140, height: 140, child: _buildImage(context)),
 
               const SizedBox(height: 12),
 
@@ -54,9 +42,10 @@ class ProductCard extends StatelessWidget {
                 textAlign: TextAlign.center,
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 15,
                   fontWeight: FontWeight.w700,
+                  color: context.cardTextColor,
                 ),
               ),
 
@@ -68,7 +57,10 @@ class ProductCard extends StatelessWidget {
                   textAlign: TextAlign.center,
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
-                  style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: context.secondaryTextColor,
+                  ),
                 ),
               ],
             ],
@@ -78,9 +70,9 @@ class ProductCard extends StatelessWidget {
     );
   }
 
-  Widget _buildImage() {
+  Widget _buildImage(BuildContext context) {
     if (product.productPath.isEmpty) {
-      return _placeholderImage();
+      return _placeholderImage(context);
     }
 
     return Image.network(
@@ -89,21 +81,25 @@ class ProductCard extends StatelessWidget {
       height: 140,
       fit: BoxFit.contain,
       errorBuilder: (_, __, ___) {
-        return _placeholderImage();
+        return _placeholderImage(context);
       },
     );
   }
 
-  Widget _placeholderImage() {
+  Widget _placeholderImage(BuildContext context) {
     return Container(
       width: 140,
       height: 140,
       decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.6),
+        color: context.appTheme.inputBackground,
         borderRadius: BorderRadius.circular(14),
       ),
-      child: const Center(
-        child: Icon(Icons.inventory_2_rounded, size: 55, color: Colors.grey),
+      child: Center(
+        child: Icon(
+          Icons.inventory_2_rounded,
+          size: 55,
+          color: context.secondaryTextColor,
+        ),
       ),
     );
   }
