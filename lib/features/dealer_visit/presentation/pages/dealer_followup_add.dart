@@ -69,60 +69,39 @@ class _DealerFollowupAddState extends State<DealerFollowupAdd> {
   bool _submitted = false;
   bool _submissionCompleted = false;
 
-  void _focusFirstInvalidField(Set<FormFieldState<dynamic>> invalidFields) {
-    // Walk the form in visual order, including fields below the viewport.
-    FormFieldState<dynamic>? firstInvalid;
-    void findInvalid(Element element) {
-      if (firstInvalid != null) return;
-      if (element is StatefulElement &&
-          element.state is FormFieldState &&
-          invalidFields.contains(element.state)) {
-        firstInvalid = element.state as FormFieldState<dynamic>;
-        return;
+  void _focusFirstInvalidField() {
+    for (final entry in _fieldKeys.entries) {
+      final field = entry.value.currentState;
+      if (field != null && field.hasError) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (!mounted) return;
+
+          _fieldFocus[entry.key]!.requestFocus();
+          final fieldContext = entry.value.currentContext;
+          if (fieldContext != null) {
+            Scrollable.ensureVisible(
+              fieldContext,
+              alignment: 0.2,
+              duration: const Duration(milliseconds: 300),
+              curve: Curves.easeInOut,
+            );
+          }
+        });
+        break;
       }
-      element.visitChildren(findInvalid);
     }
-
-    _formKey.currentContext?.visitChildElements(findInvalid);
-    final field = firstInvalid;
-    if (field == null) return;
-
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (!mounted || !field.mounted) return;
-      FocusNode? target;
-      void findFocus(Element element) {
-        if (target != null) return;
-        final widget = element.widget;
-        if (widget is EditableText) {
-          target = widget.focusNode;
-        } else if (widget is Focus &&
-            widget.focusNode?.canRequestFocus == true) {
-          target = widget.focusNode;
-        }
-        if (target == null) element.visitChildren(findFocus);
-      }
-
-      field.context.visitChildElements(findFocus);
-      target?.requestFocus();
-      Scrollable.ensureVisible(
-        field.context,
-        alignment: 0.2,
-        duration: const Duration(milliseconds: 300),
-        curve: Curves.easeInOut,
-      );
-    });
   }
 
   void _submit() async {
-    FocusScope.of(context).unfocus();
 
     if (isLoading || _submissionCompleted) return;
     setState(() => _submitted = true);
-    final invalidFields = _formKey.currentState!.validateGranularly();
-    if (invalidFields.isNotEmpty) {
-      _focusFirstInvalidField(invalidFields);
+    if (!_formKey.currentState!.validate()) {
+      _focusFirstInvalidField();
       return;
     }
+
+    FocusScope.of(context).unfocus();
 
     if (_selectedStateId == null || _selectedStateId!.isEmpty) {
       ScaffoldMessenger.of(
@@ -398,6 +377,9 @@ class _DealerFollowupAddState extends State<DealerFollowupAdd> {
 
   @override
   void dispose() {
+    for (final node in _fieldFocus.values) {
+      node.dispose();
+    }
     shopNameController.dispose();
     dealerCodeController.dispose();
     ownerNameController.dispose();
@@ -564,6 +546,27 @@ class _DealerFollowupAddState extends State<DealerFollowupAdd> {
   bool _submissionSent = false;
   bool isLoading = false;
   final _formKey = GlobalKey<FormState>();
+  static const _fieldOrder = [
+    'dealerType',
+    'shop',
+    'mobile',
+    'alternate',
+    'gst',
+    'email',
+    'address',
+    'state',
+    'district',
+    'taluka',
+    'date',
+    'followUpType',
+    'photo',
+  ];
+  final _fieldKeys = {
+    for (final name in _fieldOrder) name: GlobalKey<FormFieldState>(),
+  };
+  final _fieldFocus = {
+    for (final name in _fieldOrder) name: FocusNode(),
+  };
 
   void _onDistrictSelected(String? districtId, AddDealerVisitState state) {
     if (districtId == null || districtId.isEmpty) {
@@ -665,18 +668,17 @@ class _DealerFollowupAddState extends State<DealerFollowupAdd> {
         onBackTap: () => Navigator.pop(context),
       ),
       resizeToAvoidBottomInset: true,
-      bottomNavigationBar:
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
+      floatingActionButton:
           BlocBuilder<AddDealerVisitBlock, AddDealerVisitState>(
             builder: (context, state) {
-              return SafeArea(
-                minimum: const EdgeInsets.fromLTRB(16, 8, 16, 12),
+              return Padding(
+                padding: const EdgeInsets.only(left: 16, right: 16),
                 child: CustomButton(
                   text: 'Register Dealer',
                   onPressed: isLoading || _submissionCompleted ? null : _submit,
                   isLoading: isLoading,
-                  width: double.infinity,
-                  height: 52,
-                  borderRadius: 22,
+
                   backgroundColor: context.primaryColor,
                   textColor: context.onPrimaryColor,
                 ),
@@ -707,14 +709,11 @@ class _DealerFollowupAddState extends State<DealerFollowupAdd> {
             context.read<QuickAcessBloc>().add(
               StoreTrackLocation(userId.toString(), '', strAllLocations),
             );
-
             AppDialog.show(
               context: context,
-
-              message: 'Dealer Added Successfully',
-              onButtonPressed: () => {context.go('/visits')},
+              message: state.errorMessage ?? 'Dealer Added Successfully',
+              onButtonPressed: () => context.push('/farmers'),
             );
-            // context.push(AppRouter.home);
           }
           // ============================================
           // API ERROR
@@ -811,9 +810,10 @@ class _DealerFollowupAddState extends State<DealerFollowupAdd> {
           return SafeArea(
             child: Form(
               key: _formKey,
-              autovalidateMode: _submitted
-                  ? AutovalidateMode.always
-                  : AutovalidateMode.disabled,
+                 autovalidateMode: AutovalidateMode.onUserInteraction,
+              // autovalidateMode: _submitted
+              //     ? AutovalidateMode.always
+              //     : AutovalidateMode.disabled,
 
               child: SingleChildScrollView(
                 padding: const EdgeInsets.only(left: 16, right: 16),
@@ -839,6 +839,8 @@ class _DealerFollowupAddState extends State<DealerFollowupAdd> {
                       value: _selectedDealerType,
 
                       hintText: 'Select Dealer Type',
+                      fieldKey: _fieldKeys['dealerType'],
+                      focusNode: _fieldFocus['dealerType'],
 
                       prefixIcon: Icons.person_outline,
 
@@ -872,6 +874,8 @@ class _DealerFollowupAddState extends State<DealerFollowupAdd> {
                     CustomTextFormField(
                       controller: shopNameController,
                       hintText: 'Shop Name *',
+                      fieldKey: _fieldKeys['shop'],
+                      focusNode: _fieldFocus['shop'],
                       labelText: 'Shop Name *',
                       prefixIcon: Icons.shop,
                       validator: (value) {
@@ -909,6 +913,8 @@ class _DealerFollowupAddState extends State<DealerFollowupAdd> {
                       maxLength: 10,
                       controller: mobileController,
                       hintText: 'Mobile No *',
+                      fieldKey: _fieldKeys['mobile'],
+                      focusNode: _fieldFocus['mobile'],
                       labelText: 'Mobile No *',
                       prefixIcon: Icons.phone_outlined,
                       keyboardType: TextInputType.phone,
@@ -933,6 +939,8 @@ class _DealerFollowupAddState extends State<DealerFollowupAdd> {
                       maxLength: 10,
                       controller: alternateMobileController,
                       hintText: 'Alternate Mobile No',
+                      fieldKey: _fieldKeys['alternate'],
+                      focusNode: _fieldFocus['alternate'],
                       labelText: 'Alternate Mobile No',
                       prefixIcon: Icons.phone_outlined,
                       keyboardType: TextInputType.phone,
@@ -956,6 +964,8 @@ class _DealerFollowupAddState extends State<DealerFollowupAdd> {
                     CustomTextFormField(
                       controller: gstController,
                       hintText: 'GST No',
+                      fieldKey: _fieldKeys['gst'],
+                      focusNode: _fieldFocus['gst'],
                       labelText: 'GST No',
                       prefixIcon: Icons.receipt_long_outlined,
                       keyboardType: TextInputType.text,
@@ -977,6 +987,8 @@ class _DealerFollowupAddState extends State<DealerFollowupAdd> {
                     CustomTextFormField(
                       controller: emailController,
                       hintText: 'Email Id',
+                      fieldKey: _fieldKeys['email'],
+                      focusNode: _fieldFocus['email'],
                       labelText: 'Email Id',
                       prefixIcon: Icons.email_outlined,
                       keyboardType: TextInputType.emailAddress,
@@ -1002,6 +1014,8 @@ class _DealerFollowupAddState extends State<DealerFollowupAdd> {
                     CustomTextFormField(
                       controller: addressController,
                       hintText: 'Address *',
+                      fieldKey: _fieldKeys['address'],
+                      focusNode: _fieldFocus['address'],
                       labelText: 'Address',
                       prefixIcon: Icons.home_outlined,
                       validator: (value) {
@@ -1029,6 +1043,8 @@ class _DealerFollowupAddState extends State<DealerFollowupAdd> {
                       value: _selectedStateId == '0' ? null : _selectedStateId,
 
                       hintText: 'Select State',
+                      fieldKey: _fieldKeys['state'],
+                      focusNode: _fieldFocus['state'],
 
                       prefixIcon: Icons.map_outlined,
 
@@ -1090,6 +1106,8 @@ class _DealerFollowupAddState extends State<DealerFollowupAdd> {
                           ? null
                           : _selectedDistrictId,
                       hintText: 'Select District',
+                      fieldKey: _fieldKeys['district'],
+                      focusNode: _fieldFocus['district'],
                       prefixIcon: Icons.location_city_outlined,
                       enabled:
                           _selectedStateId != null && _selectedStateId != '0',
@@ -1124,6 +1142,8 @@ class _DealerFollowupAddState extends State<DealerFollowupAdd> {
                           ? null
                           : _selectedTalukaId,
                       hintText: 'Select Taluka',
+                      fieldKey: _fieldKeys['taluka'],
+                      focusNode: _fieldFocus['taluka'],
                       prefixIcon: Icons.location_on_outlined,
                       enabled:
                           _selectedDistrictId != null &&
@@ -1152,6 +1172,8 @@ class _DealerFollowupAddState extends State<DealerFollowupAdd> {
                     _textField(
                       controller: dateController,
                       hintText: 'Next Followup Date *',
+                      fieldKey: _fieldKeys['date'],
+                      focusNode: _fieldFocus['date'],
                       icon: Icons.calendar_today_outlined,
                       readOnly: true,
                       // suffixIcon: Icons.calendar_month_outlined,
@@ -1179,6 +1201,8 @@ class _DealerFollowupAddState extends State<DealerFollowupAdd> {
                     CustomDropdown<String>(
                       value: _selectedFollowUpType,
                       hintText: 'Follow Up Type',
+                      fieldKey: _fieldKeys['followUpType'],
+                      focusNode: _fieldFocus['followUpType'],
                       prefixIcon: Icons.event_note_outlined,
                       enabled: true,
                       items: followUpTypeItem,
@@ -1204,6 +1228,7 @@ class _DealerFollowupAddState extends State<DealerFollowupAdd> {
 
                     // Upload photo
                     FormField<bool>(
+                      key: _fieldKeys['photo'],
                       initialValue: _uploadedImage != null,
                       validator: (_) {
                         if (_uploadedImage == null) {
@@ -1241,7 +1266,7 @@ class _DealerFollowupAddState extends State<DealerFollowupAdd> {
                       prefixIcon: Icons.note,
                       maxLines: 2,
                     ),
-                    SizedBox(height: 24.h),
+                  SizedBox(height: 100.h),
                   ],
                 ),
               ),
@@ -1253,6 +1278,8 @@ class _DealerFollowupAddState extends State<DealerFollowupAdd> {
   }
 
   Widget _textField({
+    GlobalKey<FormFieldState>? fieldKey,
+    FocusNode? focusNode,
     required TextEditingController controller,
     required String hintText,
     required IconData icon,
@@ -1265,6 +1292,8 @@ class _DealerFollowupAddState extends State<DealerFollowupAdd> {
     VoidCallback? onSuffixIconTap,
   }) {
     return CustomTextFormField(
+      fieldKey: fieldKey,
+      focusNode: focusNode,
       controller: controller,
       hintText: hintText,
       prefixIcon: icon,
@@ -1290,6 +1319,7 @@ class _DealerFollowupAddState extends State<DealerFollowupAdd> {
         children: [
           // Upload header
           InkWell(
+            focusNode: _fieldFocus['photo'],
             onTap: _captureImage,
             borderRadius: BorderRadius.circular(12.r),
             child: Padding(

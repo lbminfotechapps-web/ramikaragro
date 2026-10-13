@@ -4,6 +4,7 @@ import 'package:solufine/core/router/app_router.dart';
 import 'package:solufine/core/secure_storage/secure_storage.dart';
 import 'package:solufine/core/theme/app_theme_context.dart';
 import 'package:solufine/core/utility/app_image_picker.dart';
+import 'package:solufine/core/utility/appdialog.dart';
 import 'package:solufine/core/utility/data_list.dart';
 import 'package:solufine/core/utility/widgets/custom_appbar.dart'
     show CustomAppBar;
@@ -66,14 +67,51 @@ class _EditUpdateDealerState extends State<EditUpdateDealer> {
     loadApiData();
   }
 
-  void _submit() async {
-    FocusScope.of(context).unfocus();
+  @override
+  void dispose() {
+    for (final node in _fieldFocus.values) {
+      node.dispose();
+    }
+    shopNameController.dispose();
+    dealerCodeController.dispose();
+    ownerNameController.dispose();
+    mobileController.dispose();
+    alternateMobileController.dispose();
+    gstController.dispose();
+    emailController.dispose();
+    addressController.dispose();
+    dateController.dispose();
+    remarkController.dispose();
+    super.dispose();
+  }
 
+  void _submit() async {
     if (isLoading) return;
 
     if (!_formKey.currentState!.validate()) {
+      for (final entry in _fieldKeys.entries) {
+        final field = entry.value.currentState;
+        if (field != null && field.hasError) {
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            if (!mounted) return;
+
+            _fieldFocus[entry.key]!.requestFocus();
+            final fieldContext = entry.value.currentContext;
+            if (fieldContext != null) {
+              Scrollable.ensureVisible(
+                fieldContext,
+                duration: const Duration(milliseconds: 300),
+                alignment: 0.2,
+              );
+            }
+          });
+          break;
+        }
+      }
       return;
     }
+
+    FocusScope.of(context).unfocus();
 
     // ============================================
     // VALIDATE STATE
@@ -629,6 +667,24 @@ class _EditUpdateDealerState extends State<EditUpdateDealer> {
   bool _submissionSent = false;
   bool isLoading = false;
   final _formKey = GlobalKey<FormState>();
+  static const _fieldOrder = [
+    'dealerType',
+    'shop',
+    'mobile',
+    'alternate',
+    'email',
+    'state',
+    'district',
+    'taluka',
+    'date',
+    'followUpType',
+  ];
+  final _fieldKeys = {
+    for (final name in _fieldOrder) name: GlobalKey<FormFieldState>(),
+  };
+  final _fieldFocus = {
+    for (final name in _fieldOrder) name: FocusNode(),
+  };
 
   @override
   Widget build(BuildContext context) {
@@ -643,15 +699,16 @@ class _EditUpdateDealerState extends State<EditUpdateDealer> {
       floatingActionButton:
           BlocBuilder<AddDealerVisitBlock, AddDealerVisitState>(
             builder: (context, state) {
-              return CustomButton(
-                text: 'Update Dealer',
-                onPressed: _submit,
-                isLoading: isLoading,
-                width: double.infinity,
-                height: 52,
-                borderRadius: 22,
-                backgroundColor: context.primaryColor,
-                textColor: context.onPrimaryColor,
+              return Padding(
+                padding: const EdgeInsets.only(left: 16,right: 16),
+                child: CustomButton(
+                  text: 'Update Dealer',
+                  onPressed: _submit,
+                  isLoading: isLoading,
+                           
+                  backgroundColor: context.primaryColor,
+                  textColor: context.onPrimaryColor,
+                ),
               );
             },
           ),
@@ -671,16 +728,14 @@ class _EditUpdateDealerState extends State<EditUpdateDealer> {
               isLoading = false;
               _submissionSent = false;
             });
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                backgroundColor: context.primaryColor,
-                content: Text(
-                  style: TextStyle(color: context.onPrimaryColor),
-                  state.errorMessage ?? 'Dealer Updated Successfully',
-                ),
-              ),
+
+       
+
+            AppDialog.show(
+              context: context,
+              message: state.errorMessage ?? 'Dealer Updated Successfully',
+              onButtonPressed: () => context.push('/farmers'),
             );
-            context.go(AppRouter.visits);
           }
           // ============================================
           // API ERROR
@@ -853,6 +908,8 @@ class _EditUpdateDealerState extends State<EditUpdateDealer> {
                       value: _selectedDealerStatus,
 
                       hintText: 'Select Dealer Type',
+                      fieldKey: _fieldKeys['dealerType'],
+                      focusNode: _fieldFocus['dealerType'],
 
                       prefixIcon: Icons.person_outline,
 
@@ -884,6 +941,8 @@ class _EditUpdateDealerState extends State<EditUpdateDealer> {
                       labelText: 'Shop Name',
                       controller: shopNameController,
                       hintText: 'Shop Name *',
+                      fieldKey: _fieldKeys['shop'],
+                      focusNode: _fieldFocus['shop'],
                       prefixIcon: Icons.shop,
                       validator: (value) {
                         if (value == null || value.trim().isEmpty) {
@@ -920,6 +979,8 @@ class _EditUpdateDealerState extends State<EditUpdateDealer> {
                       labelText: 'Mobile No',
                       controller: mobileController,
                       hintText: 'Mobile No *',
+                      fieldKey: _fieldKeys['mobile'],
+                      focusNode: _fieldFocus['mobile'],
                       prefixIcon: Icons.phone_outlined,
                       keyboardType: TextInputType.phone,
                       validator: (value) {
@@ -944,6 +1005,8 @@ class _EditUpdateDealerState extends State<EditUpdateDealer> {
                       labelText: 'Alternate Mobile No',
                       controller: alternateMobileController,
                       hintText: 'Alternate Mobile No',
+                      fieldKey: _fieldKeys['alternate'],
+                      focusNode: _fieldFocus['alternate'],
                       prefixIcon: Icons.phone_outlined,
                       keyboardType: TextInputType.phone,
                       validator: (value) {
@@ -977,6 +1040,8 @@ class _EditUpdateDealerState extends State<EditUpdateDealer> {
                       labelText: 'Email Id',
                       controller: emailController,
                       hintText: 'Email Id',
+                      fieldKey: _fieldKeys['email'],
+                      focusNode: _fieldFocus['email'],
                       prefixIcon: Icons.email_outlined,
                       keyboardType: TextInputType.emailAddress,
                       validator: (value) {
@@ -1021,6 +1086,8 @@ class _EditUpdateDealerState extends State<EditUpdateDealer> {
                       value: selectedStateValue,
 
                       hintText: 'Select State',
+                      fieldKey: _fieldKeys['state'],
+                      focusNode: _fieldFocus['state'],
 
                       prefixIcon: Icons.map_outlined,
 
@@ -1076,6 +1143,8 @@ class _EditUpdateDealerState extends State<EditUpdateDealer> {
                     CustomDropdown<String>(
                       value: selectedDistrictValue,
                       hintText: 'Select District',
+                      fieldKey: _fieldKeys['district'],
+                      focusNode: _fieldFocus['district'],
                       prefixIcon: Icons.location_city_outlined,
                       enabled:
                           _selectedStateId != null && _selectedStateId != '0',
@@ -1107,6 +1176,8 @@ class _EditUpdateDealerState extends State<EditUpdateDealer> {
                     CustomDropdown<String>(
                       value: selectedTalukaValue,
                       hintText: 'Select Taluka',
+                      fieldKey: _fieldKeys['taluka'],
+                      focusNode: _fieldFocus['taluka'],
                       prefixIcon: Icons.location_on_outlined,
                       enabled:
                           _selectedDistrictId != null &&
@@ -1160,6 +1231,8 @@ class _EditUpdateDealerState extends State<EditUpdateDealer> {
                     _textField(
                       controller: dateController,
                       hintText: 'Next Visit Date *',
+                      fieldKey: _fieldKeys['date'],
+                      focusNode: _fieldFocus['date'],
                       icon: Icons.calendar_today_outlined,
                       enabled: false,
                       readOnly: true,
@@ -1185,6 +1258,8 @@ class _EditUpdateDealerState extends State<EditUpdateDealer> {
                     CustomDropdown<String>(
                       value: _selectedFollowUpStatus,
                       hintText: 'Follow Up Type',
+                      fieldKey: _fieldKeys['followUpType'],
+                      focusNode: _fieldFocus['followUpType'],
                       prefixIcon: Icons.event_note_outlined,
                       enabled: true,
                       items: followUpTypeItem,
@@ -1217,7 +1292,7 @@ class _EditUpdateDealerState extends State<EditUpdateDealer> {
                       prefixIcon: Icons.note,
                       maxLines: 2,
                     ),
-                    const SizedBox(height: 100),
+                       SizedBox(height: 100.h),
                   ],
                 ),
               ),
@@ -1229,6 +1304,8 @@ class _EditUpdateDealerState extends State<EditUpdateDealer> {
   }
 
   Widget _textField({
+    GlobalKey<FormFieldState>? fieldKey,
+    FocusNode? focusNode,
     required TextEditingController controller,
     required String hintText,
     required IconData icon,
@@ -1241,6 +1318,8 @@ class _EditUpdateDealerState extends State<EditUpdateDealer> {
     VoidCallback? onSuffixIconTap,
   }) {
     return CustomTextFormField(
+      fieldKey: fieldKey,
+      focusNode: focusNode,
       controller: controller,
       hintText: hintText,
       prefixIcon: icon,

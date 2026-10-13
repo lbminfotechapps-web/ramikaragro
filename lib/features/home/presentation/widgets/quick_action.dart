@@ -6,6 +6,7 @@ import 'package:solufine/core/location_tracking/app_database.dart';
 import 'package:solufine/core/location_tracking/location_repository.dart';
 import 'package:solufine/core/secure_storage/secure_storage.dart';
 import 'package:solufine/core/utility/app_toast.dart';
+import 'package:solufine/core/utility/tab_refresh.dart';
 
 import 'package:solufine/core/utility/appdialog.dart';
 import 'package:solufine/core/utility/device_info_util.dart';
@@ -63,6 +64,8 @@ class _QuickAccessSectionState extends State<QuickAccessSection> {
   // ============================================================
   final TextEditingController _searchController = TextEditingController();
   String _searchText = '';
+  GoRouterDelegate? _menuRouterDelegate;
+  Uri? _lastMenuLocation;
   bool _voiceMenuOpen = false;
   bool _shareLocationPending = false;
 
@@ -265,7 +268,54 @@ class _QuickAccessSectionState extends State<QuickAccessSection> {
   }
 
   @override
+  void initState() {
+    super.initState();
+    TabRefresh.home.addListener(_resetMenuSearch);
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final delegate = GoRouter.of(context).routerDelegate;
+    if (identical(_menuRouterDelegate, delegate)) return;
+
+    _menuRouterDelegate?.removeListener(_onMenuRouteChanged);
+    _menuRouterDelegate = delegate;
+    _lastMenuLocation = delegate.currentConfiguration.isEmpty
+        ? null
+        : delegate.state.uri;
+    delegate.addListener(_onMenuRouteChanged);
+  }
+
+  void _onMenuRouteChanged() {
+    final delegate = _menuRouterDelegate;
+    if (!mounted || delegate == null || delegate.currentConfiguration.isEmpty) {
+      return;
+    }
+
+    final location = delegate.state.uri;
+    if (_lastMenuLocation == location) return;
+    _lastMenuLocation = location;
+
+    // Navigation can notify while the widget tree is building.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) _resetMenuSearch();
+    });
+  }
+
+  void _resetMenuSearch() {
+    if (_searchController.text.isEmpty && _searchText.isEmpty) return;
+
+    _searchController.clear();
+    setState(() {
+      _searchText = '';
+    });
+  }
+
+  @override
   void dispose() {
+    TabRefresh.home.removeListener(_resetMenuSearch);
+    _menuRouterDelegate?.removeListener(_onMenuRouteChanged);
     _searchController.dispose();
     super.dispose();
   }
@@ -493,7 +543,10 @@ class _QuickAccessSectionState extends State<QuickAccessSection> {
                     },
                     decoration: InputDecoration(
                       hintText: 'Search menu',
-                      hintStyle: TextStyle(fontSize: 12.sp, color: context.appSubText),
+                      hintStyle: TextStyle(
+                        fontSize: 12.sp,
+                        color: context.appSubText,
+                      ),
 
                       prefixIcon: Icon(Icons.search_rounded, size: 20.sp),
 
@@ -580,11 +633,7 @@ class _QuickAccessSectionState extends State<QuickAccessSection> {
             // =====================================================
             LayoutBuilder(
               builder: (context, constraints) {
-                final crossAxisCount = constraints.maxWidth < 280
-                    ? 2
-                    : constraints.maxWidth < 600
-                    ? 3
-                    : 6;
+                const crossAxisCount = 4;
 
                 bool matchesSearch(MenuEntity menu) =>
                     menu.menuName.toLowerCase().contains(_searchText);
@@ -692,7 +741,7 @@ class _QuickAccessSectionState extends State<QuickAccessSection> {
         crossAxisSpacing: 12.w,
         mainAxisSpacing: 10.h,
         mainAxisExtent:
-            72.w + 4.h + MediaQuery.textScalerOf(context).scale(11.sp) * 2.8,
+            72.w + 4.h + MediaQuery.textScalerOf(context).scale(9.sp) * 2.8,
       ),
       itemBuilder: (context, index) {
         if (showMore && index == menus.length) {
@@ -891,12 +940,13 @@ class _QuickAccessSectionState extends State<QuickAccessSection> {
     final formKey = GlobalKey<FormState>();
     final remarkController = TextEditingController();
 
-    await showDialog(
+    bool isSubmitting = false;
+    final navigator = Navigator.of(context, rootNavigator: true);
+    late final DialogRoute<void> route;
+    route = DialogRoute<void>(
       context: context,
       barrierDismissible: false,
       builder: (dialogContext) {
-        bool isSubmitting = false;
-
         return StatefulBuilder(
           builder: (context, setDialogState) {
             return AlertDialog(
@@ -983,6 +1033,7 @@ class _QuickAccessSectionState extends State<QuickAccessSection> {
                   onPressed: isSubmitting
                       ? null
                       : () {
+                          FocusScope.of(dialogContext).unfocus();
                           Navigator.of(dialogContext).pop();
                         },
                   child: const Text('Cancel'),
@@ -1014,10 +1065,14 @@ class _QuickAccessSectionState extends State<QuickAccessSection> {
                           try {
                             await _submitShareLocation(remark: remark);
 
-                            if (dialogContext.mounted) {
+                            if (dialogContext.mounted && route.isCurrent) {
+                              FocusScope.of(dialogContext).unfocus();
                               Navigator.of(dialogContext).pop();
                             }
                           } catch (e) {
+                            if (!dialogContext.mounted || !route.isCurrent) {
+                              return;
+                            }
                             setDialogState(() {
                               isSubmitting = false;
                             });
@@ -1049,7 +1104,13 @@ class _QuickAccessSectionState extends State<QuickAccessSection> {
       },
     );
 
-    remarkController.dispose();
+    try {
+      await navigator.push<void>(route);
+    } finally {
+      // Popping resolves before the reverse animation removes the text field.
+      await route.completed;
+      remarkController.dispose();
+    }
   }
 }
 
@@ -1122,7 +1183,6 @@ class QuickAccessMenuItem extends StatelessWidget {
       ),
     );
   }
-
 }
 
 class _MoreItem extends StatelessWidget {
@@ -1174,7 +1234,7 @@ class _MenuShortcut extends StatelessWidget {
               height: 65.w,
               padding: EdgeInsets.all(17.w),
               decoration: BoxDecoration(
-                color: accent.withValues(alpha: 0.08),
+                color: accent.withValues(alpha: 0.02),
                 borderRadius: BorderRadius.circular(22.r),
                 border: Border.all(color: accent.withValues(alpha: 0.13)),
                 boxShadow: [
@@ -1197,7 +1257,7 @@ class _MenuShortcut extends StatelessWidget {
                   overflow: TextOverflow.ellipsis,
                   textAlign: TextAlign.center,
                   style: TextStyle(
-                    fontSize: 11.sp,
+                    fontSize: 9.sp,
                     fontWeight: FontWeight.w600,
                     color: context.appText,
                     height: 1.3,

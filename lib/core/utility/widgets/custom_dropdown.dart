@@ -109,12 +109,12 @@ class CustomDropdown<T> extends StatelessWidget {
         ),
 
         errorBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(22),
+            borderRadius: BorderRadius.circular(10),
           borderSide: BorderSide(color: context.appError),
         ),
 
         focusedErrorBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(22),
+         borderRadius: BorderRadius.circular(10),
           borderSide: BorderSide(color: context.appError, width: 1.5),
         ),
 
@@ -131,7 +131,6 @@ class CustomDropdown<T> extends StatelessWidget {
   }
 }
 
-// Natural row height keeps the menu compact while allowing larger text to grow.
 class _CompactDropdownMenuItem<T> extends DropdownMenuItem<T> {
   _CompactDropdownMenuItem(DropdownMenuItem<T> item)
     : super(

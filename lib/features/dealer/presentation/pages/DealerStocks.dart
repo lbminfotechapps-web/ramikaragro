@@ -688,7 +688,10 @@ class _DealerstocksState extends State<Dealerstocks> {
                   height: 32.w,
 
                   decoration: BoxDecoration(
-                    color: Color.alphaBlend(context.appPrimary.withValues(alpha: 0.1), context.appCard),
+                    color: Color.alphaBlend(
+                      context.appPrimary.withValues(alpha: 0.1),
+                      context.appCard,
+                    ),
                     borderRadius: BorderRadius.circular(8.r),
                   ),
 
@@ -732,7 +735,10 @@ class _DealerstocksState extends State<Dealerstocks> {
                       vertical: 4.h,
                     ),
                     decoration: BoxDecoration(
-                      color: Color.alphaBlend(context.appPrimary.withValues(alpha: 0.1), context.appCard),
+                      color: Color.alphaBlend(
+                        context.appPrimary.withValues(alpha: 0.1),
+                        context.appCard,
+                      ),
                       borderRadius: BorderRadius.circular(16.r),
                     ),
                     child: Text(
@@ -849,7 +855,10 @@ class _DealerstocksState extends State<Dealerstocks> {
               width: 70.w,
               height: 70.w,
               decoration: BoxDecoration(
-                color: Color.alphaBlend(context.appPrimary.withValues(alpha: 0.1), context.appCard),
+                color: Color.alphaBlend(
+                  context.appPrimary.withValues(alpha: 0.1),
+                  context.appCard,
+                ),
                 shape: BoxShape.circle,
               ),
               child: Icon(

@@ -39,6 +39,24 @@ class FarmerEditUpdateScren extends StatefulWidget {
 
 class _FarmerEditUpdateScrenState extends State<FarmerEditUpdateScren> {
   final _formKey = GlobalKey<FormState>();
+  static const _fieldOrder = [
+    'name',
+    'mobile',
+    'alternate',
+    'email',
+    'state',
+    'district',
+    'taluka',
+    'status',
+    'products',
+    'crops',
+  ];
+  final _fieldKeys = {
+    for (final name in _fieldOrder) name: GlobalKey<FormFieldState>(),
+  };
+  final _fieldFocus = {
+    for (final name in _fieldOrder) name: FocusNode(),
+  };
 
   final TextEditingController farmerNameController = TextEditingController();
 
@@ -94,6 +112,23 @@ class _FarmerEditUpdateScrenState extends State<FarmerEditUpdateScren> {
 
     loadApiData();
     context.read<StateBloc>().add(FarmerDropEvent());
+  }
+
+  @override
+  void dispose() {
+    for (final node in _fieldFocus.values) {
+      node.dispose();
+    }
+    farmerNameController.dispose();
+    contactPersonController.dispose();
+    addressController.dispose();
+    mobileController.dispose();
+    alternateMobileController.dispose();
+    emailController.dispose();
+    villageController.dispose();
+    currentProductUsedController.dispose();
+    remarkController.dispose();
+    super.dispose();
   }
 
   void loadApiData() async {
@@ -655,12 +690,32 @@ class _FarmerEditUpdateScrenState extends State<FarmerEditUpdateScren> {
   }
 
   void _submit() async {
-    FocusScope.of(context).unfocus();
-
     if (isLoading) return;
+
     if (!_formKey.currentState!.validate()) {
+      for (final entry in _fieldKeys.entries) {
+        final field = entry.value.currentState;
+        if (field != null && field.hasError) {
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            if (!mounted) return;
+
+            _fieldFocus[entry.key]!.requestFocus();
+            final fieldContext = entry.value.currentContext;
+            if (fieldContext != null) {
+              Scrollable.ensureVisible(
+                fieldContext,
+                duration: const Duration(milliseconds: 300),
+                alignment: 0.2,
+              );
+            }
+          });
+          break;
+        }
+      }
       return;
     }
+
+    FocusScope.of(context).unfocus();
 
     if (_selectedStateId == null || _selectedStateId!.isEmpty) {
       ScaffoldMessenger.of(
@@ -853,15 +908,17 @@ class _FarmerEditUpdateScrenState extends State<FarmerEditUpdateScren> {
       ),
 
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
-      floatingActionButton: CustomButton(
-        text: 'Update Farmer',
-        onPressed: _submit,
-        isLoading: isLoading,
-        width: double.infinity,
-        height: 52,
-        borderRadius: 22,
-        backgroundColor: context.appPrimary,
-        textColor: context.appOnPrimary,
+      floatingActionButton: Padding(
+      padding: const EdgeInsets.only(left: 16, right: 16),
+        child: CustomButton(
+          text: 'Update Farmer',
+          onPressed: _submit,
+          isLoading: isLoading,
+          width: double.infinity,
+   
+          backgroundColor: context.appPrimary,
+          textColor: context.appOnPrimary,
+        ),
       ),
 
       body: BlocConsumer<StateBloc, StatsState>(
@@ -909,7 +966,7 @@ class _FarmerEditUpdateScrenState extends State<FarmerEditUpdateScren> {
             AppDialog.show(
               context: context,
               message: 'Farmer Updated Successfully',
-              onButtonPressed: () => context.go(AppRouter.farmers),
+              onButtonPressed: () =>  context.push('/farmers'),
             );
           } else if (state.status == StatesStatus.failed) {
             setState(() {
@@ -1079,6 +1136,8 @@ class _FarmerEditUpdateScrenState extends State<FarmerEditUpdateScren> {
                     CustomTextFormField(
                       controller: farmerNameController,
                       hintText: 'Farmer Name *',
+                      fieldKey: _fieldKeys['name'],
+                      focusNode: _fieldFocus['name'],
                       labelText: 'Farmer Name *',
                       prefixIcon: Icons.person_outline,
                       validator: (value) {
@@ -1115,6 +1174,8 @@ class _FarmerEditUpdateScrenState extends State<FarmerEditUpdateScren> {
                     CustomTextFormField(
                       controller: mobileController,
                       hintText: 'Mobile No *',
+                      fieldKey: _fieldKeys['mobile'],
+                      focusNode: _fieldFocus['mobile'],
                       labelText: 'Mobile No *',
                       prefixIcon: Icons.phone_outlined,
                       keyboardType: TextInputType.phone,
@@ -1138,6 +1199,8 @@ class _FarmerEditUpdateScrenState extends State<FarmerEditUpdateScren> {
                     CustomTextFormField(
                       controller: alternateMobileController,
                       hintText: 'Alternate Mobile No',
+                      fieldKey: _fieldKeys['alternate'],
+                      focusNode: _fieldFocus['alternate'],
                       labelText: 'Alternate Mobile No',
                       prefixIcon: Icons.phone_outlined,
                       keyboardType: TextInputType.phone,
@@ -1161,6 +1224,8 @@ class _FarmerEditUpdateScrenState extends State<FarmerEditUpdateScren> {
                     CustomTextFormField(
                       controller: emailController,
                       hintText: 'Email ID',
+                      fieldKey: _fieldKeys['email'],
+                      focusNode: _fieldFocus['email'],
                       labelText: 'Email ID',
                       prefixIcon: Icons.email_outlined,
                       keyboardType: TextInputType.emailAddress,
@@ -1203,9 +1268,17 @@ class _FarmerEditUpdateScrenState extends State<FarmerEditUpdateScren> {
 
                     SizedBox(height: 10.h),
                     CustomDropdown<String>(
-                      value: _selectedStateId == '0' ? null : _selectedStateId,
+                      value:
+                          _selectedStateId != '0' &&
+                              stateItems.any(
+                                (item) => item.value == _selectedStateId,
+                              )
+                          ? _selectedStateId
+                          : null,
 
                       hintText: 'Select State',
+                      fieldKey: _fieldKeys['state'],
+                      focusNode: _fieldFocus['state'],
 
                       prefixIcon: Icons.map_outlined,
 
@@ -1237,10 +1310,16 @@ class _FarmerEditUpdateScrenState extends State<FarmerEditUpdateScren> {
                     SizedBox(height: 10.h),
 
                     CustomDropdown<String>(
-                      value: _selectedDistrictId == '0'
-                          ? null
-                          : _selectedDistrictId,
+                      value:
+                          _selectedDistrictId != '0' &&
+                              districtItems.any(
+                                (item) => item.value == _selectedDistrictId,
+                              )
+                          ? _selectedDistrictId
+                          : null,
                       hintText: 'Select District',
+                      fieldKey: _fieldKeys['district'],
+                      focusNode: _fieldFocus['district'],
                       prefixIcon: Icons.location_city_outlined,
                       enabled:
                           _selectedStateId != null && _selectedStateId != '0',
@@ -1270,10 +1349,16 @@ class _FarmerEditUpdateScrenState extends State<FarmerEditUpdateScren> {
                     SizedBox(height: 10.h),
 
                     CustomDropdown<String>(
-                      value: _selectedTalukaId == '0'
-                          ? null
-                          : _selectedTalukaId,
+                      value:
+                          _selectedTalukaId != '0' &&
+                              talukaItems.any(
+                                (item) => item.value == _selectedTalukaId,
+                              )
+                          ? _selectedTalukaId
+                          : null,
                       hintText: 'Select Taluka',
+                      fieldKey: _fieldKeys['taluka'],
+                      focusNode: _fieldFocus['taluka'],
                       prefixIcon: Icons.location_on_outlined,
                       enabled:
                           _selectedDistrictId != null &&
@@ -1311,6 +1396,8 @@ class _FarmerEditUpdateScrenState extends State<FarmerEditUpdateScren> {
                     CustomDropdown<String>(
                       value: _selectedFarmerStatus,
                       hintText: 'Select Farmer Status',
+                      fieldKey: _fieldKeys['status'],
+                      focusNode: _fieldFocus['status'],
                       prefixIcon: Icons.local_fire_department_outlined,
 
                       items: farmerStatus.map((status) {
@@ -1357,6 +1444,8 @@ class _FarmerEditUpdateScrenState extends State<FarmerEditUpdateScren> {
                             : _selectedProductNames,
                       ),
                       hintText: 'Select Suggested Product',
+                      fieldKey: _fieldKeys['products'],
+                      focusNode: _fieldFocus['products'],
                       prefixIcon: Icons.inventory_2_outlined,
                       readOnly: true,
                       onTap: productDetailData.isEmpty
@@ -1439,6 +1528,8 @@ class _FarmerEditUpdateScrenState extends State<FarmerEditUpdateScren> {
                                   .join(', '),
                       ),
                       hintText: 'Select Land and Crop Details',
+                      fieldKey: _fieldKeys['crops'],
+                      focusNode: _fieldFocus['crops'],
                       prefixIcon: Icons.grass_outlined,
                       readOnly: true,
                       onTap: () {

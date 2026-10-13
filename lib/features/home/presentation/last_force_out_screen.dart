@@ -391,8 +391,7 @@ class _LastForceOutScreenState extends State<LastForceOutScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      // backgroundColor: context.appBackground,
-    backgroundColor: Colors.white,
+   backgroundColor: context.appBackground,
       appBar: CustomAppBar(
         title: 'Last Out Punch',
         showBackButton: true,
@@ -431,7 +430,7 @@ class _LastForceOutScreenState extends State<LastForceOutScreen> {
                     'Your Last punch has been submitted successfully.',
                 buttonText: 'OK',
                 onButtonPressed: () {
-                  context.go(
+                  context.push(
                     AppRouter.addExpense,
                   );
                 },
@@ -1394,27 +1393,28 @@ class _LastForceOutScreenState extends State<LastForceOutScreen> {
                         MainAxisAlignment.center,
 
                     children: [
-                      Container(
-                        width: 28.w,
-                        height: 28.w,
+                          Icon(Icons.fingerprint_rounded, size: 18.sp),
+                      // Container(
+                      //   width: 28.w,
+                      //   height: 28.w,
 
-                        decoration:
-                            BoxDecoration(
-                          color: context.appOnPrimary
-                              .withValues(alpha: 0.15),
-                          borderRadius:
-                              BorderRadius.circular(
-                            8.r,
-                          ),
-                        ),
+                      //   decoration:
+                      //       BoxDecoration(
+                      //     color: context.appOnPrimary
+                      //         .withValues(alpha: 0.15),
+                      //     borderRadius:
+                      //         BorderRadius.circular(
+                      //       8.r,
+                      //     ),
+                      //   ),
 
-                        child: Icon(
-                          Icons
-                              .schedule_send_rounded,
-                          color: context.appOnPrimary,
-                          size: 16.sp,
-                        ),
-                      ),
+                      //   child: Icon(
+                      //     Icons
+                      //         .schedule_send_rounded,
+                      //     color: context.appOnPrimary,
+                      //     size: 16.sp,
+                      //   ),
+                      // ),
 
                       SizedBox(
                         width: 8.w,
@@ -1430,15 +1430,15 @@ class _LastForceOutScreenState extends State<LastForceOutScreen> {
                         ),
                       ),
 
-                      SizedBox(
-                        width: 7.w,
-                      ),
+                      // SizedBox(
+                      //   width: 7.w,
+                      // ),
 
-                      Icon(
-                        Icons
-                            .arrow_forward_rounded,
-                        size: 17.sp,
-                      ),
+                      // Icon(
+                      //   Icons
+                      //       .arrow_forward_rounded,
+                      //   size: 17.sp,
+                      // ),
                     ],
                   ),
           ),

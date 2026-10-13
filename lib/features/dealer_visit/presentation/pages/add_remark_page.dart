@@ -58,6 +58,31 @@ class _AddDealerVisitPageState extends State<AddDealerVisitPage> {
   // ============================================================
   // CONTROLLERS
   // ============================================================
+  final _fieldKeys = {
+    for (final name in ['date', 'type', 'purpose', 'remark', 'photo'])
+      name: GlobalKey(),
+  };
+  final _fieldFocus = {
+    for (final name in ['date', 'type', 'purpose', 'remark', 'photo'])
+      name: FocusNode(),
+  };
+
+  void _focusInvalidField(String name) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+
+      _fieldFocus[name]!.requestFocus();
+      final fieldContext = _fieldKeys[name]!.currentContext;
+      if (fieldContext != null) {
+        Scrollable.ensureVisible(
+          fieldContext,
+          duration: const Duration(milliseconds: 300),
+          alignment: 0.2,
+        );
+      }
+    });
+  }
+
   final TextEditingController remarkController = TextEditingController();
 
   // ============================================================
@@ -347,6 +372,9 @@ class _AddDealerVisitPageState extends State<AddDealerVisitPage> {
 
   @override
   void dispose() {
+    for (final node in _fieldFocus.values) {
+      node.dispose();
+    }
     remarkController.dispose();
 
     dealerVisitBloc.close();
@@ -397,6 +425,7 @@ class _AddDealerVisitPageState extends State<AddDealerVisitPage> {
     }
     if (nextFollowUpDate == null) {
       _showError('Please select next follow-up date');
+      _focusInvalidField('date');
       return;
     }
 
@@ -406,6 +435,7 @@ class _AddDealerVisitPageState extends State<AddDealerVisitPage> {
     if (selectedFollowUpType.trim().isEmpty ||
         selectedFollowUpType == 'Select Follow Up Type') {
       _showError('Please select follow up type');
+      _focusInvalidField('type');
       return;
     }
 
@@ -416,6 +446,7 @@ class _AddDealerVisitPageState extends State<AddDealerVisitPage> {
         selectedPurposeId!.trim().isEmpty ||
         selectedPurposeId == '0') {
       _showError('Please select purpose type');
+      _focusInvalidField('purpose');
       return;
     }
 
@@ -426,6 +457,7 @@ class _AddDealerVisitPageState extends State<AddDealerVisitPage> {
 
     if (remark.isEmpty) {
       _showError('Please enter remark');
+      _focusInvalidField('remark');
       return;
     }
 
@@ -434,8 +466,11 @@ class _AddDealerVisitPageState extends State<AddDealerVisitPage> {
     // ==========================================================
     if (imagePath == null) {
       _showError('Please upload image');
+      _focusInvalidField('photo');
       return;
     }
+
+    FocusScope.of(context).unfocus();
 
     // Lock synchronously before collecting device data.
     setState(() => _isSubmitting = true);
@@ -1087,6 +1122,8 @@ class _AddDealerVisitPageState extends State<AddDealerVisitPage> {
     final bool selected = nextFollowUpDate != null;
 
     return InkWell(
+      key: _fieldKeys['date'],
+      focusNode: _fieldFocus['date'],
       onTap: _selectNextFollowUpDate,
 
       borderRadius: BorderRadius.circular(11),
@@ -1216,6 +1253,8 @@ class _AddDealerVisitPageState extends State<AddDealerVisitPage> {
                 Expanded(
                   child: DropdownButtonHideUnderline(
                     child: DropdownButton<String>(
+                      key: _fieldKeys['purpose'],
+                      focusNode: _fieldFocus['purpose'],
                       value: selectedPurposeId,
 
                       isExpanded: true,
@@ -1327,6 +1366,8 @@ class _AddDealerVisitPageState extends State<AddDealerVisitPage> {
                 Expanded(
                   child: DropdownButtonHideUnderline(
                     child: DropdownButton<String>(
+                      key: _fieldKeys['type'],
+                      focusNode: _fieldFocus['type'],
                       value: value,
 
                       isExpanded: true,
@@ -1380,6 +1421,8 @@ class _AddDealerVisitPageState extends State<AddDealerVisitPage> {
       ),
 
       child: TextField(
+        key: _fieldKeys['remark'],
+        focusNode: _fieldFocus['remark'],
         controller: remarkController,
 
         maxLines: 3,
@@ -1519,6 +1562,8 @@ class _AddDealerVisitPageState extends State<AddDealerVisitPage> {
     }
 
     return InkWell(
+      key: _fieldKeys['photo'],
+      focusNode: _fieldFocus['photo'],
       onTap: _captureImage,
       borderRadius: BorderRadius.circular(20),
       child: Container(

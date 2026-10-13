@@ -36,6 +36,13 @@ class FamerFollowupPage extends StatefulWidget {
 
 class _FamerFollowupPageState extends State<FamerFollowupPage> {
   final _formKey = GlobalKey<FormState>();
+  static const _fieldOrder = ['type', 'date', 'remark'];
+  final _fieldKeys = {
+    for (final name in _fieldOrder) name: GlobalKey<FormFieldState>(),
+  };
+  final _fieldFocus = {
+    for (final name in _fieldOrder) name: FocusNode(),
+  };
   final Geocoding _geocoding = Geocoding();
   final TextEditingController followUpDateController = TextEditingController();
 
@@ -43,7 +50,7 @@ class _FamerFollowupPageState extends State<FamerFollowupPage> {
 
   String? selectedFollowUpType;
   String? imagePath;
-  bool _isCameraImage = false;
+
   String? userId;
 
   double? latitude;
@@ -73,6 +80,9 @@ class _FamerFollowupPageState extends State<FamerFollowupPage> {
 
   @override
   void dispose() {
+    for (final node in _fieldFocus.values) {
+      node.dispose();
+    }
     followUpDateController.dispose();
     remarkController.dispose();
     super.dispose();
@@ -343,18 +353,35 @@ class _FamerFollowupPageState extends State<FamerFollowupPage> {
     }
   }
 
-  // ==========================================================
-  // SUBMIT
-  // ==========================================================
+
 
   void _submitFollowup() {
-    // --------------------------------------------------------
-    // Validate Form
-    // --------------------------------------------------------
+  
 
     if (!_formKey.currentState!.validate()) {
+      for (final entry in _fieldKeys.entries) {
+        final field = entry.value.currentState;
+        if (field != null && field.hasError) {
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            if (!mounted) return;
+
+            _fieldFocus[entry.key]!.requestFocus();
+            final fieldContext = entry.value.currentContext;
+            if (fieldContext != null) {
+              Scrollable.ensureVisible(
+                fieldContext,
+                duration: const Duration(milliseconds: 300),
+                alignment: 0.2,
+              );
+            }
+          });
+          break;
+        }
+      }
       return;
     }
+
+    FocusScope.of(context).unfocus();
 
     // --------------------------------------------------------
     // Follow-up Type
@@ -883,6 +910,8 @@ class _FamerFollowupPageState extends State<FamerFollowupPage> {
 
   Widget _buildFollowUpType() {
     return DropdownButtonFormField<String>(
+      key: _fieldKeys['type'],
+      focusNode: _fieldFocus['type'],
       value: selectedFollowUpType,
 
       decoration: _inputDecoration(
@@ -932,6 +961,8 @@ class _FamerFollowupPageState extends State<FamerFollowupPage> {
 
   Widget _buildDateField() {
     return TextFormField(
+      key: _fieldKeys['date'],
+      focusNode: _fieldFocus['date'],
       controller: followUpDateController,
       readOnly: true,
       onTap: _selectDate,
@@ -962,6 +993,8 @@ class _FamerFollowupPageState extends State<FamerFollowupPage> {
 
   Widget _buildRemarkField() {
     return TextFormField(
+      key: _fieldKeys['remark'],
+      focusNode: _fieldFocus['remark'],
       controller: remarkController,
       maxLines: 5,
       minLines: 4,

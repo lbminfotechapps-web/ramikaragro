@@ -155,7 +155,7 @@ class _FarmerlistScreenState extends State<FarmerlistScreen> {
 
     return Scaffold(
       backgroundColor: context.appBackground,
-    // backgroundColor: Colors.white,
+      // backgroundColor: Colors.white,
       appBar: CustomAppBar(
         title: 'Farmer List',
         titleStyle: TextStyle(
@@ -409,10 +409,7 @@ class _FarmerlistScreenState extends State<FarmerlistScreen> {
                     const Spacer(),
                     Text(
                       '${state.farmerList.length} Records',
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: context.appSubText,
-                      ),
+                      style: TextStyle(fontSize: 12, color: context.appSubText),
                     ),
                   ],
                 ),
@@ -480,8 +477,16 @@ class _FarmerlistScreenState extends State<FarmerlistScreen> {
         backgroundColor: primaryColor,
         foregroundColor: context.appOnPrimary,
         elevation: 3,
-        onPressed: () {
-          context.push('/farmerregistration');
+        onPressed: () async {
+          final added = await context.push<bool>('/farmerregistration');
+          if (!mounted || added != true) return;
+          _searchTimer?.cancel();
+          _isLoadingMore = false;
+          _loadFarmers(
+            searchKey: _currentSearchKey,
+            startLimit: 0,
+            isLoadMore: false,
+          );
         },
         icon: Icon(Icons.add_rounded),
         label: Text('Add farmer'),
@@ -737,7 +742,10 @@ class _FarmerDetail extends StatelessWidget {
             width: 28,
             height: 28,
             decoration: BoxDecoration(
-              color: Color.alphaBlend(context.appPrimary.withValues(alpha: 0.1), context.appCard),
+              color: Color.alphaBlend(
+                context.appPrimary.withValues(alpha: 0.1),
+                context.appCard,
+              ),
               borderRadius: BorderRadius.circular(7),
             ),
             child: Icon(icon, size: 15, color: context.appPrimary),
@@ -749,10 +757,7 @@ class _FarmerDetail extends StatelessWidget {
               children: [
                 Text(
                   label,
-                  style: TextStyle(
-                    fontSize: 9,
-                    color: context.appSubText,
-                  ),
+                  style: TextStyle(fontSize: 9, color: context.appSubText),
                 ),
                 const SizedBox(height: 2),
                 Text(
@@ -820,10 +825,7 @@ class _ActivityInfo extends StatelessWidget {
               children: [
                 Text(
                   title,
-                  style: TextStyle(
-                    fontSize: 9,
-                    color: context.appSubText,
-                  ),
+                  style: TextStyle(fontSize: 9, color: context.appSubText),
                 ),
                 const SizedBox(height: 3),
                 Text(
@@ -837,10 +839,7 @@ class _ActivityInfo extends StatelessWidget {
                 if (time != null)
                   Text(
                     time,
-                    style: TextStyle(
-                      fontSize: 10,
-                      color: context.appSubText,
-                    ),
+                    style: TextStyle(fontSize: 10, color: context.appSubText),
                   ),
               ],
             ),

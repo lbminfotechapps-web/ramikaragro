@@ -562,8 +562,7 @@ class _PunchScreenState extends State<PunchScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      // backgroundColor: context.appBackground,
-    backgroundColor: Colors.white,
+    backgroundColor: context.appBackground,
       appBar: CustomAppBar(
         title: 'Punch In',
 
@@ -1746,9 +1745,9 @@ class _PunchScreenState extends State<PunchScreen> {
                         ),
                       ),
 
-                      SizedBox(width: 6.w),
+                      // SizedBox(width: 6.w),
 
-                      Icon(Icons.arrow_forward_rounded, size: 17.sp),
+                      // Icon(Icons.arrow_forward_rounded, size: 17.sp),
                     ],
                   ),
           ),

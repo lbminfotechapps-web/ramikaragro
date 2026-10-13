@@ -122,13 +122,13 @@ class _SalesWiseTargetPageState extends State<SalesWiseTargetPage> {
             icon: Icon(
               Icons.arrow_back_ios_new,
               size: 19,
-              color: context.primaryTextColor,
+              // color: context.primaryTextColor,
             ),
             onPressed: () {
               context.go(AppRouter.home);
             },
           ),
-          title: ' Target And Achievement ',
+          title: ' Target And Achievement',
           subtitle: ' Sales Wise',
         ),
 

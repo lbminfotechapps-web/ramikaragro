@@ -158,7 +158,7 @@ class _DealerWiseTargetPageState extends State<DealerWiseTargetPage> {
               context.go(AppRouter.home);
             },
           ),
-          title: 'Target & Achievement ',
+          title: 'Target And Achievement',
           subtitle: 'Collection Wise',
         ),
 
@@ -255,12 +255,12 @@ class _DealerWiseTargetPageState extends State<DealerWiseTargetPage> {
   }
 
   Widget _buildOptions() {
-    if (_loadingOptions) {
-      return Padding(
-        padding: EdgeInsets.all(16),
-        child: LinearProgressIndicator(color: context.primaryColor),
-      );
-    }
+    // if (_loadingOptions) {
+    //   return Padding(
+    //     padding: EdgeInsets.all(16),
+    //     child: LinearProgressIndicator(color: context.primaryColor),
+    //   );
+    // }
     if (_optionsError != null) {
       return Padding(
         padding: const EdgeInsets.all(14),

@@ -139,28 +139,48 @@ class AppThemeColors {
   // CHARCOAL DARK
   // ============================================================
 
-  static const AppThemePalette charcoalDark = AppThemePalette(
-    id: 'charcoal_dark',
-    name: 'Charcoal Dark',
-    primary: Color(0xFF67C9FA),
-    onPrimary: Color(0xFF101C26),
-    secondary: Color(0xFF9B86FF),
-    onSecondary: Color(0xFF161224),
-    background: Color(0xFF15171B),
-    onBackground: Colors.white,
-    surface: Color(0xFF24272D),
-    onSurface: Color(0xFFF5F6F8),
-    appBarBackground: Color(0xFF24272D),
-    appBarForeground: Colors.white,
-    cardBackground: Color(0xFF24272D),
-    onCard: Colors.white,
-    textPrimary: Color(0xFFF5F6F8),
-    textSecondary: Color(0xFFB4BAC5),
-    border: Color(0xFF424751),
-    inputBackground: Colors.white,
-    gradientStart: Color(0xFF15171B),
-    gradientEnd: Color(0xFF343B47),
-  );
+
+static const AppThemePalette charcoalDark = AppThemePalette(
+  id: 'charcoal_dark',
+  name: 'Charcoal Dark',
+
+  // PRIMARY BUTTONS AND ACTIVE ELEMENTS
+  primary: Color(0xFF67C9FA),
+  onPrimary: Color(0xFF101C26),
+
+  secondary: Color(0xFFA998FF),
+  onSecondary: Color(0xFF171325),
+
+  // MAIN APP BACKGROUND
+  background: Color(0xFF000000),
+  onBackground: Color(0xFFF5F6F8),
+
+  // SURFACES / DIALOGS
+  surface: Color(0xFF1D2026),
+  onSurface: Color(0xFFF5F6F8),
+
+  // APP BAR
+  appBarBackground: Color(0xFF20242B),
+  appBarForeground: Colors.white,
+
+  // CARDS
+  cardBackground: Color(0xFF242830),
+  onCard: Color(0xFFF5F6F8),
+
+  // TEXT
+  textPrimary: Color(0xFFF5F6F8),
+  textSecondary: Color(0xFFAEB8C6),
+
+  // BORDER
+  border: Color(0xFF454B55),
+
+  // TEXT FIELD
+  inputBackground: Color(0xFF292D34),
+
+  // GRADIENT
+  gradientStart: Color(0xFF101318),
+  gradientEnd: Color(0xFF303944),
+);
 
   // ============================================================
   // SOFT MINT

@@ -43,23 +43,20 @@ class CustomButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final radius = BorderRadius.circular(
-      (borderRadius ?? 12).r,
-    );
+    final radius = BorderRadius.circular((borderRadius ?? 12).r);
 
     return SizedBox(
       width: width ?? double.infinity,
       height: (height ?? 52).h,
       child: Container(
         decoration: BoxDecoration(
-          gradient: gradient ?? (backgroundColor == null ? AppColors.appGradient : null),
+          gradient:
+              gradient ??
+              (backgroundColor == null ? AppColors.appGradient : null),
           color: backgroundColor,
           borderRadius: radius,
           border: borderColor != null
-              ? Border.all(
-                  color: borderColor!,
-                  width: borderWidth ?? 1,
-                )
+              ? Border.all(color: borderColor!, width: borderWidth ?? 1)
               : null,
           boxShadow: [
             BoxShadow(
@@ -78,25 +75,20 @@ class CustomButton extends StatelessWidget {
             elevation: 0,
             padding:
                 padding ??
-                EdgeInsets.symmetric(
-                  horizontal: 16.w,
-                  vertical: 12.h,
-                ),
-            shape: RoundedRectangleBorder(
-              borderRadius: radius,
-            ),
+                EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
+            shape: RoundedRectangleBorder(borderRadius: radius),
           ),
 
           // child has priority, otherwise existing behavior
-          child: child ??
+          child:
+              child ??
               (isLoading
                   ? SizedBox(
                       width: 20.w,
                       height: 20.h,
                       child: CircularProgressIndicator(
                         strokeWidth: 2,
-                        valueColor:
-                            AlwaysStoppedAnimation<Color>(
+                        valueColor: AlwaysStoppedAnimation<Color>(
                           textColor ?? Colors.white,
                         ),
                       ),
@@ -105,16 +97,12 @@ class CustomButton extends StatelessWidget {
                       mainAxisAlignment: MainAxisAlignment.center,
                       mainAxisSize: MainAxisSize.max,
                       children: [
-                        if (icon != null) ...[
-                          icon!,
-                          SizedBox(width: 8.w),
-                        ],
+                        if (icon != null) ...[icon!, SizedBox(width: 8.w)],
                         CustomText(
                           text: text,
                           fontSize: textSize ?? 15.sp,
                           fontWeight: FontWeight.w600,
-                          color: textStyle?.color ?? textColor ??
-                              Colors.white,
+                          color: textStyle?.color ?? textColor ?? Colors.white,
                         ),
                       ],
                     )),

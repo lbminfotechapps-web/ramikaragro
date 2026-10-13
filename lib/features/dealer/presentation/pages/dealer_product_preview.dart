@@ -1184,7 +1184,7 @@ class _DealerProductPreviewPageState extends State<DealerProductPreviewPage> {
         padding: EdgeInsets.symmetric(horizontal: 16.w),
 
         child: SizedBox(
-          width: double.infinity,
+
 
           child: CustomButton(
             text: 'Submit Stock',
@@ -1193,11 +1193,6 @@ class _DealerProductPreviewPageState extends State<DealerProductPreviewPage> {
 
             isLoading: isLoading,
 
-            width: double.infinity,
-
-            height: 52,
-
-            borderRadius: 22,
 
             backgroundColor: context.appPrimary,
 

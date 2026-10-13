@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:solufine/core/theme/app_theme_context.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:solufine/core/utility/widgets/custom_dropdown.dart';
 
 import '../../../../core/router/app_router.dart';
 import '../../../../core/secure_storage/secure_storage.dart';
@@ -677,9 +678,9 @@ class _GrowthReportPageState extends State<GrowthReportPage> {
 
                   Row(
                     children: [
-                      Expanded(flex: 6, child: _dealerSelector()),
+                      Expanded(child: _dealerSelector()),
                       SizedBox(width: 6),
-                      Expanded(flex: 4, child: _yearDropdown()),
+                      Expanded(child: _yearDropdown()),
                     ],
                   ),
 
@@ -733,7 +734,8 @@ class _GrowthReportPageState extends State<GrowthReportPage> {
         onTap: _openDealerSheet,
         borderRadius: BorderRadius.circular(9),
         child: Container(
-          height: 44,
+          height: 58,
+
           padding: const EdgeInsets.symmetric(horizontal: 8),
           decoration: BoxDecoration(
             color: context.appColors.surfaceContainerHighest,
@@ -753,7 +755,7 @@ class _GrowthReportPageState extends State<GrowthReportPage> {
                   children: [
                     Text(
                       'Dealer',
-                      style: TextStyle(color: _secondary, fontSize: 6.5),
+                      style: TextStyle(color: _secondary, fontSize: 8),
                     ),
                     Text(
                       _selectedDealer == null
@@ -763,7 +765,7 @@ class _GrowthReportPageState extends State<GrowthReportPage> {
                       overflow: TextOverflow.ellipsis,
                       style: TextStyle(
                         color: _text,
-                        fontSize: 8.5,
+                        fontSize: 10,
                         fontWeight: FontWeight.w700,
                       ),
                     ),
@@ -771,7 +773,7 @@ class _GrowthReportPageState extends State<GrowthReportPage> {
                 ),
               ),
 
-              Icon(Icons.keyboard_arrow_down_rounded, size: 17),
+              // Icon(Icons.keyboard_arrow_down_rounded, size: 17),
             ],
           ),
         ),
@@ -784,34 +786,31 @@ class _GrowthReportPageState extends State<GrowthReportPage> {
   // ============================================================
 
   Widget _yearDropdown() {
-    return SizedBox(
-      height: 44,
-      child: DropdownButtonFormField<String>(
-        value: _selectedYears,
-        isExpanded: true,
-        decoration: InputDecoration(
-          labelText: 'Years',
-          filled: true,
-          fillColor: context.appColors.surfaceContainerHighest,
-          contentPadding: const EdgeInsets.symmetric(horizontal: 8),
-          border: OutlineInputBorder(borderRadius: BorderRadius.circular(9)),
-        ),
-        items: _yearOptions
-            .map(
-              (value) =>
-                  DropdownMenuItem<String>(value: value, child: Text(value)),
-            )
-            .toList(),
-        onChanged: (value) {
-          if (value == null) {
-            return;
-          }
+    return CustomDropdown<String>(
+      hintText: 'Years',
+      prefixIcon: Icons.calendar_today_rounded,
 
-          setState(() {
-            _selectedYears = value;
-          });
-        },
-      ),
+      compactItems: true,
+
+      value: _selectedYears,
+
+      items: _yearOptions.map((year) {
+        return DropdownMenuItem<String>(
+          value: year,
+          child: Text(
+            year,
+            style: TextStyle(fontSize: 10, fontWeight: FontWeight.w700),
+          ),
+        );
+      }).toList(),
+
+      onChanged: (value) {
+        if (value == null) return;
+
+        setState(() {
+          _selectedYears = value;
+        });
+      },
     );
   }
 

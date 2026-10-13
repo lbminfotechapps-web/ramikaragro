@@ -19,7 +19,6 @@ Future<void> firebaseMessagingBackgroundHandler(RemoteMessage message) async {
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  // Apply to every gallery call, including screens using ImagePicker directly.
   final imagePicker = ImagePickerPlatform.instance;
   if (imagePicker is ImagePickerAndroid) {
     imagePicker.useAndroidPhotoPicker = true;

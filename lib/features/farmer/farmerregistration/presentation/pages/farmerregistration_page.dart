@@ -494,19 +494,18 @@ class _FarmerregistrationPageState extends State<FarmerregistrationPage> {
   }
 
   Future<void> _submit() async {
-    FocusScope.of(context).unfocus();
-
     if (isLoading) return;
 
-    final invalidFields = _formKey.currentState!.validateGranularly();
-    if (invalidFields.isNotEmpty) {
+    if (!_formKey.currentState!.validate()) {
       for (final entry in _fieldKeys.entries) {
         final field = entry.value.currentState;
-        if (field != null && invalidFields.contains(field)) {
-          _fieldFocus[entry.key]!.requestFocus();
+        if (field != null && field.hasError) {
           WidgetsBinding.instance.addPostFrameCallback((_) {
+            if (!mounted) return;
+
+            _fieldFocus[entry.key]!.requestFocus();
             final fieldContext = entry.value.currentContext;
-            if (mounted && fieldContext != null) {
+            if (fieldContext != null) {
               Scrollable.ensureVisible(
                 fieldContext,
                 duration: const Duration(milliseconds: 300),
@@ -519,6 +518,8 @@ class _FarmerregistrationPageState extends State<FarmerregistrationPage> {
       }
       return;
     }
+
+    FocusScope.of(context).unfocus();
 
     setState(() {
       isLoading = true;
@@ -785,18 +786,33 @@ class _FarmerregistrationPageState extends State<FarmerregistrationPage> {
         showBackButton: true,
         onBackTap: () => Navigator.pop(context),
       ),
+        resizeToAvoidBottomInset: true,
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
       floatingActionButton: BlocBuilder<StateBloc, StatsState>(
         builder: (context, state) {
-          return CustomButton(
-            text: 'Register Farmer',
-            onPressed: _submit,
-            isLoading: isLoading,
-            width: double.infinity,
-            height: 52,
-            borderRadius: 22,
-            backgroundColor: context.appPrimary,
-            textColor: context.appOnPrimary,
+          //  CustomButton(
+          //                       text: 'Update Password',
+          //                       backgroundColor: context.primaryColor,
+          //                       textColor: context.onPrimaryColor,
+          //                       icon: Icon(Icons.check_rounded, size: 20.sp),
+          //                       onPressed: _submitPasswordChange,
+          //                     ),
+
+          return Padding(
+            padding: const EdgeInsets.only(left: 16, right: 16),
+            child: SizedBox(
+              width: double.infinity,
+
+              height: 48.h,
+              child: CustomButton(
+                text: 'Register Farmer',
+                onPressed: _submit,
+                isLoading: isLoading,
+
+                backgroundColor: context.appPrimary,
+                textColor: context.appOnPrimary,
+              ),
+            ),
           );
         },
       ),
@@ -805,7 +821,7 @@ class _FarmerregistrationPageState extends State<FarmerregistrationPage> {
         listener: (context, state) async {
           if (!isLoading || !_submissionSent) return;
           if (state.status == StatesStatus.farmerRegiSuccess) {
-            final File? imageToDelete = _uploadedImage;
+         
             setState(() {
               isLoading = false;
               _submissionSent = false;
@@ -829,8 +845,24 @@ class _FarmerregistrationPageState extends State<FarmerregistrationPage> {
             AppDialog.show(
               context: context,
               message: 'Farmer Added Successfully',
-              onButtonPressed: () => {context.go('/farmers')},
+              onButtonPressed: () => context.push('/farmers'),
             );
+            // AppDialog.show(
+            //   context: context,
+            //   message: 'Farmer Added Successfully',
+            //   onButtonPressed: () {
+            //     if (context.canPop()) {
+            //       context.pop(true);
+            //     } else {
+            //       context.go(AppRouter.farmers);
+            //     }
+            //   },
+            // );
+            // AppDialog.show(
+            //   context: context,
+            //   message: 'Farmer Added Successfully',
+            //   onButtonPressed: () => {context.go('/farmers')},
+            // );
           }
           // ============================================
           // API ERROR
@@ -1389,7 +1421,7 @@ class _FarmerregistrationPageState extends State<FarmerregistrationPage> {
                       maxLines: 2,
                     ),
 
-                    const SizedBox(height: 100),
+                     SizedBox(height: 100.h),
                   ],
                 ),
               ),
@@ -1488,7 +1520,10 @@ class _FarmerregistrationPageState extends State<FarmerregistrationPage> {
                     width: 42.w,
                     height: 42.h,
                     decoration: BoxDecoration(
-                      color: Color.alphaBlend(context.appPrimary.withValues(alpha: 0.1), context.appCard),
+                      color: Color.alphaBlend(
+                        context.appPrimary.withValues(alpha: 0.1),
+                        context.appCard,
+                      ),
                       borderRadius: BorderRadius.circular(12.r),
                     ),
                     child: Icon(

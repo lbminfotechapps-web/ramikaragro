@@ -1,6 +1,8 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
+import 'package:solufine/core/router/app_router.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'package:solufine/core/location_tracking/app_database.dart';
@@ -500,7 +502,8 @@ class _AiChatbotState extends State<AiChatbot> {
         backgroundColor: context.appBackground,
 
         appBar: CustomAppBar(
-          leading: Container(
+         showThemeButton:false, 
+          action: Container(
             width: 40,
             height: 40,
             decoration: BoxDecoration(
@@ -512,18 +515,26 @@ class _AiChatbotState extends State<AiChatbot> {
                 Icons.menu_rounded,
                 // color: context.appPrimary,
               ),
+              tooltip: 'Chat history',
               onPressed: () {
                 _scaffoldKey.currentState?.openDrawer();
               },
             ),
           ),
-          action: IconButton(
-            tooltip: 'New Chat',
-            icon: Icon(Icons.edit_square, color: context.appPrimary),
-            onPressed: _isSending ? null : _resetChat,
-          ),
+          // action: IconButton(
+          //   tooltip: 'New Chat',
+          //   icon: Icon(Icons.edit_square,),
+          //   onPressed: _isSending ? null : _resetChat,
+          // ),
           title: 'AI Assistant',
-          showBackButton: false,
+          showBackButton: true,
+          onBackTap: () {
+            if (context.canPop()) {
+              context.pop();
+            } else {
+              context.go(AppRouter.home);
+            }
+          },
         ),
 
         drawer: _buildHistoryDrawer(),

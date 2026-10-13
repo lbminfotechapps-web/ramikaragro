@@ -598,7 +598,8 @@ class ReportsHomePage extends StatelessWidget {
                                 context,
                                 index,
                               ) {
-                                return _reportTile(
+                                return 
+                                _reportTile(
                                   context,
                                   menus[
                                       index],
