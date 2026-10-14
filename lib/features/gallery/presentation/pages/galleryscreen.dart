@@ -62,7 +62,7 @@ class _GalleryScreenState extends State<GalleryScreen>
         return 'video';
 
       case 2:
-        return 'CERTIFICATES';
+        return 'certificate';
 
       default:
         return 'gallery';
@@ -118,7 +118,7 @@ class _GalleryScreenState extends State<GalleryScreen>
                 children: [
                   _buildGalleryTab('gallery'),
                   _buildGalleryTab('video'),
-                  _buildGalleryTab('CERTIFICATES'),
+                  _buildGalleryTab('certificate'),
                 ],
               ),
             ),

@@ -14,9 +14,7 @@ import '../../../../core/api_constant/dio_client.dart';
 import '../models/visit_month_wise_model.dart';
 import '../models/visit_report_employee_model.dart';
 
-// ============================================================
-// ABSTRACT
-// ============================================================
+
 
 abstract class VisitMonthWiseRemoteDataSource {
   Future<VisitMonthWiseReportModel> getVisitMonthWise({
@@ -72,9 +70,6 @@ Future<VisitTopEmployeeReportModel>
 
 }
 
-// ============================================================
-// IMPLEMENTATION
-// ============================================================
 
 class VisitMonthWiseRemoteDataSourceImpl
     implements VisitMonthWiseRemoteDataSource {
@@ -144,9 +139,7 @@ class VisitMonthWiseRemoteDataSourceImpl
     }
   }
 
-  // ============================================================
-  // ASSIGNED EMPLOYEES
-  // ============================================================
+  
 
   @override
   Future<List<VisitReportEmployeeModel>> getAssignedEmployees({
@@ -196,9 +189,7 @@ class VisitMonthWiseRemoteDataSourceImpl
             (e) =>
                 VisitReportEmployeeModel.fromJson(Map<String, dynamic>.from(e)),
           )
-          // Remove:
-          // fld_id = 0
-          // Select Employee
+
           .where(
             (employee) =>
                 employee.id.trim().isNotEmpty &&
@@ -211,9 +202,6 @@ class VisitMonthWiseRemoteDataSourceImpl
     }
   }
 
-  // ============================================================
-  // DAY WISE VISIT
-  // ============================================================
 
   @override
   Future<VisitDayWiseReportModel> getVisitDayWise({
@@ -271,9 +259,6 @@ class VisitMonthWiseRemoteDataSourceImpl
     }
   }
 
-  // ============================================================
-  // Hours WISE VISIT
-  // ============================================================
   @override
   Future<VisitHourWiseReportModel> getVisitHourWise({
     required String fromDate,
@@ -290,9 +275,6 @@ class VisitMonthWiseRemoteDataSourceImpl
         }),
       );
 
-      // ============================================================
-      // RESPONSE PARSE
-      // ============================================================
 
       dynamic responseData = response.data;
 
@@ -305,10 +287,6 @@ class VisitMonthWiseRemoteDataSourceImpl
       }
 
       final Map<String, dynamic> json = Map<String, dynamic>.from(responseData);
-
-      // ============================================================
-      // STATUS CHECK
-      // ============================================================
 
       final bool success =
           json['status'] == true ||
@@ -329,9 +307,7 @@ class VisitMonthWiseRemoteDataSourceImpl
         );
       }
 
-      // ============================================================
-      // MODEL
-      // ============================================================
+    
 
       return VisitHourWiseReportModel.fromJson(json);
     } on DioException catch (e) {
@@ -350,9 +326,7 @@ class VisitMonthWiseRemoteDataSourceImpl
   }
 
 
-  // ============================================================
-// VISIT FREQUENCY
-// ============================================================
+ 
 
 @override
 Future<VisitFrequencyReportModel>
@@ -381,9 +355,6 @@ Future<VisitFrequencyReportModel>
       ),
     );
 
-    // =========================================================
-    // RESPONSE PARSE
-    // =========================================================
 
     dynamic responseData =
         response.data;
@@ -407,9 +378,7 @@ Future<VisitFrequencyReportModel>
       responseData,
     );
 
-    // =========================================================
-    // STATUS
-    // =========================================================
+
 
     final bool status =
         json['status'] == true ||
@@ -418,9 +387,6 @@ Future<VisitFrequencyReportModel>
                     .toLowerCase() ==
                 'true';
 
-    // =========================================================
-    // NO DATA SHOULD NOT BE ERROR
-    // =========================================================
 
     if (!status) {
       final String message =
@@ -478,10 +444,6 @@ Future<VisitFrequencyReportModel>
   }
 }
 
-// ============================================================
-// State / District/ Taluka
-// ============================================================
-
 @override
 Future<VisitGeoWiseReportModel> getVisitGeoWise({
   required String fromDate,
@@ -499,13 +461,11 @@ Future<VisitGeoWiseReportModel> getVisitGeoWise({
       }),
     );
 
-    // ============================================================
-    // RESPONSE PARSE
-    // ============================================================
+
 
     dynamic responseData = response.data;
 
-    // Sometimes Dio may return response as String
+  
     if (responseData is String) {
       responseData = jsonDecode(
         responseData,
@@ -524,9 +484,6 @@ Future<VisitGeoWiseReportModel> getVisitGeoWise({
       responseData,
     );
 
-    // ============================================================
-    // STATUS
-    // ============================================================
 
     final bool success =
         json['status'] == true ||
@@ -535,9 +492,6 @@ Future<VisitGeoWiseReportModel> getVisitGeoWise({
                     .toLowerCase() ==
                 'true';
 
-    // ============================================================
-    // STATUS FALSE
-    // ============================================================
 
     if (!success) {
       final String message =
@@ -545,10 +499,7 @@ Future<VisitGeoWiseReportModel> getVisitGeoWise({
                   ?.toString() ??
               'Unable to load geo wise report';
 
-      // ----------------------------------------------------------
-      // If API returns "NO RECORD FOUND",
-      // return empty model instead of failure.
-      // ----------------------------------------------------------
+
 
       final String normalizedMessage =
           message
@@ -575,18 +526,13 @@ Future<VisitGeoWiseReportModel> getVisitGeoWise({
       );
     }
 
-    // ============================================================
-    // SUCCESS MODEL
-    // ============================================================
 
     return VisitGeoWiseReportModel
         .fromJson(
       json,
     );
   } on DioException catch (e) {
-    // ============================================================
-    // DIO ERROR MESSAGE
-    // ============================================================
+
 
     String message =
         'Unable to load geo wise report';
@@ -594,7 +540,7 @@ Future<VisitGeoWiseReportModel> getVisitGeoWise({
     final dynamic errorData =
         e.response?.data;
 
-    // Response error is already Map
+  
     if (errorData is Map) {
       message =
           errorData['message']
@@ -602,7 +548,7 @@ Future<VisitGeoWiseReportModel> getVisitGeoWise({
               message;
     }
 
-    // Response error may be String JSON
+
     else if (errorData is String) {
       try {
         final dynamic decoded =
@@ -617,7 +563,7 @@ Future<VisitGeoWiseReportModel> getVisitGeoWise({
                   message;
         }
       } catch (_) {
-        // Keep fallback message
+  
       }
     }
 
@@ -629,9 +575,7 @@ Future<VisitGeoWiseReportModel> getVisitGeoWise({
   }
 }
 
-// ============================================================
-// TOP DEALER / FARMER LIST
-// ============================================================
+
 
 @override
 Future<VisitTopListReportModel>
@@ -660,9 +604,6 @@ Future<VisitTopListReportModel>
       ),
     );
 
-    // ==========================================================
-    // RESPONSE
-    // ==========================================================
 
     dynamic responseData =
         response.data;
@@ -686,9 +627,6 @@ Future<VisitTopListReportModel>
       responseData,
     );
 
-    // ==========================================================
-    // STATUS
-    // ==========================================================
 
     final bool success =
         json['status'] == true ||
@@ -708,7 +646,6 @@ Future<VisitTopListReportModel>
               .trim()
               .toLowerCase();
 
-      // NO RECORD = VALID EMPTY RESPONSE
       if (lowerMessage.contains(
             'no record',
           ) ||
@@ -771,9 +708,6 @@ Future<VisitTopListReportModel>
 }
 
 
-// ============================================================
-// TOP EMPLOYEE
-// ============================================================
 
 @override
 Future<VisitTopEmployeeReportModel>
@@ -797,9 +731,7 @@ Future<VisitTopEmployeeReportModel>
     dynamic responseData =
         response.data;
 
-    // ==========================================================
-    // STRING RESPONSE
-    // ==========================================================
+
 
     if (responseData is String) {
       responseData =
@@ -808,9 +740,7 @@ Future<VisitTopEmployeeReportModel>
       );
     }
 
-    // ==========================================================
-    // VALIDATE RESPONSE
-    // ==========================================================
+
 
     if (responseData is! Map) {
       throw Exception(
@@ -823,9 +753,6 @@ Future<VisitTopEmployeeReportModel>
       responseData,
     );
 
-    // ==========================================================
-    // STATUS
-    // ==========================================================
 
     final bool success =
         json['status'] == true ||
@@ -845,7 +772,7 @@ Future<VisitTopEmployeeReportModel>
               .trim()
               .toLowerCase();
 
-      // NO RECORD IS NOT AN ERROR
+  
       if (normalized.contains(
             'no record',
           ) ||
@@ -907,9 +834,6 @@ Future<VisitTopEmployeeReportModel>
   }
 }
 
-  // ============================================================
-  // ERROR
-  // ============================================================
 
   String _dioError(DioException error, {required String fallback}) {
     final dynamic data = error.response?.data;
@@ -924,7 +848,7 @@ Future<VisitTopEmployeeReportModel>
   }
 }
 
-// Only explicit no-record responses are empty reports; other failures stay errors.
+
 bool _isNoVisitRecords(Map<String, dynamic> json) {
   final result = json['result'];
   if (result is List && result.isNotEmpty) return false;

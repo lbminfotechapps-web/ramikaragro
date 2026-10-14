@@ -23,9 +23,7 @@ import 'visit_month_wise_state.dart';
 
 class VisitMonthWiseBloc
     extends Bloc<VisitMonthWiseEvent, VisitMonthWiseState> {
-  // ==========================================================
-  // USE CASES
-  // ==========================================================
+
 
   final GetVisitMonthWiseUseCase getVisitMonthWiseUseCase;
 
@@ -43,9 +41,7 @@ class VisitMonthWiseBloc
 
   final GetVisitReportEmployeesUseCase getVisitReportEmployeesUseCase;
 
-  // ==========================================================
-  // CONSTRUCTOR
-  // ==========================================================
+
 
   VisitMonthWiseBloc({
     required this.getVisitMonthWiseUseCase,
@@ -57,60 +53,41 @@ class VisitMonthWiseBloc
     required this.getVisitTopEmployeeUseCase,
     required this.getVisitReportEmployeesUseCase,
   }) : super(const VisitMonthWiseState()) {
-    // ========================================================
-    // MONTH WISE
-    // ========================================================
+
 
     on<LoadVisitMonthWiseEvent>(_loadMonthWiseReport);
 
-    // ========================================================
-    // DAY WISE
-    // ========================================================
+  
 
     on<LoadVisitDayWiseEvent>(_loadDayWiseReport);
 
-    // ========================================================
-    // HOUR WISE
-    // ========================================================
+
 
     on<LoadVisitHourWiseEvent>(_loadHourWiseReport);
 
-    // ========================================================
-    // FREQUENCY
-    // ========================================================
+ 
 
     on<LoadVisitFrequencyEvent>(_loadVisitFrequency);
 
-    // ========================================================
-    // GEO WISE
-    // ========================================================
 
     on<LoadVisitGeoWiseEvent>(_loadGeoWiseReport);
 
-    // ========================================================
-    // TOP DEALER / FARMER
-    // ========================================================
+
 
     on<LoadVisitTopListEvent>(_loadVisitTopList);
 
-    // ========================================================
-    // TOP EMPLOYEE
-    // ========================================================
+
 
     on<LoadVisitTopEmployeeEvent>(_loadVisitTopEmployee);
 
-    // ========================================================
-    // EMPLOYEE SEARCH
-    // ========================================================
+
 
     on<SearchVisitReportEmployeesEvent>(_searchEmployees);
 
     on<ClearVisitReportEmployeesEvent>(_clearEmployees);
   }
 
-  // ============================================================
-  // MONTH WISE REPORT
-  // ============================================================
+
 
   Future<void> _loadMonthWiseReport(
     LoadVisitMonthWiseEvent event,
@@ -145,9 +122,7 @@ class VisitMonthWiseBloc
     }
   }
 
-  // ============================================================
-  // DAY WISE REPORT
-  // ============================================================
+ 
 
   Future<void> _loadDayWiseReport(
     LoadVisitDayWiseEvent event,
@@ -185,9 +160,6 @@ class VisitMonthWiseBloc
     }
   }
 
-  // ============================================================
-  // HOUR WISE REPORT
-  // ============================================================
 
   Future<void> _loadHourWiseReport(
     LoadVisitHourWiseEvent event,
@@ -225,9 +197,7 @@ class VisitMonthWiseBloc
     }
   }
 
-  // ============================================================
-  // VISIT FREQUENCY
-  // ============================================================
+  
 
   Future<void> _loadVisitFrequency(
     LoadVisitFrequencyEvent event,
@@ -265,9 +235,7 @@ class VisitMonthWiseBloc
     }
   }
 
-  // ============================================================
-  // GEO WISE
-  // ============================================================
+
 
   Future<void> _loadGeoWiseReport(
     LoadVisitGeoWiseEvent event,
@@ -305,9 +273,7 @@ class VisitMonthWiseBloc
     }
   }
 
-  // ============================================================
-  // TOP DEALER / FARMER LIST
-  // ============================================================
+  
 
   Future<void> _loadVisitTopList(
     LoadVisitTopListEvent event,
@@ -345,9 +311,6 @@ class VisitMonthWiseBloc
     }
   }
 
-  // ============================================================
-  // TOP EMPLOYEE
-  // ============================================================
 
   Future<void> _loadVisitTopEmployee(
     LoadVisitTopEmployeeEvent event,
@@ -385,9 +348,7 @@ class VisitMonthWiseBloc
     }
   }
 
-  // ============================================================
-  // EMPLOYEE SEARCH
-  // ============================================================
+
 
   Future<void> _searchEmployees(
     SearchVisitReportEmployeesEvent event,
@@ -425,9 +386,7 @@ class VisitMonthWiseBloc
     }
   }
 
-  // ============================================================
-  // CLEAR EMPLOYEE
-  // ============================================================
+
 
   void _clearEmployees(
     ClearVisitReportEmployeesEvent event,

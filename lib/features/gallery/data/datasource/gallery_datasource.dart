@@ -18,6 +18,7 @@ class GalleryDatasource {
       );
 
       print('========== GALLERY RESPONSE ==========');
+      print('Document Type: $type');
       print('Type: ${response.data.runtimeType}');
       print('Data: ${response.data}');
       print('======================================');

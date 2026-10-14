@@ -25,9 +25,7 @@ class VisitMonthWiseItem {
   });
 }
 
-// ============================================================
-// TOTAL
-// ============================================================
+
 
 class VisitMonthWiseTotal {
   final int dealerVisits;
@@ -53,9 +51,6 @@ class VisitMonthWiseTotal {
   });
 }
 
-// ============================================================
-// REPORT
-// ============================================================
 
 class VisitMonthWiseReport {
   final List<VisitMonthWiseItem> items;

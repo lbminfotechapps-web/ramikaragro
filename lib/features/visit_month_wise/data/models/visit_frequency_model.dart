@@ -1,8 +1,6 @@
 import '../../domain/entities/visit_frequency.dart';
 
-// ============================================================
-// HELPER
-// ============================================================
+
 
 int _toInt(
   dynamic value,
@@ -22,9 +20,6 @@ double _toDouble(
       0.0;
 }
 
-// ============================================================
-// REPORT MODEL
-// ============================================================
 
 class VisitFrequencyReportModel
     extends VisitFrequencyReport {
@@ -38,9 +33,7 @@ class VisitFrequencyReportModel
   factory VisitFrequencyReportModel.fromJson(
     Map<String, dynamic> json,
   ) {
-    // ========================================================
-    // DEALER
-    // ========================================================
+
 
     final dynamic dealerData =
         json['dealer'];
@@ -57,9 +50,7 @@ class VisitFrequencyReportModel
                 buckets: [],
               );
 
-    // ========================================================
-    // FARMER
-    // ========================================================
+  
 
     final dynamic farmerData =
         json['farmer'];
@@ -96,9 +87,6 @@ class VisitFrequencyReportModel
   }
 }
 
-// ============================================================
-// GROUP MODEL
-// ============================================================
 
 class VisitFrequencyGroupModel
     extends VisitFrequencyGroup {
@@ -142,9 +130,7 @@ class VisitFrequencyGroupModel
   }
 }
 
-// ============================================================
-// BUCKET MODEL
-// ============================================================
+
 
 class VisitFrequencyBucketModel
     extends VisitFrequencyBucket {

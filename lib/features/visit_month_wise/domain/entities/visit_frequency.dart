@@ -13,9 +13,6 @@ class VisitFrequencyReport {
   });
 }
 
-// ============================================================
-// GROUP
-// ============================================================
 
 class VisitFrequencyGroup {
   final int total;
@@ -29,9 +26,6 @@ class VisitFrequencyGroup {
   });
 }
 
-// ============================================================
-// BUCKET
-// ============================================================
 
 class VisitFrequencyBucket {
   final String key;

@@ -25,9 +25,6 @@ class VisitDayWiseItem {
   });
 }
 
-// ============================================================
-// TOTAL
-// ============================================================
 
 class VisitDayWiseTotal {
   final int dealerVisits;
@@ -53,9 +50,6 @@ class VisitDayWiseTotal {
   });
 }
 
-// ============================================================
-// REPORT
-// ============================================================
 
 class VisitDayWiseReport {
   final List<VisitDayWiseItem> items;

@@ -1,16 +1,12 @@
 import '../../domain/entities/visit_top_list.dart';
 
-// ============================================================
-// HELPERS
-// ============================================================
+
 
 int _toInt(dynamic value) {
   return int.tryParse(value?.toString() ?? '0') ?? 0;
 }
 
-// ============================================================
-// REPORT MODEL
-// ============================================================
+
 
 class VisitTopListReportModel extends VisitTopListReport {
   const VisitTopListReportModel({
@@ -45,9 +41,7 @@ class VisitTopListReportModel extends VisitTopListReport {
   }
 }
 
-// ============================================================
-// GROUP MODEL
-// ============================================================
+
 
 class VisitTopListGroupModel extends VisitTopListGroup {
   const VisitTopListGroupModel({
@@ -88,9 +82,6 @@ class VisitTopListGroupModel extends VisitTopListGroup {
   }
 }
 
-// ============================================================
-// ITEM MODEL
-// ============================================================
 
 class VisitTopListItemModel extends VisitTopListItem {
   const VisitTopListItemModel({
