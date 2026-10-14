@@ -1,9 +1,9 @@
+import 'package:solufine/core/theme/typography/app_text_styles.dart';
 import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:solufine/features/home/doman/home_entity/menu_entity.dart';
 import 'package:speech_to_text/speech_to_text.dart';
-
 
 import 'voice_menu_matcher.dart';
 
@@ -168,7 +168,10 @@ class _VoiceMenuDialogState extends State<VoiceMenuDialog>
 
   @override
   Widget build(BuildContext context) => AlertDialog(
-    title: Text(_listening ? 'Listening…' : 'Voice menu'),
+    title: Text(
+      _listening ? 'Listening…' : 'Voice menu',
+      style: AppTextStyles.dialogTitle,
+    ),
     content: SingleChildScrollView(
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -180,22 +183,29 @@ class _VoiceMenuDialogState extends State<VoiceMenuDialog>
           ),
           const SizedBox(height: 16),
           if (_words.isNotEmpty) ...[
-            Text(_words, style: const TextStyle(fontWeight: FontWeight.bold)),
+            Text(_words, style: AppTextStyles.labelLarge),
             const SizedBox(height: 12),
           ],
-          Text(_message, textAlign: TextAlign.center),
+          Text(
+            _message,
+            textAlign: TextAlign.center,
+            style: AppTextStyles.dialogBody,
+          ),
         ],
       ),
     ),
     actions: [
       TextButton(
         onPressed: () => Navigator.of(context).pop(),
-        child: const Text('Cancel'),
+        child: Text('Cancel', style: AppTextStyles.button),
       ),
       if (!_listening)
         TextButton(
           onPressed: _starting ? null : _listen,
-          child: Text(_starting ? 'Starting…' : 'Try again'),
+          child: Text(
+            _starting ? 'Starting…' : 'Try again',
+            style: AppTextStyles.button,
+          ),
         ),
     ],
   );

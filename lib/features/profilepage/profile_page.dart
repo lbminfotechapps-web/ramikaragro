@@ -2,13 +2,13 @@ import 'dart:convert';
 
 import 'package:solufine/core/router/app_router.dart';
 import 'package:solufine/core/theme/app_theme_context.dart';
+import 'package:solufine/core/theme/typography/app_typography_extension.dart';
 import 'package:solufine/core/utility/widgets/custom_appbar.dart';
 import 'package:solufine/core/utility/widgets/custom_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_screenutil_plus/flutter_screenutil_plus.dart';
 import 'package:go_router/go_router.dart';
-import 'package:solufine/features/auth/presentation/pages/change_password.dart';
 
 class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key});
@@ -243,9 +243,7 @@ class _ProfilePageState extends State<ProfilePage> {
             child: Center(
               child: Text(
                 _getInitials(),
-                style: TextStyle(
-                  fontSize: 28.sp,
-                  fontWeight: FontWeight.w900,
+                style: context.appTextStyles.displayMedium.copyWith(
                   color: context.primaryColor,
                 ),
               ),
@@ -257,11 +255,7 @@ class _ProfilePageState extends State<ProfilePage> {
           Text(
             _name.isEmpty ? 'User' : _name,
             textAlign: TextAlign.center,
-            style: TextStyle(
-              fontSize: 19.sp,
-              fontWeight: FontWeight.w900,
-              color: context.primaryTextColor,
-            ),
+            style: context.appTextStyles.headingLarge,
           ),
 
           SizedBox(height: 5.h),
@@ -276,14 +270,7 @@ class _ProfilePageState extends State<ProfilePage> {
                   color: context.secondaryTextColor,
                 ),
                 SizedBox(width: 5.w),
-                Text(
-                  _mobile,
-                  style: TextStyle(
-                    fontSize: 12.sp,
-                    color: context.secondaryTextColor,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
+                Text(_mobile, style: context.appTextStyles.cardSubtitle),
               ],
             ),
         ],
@@ -315,9 +302,7 @@ class _ProfilePageState extends State<ProfilePage> {
         children: [
           Text(
             'Personal Information',
-            style: TextStyle(
-              fontSize: 15.sp,
-              fontWeight: FontWeight.w800,
+            style: context.appTextStyles.cardTitle.copyWith(
               color: context.primaryTextColor,
             ),
           ),
@@ -412,10 +397,8 @@ class _ProfilePageState extends State<ProfilePage> {
                 children: [
                   Text(
                     title,
-                    style: TextStyle(
-                      fontSize: 10.sp,
+                    style: context.appTextStyles.labelSmall.copyWith(
                       color: context.secondaryTextColor,
-                      fontWeight: FontWeight.w600,
                     ),
                   ),
 
@@ -428,11 +411,7 @@ class _ProfilePageState extends State<ProfilePage> {
                       hasValue ? value : 'Not available',
                       maxLines: expandable ? (isExpanded ? 4 : 2) : 2,
                       overflow: TextOverflow.ellipsis,
-                      style: TextStyle(
-                        fontSize: 13.sp,
-                        color: context.primaryTextColor,
-                        fontWeight: FontWeight.w700,
-                      ),
+                      style: context.appTextStyles.bodyMedium,
                     ),
                   ),
 
@@ -444,10 +423,8 @@ class _ProfilePageState extends State<ProfilePage> {
                         children: [
                           Text(
                             isExpanded ? 'Show less' : 'Show more',
-                            style: TextStyle(
-                              fontSize: 9.sp,
+                            style: context.appTextStyles.helperText.copyWith(
                               color: context.primaryColor,
-                              fontWeight: FontWeight.w700,
                             ),
                           ),
                           SizedBox(width: 2.w),

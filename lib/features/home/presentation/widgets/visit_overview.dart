@@ -1,3 +1,4 @@
+import 'package:solufine/core/theme/typography/app_text_styles.dart';
 import 'package:solufine/core/theme/app_dynamic_colors.dart';
 import 'dart:math' as math;
 
@@ -73,19 +74,15 @@ class VisitOverviewCard extends StatelessWidget {
                   children: [
                     Text(
                       'Visit Overview',
-                      style: TextStyle(
+                      style: AppTextStyles.cardTitle.copyWith(
                         color: context.appOnCard,
-                        fontSize: 16.sp,
-                        fontWeight: FontWeight.w800,
                       ),
                     ),
                     SizedBox(height: 1.h),
                     Text(
                       'Last 8 days overview ',
-                      style: TextStyle(
+                      style: AppTextStyles.helperText.copyWith(
                         color: context.appSubText,
-                        fontSize: 10.sp,
-                        fontWeight: FontWeight.w500,
                       ),
                     ),
                   ],
@@ -106,10 +103,8 @@ class VisitOverviewCard extends StatelessWidget {
                       children: [
                         Text(
                           'View',
-                          style: TextStyle(
+                          style: AppTextStyles.badge.copyWith(
                             color: _dealerColor,
-                            fontSize: 10.sp,
-                            fontWeight: FontWeight.w700,
                           ),
                         ),
                         SizedBox(width: 2.w),
@@ -138,7 +133,10 @@ class VisitOverviewCard extends StatelessWidget {
                   value: dealerCount,
                   icon: Icons.storefront_rounded,
                   color: _dealerColor,
-                  background: Color.alphaBlend(_dealerColor.withValues(alpha: 0.1), context.appCard),
+                  background: Color.alphaBlend(
+                    _dealerColor.withValues(alpha: 0.1),
+                    context.appCard,
+                  ),
                 ),
               ),
 
@@ -150,7 +148,10 @@ class VisitOverviewCard extends StatelessWidget {
                   value: farmerCount,
                   icon: Icons.agriculture_rounded,
                   color: _farmerColor,
-                  background: Color.alphaBlend(_farmerColor.withValues(alpha: 0.1), context.appCard),
+                  background: Color.alphaBlend(
+                    _farmerColor.withValues(alpha: 0.1),
+                    context.appCard,
+                  ),
                 ),
               ),
             ],
@@ -165,10 +166,8 @@ class VisitOverviewCard extends StatelessWidget {
             children: [
               Text(
                 'Visit Trend',
-                style: TextStyle(
+                style: AppTextStyles.buttonSmall.copyWith(
                   color: context.appOnCard,
-                  fontSize: 12.sp,
-                  fontWeight: FontWeight.w700,
                 ),
               ),
 
@@ -262,10 +261,8 @@ class _CompactStatCard extends StatelessWidget {
                   title,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: TextStyle(
+                  style: AppTextStyles.labelSmall.copyWith(
                     color: context.appSubText,
-                    fontSize: 9.sp,
-                    fontWeight: FontWeight.w600,
                   ),
                 ),
 
@@ -274,11 +271,9 @@ class _CompactStatCard extends StatelessWidget {
                 Text(
                   value,
                   maxLines: 1,
-                  style: TextStyle(
+                  style: AppTextStyles.cardValue.copyWith(
                     color: color,
-                    fontSize: 21.sp,
                     height: 1,
-                    fontWeight: FontWeight.w800,
                   ),
                 ),
               ],
@@ -313,11 +308,7 @@ class _LegendItem extends StatelessWidget {
         SizedBox(width: 4.w),
         Text(
           label,
-          style: TextStyle(
-            color: context.appSubText,
-            fontSize: 9.sp,
-            fontWeight: FontWeight.w600,
-          ),
+          style: AppTextStyles.labelSmall.copyWith(color: context.appSubText),
         ),
       ],
     );
@@ -360,10 +351,8 @@ class _VisitLineChart extends StatelessWidget {
             SizedBox(height: 6.h),
             Text(
               'No visit data available',
-              style: TextStyle(
+              style: AppTextStyles.helperText.copyWith(
                 color: context.appSubText,
-                fontSize: 10.sp,
-                fontWeight: FontWeight.w500,
               ),
             ),
           ],
@@ -461,10 +450,8 @@ class _VisitLineChart extends StatelessWidget {
                   meta: meta,
                   child: Text(
                     _formatYAxis(value),
-                    style: TextStyle(
+                    style: AppTextStyles.helperText.copyWith(
                       color: context.appSubText,
-                      fontSize: 8.sp,
-                      fontWeight: FontWeight.w500,
                     ),
                   ),
                 );
@@ -499,10 +486,8 @@ class _VisitLineChart extends StatelessWidget {
                   space: 7.h,
                   child: Text(
                     DateFormat('dd MMM').format(date),
-                    style: TextStyle(
+                    style: AppTextStyles.helperText.copyWith(
                       color: context.appSubText,
-                      fontSize: 7.5.sp,
-                      fontWeight: FontWeight.w500,
                     ),
                   ),
                 );
@@ -524,10 +509,8 @@ class _VisitLineChart extends StatelessWidget {
 
                 return LineTooltipItem(
                   '${isDealer ? 'Dealer' : 'Farmer'}  ${spot.y.toInt()}',
-                  TextStyle(
+                  AppTextStyles.badge.copyWith(
                     color: isDealer ? dealerColor : farmerColor,
-                    fontSize: 10.sp,
-                    fontWeight: FontWeight.w700,
                   ),
                 );
               }).toList();

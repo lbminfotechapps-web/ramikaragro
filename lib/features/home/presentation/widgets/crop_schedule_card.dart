@@ -1,3 +1,4 @@
+import 'package:solufine/core/theme/typography/app_text_styles.dart';
 import 'package:solufine/core/api_constant/api_client.dart';
 import 'package:solufine/features/home/doman/home_entity/crop_schedule.dart';
 import 'package:flutter/material.dart';
@@ -120,9 +121,7 @@ class _CropScheduleCardState extends State<CropScheduleCard> {
                             ),
                             child: Text(
                               'CROP SCHEDULE',
-                              style: TextStyle(
-                                fontSize: 9,
-                                fontWeight: FontWeight.w800,
+                              style: AppTextStyles.labelSmall.copyWith(
                                 letterSpacing: 0.6,
                                 color: context.primaryColor,
                               ),
@@ -138,10 +137,8 @@ class _CropScheduleCardState extends State<CropScheduleCard> {
                         schedule.cropName,
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
-                        style: TextStyle(
-                          fontSize: 18,
+                        style: AppTextStyles.sectionTitle.copyWith(
                           height: 1.18,
-                          fontWeight: FontWeight.w800,
                           letterSpacing: -0.35,
                           color: context.cardTextColor,
                         ),
@@ -224,9 +221,7 @@ class _CropScheduleCardState extends State<CropScheduleCard> {
                             children: [
                               Text(
                                 _showDetails ? 'Hide Details' : 'View Details',
-                                style: TextStyle(
-                                  fontSize: 13,
-                                  fontWeight: FontWeight.w800,
+                                style: AppTextStyles.labelLarge.copyWith(
                                   color: context.primaryColor,
                                 ),
                               ),
@@ -235,8 +230,7 @@ class _CropScheduleCardState extends State<CropScheduleCard> {
                                 _showDetails
                                     ? 'Close schedule information'
                                     : 'View complete schedule',
-                                style: TextStyle(
-                                  fontSize: 10,
+                                style: AppTextStyles.helperText.copyWith(
                                   color: context.secondaryTextColor,
                                 ),
                               ),
@@ -255,10 +249,8 @@ class _CropScheduleCardState extends State<CropScheduleCard> {
                           ),
                           child: Text(
                             '${schedule.details.length}',
-                            style: TextStyle(
+                            style: AppTextStyles.labelSmall.copyWith(
                               color: context.onPrimaryColor,
-                              fontSize: 11,
-                              fontWeight: FontWeight.w800,
                             ),
                           ),
                         ),
@@ -309,17 +301,14 @@ class _CropScheduleCardState extends State<CropScheduleCard> {
                           children: [
                             Text(
                               'Schedule Details',
-                              style: TextStyle(
-                                fontSize: 15,
-                                fontWeight: FontWeight.w800,
+                              style: AppTextStyles.cardTitle.copyWith(
                                 color: context.cardTextColor,
                               ),
                             ),
                             SizedBox(height: 2),
                             Text(
                               'Crop activity timeline',
-                              style: TextStyle(
-                                fontSize: 10,
+                              style: AppTextStyles.helperText.copyWith(
                                 color: context.secondaryTextColor,
                               ),
                             ),
@@ -339,10 +328,8 @@ class _CropScheduleCardState extends State<CropScheduleCard> {
                         ),
                         child: Text(
                           '${schedule.details.length} Steps',
-                          style: TextStyle(
-                            fontSize: 10,
+                          style: AppTextStyles.badge.copyWith(
                             color: context.primaryColor,
-                            fontWeight: FontWeight.w800,
                           ),
                         ),
                       ),
@@ -411,9 +398,7 @@ class _CropScheduleCardState extends State<CropScheduleCard> {
                     Expanded(
                       child: Text(
                         'No schedule details available.',
-                        style: TextStyle(
-                          fontSize: 12,
-                          fontWeight: FontWeight.w600,
+                        style: AppTextStyles.buttonSmall.copyWith(
                           color: context.secondaryTextColor,
                         ),
                       ),

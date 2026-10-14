@@ -1,3 +1,4 @@
+import 'package:solufine/core/theme/typography/app_text_styles.dart';
 import 'dart:convert';
 import 'dart:io';
 
@@ -307,7 +308,12 @@ class _FarmerregistrationPageState extends State<FarmerregistrationPage> {
         if (!mounted) return;
 
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Captured image not found')),
+          SnackBar(
+            content: Text(
+              'Captured image not found',
+              style: AppTextStyles.body,
+            ),
+          ),
         );
 
         return;
@@ -349,9 +355,11 @@ class _FarmerregistrationPageState extends State<FarmerregistrationPage> {
 
       if (!mounted) return;
 
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(const SnackBar(content: Text('Unable to capture image')));
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Unable to capture image', style: AppTextStyles.body),
+        ),
+      );
     }
   }
 
@@ -392,15 +400,22 @@ class _FarmerregistrationPageState extends State<FarmerregistrationPage> {
     List<IrrigationEntity> irrigationList,
   ) async {
     if (cropList.isEmpty) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(const SnackBar(content: Text('Crop data not available')));
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Crop data not available', style: AppTextStyles.body),
+        ),
+      );
       return;
     }
 
     if (irrigationList.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Irrigation data not available')),
+        SnackBar(
+          content: Text(
+            'Irrigation data not available',
+            style: AppTextStyles.body,
+          ),
+        ),
       );
       return;
     }
@@ -675,7 +690,12 @@ class _FarmerregistrationPageState extends State<FarmerregistrationPage> {
       });
 
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(e.toString().replaceFirst('Exception: ', ''))),
+        SnackBar(
+          content: Text(
+            e.toString().replaceFirst('Exception: ', ''),
+            style: AppTextStyles.body,
+          ),
+        ),
       );
     }
   }
@@ -786,7 +806,7 @@ class _FarmerregistrationPageState extends State<FarmerregistrationPage> {
         showBackButton: true,
         onBackTap: () => Navigator.pop(context),
       ),
-        resizeToAvoidBottomInset: true,
+      resizeToAvoidBottomInset: true,
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
       floatingActionButton: BlocBuilder<StateBloc, StatsState>(
         builder: (context, state) {
@@ -821,7 +841,6 @@ class _FarmerregistrationPageState extends State<FarmerregistrationPage> {
         listener: (context, state) async {
           if (!isLoading || !_submissionSent) return;
           if (state.status == StatesStatus.farmerRegiSuccess) {
-         
             setState(() {
               isLoading = false;
               _submissionSent = false;
@@ -875,7 +894,10 @@ class _FarmerregistrationPageState extends State<FarmerregistrationPage> {
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
                 backgroundColor: context.appError,
-                content: Text(state.errorMessage ?? 'Submission failed'),
+                content: Text(
+                  state.errorMessage ?? 'Submission failed',
+                  style: AppTextStyles.body,
+                ),
               ),
             );
           }
@@ -902,9 +924,9 @@ class _FarmerregistrationPageState extends State<FarmerregistrationPage> {
           final talukaList = selectedDistrict?.taluka ?? [];
 
           final districtItems = [
-            const DropdownMenuItem<String>(
+            DropdownMenuItem<String>(
               value: '0',
-              child: Text('Select District'),
+              child: Text('Select District', style: AppTextStyles.inputHint),
             ),
 
             ...state.districtList
@@ -912,15 +934,18 @@ class _FarmerregistrationPageState extends State<FarmerregistrationPage> {
                 .map(
                   (district) => DropdownMenuItem<String>(
                     value: district.fldDistId,
-                    child: Text(district.fldDistName),
+                    child: Text(
+                      district.fldDistName,
+                      style: AppTextStyles.input,
+                    ),
                   ),
                 ),
           ];
 
           final talukaItems = [
-            const DropdownMenuItem<String>(
+            DropdownMenuItem<String>(
               value: '0',
-              child: Text('Select Taluka'),
+              child: Text('Select Taluka', style: AppTextStyles.inputHint),
             ),
 
             ...talukaList
@@ -928,13 +953,16 @@ class _FarmerregistrationPageState extends State<FarmerregistrationPage> {
                 .map(
                   (taluka) => DropdownMenuItem<String>(
                     value: taluka.fldTalukaId,
-                    child: Text(taluka.fldName),
+                    child: Text(taluka.fldName, style: AppTextStyles.input),
                   ),
                 ),
           ];
 
           final farmerStatusItems = farmerStatus.map((status) {
-            return DropdownMenuItem<String>(value: status, child: Text(status));
+            return DropdownMenuItem<String>(
+              value: status,
+              child: Text(status, style: AppTextStyles.input),
+            );
           }).toList();
 
           return SafeArea(
@@ -1091,9 +1119,7 @@ class _FarmerregistrationPageState extends State<FarmerregistrationPage> {
 
                     Text(
                       'State *',
-                      style: TextStyle(
-                        fontSize: 15,
-                        fontWeight: FontWeight.w600,
+                      style: AppTextStyles.labelLarge.copyWith(
                         color: context.appOnCard,
                       ),
                     ),
@@ -1113,7 +1139,10 @@ class _FarmerregistrationPageState extends State<FarmerregistrationPage> {
                       items: state.statentity.map((item) {
                         return DropdownMenuItem<String>(
                           value: item.stateId,
-                          child: Text(item.stateName),
+                          child: Text(
+                            item.stateName,
+                            style: AppTextStyles.input,
+                          ),
                         );
                       }).toList(),
 
@@ -1132,9 +1161,7 @@ class _FarmerregistrationPageState extends State<FarmerregistrationPage> {
 
                     Text(
                       'District *',
-                      style: TextStyle(
-                        fontSize: 15,
-                        fontWeight: FontWeight.w600,
+                      style: AppTextStyles.labelLarge.copyWith(
                         color: context.appOnCard,
                       ),
                     ),
@@ -1176,9 +1203,7 @@ class _FarmerregistrationPageState extends State<FarmerregistrationPage> {
 
                     Text(
                       'Taluka *',
-                      style: TextStyle(
-                        fontSize: 15,
-                        fontWeight: FontWeight.w600,
+                      style: AppTextStyles.labelLarge.copyWith(
                         color: context.appOnCard,
                       ),
                     ),
@@ -1225,9 +1250,7 @@ class _FarmerregistrationPageState extends State<FarmerregistrationPage> {
 
                     Text(
                       'Status Of Farmer *',
-                      style: TextStyle(
-                        fontSize: 15,
-                        fontWeight: FontWeight.w600,
+                      style: AppTextStyles.labelLarge.copyWith(
                         color: context.appOnCard,
                       ),
                     ),
@@ -1271,9 +1294,7 @@ class _FarmerregistrationPageState extends State<FarmerregistrationPage> {
 
                     Text(
                       'Suggested Product *',
-                      style: TextStyle(
-                        fontSize: 15,
-                        fontWeight: FontWeight.w600,
+                      style: AppTextStyles.labelLarge.copyWith(
                         color: context.appOnCard,
                       ),
                     ),
@@ -1335,9 +1356,7 @@ class _FarmerregistrationPageState extends State<FarmerregistrationPage> {
 
                     Text(
                       'Crop Details *',
-                      style: TextStyle(
-                        fontSize: 15,
-                        fontWeight: FontWeight.w600,
+                      style: AppTextStyles.labelLarge.copyWith(
                         color: context.appOnCard,
                       ),
                     ),
@@ -1403,9 +1422,8 @@ class _FarmerregistrationPageState extends State<FarmerregistrationPage> {
                                 padding: EdgeInsets.only(left: 16.w, top: 4.h),
                                 child: Text(
                                   field.errorText!,
-                                  style: TextStyle(
+                                  style: AppTextStyles.bodySmall.copyWith(
                                     color: context.appError,
-                                    fontSize: 12.sp,
                                   ),
                                 ),
                               ),
@@ -1421,7 +1439,7 @@ class _FarmerregistrationPageState extends State<FarmerregistrationPage> {
                       maxLines: 2,
                     ),
 
-                     SizedBox(height: 100.h),
+                    SizedBox(height: 100.h),
                   ],
                 ),
               ),
@@ -1538,10 +1556,7 @@ class _FarmerregistrationPageState extends State<FarmerregistrationPage> {
                   Expanded(
                     child: Text(
                       'Upload Photo *',
-                      style: TextStyle(
-                        fontSize: 16.sp,
-                        fontWeight: FontWeight.w600,
-                      ),
+                      style: AppTextStyles.cardTitle,
                     ),
                   ),
 
@@ -1584,9 +1599,8 @@ class _FarmerregistrationPageState extends State<FarmerregistrationPage> {
                         SizedBox(height: 14.h),
                         Text(
                           'Tap to capture image',
-                          style: TextStyle(
+                          style: AppTextStyles.body.copyWith(
                             color: context.appSubText,
-                            fontSize: 15.sp,
                           ),
                         ),
                       ],

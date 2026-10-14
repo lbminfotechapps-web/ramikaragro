@@ -1,3 +1,4 @@
+import 'package:solufine/core/theme/typography/app_text_styles.dart';
 import 'package:solufine/core/theme/app_dynamic_colors.dart';
 import 'dart:convert';
 
@@ -503,7 +504,10 @@ class _QuickAccessSectionState extends State<QuickAccessSection> {
 
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text(state.errorMessage ?? 'Failed to share location'),
+              content: Text(
+                state.errorMessage ?? 'Failed to share location',
+                style: AppTextStyles.body,
+              ),
               backgroundColor: Colors.red,
               behavior: SnackBarBehavior.floating,
               duration: const Duration(seconds: 3),
@@ -522,11 +526,8 @@ class _QuickAccessSectionState extends State<QuickAccessSection> {
             // =====================================================
             Row(
               children: [
-                const Expanded(
-                  child: Text(
-                    'Menu',
-                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.w700),
-                  ),
+                Expanded(
+                  child: Text('Menu', style: AppTextStyles.headingLarge),
                 ),
 
                 SizedBox(width: 10.w),
@@ -535,6 +536,7 @@ class _QuickAccessSectionState extends State<QuickAccessSection> {
                   width: 170.w,
                   height: 42.h,
                   child: TextField(
+                    style: AppTextStyles.input,
                     controller: _searchController,
                     onChanged: (value) {
                       setState(() {
@@ -543,8 +545,7 @@ class _QuickAccessSectionState extends State<QuickAccessSection> {
                     },
                     decoration: InputDecoration(
                       hintText: 'Search menu',
-                      hintStyle: TextStyle(
-                        fontSize: 12.sp,
+                      hintStyle: AppTextStyles.inputHint.copyWith(
                         color: context.appSubText,
                       ),
 
@@ -657,7 +658,12 @@ class _QuickAccessSectionState extends State<QuickAccessSection> {
                     filteredInformation.isEmpty) {
                   return Padding(
                     padding: EdgeInsets.symmetric(vertical: 30.h),
-                    child: const Center(child: Text('No menu found')),
+                    child: Center(
+                      child: Text(
+                        'No menu found',
+                        style: AppTextStyles.dialogBody,
+                      ),
+                    ),
                   );
                 }
                 return Column(
@@ -688,6 +694,7 @@ class _QuickAccessSectionState extends State<QuickAccessSection> {
                                 }),
                                 child: Text(
                                   _showAllReports ? 'See less' : 'See all',
+                                  style: AppTextStyles.button,
                                 ),
                               ),
                             ),
@@ -719,11 +726,7 @@ class _QuickAccessSectionState extends State<QuickAccessSection> {
     padding: EdgeInsets.only(bottom: 12.h),
     child: Text(
       title,
-      style: TextStyle(
-        fontSize: 15.sp,
-        fontWeight: FontWeight.w700,
-        color: context.appPrimary,
-      ),
+      style: AppTextStyles.cardTitle.copyWith(color: context.appPrimary),
     ),
   );
 
@@ -740,8 +743,9 @@ class _QuickAccessSectionState extends State<QuickAccessSection> {
         crossAxisCount: crossAxisCount,
         crossAxisSpacing: 12.w,
         mainAxisSpacing: 10.h,
+        
         mainAxisExtent:
-            72.w + 4.h + MediaQuery.textScalerOf(context).scale(9.sp) * 2.8,
+            72.w + 4.h + MediaQuery.textScalerOf(context).scale(9.sp) * 2.8 + 10.h,
       ),
       itemBuilder: (context, index) {
         if (showMore && index == menus.length) {
@@ -970,13 +974,10 @@ class _QuickAccessSectionState extends State<QuickAccessSection> {
                     ),
                   ),
                   SizedBox(width: 12.w),
-                  const Expanded(
+                  Expanded(
                     child: Text(
                       'Share Location',
-                      style: TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.w700,
-                      ),
+                      style: AppTextStyles.headingLarge,
                     ),
                   ),
                 ],
@@ -984,12 +985,16 @@ class _QuickAccessSectionState extends State<QuickAccessSection> {
               content: Form(
                 key: formKey,
                 child: TextFormField(
+                  style: AppTextStyles.input,
                   controller: remarkController,
                   maxLines: 4,
                   textInputAction: TextInputAction.newline,
                   enabled: !isSubmitting,
                   decoration: InputDecoration(
                     hintText: 'Enter remark',
+                    hintStyle: AppTextStyles.inputHint,
+                    labelStyle: AppTextStyles.inputLabel,
+                    errorStyle: AppTextStyles.inputError,
                     labelText: 'Remark',
                     alignLabelWithHint: true,
                     prefixIcon: Padding(
@@ -1036,7 +1041,7 @@ class _QuickAccessSectionState extends State<QuickAccessSection> {
                           FocusScope.of(dialogContext).unfocus();
                           Navigator.of(dialogContext).pop();
                         },
-                  child: const Text('Cancel'),
+                  child: Text('Cancel', style: AppTextStyles.button),
                 ),
                 ElevatedButton(
                   style: ElevatedButton.styleFrom(
@@ -1080,7 +1085,12 @@ class _QuickAccessSectionState extends State<QuickAccessSection> {
                             if (!context.mounted) return;
 
                             ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(content: Text(e.toString())),
+                              SnackBar(
+                                content: Text(
+                                  e.toString(),
+                                  style: AppTextStyles.body,
+                                ),
+                              ),
                             );
                           }
                         },
@@ -1095,7 +1105,7 @@ class _QuickAccessSectionState extends State<QuickAccessSection> {
                             ),
                           ),
                         )
-                      : const Text('Submit'),
+                      : Text('Submit', style: AppTextStyles.button),
                 ),
               ],
             );
@@ -1136,7 +1146,7 @@ class QuickAccessItemWidget extends StatelessWidget {
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
             textAlign: TextAlign.center,
-            style: TextStyle(fontSize: 10.sp, fontWeight: FontWeight.w500),
+            style: AppTextStyles.helperText,
           ),
         ],
       ),
@@ -1247,18 +1257,16 @@ class _MenuShortcut extends StatelessWidget {
               ),
               child: FittedBox(fit: BoxFit.contain, child: icon),
             ),
-            SizedBox(height: 4.h),
+            SizedBox(height: 2.h),
             Expanded(
               child: Padding(
                 padding: EdgeInsets.symmetric(horizontal: 3.w),
                 child: Text(
                   title,
-                  maxLines: 2,
+                  maxLines: 3,
                   overflow: TextOverflow.ellipsis,
                   textAlign: TextAlign.center,
-                  style: TextStyle(
-                    fontSize: 9.sp,
-                    fontWeight: FontWeight.w600,
+                  style: AppTextStyles.labelSmall.copyWith(
                     color: context.appText,
                     height: 1.3,
                   ),

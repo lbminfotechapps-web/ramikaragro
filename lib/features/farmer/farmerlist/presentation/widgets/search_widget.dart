@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:solufine/core/theme/typography/app_text_styles.dart';
 
 class FarmerSearchField extends StatelessWidget {
   final TextEditingController controller;
@@ -17,12 +18,14 @@ class FarmerSearchField extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return TextField(
+      style: AppTextStyles.input,
       controller: controller,
       onChanged: onChanged,
       onSubmitted: (_) => onSearch(),
       textInputAction: TextInputAction.search,
       decoration: InputDecoration(
         hintText: 'Search by farmer name or mobile number',
+        hintStyle: AppTextStyles.inputHint,
         prefixIcon: const Icon(Icons.search),
         suffixIcon: controller.text.isEmpty
             ? null

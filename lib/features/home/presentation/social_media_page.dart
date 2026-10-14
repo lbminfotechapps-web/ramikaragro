@@ -1,5 +1,7 @@
 import 'package:solufine/core/router/app_router.dart';
 import 'package:solufine/core/theme/app_theme_context.dart';
+import 'package:solufine/core/theme/typography/app_typography_extension.dart';
+import 'package:solufine/core/theme/typography/app_text_styles.dart';
 import 'package:solufine/core/utility/appname.dart';
 import 'package:solufine/core/utility/widgets/custom_appbar.dart';
 import 'package:solufine/core/utility/widgets/custom_loader.dart';
@@ -84,7 +86,7 @@ class _SocialMediaPageState extends State<SocialMediaPage> {
 
     ScaffoldMessenger.of(
       context,
-    ).showSnackBar(SnackBar(content: Text(message)));
+    ).showSnackBar(SnackBar(content: Text(message, style: AppTextStyles.body)));
   }
 
   @override
@@ -104,7 +106,9 @@ class _SocialMediaPageState extends State<SocialMediaPage> {
             appBar: CustomAppBar(
               title: 'Social Media',
               backgroundColor: context.primaryColor,
-              titleStyle: TextStyle(color: context.onPrimaryColor),
+              titleStyle: context.appTextStyles.appBarTitle.copyWith(
+                color: context.onPrimaryColor,
+              ),
               leading: IconButton(
                 icon: Icon(
                   Icons.arrow_back_ios_new_rounded,
@@ -149,7 +153,9 @@ class _SocialMediaPageState extends State<SocialMediaPage> {
           Center(
             child: Text(
               'Social media links not available',
-              style: TextStyle(color: context.secondaryTextColor, fontSize: 15),
+              style: context.appTextStyles.body.copyWith(
+                color: context.secondaryTextColor,
+              ),
             ),
           ),
         ],
@@ -205,10 +211,8 @@ class _SocialMediaPageState extends State<SocialMediaPage> {
 
           Text(
             'Connect With Us',
-            style: TextStyle(
+            style: context.appTextStyles.pageTitle.copyWith(
               color: context.onPrimaryColor,
-              fontSize: 22,
-              fontWeight: FontWeight.bold,
             ),
           ),
 
@@ -217,9 +221,8 @@ class _SocialMediaPageState extends State<SocialMediaPage> {
           Text(
             'Follow $appName Industries',
             textAlign: TextAlign.center,
-            style: TextStyle(
+            style: context.appTextStyles.body.copyWith(
               color: context.onPrimaryColor.withValues(alpha: 0.7),
-              fontSize: 14,
             ),
           ),
         ],
@@ -238,11 +241,11 @@ class _SocialMediaPageState extends State<SocialMediaPage> {
 
         const SizedBox(height: 15),
 
-        const Center(
+        Center(
           child: Text(
             'Unable to load social media',
             textAlign: TextAlign.center,
-            style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold),
+            style: context.appTextStyles.headingMedium,
           ),
         ),
 
@@ -252,7 +255,9 @@ class _SocialMediaPageState extends State<SocialMediaPage> {
           child: Text(
             error ?? 'Something went wrong',
             textAlign: TextAlign.center,
-            style: TextStyle(color: context.secondaryTextColor),
+            style: context.appTextStyles.body.copyWith(
+              color: context.secondaryTextColor,
+            ),
           ),
         ),
 
@@ -262,7 +267,7 @@ class _SocialMediaPageState extends State<SocialMediaPage> {
           child: ElevatedButton.icon(
             onPressed: _loadSocialMedia,
             icon: const Icon(Icons.refresh),
-            label: const Text('Retry'),
+            label: Text('Retry', style: context.appTextStyles.button),
             style: ElevatedButton.styleFrom(
               backgroundColor: context.primaryColor,
               foregroundColor: context.onPrimaryColor,

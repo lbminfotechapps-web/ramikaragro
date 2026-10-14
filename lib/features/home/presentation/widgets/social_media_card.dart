@@ -1,3 +1,4 @@
+import 'package:solufine/core/theme/typography/app_text_styles.dart';
 import 'package:flutter/material.dart';
 import 'package:solufine/core/theme/app_theme_context.dart';
 import 'package:share_plus/share_plus.dart';
@@ -42,7 +43,12 @@ class SocialMediaCard extends StatelessWidget {
     } catch (_) {
       if (!context.mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Unable to share. Please try again.')),
+        SnackBar(
+          content: Text(
+            'Unable to share. Please try again.',
+            style: AppTextStyles.body,
+          ),
+        ),
       );
     }
   }
@@ -88,9 +94,7 @@ class SocialMediaCard extends StatelessWidget {
                   children: [
                     Text(
                       title,
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
+                      style: AppTextStyles.cardTitle.copyWith(
                         color: context.cardTextColor,
                       ),
                     ),
@@ -99,8 +103,7 @@ class SocialMediaCard extends StatelessWidget {
 
                     Text(
                       subtitle,
-                      style: TextStyle(
-                        fontSize: 13,
+                      style: AppTextStyles.cardSubtitle.copyWith(
                         color: context.secondaryTextColor,
                       ),
                     ),

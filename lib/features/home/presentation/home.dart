@@ -1,5 +1,7 @@
 import 'package:solufine/core/theme/app_colors.dart';
 import 'package:solufine/core/theme/app_dynamic_colors.dart';
+import 'package:solufine/core/theme/typography/app_text_styles.dart';
+import 'package:solufine/core/theme/typography/app_typography_extension.dart';
 import 'dart:io';
 
 import 'package:solufine/core/utility/tab_refresh.dart';
@@ -322,14 +324,20 @@ class _HomeState extends State<Home> {
       barrierDismissible: false,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: const Text('Exit'),
-          content: const Text('Do you want to exit the app?'),
+          title: Text('Exit', style: context.appTextStyles.dialogTitle),
+          content: Text(
+            'Do you want to exit the app?',
+            style: context.appTextStyles.dialogBody,
+          ),
           actions: [
             TextButton(
               onPressed: () {
                 Navigator.of(context).pop(false);
               },
-              child: Text('CANCEL', style: TextStyle(color: context.appText)),
+              child: Text(
+                'CANCEL',
+                style: AppTextStyles.button.copyWith(color: context.appText),
+              ),
             ),
             ElevatedButton(
               style: ElevatedButton.styleFrom(
@@ -339,7 +347,7 @@ class _HomeState extends State<Home> {
               onPressed: () {
                 Navigator.of(context).pop(true);
               },
-              child: const Text('OK'),
+              child: Text('OK', style: AppTextStyles.button),
             ),
           ],
         );
@@ -478,22 +486,22 @@ class _HomeState extends State<Home> {
               Expanded(
                 child: Text(
                   'Location Permission Required',
-                  style: TextStyle(fontSize: 19, fontWeight: FontWeight.bold),
+                  style: AppTextStyles.dialogTitle,
                 ),
               ),
             ],
           ),
-          content: const Text(
+          content: Text(
             'Location permission is disabled for this app. '
             'Please enable location permission from Settings.',
-            style: TextStyle(fontSize: 14, height: 1.5),
+            style: AppTextStyles.dialogBody,
           ),
           actions: [
             TextButton(
               onPressed: () {
                 Navigator.of(dialogContext).pop();
               },
-              child: const Text('CANCEL'),
+              child: Text('CANCEL', style: AppTextStyles.button),
             ),
 
             ElevatedButton.icon(
@@ -503,7 +511,7 @@ class _HomeState extends State<Home> {
                 await openAppSettings();
               },
               icon: const Icon(Icons.settings, size: 18),
-              label: const Text('OPEN SETTINGS'),
+              label: Text('OPEN SETTINGS', style: AppTextStyles.button),
             ),
           ],
         );
@@ -560,11 +568,8 @@ class _HomeState extends State<Home> {
 
               const SizedBox(width: 12),
 
-              const Expanded(
-                child: Text(
-                  'GPS is Off',
-                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-                ),
+              Expanded(
+                child: Text('GPS is Off', style: AppTextStyles.dialogTitle),
               ),
             ],
           ),
@@ -572,10 +577,10 @@ class _HomeState extends State<Home> {
           // ========================================================
           // MESSAGE
           // ========================================================
-          content: const Text(
+          content: Text(
             'Your GPS / Location service is turned off. '
             'Please turn on GPS to continue using location services.',
-            style: TextStyle(fontSize: 14, height: 1.5),
+            style: AppTextStyles.dialogBody,
           ),
 
           // ========================================================
@@ -601,10 +606,7 @@ class _HomeState extends State<Home> {
                 await Geolocator.openLocationSettings();
               },
               icon: const Icon(Icons.settings, size: 18),
-              label: const Text(
-                'TURN ON GPS',
-                style: TextStyle(fontWeight: FontWeight.w600),
-              ),
+              label: Text('TURN ON GPS', style: AppTextStyles.button),
             ),
           ],
         );
@@ -618,14 +620,20 @@ class _HomeState extends State<Home> {
       barrierDismissible: false,
       builder: (dialogContext) {
         return AlertDialog(
-          title: const Text('Logout'),
-          content: const Text('Are you sure you want to logout?'),
+          title: Text('Logout', style: context.appTextStyles.dialogTitle),
+          content: Text(
+            'Are you sure you want to logout?',
+            style: context.appTextStyles.dialogBody,
+          ),
           actions: [
             TextButton(
               onPressed: () {
                 Navigator.of(dialogContext).pop(false);
               },
-              child: Text('CANCEL', style: TextStyle(color: context.appText)),
+              child: Text(
+                'CANCEL',
+                style: AppTextStyles.button.copyWith(color: context.appText),
+              ),
             ),
 
             ElevatedButton(
@@ -637,7 +645,7 @@ class _HomeState extends State<Home> {
                 // Return TRUE to _logout()
                 Navigator.of(dialogContext).pop(true);
               },
-              child: const Text('LOGOUT'),
+              child: Text('LOGOUT', style: AppTextStyles.button),
             ),
           ],
         );
@@ -1003,18 +1011,15 @@ class _HomeState extends State<Home> {
                   label,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: TextStyle(
+                  style: AppTextStyles.helperText.copyWith(
                     color: context.appOnPrimary,
-                    fontSize: 10.sp,
                   ),
                 ),
                 SizedBox(height: 2.h),
                 Text(
                   value,
-                  style: TextStyle(
+                  style: AppTextStyles.cardTitle.copyWith(
                     color: context.appOnPrimary,
-                    fontSize: 15.sp,
-                    fontWeight: FontWeight.bold,
                   ),
                 ),
                 SizedBox(height: 2.h),
@@ -1030,9 +1035,8 @@ class _HomeState extends State<Home> {
                       location,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
-                      style: TextStyle(
+                      style: AppTextStyles.helperText.copyWith(
                         color: context.appOnPrimary,
-                        fontSize: 8.sp,
                       ),
                     ),
                   ],
@@ -1047,10 +1051,8 @@ class _HomeState extends State<Home> {
                   ),
                   child: Text(
                     'Punch In',
-                    style: TextStyle(
+                    style: AppTextStyles.badge.copyWith(
                       color: context.appOnPrimary,
-                      fontSize: 8.sp,
-                      fontWeight: FontWeight.w600,
                     ),
                   ),
                 ),
@@ -1073,7 +1075,12 @@ class _HomeState extends State<Home> {
     if (!mounted) return;
 
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Unable to open the phone dialer')),
+      SnackBar(
+        content: Text(
+          'Unable to open the phone dialer',
+          style: AppTextStyles.body,
+        ),
+      ),
     );
   }
 
@@ -1090,19 +1097,28 @@ class _HomeState extends State<Home> {
             children: [
               Icon(Icons.pending_actions, color: colorScheme.primary),
               const SizedBox(width: 10),
-              const Expanded(child: Text('In Punch Pending')),
+              Expanded(
+                child: Text(
+                  'In Punch Pending',
+                  style: dialogContext.appTextStyles.dialogTitle,
+                ),
+              ),
               Text(
                 pendingList.length.toString(),
-                style: TextStyle(
+                style: AppTextStyles.headingSmall.copyWith(
                   color: colorScheme.primary,
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
                 ),
               ),
             ],
           ),
           content: pendingList.isEmpty
-              ? const SizedBox(width: 280, child: Text('No pending requests'))
+              ? SizedBox(
+                  width: 280,
+                  child: Text(
+                    'No pending requests',
+                    style: dialogContext.appTextStyles.dialogBody,
+                  ),
+                )
               : ConstrainedBox(
                   constraints: BoxConstraints(
                     maxWidth: 620,
@@ -1120,10 +1136,10 @@ class _HomeState extends State<Home> {
                         headingRowColor: WidgetStatePropertyAll(
                           colorScheme.primary.withOpacity(0.1),
                         ),
-                        headingTextStyle: TextStyle(
+                        headingTextStyle: AppTextStyles.tableHeader.copyWith(
                           color: colorScheme.primary,
-                          fontWeight: FontWeight.bold,
                         ),
+                        dataTextStyle: dialogContext.appTextStyles.tableCell,
                         columns: const [DataColumn(label: Text('Employee'))],
                         rows: List<DataRow>.generate(pendingList.length, (
                           index,
@@ -1157,7 +1173,7 @@ class _HomeState extends State<Home> {
                                             : mobileNumber,
                                         style: mobileNumber.isEmpty
                                             ? null
-                                            : TextStyle(
+                                            : AppTextStyles.tableCell.copyWith(
                                                 color: colorScheme.primary,
                                                 decoration:
                                                     TextDecoration.underline,
@@ -1177,7 +1193,7 @@ class _HomeState extends State<Home> {
           actions: [
             TextButton(
               onPressed: () => Navigator.of(dialogContext).pop(),
-              child: const Text('CLOSE'),
+              child: Text('CLOSE', style: AppTextStyles.button),
             ),
           ],
         );
@@ -1207,19 +1223,10 @@ class _HomeState extends State<Home> {
                   label,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: TextStyle(
-                    fontSize: 12.sp,
-                    fontWeight: FontWeight.w600,
-                  ),
+                  style: AppTextStyles.labelLarge,
                 ),
                 SizedBox(height: 2.h),
-                Text(
-                  value,
-                  style: TextStyle(
-                    fontSize: 24.sp,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
+                Text(value, style: AppTextStyles.displaySmall),
                 // Text('Pending Punch', style: TextStyle(fontSize: 10.sp)),
               ],
             ),
@@ -1258,8 +1265,7 @@ class _HomeState extends State<Home> {
                 children: [
                   Text(
                     label,
-                    style: TextStyle(
-                      fontSize: 11.sp,
+                    style: AppTextStyles.caption.copyWith(
                       color: context.appSubText,
                     ),
                   ),
@@ -1268,11 +1274,7 @@ class _HomeState extends State<Home> {
                     '${date.day.toString().padLeft(2, '0')}/'
                     '${date.month.toString().padLeft(2, '0')}/'
                     '${date.year}',
-                    style: TextStyle(
-                      fontSize: 13.sp,
-                      fontWeight: FontWeight.w600,
-                      color: context.appText,
-                    ),
+                    style: AppTextStyles.label.copyWith(color: context.appText),
                   ),
                 ],
               ),
@@ -1376,11 +1378,8 @@ class _HomeState extends State<Home> {
 
               const SizedBox(width: 12),
 
-              const Expanded(
-                child: Text(
-                  'Warning',
-                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-                ),
+              Expanded(
+                child: Text('Warning', style: AppTextStyles.dialogTitle),
               ),
             ],
           ),
@@ -1392,31 +1391,23 @@ class _HomeState extends State<Home> {
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text(
+              Text(
                 'It looks like Developer Options are enabled on your device.',
-                style: TextStyle(
-                  fontSize: 15,
-                  fontWeight: FontWeight.w500,
-                  height: 1.4,
-                ),
+                style: AppTextStyles.bodyMedium,
               ),
 
               const SizedBox(height: 10),
 
               Text(
                 'For security purposes, please disable Developer Options before continuing.',
-                style: TextStyle(
-                  fontSize: 13,
-                  color: context.appSubText,
-                  height: 1.4,
-                ),
+                style: AppTextStyles.body.copyWith(color: context.appSubText),
               ),
 
               const SizedBox(height: 18),
 
-              const Text(
+              Text(
                 'Please follow these steps:',
-                style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+                style: AppTextStyles.labelLarge,
               ),
 
               const SizedBox(height: 12),
@@ -1470,10 +1461,7 @@ class _HomeState extends State<Home> {
                 ),
               ),
 
-              child: const Text(
-                'SETTINGS',
-                style: TextStyle(fontWeight: FontWeight.w600),
-              ),
+              child: Text('SETTINGS', style: AppTextStyles.button),
             ),
 
             ElevatedButton(
@@ -1494,10 +1482,7 @@ class _HomeState extends State<Home> {
                 ),
               ),
 
-              child: const Text(
-                'CONTINUE',
-                style: TextStyle(fontWeight: FontWeight.w600),
-              ),
+              child: Text('CONTINUE', style: AppTextStyles.button),
             ),
           ],
         );
@@ -1525,11 +1510,7 @@ class _HomeState extends State<Home> {
             ),
             child: Text(
               number,
-              style: TextStyle(
-                color: context.appOnPrimary,
-                fontWeight: FontWeight.bold,
-                fontSize: 13,
-              ),
+              style: AppTextStyles.label.copyWith(color: context.appOnPrimary),
             ),
           ),
 
@@ -1538,7 +1519,7 @@ class _HomeState extends State<Home> {
           Expanded(
             child: Padding(
               padding: const EdgeInsets.only(top: 4),
-              child: Text(text, style: TextStyle(fontSize: 13, height: 1.3)),
+              child: Text(text, style: AppTextStyles.body),
             ),
           ),
         ],

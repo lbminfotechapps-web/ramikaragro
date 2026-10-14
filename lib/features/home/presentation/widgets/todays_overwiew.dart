@@ -1,3 +1,4 @@
+import 'package:solufine/core/theme/typography/app_text_styles.dart';
 import 'package:solufine/core/theme/app_dynamic_colors.dart';
 import 'package:solufine/features/home/doman/home_entity/homevisit_entity.dart';
 import 'package:flutter/material.dart';
@@ -43,10 +44,8 @@ class VisitStatisticsTable extends StatelessWidget {
                           'Visited',
                           maxLines: 1,
                           softWrap: false,
-                          style: TextStyle(
+                          style: AppTextStyles.labelLarge.copyWith(
                             color: context.appOnPrimary,
-                            fontSize: 13.sp,
-                            fontWeight: FontWeight.w700,
                           ),
                         ),
 
@@ -55,10 +54,10 @@ class VisitStatisticsTable extends StatelessWidget {
                             homeData.currentMonth,
                             maxLines: 1,
                             softWrap: false,
-                            style: TextStyle(
-                              color: context.appOnPrimary.withValues(alpha: 0.7),
-                              fontSize: 10.sp,
-                              fontWeight: FontWeight.w500,
+                            style: AppTextStyles.helperText.copyWith(
+                              color: context.appOnPrimary.withValues(
+                                alpha: 0.7,
+                              ),
                             ),
                           ),
                       ],
@@ -72,7 +71,8 @@ class VisitStatisticsTable extends StatelessWidget {
             ),
 
             // Dealer
-            _visitRow(context,
+            _visitRow(
+              context,
               title: 'Dealer Visits',
               today: homeData.todayDealerCnt,
               monthAll: homeData.monthlyDealerCnt,
@@ -81,7 +81,8 @@ class VisitStatisticsTable extends StatelessWidget {
             ),
 
             // Farmer
-            _visitRow(context,
+            _visitRow(
+              context,
               title: 'Farmer Visits',
               today: homeData.todayFarmerCnt,
               monthAll: homeData.monthlyFarmerCnt,
@@ -102,16 +103,13 @@ class VisitStatisticsTable extends StatelessWidget {
         maxLines: 1,
         softWrap: false,
         textAlign: TextAlign.center,
-        style: TextStyle(
-          color: context.appOnPrimary,
-          fontSize: 11.sp,
-          fontWeight: FontWeight.w600,
-        ),
+        style: AppTextStyles.labelSmall.copyWith(color: context.appOnPrimary),
       ),
     );
   }
 
-  Widget _visitRow(BuildContext context, {
+  Widget _visitRow(
+    BuildContext context, {
     required String title,
     required String today,
     required String monthAll,
@@ -131,10 +129,8 @@ class VisitStatisticsTable extends StatelessWidget {
           Expanded(
             child: Text(
               title,
-              style: TextStyle(
+              style: AppTextStyles.buttonSmall.copyWith(
                 color: context.appOnCard,
-                fontSize: 12.sp,
-                fontWeight: FontWeight.w600,
               ),
             ),
           ),
@@ -150,11 +146,7 @@ class VisitStatisticsTable extends StatelessWidget {
     return Center(
       child: Text(
         value.isEmpty ? '0' : value,
-        style: TextStyle(
-          color: context.appPrimary,
-          fontSize: 15.sp,
-          fontWeight: FontWeight.w800,
-        ),
+        style: AppTextStyles.cardTitle.copyWith(color: context.appPrimary),
       ),
     );
   }

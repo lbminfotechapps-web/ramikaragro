@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'package:solufine/core/theme/theme_picker_sheet.dart';
-
+import 'package:solufine/core/theme/typography/app_typography_extension.dart';
 
 class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   final String? title;
@@ -75,9 +75,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
     // ==========================================================
 
     final Color effectiveBackground =
-        backgroundColor ??
-        appBarTheme.backgroundColor ??
-        colors.surface;
+        backgroundColor ?? appBarTheme.backgroundColor ?? colors.surface;
 
     final bool isDarkAppBar =
         ThemeData.estimateBrightnessForColor(effectiveBackground) ==
@@ -87,7 +85,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
     // If a custom background was provided, calculate contrast.
     final Color foreground = backgroundColor == null
         ? (appBarTheme.foregroundColor ??
-            (isDarkAppBar ? Colors.white : Colors.black))
+              (isDarkAppBar ? Colors.white : Colors.black))
         : (isDarkAppBar ? Colors.white : Colors.black);
 
     final Color primaryColor = colors.primary;
@@ -97,12 +95,10 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
     // ICON COLORS
     // ==========================================================
 
-    final Color iconBackground =
-        foreground.withValues(alpha: 0.12);
+    final Color iconBackground = foreground.withValues(alpha: 0.12);
 
     // Palette icon should contrast with the actual AppBar.
-    final Color paletteIconColor =
-        isDarkAppBar ? Colors.white : primaryColor;
+    final Color paletteIconColor = isDarkAppBar ? Colors.white : primaryColor;
 
     final Color paletteIconBackground = isDarkAppBar
         ? Colors.white.withValues(alpha: 0.16)
@@ -112,11 +108,9 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
     // PROFILE COLORS
     // ==========================================================
 
-    final Color profileBackground =
-        foreground.withValues(alpha: 0.12);
+    final Color profileBackground = foreground.withValues(alpha: 0.12);
 
-    final Color profileBorder =
-        foreground.withValues(alpha: 0.25);
+    final Color profileBorder = foreground.withValues(alpha: 0.25);
 
     // ==========================================================
     // LOGIN BUTTON COLORS
@@ -124,8 +118,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
 
     // If AppBar and primary are similar, use contrasting
     // palette foreground with a translucent background.
-    final bool primaryMatchesAppBar =
-        effectiveBackground == primaryColor;
+    final bool primaryMatchesAppBar = effectiveBackground == primaryColor;
 
     final Color loginBackground = primaryMatchesAppBar
         ? foreground.withValues(alpha: 0.15)
@@ -157,18 +150,15 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
           // ====================================================
           // LEADING / BACK BUTTON
           // ====================================================
-
           if (leading != null)
             leading!
           else if (showBackButton)
             IconButton(
               tooltip: 'Back',
               padding: EdgeInsets.zero,
-              constraints: const BoxConstraints(
-                minWidth: 36,
-                minHeight: 40,
-              ),
-              onPressed: onBackTap ??
+              constraints: const BoxConstraints(minWidth: 36, minHeight: 40),
+              onPressed:
+                  onBackTap ??
                   () {
                     Navigator.maybePop(context);
                   },
@@ -179,13 +169,11 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
               ),
             ),
 
-          if (leading != null || showBackButton)
-            const SizedBox(width: 8),
+          if (leading != null || showBackButton) const SizedBox(width: 8),
 
           // ====================================================
           // PROFILE INITIALS
           // ====================================================
-
           if (initials != null) ...[
             Container(
               width: 44,
@@ -193,19 +181,16 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
                 color: profileBackground,
-                border: Border.all(
-                  color: profileBorder,
-                ),
+                border: Border.all(color: profileBorder),
               ),
               alignment: Alignment.center,
               child: Text(
                 initials!,
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
-                style: TextStyle(
-                  fontSize: 17,
-                  fontWeight: FontWeight.w700,
+                style: context.appTextStyles.headingMedium.copyWith(
                   color: foreground,
+                  fontWeight: FontWeight.w700,
                 ),
               ),
             ),
@@ -215,7 +200,6 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
           // ====================================================
           // TITLE / SUBTITLE / USERNAME
           // ====================================================
-
           Expanded(
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -227,11 +211,9 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
                     title!,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
-                    style: TextStyle(
-                      fontSize: 17,
-                      fontWeight: FontWeight.w600,
-                      color: foreground,
-                    ).merge(titleStyle),
+                    style: context.appTextStyles.appBarTitle
+                        .copyWith(color: foreground)
+                        .merge(titleStyle),
                   ),
 
                 if (subtitle != null) ...[
@@ -240,11 +222,9 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
                     subtitle!,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
-                    style: TextStyle(
-                      fontSize: 11,
-                      fontWeight: FontWeight.w400,
-                      color: foreground.withValues(alpha: 0.80),
-                    ).merge(subtitleStyle),
+                    style: context.appTextStyles.appBarSubtitle
+                        .copyWith(color: foreground.withValues(alpha: 0.80))
+                        .merge(subtitleStyle),
                   ),
                 ],
 
@@ -253,11 +233,9 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
                     userName!,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
-                    style: TextStyle(
-                      fontSize: 17,
-                      fontWeight: FontWeight.w600,
-                      color: foreground,
-                    ).merge(titleStyle),
+                    style: context.appTextStyles.appBarTitle
+                        .copyWith(color: foreground)
+                        .merge(titleStyle),
                   ),
               ],
             ),
@@ -266,16 +244,11 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
           // ====================================================
           // CUSTOM ACTION WIDGET
           // ====================================================
-
-          if (action != null) ...[
-            const SizedBox(width: 4),
-            action!,
-          ],
+          if (action != null) ...[const SizedBox(width: 4), action!],
 
           // ====================================================
           // GENERIC ACTION ICON
           // ====================================================
-
           if (actionIcon != null && onActionIconTap != null) ...[
             const SizedBox(width: 4),
             _AppBarCircleButton(
@@ -290,7 +263,6 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
           // ====================================================
           // LOGIN BUTTON
           // ====================================================
-
           if (showLogin) ...[
             const SizedBox(width: 4),
             Material(
@@ -315,10 +287,8 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
                       const SizedBox(width: 4),
                       Text(
                         'Login',
-                        style: TextStyle(
+                        style: context.appTextStyles.buttonSmall.copyWith(
                           color: loginForeground,
-                          fontSize: 12,
-                          fontWeight: FontWeight.w600,
                         ),
                       ),
                     ],
@@ -331,7 +301,6 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
           // ====================================================
           // LOGOUT BUTTON
           // ====================================================
-
           if (showLogout) ...[
             const SizedBox(width: 4),
             _AppBarCircleButton(
@@ -346,7 +315,6 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
           // ====================================================
           // THEME CHANGE BUTTON
           // ====================================================
-
           if (showThemeButton) ...[
             const SizedBox(width: 4),
             _AppBarCircleButton(
@@ -397,21 +365,13 @@ class _AppBarCircleButton extends StatelessWidget {
           child: SizedBox(
             width: 38,
             height: 38,
-            child: Center(
-              child: Icon(
-                icon,
-                size: 20,
-                color: foregroundColor,
-              ),
-            ),
+            child: Center(child: Icon(icon, size: 20, color: foregroundColor)),
           ),
         ),
       ),
     );
   }
 }
-
-
 
 /*
 class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {

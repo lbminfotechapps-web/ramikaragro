@@ -1,3 +1,4 @@
+import 'package:solufine/core/theme/typography/app_text_styles.dart';
 import 'package:solufine/core/theme/app_dynamic_colors.dart';
 import 'package:solufine/features/home/doman/home_entity/homevisit_entity.dart';
 import 'package:flutter/material.dart';
@@ -10,7 +11,7 @@ class NotVisitedCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: EdgeInsets.symmetric(horizontal: 8.w,),
+      margin: EdgeInsets.symmetric(horizontal: 8.w),
       padding: EdgeInsets.all(10.w),
       decoration: BoxDecoration(
         color: context.appCard,
@@ -50,19 +51,15 @@ class NotVisitedCard extends StatelessWidget {
                 children: [
                   Text(
                     'Not Visited',
-                    style: TextStyle(
-                      fontSize: 15.sp,
-                      fontWeight: FontWeight.w700,
+                    style: AppTextStyles.cardTitle.copyWith(
                       color: context.appOnCard,
                     ),
                   ),
                   SizedBox(height: 2.h),
                   Text(
                     'In Last 30 Days',
-                    style: TextStyle(
-                      fontSize: 11.sp,
+                    style: AppTextStyles.caption.copyWith(
                       color: context.appSubText,
-                      fontWeight: FontWeight.w500,
                     ),
                   ),
                 ],
@@ -76,7 +73,8 @@ class NotVisitedCard extends StatelessWidget {
           Row(
             children: [
               Expanded(
-                child: _statItem(context,
+                child: _statItem(
+                  context,
                   icon: Icons.storefront_outlined,
                   title: 'Dealers',
                   value: homeData!.lastThirNotVisitDealer,
@@ -86,7 +84,8 @@ class NotVisitedCard extends StatelessWidget {
               SizedBox(width: 12.w),
 
               Expanded(
-                child: _statItem(context,
+                child: _statItem(
+                  context,
                   icon: Icons.agriculture_outlined,
                   title: 'Farmers',
                   value: homeData!.lastThirNotVisitFarmer,
@@ -99,7 +98,8 @@ class NotVisitedCard extends StatelessWidget {
     );
   }
 
-  Widget _statItem(BuildContext context, {
+  Widget _statItem(
+    BuildContext context, {
     required IconData icon,
     required String title,
     required String value,
@@ -129,18 +129,14 @@ class NotVisitedCard extends StatelessWidget {
               children: [
                 Text(
                   title,
-                  style: TextStyle(
-                    fontSize: 11.sp,
+                  style: AppTextStyles.caption.copyWith(
                     color: context.appSubText,
-                    fontWeight: FontWeight.w500,
                   ),
                 ),
                 SizedBox(height: 3.h),
                 Text(
                   value,
-                  style: TextStyle(
-                    fontSize: 20.sp,
-                    fontWeight: FontWeight.w800,
+                  style: AppTextStyles.headingLarge.copyWith(
                     color: context.appPrimary,
                   ),
                 ),
