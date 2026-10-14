@@ -1,3 +1,4 @@
+import 'package:solufine/core/theme/typography/app_text_styles.dart';
 import 'dart:io';
 
 import 'package:solufine/core/api_constant/api_client.dart';
@@ -12,18 +13,13 @@ import 'package:path_provider/path_provider.dart';
 class CropScheduleDetailCard extends StatefulWidget {
   final CropScheduleDetail detail;
 
-  const CropScheduleDetailCard({
-    super.key,
-    required this.detail,
-  });
+  const CropScheduleDetailCard({super.key, required this.detail});
 
   @override
-  State<CropScheduleDetailCard> createState() =>
-      _CropScheduleDetailCardState();
+  State<CropScheduleDetailCard> createState() => _CropScheduleDetailCardState();
 }
 
-class _CropScheduleDetailCardState
-    extends State<CropScheduleDetailCard> {
+class _CropScheduleDetailCardState extends State<CropScheduleDetailCard> {
   bool _isDownloading = false;
   double _downloadProgress = 0.0;
 
@@ -66,9 +62,7 @@ class _CropScheduleDetailCardState
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(
-          color: const Color(0xFFE5ECE7),
-        ),
+        border: Border.all(color: const Color(0xFFE5ECE7)),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withOpacity(0.04),
@@ -92,9 +86,7 @@ class _CropScheduleDetailCardState
                 const SizedBox(width: 14),
 
                 // Details
-                Expanded(
-                  child: _buildAttachmentInfo(),
-                ),
+                Expanded(child: _buildAttachmentInfo()),
 
                 const SizedBox(width: 8),
 
@@ -141,11 +133,7 @@ class _CropScheduleDetailCardState
         height: 70,
         fit: BoxFit.cover,
 
-        loadingBuilder: (
-          context,
-          child,
-          loadingProgress,
-        ) {
+        loadingBuilder: (context, child, loadingProgress) {
           if (loadingProgress == null) {
             return child;
           }
@@ -167,11 +155,7 @@ class _CropScheduleDetailCardState
           );
         },
 
-        errorBuilder: (
-          context,
-          error,
-          stackTrace,
-        ) {
+        errorBuilder: (context, error, stackTrace) {
           return Container(
             width: 70,
             height: 70,
@@ -197,25 +181,16 @@ class _CropScheduleDetailCardState
       children: [
         // Type badge
         Container(
-          padding: const EdgeInsets.symmetric(
-            horizontal: 9,
-            vertical: 5,
-          ),
+          padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 5),
           decoration: BoxDecoration(
-            color: isPdf
-                ? const Color(0xFFFFEBEE)
-                : const Color(0xFFE8F5E9),
+            color: isPdf ? const Color(0xFFFFEBEE) : const Color(0xFFE8F5E9),
             borderRadius: BorderRadius.circular(8),
           ),
           child: Text(
             isPdf ? 'PDF DOCUMENT' : 'IMAGE',
-            style: TextStyle(
-              fontSize: 10,
-              fontWeight: FontWeight.w800,
+            style: AppTextStyles.badge.copyWith(
               letterSpacing: 0.5,
-              color: isPdf
-                  ? const Color(0xFFC62828)
-                  : const Color(0xFF2E7D32),
+              color: isPdf ? const Color(0xFFC62828) : const Color(0xFF2E7D32),
             ),
           ),
         ),
@@ -227,11 +202,7 @@ class _CropScheduleDetailCardState
           imageName,
           maxLines: 2,
           overflow: TextOverflow.ellipsis,
-          style: const TextStyle(
-            fontSize: 14,
-            fontWeight: FontWeight.w700,
-            color: Color(0xFF263238),
-          ),
+          style: AppTextStyles.listTitle.copyWith(color: Color(0xFF263238)),
         ),
 
         const SizedBox(height: 5),
@@ -240,14 +211,10 @@ class _CropScheduleDetailCardState
         Text(
           isPdf
               ? (_isDownloading
-                  ? 'Downloading PDF...'
-                  : 'Tap to download / open')
+                    ? 'Downloading PDF...'
+                    : 'Tap to download / open')
               : 'Tap to view image',
-          style: const TextStyle(
-            fontSize: 12,
-            color: Color(0xFF78909C),
-            fontWeight: FontWeight.w500,
-          ),
+          style: AppTextStyles.bodySmall.copyWith(color: Color(0xFF78909C)),
         ),
 
         // Download progress
@@ -270,9 +237,7 @@ class _CropScheduleDetailCardState
         ClipRRect(
           borderRadius: BorderRadius.circular(10),
           child: LinearProgressIndicator(
-            value: _downloadProgress > 0
-                ? _downloadProgress
-                : null,
+            value: _downloadProgress > 0 ? _downloadProgress : null,
             minHeight: 5,
             backgroundColor: const Color(0xFFE8F0E9),
             color: const Color(0xFF2E7D32),
@@ -285,11 +250,7 @@ class _CropScheduleDetailCardState
           _downloadProgress > 0
               ? '${(_downloadProgress * 100).toStringAsFixed(0)}%'
               : 'Preparing download...',
-          style: const TextStyle(
-            fontSize: 10,
-            fontWeight: FontWeight.w600,
-            color: Color(0xFF2E7D32),
-          ),
+          style: AppTextStyles.badge.copyWith(color: Color(0xFF2E7D32)),
         ),
       ],
     );
@@ -322,18 +283,12 @@ class _CropScheduleDetailCardState
       width: 42,
       height: 42,
       decoration: BoxDecoration(
-        color: isPdf
-            ? const Color(0xFFFFEBEE)
-            : const Color(0xFFE8F5E9),
+        color: isPdf ? const Color(0xFFFFEBEE) : const Color(0xFFE8F5E9),
         borderRadius: BorderRadius.circular(14),
       ),
       child: Icon(
-        isPdf
-            ? Icons.download_rounded
-            : Icons.open_in_full_rounded,
-        color: isPdf
-            ? const Color(0xFFD32F2F)
-            : const Color(0xFF2E7D32),
+        isPdf ? Icons.download_rounded : Icons.open_in_full_rounded,
+        color: isPdf ? const Color(0xFFD32F2F) : const Color(0xFF2E7D32),
         size: 21,
       ),
     );
@@ -361,20 +316,14 @@ class _CropScheduleDetailCardState
 
   Future<void> _openImage() async {
     if (fileUrl.isEmpty) {
-      _showMessage(
-        'Image URL not available',
-        isError: true,
-      );
+      _showMessage('Image URL not available', isError: true);
       return;
     }
 
     await Navigator.of(context).push(
       MaterialPageRoute(
         builder: (_) {
-          return FullScreenImagePage(
-            imageUrl: fileUrl,
-            title: imageName,
-          );
+          return FullScreenImagePage(imageUrl: fileUrl, title: imageName);
         },
       ),
     );
@@ -416,10 +365,7 @@ class _CropScheduleDetailCardState
         _downloadProgress = 0.0;
       });
 
-      _showMessage(
-        'Unable to open PDF',
-        isError: true,
-      );
+      _showMessage('Unable to open PDF', isError: true);
     }
   }
 
@@ -428,14 +374,11 @@ class _CropScheduleDetailCardState
   // ===========================================================================
 
   Future<File> _getPdfFile() async {
-    final directory =
-        await getApplicationDocumentsDirectory();
+    final directory = await getApplicationDocumentsDirectory();
 
     final safeFileName = _getSafeFileName(imageName);
 
-    return File(
-      '${directory.path}/$safeFileName',
-    );
+    return File('${directory.path}/$safeFileName');
   }
 
   // ===========================================================================
@@ -453,21 +396,15 @@ class _CropScheduleDetailCardState
     });
 
     try {
-      final request = http.Request(
-        'GET',
-        Uri.parse(fileUrl),
-      );
+      final request = http.Request('GET', Uri.parse(fileUrl));
 
       final response = await request.send();
 
       if (response.statusCode != 200) {
-        throw Exception(
-          'PDF download failed: ${response.statusCode}',
-        );
+        throw Exception('PDF download failed: ${response.statusCode}');
       }
 
-      final contentLength =
-          response.contentLength ?? 0;
+      final contentLength = response.contentLength ?? 0;
 
       final List<int> bytes = [];
 
@@ -480,22 +417,16 @@ class _CropScheduleDetailCardState
 
         if (mounted && contentLength > 0) {
           setState(() {
-            _downloadProgress =
-                receivedBytes / contentLength;
+            _downloadProgress = receivedBytes / contentLength;
           });
         }
       }
 
       if (bytes.isEmpty) {
-        throw Exception(
-          'Downloaded PDF is empty',
-        );
+        throw Exception('Downloaded PDF is empty');
       }
 
-      await file.writeAsBytes(
-        bytes,
-        flush: true,
-      );
+      await file.writeAsBytes(bytes, flush: true);
 
       if (!mounted) {
         return;
@@ -506,14 +437,10 @@ class _CropScheduleDetailCardState
         _downloadProgress = 1.0;
       });
 
-      _showMessage(
-        'PDF downloaded successfully',
-      );
+      _showMessage('PDF downloaded successfully');
 
       // Open PDF automatically after download.
-      await Future.delayed(
-        const Duration(milliseconds: 300),
-      );
+      await Future.delayed(const Duration(milliseconds: 300));
 
       if (mounted) {
         await _openPdfFile(file);
@@ -528,10 +455,7 @@ class _CropScheduleDetailCardState
         _downloadProgress = 0.0;
       });
 
-      _showMessage(
-        'PDF download failed',
-        isError: true,
-      );
+      _showMessage('PDF download failed', isError: true);
     }
   }
 
@@ -541,27 +465,18 @@ class _CropScheduleDetailCardState
 
   Future<void> _openPdfFile(File file) async {
     if (!await file.exists()) {
-      _showMessage(
-        'PDF file not found',
-        isError: true,
-      );
+      _showMessage('PDF file not found', isError: true);
       return;
     }
 
-    final result = await OpenFilex.open(
-      file.path,
-      type: 'application/pdf',
-    );
+    final result = await OpenFilex.open(file.path, type: 'application/pdf');
 
     if (!mounted) {
       return;
     }
 
     if (result.type != ResultType.done) {
-      _showMessage(
-        'No PDF viewer available on this device',
-        isError: true,
-      );
+      _showMessage('No PDF viewer available on this device', isError: true);
     }
   }
 
@@ -576,10 +491,7 @@ class _CropScheduleDetailCardState
       name = 'crop_schedule.pdf';
     }
 
-    name = name.replaceAll(
-      RegExp(r'[\\/:*?"<>|]'),
-      '_',
-    );
+    name = name.replaceAll(RegExp(r'[\\/:*?"<>|]'), '_');
 
     if (!name.toLowerCase().endsWith('.pdf')) {
       name = '$name.pdf';
@@ -592,10 +504,7 @@ class _CropScheduleDetailCardState
   // SNACKBAR
   // ===========================================================================
 
-  void _showMessage(
-    String message, {
-    bool isError = false,
-  }) {
+  void _showMessage(String message, {bool isError = false}) {
     if (!mounted) {
       return;
     }
@@ -614,14 +523,7 @@ class _CropScheduleDetailCardState
                 size: 20,
               ),
               const SizedBox(width: 10),
-              Expanded(
-                child: Text(
-                  message,
-                  style: const TextStyle(
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-              ),
+              Expanded(child: Text(message, style: AppTextStyles.bodyMedium)),
             ],
           ),
           behavior: SnackBarBehavior.floating,
@@ -663,11 +565,7 @@ class FullScreenImagePage extends StatelessWidget {
           title,
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
-          style: const TextStyle(
-            color: Colors.white,
-            fontSize: 15,
-            fontWeight: FontWeight.w600,
-          ),
+          style: AppTextStyles.cardTitle.copyWith(color: Colors.white),
         ),
       ),
       body: SafeArea(
@@ -680,27 +578,17 @@ class FullScreenImagePage extends StatelessWidget {
             child: Image.network(
               imageUrl,
               fit: BoxFit.contain,
-              loadingBuilder: (
-                context,
-                child,
-                loadingProgress,
-              ) {
+              loadingBuilder: (context, child, loadingProgress) {
                 if (loadingProgress == null) {
                   return child;
                 }
 
                 return const Center(
-                  child: CircularProgressIndicator(
-                    color: Colors.white,
-                  ),
+                  child: CircularProgressIndicator(color: Colors.white),
                 );
               },
-              errorBuilder: (
-                context,
-                error,
-                stackTrace,
-              ) {
-                return const Center(
+              errorBuilder: (context, error, stackTrace) {
+                return Center(
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
@@ -712,9 +600,8 @@ class FullScreenImagePage extends StatelessWidget {
                       SizedBox(height: 12),
                       Text(
                         'Unable to load image',
-                        style: TextStyle(
+                        style: AppTextStyles.body.copyWith(
                           color: Colors.white70,
-                          fontSize: 14,
                         ),
                       ),
                     ],

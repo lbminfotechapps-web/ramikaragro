@@ -6,6 +6,7 @@ import 'package:solufine/core/api_constant/api_client.dart';
 import 'package:solufine/core/router/app_router.dart';
 import 'package:solufine/core/secure_storage/secure_storage.dart';
 import 'package:solufine/core/theme/app_dynamic_colors.dart';
+import 'package:solufine/core/theme/typography/app_text_styles.dart';
 
 import 'package:solufine/core/utility/widgets/custom_appbar.dart';
 import 'package:solufine/core/utility/widgets/custom_loader.dart';
@@ -158,9 +159,7 @@ class _FarmerlistScreenState extends State<FarmerlistScreen> {
       // backgroundColor: Colors.white,
       appBar: CustomAppBar(
         title: 'Farmer List',
-        titleStyle: TextStyle(
-          fontSize: 20,
-          fontWeight: FontWeight.w700,
+        titleStyle: AppTextStyles.appBarTitle.copyWith(
           color: Theme.of(context).appBarTheme.foregroundColor,
         ),
         showBackButton: true,
@@ -189,7 +188,7 @@ class _FarmerlistScreenState extends State<FarmerlistScreen> {
                     Text(
                       state.errorMessage ?? 'Something went wrong',
                       textAlign: TextAlign.center,
-                      style: TextStyle(fontSize: 14),
+                      style: AppTextStyles.body,
                     ),
                     const SizedBox(height: 16),
                     ElevatedButton(
@@ -200,7 +199,7 @@ class _FarmerlistScreenState extends State<FarmerlistScreen> {
                         backgroundColor: primaryColor,
                         foregroundColor: context.appOnPrimary,
                       ),
-                      child: Text('Retry'),
+                      child: Text('Retry', style: AppTextStyles.button),
                     ),
                   ],
                 ),
@@ -230,6 +229,7 @@ class _FarmerlistScreenState extends State<FarmerlistScreen> {
                             child: _FarmerSearchAnimation(
                               controller: _searchController,
                               builder: (context, index) => TextField(
+                                style: AppTextStyles.input,
                                 controller: _searchController,
                                 textInputAction: TextInputAction.search,
 
@@ -266,14 +266,12 @@ class _FarmerlistScreenState extends State<FarmerlistScreen> {
                                       key: ValueKey(index),
                                       maxLines: 1,
                                       overflow: TextOverflow.ellipsis,
-                                      style: TextStyle(
-                                        fontSize: 13,
+                                      style: AppTextStyles.inputHint.copyWith(
                                         color: context.appSubText,
                                       ),
                                     ),
                                   ),
-                                  hintStyle: TextStyle(
-                                    fontSize: 13,
+                                  hintStyle: AppTextStyles.inputHint.copyWith(
                                     color: context.appSubText,
                                   ),
 
@@ -357,10 +355,8 @@ class _FarmerlistScreenState extends State<FarmerlistScreen> {
                             padding: EdgeInsets.only(left: 6),
                             child: Text(
                               'Search after 3 characters. After searching wait for 2 sec..!',
-                              style: TextStyle(
-                                fontSize: 10,
+                              style: AppTextStyles.helperText.copyWith(
                                 color: context.appError,
-                                fontWeight: FontWeight.w500,
                               ),
                             ),
                           ),
@@ -400,16 +396,16 @@ class _FarmerlistScreenState extends State<FarmerlistScreen> {
                     const SizedBox(width: 6),
                     Text(
                       'Farmers',
-                      style: TextStyle(
-                        fontSize: 13,
-                        fontWeight: FontWeight.w600,
+                      style: AppTextStyles.label.copyWith(
                         color: context.appSubText,
                       ),
                     ),
                     const Spacer(),
                     Text(
                       '${state.farmerList.length} Records',
-                      style: TextStyle(fontSize: 12, color: context.appSubText),
+                      style: AppTextStyles.bodySmall.copyWith(
+                        color: context.appSubText,
+                      ),
                     ),
                   ],
                 ),
@@ -430,9 +426,7 @@ class _FarmerlistScreenState extends State<FarmerlistScreen> {
                             Center(
                               child: Text(
                                 'NO RECORDS FOUND',
-                                style: TextStyle(
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.w600,
+                                style: AppTextStyles.labelLarge.copyWith(
                                   color: context.appSubText,
                                 ),
                               ),
@@ -489,7 +483,7 @@ class _FarmerlistScreenState extends State<FarmerlistScreen> {
           );
         },
         icon: Icon(Icons.add_rounded),
-        label: Text('Add farmer'),
+        label: Text('Add farmer', style: AppTextStyles.button),
       ),
     );
   }
@@ -547,9 +541,7 @@ class _FarmerListItem extends StatelessWidget {
                   children: [
                     Text(
                       name.isEmpty ? 'Unknown farmer' : name,
-                      style: TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w700,
+                      style: AppTextStyles.listTitle.copyWith(
                         color: context.appOnCard,
                       ),
                     ),
@@ -564,8 +556,7 @@ class _FarmerListItem extends StatelessWidget {
                         SizedBox(width: 4),
                         Text(
                           'Farmer',
-                          style: TextStyle(
-                            fontSize: 11,
+                          style: AppTextStyles.caption.copyWith(
                             color: context.appSubText,
                           ),
                         ),
@@ -658,10 +649,7 @@ class _FarmerListItem extends StatelessWidget {
                       horizontal: 8,
                       vertical: 8,
                     ),
-                    textStyle: TextStyle(
-                      fontSize: 12,
-                      fontWeight: FontWeight.w600,
-                    ),
+                    textStyle: AppTextStyles.buttonSmall,
                     shape: shape,
                   ),
                 ),
@@ -687,10 +675,7 @@ class _FarmerListItem extends StatelessWidget {
                       horizontal: 8,
                       vertical: 8,
                     ),
-                    textStyle: TextStyle(
-                      fontSize: 12,
-                      fontWeight: FontWeight.w600,
-                    ),
+                    textStyle: AppTextStyles.buttonSmall,
                     shape: shape,
                   ),
                 ),
@@ -757,15 +742,15 @@ class _FarmerDetail extends StatelessWidget {
               children: [
                 Text(
                   label,
-                  style: TextStyle(fontSize: 9, color: context.appSubText),
+                  style: AppTextStyles.labelSmall.copyWith(
+                    color: context.appSubText,
+                  ),
                 ),
                 const SizedBox(height: 2),
                 Text(
                   text,
-                  style: TextStyle(
-                    fontSize: 12,
+                  style: AppTextStyles.buttonSmall.copyWith(
                     height: 1.25,
-                    fontWeight: FontWeight.w600,
                     color: onTap != null
                         ? context.appPrimary
                         : context.appOnCard,
@@ -825,21 +810,23 @@ class _ActivityInfo extends StatelessWidget {
               children: [
                 Text(
                   title,
-                  style: TextStyle(fontSize: 9, color: context.appSubText),
+                  style: AppTextStyles.labelSmall.copyWith(
+                    color: context.appSubText,
+                  ),
                 ),
                 const SizedBox(height: 3),
                 Text(
                   value,
-                  style: TextStyle(
-                    fontSize: 10,
-                    fontWeight: FontWeight.w500,
+                  style: AppTextStyles.helperText.copyWith(
                     color: context.appOnCard,
                   ),
                 ),
                 if (time != null)
                   Text(
                     time,
-                    style: TextStyle(fontSize: 10, color: context.appSubText),
+                    style: AppTextStyles.helperText.copyWith(
+                      color: context.appSubText,
+                    ),
                   ),
               ],
             ),
@@ -879,9 +866,7 @@ class _FilterChip extends StatelessWidget {
         ),
         child: Text(
           label,
-          style: TextStyle(
-            fontSize: 12,
-            fontWeight: FontWeight.w600,
+          style: AppTextStyles.buttonSmall.copyWith(
             color: selected ? context.appOnPrimary : context.appSubText,
           ),
         ),

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:solufine/core/theme/typography/app_text_styles.dart';
 
 class FilterWidget extends StatelessWidget {
   final String title;
@@ -24,9 +25,8 @@ class FilterWidget extends StatelessWidget {
         ),
         child: Text(
           title,
-          style: TextStyle(
+          style: AppTextStyles.chip.copyWith(
             color: isSelected ? Colors.white : Colors.black,
-            fontWeight: FontWeight.bold,
           ),
         ),
       ),

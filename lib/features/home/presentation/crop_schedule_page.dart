@@ -1,5 +1,6 @@
 import 'package:solufine/core/router/app_router.dart';
 import 'package:solufine/core/theme/app_theme_context.dart';
+import 'package:solufine/core/theme/typography/app_typography_extension.dart';
 import 'package:solufine/core/utility/widgets/custom_appbar.dart';
 import 'package:solufine/core/utility/widgets/custom_loader.dart';
 import 'package:solufine/features/home/presentation/home_bloc/crop_schedule_bloc.dart';
@@ -41,7 +42,9 @@ class CropScheduleView extends StatelessWidget {
       appBar: CustomAppBar(
         title: 'Crop Schedule',
         backgroundColor: context.primaryColor,
-        titleStyle: TextStyle(color: context.onPrimaryColor),
+        titleStyle: context.appTextStyles.appBarTitle.copyWith(
+          color: context.onPrimaryColor,
+        ),
         leading: IconButton(
           icon: Icon(
             Icons.arrow_back_ios_new_rounded,
@@ -166,10 +169,8 @@ class _SummaryHeader extends StatelessWidget {
               children: [
                 Text(
                   'Crop Planning',
-                  style: TextStyle(
+                  style: context.appTextStyles.sectionTitle.copyWith(
                     color: context.onPrimaryColor,
-                    fontSize: 18,
-                    fontWeight: FontWeight.w700,
                   ),
                 ),
                 const SizedBox(height: 5),
@@ -177,9 +178,8 @@ class _SummaryHeader extends StatelessWidget {
                   count == 1
                       ? '1 crop schedule available'
                       : '$count crop schedules available',
-                  style: TextStyle(
+                  style: context.appTextStyles.cardSubtitle.copyWith(
                     color: context.onPrimaryColor.withValues(alpha: 0.7),
-                    fontSize: 13,
                   ),
                 ),
               ],
@@ -195,10 +195,8 @@ class _SummaryHeader extends StatelessWidget {
             ),
             child: Text(
               '$count',
-              style: TextStyle(
+              style: context.appTextStyles.cardValue.copyWith(
                 color: context.primaryColor,
-                fontSize: 22,
-                fontWeight: FontWeight.w800,
               ),
             ),
           ),
@@ -287,9 +285,7 @@ class _ErrorView extends StatelessWidget {
             Text(
               'Unable to load schedules',
               textAlign: TextAlign.center,
-              style: TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.w700,
+              style: context.appTextStyles.headingLarge.copyWith(
                 color: context.primaryTextColor,
               ),
             ),
@@ -299,10 +295,8 @@ class _ErrorView extends StatelessWidget {
             Text(
               message,
               textAlign: TextAlign.center,
-              style: TextStyle(
+              style: context.appTextStyles.body.copyWith(
                 color: context.secondaryTextColor,
-                fontSize: 14,
-                height: 1.5,
               ),
             ),
 
@@ -326,10 +320,7 @@ class _ErrorView extends StatelessWidget {
                 ),
               ),
               icon: const Icon(Icons.refresh_rounded),
-              label: const Text(
-                'Try Again',
-                style: TextStyle(fontWeight: FontWeight.w600),
-              ),
+              label: Text('Try Again', style: context.appTextStyles.button),
             ),
           ],
         ),
@@ -378,9 +369,7 @@ class _EmptyView extends StatelessWidget {
           Center(
             child: Text(
               'No Crop Schedule',
-              style: TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.w700,
+              style: context.appTextStyles.headingLarge.copyWith(
                 color: context.primaryTextColor,
               ),
             ),
@@ -394,10 +383,8 @@ class _EmptyView extends StatelessWidget {
               child: Text(
                 'There are currently no crop schedules available.',
                 textAlign: TextAlign.center,
-                style: TextStyle(
-                  fontSize: 14,
+                style: context.appTextStyles.body.copyWith(
                   color: context.secondaryTextColor,
-                  height: 1.5,
                 ),
               ),
             ),

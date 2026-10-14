@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:solufine/core/theme/app_dynamic_colors.dart';
+import 'package:solufine/core/theme/typography/app_text_styles.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil_plus/flutter_screenutil_plus.dart';
 import 'package:go_router/go_router.dart';
@@ -384,9 +385,11 @@ class _PunchOutScreenState extends State<PunchOutScreen> {
         return;
       }
 
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(const SnackBar(content: Text('Failed to capture image')));
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Failed to capture image', style: AppTextStyles.body),
+        ),
+      );
     }
   }
 
@@ -447,9 +450,11 @@ class _PunchOutScreenState extends State<PunchOutScreen> {
         return;
       }
 
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(const SnackBar(content: Text('Vehicle type not found')));
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Vehicle type not found', style: AppTextStyles.body),
+        ),
+      );
 
       return;
     }
@@ -464,7 +469,12 @@ class _PunchOutScreenState extends State<PunchOutScreen> {
       }
 
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('User information not found')),
+        SnackBar(
+          content: Text(
+            'User information not found',
+            style: AppTextStyles.body,
+          ),
+        ),
       );
 
       return;
@@ -597,9 +607,9 @@ class _PunchOutScreenState extends State<PunchOutScreen> {
         _submissionSent = false;
       });
 
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text(e.toString())));
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(e.toString(), style: AppTextStyles.body)),
+      );
     }
   }
 
@@ -1019,12 +1029,8 @@ class _PunchOutScreenState extends State<PunchOutScreen> {
                     Text(
                       'End your trip',
 
-                      style: TextStyle(
+                      style: AppTextStyles.cardTitle.copyWith(
                         color: context.appOnPrimary,
-
-                        fontSize: 16.sp,
-
-                        fontWeight: FontWeight.w700,
                       ),
                     ),
 
@@ -1037,10 +1043,8 @@ class _PunchOutScreenState extends State<PunchOutScreen> {
 
                       overflow: TextOverflow.ellipsis,
 
-                      style: TextStyle(
+                      style: AppTextStyles.caption.copyWith(
                         color: context.appOnPrimary.withValues(alpha: 0.80),
-
-                        fontSize: 10.5.sp,
                       ),
                     ),
                   ],
@@ -1079,12 +1083,8 @@ class _PunchOutScreenState extends State<PunchOutScreen> {
                     Text(
                       'OUT',
 
-                      style: TextStyle(
+                      style: AppTextStyles.badge.copyWith(
                         color: context.appOnPrimary,
-
-                        fontSize: 9.sp,
-
-                        fontWeight: FontWeight.w700,
                       ),
                     ),
                   ],
@@ -1137,12 +1137,8 @@ class _PunchOutScreenState extends State<PunchOutScreen> {
               Text(
                 title,
 
-                style: TextStyle(
+                style: AppTextStyles.cardTitle.copyWith(
                   color: context.appOnCard,
-
-                  fontSize: 13.sp,
-
-                  fontWeight: FontWeight.w700,
                 ),
               ),
 
@@ -1155,7 +1151,9 @@ class _PunchOutScreenState extends State<PunchOutScreen> {
 
                 overflow: TextOverflow.ellipsis,
 
-                style: TextStyle(color: context.appSubText, fontSize: 9.5.sp),
+                style: AppTextStyles.caption.copyWith(
+                  color: context.appSubText,
+                ),
               ),
             ],
           ),
@@ -1388,12 +1386,8 @@ class _PunchOutScreenState extends State<PunchOutScreen> {
                 Text(
                   'Capture Closing Photo',
 
-                  style: TextStyle(
+                  style: AppTextStyles.listTitle.copyWith(
                     color: context.appOnCard,
-
-                    fontSize: 12.5.sp,
-
-                    fontWeight: FontWeight.w700,
                   ),
                 ),
 
@@ -1402,7 +1396,9 @@ class _PunchOutScreenState extends State<PunchOutScreen> {
                 Text(
                   'Tap to open camera',
 
-                  style: TextStyle(color: context.appSubText, fontSize: 10.sp),
+                  style: AppTextStyles.helperText.copyWith(
+                    color: context.appSubText,
+                  ),
                 ),
 
                 SizedBox(height: 5.h),
@@ -1422,12 +1418,8 @@ class _PunchOutScreenState extends State<PunchOutScreen> {
                   child: Text(
                     'OPEN CAMERA',
 
-                    style: TextStyle(
+                    style: AppTextStyles.badge.copyWith(
                       color: context.appPrimary,
-
-                      fontSize: 8.5.sp,
-
-                      fontWeight: FontWeight.w700,
                     ),
                   ),
                 ),
@@ -1496,13 +1488,7 @@ class _PunchOutScreenState extends State<PunchOutScreen> {
                     Text(
                       'Photo Added',
 
-                      style: TextStyle(
-                        color: Colors.white,
-
-                        fontSize: 9.sp,
-
-                        fontWeight: FontWeight.w600,
-                      ),
+                      style: AppTextStyles.badge.copyWith(color: Colors.white),
                     ),
                   ],
                 ),
@@ -1591,12 +1577,8 @@ class _PunchOutScreenState extends State<PunchOutScreen> {
                 Text(
                   'Retake Photo',
 
-                  style: TextStyle(
+                  style: AppTextStyles.labelSmall.copyWith(
                     color: context.appPrimary,
-
-                    fontSize: 10.5.sp,
-
-                    fontWeight: FontWeight.w700,
                   ),
                 ),
               ],
@@ -1644,13 +1626,7 @@ class _PunchOutScreenState extends State<PunchOutScreen> {
             child: Text(
               message,
 
-              style: TextStyle(
-                color: context.appError,
-
-                fontSize: 10.sp,
-
-                fontWeight: FontWeight.w500,
-              ),
+              style: AppTextStyles.helperText.copyWith(color: context.appError),
             ),
           ),
         ],
@@ -1755,11 +1731,7 @@ class _PunchOutScreenState extends State<PunchOutScreen> {
                       Text(
                         'PUNCH OUT',
 
-                        style: TextStyle(
-                          fontSize: 12.5.sp,
-
-                          fontWeight: FontWeight.w700,
-
+                        style: AppTextStyles.buttonSmall.copyWith(
                           letterSpacing: 0.3,
                         ),
                       ),

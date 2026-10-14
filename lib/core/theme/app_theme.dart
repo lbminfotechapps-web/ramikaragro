@@ -3,6 +3,7 @@ import 'package:flutter_screenutil_plus/flutter_screenutil_plus.dart';
 import 'package:solufine/core/theme/app_theme_colors.dart';
 import 'package:solufine/core/theme/app_theme_extension.dart';
 import 'package:solufine/core/theme/app_theme_palette.dart';
+import 'package:solufine/core/theme/typography/app_text_styles.dart';
 
 class AppColor {
   AppColor._();
@@ -73,11 +74,11 @@ class AppColor {
       dividerColor: palette.border,
       disabledColor: palette.textSecondary.withValues(alpha: 0.5),
 
-  textSelectionTheme: TextSelectionThemeData(
-  cursorColor: palette.primary,
-  selectionColor: palette.primary.withValues(alpha: 0.25),
-  selectionHandleColor: palette.primary,
-),
+      textSelectionTheme: TextSelectionThemeData(
+        cursorColor: palette.primary,
+        selectionColor: palette.primary.withValues(alpha: 0.25),
+        selectionHandleColor: palette.primary,
+      ),
       appBarTheme: AppBarTheme(
         backgroundColor: palette.appBarBackground,
         foregroundColor: palette.appBarForeground,
@@ -85,10 +86,8 @@ class AppColor {
         elevation: 0,
         iconTheme: IconThemeData(color: palette.appBarForeground),
         actionsIconTheme: IconThemeData(color: palette.appBarForeground),
-        titleTextStyle: TextStyle(
+        titleTextStyle: AppTextStyles.appBarTitle.copyWith(
           color: palette.appBarForeground,
-          fontSize: 18,
-          fontWeight: FontWeight.w600,
         ),
       ),
 
@@ -110,38 +109,50 @@ class AppColor {
       // ========================================================
       // ELEVATED BUTTONS
       // ========================================================
-      elevatedButtonTheme: ElevatedButtonThemeData(
-        style: ElevatedButton.styleFrom(
-          backgroundColor: palette.primary,
-          foregroundColor: palette.onPrimary,
-          disabledBackgroundColor: palette.primary.withValues(alpha: 0.35),
-          disabledForegroundColor: palette.onPrimary.withValues(alpha: 0.7),
-          elevation: 2,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(8.r),
-          ),
-        ),
-      ),
+     elevatedButtonTheme: ElevatedButtonThemeData(
+  style: ElevatedButton.styleFrom(
+    backgroundColor: palette.primary,
+    foregroundColor: palette.onPrimary,
+
+    textStyle: AppTextStyles.button,
+
+    disabledBackgroundColor:
+        palette.primary.withValues(alpha: 0.35),
+
+    disabledForegroundColor:
+        palette.onPrimary.withValues(alpha: 0.7),
+
+    elevation: 2,
+
+    shape: RoundedRectangleBorder(
+      borderRadius: BorderRadius.circular(8.r),
+    ),
+  ),
+),
 
       // ========================================================
       // TEXT BUTTONS
       // ========================================================
       textButtonTheme: TextButtonThemeData(
-        style: TextButton.styleFrom(foregroundColor: palette.primary),
-      ),
+  style: TextButton.styleFrom(
+    foregroundColor: palette.primary,
+    textStyle: AppTextStyles.button,
+  ),
+),
 
       // ========================================================
       // OUTLINED BUTTONS
       // ========================================================
-      outlinedButtonTheme: OutlinedButtonThemeData(
-        style: OutlinedButton.styleFrom(
-          foregroundColor: palette.primary,
-          side: BorderSide(color: palette.primary),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(8.r),
-          ),
-        ),
-      ),
+ outlinedButtonTheme: OutlinedButtonThemeData(
+  style: OutlinedButton.styleFrom(
+    foregroundColor: palette.primary,
+    textStyle: AppTextStyles.button,
+    side: BorderSide(color: palette.primary),
+    shape: RoundedRectangleBorder(
+      borderRadius: BorderRadius.circular(8.r),
+    ),
+  ),
+),
 
       // ========================================================
       // FLOATING ACTION BUTTON
@@ -158,11 +169,21 @@ class AppColor {
         filled: true,
         fillColor: palette.inputBackground,
 
-        hintStyle: TextStyle(color: palette.textSecondary),
+  hintStyle: AppTextStyles.inputHint.copyWith(
+  color: palette.textSecondary,
+),
 
-        labelStyle: TextStyle(color: palette.textSecondary),
+      labelStyle: AppTextStyles.inputLabel.copyWith(
+  color: palette.textSecondary,
+),
 
-        floatingLabelStyle: TextStyle(color: palette.primary),
+      floatingLabelStyle: AppTextStyles.inputLabel.copyWith(
+  color: palette.primary,
+),
+
+errorStyle: AppTextStyles.inputError.copyWith(
+  color: colorScheme.error,
+),
 
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(8.r),
@@ -193,44 +214,79 @@ class AppColor {
       // ========================================================
       // TEXT THEME
       // ========================================================
+
+      // ========================================================
+      // GLOBAL TYPOGRAPHY
+      // ========================================================
       textTheme: TextTheme(
-        displayLarge: TextStyle(color: palette.textPrimary),
-        displayMedium: TextStyle(color: palette.textPrimary),
-        displaySmall: TextStyle(color: palette.textPrimary),
-
-        headlineLarge: TextStyle(
+        // ======================================================
+        // DISPLAY STYLES
+        // ======================================================
+        displayLarge: AppTextStyles.displayLarge.copyWith(
           color: palette.textPrimary,
-          fontWeight: FontWeight.bold,
-        ),
-        headlineMedium: TextStyle(
-          color: palette.textPrimary,
-          fontWeight: FontWeight.bold,
-        ),
-        headlineSmall: TextStyle(
-          color: palette.textPrimary,
-          fontWeight: FontWeight.bold,
         ),
 
-        titleLarge: TextStyle(
+        displayMedium: AppTextStyles.displayMedium.copyWith(
           color: palette.textPrimary,
-          fontWeight: FontWeight.w600,
-        ),
-        titleMedium: TextStyle(
-          color: palette.textPrimary,
-          fontWeight: FontWeight.w600,
-        ),
-        titleSmall: TextStyle(
-          color: palette.textPrimary,
-          fontWeight: FontWeight.w600,
         ),
 
-        bodyLarge: TextStyle(color: palette.textPrimary),
-        bodyMedium: TextStyle(color: palette.textPrimary),
-        bodySmall: TextStyle(color: palette.textSecondary),
+        displaySmall: AppTextStyles.displaySmall.copyWith(
+          color: palette.textPrimary,
+        ),
 
-        labelLarge: TextStyle(color: palette.textPrimary),
-        labelMedium: TextStyle(color: palette.textPrimary),
-        labelSmall: TextStyle(color: palette.textSecondary),
+        // ======================================================
+        // HEADINGS
+        // ======================================================
+        headlineLarge: AppTextStyles.headingLarge.copyWith(
+          color: palette.textPrimary,
+        ),
+
+        headlineMedium: AppTextStyles.headingMedium.copyWith(
+          color: palette.textPrimary,
+        ),
+
+        headlineSmall: AppTextStyles.headingSmall.copyWith(
+          color: palette.textPrimary,
+        ),
+
+        // ======================================================
+        // TITLES
+        // ======================================================
+        titleLarge: AppTextStyles.pageTitle.copyWith(
+          color: palette.textPrimary,
+        ),
+
+        titleMedium: AppTextStyles.sectionTitle.copyWith(
+          color: palette.textPrimary,
+        ),
+
+        titleSmall: AppTextStyles.cardTitle.copyWith(
+          color: palette.textPrimary,
+        ),
+
+        // ======================================================
+        // BODY TEXT
+        // ======================================================
+        bodyLarge: AppTextStyles.bodyLarge.copyWith(color: palette.textPrimary),
+
+        bodyMedium: AppTextStyles.body.copyWith(color: palette.textPrimary),
+
+        bodySmall: AppTextStyles.bodySmall.copyWith(
+          color: palette.textSecondary,
+        ),
+
+        // ======================================================
+        // LABELS
+        // ======================================================
+        labelLarge: AppTextStyles.labelLarge.copyWith(
+          color: palette.textPrimary,
+        ),
+
+        labelMedium: AppTextStyles.label.copyWith(color: palette.textPrimary),
+
+        labelSmall: AppTextStyles.labelSmall.copyWith(
+          color: palette.textSecondary,
+        ),
       ),
 
       // ========================================================
@@ -301,15 +357,17 @@ class AppColor {
       // ========================================================
       // DIALOGS AND BOTTOM SHEETS
       // ========================================================
-      dialogTheme: DialogThemeData(
-        backgroundColor: palette.surface,
-        titleTextStyle: TextStyle(
-          color: palette.textPrimary,
-          fontSize: 18,
-          fontWeight: FontWeight.w600,
-        ),
-        contentTextStyle: TextStyle(color: palette.textPrimary, fontSize: 14),
-      ),
+    dialogTheme: DialogThemeData(
+  backgroundColor: palette.surface,
+
+  titleTextStyle: AppTextStyles.dialogTitle.copyWith(
+    color: palette.onSurface,
+  ),
+
+  contentTextStyle: AppTextStyles.dialogBody.copyWith(
+    color: palette.onSurface,
+  ),
+),
 
       bottomSheetTheme: BottomSheetThemeData(
         backgroundColor: palette.surface,

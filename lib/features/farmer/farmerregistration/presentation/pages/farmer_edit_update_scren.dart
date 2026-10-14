@@ -1,3 +1,4 @@
+import 'package:solufine/core/theme/typography/app_text_styles.dart';
 import 'package:solufine/core/router/app_router.dart';
 import 'package:solufine/core/secure_storage/secure_storage.dart';
 import 'package:solufine/core/theme/app_dynamic_colors.dart';
@@ -54,9 +55,7 @@ class _FarmerEditUpdateScrenState extends State<FarmerEditUpdateScren> {
   final _fieldKeys = {
     for (final name in _fieldOrder) name: GlobalKey<FormFieldState>(),
   };
-  final _fieldFocus = {
-    for (final name in _fieldOrder) name: FocusNode(),
-  };
+  final _fieldFocus = {for (final name in _fieldOrder) name: FocusNode()};
 
   final TextEditingController farmerNameController = TextEditingController();
 
@@ -256,15 +255,22 @@ class _FarmerEditUpdateScrenState extends State<FarmerEditUpdateScren> {
     List<IrrigationEntity> irrigationList,
   ) async {
     if (cropList.isEmpty) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(const SnackBar(content: Text('Crop data not available')));
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Crop data not available', style: AppTextStyles.body),
+        ),
+      );
       return;
     }
 
     if (irrigationList.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Irrigation data not available')),
+        SnackBar(
+          content: Text(
+            'Irrigation data not available',
+            style: AppTextStyles.body,
+          ),
+        ),
       );
       return;
     }
@@ -718,16 +724,20 @@ class _FarmerEditUpdateScrenState extends State<FarmerEditUpdateScren> {
     FocusScope.of(context).unfocus();
 
     if (_selectedStateId == null || _selectedStateId!.isEmpty) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(const SnackBar(content: Text('Please select state')));
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Please select state', style: AppTextStyles.body),
+        ),
+      );
       return;
     }
 
     if (_selectedDistrictId == null || _selectedDistrictId!.isEmpty) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(const SnackBar(content: Text('Please select district')));
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Please select district', style: AppTextStyles.body),
+        ),
+      );
       return;
     }
 
@@ -752,9 +762,11 @@ class _FarmerEditUpdateScrenState extends State<FarmerEditUpdateScren> {
     }
 
     if (_selectedTalukaId == null || _selectedTalukaId!.isEmpty) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(const SnackBar(content: Text('Please select taluka')));
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Please select taluka', style: AppTextStyles.body),
+        ),
+      );
       return;
     }
 
@@ -890,9 +902,9 @@ class _FarmerEditUpdateScrenState extends State<FarmerEditUpdateScren> {
         isLoading = false;
         _submissionSent = false;
       });
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text(e.toString())));
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(e.toString(), style: AppTextStyles.body)),
+      );
     }
   }
 
@@ -909,13 +921,13 @@ class _FarmerEditUpdateScrenState extends State<FarmerEditUpdateScren> {
 
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
       floatingActionButton: Padding(
-      padding: const EdgeInsets.only(left: 16, right: 16),
+        padding: const EdgeInsets.only(left: 16, right: 16),
         child: CustomButton(
           text: 'Update Farmer',
           onPressed: _submit,
           isLoading: isLoading,
           width: double.infinity,
-   
+
           backgroundColor: context.appPrimary,
           textColor: context.appOnPrimary,
         ),
@@ -966,7 +978,7 @@ class _FarmerEditUpdateScrenState extends State<FarmerEditUpdateScren> {
             AppDialog.show(
               context: context,
               message: 'Farmer Updated Successfully',
-              onButtonPressed: () =>  context.push('/farmers'),
+              onButtonPressed: () => context.push('/farmers'),
             );
           } else if (state.status == StatesStatus.failed) {
             setState(() {
@@ -975,7 +987,10 @@ class _FarmerEditUpdateScrenState extends State<FarmerEditUpdateScren> {
             });
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
-                content: Text(state.errorMessage ?? 'Submission failed'),
+                content: Text(
+                  state.errorMessage ?? 'Submission failed',
+                  style: AppTextStyles.body,
+                ),
               ),
             );
           }
@@ -1039,14 +1054,14 @@ class _FarmerEditUpdateScrenState extends State<FarmerEditUpdateScren> {
           }
 
           final districtItems = <DropdownMenuItem<String>>[
-            const DropdownMenuItem<String>(
+            DropdownMenuItem<String>(
               value: '0',
-              child: Text('Select District'),
+              child: Text('Select District', style: AppTextStyles.inputHint),
             ),
             ...uniqueDistricts.values.map(
               (district) => DropdownMenuItem<String>(
                 value: district.fldDistId.trim(),
-                child: Text(district.fldDistName),
+                child: Text(district.fldDistName, style: AppTextStyles.input),
               ),
             ),
           ];
@@ -1082,14 +1097,14 @@ class _FarmerEditUpdateScrenState extends State<FarmerEditUpdateScren> {
           }
 
           final talukaItems = <DropdownMenuItem<String>>[
-            const DropdownMenuItem<String>(
+            DropdownMenuItem<String>(
               value: '0',
-              child: Text('Select Taluka'),
+              child: Text('Select Taluka', style: AppTextStyles.inputHint),
             ),
             ...uniqueTalukas.values.map(
               (taluka) => DropdownMenuItem<String>(
                 value: taluka.fldTalukaId.trim(),
-                child: Text(taluka.fldName),
+                child: Text(taluka.fldName, style: AppTextStyles.input),
               ),
             ),
           ];
@@ -1111,13 +1126,16 @@ class _FarmerEditUpdateScrenState extends State<FarmerEditUpdateScren> {
               .map(
                 (item) => DropdownMenuItem<String>(
                   value: item.stateId.trim(),
-                  child: Text(item.stateName),
+                  child: Text(item.stateName, style: AppTextStyles.input),
                 ),
               )
               .toList();
 
           final farmerStatusItems = farmerStatus.map((status) {
-            return DropdownMenuItem<String>(value: status, child: Text(status));
+            return DropdownMenuItem<String>(
+              value: status,
+              child: Text(status, style: AppTextStyles.input),
+            );
           }).toList();
 
           return SafeArea(
@@ -1259,9 +1277,7 @@ class _FarmerEditUpdateScrenState extends State<FarmerEditUpdateScren> {
 
                     Text(
                       'State *',
-                      style: TextStyle(
-                        fontSize: 15,
-                        fontWeight: FontWeight.w600,
+                      style: AppTextStyles.labelLarge.copyWith(
                         color: context.appText,
                       ),
                     ),
@@ -1300,9 +1316,7 @@ class _FarmerEditUpdateScrenState extends State<FarmerEditUpdateScren> {
 
                     Text(
                       'District *',
-                      style: TextStyle(
-                        fontSize: 15,
-                        fontWeight: FontWeight.w600,
+                      style: AppTextStyles.labelLarge.copyWith(
                         color: context.appText,
                       ),
                     ),
@@ -1339,9 +1353,7 @@ class _FarmerEditUpdateScrenState extends State<FarmerEditUpdateScren> {
 
                     Text(
                       'Taluka *',
-                      style: TextStyle(
-                        fontSize: 15,
-                        fontWeight: FontWeight.w600,
+                      style: AppTextStyles.labelLarge.copyWith(
                         color: context.appText,
                       ),
                     ),
@@ -1384,9 +1396,7 @@ class _FarmerEditUpdateScrenState extends State<FarmerEditUpdateScren> {
 
                     Text(
                       'Status Of Farmer *',
-                      style: TextStyle(
-                        fontSize: 15,
-                        fontWeight: FontWeight.w600,
+                      style: AppTextStyles.labelLarge.copyWith(
                         color: context.appText,
                       ),
                     ),
@@ -1403,7 +1413,7 @@ class _FarmerEditUpdateScrenState extends State<FarmerEditUpdateScren> {
                       items: farmerStatus.map((status) {
                         return DropdownMenuItem<String>(
                           value: status,
-                          child: Text(status),
+                          child: Text(status, style: AppTextStyles.input),
                         );
                       }).toList(),
 
@@ -1430,9 +1440,7 @@ class _FarmerEditUpdateScrenState extends State<FarmerEditUpdateScren> {
 
                     Text(
                       'Suggested Product *',
-                      style: TextStyle(
-                        fontSize: 15,
-                        fontWeight: FontWeight.w600,
+                      style: AppTextStyles.labelLarge.copyWith(
                         color: context.appText,
                       ),
                     ),
@@ -1510,9 +1518,7 @@ class _FarmerEditUpdateScrenState extends State<FarmerEditUpdateScren> {
 
                     Text(
                       'Crop Details *',
-                      style: TextStyle(
-                        fontSize: 15,
-                        fontWeight: FontWeight.w600,
+                      style: AppTextStyles.labelLarge.copyWith(
                         color: context.appText,
                       ),
                     ),

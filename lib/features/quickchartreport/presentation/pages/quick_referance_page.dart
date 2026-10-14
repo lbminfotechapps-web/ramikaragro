@@ -244,7 +244,7 @@ class _QuickReferenceCard extends StatelessWidget {
                   final file = files[index];
                   final fileUrl = '$baseFileUrl${file.file}';
                   return SizedBox(
-                    width: 270,
+                    width: 250,
                     child: _ReferenceFileTile(
                       language: file.language,
                       fileUrl: fileUrl,
@@ -504,29 +504,37 @@ class _QuickReferenceImagePageState extends State<QuickReferenceImagePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: context.backgroundColor,
-      appBar: AppBar(
-        backgroundColor: context.backgroundColor,
-        foregroundColor: context.primaryTextColor,
-        title: Text(_title),
-        actions: [
-          Builder(
-            builder: (buttonContext) => IconButton(
-              tooltip: 'Share image',
-              onPressed: _sharing ? null : () => _shareImage(buttonContext),
-              icon: _sharing
-                  ? SizedBox(
-                      width: 20,
-                      height: 20,
-                      child: CircularProgressIndicator(
-                        strokeWidth: 2,
-                        color: context.primaryColor,
-                      ),
-                    )
-                  : const Icon(Icons.share_outlined),
+
+ 
+appBar: CustomAppBar(
+  title: _title,
+
+  showBackButton: true,
+  showThemeButton: false,
+  action: Builder(
+    builder: (buttonContext) => IconButton(
+      tooltip: 'Share image',
+      onPressed: _sharing
+          ? null
+          : () => _shareImage(buttonContext),
+      icon: _sharing
+          ? SizedBox(
+              width: 20,
+              height: 20,
+              child: CircularProgressIndicator(
+                strokeWidth: 2,
+             
+              ),
+            )
+          : Icon(
+              Icons.share_outlined,
+            
             ),
-          ),
-        ],
-      ),
+    ),
+  ),
+),
+
+
       body: Column(
         children: [
           Expanded(
