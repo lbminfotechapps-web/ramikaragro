@@ -3,6 +3,11 @@ import 'package:solufine/features/ai/presentation/bloc/ai_bloc.dart';
 import 'package:solufine/features/ai/presentation/pages/ai_chatbot.dart';
 import 'package:solufine/features/calendar_report/presentation/bloc/calendar_report_bloc.dart';
 import 'package:solufine/features/calendar_report/presentation/pages/calendar_report_page.dart';
+import 'package:solufine/features/consultant_doctors/domain/entities/consultant_doctor.dart';
+import 'package:solufine/features/consultant_doctors/presentation/bloc/consultant_bloc.dart';
+import 'package:solufine/features/consultant_doctors/presentation/bloc/location_cubit.dart';
+import 'package:solufine/features/consultant_doctors/presentation/pages/consultant_form_page.dart';
+import 'package:solufine/features/consultant_doctors/presentation/pages/consultant_list_page.dart';
 import 'package:solufine/features/growth_report/presentation/bloc/growth_report_bloc.dart';
 import 'package:solufine/features/growth_report/presentation/pages/growth_report_page.dart';
 import 'package:solufine/features/quickchartreport/presentation/bloc/gallerybloc.dart'
@@ -157,6 +162,9 @@ class AppRouter {
   static const String quickReferance = '/quickReferance';
   static const String ai = '/ai';
   static const String growthReport = '/growthReport';
+
+  static const String consultantDoctors = '/consultantDoctors';
+  static const String consultantDoctorForm = '/consultantDoctorForm';
 
   static final GoRouter router = GoRouter(
     navigatorKey: navigatorKey,
@@ -535,6 +543,66 @@ class AppRouter {
           );
         },
       ),
+
+
+     
+
+      
+          // ============================================================
+          // CONSULTANT DOCTOR LIST
+          // ============================================================
+
+          GoRoute(
+            path: AppRouter.consultantDoctors,
+            name: 'consultantDoctors',
+            builder: (context, state) {
+              return BlocProvider<ConsultantBloc>(
+                create: (_) => sl<ConsultantBloc>()
+                  ..add(const LoadConsultants()),
+                child: const ConsultantListPage(),
+              );
+            },
+          ),
+
+          // ============================================================
+          // ADD / EDIT CONSULTANT DOCTOR
+          // ============================================================
+
+          GoRoute(
+            path: AppRouter.consultantDoctorForm,
+            name: 'consultantDoctorForm',
+            builder: (context, state) {
+              final ConsultantDoctor? consultant =
+                  state.extra is ConsultantDoctor
+                      ? state.extra as ConsultantDoctor
+                      : null;
+
+              return MultiBlocProvider(
+                providers: [
+                  // CONSULTANT BLOC
+                  BlocProvider<ConsultantBloc>(
+                    create: (_) => sl<ConsultantBloc>(),
+                  ),
+
+                  // STATE / DISTRICT / TALUKA CUBIT
+                  BlocProvider<LocationCubit>(
+                    create: (_) => sl<LocationCubit>(),
+                  ),
+                ],
+                child: ConsultantFormPage(
+                  consultant: consultant,
+
+                  // Testing with the API's supplied user_id.
+                  userId: '4',
+                ),
+              );
+            },
+          ),
+
+
+
+
+
 
       GoRoute(
         path: monthlyPerformanceReport,
