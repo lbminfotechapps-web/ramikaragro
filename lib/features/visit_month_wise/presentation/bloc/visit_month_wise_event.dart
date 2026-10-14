@@ -2,9 +2,7 @@ abstract class VisitMonthWiseEvent {
   const VisitMonthWiseEvent();
 }
 
-// ============================================================
-// MONTH WISE REPORT
-// ============================================================
+
 
 class LoadVisitMonthWiseEvent extends VisitMonthWiseEvent {
   final String fromDate;
@@ -18,9 +16,7 @@ class LoadVisitMonthWiseEvent extends VisitMonthWiseEvent {
   });
 }
 
-// ============================================================
-// DAY WISE REPORT
-// ============================================================
+
 
 class LoadVisitDayWiseEvent extends VisitMonthWiseEvent {
   final String fromDate;
@@ -34,9 +30,7 @@ class LoadVisitDayWiseEvent extends VisitMonthWiseEvent {
   });
 }
 
-// ============================================================
-// HOUR WISE REPORT
-// ============================================================
+
 
 class LoadVisitHourWiseEvent extends VisitMonthWiseEvent {
   final String fromDate;
@@ -50,9 +44,7 @@ class LoadVisitHourWiseEvent extends VisitMonthWiseEvent {
   });
 }
 
-// ============================================================
-// VISIT FREQUENCY REPORT
-// ============================================================
+
 
 class LoadVisitFrequencyEvent extends VisitMonthWiseEvent {
   final String fromDate;
@@ -66,9 +58,6 @@ class LoadVisitFrequencyEvent extends VisitMonthWiseEvent {
   });
 }
 
-// ============================================================
-// GEO WISE REPORT
-// ============================================================
 
 class LoadVisitGeoWiseEvent extends VisitMonthWiseEvent {
   final String fromDate;
@@ -82,9 +71,6 @@ class LoadVisitGeoWiseEvent extends VisitMonthWiseEvent {
   });
 }
 
-// ============================================================
-// TOP DEALER / FARMER LIST
-// ============================================================
 
 class LoadVisitTopListEvent extends VisitMonthWiseEvent {
   final String fromDate;
@@ -98,9 +84,6 @@ class LoadVisitTopListEvent extends VisitMonthWiseEvent {
   });
 }
 
-// ============================================================
-// TOP EMPLOYEE REPORT
-// ============================================================
 
 class LoadVisitTopEmployeeEvent extends VisitMonthWiseEvent {
   final String fromDate;
@@ -114,9 +97,7 @@ class LoadVisitTopEmployeeEvent extends VisitMonthWiseEvent {
   });
 }
 
-// ============================================================
-// EMPLOYEE SEARCH
-// ============================================================
+
 
 class SearchVisitReportEmployeesEvent extends VisitMonthWiseEvent {
   final String userId;
@@ -128,9 +109,6 @@ class SearchVisitReportEmployeesEvent extends VisitMonthWiseEvent {
   });
 }
 
-// ============================================================
-// CLEAR EMPLOYEE
-// ============================================================
 
 class ClearVisitReportEmployeesEvent extends VisitMonthWiseEvent {
   const ClearVisitReportEmployeesEvent();

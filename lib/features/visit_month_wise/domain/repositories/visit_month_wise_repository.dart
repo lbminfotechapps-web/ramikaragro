@@ -10,11 +10,6 @@ import '../entities/visit_report_employee.dart';
 
 abstract class VisitMonthWiseRepository {
 
-
-  // ============================================================
-  // EMPLOYEES
-  // ============================================================
-
   Future<List<VisitReportEmployee>>
       getAssignedEmployees({
     required String userId,
@@ -22,9 +17,7 @@ abstract class VisitMonthWiseRepository {
   });
 
 
-  // ============================================================
-  // MONTH WISE REPORT
-  // ============================================================
+
 
   Future<VisitMonthWiseReport>
       getVisitMonthWise({
@@ -33,9 +26,7 @@ abstract class VisitMonthWiseRepository {
     required String employeeId,
   });
 
-   // ============================================================
-  // DAY WISE
-  // ============================================================
+
 
   Future<VisitDayWiseReport>
       getVisitDayWise({
@@ -45,18 +36,13 @@ abstract class VisitMonthWiseRepository {
   });
 
 
- // ============================================================
-  // Hour WISE
-  // ============================================================
     Future<VisitHourWiseReport> getVisitHourWise({
     required String fromDate,
     required String toDate,
     required String employeeId,
   });
 
- // ============================================================
-  // Visit Frequency Report
-  // ============================================================
+
 
   Future<VisitFrequencyReport>
     getVisitFrequency({

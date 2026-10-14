@@ -1,8 +1,6 @@
 import '../../domain/entities/visit_day_wise.dart';
 
-// ============================================================
-// HELPER
-// ============================================================
+
 
 int _toInt(dynamic value) {
   return int.tryParse(
@@ -18,9 +16,6 @@ double _toDouble(dynamic value) {
       0;
 }
 
-// ============================================================
-// DAY ITEM MODEL
-// ============================================================
 
 class VisitDayWiseItemModel
     extends VisitDayWiseItem {
@@ -84,9 +79,6 @@ class VisitDayWiseItemModel
   }
 }
 
-// ============================================================
-// TOTAL MODEL
-// ============================================================
 
 class VisitDayWiseTotalModel
     extends VisitDayWiseTotal {
@@ -148,9 +140,6 @@ class VisitDayWiseTotalModel
   }
 }
 
-// ============================================================
-// REPORT MODEL
-// ============================================================
 
 class VisitDayWiseReportModel
     extends VisitDayWiseReport {

@@ -3419,9 +3419,10 @@ class _MonthlyPerformanceReportPageState
     required double pointWidth,
     required Widget child,
     required String axisHint,
+    bool monthly = false,
   }) {
     return Container(
-      padding: const EdgeInsets.fromLTRB(8, 10, 8, 8),
+      padding: EdgeInsets.fromLTRB(monthly ? 8 : 8, 10, 8, 8),
       decoration: BoxDecoration(
         color: context.cardBackgroundColor,
         borderRadius: BorderRadius.circular(16),
@@ -3463,30 +3464,48 @@ class _MonthlyPerformanceReportPageState
           Text(axisHint, style: TextStyle(fontSize: 10, color: _secondaryText)),
           SizedBox(height: 8),
           SizedBox(
-            height: 200 * MediaQuery.textScalerOf(context).scale(1),
+            height:
+                (monthly ? 320 : 200) *
+                MediaQuery.textScalerOf(context).scale(1),
             child: LayoutBuilder(
               builder: (context, constraints) {
                 final contentWidth =
                     pointCount * pointWidth +
                     128 * MediaQuery.textScalerOf(context).scale(1);
+                final chart = SizedBox(
+                  width: contentWidth > constraints.maxWidth
+                      ? contentWidth
+                      : constraints.maxWidth,
+                  height: constraints.maxHeight,
+                  child: Padding(
+                    padding: const EdgeInsets.only(top: 12, bottom: 2),
+                    child: child,
+                  ),
+                );
+                if (monthly) {
+                  return InteractiveViewer(
+                    key: ValueKey(axisHint),
+                    constrained: false,
+                    alignment: Alignment.topLeft,
+                    minScale: 1,
+                    maxScale: 4,
+                    scaleFactor: 200,
+                    trackpadScrollCausesScale: true,
+                    child: chart,
+                  );
+                }
                 return SingleChildScrollView(
                   scrollDirection: Axis.horizontal,
-                  child: SizedBox(
-                    width: contentWidth > constraints.maxWidth
-                        ? contentWidth
-                        : constraints.maxWidth,
-                    child: Padding(
-                      padding: const EdgeInsets.only(top: 12, bottom: 2),
-                      child: child,
-                    ),
-                  ),
+                  child: chart,
                 );
               },
             ),
           ),
           SizedBox(height: 6),
           Text(
-            'Tap a point for details • Swipe to explore',
+            monthly
+                ? 'Pinch to zoom • Drag to explore • Tap a bar for details'
+                : 'Tap a point for details • Swipe to explore',
             style: TextStyle(fontSize: 10, color: _secondaryText),
           ),
         ],
@@ -3508,6 +3527,7 @@ class _MonthlyPerformanceReportPageState
     bool money = false,
     double? interval,
     bool hideLabels = false,
+    bool compactAmountsWithoutCurrency = false,
   }) {
     final textScale = MediaQuery.textScalerOf(context).scale(1);
     Widget tick(String text, TitleMeta meta) => hideLabels
@@ -3535,12 +3555,21 @@ class _MonthlyPerformanceReportPageState
       leftTitles: AxisTitles(
         sideTitles: SideTitles(
           showTitles: true,
-          reservedSize: (money ? 62 : 40) * textScale,
+          reservedSize:
+              (money && !compactAmountsWithoutCurrency ? 62 : 40) * textScale,
           interval: interval ?? maxY / 4,
           minIncluded: true,
           maxIncluded: true,
-          getTitlesWidget: (value, meta) =>
-              tick(money ? _amountAxis(value) : _number(value), meta),
+          getTitlesWidget: (value, meta) => tick(
+            money
+                ? (compactAmountsWithoutCurrency
+                      ? _amountAxis(
+                          value,
+                        ).replaceAll('\u20B9', '').replaceAll('K', 'k')
+                      : _amountAxis(value))
+                : _number(value),
+            meta,
+          ),
         ),
       ),
       rightTitles: AxisTitles(
@@ -3914,7 +3943,11 @@ class _MonthlyPerformanceReportPageState
             color: context.primaryColor,
             child: Row(
               children: [
-                Icon(Icons.table_rows_outlined, size: 14, color: context.onPrimaryColor),
+                Icon(
+                  Icons.table_rows_outlined,
+                  size: 14,
+                  color: context.onPrimaryColor,
+                ),
 
                 SizedBox(width: 6),
 
@@ -4494,7 +4527,10 @@ class _MonthlyPerformanceReportPageState
     final maxY = amount
         ? ((peak * 1.2 / 10000).ceil().clamp(1, 1000000000) * 10000).toDouble()
         : _visitMax(peak.ceil()) * 1.2;
-    final interval = amount ? 10000.0 : maxY / 4;
+    final interval = amount
+        ? ((maxY / 6 / 10000).ceil().clamp(1, 1000000000) * 10000).toDouble()
+        : (maxY / 6).ceil().clamp(1, 1000000000).toDouble();
+    final chartMaxY = (maxY / interval).ceil() * interval;
     final colors = amount ? [_red, _dispatchColor, _collectionColor] : [_blue];
     final names = amount ? ['Orders', 'Dispatch', 'Collection'] : ['Visits'];
     return _chartSurface(
@@ -4502,18 +4538,20 @@ class _MonthlyPerformanceReportPageState
       colors: colors,
       pointCount: data.length,
       pointWidth: amount ? 62 : 46,
+      monthly: true,
       axisHint: amount ? 'Business amount (₹)' : 'Number of visits',
       child: BarChart(
         BarChartData(
           minY: 0,
-          maxY: maxY,
+          maxY: chartMaxY,
           alignment: BarChartAlignment.spaceAround,
-          gridData: _chartGrid(maxY, interval: interval),
+          gridData: _chartGrid(chartMaxY, interval: interval),
           borderData: FlBorderData(show: false),
           titlesData: _readableChartAxes(
             labels,
-            maxY,
+            chartMaxY,
             money: amount,
+            compactAmountsWithoutCurrency: true,
             interval: interval,
           ),
           barTouchData: BarTouchData(

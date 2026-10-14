@@ -187,7 +187,10 @@ class _HomeForecastCardState extends State<HomeForecastCard> {
                             'Nashik',
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
-                            style: TextStyle(fontSize: 9, color: Colors.white70),
+                            style: TextStyle(
+                              fontSize: 9,
+                              color: Colors.white70,
+                            ),
                           ),
                         ),
                         const Icon(Icons.air, size: 11, color: Colors.white70),

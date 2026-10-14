@@ -49,7 +49,7 @@ class WeatherModel {
 
     final current = json['current'] as Map<String, dynamic>?;
 
-    // Fallback for the original JSON without "current".
+
     final now = DateTime.now();
     int closestIndex = 0;
 

@@ -7,45 +7,28 @@ import '../../domain/entities/visit_report_employee.dart';
 import '../../domain/entities/visit_top_employee.dart';
 import '../../domain/entities/visit_top_list.dart';
 
-// ============================================================
-// MONTH WISE STATUS
-// ============================================================
+
 
 enum VisitMonthWiseStatus { initial, loading, success, failure }
 
-// ============================================================
-// DAY WISE STATUS
-// ============================================================
 
 enum VisitDayWiseStatus { initial, loading, success, failure }
 
-// ============================================================
-// HOUR WISE STATUS
-// ============================================================
 
 enum VisitHourWiseStatus { initial, loading, success, failure }
 
-// ============================================================
-// FREQUENCY STATUS
-// ============================================================
 
 enum VisitFrequencyStatus { initial, loading, success, failure }
 
-// ============================================================
-// GEO WISE STATUS
-// ============================================================
+
 
 enum VisitGeoWiseStatus { initial, loading, success, failure }
 
-// ============================================================
-// TOP DEALER / FARMER STATUS
-// ============================================================
+
 
 enum VisitTopListStatus { initial, loading, success, failure }
 
-// ============================================================
-// TOP EMPLOYEE STATUS
-// ============================================================
+
 
 enum VisitTopEmployeeStatus { initial, loading, success, failure }
 

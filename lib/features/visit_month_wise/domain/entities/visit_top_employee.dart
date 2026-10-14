@@ -18,9 +18,7 @@ class VisitTopEmployeeReport {
   });
 }
 
-// ============================================================
-// ITEM
-// ============================================================
+
 
 class VisitTopEmployeeItem {
   final int rank;
@@ -57,9 +55,7 @@ class VisitTopEmployeeItem {
   });
 }
 
-// ============================================================
-// TOTAL
-// ============================================================
+
 
 class VisitTopEmployeeTotal {
   final int dealerVisits;

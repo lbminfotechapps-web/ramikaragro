@@ -17,9 +17,7 @@ class VisitMonthWiseRepositoryImpl implements VisitMonthWiseRepository {
 
   VisitMonthWiseRepositoryImpl({required this.remoteDataSource});
 
-  // ============================================================
-  // REPORT
-  // ============================================================
+
 
   @override
   Future<VisitMonthWiseReport> getVisitMonthWise({
@@ -36,9 +34,6 @@ class VisitMonthWiseRepositoryImpl implements VisitMonthWiseRepository {
     );
   }
 
-  // ============================================================
-  // DAY WISE
-  // ============================================================
 
   @override
   Future<VisitDayWiseReport> getVisitDayWise({
@@ -55,9 +50,7 @@ class VisitMonthWiseRepositoryImpl implements VisitMonthWiseRepository {
     );
   }
 
-  // ============================================================
-  //  HOURS WISE
-  // ============================================================
+
 
   @override
   Future<VisitHourWiseReport> getVisitHourWise({
@@ -72,9 +65,6 @@ class VisitMonthWiseRepositoryImpl implements VisitMonthWiseRepository {
     );
   }
 
-  // ============================================================
-  // VISIT FREQUENCY
-  // ============================================================
 
   @override
   Future<VisitFrequencyReport> getVisitFrequency({
@@ -136,9 +126,6 @@ Future<VisitTopEmployeeReport>
   );
 }
 
-  // ============================================================
-  // EMPLOYEES
-  // ============================================================
 
   @override
   Future<List<VisitReportEmployee>> getAssignedEmployees({

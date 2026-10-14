@@ -1,8 +1,6 @@
 import '../../domain/entities/visit_top_employee.dart';
 
-// ============================================================
-// HELPERS
-// ============================================================
+
 
 int _toInt(dynamic value) {
   return int.tryParse(value?.toString() ?? '0') ?? 0;
@@ -12,9 +10,7 @@ double _toDouble(dynamic value) {
   return double.tryParse(value?.toString() ?? '0') ?? 0;
 }
 
-// ============================================================
-// REPORT MODEL
-// ============================================================
+
 
 class VisitTopEmployeeReportModel extends VisitTopEmployeeReport {
   const VisitTopEmployeeReportModel({
@@ -69,9 +65,7 @@ class VisitTopEmployeeReportModel extends VisitTopEmployeeReport {
   }
 }
 
-// ============================================================
-// ITEM MODEL
-// ============================================================
+
 
 class VisitTopEmployeeItemModel extends VisitTopEmployeeItem {
   const VisitTopEmployeeItemModel({
@@ -112,9 +106,7 @@ class VisitTopEmployeeItemModel extends VisitTopEmployeeItem {
   }
 }
 
-// ============================================================
-// TOTAL MODEL
-// ============================================================
+
 
 class VisitTopEmployeeTotalModel extends VisitTopEmployeeTotal {
   const VisitTopEmployeeTotalModel({

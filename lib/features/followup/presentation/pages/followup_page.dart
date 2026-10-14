@@ -348,7 +348,8 @@ class _FollowupPageState extends State<FollowupPage>
       width: double.infinity,
       padding: const EdgeInsets.fromLTRB(16, 10, 16, 18),
       decoration: BoxDecoration(
-        gradient: context.appBackgroundGradient,
+        color: context.appPrimary,
+        // gradient: context.appBackgroundGradient,
         borderRadius: BorderRadius.only(
           bottomLeft: Radius.circular(26),
           bottomRight: Radius.circular(26),
@@ -356,9 +357,7 @@ class _FollowupPageState extends State<FollowupPage>
       ),
       child: Row(
         children: [
-          // -------------------------------------------------------------------
-          // ICON
-          // -------------------------------------------------------------------
+
           Container(
             width: 48,
             height: 48,
