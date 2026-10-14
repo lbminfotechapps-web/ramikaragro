@@ -1,5 +1,6 @@
 import 'package:solufine/core/di/ai_di.dart';
 import 'package:solufine/core/di/calendar_report_di.dart';
+import 'package:solufine/core/di/consultant_doctor_di.dart';
 import 'package:solufine/core/di/database_di.dart';
 import 'package:solufine/core/di/growth_report_di.dart';
 import 'package:solufine/core/di/quick_referance_di.dart'
@@ -92,6 +93,7 @@ Future<void> initGlobalDi() async {
   await initGrowthReportDi();
  await initAiDi();
   await  initVisitMonthWiseDi();
+  await initConsultantDoctorDi();
 await ThemeDI.register(sl);
   await initCalendarReportDi();
 }
