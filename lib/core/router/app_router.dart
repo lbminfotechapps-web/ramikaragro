@@ -552,13 +552,12 @@ class AppRouter {
           // CONSULTANT DOCTOR LIST
           // ============================================================
 
-          GoRoute(
+            GoRoute(
             path: AppRouter.consultantDoctors,
             name: 'consultantDoctors',
             builder: (context, state) {
               return BlocProvider<ConsultantBloc>(
-                create: (_) => sl<ConsultantBloc>()
-                  ..add(const LoadConsultants()),
+                create: (_) => sl<ConsultantBloc>(),
                 child: const ConsultantListPage(),
               );
             },
