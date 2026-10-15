@@ -1,3 +1,4 @@
+import 'package:solufine/core/theme/typography/app_text_styles.dart';
 import 'dart:convert';
 
 import 'package:flutter/foundation.dart';
@@ -314,7 +315,7 @@ class _ProductDetailsState extends State<ProductDetails> {
         body: Center(
           child: Text(
             'Product Not Found',
-            style: TextStyle(color: context.primaryTextColor),
+            style: AppTextStyles.body.copyWith(color: context.primaryTextColor),
           ),
         ),
       );
@@ -479,9 +480,7 @@ class _ProductDetailsState extends State<ProductDetails> {
             child: Text(
               item.productName,
               textAlign: TextAlign.center,
-              style: TextStyle(
-                fontSize: 19,
-                fontWeight: FontWeight.w800,
+              style: AppTextStyles.headingLarge.copyWith(
                 color: context.cardTextColor,
                 height: 1.25,
               ),
@@ -506,9 +505,7 @@ class _ProductDetailsState extends State<ProductDetails> {
           SizedBox(width: 5),
           Text(
             label,
-            style: TextStyle(
-              fontSize: 11,
-              fontWeight: FontWeight.w700,
+            style: AppTextStyles.labelSmall.copyWith(
               color: context.primaryColor,
             ),
           ),
@@ -561,9 +558,7 @@ class _ProductDetailsState extends State<ProductDetails> {
         Expanded(
           child: Text(
             title,
-            style: TextStyle(
-              fontSize: 14.5,
-              fontWeight: FontWeight.w700,
+            style: AppTextStyles.listTitle.copyWith(
               color: context.cardTextColor,
             ),
           ),
@@ -573,11 +568,9 @@ class _ProductDetailsState extends State<ProductDetails> {
   }
 
   TextStyle _bodyStyle() {
-    return TextStyle(
-      fontSize: 13.5,
+    return AppTextStyles.body.copyWith(
       height: 1.55,
       color: context.secondaryTextColor,
-      fontWeight: FontWeight.w400,
     );
   }
 
@@ -611,7 +604,10 @@ class _ProductDetailsState extends State<ProductDetails> {
                 return Padding(
                   padding: const EdgeInsets.only(right: 7),
                   child: ChoiceChip(
-                    label: Text(_languageLabel(language)),
+                    label: Text(
+                      _languageLabel(language),
+                      style: AppTextStyles.chip,
+                    ),
                     selected: isSelected,
                     onSelected: (_) {
                       setState(() {
@@ -626,9 +622,7 @@ class _ProductDetailsState extends State<ProductDetails> {
                           : context.borderColor,
                     ),
                     showCheckmark: false,
-                    labelStyle: TextStyle(
-                      fontSize: 12,
-                      fontWeight: FontWeight.w700,
+                    labelStyle: AppTextStyles.chip.copyWith(
                       color: isSelected
                           ? context.appColors.onPrimaryContainer
                           : context.secondaryTextColor,
@@ -714,18 +708,15 @@ class _ProductDetailsState extends State<ProductDetails> {
                 child: ElevatedButton.icon(
                   onPressed: () => _openProductEnquiry(context),
                   icon: Icon(Icons.headset_mic_outlined, size: 19),
-                  label: const FittedBox(
+                  label: FittedBox(
                     fit: BoxFit.scaleDown,
-                    child: Text('Product Enquiry'),
+                    child: Text('Product Enquiry', style: AppTextStyles.button),
                   ),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: context.primaryColor,
                     foregroundColor: context.onPrimaryColor,
                     elevation: 0,
-                    textStyle: TextStyle(
-                      fontSize: 13,
-                      fontWeight: FontWeight.w700,
-                    ),
+                    textStyle: AppTextStyles.button,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12),
                     ),
@@ -756,14 +747,11 @@ class _ProductDetailsState extends State<ProductDetails> {
                               ),
                             )
                           : Icon(Icons.ios_share_outlined, size: 18),
-                      label: const Text('Share'),
+                      label: Text('Share', style: AppTextStyles.button),
                       style: OutlinedButton.styleFrom(
                         foregroundColor: context.primaryColor,
                         side: BorderSide(color: context.primaryColor),
-                        textStyle: TextStyle(
-                          fontSize: 13,
-                          fontWeight: FontWeight.w700,
-                        ),
+                        textStyle: AppTextStyles.button,
                         padding: const EdgeInsets.symmetric(horizontal: 8),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(12),
@@ -994,8 +982,11 @@ class _ProductDetailsState extends State<ProductDetails> {
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Unable to share product. Please try again.'),
+          SnackBar(
+            content: Text(
+              'Unable to share product. Please try again.',
+              style: AppTextStyles.button,
+            ),
           ),
         );
       }

@@ -1,3 +1,4 @@
+import 'package:solufine/core/theme/typography/app_text_styles.dart';
 import 'package:solufine/core/api_constant/api_client.dart';
 import 'package:solufine/core/theme/app_theme_context.dart';
 import 'package:solufine/features/products/domain/entity/fertilizer_product_entity.dart';
@@ -42,9 +43,7 @@ class ProductCard extends StatelessWidget {
                 textAlign: TextAlign.center,
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
-                style: TextStyle(
-                  fontSize: 15,
-                  fontWeight: FontWeight.w700,
+                style: AppTextStyles.cardTitle.copyWith(
                   color: context.cardTextColor,
                 ),
               ),
@@ -57,8 +56,7 @@ class ProductCard extends StatelessWidget {
                   textAlign: TextAlign.center,
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
-                  style: TextStyle(
-                    fontSize: 12,
+                  style: AppTextStyles.bodySmall.copyWith(
                     color: context.secondaryTextColor,
                   ),
                 ),

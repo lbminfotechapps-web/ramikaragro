@@ -1,5 +1,6 @@
 import 'package:solufine/core/api_constant/api_client.dart';
 import 'package:solufine/core/theme/app_theme_context.dart';
+import 'package:solufine/core/theme/typography/app_text_styles.dart';
 import 'package:solufine/core/utility/appdialog.dart';
 import 'package:solufine/core/utility/fullimage.dart';
 import 'package:solufine/core/utility/pdfviewerscreen.dart';
@@ -79,15 +80,17 @@ class _SchemeScreenState extends State<SchemeScreen> {
           }
 
           if (state is SchemeError) {
-            ScaffoldMessenger.of(
-              context,
-            ).showSnackBar(SnackBar(content: Text(state.message)));
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text(state.message, style: AppTextStyles.body)),
+            );
           }
 
           if (state is SchemeLoaded && state.schemes.isEmpty) {
-            ScaffoldMessenger.of(
-              context,
-            ).showSnackBar(SnackBar(content: Text("Record Not Found")));
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text("Record Not Found", style: AppTextStyles.body),
+              ),
+            );
           }
         },
 
@@ -178,10 +181,7 @@ class _SchemeScreenState extends State<SchemeScreen> {
 
                 onPressed: _onSearch,
 
-                child: const Text(
-                  'Search',
-                  style: TextStyle(fontWeight: FontWeight.bold),
-                ),
+                child: Text('Search', style: AppTextStyles.button),
               ),
             ),
           ],
@@ -243,20 +243,27 @@ class _SchemeScreenState extends State<SchemeScreen> {
                 value: selectedState,
                 dropdownColor: context.cardBackgroundColor,
                 iconEnabledColor: context.primaryColor,
-                style: TextStyle(color: context.primaryTextColor),
+                style: AppTextStyles.input.copyWith(
+                  color: context.primaryTextColor,
+                ),
 
                 isExpanded: true,
 
                 hint: Text(
                   'Select State',
-                  style: TextStyle(color: context.secondaryTextColor),
+                  style: AppTextStyles.body.copyWith(
+                    color: context.secondaryTextColor,
+                  ),
                 ),
 
                 items: stateList.map((Statedata state) {
                   return DropdownMenuItem<Statedata>(
                     value: state,
 
-                    child: Text(state.stateName ?? ''),
+                    child: Text(
+                      state.stateName ?? '',
+                      style: AppTextStyles.input,
+                    ),
                   );
                 }).toList(),
 
@@ -303,7 +310,9 @@ class _SchemeScreenState extends State<SchemeScreen> {
           Expanded(
             child: Text(
               'Loading states...',
-              style: TextStyle(color: context.secondaryTextColor),
+              style: AppTextStyles.body.copyWith(
+                color: context.secondaryTextColor,
+              ),
             ),
           ),
 
@@ -347,7 +356,9 @@ class _SchemeScreenState extends State<SchemeScreen> {
                 value: value,
                 dropdownColor: context.cardBackgroundColor,
                 iconEnabledColor: context.primaryColor,
-                style: TextStyle(color: context.primaryTextColor),
+                style: AppTextStyles.input.copyWith(
+                  color: context.primaryTextColor,
+                ),
 
                 isExpanded: true,
 
@@ -355,7 +366,7 @@ class _SchemeScreenState extends State<SchemeScreen> {
                   return DropdownMenuItem<String>(
                     value: item,
 
-                    child: Text(item),
+                    child: Text(item, style: AppTextStyles.input),
                   );
                 }).toList(),
 
@@ -379,7 +390,7 @@ class _SchemeScreenState extends State<SchemeScreen> {
       return Center(
         child: Text(
           state.message,
-          style: TextStyle(color: context.appColors.error),
+          style: AppTextStyles.body.copyWith(color: context.appColors.error),
         ),
       );
     }
@@ -389,7 +400,9 @@ class _SchemeScreenState extends State<SchemeScreen> {
         return Center(
           child: Text(
             'No Scheme Found',
-            style: TextStyle(color: context.secondaryTextColor, fontSize: 15),
+            style: AppTextStyles.body.copyWith(
+              color: context.secondaryTextColor,
+            ),
           ),
         );
       }
@@ -410,7 +423,7 @@ class _SchemeScreenState extends State<SchemeScreen> {
     return Center(
       child: Text(
         'No Scheme Found',
-        style: TextStyle(color: context.secondaryTextColor, fontSize: 15),
+        style: AppTextStyles.body.copyWith(color: context.secondaryTextColor),
       ),
     );
   }
@@ -518,7 +531,9 @@ class _SchemeScreenState extends State<SchemeScreen> {
                   item.fldRemark ?? '',
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
-                  style: TextStyle(color: context.cardTextColor),
+                  style: AppTextStyles.body.copyWith(
+                    color: context.cardTextColor,
+                  ),
                 ),
               ],
             ),

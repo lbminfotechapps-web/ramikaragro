@@ -1,3 +1,4 @@
+import 'package:solufine/core/theme/typography/app_text_styles.dart';
 import 'package:solufine/core/router/app_router.dart';
 import 'package:solufine/core/theme/app_theme_context.dart';
 import 'package:solufine/core/utility/widgets/custom_appbar.dart';
@@ -112,7 +113,10 @@ class _LeaveListPageState extends State<LeaveListPage>
     if (fromDate == null) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: const Text("Please select From Date first"),
+          content: Text(
+            "Please select From Date first",
+            style: AppTextStyles.body,
+          ),
           behavior: SnackBarBehavior.floating,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(12),
@@ -163,7 +167,10 @@ class _LeaveListPageState extends State<LeaveListPage>
     if (fromDate == null || toDate == null) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: const Text("Please select both From Date and To Date"),
+          content: Text(
+            "Please select both From Date and To Date",
+            style: AppTextStyles.body,
+          ),
           backgroundColor: context.appColors.error,
           behavior: SnackBarBehavior.floating,
           shape: RoundedRectangleBorder(
@@ -178,7 +185,10 @@ class _LeaveListPageState extends State<LeaveListPage>
     if (toDate!.isBefore(fromDate!)) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: const Text("To Date cannot be before From Date"),
+          content: Text(
+            "To Date cannot be before From Date",
+            style: AppTextStyles.body,
+          ),
           backgroundColor: context.appColors.error,
           behavior: SnackBarBehavior.floating,
           shape: RoundedRectangleBorder(
@@ -292,10 +302,7 @@ class _LeaveListPageState extends State<LeaveListPage>
           foregroundColor: context.onPrimaryColor,
           elevation: 5,
           icon: const Icon(Icons.add_rounded),
-          label: const Text(
-            "Apply Leave",
-            style: TextStyle(fontWeight: FontWeight.w700),
-          ),
+          label: Text("Apply Leave", style: AppTextStyles.button),
         ),
 
         // ======================================================
@@ -307,7 +314,7 @@ class _LeaveListPageState extends State<LeaveListPage>
                 state.errorMessage != null) {
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(
-                  content: Text(state.errorMessage!),
+                  content: Text(state.errorMessage!, style: AppTextStyles.body),
                   backgroundColor: context.appColors.error,
                   behavior: SnackBarBehavior.floating,
                   shape: RoundedRectangleBorder(
@@ -396,15 +403,11 @@ class _LeaveListPageState extends State<LeaveListPage>
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  "Leave Applications",
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                ),
+                Text("Leave Applications", style: AppTextStyles.cardTitle),
                 SizedBox(height: 2),
                 Text(
                   "Your leave history",
-                  style: TextStyle(
-                    fontSize: 11,
+                  style: AppTextStyles.caption.copyWith(
                     color: context.secondaryTextColor,
                   ),
                 ),
@@ -421,10 +424,8 @@ class _LeaveListPageState extends State<LeaveListPage>
             ),
             child: Text(
               "${state.leaves.length} Records",
-              style: TextStyle(
+              style: AppTextStyles.labelSmall.copyWith(
                 color: context.primaryColor,
-                fontSize: 11,
-                fontWeight: FontWeight.bold,
               ),
             ),
           ),
@@ -465,10 +466,8 @@ class _LeaveListPageState extends State<LeaveListPage>
 
           Text(
             "Filter",
-            style: TextStyle(
-              fontSize: 11,
+            style: AppTextStyles.labelSmall.copyWith(
               color: context.secondaryTextColor,
-              fontWeight: FontWeight.w600,
             ),
           ),
 
@@ -477,10 +476,8 @@ class _LeaveListPageState extends State<LeaveListPage>
           Expanded(
             child: Text(
               _filterText(),
-              style: TextStyle(
-                fontSize: 12,
+              style: AppTextStyles.buttonSmall.copyWith(
                 color: context.primaryColor,
-                fontWeight: FontWeight.bold,
               ),
             ),
           ),
@@ -574,9 +571,7 @@ class _LeaveListPageState extends State<LeaveListPage>
 
           Text(
             "Loading leave history...",
-            style: TextStyle(
-              fontSize: 14,
-              fontWeight: FontWeight.w600,
+            style: AppTextStyles.labelLarge.copyWith(
               color: context.cardTextColor,
             ),
           ),
@@ -585,7 +580,9 @@ class _LeaveListPageState extends State<LeaveListPage>
 
           Text(
             "Please wait",
-            style: TextStyle(fontSize: 12, color: context.secondaryTextColor),
+            style: AppTextStyles.bodySmall.copyWith(
+              color: context.secondaryTextColor,
+            ),
           ),
         ],
       ),
@@ -625,12 +622,7 @@ class _LeaveListPageState extends State<LeaveListPage>
 
           const SizedBox(height: 20),
 
-          Center(
-            child: Text(
-              message,
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-            ),
-          ),
+          Center(child: Text(message, style: AppTextStyles.button)),
 
           // const SizedBox(height: 8),
 
@@ -660,7 +652,7 @@ class _LeaveListPageState extends State<LeaveListPage>
                 ),
               ),
               icon: const Icon(Icons.refresh_rounded, size: 18),
-              label: const Text("Try Again"),
+              label: Text("Try Again", style: AppTextStyles.body),
             ),
           ),
         ],
@@ -719,7 +711,7 @@ class _LeaveListPageState extends State<LeaveListPage>
           Center(
             child: Text(
               isFiltered ? "No Leaves Found" : "No Leave Applications",
-              style: const TextStyle(fontSize: 19, fontWeight: FontWeight.bold),
+              style: AppTextStyles.button,
             ),
           ),
 
@@ -732,8 +724,7 @@ class _LeaveListPageState extends State<LeaveListPage>
                   ? "No leave applications were found for the selected date range."
                   : "You don't have any leave applications yet.",
               textAlign: TextAlign.center,
-              style: TextStyle(
-                fontSize: 13,
+              style: AppTextStyles.body.copyWith(
                 color: context.secondaryTextColor,
                 height: 1.5,
               ),
@@ -758,7 +749,7 @@ class _LeaveListPageState extends State<LeaveListPage>
                   ),
                 ),
                 icon: const Icon(Icons.filter_alt_off, size: 18),
-                label: const Text("Clear Filter"),
+                label: Text("Clear Filter", style: AppTextStyles.body),
               ),
             )
           else
@@ -778,7 +769,10 @@ class _LeaveListPageState extends State<LeaveListPage>
                   ),
                 ),
                 icon: const Icon(Icons.add_rounded, size: 19),
-                label: const Text("Apply Your First Leave"),
+                label: Text(
+                  "Apply Your First Leave",
+                  style: AppTextStyles.body,
+                ),
               ),
             ),
         ],

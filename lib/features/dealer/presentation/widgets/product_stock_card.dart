@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:solufine/core/theme/typography/app_text_styles.dart';
 import 'package:flutter_screenutil_plus/flutter_screenutil_plus.dart';
 import 'package:solufine/core/theme/app_dynamic_colors.dart';
 import 'package:solufine/features/dealer/data/models/dealer_products.dart';
@@ -77,14 +78,11 @@ class ProductStockCard extends StatelessWidget {
                         overflow:
                             TextOverflow
                                 .ellipsis,
-                        style: TextStyle(
-                          fontSize: 14.sp,
-                          height: 1.2,
+                        style: AppTextStyles.listTitle.copyWith(height: 1.2,
                           fontWeight:
                               FontWeight
                                   .w800,
-                          color: context.appOnCard,
-                        ),
+                          color: context.appOnCard),
                       ),
                     ),
                   ],
@@ -111,13 +109,8 @@ class ProductStockCard extends StatelessWidget {
                     product.categoryName,
 
                     /// Change field name if required.
-                    style: TextStyle(
-                      fontSize: 9.5.sp,
-                      fontWeight:
-                          FontWeight.w600,
-                      color:
-                          context.appPrimary,
-                    ),
+                    style: AppTextStyles.badge.copyWith(color:
+                          context.appPrimary),
                   ),
                 ),
 
@@ -165,13 +158,8 @@ class ProductStockCard extends StatelessWidget {
             children: [
               Text(
                 'QTY',
-                style: TextStyle(
-                  fontSize: 9.sp,
-                  letterSpacing: 0.5,
-                  fontWeight:
-                      FontWeight.w700,
-                  color: context.appSubText,
-                ),
+                style: AppTextStyles.labelSmall.copyWith(letterSpacing: 0.5,
+                  color: context.appSubText),
               ),
 
               SizedBox(height: 5.h),
@@ -218,15 +206,12 @@ class ProductStockCard extends StatelessWidget {
                         textAlign:
                             TextAlign
                                 .center,
-                        style: TextStyle(
-                          fontSize: 15.sp,
-                          fontWeight:
+                        style: AppTextStyles.cardTitle.copyWith(fontWeight:
                               FontWeight
                                   .w800,
                           color: selected
                               ? context.appPrimary
-                              : context.appOnCard,
-                        ),
+                              : context.appOnCard),
                       ),
                     ),
 
@@ -264,26 +249,16 @@ class _ProductInfoItem extends StatelessWidget {
       children: [
         Text(
           label,
-          style: TextStyle(
-            fontSize: 9.sp,
-            color:
-                context.appSubText,
-            fontWeight:
-                FontWeight.w500,
-          ),
+          style: AppTextStyles.labelSmall.copyWith(color:
+                context.appSubText),
         ),
 
         SizedBox(height: 2.h),
 
         Text(
           value.isEmpty ? '-' : value,
-          style: TextStyle(
-            fontSize: 11.sp,
-            fontWeight:
-                FontWeight.w700,
-            color:
-                context.appOnCard,
-          ),
+          style: AppTextStyles.labelSmall.copyWith(color:
+                context.appOnCard),
         ),
       ],
     );
@@ -441,10 +416,8 @@ class _ProductStockCardState extends State<ProductStockCard> {
                   product.productName,
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
-                  style: TextStyle(
-                    fontSize: 13.sp,
+                  style: AppTextStyles.labelLarge.copyWith(
                     height: 1.2,
-                    fontWeight: FontWeight.w800,
                     color: context.appOnCard,
                   ),
                 ),
@@ -462,9 +435,7 @@ class _ProductStockCardState extends State<ProductStockCard> {
                   ),
                   child: Text(
                     packSize.isEmpty ? 'No packing' : packSize,
-                    style: TextStyle(
-                      fontSize: 9.sp,
-                      fontWeight: FontWeight.w700,
+                    style: AppTextStyles.labelSmall.copyWith(
                       color: context.appPrimary,
                     ),
                   ),
@@ -512,10 +483,8 @@ class _ProductStockCardState extends State<ProductStockCard> {
             children: [
               Text(
                 'CASE',
-                style: TextStyle(
-                  fontSize: 8.5.sp,
+                style: AppTextStyles.badge.copyWith(
                   letterSpacing: 0.5,
-                  fontWeight: FontWeight.w700,
                   color: context.appSubText,
                 ),
               ),
@@ -527,15 +496,16 @@ class _ProductStockCardState extends State<ProductStockCard> {
 
                 decoration: BoxDecoration(
                   color: selected
-                      ? Color.alphaBlend(context.appPrimary.withValues(alpha: 0.1), context.appCard)
+                      ? Color.alphaBlend(
+                          context.appPrimary.withValues(alpha: 0.1),
+                          context.appCard,
+                        )
                       : context.appInputBackground,
 
                   borderRadius: BorderRadius.circular(10.r),
 
                   border: Border.all(
-                    color: selected
-                        ? context.appPrimary
-                        : context.appBorder,
+                    color: selected ? context.appPrimary : context.appBorder,
                     width: selected ? 1.3 : 1,
                   ),
                 ),
@@ -552,25 +522,24 @@ class _ProductStockCardState extends State<ProductStockCard> {
 
                     maxLines: 1,
 
-                    style: TextStyle(
-                      fontSize: 14.sp,
-                      fontWeight: FontWeight.w800,
+                    style: AppTextStyles.input.copyWith(
                       color: context.appPrimary,
                     ),
 
                     decoration: InputDecoration(
                       hintText: '0',
 
-                      hintStyle: TextStyle(
-                        fontSize: 14.sp,
-                        fontWeight: FontWeight.w600,
+                      hintStyle: AppTextStyles.inputHint.copyWith(
                         color: context.appSubText,
                       ),
 
                       filled: true,
 
                       fillColor: selected
-                          ? Color.alphaBlend(context.appPrimary.withValues(alpha: 0.1), context.appCard)
+                          ? Color.alphaBlend(
+                              context.appPrimary.withValues(alpha: 0.1),
+                              context.appCard,
+                            )
                           : context.appInputBackground,
 
                       border: InputBorder.none,
@@ -628,20 +597,12 @@ class _ProductStockCardState extends State<ProductStockCard> {
 
                   maxLines: 1,
 
-                  style: TextStyle(
-                    fontSize: 14.sp,
-                    fontWeight: FontWeight.w800,
-                    color: context.appPrimary,
-                  ),
+                  style: AppTextStyles.input.copyWith(color: context.appPrimary),
 
                   decoration: InputDecoration(
                     hintText: '0',
 
-                    hintStyle: TextStyle(
-                      fontSize: 14.sp,
-                      fontWeight: FontWeight.w600,
-                      color: context.appSubText,
-                    ),
+                    hintStyle: AppTextStyles.inputHint.copyWith(color: context.appSubText),
 
                     border: InputBorder.none,
                     enabledBorder: InputBorder.none,
@@ -729,12 +690,8 @@ class ProductStockCard extends StatelessWidget {
                   'Solufine Premium Fertilizer',
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
-                  style: TextStyle(
-                    fontSize: 14.sp,
-                    height: 1.2,
-                    fontWeight: FontWeight.w800,
-                    color: context.appOnCard,
-                  ),
+                  style: AppTextStyles.listTitle.copyWith(height: 1.2,
+                    color: context.appOnCard),
                 ),
 
                 SizedBox(height: 6.h),
@@ -750,11 +707,7 @@ class ProductStockCard extends StatelessWidget {
                   ),
                   child: Text(
                     'Fertilizer',
-                    style: TextStyle(
-                      fontSize: 9.5.sp,
-                      fontWeight: FontWeight.w600,
-                      color: context.appPrimary,
-                    ),
+                    style: AppTextStyles.badge.copyWith(color: context.appPrimary),
                   ),
                 ),
 
@@ -788,12 +741,8 @@ class ProductStockCard extends StatelessWidget {
             children: [
               Text(
                 'QTY',
-                style: TextStyle(
-                  fontSize: 9.sp,
-                  letterSpacing: 0.5,
-                  fontWeight: FontWeight.w700,
-                  color: context.appSubText,
-                ),
+                style: AppTextStyles.labelSmall.copyWith(letterSpacing: 0.5,
+                  color: context.appSubText),
               ),
 
               SizedBox(height: 6.h),
@@ -819,18 +768,10 @@ class ProductStockCard extends StatelessWidget {
     keyboardType: TextInputType.number,
     textAlign: TextAlign.center,
     maxLines: 1,
-    style: TextStyle(
-      fontSize: 15.sp,
-      fontWeight: FontWeight.w800,
-      color: context.appPrimary,
-    ),
+    style: AppTextStyles.input.copyWith(color: context.appPrimary),
     decoration: InputDecoration(
       hintText: '0',
-      hintStyle: TextStyle(
-        fontSize: 15.sp,
-        fontWeight: FontWeight.w600,
-        color: context.appSubText,
-      ),
+      hintStyle: AppTextStyles.inputHint.copyWith(color: context.appSubText),
       border: InputBorder.none,
       enabledBorder: InputBorder.none,
       focusedBorder: InputBorder.none,
@@ -881,13 +822,9 @@ class ProductStockCard extends StatelessWidget {
                       child: Text(
                         '$quantity',
                         textAlign: TextAlign.center,
-                        style: TextStyle(
-                          fontSize: 15.sp,
-                          fontWeight: FontWeight.w800,
-                          color: selected
+                        style: AppTextStyles.cardTitle.copyWith(color: selected
                               ? context.appPrimary
-                              : context.appOnCard,
-                        ),
+                              : context.appOnCard),
                       ),
                     ),
 
@@ -925,11 +862,7 @@ class _ProductInfoItem extends StatelessWidget {
       children: [
         Text(
           label,
-          style: TextStyle(
-            fontSize: 8.sp,
-            color: context.appSubText,
-            fontWeight: FontWeight.w500,
-          ),
+          style: AppTextStyles.helperText.copyWith(color: context.appSubText),
         ),
 
         SizedBox(height: 1.h),
@@ -938,11 +871,7 @@ class _ProductInfoItem extends StatelessWidget {
           value,
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
-          style: TextStyle(
-            fontSize: 10.sp,
-            fontWeight: FontWeight.w700,
-            color: context.appOnCard,
-          ),
+          style: AppTextStyles.badge.copyWith(color: context.appOnCard),
         ),
       ],
     );

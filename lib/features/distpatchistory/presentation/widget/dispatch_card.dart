@@ -1,5 +1,6 @@
 import 'package:solufine/core/theme/app_dynamic_colors.dart';
 import 'package:solufine/core/theme/app_theme_context.dart';
+import 'package:solufine/core/theme/typography/app_text_styles.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil_plus/flutter_screenutil_plus.dart';
 
@@ -147,9 +148,7 @@ class DispatchCard extends StatelessWidget {
                 _statusText(),
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
-                style: TextStyle(
-                  fontSize: 14.sp,
-                  fontWeight: FontWeight.w800,
+                style: AppTextStyles.labelLarge.copyWith(
                   color: _statusColor(context),
                 ),
               ),
@@ -177,11 +176,7 @@ class DispatchCard extends StatelessWidget {
       ),
       child: Text(
         _statusBadgeText(),
-        style: TextStyle(
-          fontSize: 9.sp,
-          fontWeight: FontWeight.w800,
-          color: color,
-        ),
+        style: AppTextStyles.badge.copyWith(color: color),
       ),
     );
   }
@@ -215,10 +210,8 @@ class DispatchCard extends StatelessWidget {
           width: 62.w,
           child: Text(
             label,
-            style: TextStyle(
-              fontSize: 10.sp,
+            style: AppTextStyles.helperText.copyWith(
               color: context.secondaryTextColor,
-              fontWeight: FontWeight.w500,
             ),
           ),
         ),
@@ -230,10 +223,8 @@ class DispatchCard extends StatelessWidget {
             value.isEmpty ? '-' : value,
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
-            style: TextStyle(
-              fontSize: 12.sp,
+            style: AppTextStyles.bodySmall.copyWith(
               color: context.cardTextColor,
-              fontWeight: FontWeight.w700,
             ),
           ),
         ),
@@ -314,10 +305,8 @@ class DispatchCard extends StatelessWidget {
                   title,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: TextStyle(
-                    fontSize: 8.5.sp,
+                  style: AppTextStyles.labelSmall.copyWith(
                     color: context.secondaryTextColor,
-                    fontWeight: FontWeight.w600,
                   ),
                 ),
               ),
@@ -330,11 +319,7 @@ class DispatchCard extends StatelessWidget {
             value,
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
-            style: TextStyle(
-              fontSize: 15.sp,
-              color: valueColor,
-              fontWeight: FontWeight.w800,
-            ),
+            style: AppTextStyles.cardTitle.copyWith(color: valueColor),
           ),
         ],
       ),
@@ -355,11 +340,7 @@ class DispatchCard extends StatelessWidget {
               SizedBox(width: 4.w),
               Text(
                 'Cancelled',
-                style: TextStyle(
-                  fontSize: 10.sp,
-                  fontWeight: FontWeight.w700,
-                  color: context.appError,
-                ),
+                style: AppTextStyles.badge.copyWith(color: context.appError),
               ),
             ],
           ),
@@ -378,9 +359,7 @@ class DispatchCard extends StatelessWidget {
             children: [
               Text(
                 'View Details',
-                style: TextStyle(
-                  fontSize: 11.sp,
-                  fontWeight: FontWeight.w800,
+                style: AppTextStyles.buttonSmall.copyWith(
                   color: context.primaryColor,
                 ),
               ),

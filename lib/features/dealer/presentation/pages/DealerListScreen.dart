@@ -1,3 +1,4 @@
+import 'package:solufine/core/theme/typography/app_text_styles.dart';
 import 'dart:async';
 import 'dart:convert';
 import 'package:intl/intl.dart';
@@ -351,9 +352,9 @@ class _DealerListScreenState extends State<DealerListScreen> {
 
     void showError(String message) {
       if (!mounted) return;
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text(message)));
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(message, style: AppTextStyles.body)),
+      );
     }
 
     final latitude = double.tryParse(dealer.latitude?.trim() ?? '');
@@ -611,8 +612,11 @@ class _DealerListScreenState extends State<DealerListScreen> {
                     debugPrint('DEALER LOCATION UPDATED SUCCESSFULLY');
 
                     ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text('Dealer location updated successfully'),
+                      SnackBar(
+                        content: Text(
+                          'Dealer location updated successfully',
+                          style: AppTextStyles.body,
+                        ),
                         duration: Duration(seconds: 2),
                       ),
                     );
@@ -644,7 +648,7 @@ class _DealerListScreenState extends State<DealerListScreen> {
                             Text(
                               state.errorMessage ?? 'Something went wrong',
                               textAlign: TextAlign.center,
-                              style: const TextStyle(fontSize: 14),
+                              style: AppTextStyles.body,
                             ),
                             const SizedBox(height: 16),
                             ElevatedButton(
@@ -658,7 +662,7 @@ class _DealerListScreenState extends State<DealerListScreen> {
                                 backgroundColor: context.primaryColor,
                                 foregroundColor: context.onPrimaryColor,
                               ),
-                              child: const Text('Retry'),
+                              child: Text('Retry', style: AppTextStyles.button),
                             ),
                           ],
                         ),
@@ -683,9 +687,7 @@ class _DealerListScreenState extends State<DealerListScreen> {
                                 _searchText.isEmpty
                                     ? 'Your dealers'
                                     : 'Search results',
-                                style: TextStyle(
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.w700,
+                                style: AppTextStyles.sectionTitle.copyWith(
                                   letterSpacing: -0.4,
                                   color: context.primaryTextColor,
                                 ),
@@ -704,9 +706,7 @@ class _DealerListScreenState extends State<DealerListScreen> {
                               ),
                               child: Text(
                                 '${dealers.length}',
-                                style: TextStyle(
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.w700,
+                                style: AppTextStyles.buttonSmall.copyWith(
                                   color: context.primaryColor,
                                 ),
                               ),
@@ -784,7 +784,7 @@ class _DealerListScreenState extends State<DealerListScreen> {
           },
           tooltip: 'Add dealer follow-up',
           icon: const Icon(Icons.add_rounded),
-          label: const Text('Add Dealer'),
+          label: Text('Add Dealer', style: AppTextStyles.button),
         ),
       ),
     );
@@ -819,9 +819,7 @@ class _DealerListScreenState extends State<DealerListScreen> {
                     : 'Location unavailable',
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
-                style: TextStyle(
-                  fontSize: 11,
-                  fontWeight: FontWeight.w600,
+                style: AppTextStyles.labelSmall.copyWith(
                   color: context.primaryColor,
                 ),
               ),
@@ -844,7 +842,7 @@ class _DealerListScreenState extends State<DealerListScreen> {
         builder: (context, index) => TextField(
           controller: _searchController,
           textInputAction: TextInputAction.search,
-          style: TextStyle(fontSize: 14, color: context.primaryTextColor),
+          style: AppTextStyles.input.copyWith(color: context.primaryTextColor),
           decoration: InputDecoration(
             hint: AnimatedSwitcher(
               layoutBuilder: (currentChild, previousChildren) => Stack(
@@ -859,15 +857,13 @@ class _DealerListScreenState extends State<DealerListScreen> {
                 key: ValueKey(index),
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
-                style: TextStyle(
+                style: AppTextStyles.body.copyWith(
                   color: context.secondaryTextColor,
-                  fontSize: 14,
                 ),
               ),
             ),
-            hintStyle: TextStyle(
+            hintStyle: AppTextStyles.inputHint.copyWith(
               color: context.secondaryTextColor,
-              fontSize: 14,
             ),
             filled: true,
             fillColor: context.appTheme.inputBackground,
@@ -893,10 +889,8 @@ class _DealerListScreenState extends State<DealerListScreen> {
 
             helperText:
                 'Search after 3 characters. After searching wait for 2 sec..!',
-            helperStyle: TextStyle(
-              fontSize: 10,
+            helperStyle: AppTextStyles.helperText.copyWith(
               color: context.appColors.error,
-              fontWeight: FontWeight.w500,
             ),
 
             border: OutlineInputBorder(
@@ -936,10 +930,8 @@ class _DealerListScreenState extends State<DealerListScreen> {
 
           Text(
             'No Dealers Found..!',
-            style: TextStyle(
+            style: AppTextStyles.bodyMedium.copyWith(
               color: context.secondaryTextColor,
-              fontSize: 15,
-              fontWeight: FontWeight.w500,
             ),
           ),
 
@@ -947,7 +939,9 @@ class _DealerListScreenState extends State<DealerListScreen> {
             const SizedBox(height: 5),
             Text(
               'Try another search',
-              style: TextStyle(color: context.secondaryTextColor, fontSize: 12),
+              style: AppTextStyles.bodySmall.copyWith(
+                color: context.secondaryTextColor,
+              ),
             ),
           ],
         ],
@@ -1032,9 +1026,9 @@ class _DealerListItem extends StatelessWidget {
     if (!isValid(number)) number = normalize(dealer.outletMobile);
     void showError(String message) {
       if (!context.mounted) return;
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text(message)));
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(message, style: AppTextStyles.body)),
+      );
     }
 
     if (!isValid(number)) {
@@ -1101,9 +1095,7 @@ class _DealerListItem extends StatelessWidget {
                 child: Center(
                   child: Text(
                     name.isEmpty ? '?' : name.characters.first.toUpperCase(),
-                    style: TextStyle(
-                      fontSize: 22,
-                      fontWeight: FontWeight.w700,
+                    style: AppTextStyles.pageTitle.copyWith(
                       color: context.primaryColor,
                     ),
                   ),
@@ -1116,9 +1108,7 @@ class _DealerListItem extends StatelessWidget {
                   children: [
                     Text(
                       name.isEmpty ? 'Unknown dealer' : name,
-                      style: TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w700,
+                      style: AppTextStyles.listTitle.copyWith(
                         color: context.cardTextColor,
                       ),
                     ),
@@ -1141,10 +1131,8 @@ class _DealerListItem extends StatelessWidget {
                             'Lat: ${dealer.latitude}  Long: ${dealer.longitude}  (${dealer.outletDistance})',
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
-                            style: TextStyle(
-                              fontSize: 10,
+                            style: AppTextStyles.helperText.copyWith(
                               color: context.secondaryTextColor,
-                              fontWeight: FontWeight.w500,
                             ),
                           ),
                         ),
@@ -1284,7 +1272,10 @@ class _DealerListItem extends StatelessWidget {
                           : Icons.push_pin_outlined,
                       size: 15,
                     ),
-                    label: Text(locationNotAvailable ? 'LOC' : 'Pin'),
+                    label: Text(
+                      locationNotAvailable ? 'LOC' : 'Pin',
+                      style: AppTextStyles.buttonSmall,
+                    ),
                     style: OutlinedButton.styleFrom(
                       foregroundColor: context.primaryColor,
                       side: BorderSide(color: context.primaryColor),
@@ -1293,10 +1284,7 @@ class _DealerListItem extends StatelessWidget {
                         horizontal: 8,
                         vertical: 8,
                       ),
-                      textStyle: const TextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w600,
-                      ),
+                      textStyle: AppTextStyles.buttonSmall,
                       shape: shape,
                     ),
                   ),
@@ -1316,7 +1304,7 @@ class _DealerListItem extends StatelessWidget {
                           }
                         },
                   icon: const Icon(Icons.call_outlined, size: 15),
-                  label: const Text('Call'),
+                  label: Text('Call', style: AppTextStyles.buttonSmall),
                   style: FilledButton.styleFrom(
                     backgroundColor: context.primaryColor,
                     foregroundColor: context.onPrimaryColor,
@@ -1325,10 +1313,7 @@ class _DealerListItem extends StatelessWidget {
                       horizontal: 8,
                       vertical: 8,
                     ),
-                    textStyle: const TextStyle(
-                      fontSize: 12,
-                      fontWeight: FontWeight.w600,
-                    ),
+                    textStyle: AppTextStyles.buttonSmall,
                     shape: shape,
                   ),
                 ),
@@ -1447,18 +1432,15 @@ class _DealerDetail extends StatelessWidget {
               children: [
                 Text(
                   label,
-                  style: TextStyle(
-                    fontSize: 9,
+                  style: AppTextStyles.caption.copyWith(
                     color: context.secondaryTextColor,
                   ),
                 ),
                 const SizedBox(height: 2),
                 Text(
                   text,
-                  style: TextStyle(
-                    fontSize: 12,
+                  style: AppTextStyles.buttonSmall.copyWith(
                     height: 1.25,
-                    fontWeight: FontWeight.w600,
                     color: onTap != null
                         ? context.primaryColor
                         : context.cardTextColor,
@@ -1518,25 +1500,21 @@ class _ActivityInfo extends StatelessWidget {
               children: [
                 Text(
                   title,
-                  style: TextStyle(
-                    fontSize: 9,
+                  style: AppTextStyles.caption.copyWith(
                     color: context.secondaryTextColor,
                   ),
                 ),
                 const SizedBox(height: 3),
                 Text(
                   value,
-                  style: TextStyle(
-                    fontSize: 10,
-                    fontWeight: FontWeight.w500,
+                  style: AppTextStyles.helperText.copyWith(
                     color: context.primaryTextColor,
                   ),
                 ),
                 if (time != null)
                   Text(
                     time,
-                    style: TextStyle(
-                      fontSize: 10,
+                    style: AppTextStyles.helperText.copyWith(
                       color: context.secondaryTextColor,
                     ),
                   ),

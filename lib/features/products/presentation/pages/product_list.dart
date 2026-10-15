@@ -1,10 +1,10 @@
+import 'package:solufine/core/theme/typography/app_text_styles.dart';
 import 'package:solufine/core/theme/app_theme_context.dart';
 
 import 'package:solufine/core/utility/widgets/custom_appbar.dart';
 import 'package:solufine/features/products/domain/entity/fertilizer_category_entity.dart';
 import 'package:solufine/features/products/presentation/pages/widget/product_card.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil_plus/flutter_screenutil_plus.dart';
 import 'package:go_router/go_router.dart';
 
 class ProductList extends StatelessWidget {
@@ -19,7 +19,7 @@ class ProductList extends StatelessWidget {
         body: Center(
           child: Text(
             'Category Not Found',
-            style: TextStyle(color: context.primaryTextColor),
+            style: AppTextStyles.body.copyWith(color: context.primaryTextColor),
           ),
         ),
       );
@@ -41,9 +41,7 @@ class ProductList extends StatelessWidget {
           ? Center(
               child: Text(
                 'No products found',
-                style: TextStyle(
-                  fontSize: 16.sp,
-                  fontWeight: FontWeight.w500,
+                style: AppTextStyles.bodyLarge.copyWith(
                   color: context.secondaryTextColor,
                 ),
               ),

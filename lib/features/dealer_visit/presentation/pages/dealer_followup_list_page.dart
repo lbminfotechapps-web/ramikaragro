@@ -1,3 +1,4 @@
+import 'package:solufine/core/theme/typography/app_text_styles.dart';
 import 'package:solufine/core/router/app_router.dart';
 import 'package:solufine/core/utility/widgets/custom_appbar.dart';
 import 'package:flutter/material.dart';
@@ -169,24 +170,22 @@ class _DealerFollowupListPageState extends State<DealerFollowupListPage> {
 
             const SizedBox(height: 20),
 
-            const Text(
+            Text(
               'No Follow-ups Found',
 
-              style: TextStyle(
+              style: AppTextStyles.sectionTitle.copyWith(
                 color: Color(0xFF1B4332),
-                fontSize: 18,
-                fontWeight: FontWeight.w700,
               ),
             ),
 
             const SizedBox(height: 8),
 
-            const Text(
+            Text(
               'No follow-up records are available for this dealer.',
 
               textAlign: TextAlign.center,
 
-              style: TextStyle(color: Colors.grey, fontSize: 13),
+              style: AppTextStyles.bodyMedium.copyWith(color: Colors.grey),
             ),
           ],
         ),
@@ -221,10 +220,7 @@ class _DealerFollowupListPageState extends State<DealerFollowupListPage> {
             context.push('/dealrFollowUpAddNew', extra: widget.dealerId);
           },
           icon: const Icon(Icons.add_task_rounded, size: 19),
-          label: const Text(
-            'Add Follow-up',
-            style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
-          ),
+          label: Text('Add Follow-up', style: AppTextStyles.listTitle),
           style: ElevatedButton.styleFrom(
             backgroundColor: const Color(0xFF087C3A),
             foregroundColor: Colors.white,
@@ -316,9 +312,8 @@ class _DealerFollowupListPageState extends State<DealerFollowupListPage> {
                           if (item.followupTime.isNotEmpty) item.followupTime,
                         ].join(' • '),
 
-                        style: const TextStyle(
+                        style: AppTextStyles.bodySmall.copyWith(
                           color: Colors.black,
-                          fontSize: 12,
                         ),
                       ),
                   ],
@@ -367,7 +362,7 @@ class _DealerFollowupListPageState extends State<DealerFollowupListPage> {
               crossAxisAlignment: CrossAxisAlignment.start,
 
               children: [
-                const Row(
+                Row(
                   children: [
                     Icon(
                       Icons.notes_rounded,
@@ -379,10 +374,8 @@ class _DealerFollowupListPageState extends State<DealerFollowupListPage> {
 
                     Text(
                       'Remark',
-                      style: TextStyle(
+                      style: AppTextStyles.label.copyWith(
                         color: Color(0xFF087C3A),
-                        fontSize: 12,
-                        fontWeight: FontWeight.w700,
                       ),
                     ),
                   ],
@@ -393,9 +386,8 @@ class _DealerFollowupListPageState extends State<DealerFollowupListPage> {
                 Text(
                   item.followupRemark.isEmpty ? '-' : item.followupRemark,
 
-                  style: const TextStyle(
+                  style: AppTextStyles.bodyMedium.copyWith(
                     color: Color(0xFF263238),
-                    fontSize: 13,
                     height: 1.4,
                   ),
                 ),
@@ -442,11 +434,7 @@ class _DealerFollowupListPageState extends State<DealerFollowupListPage> {
               Text(
                 title,
 
-                style: const TextStyle(
-                  color: Colors.grey,
-                  fontSize: 11,
-                  fontWeight: FontWeight.w500,
-                ),
+                style: AppTextStyles.caption.copyWith(color: Colors.grey),
               ),
 
               const SizedBox(height: 2),
@@ -454,10 +442,8 @@ class _DealerFollowupListPageState extends State<DealerFollowupListPage> {
               Text(
                 value,
 
-                style: const TextStyle(
+                style: AppTextStyles.labelLarge.copyWith(
                   color: Color(0xFF263238),
-                  fontSize: 13,
-                  fontWeight: FontWeight.w600,
                 ),
               ),
             ],

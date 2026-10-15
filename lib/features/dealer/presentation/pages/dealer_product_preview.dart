@@ -1,3 +1,4 @@
+import 'package:solufine/core/theme/typography/app_text_styles.dart';
 import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
@@ -252,7 +253,10 @@ class _DealerProductPreviewPageState extends State<DealerProductPreviewPage> {
                   width: 62.w,
                   height: 62.w,
                   decoration: BoxDecoration(
-                    color: Color.alphaBlend(context.appPrimary.withValues(alpha: 0.1), context.appCard),
+                    color: Color.alphaBlend(
+                      context.appPrimary.withValues(alpha: 0.1),
+                      context.appCard,
+                    ),
                     shape: BoxShape.circle,
                   ),
                   child: Icon(
@@ -267,9 +271,7 @@ class _DealerProductPreviewPageState extends State<DealerProductPreviewPage> {
                 Text(
                   'Confirm Submission',
                   textAlign: TextAlign.center,
-                  style: TextStyle(
-                    fontSize: 17.sp,
-                    fontWeight: FontWeight.w800,
+                  style: AppTextStyles.headingMedium.copyWith(
                     color: context.appOnCard,
                   ),
                 ),
@@ -279,8 +281,7 @@ class _DealerProductPreviewPageState extends State<DealerProductPreviewPage> {
                 Text(
                   'Are you sure you want to place this order?',
                   textAlign: TextAlign.center,
-                  style: TextStyle(
-                    fontSize: 12.sp,
+                  style: AppTextStyles.bodySmall.copyWith(
                     height: 1.4,
                     color: context.appSubText,
                   ),
@@ -373,10 +374,7 @@ class _DealerProductPreviewPageState extends State<DealerProductPreviewPage> {
 
                           child: Text(
                             'Cancel',
-                            style: TextStyle(
-                              fontSize: 12.sp,
-                              fontWeight: FontWeight.w700,
-                            ),
+                            style: AppTextStyles.buttonSmall,
                           ),
                         ),
                       ),
@@ -408,10 +406,7 @@ class _DealerProductPreviewPageState extends State<DealerProductPreviewPage> {
 
                           child: Text(
                             'Add Stock',
-                            style: TextStyle(
-                              fontSize: 12.sp,
-                              fontWeight: FontWeight.w800,
-                            ),
+                            style: AppTextStyles.buttonSmall,
                           ),
                         ),
                       ),
@@ -750,7 +745,7 @@ class _DealerProductPreviewPageState extends State<DealerProductPreviewPage> {
       ..hideCurrentSnackBar()
       ..showSnackBar(
         SnackBar(
-          content: Text(message),
+          content: Text(message, style: AppTextStyles.body),
           backgroundColor: isError ? context.appError : context.appPrimary,
           behavior: SnackBarBehavior.floating,
         ),
@@ -795,7 +790,10 @@ class _DealerProductPreviewPageState extends State<DealerProductPreviewPage> {
                   height: 72.w,
 
                   decoration: BoxDecoration(
-                    color: Color.alphaBlend(context.appPrimary.withValues(alpha: 0.1), context.appCard),
+                    color: Color.alphaBlend(
+                      context.appPrimary.withValues(alpha: 0.1),
+                      context.appCard,
+                    ),
                     shape: BoxShape.circle,
                   ),
 
@@ -824,9 +822,7 @@ class _DealerProductPreviewPageState extends State<DealerProductPreviewPage> {
                   'Stock Submitted',
                   textAlign: TextAlign.center,
 
-                  style: TextStyle(
-                    fontSize: 18.sp,
-                    fontWeight: FontWeight.w800,
+                  style: AppTextStyles.sectionTitle.copyWith(
                     color: context.appOnCard,
                   ),
                 ),
@@ -837,10 +833,8 @@ class _DealerProductPreviewPageState extends State<DealerProductPreviewPage> {
                   'Dealer stock has been submitted successfully.',
                   textAlign: TextAlign.center,
 
-                  style: TextStyle(
-                    fontSize: 12.sp,
+                  style: AppTextStyles.bodySmall.copyWith(
                     height: 1.4,
-                    fontWeight: FontWeight.w500,
                     color: context.appSubText,
                   ),
                 ),
@@ -873,14 +867,7 @@ class _DealerProductPreviewPageState extends State<DealerProductPreviewPage> {
                       ),
                     ),
 
-                    child: Text(
-                      'OK',
-
-                      style: TextStyle(
-                        fontSize: 13.sp,
-                        fontWeight: FontWeight.w800,
-                      ),
-                    ),
+                    child: Text('OK', style: AppTextStyles.labelLarge),
                   ),
                 ),
               ],
@@ -1184,15 +1171,12 @@ class _DealerProductPreviewPageState extends State<DealerProductPreviewPage> {
         padding: EdgeInsets.symmetric(horizontal: 16.w),
 
         child: SizedBox(
-
-
           child: CustomButton(
             text: 'Submit Stock',
 
             onPressed: isLoading ? () {} : _showSubmitConfirmation,
 
             isLoading: isLoading,
-
 
             backgroundColor: context.appPrimary,
 
@@ -1213,7 +1197,10 @@ class _DealerProductPreviewPageState extends State<DealerProductPreviewPage> {
           width: 26.w,
           height: 26.w,
           decoration: BoxDecoration(
-            color: Color.alphaBlend(context.appPrimary.withValues(alpha: 0.1), context.appCard),
+            color: Color.alphaBlend(
+              context.appPrimary.withValues(alpha: 0.1),
+              context.appCard,
+            ),
             borderRadius: BorderRadius.circular(7.r),
           ),
           alignment: Alignment.center,
@@ -1227,11 +1214,7 @@ class _DealerProductPreviewPageState extends State<DealerProductPreviewPage> {
             title,
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
-            style: TextStyle(
-              fontSize: 10.sp,
-              fontWeight: FontWeight.w800,
-              color: context.appOnCard,
-            ),
+            style: AppTextStyles.badge.copyWith(color: context.appOnCard),
           ),
         ),
       ],
@@ -1249,7 +1232,10 @@ class _DealerProductPreviewPageState extends State<DealerProductPreviewPage> {
           width: 28.w,
           height: 28.w,
           decoration: BoxDecoration(
-            color: Color.alphaBlend(context.appPrimary.withValues(alpha: 0.1), context.appCard),
+            color: Color.alphaBlend(
+              context.appPrimary.withValues(alpha: 0.1),
+              context.appCard,
+            ),
             borderRadius: BorderRadius.circular(7.r),
           ),
           child: Icon(icon, size: 14.sp, color: context.appPrimary),
@@ -1260,11 +1246,7 @@ class _DealerProductPreviewPageState extends State<DealerProductPreviewPage> {
         Expanded(
           child: Text(
             label,
-            style: TextStyle(
-              fontSize: 10.5.sp,
-              fontWeight: FontWeight.w600,
-              color: context.appSubText,
-            ),
+            style: AppTextStyles.labelSmall.copyWith(color: context.appSubText),
           ),
         ),
 
@@ -1274,11 +1256,7 @@ class _DealerProductPreviewPageState extends State<DealerProductPreviewPage> {
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
             textAlign: TextAlign.right,
-            style: TextStyle(
-              fontSize: 11.sp,
-              fontWeight: FontWeight.w800,
-              color: context.appOnCard,
-            ),
+            style: AppTextStyles.labelSmall.copyWith(color: context.appOnCard),
           ),
         ),
       ],
@@ -1316,9 +1294,7 @@ class _DealerProductPreviewPageState extends State<DealerProductPreviewPage> {
                   bottom: 0,
                   child: Container(
                     height: 42.h,
-                    decoration: BoxDecoration(
-                      color: context.appPrimary,
-                    ),
+                    decoration: BoxDecoration(color: context.appPrimary),
                   ),
                 ),
 
@@ -1351,9 +1327,7 @@ class _DealerProductPreviewPageState extends State<DealerProductPreviewPage> {
                           SizedBox(width: 3.w),
                           Text(
                             'Retake',
-                            style: TextStyle(
-                              fontSize: 8.sp,
-                              fontWeight: FontWeight.w700,
+                            style: AppTextStyles.badge.copyWith(
                               color: context.appOnPrimary,
                             ),
                           ),
@@ -1404,7 +1378,10 @@ class _DealerProductPreviewPageState extends State<DealerProductPreviewPage> {
                     height: 40.w,
 
                     decoration: BoxDecoration(
-                      color: Color.alphaBlend(context.appPrimary.withValues(alpha: 0.1), context.appCard),
+                      color: Color.alphaBlend(
+                        context.appPrimary.withValues(alpha: 0.1),
+                        context.appCard,
+                      ),
                       shape: BoxShape.circle,
                     ),
 
@@ -1421,9 +1398,7 @@ class _DealerProductPreviewPageState extends State<DealerProductPreviewPage> {
 
                   Text(
                     'Capture Photo',
-                    style: TextStyle(
-                      fontSize: 10.sp,
-                      fontWeight: FontWeight.w700,
+                    style: AppTextStyles.badge.copyWith(
                       color: context.appOnCard,
                     ),
                   ),
@@ -1433,8 +1408,7 @@ class _DealerProductPreviewPageState extends State<DealerProductPreviewPage> {
                   Text(
                     'Tap to open camera',
                     textAlign: TextAlign.center,
-                    style: TextStyle(
-                      fontSize: 8.sp,
+                    style: AppTextStyles.helperText.copyWith(
                       color: context.appSubText,
                     ),
                   ),
@@ -1495,8 +1469,7 @@ class _DealerProductPreviewPageState extends State<DealerProductPreviewPage> {
                 Expanded(
                   child: Text(
                     'Sign here',
-                    style: TextStyle(
-                      fontSize: 8.sp,
+                    style: AppTextStyles.helperText.copyWith(
                       color: context.appSubText,
                     ),
                   ),
@@ -1521,9 +1494,7 @@ class _DealerProductPreviewPageState extends State<DealerProductPreviewPage> {
 
                         Text(
                           'Clear',
-                          style: TextStyle(
-                            fontSize: 8.sp,
-                            fontWeight: FontWeight.w700,
+                          style: AppTextStyles.badge.copyWith(
                             color: context.appError,
                           ),
                         ),
@@ -1560,7 +1531,10 @@ class _DealerProductPreviewPageState extends State<DealerProductPreviewPage> {
             height: 42.w,
 
             decoration: BoxDecoration(
-              color: Color.alphaBlend(context.appPrimary.withValues(alpha: 0.1), context.appCard),
+              color: Color.alphaBlend(
+                context.appPrimary.withValues(alpha: 0.1),
+                context.appCard,
+              ),
 
               shape: BoxShape.circle,
             ),
@@ -1583,9 +1557,7 @@ class _DealerProductPreviewPageState extends State<DealerProductPreviewPage> {
               children: [
                 Text(
                   'Dealer',
-                  style: TextStyle(
-                    fontSize: 9.sp,
-
+                  style: AppTextStyles.caption.copyWith(
                     color: context.appSubText,
                   ),
                 ),
@@ -1599,11 +1571,7 @@ class _DealerProductPreviewPageState extends State<DealerProductPreviewPage> {
 
                   overflow: TextOverflow.ellipsis,
 
-                  style: TextStyle(
-                    fontSize: 13.sp,
-
-                    fontWeight: FontWeight.w800,
-
+                  style: AppTextStyles.labelLarge.copyWith(
                     color: context.appOnCard,
                   ),
                 ),
@@ -1634,7 +1602,10 @@ class _DealerProductPreviewPageState extends State<DealerProductPreviewPage> {
       padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 10.h),
 
       decoration: BoxDecoration(
-        color: Color.alphaBlend(context.appPrimary.withValues(alpha: 0.1), context.appCard),
+        color: Color.alphaBlend(
+          context.appPrimary.withValues(alpha: 0.1),
+          context.appCard,
+        ),
 
         borderRadius: BorderRadius.circular(12.r),
 
@@ -1688,17 +1659,14 @@ class _DealerProductPreviewPageState extends State<DealerProductPreviewPage> {
           children: [
             Text(
               title,
-              style: TextStyle(
-                fontSize: 14.sp,
-                fontWeight: FontWeight.w900,
+              style: AppTextStyles.listTitle.copyWith(
                 color: context.appPrimary,
               ),
             ),
 
             Text(
               subtitle,
-              style: TextStyle(
-                fontSize: 8.5.sp,
+              style: AppTextStyles.helperText.copyWith(
                 color: context.appSubText,
               ),
             ),
@@ -1740,7 +1708,10 @@ class _DealerProductPreviewPageState extends State<DealerProductPreviewPage> {
             alignment: Alignment.center,
 
             decoration: BoxDecoration(
-              color: Color.alphaBlend(context.appPrimary.withValues(alpha: 0.1), context.appCard),
+              color: Color.alphaBlend(
+                context.appPrimary.withValues(alpha: 0.1),
+                context.appCard,
+              ),
 
               borderRadius: BorderRadius.circular(8.r),
             ),
@@ -1748,13 +1719,7 @@ class _DealerProductPreviewPageState extends State<DealerProductPreviewPage> {
             child: Text(
               '${index + 1}',
 
-              style: TextStyle(
-                color: context.appPrimary,
-
-                fontSize: 10.sp,
-
-                fontWeight: FontWeight.w800,
-              ),
+              style: AppTextStyles.badge.copyWith(color: context.appPrimary),
             ),
           ),
 
@@ -1773,11 +1738,7 @@ class _DealerProductPreviewPageState extends State<DealerProductPreviewPage> {
 
                   overflow: TextOverflow.ellipsis,
 
-                  style: TextStyle(
-                    fontSize: 12.sp,
-
-                    fontWeight: FontWeight.w800,
-
+                  style: AppTextStyles.buttonSmall.copyWith(
                     color: context.appOnCard,
                   ),
                 ),
@@ -1821,11 +1782,7 @@ class _DealerProductPreviewPageState extends State<DealerProductPreviewPage> {
                 Text(
                   'CASE',
 
-                  style: TextStyle(
-                    fontSize: 7.sp,
-
-                    fontWeight: FontWeight.w600,
-
+                  style: AppTextStyles.helperText.copyWith(
                     color: context.appOnPrimary.withOpacity(0.75),
                   ),
                 ),
@@ -1833,11 +1790,7 @@ class _DealerProductPreviewPageState extends State<DealerProductPreviewPage> {
                 Text(
                   '$quantity',
 
-                  style: TextStyle(
-                    fontSize: 14.sp,
-
-                    fontWeight: FontWeight.w900,
-
+                  style: AppTextStyles.listTitle.copyWith(
                     color: context.appOnPrimary,
                   ),
                 ),
@@ -1862,13 +1815,7 @@ class _DealerProductPreviewPageState extends State<DealerProductPreviewPage> {
       child: Text(
         text,
 
-        style: TextStyle(
-          fontSize: 8.5.sp,
-
-          fontWeight: FontWeight.w600,
-
-          color: context.appSubText,
-        ),
+        style: AppTextStyles.helperText.copyWith(color: context.appSubText),
       ),
     );
   }
@@ -1881,12 +1828,12 @@ class _DealerProductPreviewPageState extends State<DealerProductPreviewPage> {
 
       minLines: 2,
 
-      style: TextStyle(fontSize: 12.sp, fontWeight: FontWeight.w500),
+      style: AppTextStyles.input,
 
       decoration: InputDecoration(
         hintText: 'Enter remark...',
 
-        hintStyle: TextStyle(fontSize: 11.sp, color: context.appSubText),
+        hintStyle: AppTextStyles.inputHint.copyWith(color: context.appSubText),
 
         filled: true,
 
@@ -1927,7 +1874,10 @@ class _DealerProductPreviewPageState extends State<DealerProductPreviewPage> {
           height: 31.w,
 
           decoration: BoxDecoration(
-            color: Color.alphaBlend(context.appPrimary.withValues(alpha: 0.1), context.appCard),
+            color: Color.alphaBlend(
+              context.appPrimary.withValues(alpha: 0.1),
+              context.appCard,
+            ),
 
             borderRadius: BorderRadius.circular(8.r),
           ),
@@ -1945,11 +1895,7 @@ class _DealerProductPreviewPageState extends State<DealerProductPreviewPage> {
               Text(
                 title,
 
-                style: TextStyle(
-                  fontSize: 12.sp,
-
-                  fontWeight: FontWeight.w800,
-
+                style: AppTextStyles.buttonSmall.copyWith(
                   color: context.appOnCard,
                 ),
               ),
@@ -1957,9 +1903,7 @@ class _DealerProductPreviewPageState extends State<DealerProductPreviewPage> {
               Text(
                 subtitle,
 
-                style: TextStyle(
-                  fontSize: 9.sp,
-
+                style: AppTextStyles.caption.copyWith(
                   color: context.appSubText,
                 ),
               ),

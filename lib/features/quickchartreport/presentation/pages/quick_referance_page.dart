@@ -6,6 +6,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:solufine/core/api_constant/api_client.dart';
 import 'package:solufine/core/router/app_router.dart';
 import 'package:solufine/core/theme/app_theme_context.dart';
+import 'package:solufine/core/theme/typography/app_text_styles.dart';
 import 'package:solufine/core/utility/widgets/custom_appbar.dart';
 import 'package:solufine/features/quickchartreport/presentation/bloc/gallerybloc.dart';
 import 'package:solufine/features/quickchartreport/presentation/bloc/galleryevent.dart';
@@ -70,7 +71,7 @@ class _QuickReferencePageState extends State<QuickReferencePage> {
 
                 return _QuickReferenceCard(
                   title: gallery.title,
-                  date: gallery.date,
+                  // date: gallery.date,
                   files: gallery.data,
                   baseFileUrl: baseFileUrl,
                 );
@@ -95,7 +96,9 @@ class _QuickReferencePageState extends State<QuickReferencePage> {
           SizedBox(height: 12),
           Text(
             'No quick reference found',
-            style: TextStyle(fontSize: 15, color: context.secondaryTextColor),
+            style: AppTextStyles.body.copyWith(
+              color: context.secondaryTextColor,
+            ),
           ),
         ],
       ),
@@ -115,14 +118,18 @@ class _QuickReferencePageState extends State<QuickReferencePage> {
               color: context.appColors.error,
             ),
             const SizedBox(height: 12),
-            Text(message, textAlign: TextAlign.center),
+            Text(
+              message,
+              textAlign: TextAlign.center,
+              style: AppTextStyles.body,
+            ),
             const SizedBox(height: 20),
             ElevatedButton.icon(
               onPressed: () {
                 context.read<GalleryBloc>().add(const GetGalleryEvent());
               },
               icon: const Icon(Icons.refresh),
-              label: const Text('Retry'),
+              label: Text('Retry', style: AppTextStyles.button),
             ),
           ],
         ),
@@ -133,13 +140,13 @@ class _QuickReferencePageState extends State<QuickReferencePage> {
 
 class _QuickReferenceCard extends StatelessWidget {
   final String title;
-  final String date;
+  // final String date;
   final List files;
   final String baseFileUrl;
 
   const _QuickReferenceCard({
     required this.title,
-    required this.date,
+    // required this.date,
     required this.files,
     required this.baseFileUrl,
   });
@@ -186,31 +193,28 @@ class _QuickReferenceCard extends StatelessWidget {
                     children: [
                       Text(
                         title,
-                        style: TextStyle(
-                          fontSize: 16,
+                        style: AppTextStyles.cardTitle.copyWith(
                           height: 1.3,
-                          fontWeight: FontWeight.w700,
                           color: context.primaryTextColor,
                         ),
                       ),
-                      const SizedBox(height: 6),
-                      Row(
-                        children: [
-                          Icon(
-                            Icons.calendar_today_outlined,
-                            size: 14,
-                            color: context.secondaryTextColor,
-                          ),
-                          const SizedBox(width: 5),
-                          Text(
-                            date,
-                            style: TextStyle(
-                              fontSize: 12,
-                              color: context.secondaryTextColor,
-                            ),
-                          ),
-                        ],
-                      ),
+                      // const SizedBox(height: 6),
+                      // Row(
+                      //   children: [
+                      //     Icon(
+                      //       Icons.calendar_today_outlined,
+                      //       size: 14,
+                      //       color: context.secondaryTextColor,
+                      //     ),
+                      //     // const SizedBox(width: 5),
+                      //     // Text(
+                      //     //   date,
+                      //     //   style: AppTextStyles.bodySmall.copyWith(
+                      //     //     color: context.secondaryTextColor,
+                      //     //   ),
+                      //     // ),
+                      //   ],
+                      // ),
                     ],
                   ),
                 ),
@@ -225,9 +229,7 @@ class _QuickReferenceCard extends StatelessWidget {
 
             Text(
               files.length > 1 ? 'Available References' : 'Available Reference',
-              style: TextStyle(
-                fontSize: 13,
-                fontWeight: FontWeight.w600,
+              style: AppTextStyles.label.copyWith(
                 color: context.secondaryTextColor,
               ),
             ),
@@ -332,9 +334,7 @@ class _ReferenceFileTile extends StatelessWidget {
                 children: [
                   Text(
                     language,
-                    style: TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w600,
+                    style: AppTextStyles.labelLarge.copyWith(
                       color: context.primaryTextColor,
                     ),
                   ),
@@ -345,8 +345,7 @@ class _ReferenceFileTile extends StatelessWidget {
                         : isImage
                         ? 'Image Reference'
                         : 'Reference File',
-                    style: TextStyle(
-                      fontSize: 11,
+                    style: AppTextStyles.caption.copyWith(
                       color: context.secondaryTextColor,
                     ),
                   ),
@@ -484,8 +483,11 @@ class _QuickReferenceImagePageState extends State<QuickReferenceImagePage> {
     } catch (_) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Unable to share image. Please try again.'),
+          SnackBar(
+            content: Text(
+              'Unable to share image. Please try again.',
+              style: AppTextStyles.body,
+            ),
           ),
         );
       }
@@ -505,35 +507,25 @@ class _QuickReferenceImagePageState extends State<QuickReferenceImagePage> {
     return Scaffold(
       backgroundColor: context.backgroundColor,
 
- 
-appBar: CustomAppBar(
-  title: _title,
+      appBar: CustomAppBar(
+        title: _title,
 
-  showBackButton: true,
-  showThemeButton: false,
-  action: Builder(
-    builder: (buttonContext) => IconButton(
-      tooltip: 'Share image',
-      onPressed: _sharing
-          ? null
-          : () => _shareImage(buttonContext),
-      icon: _sharing
-          ? SizedBox(
-              width: 20,
-              height: 20,
-              child: CircularProgressIndicator(
-                strokeWidth: 2,
-             
-              ),
-            )
-          : Icon(
-              Icons.share_outlined,
-            
-            ),
-    ),
-  ),
-),
-
+        showBackButton: true,
+        showThemeButton: false,
+        action: Builder(
+          builder: (buttonContext) => IconButton(
+            tooltip: 'Share image',
+            onPressed: _sharing ? null : () => _shareImage(buttonContext),
+            icon: _sharing
+                ? SizedBox(
+                    width: 20,
+                    height: 20,
+                    child: CircularProgressIndicator(strokeWidth: 2),
+                  )
+                : Icon(Icons.share_outlined),
+          ),
+        ),
+      ),
 
       body: Column(
         children: [
@@ -568,7 +560,9 @@ appBar: CustomAppBar(
                         SizedBox(height: 10),
                         Text(
                           'Unable to load image',
-                          style: TextStyle(color: context.secondaryTextColor),
+                          style: AppTextStyles.body.copyWith(
+                            color: context.secondaryTextColor,
+                          ),
                         ),
                       ],
                     ),
@@ -584,7 +578,9 @@ appBar: CustomAppBar(
                 padding: const EdgeInsets.all(12),
                 child: Text(
                   '${_index + 1} / ${_images.length} · Swipe to browse',
-                  style: TextStyle(color: context.secondaryTextColor),
+                  style: AppTextStyles.body.copyWith(
+                    color: context.secondaryTextColor,
+                  ),
                 ),
               ),
             ),

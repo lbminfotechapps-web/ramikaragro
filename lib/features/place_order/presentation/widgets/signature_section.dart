@@ -1,3 +1,4 @@
+import 'package:solufine/core/theme/typography/app_text_styles.dart';
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
@@ -94,9 +95,7 @@ class _SignatureSectionState extends State<SignatureSection> {
                       'Signature *',
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
-                      style: TextStyle(
-                        fontSize: 11.5.sp,
-                        fontWeight: FontWeight.w800,
+                      style: AppTextStyles.labelSmall.copyWith(
                         color: context.cardTextColor,
                       ),
                     ),
@@ -114,10 +113,8 @@ class _SignatureSectionState extends State<SignatureSection> {
                     ),
                     child: Text(
                       'Clear',
-                      style: TextStyle(
+                      style: AppTextStyles.labelSmall.copyWith(
                         color: context.appColors.error,
-                        fontSize: 10.sp,
-                        fontWeight: FontWeight.w700,
                       ),
                     ),
                   ),
@@ -166,8 +163,7 @@ class _SignatureSectionState extends State<SignatureSection> {
                                   SizedBox(height: 3.h),
                                   Text(
                                     'Draw signature here',
-                                    style: TextStyle(
-                                      fontSize: 9.5.sp,
+                                    style: AppTextStyles.caption.copyWith(
                                       color: context.secondaryTextColor
                                           .withValues(alpha: 0.7),
                                     ),

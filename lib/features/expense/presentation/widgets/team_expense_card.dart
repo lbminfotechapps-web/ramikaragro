@@ -1,3 +1,4 @@
+import 'package:solufine/core/theme/typography/app_text_styles.dart';
 import 'package:solufine/core/theme/app_theme_context.dart';
 import 'dart:convert';
 
@@ -69,7 +70,7 @@ class TeamExpenseCard extends StatelessWidget {
                   ),
                   child: Icon(
                     Icons.person_rounded,
-                    color:  context.backgroundColor,
+                    color: context.backgroundColor,
                     size: 21,
                   ),
                 ),
@@ -85,9 +86,7 @@ class TeamExpenseCard extends StatelessWidget {
                         employeeName,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
-                        style: TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w800,
+                        style: AppTextStyles.listTitle.copyWith(
                           color: context.primaryTextColor,
                         ),
                       ),
@@ -107,10 +106,8 @@ class TeamExpenseCard extends StatelessWidget {
                               expense.expenseDate,
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
-                              style: TextStyle(
-                                fontSize: 10,
+                              style: AppTextStyles.labelSmall.copyWith(
                                 color: context.secondaryTextColor,
-                                fontWeight: FontWeight.w600,
                               ),
                             ),
                           ),
@@ -154,7 +151,7 @@ class TeamExpenseCard extends StatelessWidget {
                     ),
                     child: Icon(
                       Icons.account_balance_wallet_rounded,
-                      color:  context.backgroundColor,
+                      color: context.backgroundColor,
                       size: 19,
                     ),
                   ),
@@ -167,18 +164,15 @@ class TeamExpenseCard extends StatelessWidget {
                       children: [
                         Text(
                           'TOTAL EXPENSE',
-                          style: TextStyle(
-                            fontSize: 8,
+                          style: AppTextStyles.badge.copyWith(
                             letterSpacing: 0.6,
                             color: context.secondaryTextColor,
-                            fontWeight: FontWeight.w800,
                           ),
                         ),
                         SizedBox(height: 2),
                         Text(
                           'Daily total',
-                          style: TextStyle(
-                            fontSize: 9.5,
+                          style: AppTextStyles.caption.copyWith(
                             color: context.secondaryTextColor,
                           ),
                         ),
@@ -188,9 +182,7 @@ class TeamExpenseCard extends StatelessWidget {
 
                   Text(
                     '₹ ${expense.dailyTotal.toStringAsFixed(2)}',
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.w900,
+                    style: AppTextStyles.cardValue.copyWith(
                       color: context.primaryColor,
                     ),
                   ),
@@ -374,14 +366,7 @@ class TeamExpenseCard extends StatelessWidget {
         children: [
           Icon(icon, size: 11, color: textColor),
           SizedBox(width: 4),
-          Text(
-            text,
-            style: TextStyle(
-              fontSize: 8,
-              fontWeight: FontWeight.w900,
-              color: textColor,
-            ),
-          ),
+          Text(text, style: AppTextStyles.badge.copyWith(color: textColor)),
         ],
       ),
     );
@@ -410,9 +395,7 @@ class TeamExpenseCard extends StatelessWidget {
 
           Text(
             title,
-            style: TextStyle(
-              fontSize: 10,
-              fontWeight: FontWeight.w700,
+            style: AppTextStyles.labelSmall.copyWith(
               color: context.secondaryTextColor,
             ),
           ),
@@ -425,9 +408,7 @@ class TeamExpenseCard extends StatelessWidget {
               textAlign: TextAlign.end,
               maxLines: 2,
               overflow: TextOverflow.ellipsis,
-              style: TextStyle(
-                fontSize: 10,
-                fontWeight: FontWeight.w800,
+              style: AppTextStyles.labelSmall.copyWith(
                 color: context.primaryTextColor,
               ),
             ),
@@ -455,18 +436,14 @@ class TeamExpenseCard extends StatelessWidget {
           Expanded(
             child: Text(
               title,
-              style: TextStyle(
-                fontSize: 9,
+              style: AppTextStyles.labelSmall.copyWith(
                 color: context.secondaryTextColor,
-                fontWeight: FontWeight.w700,
               ),
             ),
           ),
           Text(
             '₹ ${amount.toStringAsFixed(2)}',
-            style: TextStyle(
-              fontSize: 11,
-              fontWeight: FontWeight.w900,
+            style: AppTextStyles.labelSmall.copyWith(
               color: context.primaryColor,
             ),
           ),
@@ -493,10 +470,8 @@ class TeamExpenseCard extends StatelessWidget {
           Expanded(
             child: Text(
               title,
-              style: TextStyle(
-                fontSize: 9,
+              style: AppTextStyles.labelSmall.copyWith(
                 color: context.secondaryTextColor,
-                fontWeight: FontWeight.w700,
               ),
             ),
           ),
@@ -506,9 +481,7 @@ class TeamExpenseCard extends StatelessWidget {
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
               textAlign: TextAlign.end,
-              style: TextStyle(
-                fontSize: 10,
-                fontWeight: FontWeight.w900,
+              style: AppTextStyles.labelSmall.copyWith(
                 color: context.primaryColor,
               ),
             ),
@@ -562,11 +535,7 @@ class TeamExpenseCard extends StatelessWidget {
               status,
               maxLines: 2,
               overflow: TextOverflow.ellipsis,
-              style: TextStyle(
-                fontSize: 10,
-                fontWeight: FontWeight.w800,
-                color: color,
-              ),
+              style: AppTextStyles.labelSmall.copyWith(color: color),
             ),
           ),
         ],
@@ -590,10 +559,7 @@ class TeamExpenseCard extends StatelessWidget {
       child: ElevatedButton.icon(
         onPressed: onPressed,
         icon: Icon(icon, size: 15),
-        label: Text(
-          label,
-          style: TextStyle(fontSize: 10, fontWeight: FontWeight.w800),
-        ),
+        label: Text(label, style: AppTextStyles.labelSmall),
         style: ElevatedButton.styleFrom(
           backgroundColor: backgroundColor,
           foregroundColor: context.onPrimaryColor,
@@ -625,10 +591,7 @@ class TeamExpenseCard extends StatelessWidget {
       child: OutlinedButton.icon(
         onPressed: onPressed,
         icon: Icon(icon, size: 15),
-        label: Text(
-          label,
-          style: TextStyle(fontSize: 10, fontWeight: FontWeight.w800),
-        ),
+        label: Text(label, style: AppTextStyles.labelSmall),
         style: OutlinedButton.styleFrom(
           foregroundColor: color,
           side: BorderSide(color: borderColor),
@@ -666,16 +629,15 @@ class TeamExpenseCard extends StatelessWidget {
                 size: 25,
               ),
               SizedBox(width: 9),
-              Text(
-                'Approve Expense',
-                style: TextStyle(fontSize: 17, fontWeight: FontWeight.w900),
-              ),
+              Text('Approve Expense', style: AppTextStyles.dialogTitle),
             ],
           ),
           content: Text(
             'Approve expense '
             'of ₹${expense.dailyTotal.toStringAsFixed(2)}?',
-            style: TextStyle(fontSize: 13, color: context.secondaryTextColor),
+            style: AppTextStyles.labelLarge.copyWith(
+              color: context.secondaryTextColor,
+            ),
           ),
           actions: [
             TextButton(
@@ -684,7 +646,9 @@ class TeamExpenseCard extends StatelessWidget {
               },
               child: Text(
                 'Cancel',
-                style: TextStyle(color: context.secondaryTextColor),
+                style: AppTextStyles.body.copyWith(
+                  color: context.secondaryTextColor,
+                ),
               ),
             ),
             ElevatedButton(
@@ -701,10 +665,7 @@ class TeamExpenseCard extends StatelessWidget {
                   borderRadius: BorderRadius.circular(10),
                 ),
               ),
-              child: Text(
-                'Approve',
-                style: TextStyle(fontWeight: FontWeight.w800),
-              ),
+              child: Text('Approve', style: AppTextStyles.button),
             ),
           ],
         );
@@ -726,7 +687,7 @@ class TeamExpenseCard extends StatelessWidget {
       builder: (dialogContext) => AlertDialog(
         backgroundColor: context.cardBackgroundColor,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        title: Text('Reject Expense'),
+        title: Text('Reject Expense', style: AppTextStyles.dialogTitle),
         content: SingleChildScrollView(
           child: Column(
             mainAxisSize: MainAxisSize.min,
@@ -734,14 +695,18 @@ class TeamExpenseCard extends StatelessWidget {
             children: [
               Text(
                 'Reject expense of ₹${expense.dailyTotal.toStringAsFixed(2)}?',
+                style: AppTextStyles.dialogBody,
               ),
               SizedBox(height: 16),
               TextField(
+                style: AppTextStyles.input,
                 onChanged: (value) => remark = value,
                 minLines: 2,
                 maxLines: 4,
                 textCapitalization: TextCapitalization.sentences,
-                decoration: const InputDecoration(
+                decoration: InputDecoration(
+                  labelStyle: AppTextStyles.inputLabel,
+                  hintStyle: AppTextStyles.inputHint,
                   labelText: 'Remark',
                   hintText: 'Enter a rejection remark',
                   alignLabelWithHint: true,
@@ -754,7 +719,7 @@ class TeamExpenseCard extends StatelessWidget {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(dialogContext),
-            child: Text('Cancel'),
+            child: Text('Cancel', style: AppTextStyles.button),
           ),
           ElevatedButton(
             onPressed: () => Navigator.pop(dialogContext, remark.trim()),
@@ -762,7 +727,7 @@ class TeamExpenseCard extends StatelessWidget {
               backgroundColor: context.appColors.error,
               foregroundColor: context.appColors.onError,
             ),
-            child: Text('Reject'),
+            child: Text('Reject', style: AppTextStyles.button),
           ),
         ],
       ),
@@ -868,9 +833,7 @@ class TeamExpenseCard extends StatelessWidget {
                     Expanded(
                       child: Text(
                         'Expense Details',
-                        style: TextStyle(
-                          fontSize: 17,
-                          fontWeight: FontWeight.w900,
+                        style: AppTextStyles.dialogTitle.copyWith(
                           color: context.primaryTextColor,
                         ),
                       ),
@@ -894,10 +857,8 @@ class TeamExpenseCard extends StatelessWidget {
                     ? Center(
                         child: Text(
                           'No expense details available',
-                          style: TextStyle(
-                            fontSize: 12,
+                          style: AppTextStyles.button.copyWith(
                             color: context.secondaryTextColor,
-                            fontWeight: FontWeight.w600,
                           ),
                         ),
                       )
@@ -925,18 +886,14 @@ class TeamExpenseCard extends StatelessWidget {
                     Expanded(
                       child: Text(
                         'Total Expense',
-                        style: TextStyle(
-                          fontSize: 13,
-                          fontWeight: FontWeight.w800,
+                        style: AppTextStyles.labelLarge.copyWith(
                           color: context.secondaryTextColor,
                         ),
                       ),
                     ),
                     Text(
                       '₹ ${expense.dailyTotal.toStringAsFixed(2)}',
-                      style: TextStyle(
-                        fontSize: 19,
-                        fontWeight: FontWeight.w900,
+                      style: AppTextStyles.button.copyWith(
                         color: context.primaryColor,
                       ),
                     ),
@@ -997,7 +954,7 @@ class TeamExpenseCard extends StatelessWidget {
                 ),
                 child: Icon(
                   hasImage ? Icons.image_outlined : Icons.receipt_outlined,
-                  color:  context.backgroundColor,
+                  color: context.backgroundColor,
                   size: 19,
                 ),
               ),
@@ -1012,9 +969,7 @@ class TeamExpenseCard extends StatelessWidget {
                       detail.expenseName,
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
-                      style: TextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w800,
+                      style: AppTextStyles.button.copyWith(
                         color: context.primaryTextColor,
                       ),
                     ),
@@ -1025,8 +980,7 @@ class TeamExpenseCard extends StatelessWidget {
                         detail.expenseRemark,
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
-                        style: TextStyle(
-                          fontSize: 9,
+                        style: AppTextStyles.labelSmall.copyWith(
                           color: context.secondaryTextColor,
                         ),
                       ),
@@ -1039,9 +993,7 @@ class TeamExpenseCard extends StatelessWidget {
 
               Text(
                 '₹ ${detail.amount.toStringAsFixed(2)}',
-                style: TextStyle(
-                  fontSize: 12,
-                  fontWeight: FontWeight.w900,
+                style: AppTextStyles.button.copyWith(
                   color: context.primaryColor,
                 ),
               ),
@@ -1094,10 +1046,8 @@ class TeamExpenseCard extends StatelessWidget {
                             SizedBox(height: 6),
                             Text(
                               'Image not available',
-                              style: TextStyle(
-                                fontSize: 10,
+                              style: AppTextStyles.labelSmall.copyWith(
                                 color: context.secondaryTextColor,
-                                fontWeight: FontWeight.w700,
                               ),
                             ),
                           ],
@@ -1126,8 +1076,7 @@ class TeamExpenseCard extends StatelessWidget {
                     imageName,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
-                    style: TextStyle(
-                      fontSize: 8,
+                    style: AppTextStyles.badge.copyWith(
                       color: context.secondaryTextColor,
                     ),
                   ),
@@ -1137,10 +1086,8 @@ class TeamExpenseCard extends StatelessWidget {
 
                 Text(
                   'Tap to view',
-                  style: TextStyle(
-                    fontSize: 8,
+                  style: AppTextStyles.badge.copyWith(
                     color: context.primaryColor,
-                    fontWeight: FontWeight.w700,
                   ),
                 ),
               ],
@@ -1239,10 +1186,8 @@ class TeamExpenseCard extends StatelessWidget {
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     textAlign: TextAlign.center,
-                    style: TextStyle(
+                    style: AppTextStyles.button.copyWith(
                       color: context.cardTextColor,
-                      fontSize: 12,
-                      fontWeight: FontWeight.w700,
                     ),
                   ),
                 ),

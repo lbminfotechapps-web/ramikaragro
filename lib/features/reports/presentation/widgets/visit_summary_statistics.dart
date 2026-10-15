@@ -1,3 +1,4 @@
+import 'package:solufine/core/theme/typography/app_text_styles.dart';
 import 'package:flutter/material.dart';
 import 'package:solufine/core/theme/app_theme_context.dart';
 
@@ -24,11 +25,7 @@ class VisitSummaryStatistics extends StatelessWidget {
       children: [
         Text(
           'Summary',
-          style: TextStyle(
-            fontSize: 16,
-            fontWeight: FontWeight.w800,
-            color: context.cardTextColor,
-          ),
+          style: AppTextStyles.cardTitle.copyWith(color: context.cardTextColor),
         ),
 
         const SizedBox(height: 7),
@@ -174,10 +171,8 @@ class _StatCard extends StatelessWidget {
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
 
-                  style: TextStyle(
-                    fontSize: 9.5,
+                  style: AppTextStyles.labelSmall.copyWith(
                     color: context.secondaryTextColor,
-                    fontWeight: FontWeight.w600,
                   ),
                 ),
 
@@ -186,11 +181,7 @@ class _StatCard extends StatelessWidget {
                 Text(
                   '$value',
 
-                  style: TextStyle(
-                    fontSize: 17,
-                    fontWeight: FontWeight.w800,
-                    color: iconColor,
-                  ),
+                  style: AppTextStyles.headingMedium.copyWith(color: iconColor),
                 ),
               ],
             ),

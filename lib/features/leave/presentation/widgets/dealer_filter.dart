@@ -1,6 +1,7 @@
+import 'package:solufine/core/theme/typography/app_text_styles.dart';
 import 'package:solufine/core/theme/app_theme_context.dart';
 import 'package:flutter/material.dart';
-import 'package:solufine/core/theme/app_theme_context.dart';
+
 
 class DealerFilter extends StatelessWidget {
   final int selectedDays;
@@ -56,18 +57,14 @@ class DealerFilter extends StatelessWidget {
                 Expanded(
                   child: Text(
                     'Follow-up Period',
-                    style: TextStyle(
-                      fontSize: 12,
-                      fontWeight: FontWeight.w800,
+                    style: AppTextStyles.label.copyWith(
                       color: context.cardTextColor,
                     ),
                   ),
                 ),
                 Text(
                   '${_formatDate(fromDate)} - ${_formatDate(today)}',
-                  style: TextStyle(
-                    fontSize: 9.5,
-                    fontWeight: FontWeight.w600,
+                  style: AppTextStyles.labelSmall.copyWith(
                     color: context.secondaryTextColor,
                   ),
                 ),
@@ -127,9 +124,7 @@ class DealerFilter extends StatelessWidget {
                 children: [
                   Text(
                     title,
-                    style: TextStyle(
-                      fontSize: 12,
-                      fontWeight: FontWeight.w800,
+                    style: AppTextStyles.label.copyWith(
                       color: selected
                           ? context.onPrimaryColor
                           : context.cardTextColor,
@@ -137,9 +132,7 @@ class DealerFilter extends StatelessWidget {
                   ),
                   Text(
                     'Days',
-                    style: TextStyle(
-                      fontSize: 8,
-                      fontWeight: FontWeight.w600,
+                    style: AppTextStyles.helperText.copyWith(
                       color: selected
                           ? context.onPrimaryColor.withValues(alpha: 0.85)
                           : context.secondaryTextColor,

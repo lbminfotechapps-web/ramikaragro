@@ -1,3 +1,4 @@
+import 'package:solufine/core/theme/typography/app_text_styles.dart';
 import 'package:solufine/core/theme/app_theme_context.dart';
 import 'package:flutter/material.dart';
 import 'package:solufine/core/theme/app_theme_context.dart';
@@ -57,10 +58,7 @@ void showMonthlyVisitDialog(BuildContext context, TopTenDealer dealer) {
                         borderRadius: BorderRadius.circular(12),
                       ),
                     ),
-                    child: Text(
-                      'Close',
-                      style: TextStyle(fontWeight: FontWeight.w700),
-                    ),
+                    child: Text('Close', style: AppTextStyles.labelLarge),
                   ),
                 ),
               ),
@@ -105,10 +103,8 @@ Widget _header(BuildContext context, TopTenDealer dealer) {
             children: [
               Text(
                 'Monthly Visit Count',
-                style: TextStyle(
+                style: AppTextStyles.dialogTitle.copyWith(
                   color: context.onPrimaryColor,
-                  fontSize: 16,
-                  fontWeight: FontWeight.w700,
                 ),
               ),
               SizedBox(height: 4),
@@ -116,9 +112,8 @@ Widget _header(BuildContext context, TopTenDealer dealer) {
                 dealer.outletName,
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
-                style: TextStyle(
+                style: AppTextStyles.caption.copyWith(
                   color: context.onPrimaryColor.withValues(alpha: 0.78),
-                  fontSize: 11,
                 ),
               ),
             ],
@@ -165,9 +160,7 @@ Widget _monthlyItem(BuildContext context, PreDetails item) {
         Expanded(
           child: Text(
             item.formattedDate,
-            style: TextStyle(
-              fontSize: 14,
-              fontWeight: FontWeight.w600,
+            style: AppTextStyles.labelLarge.copyWith(
               color: context.cardTextColor,
             ),
           ),
@@ -181,9 +174,7 @@ Widget _monthlyItem(BuildContext context, PreDetails item) {
           ),
           child: Text(
             '${item.visitCount} Visits',
-            style: TextStyle(
-              fontSize: 11,
-              fontWeight: FontWeight.w700,
+            style: AppTextStyles.labelSmall.copyWith(
               color: context.primaryColor,
             ),
           ),
@@ -204,10 +195,7 @@ Widget _empty(BuildContext context) {
           color: context.secondaryTextColor,
         ),
         SizedBox(height: 12),
-        Text(
-          'No monthly data available',
-          style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
-        ),
+        Text('No monthly data available', style: AppTextStyles.labelLarge),
       ],
     ),
   );

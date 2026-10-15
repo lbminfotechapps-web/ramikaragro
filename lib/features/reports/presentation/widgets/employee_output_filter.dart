@@ -1,3 +1,4 @@
+import 'package:solufine/core/theme/typography/app_text_styles.dart';
 import 'package:flutter/material.dart';
 import 'package:solufine/core/theme/app_theme_context.dart';
 
@@ -98,17 +99,14 @@ class EmployeeOutputFilter extends StatelessWidget {
                       children: [
                         Text(
                           'Search & Filter',
-                          style: TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.w800,
+                          style: AppTextStyles.listTitle.copyWith(
                             color: context.cardTextColor,
                           ),
                         ),
                         SizedBox(height: 2),
                         Text(
                           'Employee name and date range',
-                          style: TextStyle(
-                            fontSize: 11,
+                          style: AppTextStyles.caption.copyWith(
                             color: context.secondaryTextColor,
                           ),
                         ),
@@ -151,6 +149,7 @@ class EmployeeOutputFilter extends StatelessWidget {
                   // EMPLOYEE TEXT FIELD
                   // ==================================================
                   TextField(
+                    style: AppTextStyles.input,
                     controller: employeeController,
 
                     onChanged: onEmployeeChanged,
@@ -158,8 +157,7 @@ class EmployeeOutputFilter extends StatelessWidget {
                     decoration: InputDecoration(
                       hintText: 'Search employee name',
 
-                      hintStyle: TextStyle(
-                        fontSize: 13,
+                      hintStyle: AppTextStyles.inputHint.copyWith(
                         color: context.secondaryTextColor,
                       ),
 
@@ -266,20 +264,18 @@ class EmployeeOutputFilter extends StatelessWidget {
                                           employee.fldAdmName.toString(),
                                           maxLines: 1,
                                           overflow: TextOverflow.ellipsis,
-                                          style: TextStyle(
-                                            fontSize: 13,
-                                            fontWeight: FontWeight.w600,
-                                          ),
+                                          style: AppTextStyles.labelLarge,
                                         ),
 
                                         const SizedBox(height: 2),
 
                                         Text(
                                           'ID: ${employee.fldId}',
-                                          style: TextStyle(
-                                            fontSize: 10,
-                                            color: context.secondaryTextColor,
-                                          ),
+                                          style: AppTextStyles.helperText
+                                              .copyWith(
+                                                color:
+                                                    context.secondaryTextColor,
+                                              ),
                                         ),
                                       ],
                                     ),
@@ -332,7 +328,7 @@ class EmployeeOutputFilter extends StatelessWidget {
 
                           icon: Icon(Icons.restart_alt_rounded, size: 18),
 
-                          label: Text('Reset'),
+                          label: Text('Reset', style: AppTextStyles.button),
 
                           style: OutlinedButton.styleFrom(
                             foregroundColor: context.secondaryTextColor,
@@ -356,7 +352,7 @@ class EmployeeOutputFilter extends StatelessWidget {
 
                           icon: Icon(Icons.search_rounded, size: 18),
 
-                          label: Text('Search'),
+                          label: Text('Search', style: AppTextStyles.button),
 
                           style: ElevatedButton.styleFrom(
                             backgroundColor: context.primaryColor,
@@ -405,9 +401,7 @@ class _FieldLabel extends StatelessWidget {
 
         Text(
           title,
-          style: TextStyle(
-            fontSize: 12,
-            fontWeight: FontWeight.w700,
+          style: AppTextStyles.buttonSmall.copyWith(
             color: context.cardTextColor,
           ),
         ),
@@ -463,8 +457,7 @@ class _DateField extends StatelessWidget {
                 children: [
                   Text(
                     title,
-                    style: TextStyle(
-                      fontSize: 9,
+                    style: AppTextStyles.labelSmall.copyWith(
                       color: context.secondaryTextColor,
                     ),
                   ),
@@ -473,9 +466,7 @@ class _DateField extends StatelessWidget {
 
                   Text(
                     value,
-                    style: TextStyle(
-                      fontSize: 12,
-                      fontWeight: FontWeight.w700,
+                    style: AppTextStyles.buttonSmall.copyWith(
                       color: context.cardTextColor,
                     ),
                   ),

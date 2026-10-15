@@ -17,6 +17,7 @@ import 'package:solufine/features/farmer/famerfollowup/presentation/bloc/famerfo
 import 'package:solufine/features/farmer/famerfollowup/presentation/bloc/famerfollowup_state.dart';
 import 'package:flutter/material.dart';
 import 'package:solufine/core/theme/app_dynamic_colors.dart';
+import 'package:solufine/core/theme/typography/app_text_styles.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil_plus/flutter_screenutil_plus.dart';
 import 'package:geocoding/geocoding.dart';
@@ -40,9 +41,7 @@ class _FamerFollowupPageState extends State<FamerFollowupPage> {
   final _fieldKeys = {
     for (final name in _fieldOrder) name: GlobalKey<FormFieldState>(),
   };
-  final _fieldFocus = {
-    for (final name in _fieldOrder) name: FocusNode(),
-  };
+  final _fieldFocus = {for (final name in _fieldOrder) name: FocusNode()};
   final Geocoding _geocoding = Geocoding();
   final TextEditingController followUpDateController = TextEditingController();
 
@@ -279,10 +278,7 @@ class _FamerFollowupPageState extends State<FamerFollowupPage> {
       firstDate: now,
       lastDate: DateTime(2100),
       builder: (context, child) {
-        return Theme(
-          data: Theme.of(context),
-          child: child!,
-        );
+        return Theme(data: Theme.of(context), child: child!);
       },
     );
 
@@ -353,11 +349,7 @@ class _FamerFollowupPageState extends State<FamerFollowupPage> {
     }
   }
 
-
-
   void _submitFollowup() {
-  
-
     if (!_formKey.currentState!.validate()) {
       for (final entry in _fieldKeys.entries) {
         final field = entry.value.currentState;
@@ -510,7 +502,7 @@ class _FamerFollowupPageState extends State<FamerFollowupPage> {
       ..hideCurrentSnackBar()
       ..showSnackBar(
         SnackBar(
-          content: Text(message),
+          content: Text(message, style: AppTextStyles.body),
           behavior: SnackBarBehavior.floating,
           margin: const EdgeInsets.all(16),
           shape: RoundedRectangleBorder(
@@ -741,7 +733,9 @@ class _FamerFollowupPageState extends State<FamerFollowupPage> {
                       backgroundColor: context.appPrimary,
                       foregroundColor: context.appOnPrimary,
                       elevation: 0,
-                      disabledBackgroundColor: context.appPrimary.withValues(alpha: 0.4),
+                      disabledBackgroundColor: context.appPrimary.withValues(
+                        alpha: 0.4,
+                      ),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(16),
                       ),
@@ -768,10 +762,7 @@ class _FamerFollowupPageState extends State<FamerFollowupPage> {
 
                               Text(
                                 'Submit Follow-up',
-                                style: TextStyle(
-                                  fontSize: 15.5,
-                                  fontWeight: FontWeight.w700,
-                                ),
+                                style: AppTextStyles.button,
                               ),
                             ],
                           ),
@@ -795,7 +786,10 @@ class _FamerFollowupPageState extends State<FamerFollowupPage> {
         Container(
           padding: const EdgeInsets.all(7),
           decoration: BoxDecoration(
-            color: Color.alphaBlend(context.appPrimary.withValues(alpha: 0.1), context.appCard),
+            color: Color.alphaBlend(
+              context.appPrimary.withValues(alpha: 0.1),
+              context.appCard,
+            ),
             borderRadius: BorderRadius.circular(9),
           ),
           child: Icon(icon, size: 17, color: context.appPrimary),
@@ -805,11 +799,7 @@ class _FamerFollowupPageState extends State<FamerFollowupPage> {
 
         Text(
           title,
-          style: TextStyle(
-            color: context.appOnCard,
-            fontSize: 15,
-            fontWeight: FontWeight.w700,
-          ),
+          style: AppTextStyles.cardTitle.copyWith(color: context.appOnCard),
         ),
       ],
     );
@@ -835,7 +825,10 @@ class _FamerFollowupPageState extends State<FamerFollowupPage> {
                 height: 40,
                 width: 40,
                 decoration: BoxDecoration(
-                  color: Color.alphaBlend(context.appPrimary.withValues(alpha: 0.1), context.appCard),
+                  color: Color.alphaBlend(
+                    context.appPrimary.withValues(alpha: 0.1),
+                    context.appCard,
+                  ),
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Icon(
@@ -853,18 +846,15 @@ class _FamerFollowupPageState extends State<FamerFollowupPage> {
                   children: [
                     Text(
                       'Follow-up History',
-                      style: TextStyle(
+                      style: AppTextStyles.listTitle.copyWith(
                         color: context.appOnCard,
-                        fontSize: 14,
-                        fontWeight: FontWeight.w700,
                       ),
                     ),
                     SizedBox(height: 3),
                     Text(
                       'View previous farmer follow-ups',
-                      style: TextStyle(
+                      style: AppTextStyles.caption.copyWith(
                         color: context.appSubText,
-                        fontSize: 11.5,
                       ),
                     ),
                   ],
@@ -910,6 +900,7 @@ class _FamerFollowupPageState extends State<FamerFollowupPage> {
 
   Widget _buildFollowUpType() {
     return DropdownButtonFormField<String>(
+      style: AppTextStyles.input,
       key: _fieldKeys['type'],
       focusNode: _fieldFocus['type'],
       value: selectedFollowUpType,
@@ -921,21 +912,15 @@ class _FamerFollowupPageState extends State<FamerFollowupPage> {
 
       hint: Text(
         'Select follow-up type',
-        style: TextStyle(color: context.appSubText, fontSize: 14),
+        style: AppTextStyles.inputHint.copyWith(color: context.appSubText),
       ),
 
-      icon: Icon(
-        Icons.keyboard_arrow_down_rounded,
-        color: context.appPrimary,
-      ),
+      icon: Icon(Icons.keyboard_arrow_down_rounded, color: context.appPrimary),
 
       items: followUpTypes.map((type) {
         return DropdownMenuItem<String>(
           value: type,
-          child: Text(
-            type,
-            style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
-          ),
+          child: Text(type, style: AppTextStyles.bodyMedium),
         );
       }).toList(),
 
@@ -961,6 +946,7 @@ class _FamerFollowupPageState extends State<FamerFollowupPage> {
 
   Widget _buildDateField() {
     return TextFormField(
+      style: AppTextStyles.input,
       key: _fieldKeys['date'],
       focusNode: _fieldFocus['date'],
       controller: followUpDateController,
@@ -993,6 +979,7 @@ class _FamerFollowupPageState extends State<FamerFollowupPage> {
 
   Widget _buildRemarkField() {
     return TextFormField(
+      style: AppTextStyles.input,
       key: _fieldKeys['remark'],
       focusNode: _fieldFocus['remark'],
       controller: remarkController,
@@ -1082,7 +1069,10 @@ class _FamerFollowupPageState extends State<FamerFollowupPage> {
               height: 54,
               width: 54,
               decoration: BoxDecoration(
-                color: Color.alphaBlend(context.appPrimary.withValues(alpha: 0.1), context.appCard),
+                color: Color.alphaBlend(
+                  context.appPrimary.withValues(alpha: 0.1),
+                  context.appCard,
+                ),
                 borderRadius: BorderRadius.circular(17),
               ),
               child: Icon(
@@ -1096,18 +1086,16 @@ class _FamerFollowupPageState extends State<FamerFollowupPage> {
 
             Text(
               'Add Image',
-              style: TextStyle(
-                color: context.appOnCard,
-                fontSize: 14.5,
-                fontWeight: FontWeight.w700,
-              ),
+              style: AppTextStyles.cardTitle.copyWith(color: context.appOnCard),
             ),
 
             const SizedBox(height: 4),
 
             Text(
               'Tap to take a photo',
-              style: TextStyle(color: context.appSubText, fontSize: 12),
+              style: AppTextStyles.bodySmall.copyWith(
+                color: context.appSubText,
+              ),
             ),
           ],
         ),
@@ -1152,7 +1140,10 @@ class _FamerFollowupPageState extends State<FamerFollowupPage> {
           Container(
             padding: const EdgeInsets.all(9),
             decoration: BoxDecoration(
-              color: Color.alphaBlend(context.appPrimary.withValues(alpha: 0.1), context.appCard),
+              color: Color.alphaBlend(
+                context.appPrimary.withValues(alpha: 0.1),
+                context.appCard,
+              ),
               borderRadius: BorderRadius.circular(12),
             ),
             child: Icon(
@@ -1170,10 +1161,8 @@ class _FamerFollowupPageState extends State<FamerFollowupPage> {
               children: [
                 Text(
                   'Current Location',
-                  style: TextStyle(
+                  style: AppTextStyles.listTitle.copyWith(
                     color: context.appOnCard,
-                    fontSize: 13.5,
-                    fontWeight: FontWeight.w700,
                   ),
                 ),
 
@@ -1193,9 +1182,8 @@ class _FamerFollowupPageState extends State<FamerFollowupPage> {
                       SizedBox(width: 8),
                       Text(
                         'Getting location...',
-                        style: TextStyle(
+                        style: AppTextStyles.bodySmall.copyWith(
                           color: context.appSubText,
-                          fontSize: 12,
                         ),
                       ),
                     ],
@@ -1207,10 +1195,8 @@ class _FamerFollowupPageState extends State<FamerFollowupPage> {
                       Text(
                         '${latitude!.toStringAsFixed(6)}, '
                         '${longitude!.toStringAsFixed(6)}',
-                        style: TextStyle(
+                        style: AppTextStyles.label.copyWith(
                           color: context.appPrimary,
-                          fontSize: 12,
-                          fontWeight: FontWeight.w600,
                         ),
                       ),
 
@@ -1218,9 +1204,8 @@ class _FamerFollowupPageState extends State<FamerFollowupPage> {
                         const SizedBox(height: 4),
                         Text(
                           geoAddress,
-                          style: TextStyle(
+                          style: AppTextStyles.caption.copyWith(
                             color: context.appSubText,
-                            fontSize: 11.5,
                             height: 1.35,
                           ),
                         ),
@@ -1230,7 +1215,9 @@ class _FamerFollowupPageState extends State<FamerFollowupPage> {
                 else
                   Text(
                     'Location not available',
-                    style: TextStyle(color: context.appSubText, fontSize: 12),
+                    style: AppTextStyles.bodySmall.copyWith(
+                      color: context.appSubText,
+                    ),
                   ),
               ],
             ),
@@ -1257,7 +1244,10 @@ class _FamerFollowupPageState extends State<FamerFollowupPage> {
     return Container(
       padding: const EdgeInsets.all(15),
       decoration: BoxDecoration(
-        color: Color.alphaBlend(context.appPrimary.withValues(alpha: 0.1), context.appCard),
+        color: Color.alphaBlend(
+          context.appPrimary.withValues(alpha: 0.1),
+          context.appCard,
+        ),
         borderRadius: BorderRadius.circular(16),
         border: Border.all(color: context.appBorder),
       ),
@@ -1271,9 +1261,8 @@ class _FamerFollowupPageState extends State<FamerFollowupPage> {
           Expanded(
             child: Text(
               'Add the next follow-up date and a clear remark so the farmer interaction can be tracked properly.',
-              style: TextStyle(
+              style: AppTextStyles.bodySmall.copyWith(
                 color: context.appOnCard,
-                fontSize: 12.5,
                 height: 1.4,
               ),
             ),
@@ -1298,6 +1287,7 @@ class _FamerFollowupPageState extends State<FamerFollowupPage> {
   }) {
     return InputDecoration(
       labelText: label,
+      errorStyle: AppTextStyles.inputError,
       hintText: hintText,
       alignLabelWithHint: alignLabelWithHint,
 
@@ -1313,9 +1303,9 @@ class _FamerFollowupPageState extends State<FamerFollowupPage> {
           contentPadding ??
           const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
 
-      labelStyle: TextStyle(color: context.appSubText, fontSize: 13.5),
+      labelStyle: AppTextStyles.inputLabel.copyWith(color: context.appSubText),
 
-      hintStyle: TextStyle(color: context.appSubText, fontSize: 14),
+      hintStyle: AppTextStyles.inputHint.copyWith(color: context.appSubText),
 
       border: OutlineInputBorder(
         borderRadius: BorderRadius.circular(16),
@@ -1482,10 +1472,8 @@ class _FollowupHistoryDialog extends StatelessWidget {
               children: [
                 Text(
                   'Follow-up History',
-                  style: TextStyle(
+                  style: AppTextStyles.dialogTitle.copyWith(
                     color: context.appOnPrimary,
-                    fontSize: 17,
-                    fontWeight: FontWeight.w700,
                   ),
                 ),
 
@@ -1493,9 +1481,8 @@ class _FollowupHistoryDialog extends StatelessWidget {
 
                 Text(
                   'Farmer ID: $farmerId',
-                  style: TextStyle(
+                  style: AppTextStyles.caption.copyWith(
                     color: context.appOnPrimary.withOpacity(.8),
-                    fontSize: 11.5,
                   ),
                 ),
               ],
@@ -1530,7 +1517,10 @@ class _FollowupHistoryDialog extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 6),
                 decoration: BoxDecoration(
-                  color: Color.alphaBlend(context.appPrimary.withValues(alpha: 0.1), context.appCard),
+                  color: Color.alphaBlend(
+                    context.appPrimary.withValues(alpha: 0.1),
+                    context.appCard,
+                  ),
                   borderRadius: BorderRadius.circular(9),
                 ),
                 child: Row(
@@ -1544,10 +1534,8 @@ class _FollowupHistoryDialog extends StatelessWidget {
                     const SizedBox(width: 5),
                     Text(
                       item.fldDate,
-                      style: TextStyle(
+                      style: AppTextStyles.labelSmall.copyWith(
                         color: context.appPrimary,
-                        fontSize: 11.5,
-                        fontWeight: FontWeight.w700,
                       ),
                     ),
                   ],
@@ -1566,10 +1554,8 @@ class _FollowupHistoryDialog extends StatelessWidget {
 
               Text(
                 item.fldTime,
-                style: TextStyle(
+                style: AppTextStyles.labelSmall.copyWith(
                   color: context.appSubText,
-                  fontSize: 11.5,
-                  fontWeight: FontWeight.w600,
                 ),
               ),
             ],
@@ -1592,10 +1578,8 @@ class _FollowupHistoryDialog extends StatelessWidget {
               Expanded(
                 child: Text(
                   item.fldAdmName.isEmpty ? '-' : item.fldAdmName,
-                  style: TextStyle(
+                  style: AppTextStyles.listTitle.copyWith(
                     color: context.appOnCard,
-                    fontSize: 13,
-                    fontWeight: FontWeight.w700,
                   ),
                 ),
               ),
@@ -1619,10 +1603,8 @@ class _FollowupHistoryDialog extends StatelessWidget {
               Expanded(
                 child: Text(
                   item.fldFarmerName.isEmpty ? '-' : item.fldFarmerName,
-                  style: TextStyle(
+                  style: AppTextStyles.bodySmall.copyWith(
                     color: context.appOnCard,
-                    fontSize: 12.5,
-                    fontWeight: FontWeight.w500,
                   ),
                 ),
               ),
@@ -1642,20 +1624,15 @@ class _FollowupHistoryDialog extends StatelessWidget {
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Icon(
-                  Icons.notes_rounded,
-                  size: 17,
-                  color: context.appPrimary,
-                ),
+                Icon(Icons.notes_rounded, size: 17, color: context.appPrimary),
 
                 const SizedBox(width: 8),
 
                 Expanded(
                   child: Text(
                     item.fldRemark.isEmpty ? 'No remark' : item.fldRemark,
-                    style: TextStyle(
+                    style: AppTextStyles.bodySmall.copyWith(
                       color: context.appOnCard,
-                      fontSize: 12.5,
                       height: 1.4,
                     ),
                   ),
@@ -1685,11 +1662,7 @@ class _FollowupHistoryDialog extends StatelessWidget {
 
             Text(
               'No Follow-up History',
-              style: TextStyle(
-                color: context.appOnCard,
-                fontSize: 15,
-                fontWeight: FontWeight.w700,
-              ),
+              style: AppTextStyles.cardTitle.copyWith(color: context.appOnCard),
             ),
 
             SizedBox(height: 5),
@@ -1697,7 +1670,9 @@ class _FollowupHistoryDialog extends StatelessWidget {
             Text(
               'No previous follow-ups found for this farmer.',
               textAlign: TextAlign.center,
-              style: TextStyle(color: context.appSubText, fontSize: 12),
+              style: AppTextStyles.bodySmall.copyWith(
+                color: context.appSubText,
+              ),
             ),
           ],
         ),
@@ -1720,17 +1695,16 @@ class _FollowupHistoryDialog extends StatelessWidget {
 
             const SizedBox(height: 12),
 
-            Text(
-              'Unable to load history',
-              style: TextStyle(fontSize: 15, fontWeight: FontWeight.w700),
-            ),
+            Text('Unable to load history', style: AppTextStyles.cardTitle),
 
             const SizedBox(height: 5),
 
             Text(
               error ?? 'Something went wrong',
               textAlign: TextAlign.center,
-              style: TextStyle(color: context.appSubText, fontSize: 12),
+              style: AppTextStyles.bodySmall.copyWith(
+                color: context.appSubText,
+              ),
             ),
           ],
         ),

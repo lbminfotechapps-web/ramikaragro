@@ -1,6 +1,7 @@
 import 'package:solufine/core/router/app_router.dart';
 import 'package:solufine/core/secure_storage/secure_storage.dart';
 import 'package:solufine/core/theme/app_theme_context.dart';
+import 'package:solufine/core/theme/typography/app_text_styles.dart';
 import 'package:solufine/core/utility/widgets/custom_appbar.dart';
 import 'package:solufine/features/distpatchistory/presentation/widget/dispatch_card.dart';
 import 'package:solufine/features/distpatchistory/presentation/widget/dispatch_detail_card.dart';
@@ -108,9 +109,9 @@ class _DispatchPageState extends State<DispatchPage> {
       body: BlocConsumer<DispatchBloc, DispatchState>(
         listener: (context, state) {
           if (state is DispatchError) {
-            ScaffoldMessenger.of(
-              context,
-            ).showSnackBar(SnackBar(content: Text(state.message)));
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text(state.message, style: AppTextStyles.body)),
+            );
           }
         },
 
@@ -176,10 +177,7 @@ class _DispatchPageState extends State<DispatchPage> {
                   Expanded(
                     child: Text(
                       'Search & Filter',
-                      style: TextStyle(
-                        fontSize: 14.sp,
-                        fontWeight: FontWeight.w700,
-                      ),
+                      style: AppTextStyles.labelLarge,
                     ),
                   ),
 
@@ -219,9 +217,11 @@ class _DispatchPageState extends State<DispatchPage> {
           // SEARCH
           // ======================================================
           TextField(
+            style: AppTextStyles.input,
             controller: searchController,
             decoration: InputDecoration(
               labelText: 'Search Dealer Name',
+              labelStyle: AppTextStyles.inputLabel,
               prefixIcon: const Icon(Icons.search),
               suffixIcon: searchController.text.isNotEmpty
                   ? IconButton(
@@ -248,9 +248,11 @@ class _DispatchPageState extends State<DispatchPage> {
           // STATUS
           // ======================================================
           DropdownButtonFormField<String>(
+            style: AppTextStyles.input,
             value: selectedStatus.isEmpty ? null : selectedStatus,
             decoration: InputDecoration(
               labelText: 'Status',
+              labelStyle: AppTextStyles.inputLabel,
               prefixIcon: const Icon(Icons.flag_outlined),
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(10.r),
@@ -307,7 +309,7 @@ class _DispatchPageState extends State<DispatchPage> {
               Expanded(
                 child: OutlinedButton(
                   onPressed: _resetFilters,
-                  child: const Text('Reset'),
+                  child: Text('Reset', style: AppTextStyles.button),
                 ),
               ),
 
@@ -317,7 +319,7 @@ class _DispatchPageState extends State<DispatchPage> {
                 child: ElevatedButton.icon(
                   onPressed: _search,
                   icon: const Icon(Icons.search),
-                  label: const Text('Search'),
+                  label: Text('Search', style: AppTextStyles.button),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: context.primaryColor,
                     foregroundColor: context.onPrimaryColor,
@@ -341,11 +343,13 @@ class _DispatchPageState extends State<DispatchPage> {
     required VoidCallback onTap,
   }) {
     return TextField(
+      style: AppTextStyles.input,
       controller: controller,
       readOnly: true,
       onTap: onTap,
       decoration: InputDecoration(
         labelText: label,
+        labelStyle: AppTextStyles.inputLabel,
         prefixIcon: const Icon(Icons.calendar_today_outlined),
         border: OutlineInputBorder(borderRadius: BorderRadius.circular(10.r)),
       ),
@@ -435,7 +439,7 @@ class _DispatchPageState extends State<DispatchPage> {
 
             SizedBox(height: 10.h),
 
-            const Text('Something went wrong'),
+            Text('Something went wrong', style: AppTextStyles.body),
 
             SizedBox(height: 10.h),
 
@@ -452,7 +456,7 @@ class _DispatchPageState extends State<DispatchPage> {
                   ),
                 );
               },
-              child: const Text('Retry'),
+              child: Text('Retry', style: AppTextStyles.button),
             ),
           ],
         ),
@@ -481,9 +485,7 @@ class _DispatchPageState extends State<DispatchPage> {
 
           Text(
             'NO RECORDS FOUND',
-            style: TextStyle(
-              fontSize: 18.sp,
-              fontWeight: FontWeight.w700,
+            style: AppTextStyles.sectionTitle.copyWith(
               color: context.secondaryTextColor,
             ),
           ),
@@ -660,10 +662,7 @@ class _DispatchPageState extends State<DispatchPage> {
                     Expanded(
                       child: Text(
                         'Dispatch Details',
-                        style: TextStyle(
-                          fontSize: 18.sp,
-                          fontWeight: FontWeight.w700,
-                        ),
+                        style: AppTextStyles.sectionTitle,
                       ),
                     ),
 
@@ -761,9 +760,7 @@ class _DispatchPageState extends State<DispatchPage> {
             flex: 50,
             child: Text(
               title,
-              style: TextStyle(
-                fontSize: 13.sp,
-                fontWeight: FontWeight.w500,
+              style: AppTextStyles.bodyMedium.copyWith(
                 color: context.cardTextColor,
               ),
             ),
@@ -776,7 +773,7 @@ class _DispatchPageState extends State<DispatchPage> {
             width: 15.w,
             child: Text(
               ':',
-              style: TextStyle(fontSize: 15.sp, color: context.cardTextColor),
+              style: AppTextStyles.body.copyWith(color: context.cardTextColor),
             ),
           ),
 
@@ -789,9 +786,7 @@ class _DispatchPageState extends State<DispatchPage> {
               padding: EdgeInsets.only(left: 5.w, right: 5.w),
               child: Text(
                 value.trim().isEmpty ? '-' : value,
-                style: TextStyle(
-                  fontSize: 13.sp,
-                  fontWeight: FontWeight.w500,
+                style: AppTextStyles.bodyMedium.copyWith(
                   color: context.secondaryTextColor,
                 ),
               ),
@@ -809,6 +804,6 @@ class _DispatchPageState extends State<DispatchPage> {
   void _showMessage(String message) {
     ScaffoldMessenger.of(
       context,
-    ).showSnackBar(SnackBar(content: Text(message)));
+    ).showSnackBar(SnackBar(content: Text(message, style: AppTextStyles.body)));
   }
 }

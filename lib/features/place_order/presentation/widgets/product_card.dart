@@ -1,3 +1,4 @@
+import 'package:solufine/core/theme/typography/app_text_styles.dart';
 import 'package:solufine/core/theme/app_theme_context.dart';
 import 'package:solufine/features/place_order/domain/entities/product_entity.dart';
 import 'package:solufine/features/place_order/domain/entities/product_rate_entity.dart';
@@ -94,9 +95,7 @@ class ProductCard extends StatelessWidget {
                       product.name,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
-                      style: TextStyle(
-                        fontSize: 12.5.sp,
-                        fontWeight: FontWeight.w800,
+                      style: AppTextStyles.listTitle.copyWith(
                         color: context.primaryTextColor,
                       ),
                     ),
@@ -124,9 +123,7 @@ class ProductCard extends StatelessWidget {
                                 : 'Select packing / rate',
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
-                            style: TextStyle(
-                              fontSize: 9.sp,
-                              fontWeight: FontWeight.w600,
+                            style: AppTextStyles.badge.copyWith(
                               color: hasRates
                                   ? context.primaryColor
                                   : context.secondaryTextColor,
@@ -239,9 +236,7 @@ class ProductCard extends StatelessWidget {
                         '${rate.packing} ${rate.unit}',
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
-                        style: TextStyle(
-                          fontSize: 10.5.sp,
-                          fontWeight: FontWeight.w700,
+                        style: AppTextStyles.labelSmall.copyWith(
                           color: context.primaryTextColor,
                         ),
                       ),
@@ -251,9 +246,7 @@ class ProductCard extends StatelessWidget {
 
                     Text(
                       '₹${rate.rateWithGst}',
-                      style: TextStyle(
-                        fontSize: 9.sp,
-                        fontWeight: FontWeight.w800,
+                      style: AppTextStyles.badge.copyWith(
                         color: context.primaryColor,
                       ),
                     ),
@@ -273,9 +266,7 @@ class ProductCard extends StatelessWidget {
                   ),
                   child: Text(
                     rate.displayCase,
-                    style: TextStyle(
-                      fontSize: 7.5.sp,
-                      fontWeight: FontWeight.w700,
+                    style: AppTextStyles.helperText.copyWith(
                       color: context.primaryColor,
                     ),
                   ),
@@ -360,9 +351,7 @@ class ProductCard extends StatelessWidget {
 
               Text(
                 hasRates ? 'More' : 'Add',
-                style: TextStyle(
-                  fontSize: 9.sp,
-                  fontWeight: FontWeight.w800,
+                style: AppTextStyles.badge.copyWith(
                   color: hasRates
                       ? context.primaryColor
                       : context.onPrimaryColor,
@@ -518,18 +507,12 @@ class _CaseQuantityFieldState extends State<_CaseQuantityField> {
 
         textInputAction: TextInputAction.done,
 
-        style: TextStyle(
-          fontSize: 10.sp,
-          fontWeight: FontWeight.w800,
-          color: context.primaryTextColor,
-        ),
+        style: AppTextStyles.input.copyWith(color: context.primaryTextColor),
 
         decoration: InputDecoration(
           hintText: 'Enter Case',
 
-          hintStyle: TextStyle(
-            fontSize: 8.sp,
-            fontWeight: FontWeight.w500,
+          hintStyle: AppTextStyles.inputHint.copyWith(
             color: context.secondaryTextColor,
           ),
 

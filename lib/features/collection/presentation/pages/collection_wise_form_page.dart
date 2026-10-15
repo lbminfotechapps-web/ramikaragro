@@ -1,3 +1,4 @@
+import 'package:solufine/core/theme/typography/app_text_styles.dart';
 import 'dart:convert';
 import 'dart:io';
 
@@ -784,9 +785,7 @@ class _CollectionWiseFormPageState extends State<CollectionWiseFormPage> {
               Text(
                 'Collection Submitted!',
                 textAlign: TextAlign.center,
-                style: TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.w800,
+                style: AppTextStyles.cardValue.copyWith(
                   color: context.cardTextColor,
                 ),
               ),
@@ -799,8 +798,7 @@ class _CollectionWiseFormPageState extends State<CollectionWiseFormPage> {
               Text(
                 message,
                 textAlign: TextAlign.center,
-                style: TextStyle(
-                  fontSize: 13,
+                style: AppTextStyles.body.copyWith(
                   height: 1.45,
                   color: context.secondaryTextColor,
                 ),
@@ -831,10 +829,7 @@ class _CollectionWiseFormPageState extends State<CollectionWiseFormPage> {
                     ),
                   ),
 
-                  child: const Text(
-                    'OK',
-                    style: TextStyle(fontSize: 14, fontWeight: FontWeight.w800),
-                  ),
+                  child: Text('OK', style: AppTextStyles.labelLarge),
                 ),
               ),
             ],
@@ -865,10 +860,7 @@ class _CollectionWiseFormPageState extends State<CollectionWiseFormPage> {
 
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
 
-        content: Text(
-          message,
-          style: const TextStyle(fontWeight: FontWeight.w600),
-        ),
+        content: Text(message, style: AppTextStyles.body),
       ),
     );
   }
@@ -918,7 +910,8 @@ class _CollectionWiseFormPageState extends State<CollectionWiseFormPage> {
           return Scaffold(
             backgroundColor: context.backgroundColor,
 
-   floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
+            floatingActionButtonLocation:
+                FloatingActionButtonLocation.centerFloat,
             appBar: CustomAppBar(
               leading: IconButton(
                 icon: Icon(
@@ -962,9 +955,7 @@ class _CollectionWiseFormPageState extends State<CollectionWiseFormPage> {
                         if (state.collectionTypes.isNotEmpty) ...[
                           Text(
                             'Collection Type',
-                            style: TextStyle(
-                              fontSize: 13,
-                              fontWeight: FontWeight.w600,
+                            style: AppTextStyles.label.copyWith(
                               color: context.cardTextColor,
                             ),
                           ),
@@ -988,21 +979,16 @@ class _CollectionWiseFormPageState extends State<CollectionWiseFormPage> {
                           ),
                           child: Row(
                             children: [
-                              const Expanded(
+                              Expanded(
                                 child: Text(
                                   'Total Amount',
-                                  style: TextStyle(
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.w700,
-                                  ),
+                                  style: AppTextStyles.labelLarge,
                                 ),
                               ),
 
                               Text(
                                 '₹ ${collectionTotalAmount.toStringAsFixed(2)}',
-                                style: TextStyle(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.w800,
+                                style: AppTextStyles.cardTitle.copyWith(
                                   color: context.primaryColor,
                                 ),
                               ),
@@ -1063,9 +1049,7 @@ class _CollectionWiseFormPageState extends State<CollectionWiseFormPage> {
               Expanded(
                 child: Text(
                   item.collectionType,
-                  style: TextStyle(
-                    fontSize: 13,
-                    fontWeight: FontWeight.w700,
+                  style: AppTextStyles.label.copyWith(
                     color: context.cardTextColor,
                   ),
                 ),
@@ -1076,6 +1060,7 @@ class _CollectionWiseFormPageState extends State<CollectionWiseFormPage> {
               SizedBox(
                 width: 135,
                 child: TextField(
+                  style: AppTextStyles.input,
                   controller: controller,
 
                   keyboardType: const TextInputType.numberWithOptions(
@@ -1193,11 +1178,7 @@ class _CollectionWiseFormPageState extends State<CollectionWiseFormPage> {
 
                           overflow: TextOverflow.ellipsis,
 
-                          style: TextStyle(
-                            fontSize: 14,
-
-                            fontWeight: FontWeight.w700,
-
+                          style: AppTextStyles.labelLarge.copyWith(
                             color: dealerName.isEmpty
                                 ? context.secondaryTextColor
                                 : context.cardTextColor,
@@ -1687,24 +1668,19 @@ class _CollectionWiseFormPageState extends State<CollectionWiseFormPage> {
                 decimal: true,
               ),
 
-              style: TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.w800,
-                color: context.appText
-              ),
+              style: AppTextStyles.cardValue.copyWith(color: context.appText),
 
               decoration: InputDecoration(
                 border: InputBorder.none,
 
-               // labelText: 'Collection Amount *',
-
+                // labelText: 'Collection Amount *',
                 hintText: '0.00',
-                hintStyle: TextStyle(color: context.onPrimaryColor),
-
-                labelStyle: TextStyle(
+                hintStyle: AppTextStyles.inputHint.copyWith(
                   color: context.onPrimaryColor,
-                  fontSize: 11,
-                  fontWeight: FontWeight.w600,
+                ),
+
+                labelStyle: AppTextStyles.inputLabel.copyWith(
+                  color: context.onPrimaryColor,
                 ),
               ),
             ),
@@ -1781,9 +1757,7 @@ class _CollectionWiseFormPageState extends State<CollectionWiseFormPage> {
               Text(
                 mode,
 
-                style: TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w600,
+                style: AppTextStyles.labelLarge.copyWith(
                   color: context.cardTextColor,
                 ),
               ),
@@ -1901,9 +1875,7 @@ class _CollectionWiseFormPageState extends State<CollectionWiseFormPage> {
           Expanded(
             child: Text(
               'Cash payment selected. No transaction details required.',
-              style: TextStyle(
-                fontSize: 12,
-                fontWeight: FontWeight.w600,
+              style: AppTextStyles.buttonSmall.copyWith(
                 color: context.primaryColor,
               ),
             ),
@@ -2111,7 +2083,7 @@ class _CollectionWiseFormPageState extends State<CollectionWiseFormPage> {
 
       keyboardType: keyboardType,
 
-      style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
+      style: AppTextStyles.input,
 
       decoration: InputDecoration(
         labelText: label,
@@ -2147,7 +2119,7 @@ class _CollectionWiseFormPageState extends State<CollectionWiseFormPage> {
           borderSide: BorderSide(color: context.primaryColor, width: 1.3),
         ),
 
-        labelStyle: const TextStyle(fontSize: 12),
+        labelStyle: AppTextStyles.inputLabel,
       ),
     );
   }
@@ -2177,7 +2149,7 @@ class _CollectionWiseFormPageState extends State<CollectionWiseFormPage> {
 
             maxLines: 3,
 
-            style: const TextStyle(fontSize: 13),
+            style: AppTextStyles.input,
 
             decoration: InputDecoration(
               hintText: 'Write a remark...',
@@ -2267,10 +2239,7 @@ class _CollectionWiseFormPageState extends State<CollectionWiseFormPage> {
 
                   const SizedBox(height: 8),
 
-                  const Text(
-                    'Add payment images',
-                    style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700),
-                  ),
+                  Text('Add payment images', style: AppTextStyles.label),
 
                   const SizedBox(height: 3),
 
@@ -2279,8 +2248,7 @@ class _CollectionWiseFormPageState extends State<CollectionWiseFormPage> {
                         ? 'Tap to select photos'
                         : '${selectedImages.length} image(s) selected',
 
-                    style: TextStyle(
-                      fontSize: 11,
+                    style: AppTextStyles.caption.copyWith(
                       color: context.secondaryTextColor,
                     ),
                   ),
@@ -2426,7 +2394,7 @@ class _CollectionWiseFormPageState extends State<CollectionWiseFormPage> {
                         color: context.onPrimaryColor,
                       ),
                     )
-                  : const Row(
+                  : Row(
                       mainAxisAlignment: MainAxisAlignment.center,
 
                       children: [
@@ -2436,11 +2404,7 @@ class _CollectionWiseFormPageState extends State<CollectionWiseFormPage> {
 
                         Text(
                           'Submit Collection',
-                          style: TextStyle(
-                            fontSize: 14,
-
-                            fontWeight: FontWeight.w800,
-                          ),
+                          style: AppTextStyles.labelLarge,
                         ),
                       ],
                     ),
@@ -2518,11 +2482,7 @@ class _CollectionWiseFormPageState extends State<CollectionWiseFormPage> {
               Text(
                 title,
 
-                style: TextStyle(
-                  fontSize: 15,
-
-                  fontWeight: FontWeight.w800,
-
+                style: AppTextStyles.cardTitle.copyWith(
                   color: context.cardTextColor,
                 ),
               ),
@@ -2536,9 +2496,7 @@ class _CollectionWiseFormPageState extends State<CollectionWiseFormPage> {
 
                 overflow: TextOverflow.ellipsis,
 
-                style: TextStyle(
-                  fontSize: 10.5,
-
+                style: AppTextStyles.caption.copyWith(
                   color: context.secondaryTextColor,
                 ),
               ),

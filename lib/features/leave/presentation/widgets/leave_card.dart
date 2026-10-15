@@ -1,3 +1,4 @@
+import 'package:solufine/core/theme/typography/app_text_styles.dart';
 import 'package:solufine/core/theme/app_dynamic_colors.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil_plus/flutter_screenutil_plus.dart';
@@ -195,9 +196,7 @@ class LeaveCard extends StatelessWidget {
                         'Leave Application',
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
-                        style: TextStyle(
-                          fontSize: 13.sp,
-                          fontWeight: FontWeight.w800,
+                        style: AppTextStyles.listTitle.copyWith(
                           color: context.cardTextColor,
                         ),
                       ),
@@ -208,10 +207,8 @@ class LeaveCard extends StatelessWidget {
                         'Applied on ${_applicationDate(leave.leaveApplicationDate)}',
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
-                        style: TextStyle(
-                          fontSize: 10.sp,
+                        style: AppTextStyles.helperText.copyWith(
                           color: context.secondaryTextColor,
-                          fontWeight: FontWeight.w500,
                         ),
                       ),
 
@@ -222,10 +219,8 @@ class LeaveCard extends StatelessWidget {
                           leave.admName,
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
-                          style: TextStyle(
-                            fontSize: 9.5.sp,
+                          style: AppTextStyles.labelSmall.copyWith(
                             color: context.secondaryTextColor,
-                            fontWeight: FontWeight.w600,
                           ),
                         ),
                       ],
@@ -258,10 +253,8 @@ class LeaveCard extends StatelessWidget {
 
                       Text(
                         _statusText(leave.status),
-                        style: TextStyle(
-                          fontSize: 9.sp,
+                        style: AppTextStyles.badge.copyWith(
                           color: mainStatusColor,
-                          fontWeight: FontWeight.w800,
                         ),
                       ),
                     ],
@@ -393,10 +386,8 @@ class LeaveCard extends StatelessWidget {
 
         Text(
           title,
-          style: TextStyle(
-            fontSize: 7.5.sp,
+          style: AppTextStyles.badge.copyWith(
             color: context.secondaryTextColor,
-            fontWeight: FontWeight.w800,
             letterSpacing: 0.4,
           ),
         ),
@@ -408,10 +399,8 @@ class LeaveCard extends StatelessWidget {
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
           textAlign: TextAlign.center,
-          style: TextStyle(
-            fontSize: 10.sp,
+          style: AppTextStyles.labelSmall.copyWith(
             color: context.cardTextColor,
-            fontWeight: FontWeight.w700,
           ),
         ),
       ],
@@ -458,10 +447,8 @@ class LeaveCard extends StatelessWidget {
                   title,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: TextStyle(
-                    fontSize: 7.5.sp,
+                  style: AppTextStyles.badge.copyWith(
                     color: color,
-                    fontWeight: FontWeight.w800,
                     letterSpacing: 0.3,
                   ),
                 ),
@@ -472,11 +459,7 @@ class LeaveCard extends StatelessWidget {
                   _statusDisplayText(value),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: TextStyle(
-                    fontSize: 10.5.sp,
-                    color: color,
-                    fontWeight: FontWeight.w800,
-                  ),
+                  style: AppTextStyles.labelSmall.copyWith(color: color),
                 ),
               ],
             ),
@@ -525,10 +508,8 @@ class LeaveCard extends StatelessWidget {
               children: [
                 Text(
                   title,
-                  style: TextStyle(
-                    fontSize: 7.5.sp,
+                  style: AppTextStyles.badge.copyWith(
                     color: context.primaryColor,
-                    fontWeight: FontWeight.w800,
                     letterSpacing: 0.3,
                   ),
                 ),
@@ -537,10 +518,8 @@ class LeaveCard extends StatelessWidget {
 
                 Text(
                   value,
-                  style: TextStyle(
-                    fontSize: 10.sp,
+                  style: AppTextStyles.labelSmall.copyWith(
                     color: context.cardTextColor,
-                    fontWeight: FontWeight.w600,
                     height: 1.25,
                   ),
                 ),
@@ -592,10 +571,8 @@ class LeaveCard extends StatelessWidget {
               children: [
                 Text(
                   'REJECTION REASON',
-                  style: TextStyle(
-                    fontSize: 7.5.sp,
+                  style: AppTextStyles.badge.copyWith(
                     color: context.appColors.error,
-                    fontWeight: FontWeight.w800,
                     letterSpacing: 0.3,
                   ),
                 ),
@@ -604,10 +581,8 @@ class LeaveCard extends StatelessWidget {
 
                 Text(
                   leave.reasonForReject,
-                  style: TextStyle(
-                    fontSize: 10.sp,
+                  style: AppTextStyles.labelSmall.copyWith(
                     color: context.appColors.error,
-                    fontWeight: FontWeight.w600,
                     height: 1.25,
                   ),
                 ),

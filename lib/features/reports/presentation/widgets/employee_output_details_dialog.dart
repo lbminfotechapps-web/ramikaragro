@@ -1,3 +1,4 @@
+import 'package:solufine/core/theme/typography/app_text_styles.dart';
 import 'package:flutter/material.dart';
 import 'package:solufine/core/theme/app_theme_context.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -130,9 +131,7 @@ class EmployeeOutputDetailsDialog extends StatelessWidget {
 
                         Text(
                           'Daily Expense & Attendance',
-                          style: TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.w800,
+                          style: AppTextStyles.listTitle.copyWith(
                             color: context.cardTextColor,
                           ),
                         ),
@@ -260,8 +259,7 @@ class EmployeeOutputDetailsDialog extends StatelessWidget {
 
                         Text(
                           'Total records: ${records.length}',
-                          style: TextStyle(
-                            fontSize: 11,
+                          style: AppTextStyles.caption.copyWith(
                             color: context.secondaryTextColor,
                           ),
                         ),
@@ -284,7 +282,9 @@ class EmployeeOutputDetailsDialog extends StatelessWidget {
                   icon: Icon(Icons.close, color: context.primaryColor),
                   label: Text(
                     'Close',
-                    style: TextStyle(color: context.primaryColor),
+                    style: AppTextStyles.body.copyWith(
+                      color: context.primaryColor,
+                    ),
                   ),
                 ),
               ),
@@ -319,13 +319,12 @@ class EmployeeOutputDetailsDialog extends StatelessWidget {
                   employeeName,
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.w800),
+                  style: AppTextStyles.cardTitle,
                 ),
                 const SizedBox(height: 3),
                 Text(
                   '$fromDate  to  $toDate',
-                  style: TextStyle(
-                    fontSize: 11,
+                  style: AppTextStyles.caption.copyWith(
                     color: context.secondaryTextColor,
                   ),
                 ),
@@ -363,17 +362,15 @@ class EmployeeOutputDetailsDialog extends StatelessWidget {
             fit: BoxFit.scaleDown,
             child: Text(
               value,
-              style: TextStyle(
-                fontSize: 17,
-                fontWeight: FontWeight.w800,
-                color: color,
-              ),
+              style: AppTextStyles.headingMedium.copyWith(color: color),
             ),
           ),
           const SizedBox(height: 3),
           Text(
             title,
-            style: TextStyle(fontSize: 10, color: context.secondaryTextColor),
+            style: AppTextStyles.helperText.copyWith(
+              color: context.secondaryTextColor,
+            ),
           ),
         ],
       ),
@@ -391,8 +388,7 @@ class EmployeeOutputDetailsDialog extends StatelessWidget {
       child: Text(
         value,
         textAlign: TextAlign.center,
-        style: TextStyle(
-          fontSize: 12,
+        style: AppTextStyles.buttonSmall.copyWith(
           fontWeight: isHeader || isTotal ? FontWeight.w800 : FontWeight.w500,
           color: isHeader || isTotal
               ? context.primaryColor
@@ -420,10 +416,8 @@ class EmployeeOutputDetailsDialog extends StatelessWidget {
           ),
           child: Text(
             normalized,
-            style: TextStyle(
+            style: AppTextStyles.buttonSmall.copyWith(
               color: isPresent ? context.primaryColor : context.appColors.error,
-              fontWeight: FontWeight.w800,
-              fontSize: 12,
             ),
           ),
         ),
@@ -440,7 +434,11 @@ class EmployeeOutputDetailsDialog extends StatelessWidget {
           children: [
             Icon(icon, size: 42, color: context.secondaryTextColor),
             const SizedBox(height: 12),
-            Text(message, textAlign: TextAlign.center),
+            Text(
+              message,
+              textAlign: TextAlign.center,
+              style: AppTextStyles.body,
+            ),
           ],
         ),
       ),

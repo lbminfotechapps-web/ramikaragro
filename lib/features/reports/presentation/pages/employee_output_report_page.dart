@@ -1,3 +1,4 @@
+import 'package:solufine/core/theme/typography/app_text_styles.dart';
 import 'dart:async';
 
 import 'package:flutter/material.dart';
@@ -303,7 +304,9 @@ class _EmployeeOutputReportPageState extends State<EmployeeOutputReportPage> {
 
     if (selectedEmpId.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Employee ID not available')),
+        SnackBar(
+          content: Text('Employee ID not available', style: AppTextStyles.body),
+        ),
       );
       return;
     }
@@ -364,7 +367,9 @@ class _EmployeeOutputReportPageState extends State<EmployeeOutputReportPage> {
       appBar: CustomAppBar(
         title: 'Employee Output Report',
         backgroundColor: context.primaryColor,
-        titleStyle: TextStyle(color: context.onPrimaryColor),
+        titleStyle: AppTextStyles.appBarTitle.copyWith(
+          color: context.onPrimaryColor,
+        ),
         leading: IconButton(
           icon: Icon(
             Icons.arrow_back_ios_new_rounded,
@@ -387,7 +392,10 @@ class _EmployeeOutputReportPageState extends State<EmployeeOutputReportPage> {
 
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
-                content: Text(state.errorMessage ?? 'Something went wrong'),
+                content: Text(
+                  state.errorMessage ?? 'Something went wrong',
+                  style: AppTextStyles.body,
+                ),
                 behavior: SnackBarBehavior.floating,
               ),
             );
@@ -552,10 +560,8 @@ class _EmployeeOutputReportPageState extends State<EmployeeOutputReportPage> {
               children: [
                 Text(
                   'Employee Output',
-                  style: TextStyle(
+                  style: AppTextStyles.cardTitle.copyWith(
                     color: context.onPrimaryColor,
-                    fontSize: 15,
-                    fontWeight: FontWeight.w800,
                   ),
                 ),
 
@@ -563,9 +569,8 @@ class _EmployeeOutputReportPageState extends State<EmployeeOutputReportPage> {
 
                 Text(
                   'Track employee visits and productivity',
-                  style: TextStyle(
+                  style: AppTextStyles.helperText.copyWith(
                     color: context.onPrimaryColor.withValues(alpha: 0.7),
-                    fontSize: 10,
                   ),
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
@@ -591,9 +596,7 @@ class _EmployeeOutputReportPageState extends State<EmployeeOutputReportPage> {
           Expanded(
             child: Text(
               'Employee Output',
-              style: TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.w800,
+              style: AppTextStyles.listTitle.copyWith(
                 color: context.cardTextColor,
               ),
             ),
@@ -601,9 +604,7 @@ class _EmployeeOutputReportPageState extends State<EmployeeOutputReportPage> {
 
           Text(
             '$employeeCount Employees',
-            style: TextStyle(
-              fontSize: 10,
-              fontWeight: FontWeight.w600,
+            style: AppTextStyles.labelSmall.copyWith(
               color: context.secondaryTextColor,
             ),
           ),

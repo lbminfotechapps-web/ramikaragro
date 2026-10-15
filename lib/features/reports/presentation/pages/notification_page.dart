@@ -1,3 +1,4 @@
+import 'package:solufine/core/theme/typography/app_text_styles.dart';
 import 'package:solufine/core/router/app_router.dart';
 import 'package:solufine/core/theme/app_theme_context.dart';
 import 'package:solufine/core/utility/widgets/custom_appbar.dart';
@@ -128,9 +129,7 @@ class _NotificationPageState extends State<NotificationPage> {
                 },
               ),
               title: 'Notifications',
-              titleStyle: TextStyle(
-                fontSize: 22,
-                fontWeight: FontWeight.w600,
+              titleStyle: AppTextStyles.appBarTitle.copyWith(
                 color: context.onPrimaryColor,
               ),
             ),
@@ -242,10 +241,8 @@ class _NotificationPageState extends State<NotificationPage> {
                   children: [
                     Text(
                       'Stay Updated',
-                      style: TextStyle(
+                      style: AppTextStyles.sectionTitle.copyWith(
                         color: context.onPrimaryColor,
-                        fontSize: 18,
-                        fontWeight: FontWeight.w700,
                       ),
                     ),
 
@@ -255,9 +252,8 @@ class _NotificationPageState extends State<NotificationPage> {
                       count == 0
                           ? 'No notifications available'
                           : 'Here are your latest updates',
-                      style: TextStyle(
+                      style: AppTextStyles.listTitle.copyWith(
                         color: context.onPrimaryColor.withValues(alpha: 0.75),
-                        fontSize: 12.5,
                       ),
                     ),
                   ],
@@ -286,10 +282,8 @@ class _NotificationPageState extends State<NotificationPage> {
                   ),
                   child: Text(
                     '$count',
-                    style: TextStyle(
+                    style: AppTextStyles.labelLarge.copyWith(
                       color: context.primaryColor,
-                      fontSize: 13,
-                      fontWeight: FontWeight.w800,
                     ),
                   ),
                 ),
@@ -477,10 +471,8 @@ class _NotificationPageState extends State<NotificationPage> {
 
                     Text(
                       'Record Not Found',
-                      style: TextStyle(
+                      style: AppTextStyles.pageTitle.copyWith(
                         color: context.primaryTextColor,
-                        fontSize: 21,
-                        fontWeight: FontWeight.w700,
                       ),
                     ),
 
@@ -569,10 +561,8 @@ class _NotificationPageState extends State<NotificationPage> {
 
             Text(
               'Unable to Load',
-              style: TextStyle(
+              style: AppTextStyles.pageTitle.copyWith(
                 color: context.primaryTextColor,
-                fontSize: 21,
-                fontWeight: FontWeight.w700,
               ),
             ),
 
@@ -582,9 +572,8 @@ class _NotificationPageState extends State<NotificationPage> {
               'We couldn’t load your notifications.\n'
               'Please check your connection and try again.',
               textAlign: TextAlign.center,
-              style: TextStyle(
+              style: AppTextStyles.cardSubtitle.copyWith(
                 color: context.secondaryTextColor,
-                fontSize: 13,
                 height: 1.55,
               ),
             ),
@@ -609,9 +598,8 @@ class _NotificationPageState extends State<NotificationPage> {
                 textAlign: TextAlign.center,
                 maxLines: 3,
                 overflow: TextOverflow.ellipsis,
-                style: TextStyle(
+                style: AppTextStyles.labelSmall.copyWith(
                   color: context.appColors.error,
-                  fontSize: 11.5,
                   height: 1.4,
                 ),
               ),
@@ -633,7 +621,7 @@ class _NotificationPageState extends State<NotificationPage> {
                 );
               },
               icon: const Icon(Icons.refresh_rounded, size: 19),
-              label: const Text('Try Again'),
+              label: Text('Try Again', style: AppTextStyles.body),
               style: ElevatedButton.styleFrom(
                 backgroundColor: context.primaryColor,
                 foregroundColor: context.onPrimaryColor,

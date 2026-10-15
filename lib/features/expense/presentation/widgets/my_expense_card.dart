@@ -1,3 +1,4 @@
+import 'package:solufine/core/theme/typography/app_text_styles.dart';
 import 'package:solufine/core/theme/app_dynamic_colors.dart';
 import 'package:solufine/core/theme/app_theme_context.dart';
 import 'package:solufine/core/api_constant/api_client.dart';
@@ -81,11 +82,9 @@ class _MyExpenseCardState extends State<MyExpenseCard> {
                         children: [
                           Text(
                             'EXPENSE DATE',
-                            style: TextStyle(
-                              fontSize: 8,
+                            style: AppTextStyles.badge.copyWith(
                               letterSpacing: 0.5,
                               color: context.secondaryTextColor,
-                              fontWeight: FontWeight.w800,
                             ),
                           ),
 
@@ -93,9 +92,7 @@ class _MyExpenseCardState extends State<MyExpenseCard> {
 
                           Text(
                             expense.expenseDate,
-                            style: TextStyle(
-                              fontSize: 14,
-                              fontWeight: FontWeight.w900,
+                            style: AppTextStyles.listTitle.copyWith(
                               color: context.cardTextColor,
                             ),
                           ),
@@ -109,11 +106,9 @@ class _MyExpenseCardState extends State<MyExpenseCard> {
                         children: [
                           Text(
                             'Daily Total',
-                            style: TextStyle(
-                              fontSize: 8,
+                            style: AppTextStyles.badge.copyWith(
                               letterSpacing: 0.5,
                               color: context.secondaryTextColor,
-                              fontWeight: FontWeight.w800,
                             ),
                           ),
 
@@ -121,9 +116,7 @@ class _MyExpenseCardState extends State<MyExpenseCard> {
 
                           Text(
                             '₹ ${expense.dailyTotal}',
-                            style: TextStyle(
-                              fontSize: 14,
-                              fontWeight: FontWeight.w900,
+                            style: AppTextStyles.listTitle.copyWith(
                               color: context.cardTextColor,
                             ),
                           ),
@@ -244,9 +237,7 @@ class _MyExpenseCardState extends State<MyExpenseCard> {
                             showDetails
                                 ? 'Hide Expense Details'
                                 : 'View Expense Details',
-                            style: TextStyle(
-                              fontSize: 10,
-                              fontWeight: FontWeight.w800,
+                            style: AppTextStyles.labelSmall.copyWith(
                               color: showDetails
                                   ? context.onPrimaryColor
                                   : primaryGreen,
@@ -270,9 +261,7 @@ class _MyExpenseCardState extends State<MyExpenseCard> {
                             ),
                             child: Text(
                               '${expense.details.length}',
-                              style: TextStyle(
-                                fontSize: 9,
-                                fontWeight: FontWeight.w900,
+                              style: AppTextStyles.labelSmall.copyWith(
                                 color: showDetails
                                     ? context.onPrimaryColor
                                     : mediumGreen,
@@ -347,11 +336,7 @@ class _MyExpenseCardState extends State<MyExpenseCard> {
           const SizedBox(width: 4),
           Text(
             label,
-            style: TextStyle(
-              fontSize: 8,
-              fontWeight: FontWeight.w900,
-              color: foregroundColor,
-            ),
+            style: AppTextStyles.badge.copyWith(color: foregroundColor),
           ),
         ],
       ),
@@ -453,11 +438,9 @@ class _MyExpenseCardState extends State<MyExpenseCard> {
                   title,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: TextStyle(
-                    fontSize: 7,
+                  style: AppTextStyles.badge.copyWith(
                     letterSpacing: 0.4,
                     color: color,
-                    fontWeight: FontWeight.w900,
                   ),
                 ),
 
@@ -467,11 +450,7 @@ class _MyExpenseCardState extends State<MyExpenseCard> {
                   _statusDisplayText(value),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: TextStyle(
-                    fontSize: 10,
-                    color: color,
-                    fontWeight: FontWeight.w900,
-                  ),
+                  style: AppTextStyles.labelSmall.copyWith(color: color),
                 ),
               ],
             ),
@@ -519,11 +498,9 @@ class _MyExpenseCardState extends State<MyExpenseCard> {
               children: [
                 Text(
                   'REMARK',
-                  style: TextStyle(
-                    fontSize: 7,
+                  style: AppTextStyles.badge.copyWith(
                     letterSpacing: 0.4,
                     color: context.primaryColor,
-                    fontWeight: FontWeight.w900,
                   ),
                 ),
 
@@ -531,10 +508,8 @@ class _MyExpenseCardState extends State<MyExpenseCard> {
 
                 Text(
                   remark,
-                  style: TextStyle(
-                    fontSize: 9,
+                  style: AppTextStyles.labelSmall.copyWith(
                     color: context.cardTextColor,
-                    fontWeight: FontWeight.w600,
                     height: 1.2,
                   ),
                 ),
@@ -584,10 +559,8 @@ class _MyExpenseCardState extends State<MyExpenseCard> {
                   title,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: TextStyle(
-                    fontSize: 7,
+                  style: AppTextStyles.badge.copyWith(
                     color: context.secondaryTextColor,
-                    fontWeight: FontWeight.w700,
                   ),
                 ),
 
@@ -597,9 +570,7 @@ class _MyExpenseCardState extends State<MyExpenseCard> {
                   value.isEmpty ? '-' : value,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: TextStyle(
-                    fontSize: 9,
-                    fontWeight: FontWeight.w800,
+                  style: AppTextStyles.labelSmall.copyWith(
                     color: context.cardTextColor,
                   ),
                 ),
@@ -636,10 +607,8 @@ class _MyExpenseCardState extends State<MyExpenseCard> {
             alignment: Alignment.centerLeft,
             child: Text(
               'EXPENSE BREAKDOWN',
-              style: TextStyle(
-                fontSize: 9,
+              style: AppTextStyles.labelSmall.copyWith(
                 letterSpacing: 0.6,
-                fontWeight: FontWeight.w900,
                 color: context.secondaryTextColor,
               ),
             ),
@@ -722,9 +691,7 @@ class _MyExpenseCardState extends State<MyExpenseCard> {
               Expanded(
                 child: Text(
                   name.isEmpty ? 'Expense' : name,
-                  style: TextStyle(
-                    fontSize: 10,
-                    fontWeight: FontWeight.w800,
+                  style: AppTextStyles.labelSmall.copyWith(
                     color: context.cardTextColor,
                   ),
                 ),
@@ -732,11 +699,7 @@ class _MyExpenseCardState extends State<MyExpenseCard> {
 
               Text(
                 '₹ $amount',
-                style: TextStyle(
-                  fontSize: 11,
-                  fontWeight: FontWeight.w900,
-                  color: primaryGreen,
-                ),
+                style: AppTextStyles.labelSmall.copyWith(color: primaryGreen),
               ),
             ],
           ),
@@ -811,9 +774,7 @@ class _MyExpenseCardState extends State<MyExpenseCard> {
 
                               Text(
                                 'Unable to load image',
-                                style: TextStyle(
-                                  fontSize: 9,
-                                  fontWeight: FontWeight.w700,
+                                style: AppTextStyles.labelSmall.copyWith(
                                   color: context.appColors.error,
                                 ),
                               ),
@@ -829,8 +790,7 @@ class _MyExpenseCardState extends State<MyExpenseCard> {
                                   maxLines: 1,
                                   textAlign: TextAlign.center,
                                   overflow: TextOverflow.ellipsis,
-                                  style: TextStyle(
-                                    fontSize: 8,
+                                  style: AppTextStyles.badge.copyWith(
                                     color: context.secondaryTextColor,
                                   ),
                                 ),
@@ -866,10 +826,8 @@ class _MyExpenseCardState extends State<MyExpenseCard> {
 
                             Text(
                               'View',
-                              style: TextStyle(
+                              style: AppTextStyles.badge.copyWith(
                                 color: context.onPrimaryColor,
-                                fontSize: 8,
-                                fontWeight: FontWeight.w800,
                               ),
                             ),
                           ],
@@ -925,10 +883,8 @@ class _MyExpenseCardState extends State<MyExpenseCard> {
                           expenseName.isEmpty ? 'Expense Image' : expenseName,
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
-                          style: TextStyle(
+                          style: AppTextStyles.labelLarge.copyWith(
                             color: context.cardTextColor,
-                            fontSize: 13,
-                            fontWeight: FontWeight.w800,
                           ),
                         ),
                       ),
@@ -991,9 +947,8 @@ class _MyExpenseCardState extends State<MyExpenseCard> {
 
                                 Text(
                                   'Unable to load image',
-                                  style: TextStyle(
+                                  style: AppTextStyles.labelSmall.copyWith(
                                     color: context.secondaryTextColor,
-                                    fontSize: 11,
                                   ),
                                 ),
                               ],
@@ -1017,9 +972,8 @@ class _MyExpenseCardState extends State<MyExpenseCard> {
                     maxLines: 1,
                     textAlign: TextAlign.center,
                     overflow: TextOverflow.ellipsis,
-                    style: TextStyle(
+                    style: AppTextStyles.labelSmall.copyWith(
                       color: context.secondaryTextColor,
-                      fontSize: 9,
                     ),
                   ),
                 ),

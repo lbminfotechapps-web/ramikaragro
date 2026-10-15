@@ -1,3 +1,4 @@
+import 'package:solufine/core/theme/typography/app_text_styles.dart';
 import 'package:solufine/core/di/leave_list_di.dart';
 import 'package:solufine/core/router/app_router.dart';
 import 'package:solufine/core/theme/app_theme_context.dart';
@@ -383,7 +384,7 @@ class _AddLeavePageState extends State<AddLeavePage> {
               size: 20,
             ),
             const SizedBox(width: 8),
-            Expanded(child: Text(message)),
+            Expanded(child: Text(message, style: AppTextStyles.body)),
           ],
         ),
         backgroundColor: context.appColors.error,
@@ -424,6 +425,7 @@ class _AddLeavePageState extends State<AddLeavePage> {
                     Expanded(
                       child: Text(
                         state.successMessage ?? "Leave applied successfully",
+                        style: AppTextStyles.body,
                       ),
                     ),
                   ],
@@ -464,6 +466,7 @@ class _AddLeavePageState extends State<AddLeavePage> {
                     Expanded(
                       child: Text(
                         state.errorMessage ?? "Unable to apply leave",
+                        style: AppTextStyles.body,
                       ),
                     ),
                   ],
@@ -582,9 +585,7 @@ class _AddLeavePageState extends State<AddLeavePage> {
         const SizedBox(width: 6),
         Text(
           title,
-          style: TextStyle(
-            fontSize: 14,
-            fontWeight: FontWeight.w700,
+          style: AppTextStyles.labelLarge.copyWith(
             color: context.primaryTextColor,
           ),
         ),
@@ -672,9 +673,7 @@ class _AddLeavePageState extends State<AddLeavePage> {
                 children: [
                   Text(
                     title,
-                    style: TextStyle(
-                      fontSize: 8,
-                      fontWeight: FontWeight.w700,
+                    style: AppTextStyles.badge.copyWith(
                       letterSpacing: 0.6,
                       color: context.secondaryTextColor,
                     ),
@@ -688,9 +687,7 @@ class _AddLeavePageState extends State<AddLeavePage> {
                         : DateFormat("dd MMM yyyy").format(date),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
-                    style: TextStyle(
-                      fontSize: 12,
-                      fontWeight: FontWeight.w700,
+                    style: AppTextStyles.buttonSmall.copyWith(
                       color: date == null
                           ? context.secondaryTextColor
                           : context.cardTextColor,
@@ -764,9 +761,7 @@ class _AddLeavePageState extends State<AddLeavePage> {
         children: [
           Text(
             label,
-            style: TextStyle(
-              fontSize: 8,
-              fontWeight: FontWeight.w700,
+            style: AppTextStyles.badge.copyWith(
               letterSpacing: 0.6,
               color: context.secondaryTextColor,
             ),
@@ -783,23 +778,24 @@ class _AddLeavePageState extends State<AddLeavePage> {
                   size: 18,
                   color: enabled ? primaryGreen : context.secondaryTextColor,
                 ),
-                style: TextStyle(
-                  fontSize: 12,
-                  fontWeight: FontWeight.w600,
+                style: AppTextStyles.buttonSmall.copyWith(
                   color: enabled
                       ? context.cardTextColor
                       : context.secondaryTextColor,
                 ),
                 onChanged: enabled ? onChanged : null,
-                items: const [
-                  DropdownMenuItem(value: "Full Day", child: Text("Full Day")),
+                items: [
+                  DropdownMenuItem(
+                    value: "Full Day",
+                    child: Text("Full Day", style: AppTextStyles.input),
+                  ),
                   DropdownMenuItem(
                     value: "First Half",
-                    child: Text("First Half"),
+                    child: Text("First Half", style: AppTextStyles.input),
                   ),
                   DropdownMenuItem(
                     value: "Second Half",
-                    child: Text("Second Half"),
+                    child: Text("Second Half", style: AppTextStyles.input),
                   ),
                 ],
               ),
@@ -849,9 +845,7 @@ class _AddLeavePageState extends State<AddLeavePage> {
               children: [
                 Text(
                   "TOTAL LEAVE DAYS",
-                  style: TextStyle(
-                    fontSize: 8.5,
-                    fontWeight: FontWeight.w700,
+                  style: AppTextStyles.badge.copyWith(
                     letterSpacing: 0.6,
                     color: primaryGreen,
                   ),
@@ -859,8 +853,7 @@ class _AddLeavePageState extends State<AddLeavePage> {
                 SizedBox(height: 2),
                 Text(
                   "Calculated automatically",
-                  style: TextStyle(
-                    fontSize: 10,
+                  style: AppTextStyles.helperText.copyWith(
                     color: context.secondaryTextColor,
                   ),
                 ),
@@ -870,11 +863,7 @@ class _AddLeavePageState extends State<AddLeavePage> {
 
           Text(
             hasDates ? _formatLeaveDays(totalLeaveDays) : "0",
-            style: TextStyle(
-              fontSize: 21,
-              fontWeight: FontWeight.w800,
-              color: primaryGreen,
-            ),
+            style: AppTextStyles.pageTitle.copyWith(color: primaryGreen),
           ),
         ],
       ),
@@ -932,10 +921,7 @@ class _AddLeavePageState extends State<AddLeavePage> {
                       borderRadius: BorderRadius.circular(10),
                     ),
                   ),
-                  child: const Text(
-                    "Cancel",
-                    style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
-                  ),
+                  child: Text("Cancel", style: AppTextStyles.labelLarge),
                 ),
               ),
             ),
@@ -968,17 +954,14 @@ class _AddLeavePageState extends State<AddLeavePage> {
                             color: context.onPrimaryColor,
                           ),
                         )
-                      : const Row(
+                      : Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             Icon(Icons.send_rounded, size: 16),
                             SizedBox(width: 6),
                             Text(
                               "Submit Leave",
-                              style: TextStyle(
-                                fontSize: 13,
-                                fontWeight: FontWeight.w700,
-                              ),
+                              style: AppTextStyles.labelLarge,
                             ),
                           ],
                         ),

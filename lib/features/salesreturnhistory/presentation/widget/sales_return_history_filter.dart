@@ -1,4 +1,5 @@
 import 'package:solufine/core/theme/app_theme_context.dart';
+import 'package:solufine/core/theme/typography/app_text_styles.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil_plus/flutter_screenutil_plus.dart';
 
@@ -43,9 +44,12 @@ class SalesReturnHistoryFilter extends StatelessWidget {
   ) {
     return InputDecoration(
       labelText: label,
+      hintStyle: AppTextStyles.inputHint,
       filled: true,
       fillColor: context.appTheme.inputBackground,
-      labelStyle: TextStyle(color: context.secondaryTextColor),
+      labelStyle: AppTextStyles.inputLabel.copyWith(
+        color: context.secondaryTextColor,
+      ),
       prefixIcon: Icon(icon, color: context.primaryColor),
       border: OutlineInputBorder(borderRadius: BorderRadius.circular(10.r)),
       enabledBorder: OutlineInputBorder(
@@ -83,6 +87,7 @@ class SalesReturnHistoryFilter extends StatelessWidget {
             });
 
             return TextField(
+              style: AppTextStyles.input,
               controller: controller,
               focusNode: focusNode,
               onChanged: onDealerChanged,
@@ -101,6 +106,7 @@ class SalesReturnHistoryFilter extends StatelessWidget {
           children: [
             Expanded(
               child: TextField(
+                style: AppTextStyles.input,
                 controller: fromDateController,
                 readOnly: true,
                 onTap: onFromDate,
@@ -116,6 +122,7 @@ class SalesReturnHistoryFilter extends StatelessWidget {
 
             Expanded(
               child: TextField(
+                style: AppTextStyles.input,
                 controller: toDateController,
                 readOnly: true,
                 onTap: onToDate,
@@ -134,7 +141,7 @@ class SalesReturnHistoryFilter extends StatelessWidget {
         DropdownButtonFormField<String>(
           value: selectedStatus,
           dropdownColor: context.cardBackgroundColor,
-          style: TextStyle(color: context.primaryTextColor),
+          style: AppTextStyles.input.copyWith(color: context.primaryTextColor),
           decoration: _decoration(context, 'Status', Icons.filter_alt_outlined),
           items: const [
             DropdownMenuItem(
@@ -160,7 +167,7 @@ class SalesReturnHistoryFilter extends StatelessWidget {
               child: ElevatedButton.icon(
                 onPressed: onSearch,
                 icon: const Icon(Icons.search),
-                label: const Text('Search'),
+                label: Text('Search', style: AppTextStyles.button),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: context.primaryColor,
                   foregroundColor: context.onPrimaryColor,
@@ -175,7 +182,7 @@ class SalesReturnHistoryFilter extends StatelessWidget {
               child: OutlinedButton.icon(
                 onPressed: onReset,
                 icon: const Icon(Icons.refresh),
-                label: const Text('Reset'),
+                label: Text('Reset', style: AppTextStyles.button),
                 style: OutlinedButton.styleFrom(
                   foregroundColor: context.primaryColor,
                   side: BorderSide(color: context.borderColor),
