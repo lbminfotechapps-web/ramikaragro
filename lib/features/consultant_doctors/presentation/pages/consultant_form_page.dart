@@ -24,62 +24,43 @@ class ConsultantFormPage extends StatefulWidget {
 }
 
 class _ConsultantFormPageState extends State<ConsultantFormPage> {
-  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+  final _formKey = GlobalKey<FormState>();
 
-  // ============================================================
-  // CONTROLLERS - INITIALIZED IMMEDIATELY
-  // FIXES LateInitializationError
-  // ============================================================
+  // Initialize immediately to avoid LateInitializationError.
+  final _doctorController = TextEditingController();
+  final _ownerController = TextEditingController();
+  final _mobileController = TextEditingController();
+  final _addressController = TextEditingController();
+  final _remarkController = TextEditingController();
 
-  final TextEditingController _doctorController = TextEditingController();
-
-  final TextEditingController _ownerController = TextEditingController();
-
-  final TextEditingController _mobileController = TextEditingController();
-
-  final TextEditingController _addressController = TextEditingController();
-
-  // ============================================================
-  // FOCUS NODES
-  // ============================================================
-
-  final FocusNode _doctorFocus = FocusNode();
-  final FocusNode _ownerFocus = FocusNode();
-  final FocusNode _mobileFocus = FocusNode();
-  final FocusNode _addressFocus = FocusNode();
+  final _doctorFocus = FocusNode();
+  final _ownerFocus = FocusNode();
+  final _mobileFocus = FocusNode();
+  final _addressFocus = FocusNode();
+  final _remarkFocus = FocusNode();
 
   bool get isEdit => widget.consultant != null;
-
-  // ============================================================
-  // INIT
-  // ============================================================
 
   @override
   void initState() {
     super.initState();
 
-    final consultant = widget.consultant;
+    final item = widget.consultant;
 
-    // EDIT MODE - SET EXISTING VALUES
-    if (consultant != null) {
-      _doctorController.text = consultant.doctorName;
-      _ownerController.text = consultant.ownerName;
-      _mobileController.text = consultant.mobile;
-      _addressController.text = consultant.address;
+    if (item != null) {
+      _doctorController.text = item.doctorName;
+      _ownerController.text = item.ownerName;
+      _mobileController.text = item.mobile;
+      _addressController.text = item.address;
     }
 
-    // LOAD DYNAMIC LOCATION OPTIONS
     context.read<LocationCubit>().initialize(
       userId: widget.userId,
-      stateId: consultant?.stateId,
-      districtId: consultant?.districtId,
-      talukaId: consultant?.talukaId,
+      stateId: item?.stateId,
+      districtId: item?.districtId,
+      talukaId: item?.talukaId,
     );
   }
-
-  // ============================================================
-  // DISPOSE
-  // ============================================================
 
   @override
   void dispose() {
@@ -87,47 +68,61 @@ class _ConsultantFormPageState extends State<ConsultantFormPage> {
     _ownerController.dispose();
     _mobileController.dispose();
     _addressController.dispose();
+    _remarkController.dispose();
 
     _doctorFocus.dispose();
     _ownerFocus.dispose();
     _mobileFocus.dispose();
     _addressFocus.dispose();
+    _remarkFocus.dispose();
 
     super.dispose();
   }
 
-  // ============================================================
-  // VALIDATION
-  // ============================================================
-
-  String? _requiredValidator(String? value, String fieldName) {
+  String? _required(String? value, String label) {
     if (value == null || value.trim().isEmpty) {
-      return 'Please enter $fieldName';
+      return 'Please enter $label';
     }
     return null;
   }
 
-  String? _mobileValidator(String? value) {
+  String? _validateMobile(String? value) {
     final mobile = value?.trim() ?? '';
-
-    if (mobile.isEmpty) {
-      return 'Please enter mobile number';
-    }
-
-    if (!RegExp(r'^[0-9]{10}$').hasMatch(mobile)) {
+    if (!RegExp(r'^\d{10}$').hasMatch(mobile)) {
       return 'Enter a valid 10-digit mobile number';
     }
-
     return null;
   }
 
-  // ============================================================
-  // COMMON SECTION CARD
-  // ============================================================
+  OutlineInputBorder _border(Color color, {double width = 1}) {
+    return OutlineInputBorder(
+      borderRadius: BorderRadius.circular(11),
+      borderSide: BorderSide(color: color, width: width),
+    );
+  }
 
-  Widget _buildSection({
+  InputDecoration _decoration(String label, IconData icon) {
+    return InputDecoration(
+      labelText: label,
+      isDense: true,
+      filled: true,
+      fillColor: context.appInputBackground,
+      prefixIcon: Icon(icon, size: 20, color: context.appPrimary),
+      labelStyle: TextStyle(color: context.appSubText, fontSize: 13),
+      floatingLabelStyle: TextStyle(color: context.appPrimary, fontSize: 12),
+      contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
+      counterText: '',
+      border: _border(context.appBorder),
+      enabledBorder: _border(context.appBorder),
+      focusedBorder: _border(context.appPrimary, width: 1.5),
+      disabledBorder: _border(context.appBorder),
+      errorBorder: _border(context.appError),
+      focusedErrorBorder: _border(context.appError, width: 1.5),
+    );
+  }
+
+  Widget _section({
     required String title,
-    required String subtitle,
     required IconData icon,
     required Widget child,
   }) {
@@ -136,7 +131,7 @@ class _ConsultantFormPageState extends State<ConsultantFormPage> {
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
         color: context.appCard,
-        borderRadius: BorderRadius.circular(15),
+        borderRadius: BorderRadius.circular(14),
         border: Border.all(color: context.appBorder),
       ),
       child: Column(
@@ -145,37 +140,21 @@ class _ConsultantFormPageState extends State<ConsultantFormPage> {
           Row(
             children: [
               Container(
-                width: 34,
-                height: 34,
-                alignment: Alignment.center,
+                height: 32,
+                width: 32,
                 decoration: BoxDecoration(
                   color: context.appPrimary.withValues(alpha: 0.09),
-                  borderRadius: BorderRadius.circular(10),
+                  borderRadius: BorderRadius.circular(9),
                 ),
-                child: Icon(icon, size: 18, color: context.appPrimary),
+                child: Icon(icon, color: context.appPrimary, size: 17),
               ),
               const SizedBox(width: 9),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      title,
-                      style: TextStyle(
-                        color: context.appText,
-                        fontSize: 13,
-                        fontWeight: FontWeight.w700,
-                      ),
-                    ),
-                    const SizedBox(height: 2),
-                    Text(
-                      subtitle,
-                      style: TextStyle(
-                        color: context.appSubText,
-                        fontSize: 10.5,
-                      ),
-                    ),
-                  ],
+              Text(
+                title,
+                style: TextStyle(
+                  color: context.appText,
+                  fontSize: 13,
+                  fontWeight: FontWeight.w800,
                 ),
               ),
             ],
@@ -187,86 +166,24 @@ class _ConsultantFormPageState extends State<ConsultantFormPage> {
     );
   }
 
-  // ============================================================
-  // MOBILE FIELD
-  // STANDARD TEXTFORMFIELD - DIGITS ONLY
-  // ============================================================
-
-  Widget _buildMobileField() {
-    OutlineInputBorder fieldBorder(Color color, {double width = 1}) {
-      return OutlineInputBorder(
-        borderRadius: BorderRadius.circular(10),
-        borderSide: BorderSide(color: color, width: width),
-      );
-    }
-
-    return TextFormField(
-      controller: _mobileController,
-      focusNode: _mobileFocus,
-      keyboardType: TextInputType.phone,
-      textInputAction: TextInputAction.next,
-      maxLength: 10,
-      inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-      style: TextStyle(color: context.appInputText, fontSize: 14),
-      decoration: InputDecoration(
-        labelText: 'Mobile Number *',
-        hintText: 'Enter 10-digit mobile number',
-        counterText: '',
-        isDense: true,
-        filled: true,
-        fillColor: context.appInputBackground,
-        labelStyle: TextStyle(color: context.appSubText, fontSize: 14),
-        floatingLabelStyle: TextStyle(
-          color: context.appPrimary,
-          fontSize: 13,
-          fontWeight: FontWeight.w600,
-        ),
-        hintStyle: TextStyle(color: context.appSubText, fontSize: 13),
-        prefixIcon: Icon(
-          Icons.phone_android_outlined,
-          color: context.appPrimary,
-          size: 21,
-        ),
-        contentPadding: const EdgeInsets.symmetric(
-          horizontal: 14,
-          vertical: 15,
-        ),
-        border: fieldBorder(context.appBorder),
-        enabledBorder: fieldBorder(context.appBorder),
-        focusedBorder: fieldBorder(context.appPrimary, width: 1.5),
-        errorBorder: fieldBorder(context.appError),
-        focusedErrorBorder: fieldBorder(context.appError, width: 1.5),
-      ),
-      onFieldSubmitted: (_) {
-        _addressFocus.requestFocus();
-      },
-      validator: _mobileValidator,
-    );
-  }
-
-  // ============================================================
-  // BASIC INFORMATION
-  // ============================================================
-
-  Widget _buildBasicDetails() {
-    return _buildSection(
-      title: 'Basic Information',
-      subtitle: 'Doctor and owner details',
+  Widget _basicDetails() {
+    return _section(
+      title: 'Doctor Information',
       icon: Icons.medical_services_outlined,
       child: Column(
         children: [
           CustomTextFormField(
             controller: _doctorController,
             focusNode: _doctorFocus,
-            hintText: 'Enter doctor name',
             labelText: 'Doctor Name *',
+            hintText: 'Enter doctor name',
             prefixIcon: Icons.medical_services_outlined,
             textInputAction: TextInputAction.next,
             showKeyboardDone: false,
             onFieldSubmitted: (_) {
               _ownerFocus.requestFocus();
             },
-            validator: (value) => _requiredValidator(value, 'doctor name'),
+            validator: (value) => _required(value, 'doctor name'),
           ),
 
           const SizedBox(height: 10),
@@ -274,125 +191,127 @@ class _ConsultantFormPageState extends State<ConsultantFormPage> {
           CustomTextFormField(
             controller: _ownerController,
             focusNode: _ownerFocus,
-            hintText: 'Enter owner name',
             labelText: 'Owner Name *',
-            prefixIcon: Icons.person_outline_rounded,
+            hintText: 'Enter owner name',
+            prefixIcon: Icons.person_outline,
             textInputAction: TextInputAction.next,
             showKeyboardDone: false,
             onFieldSubmitted: (_) {
               _mobileFocus.requestFocus();
             },
-            validator: (value) => _requiredValidator(value, 'owner name'),
+            validator: (value) => _required(value, 'owner name'),
           ),
 
           const SizedBox(height: 10),
 
-          _buildMobileField(),
-
-          const SizedBox(height: 10),
-
-          CustomTextFormField(
-            controller: _addressController,
-            focusNode: _addressFocus,
-            hintText: 'Enter complete address',
-            labelText: 'Address *',
-            prefixIcon: Icons.location_on_outlined,
-            keyboardType: TextInputType.multiline,
-            textInputAction: TextInputAction.newline,
-            maxLines: 2,
-            showKeyboardDone: true,
-            validator: (value) => _requiredValidator(value, 'address'),
+          // Mobile uses standard TextFormField so no
+          // change to CustomTextFormField is required.
+          TextFormField(
+            controller: _mobileController,
+            focusNode: _mobileFocus,
+            keyboardType: TextInputType.phone,
+            textInputAction: TextInputAction.next,
+            maxLength: 10,
+            inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+            style: TextStyle(color: context.appInputText, fontSize: 14),
+            decoration: _decoration(
+              'Mobile Number *',
+              Icons.phone_android_outlined,
+            ),
+            validator: _validateMobile,
+            onFieldSubmitted: (_) {
+              _addressFocus.requestFocus();
+            },
           ),
         ],
       ),
     );
   }
 
-  // ============================================================
-  // DROPDOWN DECORATION
-  // ============================================================
+  Widget _addressDetails() {
+    return _section(
+      title: 'Address and Remark',
+      icon: Icons.home_outlined,
+      child: Column(
+        children: [
+          CustomTextFormField(
+            controller: _addressController,
+            focusNode: _addressFocus,
+            labelText: 'Address *',
+            hintText: 'Enter address',
+            prefixIcon: Icons.location_on_outlined,
+            keyboardType: TextInputType.multiline,
+            textInputAction: TextInputAction.newline,
+            maxLines: 2,
+            showKeyboardDone: true,
+            validator: (value) => _required(value, 'address'),
+          ),
 
-  InputDecoration _dropdownDecoration({
-    required String label,
-    required IconData icon,
-    required bool enabled,
-  }) {
-    OutlineInputBorder fieldBorder(Color color, {double width = 1}) {
-      return OutlineInputBorder(
-        borderRadius: BorderRadius.circular(10),
-        borderSide: BorderSide(color: color, width: width),
-      );
-    }
+          const SizedBox(height: 10),
 
-    return InputDecoration(
-      labelText: label,
-      filled: true,
-      isDense: true,
-      fillColor: context.appInputBackground,
-      prefixIcon: Icon(
-        icon,
-        size: 21,
-        color: enabled ? context.appPrimary : context.appSubText,
+          CustomTextFormField(
+            controller: _remarkController,
+            focusNode: _remarkFocus,
+            labelText: 'Remark',
+            hintText: 'Enter remark',
+            prefixIcon: Icons.notes_outlined,
+            keyboardType: TextInputType.multiline,
+            textInputAction: TextInputAction.newline,
+            maxLines: 2,
+            showKeyboardDone: true,
+          ),
+        ],
       ),
-      labelStyle: TextStyle(color: context.appSubText, fontSize: 14),
-      floatingLabelStyle: TextStyle(
-        color: context.appPrimary,
-        fontSize: 13,
-        fontWeight: FontWeight.w600,
-      ),
-      contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 15),
-      border: fieldBorder(context.appBorder),
-      enabledBorder: fieldBorder(context.appBorder),
-      disabledBorder: fieldBorder(context.appBorder),
-      focusedBorder: fieldBorder(context.appPrimary, width: 1.5),
-      errorBorder: fieldBorder(context.appError),
-      focusedErrorBorder: fieldBorder(context.appError, width: 1.5),
     );
   }
 
-  // ============================================================
-  // REUSABLE DROPDOWN
-  // ============================================================
-
-  Widget _buildDropdown({
+  Widget _dropdown({
     required String label,
-    required String? selectedValue,
-    required Map<String, String> options,
+    required String? selected,
+    required Map<String, String> items,
     required IconData icon,
     required bool enabled,
     required ValueChanged<String?> onChanged,
-    required String identityKey,
+    required String keyName,
   }) {
-    final validValue =
-        selectedValue != null && options.containsKey(selectedValue)
-        ? selectedValue
+    final value =
+        selected != null && selected != '0' && items.containsKey(selected)
+        ? selected
         : null;
 
     return DropdownButtonFormField<String>(
-      key: ValueKey('$identityKey-$validValue'),
-      initialValue: validValue,
+      key: ValueKey('$keyName-$value'),
+      initialValue: value,
       isExpanded: true,
       dropdownColor: context.appCard,
-      icon: Icon(Icons.keyboard_arrow_down_rounded, color: context.appPrimary),
       style: TextStyle(color: context.appInputText, fontSize: 13),
-      decoration: _dropdownDecoration(
-        label: label,
-        icon: icon,
-        enabled: enabled,
-      ),
-      items: options.entries.map((entry) {
-        return DropdownMenuItem<String>(
-          value: entry.key,
-          child: Text(
-            entry.value,
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-          ),
-        );
-      }).toList(),
+      icon: Icon(Icons.keyboard_arrow_down_rounded, color: context.appPrimary),
+      decoration: _decoration(label, icon),
+      items: items.entries
+          .where((entry) => entry.key != '0')
+          .map(
+            (entry) => DropdownMenuItem<String>(
+              value: entry.key,
+              child: Text(
+                entry.value,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
+          )
+          .toList(),
       onChanged: enabled ? onChanged : null,
-      validator: (value) {
-        if (value == null || value.isEmpty || value == '0') {
+      validator: (_) {
+        // Validate the current Cubit selection rather
+        // than a stale FormField value.
+        final location = context.read<LocationCubit>().state;
+        final currentId = keyName == 'state'
+            ? location.stateId
+            : keyName.startsWith('district')
+            ? location.districtId
+            : location.talukaId;
+
+        if (currentId == null || currentId == '0') {
           return 'Please select $label';
         }
         return null;
@@ -400,31 +319,28 @@ class _ConsultantFormPageState extends State<ConsultantFormPage> {
     );
   }
 
-  // ============================================================
-  // LOCATION SECTION
-  // API-DRIVEN STATE / DISTRICT / TALUKA
-  // ============================================================
-
-  Widget _buildLocationDetails() {
+  Widget _locationDetails() {
     return BlocBuilder<LocationCubit, LocationState>(
       builder: (context, location) {
         final cubit = context.read<LocationCubit>();
 
-        final states = <String, String>{
-          for (final item in location.states) item.id: item.name,
+        final states = {
+          for (final item in location.states)
+            if (item.id != '0') item.id: item.name,
         };
 
-        final districts = <String, String>{
-          for (final item in location.districts) item.id: item.name,
+        final districts = {
+          for (final item in location.districts)
+            if (item.id != '0') item.id: item.name,
         };
 
-        final talukas = <String, String>{
-          for (final item in location.talukas) item.id: item.name,
+        final talukas = {
+          for (final item in location.talukas)
+            if (item.id != '0') item.id: item.name,
         };
 
-        return _buildSection(
+        return _section(
           title: 'Location Details',
-          subtitle: 'Select state, district and taluka',
           icon: Icons.map_outlined,
           child: Column(
             children: [
@@ -436,14 +352,14 @@ class _ConsultantFormPageState extends State<ConsultantFormPage> {
                 const SizedBox(height: 8),
               ],
 
-              _buildDropdown(
+              _dropdown(
                 label: 'State *',
-                selectedValue: location.stateId,
-                options: states,
+                selected: location.stateId,
+                items: states,
                 icon: Icons.map_outlined,
                 enabled: !location.statesLoading && states.isNotEmpty,
-                identityKey: 'state',
                 onChanged: cubit.changeState,
+                keyName: 'state',
               ),
 
               const SizedBox(height: 10),
@@ -456,125 +372,64 @@ class _ConsultantFormPageState extends State<ConsultantFormPage> {
                 const SizedBox(height: 8),
               ],
 
-              _buildDropdown(
+              _dropdown(
                 label: 'District *',
-                selectedValue: location.districtId,
-                options: districts,
+                selected: location.districtId,
+                items: districts,
                 icon: Icons.location_city_outlined,
                 enabled:
                     location.stateId != null &&
                     !location.districtsLoading &&
                     districts.isNotEmpty,
-                identityKey: 'district-${location.stateId}',
                 onChanged: cubit.changeDistrict,
+                keyName: 'district-${location.stateId}',
               ),
 
               const SizedBox(height: 10),
 
-              _buildDropdown(
+              _dropdown(
                 label: 'Taluka *',
-                selectedValue: location.talukaId,
-                options: talukas,
+                selected: location.talukaId,
+                items: talukas,
                 icon: Icons.place_outlined,
-                enabled: location.districtId != null && talukas.isNotEmpty,
-                identityKey:
+                enabled:
+                    location.districtId != null &&
+                    !location.districtsLoading &&
+                    talukas.isNotEmpty,
+                onChanged: cubit.changeTaluka,
+                keyName:
                     'taluka-${location.stateId}-'
                     '${location.districtId}',
-                onChanged: cubit.changeTaluka,
               ),
 
               if (location.error.isNotEmpty) ...[
-                const SizedBox(height: 10),
-                Container(
-                  width: double.infinity,
-                  padding: const EdgeInsets.all(10),
-                  decoration: BoxDecoration(
-                    color: context.appError.withValues(alpha: 0.07),
-                    borderRadius: BorderRadius.circular(10),
-                    border: Border.all(
-                      color: context.appError.withValues(alpha: 0.25),
+                const SizedBox(height: 9),
+                Row(
+                  children: [
+                    Icon(
+                      Icons.error_outline,
+                      size: 17,
+                      color: context.appError,
                     ),
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        children: [
-                          Icon(
-                            Icons.error_outline,
-                            size: 17,
-                            color: context.appError,
-                          ),
-                          const SizedBox(width: 7),
-                          Expanded(
-                            child: Text(
-                              location.error,
-                              style: TextStyle(
-                                color: context.appError,
-                                fontSize: 11,
-                              ),
-                            ),
-                          ),
-                        ],
+                    const SizedBox(width: 6),
+                    Expanded(
+                      child: Text(
+                        location.error,
+                        style: TextStyle(color: context.appError, fontSize: 11),
                       ),
-                      Align(
-                        alignment: Alignment.centerRight,
-                        child: TextButton.icon(
-                          onPressed: () {
-                            cubit.initialize(
-                              userId: widget.userId,
-                              stateId: location.stateId,
-                              districtId: location.districtId,
-                              talukaId: location.talukaId,
-                            );
-                          },
-                          icon: const Icon(Icons.refresh_rounded, size: 16),
-                          label: const Text('Retry'),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-
-              if (location.selectedState != null &&
-                  location.selectedDistrict != null &&
-                  location.selectedTaluka != null) ...[
-                const SizedBox(height: 10),
-                Container(
-                  width: double.infinity,
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 11,
-                    vertical: 9,
-                  ),
-                  decoration: BoxDecoration(
-                    color: context.appPrimary.withValues(alpha: 0.06),
-                    borderRadius: BorderRadius.circular(9),
-                  ),
-                  child: Row(
-                    children: [
-                      Icon(
-                        Icons.check_circle_outline,
-                        color: context.appPrimary,
-                        size: 17,
-                      ),
-                      const SizedBox(width: 7),
-                      Expanded(
-                        child: Text(
-                          '${location.selectedTaluka!.name}, '
-                          '${location.selectedDistrict!.name}, '
-                          '${location.selectedState!.name}',
-                          maxLines: 2,
-                          overflow: TextOverflow.ellipsis,
-                          style: TextStyle(
-                            color: context.appText,
-                            fontSize: 11.5,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
+                    ),
+                    TextButton(
+                      onPressed: () {
+                        cubit.initialize(
+                          userId: widget.userId,
+                          stateId: location.stateId,
+                          districtId: location.districtId,
+                          talukaId: location.talukaId,
+                        );
+                      },
+                      child: const Text('Retry'),
+                    ),
+                  ],
                 ),
               ],
             ],
@@ -584,105 +439,86 @@ class _ConsultantFormPageState extends State<ConsultantFormPage> {
     );
   }
 
-  // ============================================================
-  // HEADER
-  // ============================================================
-
-  Widget _buildHeader() {
-    return Row(
-      children: [
-        Container(
-          width: 42,
-          height: 42,
-          alignment: Alignment.center,
-          decoration: BoxDecoration(
-            color: context.appPrimary,
-            borderRadius: BorderRadius.circular(12),
-          ),
-          child: Icon(
-            Icons.medical_services_outlined,
-            size: 22,
-            color: context.appOnPrimary,
-          ),
-        ),
-        const SizedBox(width: 11),
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                isEdit ? 'Update Consultant' : 'New Consultant Doctor',
-                style: TextStyle(
-                  color: context.appText,
-                  fontSize: 16,
-                  fontWeight: FontWeight.w800,
-                ),
-              ),
-              const SizedBox(height: 3),
-              Text(
-                'Enter doctor and location information',
-                style: TextStyle(color: context.appSubText, fontSize: 11),
-              ),
-            ],
-          ),
-        ),
-      ],
-    );
-  }
-
-  // ============================================================
-  // SAVE
-  // ============================================================
-
   void _saveConsultant() {
+    final bloc = context.read<ConsultantBloc>();
+
+    if (bloc.state.status == ConsultantStatus.saving) {
+      return;
+    }
+
     FocusScope.of(context).unfocus();
 
-    final valid = _formKey.currentState?.validate() ?? false;
-    if (!valid) return;
+    if (!(_formKey.currentState?.validate() ?? false)) {
+      return;
+    }
 
     final location = context.read<LocationCubit>().state;
 
-    final selectedState = location.selectedState;
-    final selectedDistrict = location.selectedDistrict;
-    final selectedTaluka = location.selectedTaluka;
+    final state = location.selectedState;
+    final district = location.selectedDistrict;
+    final taluka = location.selectedTaluka;
 
     if (location.statesLoading ||
         location.districtsLoading ||
-        selectedState == null ||
-        selectedDistrict == null ||
-        selectedTaluka == null) {
+        state == null ||
+        district == null ||
+        taluka == null ||
+        state.id == '0' ||
+        district.id == '0' ||
+        taluka.id == '0') {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: const Text('Please select State, District and Taluka.'),
+          content: Text(
+            'Please select State, District and Taluka.',
+            style: TextStyle(color: context.appColors.onError),
+          ),
           backgroundColor: context.appError,
         ),
       );
       return;
     }
 
+    if (widget.userId.trim().isEmpty || widget.userId.trim() == '0') {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Employee ID is required.')));
+      return;
+    }
+
+    if (isEdit) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Update Doctor API is required for editing.'),
+        ),
+      );
+      return;
+    }
+
     final consultant = ConsultantDoctor(
-      id: widget.consultant?.id ?? 'CD${DateTime.now().microsecondsSinceEpoch}',
+      id: 'CD${DateTime.now().microsecondsSinceEpoch}',
       doctorName: _doctorController.text.trim(),
       ownerName: _ownerController.text.trim(),
       mobile: _mobileController.text.trim(),
       address: _addressController.text.trim(),
-      stateId: selectedState.id,
-      stateName: selectedState.name,
-      districtId: selectedDistrict.id,
-      districtName: selectedDistrict.name,
-      talukaId: selectedTaluka.id,
-      talukaName: selectedTaluka.name,
-      createdAt: widget.consultant?.createdAt ?? DateTime.now(),
+      stateId: state.id,
+      stateName: state.name,
+      districtId: district.id,
+      districtName: district.name,
+      talukaId: taluka.id,
+      talukaName: taluka.name,
+      createdAt: DateTime.now(),
     );
 
-    context.read<ConsultantBloc>().add(SaveConsultant(consultant));
+    bloc.add(
+      AddDoctor(
+        userId: widget.userId.trim(),
+        consultant: consultant,
+        remark: _remarkController.text.trim(),
+      ),
+    );
   }
 
-  // ============================================================
-  // BOTTOM ACTION
-  // ============================================================
-
-  Widget _buildBottomButton() {
+  Widget _bottomButton() {
     return SafeArea(
       top: false,
       child: Container(
@@ -700,24 +536,23 @@ class _ConsultantFormPageState extends State<ConsultantFormPage> {
                 final saving = state.status == ConsultantStatus.saving;
 
                 return SizedBox(
-                  width: double.infinity,
                   height: 48,
+                  width: double.infinity,
                   child: ElevatedButton.icon(
                     onPressed: saving ? null : _saveConsultant,
                     icon: saving
                         ? SizedBox(
-                            height: 17,
-                            width: 17,
+                            height: 18,
+                            width: 18,
                             child: CircularProgressIndicator(
-                              color: context.appOnPrimary,
                               strokeWidth: 2,
+                              color: context.appOnPrimary.withValues(
+                                alpha: 0.7,
+                              ),
                             ),
                           )
                         : Icon(
-                            isEdit
-                                ? Icons.check_circle_outline
-                                : Icons.save_outlined,
-                            size: 19,
+                            isEdit ? Icons.edit_outlined : Icons.save_outlined,
                           ),
                     label: Text(
                       saving
@@ -725,10 +560,6 @@ class _ConsultantFormPageState extends State<ConsultantFormPage> {
                           : isEdit
                           ? 'Update Consultant'
                           : 'Save Consultant',
-                      style: const TextStyle(
-                        fontSize: 13,
-                        fontWeight: FontWeight.w700,
-                      ),
                     ),
                     style: ElevatedButton.styleFrom(
                       elevation: 0,
@@ -746,10 +577,6 @@ class _ConsultantFormPageState extends State<ConsultantFormPage> {
     );
   }
 
-  // ============================================================
-  // BUILD
-  // ============================================================
-
   @override
   Widget build(BuildContext context) {
     return BlocListener<ConsultantBloc, ConsultantState>(
@@ -759,14 +586,24 @@ class _ConsultantFormPageState extends State<ConsultantFormPage> {
               current.status == ConsultantStatus.failure),
       listener: (context, state) {
         if (state.status == ConsultantStatus.saved) {
-          context.pop(true);
-          return;
-        }
-
-        if (state.status == ConsultantStatus.failure) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text(state.message),
+              content: Text(
+                state.message.isNotEmpty
+                    ? state.message
+                    : 'Doctor added successfully.',
+              ),
+              backgroundColor: context.appPrimary,
+            ),
+          );
+          context.pop(true);
+        } else if (state.status == ConsultantStatus.failure) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(
+                state.message,
+                style: TextStyle(color: context.appColors.onError),
+              ),
               backgroundColor: context.appError,
             ),
           );
@@ -777,15 +614,15 @@ class _ConsultantFormPageState extends State<ConsultantFormPage> {
         resizeToAvoidBottomInset: true,
 
         appBar: CustomAppBar(
-          leading: IconButton(
-            icon: Icon(Icons.arrow_back_ios_new_rounded, size: 20),
-            onPressed: () => context.go(AppRouter.home),
-          ),
+          // leading: IconButton(
+          //   icon: Icon(Icons.arrow_back_ios_new_rounded, size: 20),
+          //   onPressed: () => Navigator.pop(context),
+          // ),
           title: 'Add Consultant Doctor',
           showBackButton: true,
-          onBackTap: () => context.go(AppRouter.home),
+          onBackTap: () => Navigator.pop(context),
           actionIcon: Icons.refresh_rounded,
-          // onActionIconTap: _refreshList,
+          // onActionIconTap: _fetchActivities,
         ),
 
         body: SafeArea(
@@ -796,17 +633,16 @@ class _ConsultantFormPageState extends State<ConsultantFormPage> {
               child: SingleChildScrollView(
                 keyboardDismissBehavior:
                     ScrollViewKeyboardDismissBehavior.onDrag,
-                padding: const EdgeInsets.fromLTRB(14, 8, 14, 22),
+                padding: const EdgeInsets.fromLTRB(14, 8, 14, 24),
                 child: Form(
                   key: _formKey,
-                  autovalidateMode: AutovalidateMode.disabled,
                   child: Column(
                     children: [
-                      _buildHeader(),
-                      const SizedBox(height: 13),
-                      _buildBasicDetails(),
+                      _basicDetails(),
                       const SizedBox(height: 11),
-                      _buildLocationDetails(),
+                      _locationDetails(),
+                      const SizedBox(height: 11),
+                      _addressDetails(),
                     ],
                   ),
                 ),
@@ -814,7 +650,7 @@ class _ConsultantFormPageState extends State<ConsultantFormPage> {
             ),
           ),
         ),
-        bottomNavigationBar: _buildBottomButton(),
+        bottomNavigationBar: _bottomButton(),
       ),
     );
   }
