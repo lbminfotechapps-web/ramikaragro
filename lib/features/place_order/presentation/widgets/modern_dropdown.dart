@@ -1,3 +1,4 @@
+import 'package:solufine/core/theme/typography/app_text_styles.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil_plus/flutter_screenutil_plus.dart';
 
@@ -35,9 +36,7 @@ class ModernDropdown<T> extends StatelessWidget {
             SizedBox(width: 6.w),
             Text(
               label,
-              style: TextStyle(
-                fontSize: 13.sp,
-                fontWeight: FontWeight.w800,
+              style: AppTextStyles.labelLarge.copyWith(
                 color: context.primaryTextColor,
               ),
             ),
@@ -59,19 +58,14 @@ class ModernDropdown<T> extends StatelessWidget {
             size: 23.sp,
           ),
 
-          style: TextStyle(
-            fontSize: 13.sp,
-            fontWeight: FontWeight.w600,
-            color: context.primaryTextColor,
-          ),
+          style: AppTextStyles.input.copyWith(color: context.primaryTextColor),
 
           dropdownColor: context.cardBackgroundColor,
 
           decoration: InputDecoration(
             hintText: hint,
 
-            hintStyle: TextStyle(
-              fontSize: 13.sp,
+            hintStyle: AppTextStyles.inputHint.copyWith(
               color: context.secondaryTextColor,
             ),
 

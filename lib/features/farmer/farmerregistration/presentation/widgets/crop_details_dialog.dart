@@ -1,4 +1,5 @@
 import 'package:solufine/core/theme/app_dynamic_colors.dart';
+import 'package:solufine/core/theme/typography/app_text_styles.dart';
 import 'package:solufine/core/utility/app_toast.dart';
 import 'package:solufine/features/farmer/farmerregistration/domain/entity/crop_entity.dart';
 import 'package:solufine/features/farmer/farmerregistration/domain/entity/irrigation_entity.dart'
@@ -108,10 +109,8 @@ class _CropDetailsDialogState extends State<CropDetailsDialog> {
           Expanded(
             child: Text(
               'Select Crop Details',
-              style: TextStyle(
+              style: AppTextStyles.dialogTitle.copyWith(
                 color: context.appOnPrimary,
-                fontSize: 18.sp,
-                fontWeight: FontWeight.w700,
               ),
             ),
           ),
@@ -133,7 +132,12 @@ class _CropDetailsDialogState extends State<CropDetailsDialog> {
     return Container(
       padding: EdgeInsets.all(12.w),
       decoration: BoxDecoration(
-        color: isSelected ? Color.alphaBlend(context.appPrimary.withValues(alpha: 0.1), context.appCard) : context.appCard,
+        color: isSelected
+            ? Color.alphaBlend(
+                context.appPrimary.withValues(alpha: 0.1),
+                context.appCard,
+              )
+            : context.appCard,
         borderRadius: BorderRadius.circular(16.r),
         border: Border.all(
           color: isSelected ? context.appPrimary : context.appBorder,
@@ -163,9 +167,7 @@ class _CropDetailsDialogState extends State<CropDetailsDialog> {
               Expanded(
                 child: Text(
                   crop.fldCropName,
-                  style: TextStyle(
-                    fontSize: 15.sp,
-                    fontWeight: FontWeight.w600,
+                  style: AppTextStyles.listTitle.copyWith(
                     color: context.appOnCard,
                   ),
                 ),
@@ -225,8 +227,7 @@ class _CropDetailsDialogState extends State<CropDetailsDialog> {
             Expanded(
               child: Text(
                 date == null ? 'Select Showing Date' : _formatDate(date),
-                style: TextStyle(
-                  fontSize: 14.sp,
+                style: AppTextStyles.body.copyWith(
                   color: date == null ? context.appSubText : context.appOnCard,
                 ),
               ),
@@ -241,10 +242,13 @@ class _CropDetailsDialogState extends State<CropDetailsDialog> {
 
   Widget _buildAcreField(CropEntity crop) {
     return TextFormField(
+      style: AppTextStyles.input,
       controller: _acreControllers[crop.fldCropId],
       keyboardType: const TextInputType.numberWithOptions(decimal: true),
       decoration: InputDecoration(
         hintText: 'Enter Acre',
+        hintStyle: AppTextStyles.inputHint,
+        errorStyle: AppTextStyles.inputError,
         prefixIcon: Icon(Icons.square_foot, color: context.appPrimary),
         border: OutlineInputBorder(borderRadius: BorderRadius.circular(10.r)),
         enabledBorder: OutlineInputBorder(
@@ -261,14 +265,14 @@ class _CropDetailsDialogState extends State<CropDetailsDialog> {
 
   Widget _buildIrrigationDropdown(CropEntity crop) {
     return DropdownButtonFormField<String>(
+      style: AppTextStyles.input,
       initialValue: _irrigationIds[crop.fldCropId],
       isExpanded: true,
       decoration: InputDecoration(
         hintText: 'Select Irrigation',
-        prefixIcon: Icon(
-          Icons.water_drop_outlined,
-          color: context.appPrimary,
-        ),
+        hintStyle: AppTextStyles.inputHint,
+        errorStyle: AppTextStyles.inputError,
+        prefixIcon: Icon(Icons.water_drop_outlined, color: context.appPrimary),
         border: OutlineInputBorder(borderRadius: BorderRadius.circular(10.r)),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(10.r),
@@ -312,10 +316,7 @@ class _CropDetailsDialogState extends State<CropDetailsDialog> {
               ),
               child: Text(
                 'Cancel',
-                style: TextStyle(
-                  color: context.appPrimary,
-                  fontWeight: FontWeight.w600,
-                ),
+                style: AppTextStyles.button.copyWith(color: context.appPrimary),
               ),
             ),
           ),
@@ -333,10 +334,7 @@ class _CropDetailsDialogState extends State<CropDetailsDialog> {
                   borderRadius: BorderRadius.circular(12.r),
                 ),
               ),
-              child: Text(
-                'Add',
-                style: TextStyle(fontWeight: FontWeight.w600),
-              ),
+              child: Text('Add', style: AppTextStyles.button),
             ),
           ),
         ],

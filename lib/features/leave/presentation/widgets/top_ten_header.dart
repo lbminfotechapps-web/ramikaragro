@@ -1,6 +1,7 @@
+import 'package:solufine/core/theme/typography/app_text_styles.dart';
 import 'package:solufine/core/theme/app_theme_context.dart';
 import 'package:flutter/material.dart';
-import 'package:solufine/core/theme/app_theme_context.dart';
+
 
 class TopTenHeader extends StatelessWidget {
   final int selectedDays;
@@ -51,18 +52,15 @@ class TopTenHeader extends StatelessWidget {
               children: [
                 Text(
                   'Top Dealer Performance',
-                  style: TextStyle(
+                  style: AppTextStyles.headingMedium.copyWith(
                     color: context.onPrimaryColor,
-                    fontSize: 17,
-                    fontWeight: FontWeight.w700,
                   ),
                 ),
                 SizedBox(height: 5),
                 Text(
                   'Top 10 dealers in last $selectedDays days',
-                  style: TextStyle(
+                  style: AppTextStyles.bodySmall.copyWith(
                     color: context.onPrimaryColor.withValues(alpha: 0.78),
-                    fontSize: 12,
                   ),
                 ),
               ],
@@ -77,10 +75,8 @@ class TopTenHeader extends StatelessWidget {
             ),
             child: Text(
               '$count',
-              style: TextStyle(
+              style: AppTextStyles.labelLarge.copyWith(
                 color: context.onPrimaryColor,
-                fontWeight: FontWeight.w800,
-                fontSize: 14,
               ),
             ),
           ),

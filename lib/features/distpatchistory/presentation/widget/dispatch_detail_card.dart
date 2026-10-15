@@ -1,4 +1,5 @@
 import 'package:solufine/core/theme/app_theme_context.dart';
+import 'package:solufine/core/theme/typography/app_text_styles.dart';
 import 'package:solufine/features/distpatchistory/domain/entities/dispatch_order_detail_entity.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil_plus/flutter_screenutil_plus.dart';
@@ -31,9 +32,7 @@ class DispatchDetailCard extends StatelessWidget {
                       ? detail.productName
                       : '${detail.productName} (${detail.packing})',
                   textAlign: TextAlign.start,
-                  style: TextStyle(
-                    fontSize: 15.sp,
-                    fontWeight: FontWeight.bold,
+                  style: AppTextStyles.cardTitle.copyWith(
                     color: Theme.of(context).colorScheme.primary,
                   ),
                 ),
@@ -106,7 +105,7 @@ class DispatchDetailCard extends StatelessWidget {
             flex: 50,
             child: Text(
               title,
-              style: TextStyle(fontSize: 13.sp, color: context.cardTextColor),
+              style: AppTextStyles.body.copyWith(color: context.cardTextColor),
             ),
           ),
 
@@ -117,7 +116,7 @@ class DispatchDetailCard extends StatelessWidget {
             width: 15.w,
             child: Text(
               ':',
-              style: TextStyle(fontSize: 15.sp, color: context.cardTextColor),
+              style: AppTextStyles.body.copyWith(color: context.cardTextColor),
             ),
           ),
 
@@ -130,8 +129,7 @@ class DispatchDetailCard extends StatelessWidget {
               padding: EdgeInsets.only(left: 5.w, right: 5.w),
               child: Text(
                 value.trim().isEmpty ? '-' : value,
-                style: TextStyle(
-                  fontSize: 13.sp,
+                style: AppTextStyles.body.copyWith(
                   color: context.secondaryTextColor,
                 ),
               ),

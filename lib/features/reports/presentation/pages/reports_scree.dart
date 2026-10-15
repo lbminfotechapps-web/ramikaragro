@@ -1,3 +1,4 @@
+import 'package:solufine/core/theme/typography/app_text_styles.dart';
 import 'package:solufine/core/di/employee_activity_report_di.dart';
 import 'package:solufine/core/secure_storage/secure_storage.dart';
 import 'package:solufine/core/theme/app_colors.dart';
@@ -74,8 +75,11 @@ class _ReportsScreeState extends State<ReportsScree> {
     }
 
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('User information is not available'),
+      SnackBar(
+        content: Text(
+          'User information is not available',
+          style: AppTextStyles.body,
+        ),
         behavior: SnackBarBehavior.floating,
       ),
     );
@@ -197,27 +201,19 @@ class _ReportsScreeState extends State<ReportsScree> {
         automaticallyImplyLeading: false,
         titleSpacing: 18,
 
-        title: const Column(
+        title: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
               'Reports',
-              style: TextStyle(
-                color: Color(0xFF182026),
-                fontSize: 20,
-                fontWeight: FontWeight.w800,
-              ),
+              style: AppTextStyles.headingLarge.copyWith(color: Color(0xFF182026)),
             ),
 
             SizedBox(height: 2),
 
             Text(
               'Business performance overview',
-              style: TextStyle(
-                color: Color(0xFF8C969E),
-                fontSize: 10,
-                fontWeight: FontWeight.w500,
-              ),
+              style: AppTextStyles.helperText.copyWith(color: Color(0xFF8C969E)),
             ),
           ],
         ),
@@ -275,12 +271,10 @@ class _ReportsScreeState extends State<ReportsScree> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
 
                 children: [
-                  const Text(
+                  Text(
                     'Reports',
-                    style: TextStyle(
+                    style: AppTextStyles.cardTitle.copyWith(
                       color: Color(0xFF17202A),
-                      fontSize: 16,
-                      fontWeight: FontWeight.w800,
                     ),
                   ),
 
@@ -295,12 +289,10 @@ class _ReportsScreeState extends State<ReportsScree> {
                       borderRadius: BorderRadius.circular(20),
                     ),
 
-                    child: const Text(
+                    child: Text(
                       '4 Available',
-                      style: TextStyle(
+                      style: AppTextStyles.labelSmall.copyWith(
                         color: Color(0xFF168A4A),
-                        fontSize: 9,
-                        fontWeight: FontWeight.w700,
                       ),
                     ),
                   ),
@@ -390,17 +382,15 @@ class _ReportsScreeState extends State<ReportsScree> {
 
               const SizedBox(width: 12),
 
-              const Expanded(
+              Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
 
                   children: [
                     Text(
                       'Performance Dashboard',
-                      style: TextStyle(
+                      style: AppTextStyles.headingMedium.copyWith(
                         color: Colors.white,
-                        fontSize: 17,
-                        fontWeight: FontWeight.w800,
                       ),
                     ),
 
@@ -408,9 +398,8 @@ class _ReportsScreeState extends State<ReportsScree> {
 
                     Text(
                       'Track employees, visits and business activity',
-                      style: TextStyle(
+                      style: AppTextStyles.helperText.copyWith(
                         color: Colors.white70,
-                        fontSize: 10,
                         height: 1.3,
                       ),
                     ),
@@ -602,7 +591,7 @@ class _ReportsScreeState extends State<ReportsScree> {
 
           const SizedBox(width: 11),
 
-          const Expanded(
+          Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
 
@@ -610,10 +599,8 @@ class _ReportsScreeState extends State<ReportsScree> {
                 Text(
                   'Quick Insight',
 
-                  style: TextStyle(
+                  style: AppTextStyles.buttonSmall.copyWith(
                     color: Color(0xFF17202A),
-                    fontSize: 12,
-                    fontWeight: FontWeight.w800,
                   ),
                 ),
 
@@ -624,9 +611,8 @@ class _ReportsScreeState extends State<ReportsScree> {
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
 
-                  style: TextStyle(
+                  style: AppTextStyles.helperText.copyWith(
                     color: Color(0xFF89939D),
-                    fontSize: 10,
                     height: 1.35,
                   ),
                 ),
@@ -672,10 +658,8 @@ class _ReportsScreeState extends State<ReportsScree> {
                   ? 'Loading user information...'
                   : 'Logged in as User ID $userId',
 
-              style: const TextStyle(
+              style: AppTextStyles.labelSmall.copyWith(
                 color: Color(0xFF167A43),
-                fontSize: 10,
-                fontWeight: FontWeight.w600,
               ),
             ),
           ),
@@ -819,12 +803,8 @@ class _ReportCard extends StatelessWidget {
                 child: Text(
                   badge,
 
-                  style: TextStyle(
+                  style: AppTextStyles.badge.copyWith(
                     color: iconColor,
-
-                    fontSize: 8,
-
-                    fontWeight: FontWeight.w800,
 
                     letterSpacing: 0.4,
                   ),
@@ -843,12 +823,8 @@ class _ReportCard extends StatelessWidget {
 
                 overflow: TextOverflow.ellipsis,
 
-                style: const TextStyle(
+                style: AppTextStyles.labelLarge.copyWith(
                   color: Color(0xFF17202A),
-
-                  fontSize: 13,
-
-                  fontWeight: FontWeight.w800,
                 ),
               ),
 
@@ -864,13 +840,7 @@ class _ReportCard extends StatelessWidget {
 
                 overflow: TextOverflow.ellipsis,
 
-                style: const TextStyle(
-                  color: Color(0xFF929BA3),
-
-                  fontSize: 9,
-
-                  fontWeight: FontWeight.w500,
-                ),
+                style: AppTextStyles.caption.copyWith(color: Color(0xFF929BA3)),
               ),
             ],
           ),
@@ -903,13 +873,7 @@ class _HeaderStat extends StatelessWidget {
 
             overflow: TextOverflow.ellipsis,
 
-            style: const TextStyle(
-              color: Colors.white,
-
-              fontSize: 15,
-
-              fontWeight: FontWeight.w800,
-            ),
+            style: AppTextStyles.cardTitle.copyWith(color: Colors.white),
           ),
 
           const SizedBox(height: 2),
@@ -917,13 +881,7 @@ class _HeaderStat extends StatelessWidget {
           Text(
             label,
 
-            style: const TextStyle(
-              color: Colors.white70,
-
-              fontSize: 8,
-
-              fontWeight: FontWeight.w500,
-            ),
+            style: AppTextStyles.helperText.copyWith(color: Colors.white70),
           ),
         ],
       ),

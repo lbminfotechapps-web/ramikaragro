@@ -1,3 +1,4 @@
+import 'package:solufine/core/theme/typography/app_text_styles.dart';
 import 'package:solufine/core/router/app_router.dart';
 import 'package:solufine/core/theme/app_theme_context.dart';
 import 'package:solufine/core/utility/widgets/custom_appbar.dart';
@@ -35,9 +36,7 @@ class UserGuidelinesPage extends StatelessWidget {
             },
           ),
           title: 'User Guide',
-          titleStyle: TextStyle(
-            fontSize: 22,
-            fontWeight: FontWeight.w600,
+          titleStyle: AppTextStyles.appBarTitle.copyWith(
             color: context.onPrimaryColor,
           ),
         ),
@@ -117,10 +116,8 @@ class UserGuidelinesPage extends StatelessWidget {
 
           Text(
             'Application Guidelines',
-            style: TextStyle(
+            style: AppTextStyles.headingMedium.copyWith(
               color: context.onPrimaryColor,
-              fontSize: 17,
-              fontWeight: FontWeight.w600,
             ),
           ),
 
@@ -128,9 +125,8 @@ class UserGuidelinesPage extends StatelessWidget {
 
           Text(
             'Everything you need to know',
-            style: TextStyle(
+            style: AppTextStyles.cardSubtitle.copyWith(
               color: context.onPrimaryColor.withValues(alpha: 0.75),
-              fontSize: 13,
             ),
           ),
         ],
@@ -212,9 +208,7 @@ class UserGuidelinesPage extends StatelessWidget {
 
           Text(
             'Loading Guidelines...',
-            style: TextStyle(
-              fontSize: 15,
-              fontWeight: FontWeight.w600,
+            style: AppTextStyles.cardTitle.copyWith(
               color: context.primaryTextColor,
             ),
           ),
@@ -223,7 +217,9 @@ class UserGuidelinesPage extends StatelessWidget {
 
           Text(
             'Please wait a moment',
-            style: TextStyle(fontSize: 12, color: context.secondaryTextColor),
+            style: AppTextStyles.bodySmall.copyWith(
+              color: context.secondaryTextColor,
+            ),
           ),
         ],
       ),
@@ -260,9 +256,7 @@ class UserGuidelinesPage extends StatelessWidget {
             Text(
               'Unable to Load Guidelines',
               textAlign: TextAlign.center,
-              style: TextStyle(
-                fontSize: 19,
-                fontWeight: FontWeight.w700,
+              style: AppTextStyles.headingLarge.copyWith(
                 color: context.primaryTextColor,
               ),
             ),
@@ -273,8 +267,7 @@ class UserGuidelinesPage extends StatelessWidget {
               'Something went wrong while loading '
               'the user guidelines.',
               textAlign: TextAlign.center,
-              style: TextStyle(
-                fontSize: 13,
+              style: AppTextStyles.cardSubtitle.copyWith(
                 height: 1.5,
                 color: context.secondaryTextColor,
               ),
@@ -295,8 +288,7 @@ class UserGuidelinesPage extends StatelessWidget {
               child: Text(
                 message,
                 textAlign: TextAlign.center,
-                style: TextStyle(
-                  fontSize: 11,
+                style: AppTextStyles.caption.copyWith(
                   height: 1.4,
                   color: context.appColors.error,
                 ),
@@ -314,10 +306,7 @@ class UserGuidelinesPage extends StatelessWidget {
                   );
                 },
                 icon: const Icon(Icons.refresh_rounded, size: 20),
-                label: Text(
-                  'Try Again',
-                  style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
-                ),
+                label: Text('Try Again', style: AppTextStyles.listTitle),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: context.primaryColor,
                   foregroundColor: context.onPrimaryColor,

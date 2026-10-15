@@ -1,3 +1,4 @@
+import 'package:solufine/core/theme/typography/app_text_styles.dart';
 import 'package:flutter/material.dart';
 import 'package:solufine/core/theme/app_theme_context.dart';
 
@@ -53,10 +54,8 @@ class DealerCard extends StatelessWidget {
                 alignment: Alignment.center,
                 child: Text(
                   initials,
-                  style: TextStyle(
+                  style: AppTextStyles.cardTitle.copyWith(
                     color: context.onPrimaryColor,
-                    fontSize: 15,
-                    fontWeight: FontWeight.w700,
                   ),
                 ),
               ),
@@ -72,9 +71,7 @@ class DealerCard extends StatelessWidget {
                       name,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w700,
+                      style: AppTextStyles.cardTitle.copyWith(
                         color: context.cardTextColor,
                       ),
                     ),
@@ -99,10 +96,8 @@ class DealerCard extends StatelessWidget {
                 ),
                 child: Text(
                   'Not Visited',
-                  style: TextStyle(
+                  style: AppTextStyles.labelSmall.copyWith(
                     color: context.appColors.secondary,
-                    fontSize: 10,
-                    fontWeight: FontWeight.w700,
                   ),
                 ),
               ),
@@ -157,8 +152,7 @@ class DealerCard extends StatelessWidget {
                     dealer.address,
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
-                    style: TextStyle(
-                      fontSize: 12,
+                    style: AppTextStyles.bodySmall.copyWith(
                       height: 1.3,
                       color: context.secondaryTextColor,
                     ),
@@ -218,10 +212,8 @@ class _InfoItem extends StatelessWidget {
             text,
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
-            style: TextStyle(
-              fontSize: 12,
+            style: AppTextStyles.bodySmall.copyWith(
               color: context.secondaryTextColor,
-              fontWeight: FontWeight.w500,
             ),
           ),
         ),

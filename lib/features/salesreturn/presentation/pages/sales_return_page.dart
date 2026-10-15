@@ -5,6 +5,7 @@ import 'package:solufine/core/di/auth_di.dart';
 import 'package:solufine/core/router/app_router.dart';
 import 'package:solufine/core/secure_storage/secure_storage.dart';
 import 'package:solufine/core/theme/app_theme_context.dart';
+import 'package:solufine/core/theme/typography/app_text_styles.dart';
 import 'package:solufine/core/utility/widgets/custom_appbar.dart';
 import 'package:solufine/core/utility/widgets/custom_textformfield.dart';
 import 'package:flutter/material.dart';
@@ -121,9 +122,7 @@ class _SalesReturnPageState extends State<SalesReturnPage> {
                 SizedBox(height: 18.h),
                 Text(
                   'User information not found',
-                  style: TextStyle(
-                    fontSize: 17.sp,
-                    fontWeight: FontWeight.w800,
+                  style: AppTextStyles.headingMedium.copyWith(
                     color: context.primaryTextColor,
                   ),
                 ),
@@ -131,8 +130,7 @@ class _SalesReturnPageState extends State<SalesReturnPage> {
                 Text(
                   'Please login again and try again.',
                   textAlign: TextAlign.center,
-                  style: TextStyle(
-                    fontSize: 13.sp,
+                  style: AppTextStyles.bodyMedium.copyWith(
                     color: context.secondaryTextColor,
                   ),
                 ),
@@ -392,9 +390,7 @@ class _SalesReurnViewState extends State<_SalesReturnView> {
               SizedBox(width: 6.w),
               Text(
                 'Selected Categories',
-                style: TextStyle(
-                  fontSize: 11.sp,
-                  fontWeight: FontWeight.w800,
+                style: AppTextStyles.labelSmall.copyWith(
                   color: context.primaryTextColor,
                 ),
               ),
@@ -430,9 +426,7 @@ class _SalesReurnViewState extends State<_SalesReturnView> {
                     SizedBox(width: 5.w),
                     Text(
                       category.name,
-                      style: TextStyle(
-                        fontSize: 11.sp,
-                        fontWeight: FontWeight.w700,
+                      style: AppTextStyles.labelSmall.copyWith(
                         color: context.primaryTextColor,
                       ),
                     ),
@@ -463,6 +457,7 @@ class _SalesReurnViewState extends State<_SalesReturnView> {
 
   Widget _buildProductSearchField() {
     return TextField(
+      style: AppTextStyles.input,
       controller: productSearchController,
 
       onChanged: (value) {
@@ -473,6 +468,7 @@ class _SalesReurnViewState extends State<_SalesReturnView> {
 
       decoration: InputDecoration(
         hintText: 'Search product...',
+        hintStyle: AppTextStyles.inputHint,
 
         prefixIcon: const Icon(Icons.search_rounded),
 
@@ -616,18 +612,14 @@ class _SalesReurnViewState extends State<_SalesReturnView> {
                               children: [
                                 Text(
                                   'Add Dealer Details',
-                                  style: TextStyle(
-                                    fontSize: 16.sp,
-                                    fontWeight: FontWeight.w800,
+                                  style: AppTextStyles.cardTitle.copyWith(
                                     color: context.primaryTextColor,
                                   ),
                                 ),
                                 SizedBox(height: 2.h),
                                 Text(
                                   'Add photo, signature and remark',
-                                  style: TextStyle(
-                                    fontSize: 10.5.sp,
-                                    fontWeight: FontWeight.w500,
+                                  style: AppTextStyles.caption.copyWith(
                                     color: context.secondaryTextColor,
                                   ),
                                 ),
@@ -694,11 +686,10 @@ class _SalesReurnViewState extends State<_SalesReturnView> {
                                     Expanded(
                                       child: Text(
                                         validationMessage!,
-                                        style: TextStyle(
-                                          color: context.appColors.error,
-                                          fontSize: 12.sp,
-                                          fontWeight: FontWeight.w600,
-                                        ),
+                                        style: AppTextStyles.buttonSmall
+                                            .copyWith(
+                                              color: context.appColors.error,
+                                            ),
                                       ),
                                     ),
                                   ],
@@ -832,11 +823,10 @@ class _SalesReurnViewState extends State<_SalesReturnView> {
                                       SizedBox(width: 8.w),
                                       Text(
                                         'Remark',
-                                        style: TextStyle(
-                                          fontSize: 11.5.sp,
-                                          fontWeight: FontWeight.w800,
-                                          color: context.primaryTextColor,
-                                        ),
+                                        style: AppTextStyles.labelSmall
+                                            .copyWith(
+                                              color: context.primaryTextColor,
+                                            ),
                                       ),
                                     ],
                                   ),
@@ -848,18 +838,16 @@ class _SalesReurnViewState extends State<_SalesReturnView> {
                                     onChanged: (_) {
                                       dialogSetState(() {});
                                     },
-                                    style: TextStyle(
-                                      fontSize: 12.sp,
-                                      fontWeight: FontWeight.w500,
+                                    style: AppTextStyles.input.copyWith(
                                       color: context.primaryTextColor,
                                     ),
                                     decoration: InputDecoration(
                                       hintText:
                                           'Enter additional order remark...',
-                                      hintStyle: TextStyle(
-                                        fontSize: 11.sp,
-                                        color: context.secondaryTextColor,
-                                      ),
+                                      hintStyle: AppTextStyles.inputHint
+                                          .copyWith(
+                                            color: context.secondaryTextColor,
+                                          ),
                                       filled: true,
                                       fillColor:
                                           context.appTheme.inputBackground,
@@ -900,7 +888,10 @@ class _SalesReurnViewState extends State<_SalesReturnView> {
                                 onPressed: () {
                                   Navigator.pop(dialogContext);
                                 },
-                                child: const Text('Cancel'),
+                                child: Text(
+                                  'Cancel',
+                                  style: AppTextStyles.button,
+                                ),
                               ),
                             ),
                           ),
@@ -947,10 +938,7 @@ class _SalesReurnViewState extends State<_SalesReturnView> {
                                 ),
                                 label: Text(
                                   'Save Details',
-                                  style: TextStyle(
-                                    fontSize: 12.sp,
-                                    fontWeight: FontWeight.w800,
-                                  ),
+                                  style: AppTextStyles.buttonSmall,
                                 ),
                                 style: ElevatedButton.styleFrom(
                                   backgroundColor: context.primaryColor,
@@ -1012,9 +1000,7 @@ class _SalesReurnViewState extends State<_SalesReturnView> {
             title,
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
-            style: TextStyle(
-              fontSize: 9.sp,
-              fontWeight: FontWeight.w700,
+            style: AppTextStyles.badge.copyWith(
               color: completed
                   ? context.primaryColor
                   : context.secondaryTextColor,
@@ -1070,7 +1056,7 @@ class _SalesReurnViewState extends State<_SalesReturnView> {
                 detailsAdded ? 'Edit Details' : 'Add Details',
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
-                style: TextStyle(fontSize: 12.sp, fontWeight: FontWeight.w800),
+                style: AppTextStyles.buttonSmall,
               ),
             ),
           ],
@@ -1116,13 +1102,7 @@ class _SalesReurnViewState extends State<_SalesReturnView> {
 
                   SizedBox(width: 6.w),
 
-                  Text(
-                    'Preview',
-                    style: TextStyle(
-                      fontSize: 12.sp,
-                      fontWeight: FontWeight.w800,
-                    ),
-                  ),
+                  Text('Preview', style: AppTextStyles.buttonSmall),
                 ],
               ),
       ),
@@ -1464,9 +1444,7 @@ class _SalesReurnViewState extends State<_SalesReturnView> {
             child: Text(
               godown.name,
               overflow: TextOverflow.ellipsis,
-              style: TextStyle(
-                fontSize: 14.sp,
-                fontWeight: FontWeight.w600,
+              style: AppTextStyles.labelLarge.copyWith(
                 color: context.primaryTextColor,
               ),
             ),
@@ -1510,9 +1488,7 @@ class _SalesReurnViewState extends State<_SalesReturnView> {
               Expanded(
                 child: Text(
                   'Confirm Sales Return',
-                  style: TextStyle(
-                    fontSize: 18.sp,
-                    fontWeight: FontWeight.w800,
+                  style: AppTextStyles.sectionTitle.copyWith(
                     color: context.primaryTextColor,
                   ),
                 ),
@@ -1525,10 +1501,8 @@ class _SalesReurnViewState extends State<_SalesReturnView> {
             children: [
               Text(
                 'Are you sure you want to submit this sales return?',
-                style: TextStyle(
-                  fontSize: 14.sp,
+                style: AppTextStyles.labelLarge.copyWith(
                   height: 1.4,
-                  fontWeight: FontWeight.w600,
                   color: context.primaryTextColor,
                 ),
               ),
@@ -1556,9 +1530,7 @@ class _SalesReurnViewState extends State<_SalesReturnView> {
                             selectedDealer?.name ?? '',
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
-                            style: TextStyle(
-                              fontSize: 13.sp,
-                              fontWeight: FontWeight.w700,
+                            style: AppTextStyles.labelLarge.copyWith(
                               color: context.primaryTextColor,
                             ),
                           ),
@@ -1579,9 +1551,7 @@ class _SalesReurnViewState extends State<_SalesReturnView> {
                             selectedGodown?.name ?? '',
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
-                            style: TextStyle(
-                              fontSize: 13.sp,
-                              fontWeight: FontWeight.w700,
+                            style: AppTextStyles.labelLarge.copyWith(
                               color: context.primaryTextColor,
                             ),
                           ),
@@ -1603,9 +1573,7 @@ class _SalesReurnViewState extends State<_SalesReturnView> {
                             selectedImages.isNotEmpty
                                 ? 'Order photo added'
                                 : 'No order photo',
-                            style: TextStyle(
-                              fontSize: 13.sp,
-                              fontWeight: FontWeight.w700,
+                            style: AppTextStyles.labelLarge.copyWith(
                               color: context.primaryTextColor,
                             ),
                           ),
@@ -1626,9 +1594,7 @@ class _SalesReurnViewState extends State<_SalesReturnView> {
                             signatureBytes != null && signatureBytes!.isNotEmpty
                                 ? 'Dealer signature added'
                                 : 'Signature not added',
-                            style: TextStyle(
-                              fontSize: 13.sp,
-                              fontWeight: FontWeight.w700,
+                            style: AppTextStyles.labelLarge.copyWith(
                               color: context.primaryTextColor,
                             ),
                           ),
@@ -1655,10 +1621,8 @@ class _SalesReurnViewState extends State<_SalesReturnView> {
                 ),
                 child: Text(
                   'Cancel',
-                  style: TextStyle(
+                  style: AppTextStyles.labelLarge.copyWith(
                     color: context.secondaryTextColor,
-                    fontSize: 13.sp,
-                    fontWeight: FontWeight.w700,
                   ),
                 ),
               ),
@@ -1678,13 +1642,7 @@ class _SalesReurnViewState extends State<_SalesReturnView> {
                     borderRadius: BorderRadius.circular(11.r),
                   ),
                 ),
-                child: Text(
-                  'Confirm',
-                  style: TextStyle(
-                    fontSize: 13.sp,
-                    fontWeight: FontWeight.w800,
-                  ),
-                ),
+                child: Text('Confirm', style: AppTextStyles.labelLarge),
               ),
             ),
           ],
@@ -1947,9 +1905,7 @@ class _SalesReurnViewState extends State<_SalesReturnView> {
               Text(
                 'Sales Return Successfully',
                 textAlign: TextAlign.center,
-                style: TextStyle(
-                  fontSize: 19.sp,
-                  fontWeight: FontWeight.w800,
+                style: AppTextStyles.headingLarge.copyWith(
                   color: context.primaryTextColor,
                 ),
               ),
@@ -1957,10 +1913,8 @@ class _SalesReurnViewState extends State<_SalesReturnView> {
               Text(
                 'Your sales return has been submitted successfully.',
                 textAlign: TextAlign.center,
-                style: TextStyle(
-                  fontSize: 13.sp,
+                style: AppTextStyles.bodyMedium.copyWith(
                   height: 1.45,
-                  fontWeight: FontWeight.w500,
                   color: context.secondaryTextColor,
                 ),
               ),
@@ -1980,13 +1934,7 @@ class _SalesReurnViewState extends State<_SalesReturnView> {
                       borderRadius: BorderRadius.circular(14.r),
                     ),
                   ),
-                  child: Text(
-                    'OK',
-                    style: TextStyle(
-                      fontSize: 14.sp,
-                      fontWeight: FontWeight.w800,
-                    ),
-                  ),
+                  child: Text('OK', style: AppTextStyles.labelLarge),
                 ),
               ),
             ],
@@ -2013,9 +1961,8 @@ class _SalesReurnViewState extends State<_SalesReturnView> {
         SnackBar(
           content: Text(
             message,
-            style: TextStyle(
+            style: AppTextStyles.bodyMedium.copyWith(
               color: context.appColors.onError,
-              fontWeight: FontWeight.w600,
             ),
           ),
           backgroundColor: context.appColors.error,
@@ -2316,18 +2263,14 @@ class _SalesReurnViewState extends State<_SalesReturnView> {
                 Text(
                   '${selectedProducts.length} '
                   'product${selectedProducts.length == 1 ? '' : 's'} selected',
-                  style: TextStyle(
-                    fontSize: 12.sp,
-                    fontWeight: FontWeight.w800,
+                  style: AppTextStyles.buttonSmall.copyWith(
                     color: context.primaryTextColor,
                   ),
                 ),
                 SizedBox(height: 1.h),
                 Text(
                   'Total quantity: $totalQuantity',
-                  style: TextStyle(
-                    fontSize: 10.sp,
-                    fontWeight: FontWeight.w600,
+                  style: AppTextStyles.labelSmall.copyWith(
                     color: context.secondaryTextColor,
                   ),
                 ),
@@ -2336,9 +2279,7 @@ class _SalesReurnViewState extends State<_SalesReturnView> {
           ),
           Text(
             '₹${totalAmount.toStringAsFixed(2)}',
-            style: TextStyle(
-              fontSize: 13.sp,
-              fontWeight: FontWeight.w900,
+            style: AppTextStyles.labelLarge.copyWith(
               color: context.primaryColor,
             ),
           ),
@@ -2370,9 +2311,7 @@ class _SalesReurnViewState extends State<_SalesReturnView> {
             children: [
               Text(
                 title,
-                style: TextStyle(
-                  fontSize: 14.sp,
-                  fontWeight: FontWeight.w800,
+                style: AppTextStyles.labelLarge.copyWith(
                   color: context.primaryTextColor,
                 ),
               ),
@@ -2381,9 +2320,7 @@ class _SalesReurnViewState extends State<_SalesReturnView> {
                 subtitle,
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
-                style: TextStyle(
-                  fontSize: 10.5.sp,
-                  fontWeight: FontWeight.w500,
+                style: AppTextStyles.caption.copyWith(
                   color: context.secondaryTextColor,
                 ),
               ),
@@ -2409,9 +2346,7 @@ class _SalesReurnViewState extends State<_SalesReturnView> {
           SizedBox(height: 8.h),
           Text(
             'Loading products...',
-            style: TextStyle(
-              fontSize: 12.sp,
-              fontWeight: FontWeight.w600,
+            style: AppTextStyles.buttonSmall.copyWith(
               color: context.secondaryTextColor,
             ),
           ),
@@ -2442,9 +2377,7 @@ class _SalesReurnViewState extends State<_SalesReturnView> {
           SizedBox(height: 8.h),
           Text(
             text,
-            style: TextStyle(
-              fontSize: 12.sp,
-              fontWeight: FontWeight.w600,
+            style: AppTextStyles.buttonSmall.copyWith(
               color: context.secondaryTextColor,
             ),
           ),

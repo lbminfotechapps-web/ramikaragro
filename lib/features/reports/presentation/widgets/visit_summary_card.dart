@@ -1,3 +1,4 @@
+import 'package:solufine/core/theme/typography/app_text_styles.dart';
 import 'package:flutter/material.dart';
 import 'package:solufine/core/theme/app_theme_context.dart';
 
@@ -65,9 +66,7 @@ class VisitSummaryCard extends StatelessWidget {
                         report.empName.isEmpty ? 'Employee' : report.empName,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
-                        style: TextStyle(
-                          fontSize: 13.5,
-                          fontWeight: FontWeight.w800,
+                        style: AppTextStyles.listTitle.copyWith(
                           color: context.cardTextColor,
                         ),
                       ),
@@ -114,8 +113,7 @@ class VisitSummaryCard extends StatelessWidget {
 
                 Text(
                   'Date',
-                  style: TextStyle(
-                    fontSize: 10.5,
+                  style: AppTextStyles.caption.copyWith(
                     color: context.secondaryTextColor,
                   ),
                 ),
@@ -124,9 +122,7 @@ class VisitSummaryCard extends StatelessWidget {
 
                 Text(
                   _displayValue(report.date),
-                  style: TextStyle(
-                    fontSize: 11.5,
-                    fontWeight: FontWeight.w700,
+                  style: AppTextStyles.labelSmall.copyWith(
                     color: context.cardTextColor,
                   ),
                 ),
@@ -307,11 +303,7 @@ class _StatusBadge extends StatelessWidget {
 
           Text(
             status.isEmpty ? 'Unknown' : status,
-            style: TextStyle(
-              fontSize: 9.5,
-              fontWeight: FontWeight.w800,
-              color: foreground,
-            ),
+            style: AppTextStyles.labelSmall.copyWith(color: foreground),
           ),
         ],
       ),
@@ -358,10 +350,8 @@ class _InfoItem extends StatelessWidget {
                   title,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: TextStyle(
-                    fontSize: 9,
+                  style: AppTextStyles.labelSmall.copyWith(
                     color: context.secondaryTextColor,
-                    fontWeight: FontWeight.w600,
                   ),
                 ),
 
@@ -371,10 +361,8 @@ class _InfoItem extends StatelessWidget {
                   value,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: TextStyle(
-                    fontSize: 11,
+                  style: AppTextStyles.labelSmall.copyWith(
                     color: context.cardTextColor,
-                    fontWeight: FontWeight.w800,
                   ),
                 ),
               ],

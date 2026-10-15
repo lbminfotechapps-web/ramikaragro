@@ -1,3 +1,4 @@
+import 'package:solufine/core/theme/typography/app_text_styles.dart';
 import 'dart:async';
 import 'dart:convert';
 
@@ -175,7 +176,7 @@ class _CollectionListPageState extends State<CollectionListPage> {
   void _showMessage(String message) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text(message),
+        content: Text(message, style: AppTextStyles.body),
 
         behavior: SnackBarBehavior.floating,
 
@@ -629,11 +630,7 @@ class _CompactFilter extends StatelessWidget {
                       child: Text(
                         'Filter Collections',
 
-                        style: TextStyle(
-                          fontSize: 14,
-
-                          fontWeight: FontWeight.w700,
-
+                        style: AppTextStyles.labelLarge.copyWith(
                           color: context.cardTextColor,
                         ),
                       ),
@@ -741,6 +738,7 @@ class _CompactFilter extends StatelessWidget {
                                 getMonthName(month),
 
                                 overflow: TextOverflow.ellipsis,
+                                style: AppTextStyles.body,
                               ),
                             );
                           }),
@@ -757,25 +755,34 @@ class _CompactFilter extends StatelessWidget {
 
                           icon: Icons.filter_alt_rounded,
 
-                          items: const [
-                            DropdownMenuItem(value: 'All', child: Text('All')),
+                          items: [
+                            DropdownMenuItem(
+                              value: 'All',
+                              child: Text('All', style: AppTextStyles.body),
+                            ),
 
                             DropdownMenuItem(
                               value: 'Pending',
 
-                              child: Text('Pending'),
+                              child: Text('Pending', style: AppTextStyles.body),
                             ),
 
                             DropdownMenuItem(
                               value: 'Approved',
 
-                              child: Text('Approved'),
+                              child: Text(
+                                'Approved',
+                                style: AppTextStyles.body,
+                              ),
                             ),
 
                             DropdownMenuItem(
                               value: 'Cancelled',
 
-                              child: Text('Cancelled'),
+                              child: Text(
+                                'Cancelled',
+                                style: AppTextStyles.body,
+                              ),
                             ),
                           ],
 
@@ -875,9 +882,7 @@ class _SearchableDealerField extends StatelessWidget {
                     Text(
                       'Dealer',
 
-                      style: TextStyle(
-                        fontSize: 10,
-
+                      style: AppTextStyles.helperText.copyWith(
                         color: context.secondaryTextColor,
                       ),
                     ),
@@ -891,11 +896,7 @@ class _SearchableDealerField extends StatelessWidget {
 
                       overflow: TextOverflow.ellipsis,
 
-                      style: TextStyle(
-                        fontSize: 13,
-
-                        fontWeight: FontWeight.w600,
-
+                      style: AppTextStyles.label.copyWith(
                         color: context.cardTextColor,
                       ),
                     ),
@@ -907,9 +908,7 @@ class _SearchableDealerField extends StatelessWidget {
                       Text(
                         selectedDealer!.outletMobile,
 
-                        style: TextStyle(
-                          fontSize: 9.5,
-
+                        style: AppTextStyles.caption.copyWith(
                           color: context.secondaryTextColor,
                         ),
                       ),
@@ -1299,11 +1298,7 @@ class _DealerSearchSheetState extends State<_DealerSearchSheet> {
                           Text(
                             'Select Dealer',
 
-                            style: TextStyle(
-                              fontSize: 16,
-
-                              fontWeight: FontWeight.w700,
-
+                            style: AppTextStyles.cardTitle.copyWith(
                               color: context.cardTextColor,
                             ),
                           ),
@@ -1313,8 +1308,7 @@ class _DealerSearchSheetState extends State<_DealerSearchSheet> {
                           Text(
                             'Search dealer and select',
 
-                            style: TextStyle(
-                              fontSize: 11,
+                            style: AppTextStyles.caption.copyWith(
                               color: context.secondaryTextColor,
                             ),
                           ),
@@ -1340,6 +1334,7 @@ class _DealerSearchSheetState extends State<_DealerSearchSheet> {
                 padding: const EdgeInsets.fromLTRB(14, 5, 14, 10),
 
                 child: TextField(
+                  style: AppTextStyles.input,
                   controller: _searchController,
 
                   autofocus: false,
@@ -1351,9 +1346,7 @@ class _DealerSearchSheetState extends State<_DealerSearchSheet> {
                   decoration: InputDecoration(
                     hintText: 'Search dealer name...',
 
-                    hintStyle: TextStyle(
-                      fontSize: 13,
-
+                    hintStyle: AppTextStyles.inputHint.copyWith(
                       color: context.secondaryTextColor,
                     ),
 
@@ -1480,7 +1473,11 @@ class _DealerSearchSheetState extends State<_DealerSearchSheet> {
 
               const SizedBox(height: 8),
 
-              Text(_errorMessage!, textAlign: TextAlign.center),
+              Text(
+                _errorMessage!,
+                textAlign: TextAlign.center,
+                style: AppTextStyles.body,
+              ),
 
               const SizedBox(height: 12),
 
@@ -1491,7 +1488,7 @@ class _DealerSearchSheetState extends State<_DealerSearchSheet> {
 
                 icon: const Icon(Icons.refresh_rounded),
 
-                label: const Text('Retry'),
+                label: Text('Retry', style: AppTextStyles.button),
 
                 style: ElevatedButton.styleFrom(
                   backgroundColor: context.primaryColor,
@@ -1537,18 +1534,16 @@ class _DealerSearchSheetState extends State<_DealerSearchSheet> {
 
             const SizedBox(height: 12),
 
-            const Text(
-              'No dealer found',
-
-              style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700),
-            ),
+            Text('No dealer found', style: AppTextStyles.labelLarge),
 
             const SizedBox(height: 4),
 
             Text(
               'Try another dealer name.',
 
-              style: TextStyle(fontSize: 11, color: context.secondaryTextColor),
+              style: AppTextStyles.caption.copyWith(
+                color: context.secondaryTextColor,
+              ),
             ),
           ],
         ),
@@ -1573,11 +1568,7 @@ class _DealerSearchSheetState extends State<_DealerSearchSheet> {
             child: Text(
               '${_dealers.length} dealer${_dealers.length == 1 ? '' : 's'} found',
 
-              style: TextStyle(
-                fontSize: 11,
-
-                fontWeight: FontWeight.w500,
-
+              style: AppTextStyles.caption.copyWith(
                 color: context.secondaryTextColor,
               ),
             ),
@@ -1715,9 +1706,7 @@ class _DealerSearchItem extends StatelessWidget {
 
                         overflow: TextOverflow.ellipsis,
 
-                        style: TextStyle(
-                          fontSize: 13,
-
+                        style: AppTextStyles.label.copyWith(
                           fontWeight: selected
                               ? FontWeight.w700
                               : FontWeight.w600,
@@ -1736,9 +1725,7 @@ class _DealerSearchItem extends StatelessWidget {
 
                           overflow: TextOverflow.ellipsis,
 
-                          style: TextStyle(
-                            fontSize: 10.5,
-
+                          style: AppTextStyles.caption.copyWith(
                             color: context.secondaryTextColor,
                           ),
                         ),
@@ -1822,11 +1809,7 @@ class _FilterResultInfo extends StatelessWidget {
                 Text(
                   '$count collection${count == 1 ? '' : 's'}',
 
-                  style: TextStyle(
-                    fontSize: 10.5,
-
-                    fontWeight: FontWeight.w700,
-
+                  style: AppTextStyles.caption.copyWith(
                     color: context.primaryColor,
                   ),
                 ),
@@ -1860,11 +1843,7 @@ class _FilterResultInfo extends StatelessWidget {
 
                       overflow: TextOverflow.ellipsis,
 
-                      style: TextStyle(
-                        fontSize: 10.5,
-
-                        fontWeight: FontWeight.w600,
-
+                      style: AppTextStyles.caption.copyWith(
                         color: context.secondaryTextColor,
                       ),
                     ),
@@ -2045,11 +2024,7 @@ class _CollectionListCardState extends State<CollectionListCard> {
 
                               overflow: TextOverflow.ellipsis,
 
-                              style: const TextStyle(
-                                fontSize: 15,
-
-                                fontWeight: FontWeight.w700,
-                              ),
+                              style: AppTextStyles.cardTitle,
                             ),
 
                             const SizedBox(height: 2),
@@ -2059,9 +2034,7 @@ class _CollectionListCardState extends State<CollectionListCard> {
                                   ? 'Payment'
                                   : item.paymentMode,
 
-                              style: TextStyle(
-                                fontSize: 11,
-
+                              style: AppTextStyles.caption.copyWith(
                                 color: context.secondaryTextColor,
                               ),
                             ),
@@ -2078,11 +2051,7 @@ class _CollectionListCardState extends State<CollectionListCard> {
                           Text(
                             '₹ ${item.paymentAmount}',
 
-                            style: TextStyle(
-                              fontSize: 17,
-
-                              fontWeight: FontWeight.w800,
-
+                            style: AppTextStyles.body.copyWith(
                               color: context.primaryColor,
                             ),
                           ),
@@ -2126,9 +2095,7 @@ class _CollectionListCardState extends State<CollectionListCard> {
                                   ? null
                                   : TextOverflow.ellipsis,
 
-                              style: TextStyle(
-                                fontSize: 12,
-
+                              style: AppTextStyles.bodySmall.copyWith(
                                 color: context.secondaryTextColor,
                               ),
                             ),
@@ -2175,11 +2142,7 @@ class _CollectionListCardState extends State<CollectionListCard> {
                           Text(
                             _expanded ? 'Hide Details' : 'View Details',
 
-                            style: const TextStyle(
-                              fontSize: 12,
-
-                              fontWeight: FontWeight.w700,
-                            ),
+                            style: AppTextStyles.buttonSmall,
                           ),
 
                           const SizedBox(width: 3),
@@ -2454,7 +2417,9 @@ class _DetailRow extends StatelessWidget {
             child: Text(
               label,
 
-              style: TextStyle(fontSize: 11, color: context.secondaryTextColor),
+              style: AppTextStyles.caption.copyWith(
+                color: context.secondaryTextColor,
+              ),
             ),
           ),
 
@@ -2464,11 +2429,7 @@ class _DetailRow extends StatelessWidget {
             child: Text(
               value,
 
-              style: TextStyle(
-                fontSize: 12,
-
-                fontWeight: FontWeight.w600,
-
+              style: AppTextStyles.buttonSmall.copyWith(
                 color: valueColor ?? context.cardTextColor,
               ),
             ),
@@ -2515,13 +2476,7 @@ class _StatusChip extends StatelessWidget {
       child: Text(
         status.isEmpty ? 'Unknown' : status,
 
-        style: TextStyle(
-          color: color,
-
-          fontSize: 9.5,
-
-          fontWeight: FontWeight.w700,
-        ),
+        style: AppTextStyles.caption.copyWith(color: color),
       ),
     );
   }
@@ -2568,11 +2523,7 @@ class _DealerEmptyView extends StatelessWidget {
 
             const SizedBox(height: 13),
 
-            const Text(
-              'No collection found',
-
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
-            ),
+            Text('No collection found', style: AppTextStyles.cardTitle),
 
             const SizedBox(height: 5),
 
@@ -2583,7 +2534,9 @@ class _DealerEmptyView extends StatelessWidget {
 
               textAlign: TextAlign.center,
 
-              style: TextStyle(fontSize: 12, color: context.secondaryTextColor),
+              style: AppTextStyles.bodySmall.copyWith(
+                color: context.secondaryTextColor,
+              ),
             ),
           ],
         ),
@@ -2619,18 +2572,16 @@ class _EmptyView extends StatelessWidget {
 
             const SizedBox(height: 12),
 
-            const Text(
-              'No collection found',
-
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
-            ),
+            Text('No collection found', style: AppTextStyles.cardTitle),
 
             const SizedBox(height: 4),
 
             Text(
               'Try another month or status.',
 
-              style: TextStyle(fontSize: 12, color: context.secondaryTextColor),
+              style: AppTextStyles.bodySmall.copyWith(
+                color: context.secondaryTextColor,
+              ),
             ),
           ],
         ),
@@ -2670,11 +2621,7 @@ class _ErrorView extends StatelessWidget {
 
             const SizedBox(height: 10),
 
-            const Text(
-              'Something went wrong',
-
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
-            ),
+            Text('Something went wrong', style: AppTextStyles.cardTitle),
 
             const SizedBox(height: 5),
 
@@ -2687,7 +2634,9 @@ class _ErrorView extends StatelessWidget {
 
               overflow: TextOverflow.ellipsis,
 
-              style: TextStyle(fontSize: 12, color: context.secondaryTextColor),
+              style: AppTextStyles.bodySmall.copyWith(
+                color: context.secondaryTextColor,
+              ),
             ),
 
             const SizedBox(height: 12),
@@ -2700,7 +2649,7 @@ class _ErrorView extends StatelessWidget {
 
                 icon: const Icon(Icons.refresh_rounded, size: 17),
 
-                label: const Text('Retry'),
+                label: Text('Retry', style: AppTextStyles.button),
 
                 style: ElevatedButton.styleFrom(
                   backgroundColor: context.primaryColor,

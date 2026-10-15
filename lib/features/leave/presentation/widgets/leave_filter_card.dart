@@ -1,3 +1,4 @@
+import 'package:solufine/core/theme/typography/app_text_styles.dart';
 import 'package:solufine/core/theme/app_theme_context.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -62,7 +63,7 @@ class LeaveFilterCard extends StatelessWidget {
                       foregroundColor: context.primaryColor,
                       side: BorderSide(color: context.borderColor),
                     ),
-                    child: const Text("Clear"),
+                    child: Text("Clear", style: AppTextStyles.button),
                   ),
                 ),
 
@@ -75,7 +76,7 @@ class LeaveFilterCard extends StatelessWidget {
                       backgroundColor: context.primaryColor,
                       foregroundColor: context.onPrimaryColor,
                     ),
-                    child: const Text("Apply"),
+                    child: Text("Apply", style: AppTextStyles.button),
                   ),
                 ),
               ],

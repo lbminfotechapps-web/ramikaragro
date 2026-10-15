@@ -1,3 +1,4 @@
+import 'package:solufine/core/theme/typography/app_text_styles.dart';
 import 'package:flutter/material.dart';
 
 class VisitSummaryFilter extends StatelessWidget {
@@ -87,16 +88,14 @@ class VisitSummaryFilter extends StatelessWidget {
 
                   const SizedBox(width: 10),
 
-                  const Expanded(
+                  Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
 
                       children: [
                         Text(
                           'Search & Filter',
-                          style: TextStyle(
-                            fontSize: 13.5,
-                            fontWeight: FontWeight.w800,
+                          style: AppTextStyles.listTitle.copyWith(
                             color: Color(0xFF202923),
                           ),
                         ),
@@ -106,8 +105,7 @@ class VisitSummaryFilter extends StatelessWidget {
                         Text(
                           // 'Select employee, date and visit status',
                           'Select date and visit status',
-                          style: TextStyle(
-                            fontSize: 10.5,
+                          style: AppTextStyles.caption.copyWith(
                             color: Color(0xFF7A837E),
                           ),
                         ),
@@ -276,8 +274,7 @@ class VisitSummaryFilter extends StatelessWidget {
                     value: selectedStatus,
                     isDense: true,
 
-                    style: const TextStyle(
-                      fontSize: 12.5,
+                    style: AppTextStyles.input.copyWith(
                       color: Color(0xFF303934),
                     ),
 
@@ -317,18 +314,21 @@ class VisitSummaryFilter extends StatelessWidget {
                       color: Color(0xFF59645E),
                     ),
 
-                    items: const [
+                    items: [
                       DropdownMenuItem(
                         value: 'All Status',
-                        child: Text('All Status'),
+                        child: Text('All Status', style: AppTextStyles.body),
                       ),
 
                       DropdownMenuItem(
                         value: 'Present',
-                        child: Text('Present'),
+                        child: Text('Present', style: AppTextStyles.body),
                       ),
 
-                      DropdownMenuItem(value: 'Absent', child: Text('Absent')),
+                      DropdownMenuItem(
+                        value: 'Absent',
+                        child: Text('Absent', style: AppTextStyles.body),
+                      ),
                     ],
 
                     onChanged: (value) {
@@ -351,13 +351,7 @@ class VisitSummaryFilter extends StatelessWidget {
 
                           icon: const Icon(Icons.restart_alt_rounded, size: 17),
 
-                          label: const Text(
-                            'Reset',
-                            style: TextStyle(
-                              fontSize: 12.5,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
+                          label: Text('Reset', style: AppTextStyles.input),
 
                           style: OutlinedButton.styleFrom(
                             foregroundColor: const Color(0xFF59645E),
@@ -383,13 +377,7 @@ class VisitSummaryFilter extends StatelessWidget {
 
                           icon: const Icon(Icons.search_rounded, size: 17),
 
-                          label: const Text(
-                            'Search',
-                            style: TextStyle(
-                              fontSize: 12.5,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
+                          label: Text('Search', style: AppTextStyles.input),
 
                           style: ElevatedButton.styleFrom(
                             backgroundColor: const Color(0xFF287A4B),
@@ -440,11 +428,7 @@ class _FieldLabel extends StatelessWidget {
 
         Text(
           title,
-          style: const TextStyle(
-            fontSize: 11.5,
-            fontWeight: FontWeight.w700,
-            color: Color(0xFF4E5953),
-          ),
+          style: AppTextStyles.labelSmall.copyWith(color: Color(0xFF4E5953)),
         ),
       ],
     );
@@ -474,11 +458,7 @@ class _DateField extends StatelessWidget {
       children: [
         Text(
           title,
-          style: const TextStyle(
-            fontSize: 11.5,
-            fontWeight: FontWeight.w700,
-            color: Color(0xFF4E5953),
-          ),
+          style: AppTextStyles.labelSmall.copyWith(color: Color(0xFF4E5953)),
         ),
 
         const SizedBox(height: 5),
@@ -513,14 +493,10 @@ class _DateField extends StatelessWidget {
 
                     overflow: TextOverflow.ellipsis,
 
-                    style: TextStyle(
-                      fontSize: 11.5,
-
+                    style: AppTextStyles.labelSmall.copyWith(
                       color: value.isEmpty
                           ? const Color(0xFF9AA19D)
                           : const Color(0xFF303934),
-
-                      fontWeight: FontWeight.w500,
                     ),
                   ),
                 ),

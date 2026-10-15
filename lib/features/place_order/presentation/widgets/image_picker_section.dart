@@ -1,3 +1,4 @@
+import 'package:solufine/core/theme/typography/app_text_styles.dart';
 import 'dart:io';
 
 import 'package:solufine/core/theme/app_theme_context.dart';
@@ -39,9 +40,7 @@ class ImagePickerSection extends StatelessWidget {
                 // Title
                 Text(
                   'Select Photo',
-                  style: TextStyle(
-                    fontSize: 17.sp,
-                    fontWeight: FontWeight.w800,
+                  style: AppTextStyles.headingMedium.copyWith(
                     color: context.cardTextColor,
                   ),
                 ),
@@ -50,8 +49,7 @@ class ImagePickerSection extends StatelessWidget {
 
                 Text(
                   'Choose where you want to get the photo from',
-                  style: TextStyle(
-                    fontSize: 10.5.sp,
+                  style: AppTextStyles.caption.copyWith(
                     color: context.secondaryTextColor,
                   ),
                   textAlign: TextAlign.center,
@@ -270,10 +268,8 @@ class ImagePickerSection extends StatelessWidget {
 
                           Text(
                             'Photo selected',
-                            style: TextStyle(
+                            style: AppTextStyles.labelSmall.copyWith(
                               color: context.onPrimaryColor,
-                              fontSize: 9.5.sp,
-                              fontWeight: FontWeight.w700,
                             ),
                           ),
                         ],
@@ -319,9 +315,7 @@ class ImagePickerSection extends StatelessWidget {
 
                       Text(
                         'Add Order Photo *',
-                        style: TextStyle(
-                          fontSize: 11.5.sp,
-                          fontWeight: FontWeight.w800,
+                        style: AppTextStyles.labelSmall.copyWith(
                           color: context.cardTextColor,
                         ),
                       ),
@@ -330,8 +324,7 @@ class ImagePickerSection extends StatelessWidget {
 
                       Text(
                         'Tap to open camera or gallery',
-                        style: TextStyle(
-                          fontSize: 9.5.sp,
+                        style: AppTextStyles.caption.copyWith(
                           color: context.secondaryTextColor,
                         ),
                       ),
@@ -381,9 +374,7 @@ class _ImageSourceButton extends StatelessWidget {
 
             Text(
               title,
-              style: TextStyle(
-                fontSize: 12.sp,
-                fontWeight: FontWeight.w700,
+              style: AppTextStyles.buttonSmall.copyWith(
                 color: context.cardTextColor,
               ),
             ),

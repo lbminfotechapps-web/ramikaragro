@@ -1,3 +1,4 @@
+import 'package:solufine/core/theme/typography/app_text_styles.dart';
 import 'dart:async';
 
 import 'package:fl_chart/fl_chart.dart';
@@ -490,7 +491,10 @@ class _MonthlyPerformanceReportPageState
     ScaffoldMessenger.of(context)
       ..hideCurrentSnackBar()
       ..showSnackBar(
-        SnackBar(behavior: SnackBarBehavior.floating, content: Text(value)),
+        SnackBar(
+          behavior: SnackBarBehavior.floating,
+          content: Text(value, style: AppTextStyles.body),
+        ),
       );
   }
 
@@ -634,7 +638,9 @@ class _MonthlyPerformanceReportPageState
       appBar: CustomAppBar(
         title: 'Sales Person Statistics',
         backgroundColor: context.primaryColor,
-        titleStyle: TextStyle(color: context.onPrimaryColor),
+        titleStyle: AppTextStyles.appBarTitle.copyWith(
+          color: context.onPrimaryColor,
+        ),
         leading: IconButton(
           icon: Icon(
             Icons.arrow_back_ios_new_rounded,
@@ -709,7 +715,7 @@ class _MonthlyPerformanceReportPageState
                         ),
                         TextButton(
                           onPressed: _fetchApplicationPhase,
-                          child: Text('Retry'),
+                          child: Text('Retry', style: AppTextStyles.button),
                         ),
                       ],
                     ),
@@ -807,10 +813,8 @@ class _MonthlyPerformanceReportPageState
                       children: [
                         Text(
                           'Performance Report',
-                          style: TextStyle(
+                          style: AppTextStyles.labelLarge.copyWith(
                             color: _text,
-                            fontSize: 13,
-                            fontWeight: FontWeight.w800,
                           ),
                         ),
 
@@ -825,10 +829,8 @@ class _MonthlyPerformanceReportPageState
                                     : _selectedEmployeeName,
                                 maxLines: 1,
                                 overflow: TextOverflow.ellipsis,
-                                style: TextStyle(
+                                style: AppTextStyles.helperText.copyWith(
                                   color: _secondaryText,
-                                  fontSize: 8.5,
-                                  fontWeight: FontWeight.w500,
                                 ),
                               ),
                             ),
@@ -837,16 +839,16 @@ class _MonthlyPerformanceReportPageState
                               padding: EdgeInsets.symmetric(horizontal: 5),
                               child: Text(
                                 '•',
-                                style: TextStyle(color: _secondaryText),
+                                style: AppTextStyles.body.copyWith(
+                                  color: _secondaryText,
+                                ),
                               ),
                             ),
 
                             Text(
                               _selectedFinancialYear?.label ?? 'FY',
-                              style: TextStyle(
+                              style: AppTextStyles.labelSmall.copyWith(
                                 color: _primary,
-                                fontSize: 8.5,
-                                fontWeight: FontWeight.w700,
                               ),
                             ),
                           ],
@@ -920,7 +922,10 @@ class _MonthlyPerformanceReportPageState
 
                       icon: Icon(Icons.analytics_outlined, size: 16),
 
-                      label: Text('View Performance'),
+                      label: Text(
+                        'View Performance',
+                        style: AppTextStyles.body,
+                      ),
 
                       style: ElevatedButton.styleFrom(
                         elevation: 0,
@@ -929,10 +934,7 @@ class _MonthlyPerformanceReportPageState
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(10),
                         ),
-                        textStyle: TextStyle(
-                          fontSize: 10,
-                          fontWeight: FontWeight.w700,
-                        ),
+                        textStyle: AppTextStyles.labelSmall,
                       ),
                     ),
                   ),
@@ -966,11 +968,7 @@ class _MonthlyPerformanceReportPageState
 
         onChanged: _employeeSearch,
 
-        style: TextStyle(
-          fontSize: 9.5,
-          color: _text,
-          fontWeight: FontWeight.w600,
-        ),
+        style: AppTextStyles.input.copyWith(color: _text),
 
         decoration: InputDecoration(
           labelText: 'Employee',
@@ -984,9 +982,9 @@ class _MonthlyPerformanceReportPageState
 
           prefixIconConstraints: const BoxConstraints(minWidth: 36),
 
-          labelStyle: TextStyle(fontSize: 9, color: _secondaryText),
+          labelStyle: AppTextStyles.inputLabel.copyWith(color: _secondaryText),
 
-          hintStyle: TextStyle(fontSize: 9, color: _secondaryText),
+          hintStyle: AppTextStyles.inputHint.copyWith(color: _secondaryText),
 
           filled: true,
           fillColor: context.appColors.surfaceContainerHighest,
@@ -1024,7 +1022,7 @@ class _MonthlyPerformanceReportPageState
         decoration: InputDecoration(
           labelText: 'FY',
 
-          labelStyle: TextStyle(fontSize: 8.5, color: _secondaryText),
+          labelStyle: AppTextStyles.inputLabel.copyWith(color: _secondaryText),
 
           filled: true,
           fillColor: context.appColors.surfaceContainerHighest,
@@ -1048,11 +1046,7 @@ class _MonthlyPerformanceReportPageState
                 value: fy,
                 child: Text(
                   _shortFY(fy.label),
-                  style: TextStyle(
-                    color: _text,
-                    fontSize: 8.5,
-                    fontWeight: FontWeight.w600,
-                  ),
+                  style: AppTextStyles.labelSmall.copyWith(color: _text),
                 ),
               ),
             )
@@ -1145,11 +1139,7 @@ class _MonthlyPerformanceReportPageState
                   Expanded(
                     child: Text(
                       employee.fldAdmName,
-                      style: TextStyle(
-                        color: _text,
-                        fontSize: 9,
-                        fontWeight: FontWeight.w600,
-                      ),
+                      style: AppTextStyles.labelSmall.copyWith(color: _text),
                     ),
                   ),
 
@@ -1238,18 +1228,15 @@ class _MonthlyPerformanceReportPageState
               children: [
                 Text(
                   'Monthly Details (${_selectedMonthKeys.length}/${report.months.length})',
-                  style: TextStyle(
+                  style: AppTextStyles.labelSmall.copyWith(
                     color: context.onPrimaryColor,
-                    fontSize: 10.5,
-                    fontWeight: FontWeight.w800,
                   ),
                 ),
                 const SizedBox(height: 3),
                 Text(
                   'Select months for daily, hourly, area, dealer and expense analysis',
-                  style: TextStyle(
+                  style: AppTextStyles.caption.copyWith(
                     color: context.onPrimaryColor.withValues(alpha: 0.85),
-                    fontSize: 9,
                   ),
                 ),
               ],
@@ -1853,22 +1840,14 @@ class _MonthlyPerformanceReportPageState
                   (_visitOnly || _showAreaDealerChart)
                       ? 'Area Distribution'
                       : 'Amount Performance',
-                  style: TextStyle(
-                    color: _text,
-                    fontSize: 10.5,
-                    fontWeight: FontWeight.w800,
-                  ),
+                  style: AppTextStyles.labelSmall.copyWith(color: _text),
                 ),
               ),
               Text(
                 (_visitOnly || _showAreaDealerChart)
                     ? 'Dealer count'
                     : 'Business amount',
-                style: TextStyle(
-                  color: _secondaryText,
-                  fontSize: 7,
-                  fontWeight: FontWeight.w500,
-                ),
+                style: AppTextStyles.helperText.copyWith(color: _secondaryText),
               ),
             ],
           ),
@@ -1924,10 +1903,8 @@ class _MonthlyPerformanceReportPageState
                         title: percentage >= 8
                             ? '${percentage.toStringAsFixed(0)}%'
                             : '',
-                        titleStyle: TextStyle(
+                        titleStyle: AppTextStyles.appBarTitle.copyWith(
                           color: context.cardBackgroundColor,
-                          fontSize: 8,
-                          fontWeight: FontWeight.w800,
                         ),
                       );
                     }),
@@ -1938,20 +1915,16 @@ class _MonthlyPerformanceReportPageState
                   children: [
                     Text(
                       '${_areaCoverageTotal(report)}',
-                      style: TextStyle(
+                      style: AppTextStyles.sectionTitle.copyWith(
                         color: _text,
-                        fontSize: 18,
-                        fontWeight: FontWeight.w900,
                         height: 1,
                       ),
                     ),
                     SizedBox(height: 2),
                     Text(
                       'Dealers',
-                      style: TextStyle(
+                      style: AppTextStyles.helperText.copyWith(
                         color: _secondaryText,
-                        fontSize: 7,
-                        fontWeight: FontWeight.w600,
                       ),
                     ),
                   ],
@@ -1985,20 +1958,14 @@ class _MonthlyPerformanceReportPageState
                         item.areaName,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
-                        style: TextStyle(
-                          color: _text,
-                          fontSize: 7.5,
-                          fontWeight: FontWeight.w700,
-                        ),
+                        style: AppTextStyles.helperText.copyWith(color: _text),
                       ),
                     ),
                     SizedBox(width: 4),
                     Text(
                       '${item.visits}',
-                      style: TextStyle(
+                      style: AppTextStyles.helperText.copyWith(
                         color: _areaColor(index),
-                        fontSize: 7.5,
-                        fontWeight: FontWeight.w900,
                       ),
                     ),
                   ],
@@ -2062,10 +2029,8 @@ class _MonthlyPerformanceReportPageState
                 final names = ['Orders', 'Dispatch', 'Collection'];
                 return BarTooltipItem(
                   '${labels[groupIndex]} · ${names[rodIndex]}\n₹${_number(rod.toY)}',
-                  TextStyle(
+                  AppTextStyles.labelSmall.copyWith(
                     color: context.onPrimaryColor,
-                    fontSize: 10,
-                    fontWeight: FontWeight.w700,
                   ),
                 );
               },
@@ -2116,11 +2081,7 @@ class _MonthlyPerformanceReportPageState
             SizedBox(height: 5),
             Text(
               text,
-              style: TextStyle(
-                color: _secondaryText,
-                fontSize: 8,
-                fontWeight: FontWeight.w600,
-              ),
+              style: AppTextStyles.badge.copyWith(color: _secondaryText),
             ),
           ],
         ),
@@ -2365,10 +2326,8 @@ class _MonthlyPerformanceReportPageState
                       Expanded(
                         child: Text(
                           'Top Dealer Ranking',
-                          style: TextStyle(
+                          style: AppTextStyles.labelSmall.copyWith(
                             color: context.onPrimaryColor,
-                            fontSize: 10.5,
-                            fontWeight: FontWeight.w800,
                           ),
                         ),
                       ),
@@ -2385,10 +2344,8 @@ class _MonthlyPerformanceReportPageState
                           report.financialYearLabel.isEmpty
                               ? 'TOP 10'
                               : '${report.financialYearLabel}  •  TOP 10',
-                          style: TextStyle(
+                          style: AppTextStyles.body.copyWith(
                             color: context.onPrimaryColor,
-                            fontSize: 6.8,
-                            fontWeight: FontWeight.w700,
                           ),
                         ),
                       ),
@@ -2440,10 +2397,8 @@ class _MonthlyPerformanceReportPageState
                   title,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: TextStyle(
+                  style: AppTextStyles.body.copyWith(
                     color: _secondaryText,
-                    fontSize: 6.2,
-                    fontWeight: FontWeight.w800,
                     letterSpacing: .15,
                   ),
                 ),
@@ -2452,10 +2407,8 @@ class _MonthlyPerformanceReportPageState
                   value,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: TextStyle(
+                  style: AppTextStyles.labelSmall.copyWith(
                     color: color,
-                    fontSize: 10.5,
-                    fontWeight: FontWeight.w900,
                     height: 1.05,
                   ),
                 ),
@@ -2464,9 +2417,8 @@ class _MonthlyPerformanceReportPageState
                     subtitle,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
-                    style: TextStyle(
+                    style: AppTextStyles.body.copyWith(
                       color: _secondaryText,
-                      fontSize: 6.2,
                       height: 1,
                     ),
                   ),
@@ -2555,10 +2507,8 @@ class _MonthlyPerformanceReportPageState
                 child: Text(
                   '${item.visits}',
                   textAlign: TextAlign.center,
-                  style: TextStyle(
+                  style: AppTextStyles.caption.copyWith(
                     color: context.primaryColor,
-                    fontSize: 9.5,
-                    fontWeight: FontWeight.w900,
                   ),
                 ),
               ),
@@ -2669,9 +2619,8 @@ class _MonthlyPerformanceReportPageState
                 '₹${_number(amount)}',
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
-                style: TextStyle(
+                style: AppTextStyles.caption.copyWith(
                   color: amount > 0 ? color : _secondaryText,
-                  fontSize: 9.5,
                   fontWeight: bold ? FontWeight.w900 : FontWeight.w800,
                   height: 1.05,
                 ),
@@ -2680,9 +2629,8 @@ class _MonthlyPerformanceReportPageState
                 '$count $countText',
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
-                style: TextStyle(
+                style: AppTextStyles.body.copyWith(
                   color: _secondaryText,
-                  fontSize: 6.7,
                   height: 1.05,
                 ),
               ),
@@ -2722,11 +2670,7 @@ class _MonthlyPerformanceReportPageState
       decoration: BoxDecoration(color: background, shape: BoxShape.circle),
       child: Text(
         '$rank',
-        style: TextStyle(
-          color: foreground,
-          fontSize: 9,
-          fontWeight: FontWeight.w900,
-        ),
+        style: AppTextStyles.labelSmall.copyWith(color: foreground),
       ),
     );
   }
@@ -2837,21 +2781,15 @@ class _MonthlyPerformanceReportPageState
               children: [
                 Text(
                   'TOTAL EXPENSE',
-                  style: TextStyle(
+                  style: AppTextStyles.body.copyWith(
                     color: _secondaryText,
-                    fontSize: 6.7,
-                    fontWeight: FontWeight.w800,
                     letterSpacing: .2,
                   ),
                 ),
                 SizedBox(height: 2),
                 Text(
                   'Total expense for selected period',
-                  style: TextStyle(
-                    color: _secondaryText,
-                    fontSize: 7.2,
-                    fontWeight: FontWeight.w500,
-                  ),
+                  style: AppTextStyles.body.copyWith(color: _secondaryText),
                 ),
               ],
             ),
@@ -2859,11 +2797,9 @@ class _MonthlyPerformanceReportPageState
 
           Text(
             '₹${_number(report.totalExpense)}',
-            style: TextStyle(
+            style: AppTextStyles.headingLarge.copyWith(
               color: _orange,
-              fontSize: 20,
               height: 1,
-              fontWeight: FontWeight.w900,
             ),
           ),
         ],
@@ -2888,20 +2824,12 @@ class _MonthlyPerformanceReportPageState
               Expanded(
                 child: Text(
                   'Expense Distribution',
-                  style: TextStyle(
-                    color: _text,
-                    fontSize: 10.5,
-                    fontWeight: FontWeight.w800,
-                  ),
+                  style: AppTextStyles.labelSmall.copyWith(color: _text),
                 ),
               ),
               Text(
                 'Parameter amount',
-                style: TextStyle(
-                  color: _secondaryText,
-                  fontSize: 7,
-                  fontWeight: FontWeight.w500,
-                ),
+                style: AppTextStyles.helperText.copyWith(color: _secondaryText),
               ),
             ],
           ),
@@ -2934,11 +2862,7 @@ class _MonthlyPerformanceReportPageState
               SizedBox(height: 5),
               Text(
                 'No expense amount available',
-                style: TextStyle(
-                  color: _secondaryText,
-                  fontSize: 8,
-                  fontWeight: FontWeight.w600,
-                ),
+                style: AppTextStyles.badge.copyWith(color: _secondaryText),
               ),
             ],
           ),
@@ -2977,10 +2901,8 @@ class _MonthlyPerformanceReportPageState
                         color: _expenseColor(index),
                         radius: 42,
                         title: share >= 8 ? '${share.toStringAsFixed(0)}%' : '',
-                        titleStyle: TextStyle(
+                        titleStyle: AppTextStyles.appBarTitle.copyWith(
                           color: context.cardBackgroundColor,
-                          fontSize: 8,
-                          fontWeight: FontWeight.w800,
                         ),
                       );
                     }),
@@ -2992,20 +2914,16 @@ class _MonthlyPerformanceReportPageState
                   children: [
                     Text(
                       '₹${_number(report.totalExpense)}',
-                      style: TextStyle(
+                      style: AppTextStyles.cardTitle.copyWith(
                         color: _text,
-                        fontSize: 15,
                         height: 1,
-                        fontWeight: FontWeight.w900,
                       ),
                     ),
                     SizedBox(height: 2),
                     Text(
                       'Expense',
-                      style: TextStyle(
+                      style: AppTextStyles.helperText.copyWith(
                         color: _secondaryText,
-                        fontSize: 7,
-                        fontWeight: FontWeight.w600,
                       ),
                     ),
                   ],
@@ -3044,11 +2962,7 @@ class _MonthlyPerformanceReportPageState
                         item.parameterName,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
-                        style: TextStyle(
-                          color: _text,
-                          fontSize: 7.5,
-                          fontWeight: FontWeight.w700,
-                        ),
+                        style: AppTextStyles.helperText.copyWith(color: _text),
                       ),
                     ),
 
@@ -3056,10 +2970,8 @@ class _MonthlyPerformanceReportPageState
 
                     Text(
                       '₹${_number(item.amount)}',
-                      style: TextStyle(
+                      style: AppTextStyles.helperText.copyWith(
                         color: _expenseColor(index),
-                        fontSize: 7.5,
-                        fontWeight: FontWeight.w900,
                       ),
                     ),
                   ],
@@ -3199,11 +3111,7 @@ class _MonthlyPerformanceReportPageState
                   title,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: TextStyle(
-                    color: _secondaryText,
-                    fontSize: 6,
-                    fontWeight: FontWeight.w600,
-                  ),
+                  style: AppTextStyles.body.copyWith(color: _secondaryText),
                 ),
 
                 SizedBox(height: 2),
@@ -3212,11 +3120,7 @@ class _MonthlyPerformanceReportPageState
                   value,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: TextStyle(
-                    color: color,
-                    fontSize: 9,
-                    fontWeight: FontWeight.w900,
-                  ),
+                  style: AppTextStyles.labelSmall.copyWith(color: color),
                 ),
               ],
             ),
@@ -3358,10 +3262,8 @@ class _MonthlyPerformanceReportPageState
                     final value = values[series][index];
                     return LineTooltipItem(
                       '${labels[index]} · ${_seriesNames[series]}\n${series == 0 ? value.toInt().toString() : '₹${_number(value)}'}',
-                      TextStyle(
+                      AppTextStyles.buttonSmall.copyWith(
                         color: _seriesColors[series],
-                        fontSize: 12,
-                        fontWeight: FontWeight.w700,
                       ),
                     );
                   }).toList(),
@@ -3450,18 +3352,17 @@ class _MonthlyPerformanceReportPageState
                   SizedBox(width: 5),
                   Text(
                     names[i],
-                    style: TextStyle(
-                      fontSize: 11,
-                      fontWeight: FontWeight.w600,
-                      color: _text,
-                    ),
+                    style: AppTextStyles.labelSmall.copyWith(color: _text),
                   ),
                 ],
               ),
             ),
           ),
           SizedBox(height: 8),
-          Text(axisHint, style: TextStyle(fontSize: 10, color: _secondaryText)),
+          Text(
+            axisHint,
+            style: AppTextStyles.helperText.copyWith(color: _secondaryText),
+          ),
           SizedBox(height: 8),
           SizedBox(
             height:
@@ -3506,7 +3407,7 @@ class _MonthlyPerformanceReportPageState
             monthly
                 ? 'Pinch to zoom • Drag to explore • Tap a bar for details'
                 : 'Tap a point for details • Swipe to explore',
-            style: TextStyle(fontSize: 10, color: _secondaryText),
+            style: AppTextStyles.helperText.copyWith(color: _secondaryText),
           ),
         ],
       ),
@@ -3542,10 +3443,8 @@ class _MonthlyPerformanceReportPageState
             child: Text(
               text,
               maxLines: 1,
-              style: TextStyle(
-                fontSize: 11,
+              style: AppTextStyles.labelSmall.copyWith(
                 height: 1.2,
-                fontWeight: FontWeight.w600,
                 color: context.secondaryTextColor,
               ),
             ),
@@ -3743,7 +3642,9 @@ class _MonthlyPerformanceReportPageState
                       padding: EdgeInsets.all(10),
                       child: Text(
                         'No details available',
-                        style: TextStyle(color: _secondaryText, fontSize: 12),
+                        style: AppTextStyles.bodySmall.copyWith(
+                          color: _secondaryText,
+                        ),
                       ),
                     )
                   else
@@ -3771,7 +3672,9 @@ class _MonthlyPerformanceReportPageState
                           if (width > constraints.maxWidth)
                             'Swipe for more columns',
                         ].join(' • '),
-                        style: TextStyle(fontSize: 10, color: _secondaryText),
+                        style: AppTextStyles.helperText.copyWith(
+                          color: _secondaryText,
+                        ),
                       ),
                     ),
                 ],
@@ -3953,10 +3856,8 @@ class _MonthlyPerformanceReportPageState
 
                 Text(
                   title,
-                  style: TextStyle(
+                  style: AppTextStyles.labelSmall.copyWith(
                     color: context.onPrimaryColor,
-                    fontSize: 10,
-                    fontWeight: FontWeight.w800,
                   ),
                 ),
               ],
@@ -3991,10 +3892,8 @@ class _MonthlyPerformanceReportPageState
           alignment: center ? Alignment.center : Alignment.centerLeft,
           child: Text(
             value,
-            style: TextStyle(
+            style: AppTextStyles.labelSmall.copyWith(
               color: context.secondaryTextColor,
-              fontSize: 9,
-              fontWeight: FontWeight.w800,
               letterSpacing: .25,
             ),
           ),
@@ -4020,9 +3919,8 @@ class _MonthlyPerformanceReportPageState
             value,
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
-            style: TextStyle(
+            style: AppTextStyles.labelSmall.copyWith(
               color: valueColor ?? _text,
-              fontSize: 11,
               fontWeight: bold ? FontWeight.w800 : FontWeight.w600,
             ),
           ),
@@ -4087,10 +3985,8 @@ class _MonthlyPerformanceReportPageState
                   _number(amount),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: TextStyle(
+                  style: AppTextStyles.labelSmall.copyWith(
                     color: amount > 0 ? color : _secondaryText,
-                    fontSize: 10.5,
-                    fontWeight: FontWeight.w700,
                   ),
                 ),
               ),
@@ -4099,11 +3995,7 @@ class _MonthlyPerformanceReportPageState
 
               Text(
                 '/',
-                style: TextStyle(
-                  color: _secondaryText,
-                  fontSize: 10,
-                  fontWeight: FontWeight.w600,
-                ),
+                style: AppTextStyles.labelSmall.copyWith(color: _secondaryText),
               ),
 
               SizedBox(width: 3),
@@ -4111,11 +4003,7 @@ class _MonthlyPerformanceReportPageState
               Text(
                 '$count',
                 maxLines: 1,
-                style: TextStyle(
-                  color: _secondaryText,
-                  fontSize: 9.5,
-                  fontWeight: FontWeight.w600,
-                ),
+                style: AppTextStyles.caption.copyWith(color: _secondaryText),
               ),
             ],
           ),
@@ -4138,10 +4026,8 @@ class _MonthlyPerformanceReportPageState
           ),
           child: Text(
             '${value.toStringAsFixed(2)}%',
-            style: TextStyle(
+            style: AppTextStyles.labelSmall.copyWith(
               color: value > 0 ? _primaryDark : _secondaryText,
-              fontSize: 10,
-              fontWeight: FontWeight.w800,
             ),
           ),
         ),
@@ -4182,10 +4068,8 @@ class _MonthlyPerformanceReportPageState
                   title,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: TextStyle(
+                  style: AppTextStyles.listTitle.copyWith(
                     color: _text,
-                    fontSize: 12.5,
-                    fontWeight: FontWeight.w800,
                     height: 1.1,
                   ),
                 ),
@@ -4196,10 +4080,8 @@ class _MonthlyPerformanceReportPageState
                   subtitle,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: TextStyle(
+                  style: AppTextStyles.helperText.copyWith(
                     color: _secondaryText,
-                    fontSize: 7.5,
-                    fontWeight: FontWeight.w500,
                   ),
                 ),
               ],
@@ -4214,11 +4096,7 @@ class _MonthlyPerformanceReportPageState
             ),
             child: Text(
               number,
-              style: TextStyle(
-                color: color,
-                fontSize: 7,
-                fontWeight: FontWeight.w800,
-              ),
+              style: AppTextStyles.helperText.copyWith(color: color),
             ),
           ),
         ],
@@ -4258,10 +4136,8 @@ class _MonthlyPerformanceReportPageState
                   title,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: TextStyle(
+                  style: AppTextStyles.body.copyWith(
                     color: _secondaryText,
-                    fontSize: 6,
-                    fontWeight: FontWeight.w700,
                     letterSpacing: .2,
                   ),
                 ),
@@ -4275,11 +4151,7 @@ class _MonthlyPerformanceReportPageState
             value,
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
-            style: TextStyle(
-              color: color,
-              fontSize: 12,
-              fontWeight: FontWeight.w900,
-            ),
+            style: AppTextStyles.buttonSmall.copyWith(color: color),
           ),
         ],
       ),
@@ -4322,11 +4194,7 @@ class _MonthlyPerformanceReportPageState
                 Text(
                   title,
                   maxLines: 1,
-                  style: TextStyle(
-                    color: _secondaryText,
-                    fontSize: 5.8,
-                    fontWeight: FontWeight.w600,
-                  ),
+                  style: AppTextStyles.body.copyWith(color: _secondaryText),
                 ),
 
                 SizedBox(height: 2),
@@ -4335,11 +4203,7 @@ class _MonthlyPerformanceReportPageState
                   value,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: TextStyle(
-                    color: color,
-                    fontSize: 9.5,
-                    fontWeight: FontWeight.w900,
-                  ),
+                  style: AppTextStyles.caption.copyWith(color: color),
                 ),
               ],
             ),
@@ -4378,18 +4242,14 @@ class _MonthlyPerformanceReportPageState
             children: [
               Text(
                 title,
-                style: TextStyle(
-                  color: _text,
-                  fontSize: 14,
-                  fontWeight: FontWeight.w800,
-                ),
+                style: AppTextStyles.listTitle.copyWith(color: _text),
               ),
 
               SizedBox(height: 1),
 
               Text(
                 subtitle,
-                style: TextStyle(color: _secondaryText, fontSize: 11),
+                style: AppTextStyles.caption.copyWith(color: _secondaryText),
               ),
             ],
           ),
@@ -4437,9 +4297,8 @@ class _MonthlyPerformanceReportPageState
                 title,
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
-                style: TextStyle(
+                style: AppTextStyles.buttonSmall.copyWith(
                   color: selected ? _primaryDark : _secondaryText,
-                  fontSize: 12,
                   fontWeight: selected ? FontWeight.w800 : FontWeight.w600,
                 ),
               ),
@@ -4561,10 +4420,8 @@ class _MonthlyPerformanceReportPageState
               fitInsideVertically: true,
               getTooltipItem: (group, groupIndex, rod, rodIndex) => BarTooltipItem(
                 '${labels[groupIndex]} · ${names[rodIndex]}\n${amount ? '₹${_number(rod.toY)}' : rod.toY.toInt().toString()}',
-                TextStyle(
+                AppTextStyles.buttonSmall.copyWith(
                   color: context.onPrimaryColor,
-                  fontSize: 12,
-                  fontWeight: FontWeight.w700,
                 ),
               ),
             ),
@@ -4608,7 +4465,10 @@ class _MonthlyPerformanceReportPageState
 
             SizedBox(height: 8),
 
-            Text(value, style: TextStyle(color: _secondaryText, fontSize: 8)),
+            Text(
+              value,
+              style: AppTextStyles.helperText.copyWith(color: _secondaryText),
+            ),
           ],
         ),
       ),
@@ -4640,10 +4500,8 @@ class _MonthlyPerformanceReportPageState
           Expanded(
             child: Text(
               value,
-              style: TextStyle(
+              style: AppTextStyles.labelSmall.copyWith(
                 color: context.appColors.error,
-                fontSize: 9,
-                fontWeight: FontWeight.w600,
               ),
             ),
           ),
@@ -4675,11 +4533,7 @@ class _MonthlyPerformanceReportPageState
 
             Text(
               'Select month to view graph',
-              style: TextStyle(
-                color: _secondaryText,
-                fontSize: 8.5,
-                fontWeight: FontWeight.w500,
-              ),
+              style: AppTextStyles.helperText.copyWith(color: _secondaryText),
             ),
           ],
         ),

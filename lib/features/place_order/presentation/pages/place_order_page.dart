@@ -9,6 +9,7 @@ import 'package:solufine/core/di/place_order_target_di.dart';
 import 'package:solufine/core/router/app_router.dart';
 import 'package:solufine/core/secure_storage/secure_storage.dart';
 import 'package:solufine/core/theme/app_theme_context.dart';
+import 'package:solufine/core/theme/typography/app_text_styles.dart';
 import 'package:solufine/core/utility/widgets/custom_appbar.dart';
 import 'package:solufine/core/utility/widgets/custom_textformfield.dart';
 
@@ -129,9 +130,7 @@ class _PlaceOrderPageState extends State<PlaceOrderPage> {
                 SizedBox(height: 18.h),
                 Text(
                   'User information not found',
-                  style: TextStyle(
-                    fontSize: 17.sp,
-                    fontWeight: FontWeight.w800,
+                  style: AppTextStyles.headingMedium.copyWith(
                     color: context.primaryTextColor,
                   ),
                 ),
@@ -139,8 +138,7 @@ class _PlaceOrderPageState extends State<PlaceOrderPage> {
                 Text(
                   'Please login again and try again.',
                   textAlign: TextAlign.center,
-                  style: TextStyle(
-                    fontSize: 13.sp,
+                  style: AppTextStyles.bodyMedium.copyWith(
                     color: context.secondaryTextColor,
                   ),
                 ),
@@ -554,9 +552,7 @@ class _PlaceOrderViewState extends State<_PlaceOrderView> {
               SizedBox(width: 6.w),
               Text(
                 'Selected Categories',
-                style: TextStyle(
-                  fontSize: 11.sp,
-                  fontWeight: FontWeight.w800,
+                style: AppTextStyles.labelSmall.copyWith(
                   color: context.primaryTextColor,
                 ),
               ),
@@ -592,9 +588,7 @@ class _PlaceOrderViewState extends State<_PlaceOrderView> {
                     SizedBox(width: 5.w),
                     Text(
                       category.name,
-                      style: TextStyle(
-                        fontSize: 11.sp,
-                        fontWeight: FontWeight.w700,
+                      style: AppTextStyles.labelSmall.copyWith(
                         color: context.primaryTextColor,
                       ),
                     ),
@@ -625,6 +619,7 @@ class _PlaceOrderViewState extends State<_PlaceOrderView> {
 
   Widget _buildProductSearchField() {
     return TextField(
+      style: AppTextStyles.input,
       controller: productSearchController,
 
       onChanged: (value) {
@@ -635,6 +630,7 @@ class _PlaceOrderViewState extends State<_PlaceOrderView> {
 
       decoration: InputDecoration(
         hintText: 'Search product...',
+        hintStyle: AppTextStyles.inputHint,
 
         prefixIcon: const Icon(Icons.search_rounded),
 
@@ -792,18 +788,14 @@ class _PlaceOrderViewState extends State<_PlaceOrderView> {
                               children: [
                                 Text(
                                   'Add Order Details',
-                                  style: TextStyle(
-                                    fontSize: 16.sp,
-                                    fontWeight: FontWeight.w800,
+                                  style: AppTextStyles.cardTitle.copyWith(
                                     color: context.primaryTextColor,
                                   ),
                                 ),
                                 SizedBox(height: 2.h),
                                 Text(
                                   'Add photo, signature and remark',
-                                  style: TextStyle(
-                                    fontSize: 10.5.sp,
-                                    fontWeight: FontWeight.w500,
+                                  style: AppTextStyles.caption.copyWith(
                                     color: context.secondaryTextColor,
                                   ),
                                 ),
@@ -871,11 +863,10 @@ class _PlaceOrderViewState extends State<_PlaceOrderView> {
                                     Expanded(
                                       child: Text(
                                         validationMessage!,
-                                        style: TextStyle(
-                                          color: context.appColors.error,
-                                          fontSize: 12.sp,
-                                          fontWeight: FontWeight.w600,
-                                        ),
+                                        style: AppTextStyles.buttonSmall
+                                            .copyWith(
+                                              color: context.appColors.error,
+                                            ),
                                       ),
                                     ),
                                   ],
@@ -1011,16 +1002,16 @@ class _PlaceOrderViewState extends State<_PlaceOrderView> {
                                       SizedBox(width: 8.w),
                                       Text(
                                         'Remark',
-                                        style: TextStyle(
-                                          fontSize: 11.5.sp,
-                                          fontWeight: FontWeight.w800,
-                                          color: context.primaryTextColor,
-                                        ),
+                                        style: AppTextStyles.labelSmall
+                                            .copyWith(
+                                              color: context.primaryTextColor,
+                                            ),
                                       ),
                                     ],
                                   ),
                                   SizedBox(height: 8.h),
                                   TextField(
+                                    style: AppTextStyles.input,
                                     controller: remarkController,
                                     maxLines: 3,
                                     minLines: 3,
@@ -1028,6 +1019,7 @@ class _PlaceOrderViewState extends State<_PlaceOrderView> {
                                       dialogSetState(() {});
                                     },
                                     decoration: InputDecoration(
+                                      hintStyle: AppTextStyles.inputHint,
                                       hintText:
                                           'Enter additional order remark...',
                                       filled: true,
@@ -1069,7 +1061,10 @@ class _PlaceOrderViewState extends State<_PlaceOrderView> {
                                 onPressed: () {
                                   Navigator.pop(dialogContext);
                                 },
-                                child: const Text('Cancel'),
+                                child: Text(
+                                  'Cancel',
+                                  style: AppTextStyles.button,
+                                ),
                               ),
                             ),
                           ),
@@ -1111,10 +1106,7 @@ class _PlaceOrderViewState extends State<_PlaceOrderView> {
                                 ),
                                 label: Text(
                                   'Save Details',
-                                  style: TextStyle(
-                                    fontSize: 12.sp,
-                                    fontWeight: FontWeight.w800,
-                                  ),
+                                  style: AppTextStyles.buttonSmall,
                                 ),
                                 style: ElevatedButton.styleFrom(
                                   backgroundColor: context.primaryColor,
@@ -1176,9 +1168,7 @@ class _PlaceOrderViewState extends State<_PlaceOrderView> {
             title,
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
-            style: TextStyle(
-              fontSize: 9.sp,
-              fontWeight: FontWeight.w700,
+            style: AppTextStyles.badge.copyWith(
               color: completed
                   ? context.primaryColor
                   : context.secondaryTextColor,
@@ -1235,7 +1225,7 @@ class _PlaceOrderViewState extends State<_PlaceOrderView> {
                 detailsAdded ? 'Edit Details' : 'Add Details',
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
-                style: TextStyle(fontSize: 12.sp, fontWeight: FontWeight.w800),
+                style: AppTextStyles.buttonSmall,
               ),
             ),
           ],
@@ -1281,13 +1271,7 @@ class _PlaceOrderViewState extends State<_PlaceOrderView> {
 
                   SizedBox(width: 6.w),
 
-                  Text(
-                    'Preview',
-                    style: TextStyle(
-                      fontSize: 12.sp,
-                      fontWeight: FontWeight.w800,
-                    ),
-                  ),
+                  Text('Preview', style: AppTextStyles.buttonSmall),
                 ],
               ),
       ),
@@ -1715,9 +1699,7 @@ class _PlaceOrderViewState extends State<_PlaceOrderView> {
             child: Text(
               godown.name,
               overflow: TextOverflow.ellipsis,
-              style: TextStyle(
-                fontSize: 14.sp,
-                fontWeight: FontWeight.w600,
+              style: AppTextStyles.labelLarge.copyWith(
                 color: context.primaryTextColor,
               ),
             ),
@@ -1752,9 +1734,7 @@ class _PlaceOrderViewState extends State<_PlaceOrderView> {
             child: Text(
               category.name,
               overflow: TextOverflow.ellipsis,
-              style: TextStyle(
-                fontSize: 14.sp,
-                fontWeight: FontWeight.w600,
+              style: AppTextStyles.labelLarge.copyWith(
                 color: context.primaryTextColor,
               ),
             ),
@@ -1802,9 +1782,7 @@ class _PlaceOrderViewState extends State<_PlaceOrderView> {
               Expanded(
                 child: Text(
                   'Confirm Order',
-                  style: TextStyle(
-                    fontSize: 18.sp,
-                    fontWeight: FontWeight.w800,
+                  style: AppTextStyles.sectionTitle.copyWith(
                     color: context.primaryTextColor,
                   ),
                 ),
@@ -1817,10 +1795,8 @@ class _PlaceOrderViewState extends State<_PlaceOrderView> {
             children: [
               Text(
                 'Are you sure you want to submit this order?',
-                style: TextStyle(
-                  fontSize: 14.sp,
+                style: AppTextStyles.labelLarge.copyWith(
                   height: 1.4,
-                  fontWeight: FontWeight.w600,
                   color: context.primaryTextColor,
                 ),
               ),
@@ -1848,9 +1824,7 @@ class _PlaceOrderViewState extends State<_PlaceOrderView> {
                             selectedDealer?.name ?? '',
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
-                            style: TextStyle(
-                              fontSize: 13.sp,
-                              fontWeight: FontWeight.w700,
+                            style: AppTextStyles.labelLarge.copyWith(
                               color: context.primaryTextColor,
                             ),
                           ),
@@ -1871,9 +1845,7 @@ class _PlaceOrderViewState extends State<_PlaceOrderView> {
                             selectedGodown?.name ?? '',
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
-                            style: TextStyle(
-                              fontSize: 13.sp,
-                              fontWeight: FontWeight.w700,
+                            style: AppTextStyles.labelLarge.copyWith(
                               color: context.primaryTextColor,
                             ),
                           ),
@@ -1895,9 +1867,7 @@ class _PlaceOrderViewState extends State<_PlaceOrderView> {
                             selectedImages.isNotEmpty
                                 ? 'Order photo added'
                                 : 'No order photo',
-                            style: TextStyle(
-                              fontSize: 13.sp,
-                              fontWeight: FontWeight.w700,
+                            style: AppTextStyles.labelLarge.copyWith(
                               color: context.primaryTextColor,
                             ),
                           ),
@@ -1918,9 +1888,7 @@ class _PlaceOrderViewState extends State<_PlaceOrderView> {
                             signatureBytes != null && signatureBytes!.isNotEmpty
                                 ? 'Dealer signature added'
                                 : 'Signature not added',
-                            style: TextStyle(
-                              fontSize: 13.sp,
-                              fontWeight: FontWeight.w700,
+                            style: AppTextStyles.labelLarge.copyWith(
                               color: context.primaryTextColor,
                             ),
                           ),
@@ -1947,10 +1915,8 @@ class _PlaceOrderViewState extends State<_PlaceOrderView> {
                 ),
                 child: Text(
                   'Cancel',
-                  style: TextStyle(
+                  style: AppTextStyles.labelLarge.copyWith(
                     color: context.secondaryTextColor,
-                    fontSize: 13.sp,
-                    fontWeight: FontWeight.w700,
                   ),
                 ),
               ),
@@ -1970,13 +1936,7 @@ class _PlaceOrderViewState extends State<_PlaceOrderView> {
                     borderRadius: BorderRadius.circular(11.r),
                   ),
                 ),
-                child: Text(
-                  'Confirm',
-                  style: TextStyle(
-                    fontSize: 13.sp,
-                    fontWeight: FontWeight.w800,
-                  ),
-                ),
+                child: Text('Confirm', style: AppTextStyles.labelLarge),
               ),
             ),
           ],
@@ -2306,9 +2266,7 @@ class _PlaceOrderViewState extends State<_PlaceOrderView> {
               Text(
                 'Order Placed Successfully',
                 textAlign: TextAlign.center,
-                style: TextStyle(
-                  fontSize: 19.sp,
-                  fontWeight: FontWeight.w800,
+                style: AppTextStyles.headingLarge.copyWith(
                   color: context.primaryTextColor,
                 ),
               ),
@@ -2316,10 +2274,8 @@ class _PlaceOrderViewState extends State<_PlaceOrderView> {
               Text(
                 'Your order has been submitted successfully.',
                 textAlign: TextAlign.center,
-                style: TextStyle(
-                  fontSize: 13.sp,
+                style: AppTextStyles.bodyMedium.copyWith(
                   height: 1.45,
-                  fontWeight: FontWeight.w500,
                   color: context.secondaryTextColor,
                 ),
               ),
@@ -2339,13 +2295,7 @@ class _PlaceOrderViewState extends State<_PlaceOrderView> {
                       borderRadius: BorderRadius.circular(14.r),
                     ),
                   ),
-                  child: Text(
-                    'OK',
-                    style: TextStyle(
-                      fontSize: 14.sp,
-                      fontWeight: FontWeight.w800,
-                    ),
-                  ),
+                  child: Text('OK', style: AppTextStyles.labelLarge),
                 ),
               ),
             ],
@@ -2376,9 +2326,8 @@ class _PlaceOrderViewState extends State<_PlaceOrderView> {
         SnackBar(
           content: Text(
             message,
-            style: TextStyle(
+            style: AppTextStyles.bodyMedium.copyWith(
               color: context.appColors.onError,
-              fontWeight: FontWeight.w600,
             ),
           ),
           backgroundColor: context.appColors.error,
@@ -2479,14 +2428,12 @@ class _PlaceOrderViewState extends State<_PlaceOrderView> {
 
               // IMPORTANT:
               // bottom padding gives space above fixed buttons
-              padding: EdgeInsets.fromLTRB(10.w, 7.h, 10.w, 18.h),
+              padding: EdgeInsets.only(left: 16,right: 16),
 
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // =================================================
-                  // DEALER
-                  // =================================================
+                SizedBox(height: 10.h,),
                   DealerSearchField(
                     key: _orderDealerKey,
                     controller: dealerController,
@@ -2543,7 +2490,7 @@ class _PlaceOrderViewState extends State<_PlaceOrderView> {
                   // PRODUCT SECTION
                   // =================================================
                   Container(
-                    padding: EdgeInsets.all(12.w),
+                    // padding: EdgeInsets.all(12.w),
                     color: context.cardBackgroundColor,
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
@@ -2765,18 +2712,14 @@ class _PlaceOrderViewState extends State<_PlaceOrderView> {
                 Text(
                   '${selectedProducts.length} '
                   'product${selectedProducts.length == 1 ? '' : 's'} selected',
-                  style: TextStyle(
-                    fontSize: 12.sp,
-                    fontWeight: FontWeight.w800,
+                  style: AppTextStyles.buttonSmall.copyWith(
                     color: context.primaryTextColor,
                   ),
                 ),
                 SizedBox(height: 1.h),
                 Text(
                   'Total quantity: $totalQuantity',
-                  style: TextStyle(
-                    fontSize: 10.sp,
-                    fontWeight: FontWeight.w600,
+                  style: AppTextStyles.labelSmall.copyWith(
                     color: context.secondaryTextColor,
                   ),
                 ),
@@ -2785,9 +2728,7 @@ class _PlaceOrderViewState extends State<_PlaceOrderView> {
           ),
           Text(
             '₹${totalAmount.toStringAsFixed(2)}',
-            style: TextStyle(
-              fontSize: 13.sp,
-              fontWeight: FontWeight.w900,
+            style: AppTextStyles.labelLarge.copyWith(
               color: context.primaryColor,
             ),
           ),
@@ -2838,19 +2779,15 @@ class _PlaceOrderViewState extends State<_PlaceOrderView> {
               children: [
                 Text(
                   'Create New Order',
-                  style: TextStyle(
+                  style: AppTextStyles.cardTitle.copyWith(
                     color: context.onPrimaryColor,
-                    fontSize: 16.sp,
-                    fontWeight: FontWeight.w800,
                   ),
                 ),
                 SizedBox(height: 2.h),
                 Text(
                   'Select dealer, products and order details',
-                  style: TextStyle(
+                  style: AppTextStyles.caption.copyWith(
                     color: context.onPrimaryColor.withValues(alpha: 0.82),
-                    fontSize: 11.sp,
-                    fontWeight: FontWeight.w500,
                   ),
                 ),
               ],
@@ -2888,9 +2825,7 @@ class _PlaceOrderViewState extends State<_PlaceOrderView> {
             children: [
               Text(
                 title,
-                style: TextStyle(
-                  fontSize: 14.sp,
-                  fontWeight: FontWeight.w800,
+                style: AppTextStyles.labelLarge.copyWith(
                   color: context.primaryTextColor,
                 ),
               ),
@@ -2899,9 +2834,7 @@ class _PlaceOrderViewState extends State<_PlaceOrderView> {
                 subtitle,
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
-                style: TextStyle(
-                  fontSize: 10.5.sp,
-                  fontWeight: FontWeight.w500,
+                style: AppTextStyles.caption.copyWith(
                   color: context.secondaryTextColor,
                 ),
               ),
@@ -2931,9 +2864,7 @@ class _PlaceOrderViewState extends State<_PlaceOrderView> {
           SizedBox(height: 8.h),
           Text(
             'Loading products...',
-            style: TextStyle(
-              fontSize: 12.sp,
-              fontWeight: FontWeight.w600,
+            style: AppTextStyles.buttonSmall.copyWith(
               color: context.secondaryTextColor,
             ),
           ),
@@ -2968,9 +2899,7 @@ class _PlaceOrderViewState extends State<_PlaceOrderView> {
           SizedBox(height: 8.h),
           Text(
             text,
-            style: TextStyle(
-              fontSize: 12.sp,
-              fontWeight: FontWeight.w600,
+            style: AppTextStyles.buttonSmall.copyWith(
               color: context.secondaryTextColor,
             ),
           ),
@@ -3034,13 +2963,7 @@ class _PlaceOrderViewState extends State<_PlaceOrderView> {
                     color: context.onPrimaryColor,
                   ),
                   SizedBox(width: 8.w),
-                  Text(
-                    'Preview Order',
-                    style: TextStyle(
-                      fontSize: 14.sp,
-                      fontWeight: FontWeight.w800,
-                    ),
-                  ),
+                  Text('Preview Order', style: AppTextStyles.labelLarge),
                 ],
               ),
       ),

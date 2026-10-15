@@ -1,3 +1,4 @@
+import 'package:solufine/core/theme/typography/app_text_styles.dart';
 import 'package:solufine/core/di/global_di.dart';
 import 'package:solufine/core/router/app_router.dart';
 import 'package:solufine/core/utility/widgets/custom_appbar.dart';
@@ -176,7 +177,9 @@ class _NotVisitedDealerViewState extends State<NotVisitedDealerView> {
         appBar: CustomAppBar(
           title: 'Not Visited Dealers',
           backgroundColor: context.primaryColor,
-          titleStyle: TextStyle(color: context.onPrimaryColor),
+          titleStyle: AppTextStyles.appBarTitle.copyWith(
+            color: context.onPrimaryColor,
+          ),
           leading: IconButton(
             icon: Icon(
               Icons.arrow_back_ios_new_rounded,
@@ -349,9 +352,7 @@ class _NotVisitedDealerViewState extends State<NotVisitedDealerView> {
                         child: Center(
                           child: Text(
                             'No more dealers',
-                            style: TextStyle(
-                              fontSize: 13,
-                              fontWeight: FontWeight.w500,
+                            style: AppTextStyles.cardSubtitle.copyWith(
                               color: context.secondaryTextColor,
                             ),
                           ),
@@ -429,10 +430,8 @@ class _SummaryHeader extends StatelessWidget {
               children: [
                 Text(
                   'Pending Visits',
-                  style: TextStyle(
+                  style: AppTextStyles.bodySmall.copyWith(
                     color: context.secondaryTextColor,
-                    fontSize: 12,
-                    fontWeight: FontWeight.w500,
                   ),
                 ),
 
@@ -440,10 +439,8 @@ class _SummaryHeader extends StatelessWidget {
 
                 Text(
                   '$dealerCount Dealers',
-                  style: TextStyle(
+                  style: AppTextStyles.sectionTitle.copyWith(
                     color: context.cardTextColor,
-                    fontSize: 18,
-                    fontWeight: FontWeight.w800,
                   ),
                 ),
               ],
@@ -461,10 +458,8 @@ class _SummaryHeader extends StatelessWidget {
 
             child: Text(
               '30 Days',
-              style: TextStyle(
+              style: AppTextStyles.labelSmall.copyWith(
                 color: context.primaryColor,
-                fontSize: 11,
-                fontWeight: FontWeight.w700,
               ),
             ),
           ),
@@ -525,7 +520,7 @@ class _ErrorView extends StatelessWidget {
             Text(
               "No Record Found",
               textAlign: TextAlign.center,
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500),
+              style: AppTextStyles.sectionTitle,
             ),
 
             SizedBox(height: 20),
@@ -542,7 +537,7 @@ class _ErrorView extends StatelessWidget {
                 foregroundColor: context.onPrimaryColor,
               ),
 
-              child: Text('Try Again'),
+              child: Text('Try Again', style: AppTextStyles.body),
             ),
           ],
         ),
@@ -586,18 +581,14 @@ class _EmptyView extends StatelessWidget {
 
             SizedBox(height: 20),
 
-            Text(
-              'All Dealers Visited',
-              style: TextStyle(fontSize: 20, fontWeight: FontWeight.w700),
-            ),
+            Text('All Dealers Visited', style: AppTextStyles.headingLarge),
 
             SizedBox(height: 8),
 
             Text(
               'There are no dealers who have not been visited in the last 30 days.',
               textAlign: TextAlign.center,
-              style: TextStyle(
-                fontSize: 14,
+              style: AppTextStyles.body.copyWith(
                 height: 1.5,
                 color: context.secondaryTextColor,
               ),
@@ -614,7 +605,7 @@ class _EmptyView extends StatelessWidget {
 
               icon: Icon(Icons.refresh_rounded),
 
-              label: Text('Refresh'),
+              label: Text('Refresh', style: AppTextStyles.body),
 
               style: TextButton.styleFrom(
                 foregroundColor: context.primaryColor,

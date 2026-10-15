@@ -1,3 +1,4 @@
+import 'package:solufine/core/theme/typography/app_text_styles.dart';
 import 'package:flutter/material.dart';
 import 'package:solufine/core/theme/app_theme_context.dart';
 
@@ -35,11 +36,7 @@ class EmployeeOutputStatistics extends StatelessWidget {
       children: [
         Text(
           'Summary',
-          style: TextStyle(
-            fontSize: 16,
-            fontWeight: FontWeight.w800,
-            color: context.cardTextColor,
-          ),
+          style: AppTextStyles.cardTitle.copyWith(color: context.cardTextColor),
         ),
         const SizedBox(height: 7),
         ClipRRect(
@@ -85,11 +82,10 @@ class EmployeeOutputStatistics extends StatelessWidget {
       child: Text(
         text,
         textAlign: TextAlign.center,
-        style: TextStyle(
-          fontSize: isHeader ? 12 : 14,
-          fontWeight: isHeader ? FontWeight.w700 : FontWeight.w800,
-          color: isHeader ? context.primaryColor : context.cardTextColor,
-        ),
+        style: (isHeader ? AppTextStyles.tableHeader : AppTextStyles.tableCell)
+            .copyWith(
+              color: isHeader ? context.primaryColor : context.cardTextColor,
+            ),
       ),
     );
   }

@@ -1,4 +1,5 @@
 import 'package:solufine/core/theme/app_dynamic_colors.dart';
+import 'package:solufine/core/theme/typography/app_text_styles.dart';
 import 'package:solufine/core/utility/app_toast.dart';
 import 'package:solufine/features/farmer/farmerregistration/domain/entity/product_entity.dart';
 import 'package:flutter/material.dart';
@@ -44,8 +45,7 @@ class _ProductSelectionDialogState extends State<ProductSelectionDialog> {
                   ? Center(
                       child: Text(
                         'No product available',
-                        style: TextStyle(
-                          fontSize: 14.sp,
+                        style: AppTextStyles.body.copyWith(
                           color: context.appSubText,
                         ),
                       ),
@@ -79,16 +79,18 @@ class _ProductSelectionDialogState extends State<ProductSelectionDialog> {
       ),
       child: Row(
         children: [
-          Icon(Icons.inventory_2_outlined, color: context.appOnPrimary, size: 25.sp),
+          Icon(
+            Icons.inventory_2_outlined,
+            color: context.appOnPrimary,
+            size: 25.sp,
+          ),
           SizedBox(width: 10.w),
 
           Expanded(
             child: Text(
               'Select Suggested Products',
-              style: TextStyle(
+              style: AppTextStyles.dialogTitle.copyWith(
                 color: context.appOnPrimary,
-                fontSize: 18.sp,
-                fontWeight: FontWeight.w700,
               ),
             ),
           ),
@@ -123,7 +125,12 @@ class _ProductSelectionDialogState extends State<ProductSelectionDialog> {
       child: Container(
         padding: EdgeInsets.symmetric(horizontal: 5.w, vertical: 4.h),
         decoration: BoxDecoration(
-          color: isSelected ? Color.alphaBlend(context.appPrimary.withValues(alpha: 0.1), context.appCard) : context.appCard,
+          color: isSelected
+              ? Color.alphaBlend(
+                  context.appPrimary.withValues(alpha: 0.1),
+                  context.appCard,
+                )
+              : context.appCard,
           borderRadius: BorderRadius.circular(12.r),
           border: Border.all(
             color: isSelected ? context.appPrimary : context.appBorder,
@@ -159,9 +166,7 @@ class _ProductSelectionDialogState extends State<ProductSelectionDialog> {
             Expanded(
               child: Text(
                 product.fldProductName,
-                style: TextStyle(
-                  fontSize: 14.sp,
-                  fontWeight: FontWeight.w600,
+                style: AppTextStyles.listTitle.copyWith(
                   color: context.appOnCard,
                 ),
               ),
@@ -191,10 +196,7 @@ class _ProductSelectionDialogState extends State<ProductSelectionDialog> {
               ),
               child: Text(
                 'Cancel',
-                style: TextStyle(
-                  color: context.appPrimary,
-                  fontWeight: FontWeight.w600,
-                ),
+                style: AppTextStyles.button.copyWith(color: context.appPrimary),
               ),
             ),
           ),
@@ -206,7 +208,7 @@ class _ProductSelectionDialogState extends State<ProductSelectionDialog> {
               onPressed: () {
                 if (_selectedProductIds.isEmpty) {
                   AppToast.error('Please select at least one product');
-                
+
                   return;
                 }
 
@@ -220,10 +222,7 @@ class _ProductSelectionDialogState extends State<ProductSelectionDialog> {
                   borderRadius: BorderRadius.circular(12.r),
                 ),
               ),
-              child: Text(
-                'Add',
-                style: TextStyle(fontWeight: FontWeight.w600),
-              ),
+              child: Text('Add', style: AppTextStyles.button),
             ),
           ),
         ],

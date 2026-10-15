@@ -1,4 +1,5 @@
 import 'package:solufine/core/theme/app_theme_context.dart';
+import 'package:solufine/core/theme/typography/app_text_styles.dart';
 import 'package:solufine/core/theme/app_dynamic_colors.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil_plus/flutter_screenutil_plus.dart';
@@ -63,23 +64,17 @@ class SalesReturnHistoryCard extends StatelessWidget {
             width: 135.w,
             child: Text(
               title,
-              style: TextStyle(
-                fontSize: 13.sp,
-                fontWeight: FontWeight.w500,
+              style: AppTextStyles.bodyMedium.copyWith(
                 color: context.primaryTextColor,
               ),
             ),
           ),
-          Text(
-            ':',
-            style: TextStyle(fontSize: 13.sp, fontWeight: FontWeight.w500),
-          ),
+          Text(':', style: AppTextStyles.bodyMedium),
           SizedBox(width: 8.w),
           Expanded(
             child: Text(
               value.isEmpty ? '-' : value,
-              style: TextStyle(
-                fontSize: 13.sp,
+              style: AppTextStyles.body.copyWith(
                 color: context.secondaryTextColor,
               ),
             ),
@@ -111,9 +106,7 @@ class SalesReturnHistoryCard extends StatelessWidget {
                   Expanded(
                     child: Text(
                       item.fldSalesReturnDate,
-                      style: TextStyle(
-                        fontSize: 13.sp,
-                        fontWeight: FontWeight.bold,
+                      style: AppTextStyles.labelLarge.copyWith(
                         color: context.primaryTextColor,
                       ),
                     ),
@@ -125,9 +118,7 @@ class SalesReturnHistoryCard extends StatelessWidget {
 
                   Text(
                     _statusText(),
-                    style: TextStyle(
-                      fontSize: 13.sp,
-                      fontWeight: FontWeight.w600,
+                    style: AppTextStyles.labelLarge.copyWith(
                       color: statusColor,
                     ),
                   ),
@@ -145,10 +136,8 @@ class SalesReturnHistoryCard extends StatelessWidget {
                     ),
                     child: Text(
                       'SR: ${(index + 1).toString().padLeft(2, '0')}',
-                      style: TextStyle(
+                      style: AppTextStyles.badge.copyWith(
                         color: context.onPrimaryColor,
-                        fontSize: 11.sp,
-                        fontWeight: FontWeight.bold,
                       ),
                     ),
                   ),
@@ -209,13 +198,7 @@ class SalesReturnHistoryCard extends StatelessWidget {
                       borderRadius: BorderRadius.circular(8.r),
                     ),
                   ),
-                  child: Text(
-                    'View Details',
-                    style: TextStyle(
-                      fontSize: 12.sp,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
+                  child: Text('View Details', style: AppTextStyles.buttonSmall),
                 ),
               ),
             ),

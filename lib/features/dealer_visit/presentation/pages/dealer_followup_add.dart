@@ -1,3 +1,4 @@
+import 'package:solufine/core/theme/typography/app_text_styles.dart';
 import 'dart:convert';
 import 'dart:io';
 
@@ -93,7 +94,6 @@ class _DealerFollowupAddState extends State<DealerFollowupAdd> {
   }
 
   void _submit() async {
-
     if (isLoading || _submissionCompleted) return;
     setState(() => _submitted = true);
     if (!_formKey.currentState!.validate()) {
@@ -104,23 +104,29 @@ class _DealerFollowupAddState extends State<DealerFollowupAdd> {
     FocusScope.of(context).unfocus();
 
     if (_selectedStateId == null || _selectedStateId!.isEmpty) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(const SnackBar(content: Text('Please select state')));
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Please select state', style: AppTextStyles.body),
+        ),
+      );
       return;
     }
 
     if (_selectedDistrictId == null || _selectedDistrictId!.isEmpty) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(const SnackBar(content: Text('Please select district')));
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Please select district', style: AppTextStyles.body),
+        ),
+      );
       return;
     }
 
     if (_selectedTalukaId == null || _selectedTalukaId!.isEmpty) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(const SnackBar(content: Text('Please select taluka')));
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Please select taluka', style: AppTextStyles.body),
+        ),
+      );
       return;
     }
     // Lock before device/location lookups yield to another tap.
@@ -293,9 +299,9 @@ class _DealerFollowupAddState extends State<DealerFollowupAdd> {
         _submissionSent = false;
       });
 
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text(e.toString())));
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(e.toString(), style: AppTextStyles.body)),
+      );
     }
   }
 
@@ -485,7 +491,12 @@ class _DealerFollowupAddState extends State<DealerFollowupAdd> {
         if (!mounted) return;
 
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Captured image not found')),
+          SnackBar(
+            content: Text(
+              'Captured image not found',
+              style: AppTextStyles.body,
+            ),
+          ),
         );
 
         return;
@@ -536,9 +547,11 @@ class _DealerFollowupAddState extends State<DealerFollowupAdd> {
 
       if (!mounted) return;
 
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(const SnackBar(content: Text('Unable to capture image')));
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Unable to capture image', style: AppTextStyles.body),
+        ),
+      );
     }
   }
 
@@ -564,9 +577,7 @@ class _DealerFollowupAddState extends State<DealerFollowupAdd> {
   final _fieldKeys = {
     for (final name in _fieldOrder) name: GlobalKey<FormFieldState>(),
   };
-  final _fieldFocus = {
-    for (final name in _fieldOrder) name: FocusNode(),
-  };
+  final _fieldFocus = {for (final name in _fieldOrder) name: FocusNode()};
 
   void _onDistrictSelected(String? districtId, AddDealerVisitState state) {
     if (districtId == null || districtId.isEmpty) {
@@ -728,7 +739,9 @@ class _DealerFollowupAddState extends State<DealerFollowupAdd> {
                 backgroundColor: context.appColors.error,
                 content: Text(
                   state.errorMessage ?? 'Submission failed',
-                  style: TextStyle(color: context.appColors.onError),
+                  style: AppTextStyles.body.copyWith(
+                    color: context.appColors.onError,
+                  ),
                 ),
               ),
             );
@@ -763,16 +776,16 @@ class _DealerFollowupAddState extends State<DealerFollowupAdd> {
               .map(
                 (item) => DropdownMenuItem<String>(
                   value: item.stateId.trim(),
-                  child: Text(item.stateName),
+                  child: Text(item.stateName, style: AppTextStyles.input),
                 ),
               )
               .toList();
           final talukaList = selectedDistrict?.taluka ?? [];
 
           final districtItems = [
-            const DropdownMenuItem<String>(
+            DropdownMenuItem<String>(
               value: '0',
-              child: Text('Select District'),
+              child: Text('Select District', style: AppTextStyles.inputHint),
             ),
 
             ...state.districtList
@@ -780,15 +793,18 @@ class _DealerFollowupAddState extends State<DealerFollowupAdd> {
                 .map(
                   (district) => DropdownMenuItem<String>(
                     value: district.fldDistId,
-                    child: Text(district.fldDistName),
+                    child: Text(
+                      district.fldDistName,
+                      style: AppTextStyles.input,
+                    ),
                   ),
                 ),
           ];
 
           final talukaItems = [
-            const DropdownMenuItem<String>(
+            DropdownMenuItem<String>(
               value: '0',
-              child: Text('Select Taluka'),
+              child: Text('Select Taluka', style: AppTextStyles.inputHint),
             ),
 
             ...talukaList
@@ -796,25 +812,31 @@ class _DealerFollowupAddState extends State<DealerFollowupAdd> {
                 .map(
                   (taluka) => DropdownMenuItem<String>(
                     value: taluka.fldTalukaId,
-                    child: Text(taluka.fldName),
+                    child: Text(taluka.fldName, style: AppTextStyles.input),
                   ),
                 ),
           ];
           final dealerTypeItems = dealerTypeStatus.map((status) {
-            return DropdownMenuItem<String>(value: status, child: Text(status));
+            return DropdownMenuItem<String>(
+              value: status,
+              child: Text(status, style: AppTextStyles.input),
+            );
           }).toList();
 
           final followUpTypeItem = followUpType.map((status) {
-            return DropdownMenuItem<String>(value: status, child: Text(status));
+            return DropdownMenuItem<String>(
+              value: status,
+              child: Text(status, style: AppTextStyles.input),
+            );
           }).toList();
           return SafeArea(
             child: Form(
               key: _formKey,
-                 autovalidateMode: AutovalidateMode.onUserInteraction,
+              autovalidateMode: AutovalidateMode.onUserInteraction,
+
               // autovalidateMode: _submitted
               //     ? AutovalidateMode.always
               //     : AutovalidateMode.disabled,
-
               child: SingleChildScrollView(
                 padding: const EdgeInsets.only(left: 16, right: 16),
 
@@ -826,9 +848,7 @@ class _DealerFollowupAddState extends State<DealerFollowupAdd> {
 
                     Text(
                       'Dealer Type *',
-                      style: TextStyle(
-                        fontSize: 15,
-                        fontWeight: FontWeight.w600,
+                      style: AppTextStyles.labelLarge.copyWith(
                         color: context.primaryTextColor,
                       ),
                     ),
@@ -1031,9 +1051,7 @@ class _DealerFollowupAddState extends State<DealerFollowupAdd> {
 
                     Text(
                       'State *',
-                      style: TextStyle(
-                        fontSize: 15,
-                        fontWeight: FontWeight.w600,
+                      style: AppTextStyles.labelLarge.copyWith(
                         color: context.primaryTextColor,
                       ),
                     ),
@@ -1092,9 +1110,7 @@ class _DealerFollowupAddState extends State<DealerFollowupAdd> {
 
                     Text(
                       'District *',
-                      style: TextStyle(
-                        fontSize: 15,
-                        fontWeight: FontWeight.w600,
+                      style: AppTextStyles.labelLarge.copyWith(
                         color: context.primaryTextColor,
                       ),
                     ),
@@ -1129,9 +1145,7 @@ class _DealerFollowupAddState extends State<DealerFollowupAdd> {
 
                     Text(
                       'Taluka *',
-                      style: TextStyle(
-                        fontSize: 15,
-                        fontWeight: FontWeight.w600,
+                      style: AppTextStyles.labelLarge.copyWith(
                         color: context.primaryTextColor,
                       ),
                     ),
@@ -1191,9 +1205,7 @@ class _DealerFollowupAddState extends State<DealerFollowupAdd> {
 
                     Text(
                       'Follow Up Type *',
-                      style: TextStyle(
-                        fontSize: 15,
-                        fontWeight: FontWeight.w600,
+                      style: AppTextStyles.labelLarge.copyWith(
                         color: context.primaryTextColor,
                       ),
                     ),
@@ -1247,9 +1259,8 @@ class _DealerFollowupAddState extends State<DealerFollowupAdd> {
                                 padding: EdgeInsets.only(left: 16.w, top: 4.h),
                                 child: Text(
                                   field.errorText!,
-                                  style: TextStyle(
+                                  style: AppTextStyles.bodySmall.copyWith(
                                     color: context.appColors.error,
-                                    fontSize: 12.sp,
                                   ),
                                 ),
                               ),
@@ -1266,7 +1277,7 @@ class _DealerFollowupAddState extends State<DealerFollowupAdd> {
                       prefixIcon: Icons.note,
                       maxLines: 2,
                     ),
-                  SizedBox(height: 100.h),
+                    SizedBox(height: 100.h),
                   ],
                 ),
               ),
@@ -1345,10 +1356,7 @@ class _DealerFollowupAddState extends State<DealerFollowupAdd> {
                   Expanded(
                     child: Text(
                       'Upload Photo *',
-                      style: TextStyle(
-                        fontSize: 16.sp,
-                        fontWeight: FontWeight.w600,
-                      ),
+                      style: AppTextStyles.cardTitle,
                     ),
                   ),
 
@@ -1386,9 +1394,8 @@ class _DealerFollowupAddState extends State<DealerFollowupAdd> {
                         SizedBox(height: 14.h),
                         Text(
                           'Tap to capture image',
-                          style: TextStyle(
+                          style: AppTextStyles.body.copyWith(
                             color: context.secondaryTextColor,
-                            fontSize: 15.sp,
                           ),
                         ),
                       ],

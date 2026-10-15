@@ -7,6 +7,7 @@ import 'package:solufine/core/di/notification_di.dart';
 import 'package:solufine/core/router/app_router.dart';
 import 'package:solufine/core/secure_storage/secure_storage.dart';
 import 'package:solufine/core/theme/app_theme_context.dart';
+import 'package:solufine/core/theme/typography/app_text_styles.dart';
 import 'package:solufine/core/utility/widgets/custom_appbar.dart';
 import '../../data/datasource/monthly_collection_remote_datasource.dart';
 
@@ -224,18 +225,24 @@ class _AssignSelfCollectionTargetPageState
             backgroundColor: dialogContext.cardBackgroundColor,
             title: Text(
               'Success',
-              style: TextStyle(color: dialogContext.primaryTextColor),
+              style: AppTextStyles.dialogTitle.copyWith(
+                color: dialogContext.primaryTextColor,
+              ),
             ),
             content: Text(
               message,
-              style: TextStyle(color: dialogContext.primaryTextColor),
+              style: AppTextStyles.body.copyWith(
+                color: dialogContext.primaryTextColor,
+              ),
             ),
             actions: [
               TextButton(
                 onPressed: () => Navigator.of(dialogContext).pop(true),
                 child: Text(
                   'OK',
-                  style: TextStyle(color: dialogContext.primaryColor),
+                  style: AppTextStyles.button.copyWith(
+                    color: dialogContext.primaryColor,
+                  ),
                 ),
               ),
             ],
@@ -259,9 +266,8 @@ class _AssignSelfCollectionTargetPageState
         SnackBar(
           content: Text(
             message,
-            style: TextStyle(
+            style: AppTextStyles.body.copyWith(
               color: context.appColors.onError,
-              fontWeight: FontWeight.w600,
             ),
           ),
           backgroundColor: context.appColors.error,
@@ -339,10 +345,7 @@ class _AssignSelfCollectionTargetPageState
                             backgroundColor: context.primaryColor,
                             foregroundColor: context.onPrimaryColor,
                             minimumSize: const Size.fromHeight(52),
-                            textStyle: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.w700,
-                            ),
+                            textStyle: AppTextStyles.buttonLarge,
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(16),
                             ),
@@ -361,10 +364,7 @@ class _AssignSelfCollectionTargetPageState
               )
             : userId <= 0
             ? Center(
-                child: Text(
-                  'User not found',
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
-                ),
+                child: Text('User not found', style: AppTextStyles.bodyLarge),
               )
             : BlocBuilder<CollectionTypeBloc, CollectionTypeState>(
                 builder: (context, collectionState) {
@@ -398,10 +398,7 @@ class _AssignSelfCollectionTargetPageState
                           Center(
                             child: Text(
                               'No collection type found',
-                              style: TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.w500,
-                              ),
+                              style: AppTextStyles.bodyLarge,
                             ),
                           ),
                         ],
@@ -438,10 +435,7 @@ class _AssignSelfCollectionTargetPageState
                               Center(
                                 child: Text(
                                   'No dealer found',
-                                  style: TextStyle(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.w500,
-                                  ),
+                                  style: AppTextStyles.bodyLarge,
                                 ),
                               ),
                             ],
@@ -459,7 +453,7 @@ class _AssignSelfCollectionTargetPageState
                               padding: const EdgeInsets.all(10),
                               decoration: BoxDecoration(
                                 color: context.primaryColor,
-                                borderRadius: BorderRadius.circular(24),
+                                borderRadius: BorderRadius.circular(10),
                               ),
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -477,12 +471,11 @@ class _AssignSelfCollectionTargetPageState
                                       Expanded(
                                         child: Text(
                                           'SELF COLLECTION',
-                                          style: TextStyle(
-                                            color: context.onPrimaryColor,
-                                            fontSize: 11,
-                                            fontWeight: FontWeight.w700,
-                                            letterSpacing: 1.3,
-                                          ),
+                                          style: AppTextStyles.tableHeader
+                                              .copyWith(
+                                                color: context.onPrimaryColor,
+                                                letterSpacing: 1.3,
+                                              ),
                                         ),
                                       ),
 
@@ -500,10 +493,8 @@ class _AssignSelfCollectionTargetPageState
                                         ),
                                         child: Text(
                                           '${dealerState.dealers.length - 1} dealers',
-                                          style: TextStyle(
+                                          style: AppTextStyles.label.copyWith(
                                             color: context.onPrimaryColor,
-                                            fontSize: 12,
-                                            fontWeight: FontWeight.w600,
                                           ),
                                         ),
                                       ),
@@ -512,20 +503,17 @@ class _AssignSelfCollectionTargetPageState
 
                                   Text(
                                     'Plan your collection',
-                                    style: TextStyle(
+                                    style: AppTextStyles.headingMedium.copyWith(
                                       color: context.onPrimaryColor,
-                                      fontSize: 18,
-                                      fontWeight: FontWeight.w700,
                                     ),
                                   ),
 
                                   Text(
                                     'Enter collection targets for each dealer below.',
-                                    style: TextStyle(
+                                    style: AppTextStyles.caption.copyWith(
                                       color: context.onPrimaryColor.withValues(
                                         alpha: 0.8,
                                       ),
-                                      fontSize: 11,
                                       height: 1.5,
                                     ),
                                   ),
@@ -539,12 +527,13 @@ class _AssignSelfCollectionTargetPageState
                                 initialValue: _selectedMonth,
                                 dropdownColor: context.cardBackgroundColor,
                                 iconEnabledColor: context.primaryColor,
-                                style: TextStyle(
+                                style: AppTextStyles.body.copyWith(
                                   color: context.primaryTextColor,
                                 ),
                                 isExpanded: true,
                                 decoration: InputDecoration(
                                   labelText: 'Target month',
+                                  labelStyle: AppTextStyles.inputLabel,
                                   filled: true,
                                   fillColor: context.appTheme.inputBackground,
                                   border: OutlineInputBorder(
@@ -575,10 +564,7 @@ class _AssignSelfCollectionTargetPageState
                                     final painter = TextPainter(
                                       text: TextSpan(
                                         text: '${type.collectionType} Target',
-                                        style: TextStyle(
-                                          fontSize: 11,
-                                          fontWeight: FontWeight.w700,
-                                        ),
+                                        style: AppTextStyles.tableHeader,
                                       ),
                                       textDirection: Directionality.of(context),
                                       textScaler: MediaQuery.textScalerOf(
@@ -732,7 +718,7 @@ class _DealerTargetRow extends StatelessWidget {
       margin: EdgeInsets.only(bottom: isHeader ? 0 : 10),
       padding: EdgeInsets.symmetric(
         horizontal: 12,
-        vertical: isHeader ? 10 : 18,
+        vertical: isHeader ? 10 : 12,
       ),
       decoration: BoxDecoration(
         color: isHeader
@@ -742,13 +728,12 @@ class _DealerTargetRow extends StatelessWidget {
         border: isHeader ? null : Border.all(color: context.borderColor),
       ),
       child: DefaultTextStyle(
-        style: TextStyle(
-          fontSize: isHeader ? 11 : 14,
-          fontWeight: isHeader ? FontWeight.w700 : FontWeight.w500,
-          color: isHeader
-              ? context.appColors.onPrimaryContainer
-              : context.cardTextColor,
-        ),
+        style: (isHeader ? AppTextStyles.tableHeader : AppTextStyles.bodyMedium)
+            .copyWith(
+              color: isHeader
+                  ? context.appColors.onPrimaryContainer
+                  : context.cardTextColor,
+            ),
         child: Row(
           children: [
             Expanded(
@@ -817,11 +802,7 @@ class _DealerTargetRow extends StatelessWidget {
 
         textAlign: TextAlign.center,
 
-        style: TextStyle(
-          fontSize: 14,
-          fontWeight: FontWeight.w600,
-          color: context.primaryTextColor,
-        ),
+        style: AppTextStyles.input.copyWith(color: context.primaryTextColor),
 
         inputFormatters: [
           TextInputFormatter.withFunction((oldValue, newValue) {
@@ -834,9 +815,8 @@ class _DealerTargetRow extends StatelessWidget {
         decoration: InputDecoration(
           hintText: '0.00',
 
-          hintStyle: TextStyle(
+          hintStyle: AppTextStyles.inputHint.copyWith(
             color: context.secondaryTextColor,
-            fontWeight: FontWeight.w400,
           ),
 
           filled: true,
@@ -887,7 +867,7 @@ class _ErrorView extends StatelessWidget {
             Text(
               message,
               textAlign: TextAlign.center,
-              style: TextStyle(fontSize: 14),
+              style: AppTextStyles.input,
             ),
 
             SizedBox(height: 16),
@@ -899,7 +879,7 @@ class _ErrorView extends StatelessWidget {
                 foregroundColor: context.onPrimaryColor,
               ),
               icon: Icon(Icons.refresh),
-              label: Text('Retry'),
+              label: Text('Retry', style: AppTextStyles.button),
             ),
           ],
         ),

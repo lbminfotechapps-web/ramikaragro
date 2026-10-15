@@ -1,3 +1,4 @@
+import 'package:solufine/core/theme/typography/app_text_styles.dart';
 import 'package:flutter/material.dart';
 import 'package:solufine/core/theme/app_theme_context.dart';
 
@@ -43,9 +44,7 @@ class NotificationCard extends StatelessWidget {
                         notification.title,
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
-                        style: TextStyle(
-                          fontSize: 15.5,
-                          fontWeight: FontWeight.w700,
+                        style: AppTextStyles.body.copyWith(
                           color: context.cardTextColor,
                         ),
                       ),
@@ -81,8 +80,7 @@ class NotificationCard extends StatelessWidget {
               ),
               child: Text(
                 notification.message,
-                style: TextStyle(
-                  fontSize: 13.5,
+                style: AppTextStyles.listTitle.copyWith(
                   height: 1.55,
                   color: context.secondaryTextColor,
                 ),
@@ -147,9 +145,7 @@ class NotificationCard extends StatelessWidget {
             child: Text(
               value,
               overflow: TextOverflow.ellipsis,
-              style: TextStyle(
-                fontSize: 11.5,
-                fontWeight: FontWeight.w500,
+              style: AppTextStyles.labelSmall.copyWith(
                 color: context.secondaryTextColor,
               ),
             ),

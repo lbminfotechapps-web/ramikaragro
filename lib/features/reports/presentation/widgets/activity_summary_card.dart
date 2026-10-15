@@ -1,3 +1,4 @@
+import 'package:solufine/core/theme/typography/app_text_styles.dart';
 import 'package:flutter/material.dart';
 import 'package:solufine/core/theme/app_theme_context.dart';
 
@@ -53,10 +54,8 @@ class ActivitySummaryCard extends StatelessWidget {
               title,
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
-              style: TextStyle(
-                fontSize: 11.5,
+              style: AppTextStyles.labelSmall.copyWith(
                 color: context.secondaryTextColor,
-                fontWeight: FontWeight.w600,
               ),
             ),
           ),
@@ -64,14 +63,7 @@ class ActivitySummaryCard extends StatelessWidget {
           const SizedBox(width: 5),
 
           // COUNT
-          Text(
-            '$count',
-            style: TextStyle(
-              fontSize: 19,
-              fontWeight: FontWeight.w800,
-              color: color,
-            ),
-          ),
+          Text('$count', style: AppTextStyles.cardValue.copyWith(color: color)),
         ],
       ),
     );

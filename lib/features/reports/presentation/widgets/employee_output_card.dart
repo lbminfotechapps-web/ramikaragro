@@ -1,3 +1,4 @@
+import 'package:solufine/core/theme/typography/app_text_styles.dart';
 import 'package:flutter/material.dart';
 import 'package:solufine/core/theme/app_theme_context.dart';
 
@@ -118,9 +119,7 @@ class EmployeeOutputCard extends StatelessWidget {
               child: Text(
                 value,
                 textAlign: isName ? TextAlign.left : TextAlign.center,
-                style: TextStyle(
-                  fontSize: 12,
-                  fontWeight: FontWeight.w600,
+                style: AppTextStyles.buttonSmall.copyWith(
                   color: isName ? context.primaryColor : context.cardTextColor,
                 ),
               ),
@@ -150,8 +149,7 @@ class EmployeeOutputCard extends StatelessWidget {
       child: Text(
         value,
         textAlign: isName ? TextAlign.left : TextAlign.center,
-        style: TextStyle(
-          fontSize: 12,
+        style: AppTextStyles.buttonSmall.copyWith(
           fontWeight: isHeader ? FontWeight.w800 : FontWeight.w600,
           color: isHeader ? context.primaryColor : context.cardTextColor,
         ),

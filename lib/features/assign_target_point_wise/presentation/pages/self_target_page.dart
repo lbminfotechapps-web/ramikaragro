@@ -7,6 +7,7 @@ import 'package:solufine/core/di/self_target_di.dart';
 import 'package:solufine/core/router/app_router.dart';
 import 'package:solufine/core/secure_storage/secure_storage.dart';
 import 'package:solufine/core/theme/app_theme_context.dart';
+import 'package:solufine/core/theme/typography/app_text_styles.dart';
 import 'package:solufine/core/utility/widgets/custom_appbar.dart';
 
 import 'package:solufine/features/assign_target_point_wise/domain/entities/target_group_entity.dart';
@@ -292,10 +293,8 @@ class _SelfTargetPageState extends State<SelfTargetPage> {
           content: Text(
             message,
 
-            style: TextStyle(
+            style: AppTextStyles.button.copyWith(
               color: context.appColors.onError,
-
-              fontWeight: FontWeight.w600,
             ),
           ),
         ),
@@ -356,11 +355,7 @@ class _SelfTargetPageState extends State<SelfTargetPage> {
 
                 textAlign: TextAlign.center,
 
-                style: TextStyle(
-                  fontSize: 18,
-
-                  fontWeight: FontWeight.w800,
-
+                style: AppTextStyles.sectionTitle.copyWith(
                   color: context.primaryTextColor,
                 ),
               ),
@@ -372,9 +367,7 @@ class _SelfTargetPageState extends State<SelfTargetPage> {
 
                 textAlign: TextAlign.center,
 
-                style: TextStyle(
-                  fontSize: 12,
-
+                style: AppTextStyles.bodySmall.copyWith(
                   height: 1.4,
 
                   color: context.secondaryTextColor,
@@ -457,11 +450,7 @@ class _SelfTargetPageState extends State<SelfTargetPage> {
                     ),
                   ),
 
-                  child: Text(
-                    'Done',
-
-                    style: TextStyle(fontWeight: FontWeight.w700),
-                  ),
+                  child: Text('Done', style: AppTextStyles.button),
                 ),
               ),
             ],
@@ -539,9 +528,7 @@ class _SelfTargetPageState extends State<SelfTargetPage> {
                   Text(
                     'Target Already Added',
                     textAlign: TextAlign.center,
-                    style: TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.w800,
+                    style: AppTextStyles.headingLarge.copyWith(
                       color: context.primaryTextColor,
                     ),
                   ),
@@ -552,11 +539,9 @@ class _SelfTargetPageState extends State<SelfTargetPage> {
                   Text(
                     message,
                     textAlign: TextAlign.center,
-                    style: TextStyle(
-                      fontSize: 13,
+                    style: AppTextStyles.bodyMedium.copyWith(
                       height: 1.5,
                       color: context.secondaryTextColor,
-                      fontWeight: FontWeight.w500,
                     ),
                   ),
 
@@ -577,17 +562,14 @@ class _SelfTargetPageState extends State<SelfTargetPage> {
                           borderRadius: BorderRadius.circular(14),
                         ),
                       ),
-                      child: const Row(
+                      child: Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           Icon(Icons.refresh_rounded, size: 19),
                           SizedBox(width: 7),
                           Text(
                             'Try Next Month',
-                            style: TextStyle(
-                              fontSize: 14,
-                              fontWeight: FontWeight.w800,
-                            ),
+                            style: AppTextStyles.labelLarge,
                           ),
                         ],
                       ),
@@ -787,12 +769,8 @@ class _SelfTargetPageState extends State<SelfTargetPage> {
                 Text(
                   'Self Target',
 
-                  style: TextStyle(
+                  style: AppTextStyles.cardTitle.copyWith(
                     color: context.onPrimaryColor,
-
-                    fontSize: 16,
-
-                    fontWeight: FontWeight.w800,
                   ),
                 ),
 
@@ -801,9 +779,8 @@ class _SelfTargetPageState extends State<SelfTargetPage> {
                 Text(
                   'Review group points and assign your monthly target.',
 
-                  style: TextStyle(
+                  style: AppTextStyles.caption.copyWith(
                     color: context.onPrimaryColor.withValues(alpha: 0.7),
-                    fontSize: 9.5,
                   ),
                 ),
               ],
@@ -862,7 +839,7 @@ class _SelfTargetPageState extends State<SelfTargetPage> {
                 width: 34,
 
                 decoration: BoxDecoration(
-                  color: context.appColors.primaryContainer,
+                  color: context.primaryColor.withAlpha(150),
 
                   borderRadius: BorderRadius.circular(10),
                 ),
@@ -872,7 +849,7 @@ class _SelfTargetPageState extends State<SelfTargetPage> {
 
                   size: 18,
 
-                  color:  context.backgroundColor,
+                  color: context.backgroundColor,
                 ),
               ),
 
@@ -886,11 +863,7 @@ class _SelfTargetPageState extends State<SelfTargetPage> {
                     Text(
                       'Product Groups',
 
-                      style: TextStyle(
-                        fontSize: 14,
-
-                        fontWeight: FontWeight.w800,
-
+                      style: AppTextStyles.labelLarge.copyWith(
                         color: context.primaryTextColor,
                       ),
                     ),
@@ -898,8 +871,7 @@ class _SelfTargetPageState extends State<SelfTargetPage> {
                     Text(
                       'Group-wise point details',
 
-                      style: TextStyle(
-                        fontSize: 9,
+                      style: AppTextStyles.labelSmall.copyWith(
                         color: context.secondaryTextColor,
                       ),
                     ),
@@ -911,7 +883,7 @@ class _SelfTargetPageState extends State<SelfTargetPage> {
                 padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 5),
 
                 decoration: BoxDecoration(
-                  color: context.appColors.primaryContainer,
+                  color: context.primaryColor.withAlpha(150),
 
                   borderRadius: BorderRadius.circular(20),
                 ),
@@ -920,12 +892,8 @@ class _SelfTargetPageState extends State<SelfTargetPage> {
                   //'${_formatPoint(totalPoints)} Amt/Pts',
                   'Amt/Pts',
 
-                  style: TextStyle(
-                    fontSize: 10,
-
-                    fontWeight: FontWeight.w800,
-
-                    color:  context.backgroundColor,
+                  style: AppTextStyles.badge.copyWith(
+                    color: context.backgroundColor,
                   ),
                 ),
               ),
@@ -985,12 +953,8 @@ class _SelfTargetPageState extends State<SelfTargetPage> {
             child: Text(
               group.groupType,
 
-              style: TextStyle(
+              style: AppTextStyles.cardTitle.copyWith(
                 color: context.onPrimaryColor,
-
-                fontSize: 16,
-
-                fontWeight: FontWeight.w900,
               ),
             ),
           ),
@@ -1008,11 +972,7 @@ class _SelfTargetPageState extends State<SelfTargetPage> {
                 Text(
                   '${group.groupType}',
 
-                  style: TextStyle(
-                    fontSize: 12.5,
-
-                    fontWeight: FontWeight.w700,
-
+                  style: AppTextStyles.labelLarge.copyWith(
                     color: context.primaryTextColor,
                   ),
                 ),
@@ -1029,7 +989,7 @@ class _SelfTargetPageState extends State<SelfTargetPage> {
             padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 6),
 
             decoration: BoxDecoration(
-              color: context.appColors.primaryContainer,
+              color:context.primaryColor.withAlpha(150),
 
               borderRadius: BorderRadius.circular(10),
             ),
@@ -1041,11 +1001,7 @@ class _SelfTargetPageState extends State<SelfTargetPage> {
                 Text(
                   _formatPoint(group.groupPointsValue),
 
-                  style: TextStyle(
-                    fontSize: 13,
-
-                    fontWeight: FontWeight.w900,
-
+                  style: AppTextStyles.labelLarge.copyWith(
                     color: context.backgroundColor,
                   ),
                 ),
@@ -1080,7 +1036,7 @@ class _SelfTargetPageState extends State<SelfTargetPage> {
             width: 38,
 
             decoration: BoxDecoration(
-              color: context.appColors.primaryContainer,
+              color: context.primaryColor.withAlpha(150),
 
               borderRadius: BorderRadius.circular(11),
             ),
@@ -1103,17 +1059,12 @@ class _SelfTargetPageState extends State<SelfTargetPage> {
               crossAxisAlignment: CrossAxisAlignment.start,
 
               children: [
-                Text(
-                  'Target Month',
-
-                  style: TextStyle(fontSize: 12.5, fontWeight: FontWeight.w800),
-                ),
+                Text('Target Month', style: AppTextStyles.labelLarge),
 
                 Text(
                   'Select month',
 
-                  style: TextStyle(
-                    fontSize: 8.5,
+                  style: AppTextStyles.helperText.copyWith(
                     color: context.secondaryTextColor,
                   ),
                 ),
@@ -1129,7 +1080,9 @@ class _SelfTargetPageState extends State<SelfTargetPage> {
             child: DropdownButtonFormField<TargetMonth>(
               value: selectedMonth,
               dropdownColor: context.cardBackgroundColor,
-              style: TextStyle(color: context.primaryTextColor),
+              style: AppTextStyles.input.copyWith(
+                color: context.primaryTextColor,
+              ),
 
               isExpanded: true,
 
@@ -1179,7 +1132,7 @@ class _SelfTargetPageState extends State<SelfTargetPage> {
 
                     overflow: TextOverflow.ellipsis,
 
-                    style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600),
+                    style: AppTextStyles.labelSmall,
                   ),
                 );
               }).toList(),
@@ -1211,7 +1164,7 @@ class _SelfTargetPageState extends State<SelfTargetPage> {
       padding: const EdgeInsets.all(12),
 
       decoration: BoxDecoration(
-        color: context.appColors.primaryContainer,
+        color: context.primaryColor.withAlpha(150),
 
         borderRadius: BorderRadius.circular(16),
 
@@ -1226,7 +1179,7 @@ class _SelfTargetPageState extends State<SelfTargetPage> {
 
             decoration: BoxDecoration(
               color: context.primaryColor,
-border: Border.all(color:  context.backgroundColor,),
+              border: Border.all(color: context.backgroundColor),
               borderRadius: BorderRadius.circular(11),
             ),
 
@@ -1249,12 +1202,8 @@ border: Border.all(color:  context.backgroundColor,),
                 Text(
                   'Enter Your Point',
 
-                  style: TextStyle(
-                    fontSize: 12.5,
-
-                    fontWeight: FontWeight.w800,
-
-                    color:  context.backgroundColor,
+                  style: AppTextStyles.labelLarge.copyWith(
+                    color: context.backgroundColor,
                   ),
                 ),
 
@@ -1263,9 +1212,8 @@ border: Border.all(color:  context.backgroundColor,),
                 Text(
                   'Monthly target',
 
-                  style: TextStyle(
-                    fontSize: 8.5,
-                    color: context.secondaryTextColor,
+                  style: AppTextStyles.helperText.copyWith(
+                    color: context.backgroundColor,
                   ),
                 ),
               ],
@@ -1292,11 +1240,7 @@ border: Border.all(color:  context.backgroundColor,),
 
               textAlign: TextAlign.center,
 
-              style: TextStyle(
-                fontSize: 15,
-
-                fontWeight: FontWeight.w800,
-
+              style: AppTextStyles.input.copyWith(
                 color: context.primaryTextColor,
               ),
 
@@ -1305,12 +1249,8 @@ border: Border.all(color:  context.backgroundColor,),
 
                 suffixText: 'Pts',
 
-                suffixStyle: TextStyle(
-                  fontSize: 9,
-
+                suffixStyle: AppTextStyles.labelSmall.copyWith(
                   color: context.primaryColor,
-
-                  fontWeight: FontWeight.w700,
                 ),
 
                 filled: true,
@@ -1378,11 +1318,7 @@ border: Border.all(color:  context.backgroundColor,),
           Text(
             'No product groups available',
 
-            style: TextStyle(
-              fontSize: 10.5,
-
-              fontWeight: FontWeight.w600,
-
+            style: AppTextStyles.labelSmall.copyWith(
               color: context.secondaryTextColor,
             ),
           ),
@@ -1456,7 +1392,7 @@ border: Border.all(color:  context.backgroundColor,),
                       color: context.onPrimaryColor,
                     ),
                   )
-                : const Row(
+                : Row(
                     mainAxisAlignment: MainAxisAlignment.center,
 
                     children: [
@@ -1464,15 +1400,7 @@ border: Border.all(color:  context.backgroundColor,),
 
                       SizedBox(width: 7),
 
-                      Text(
-                        'Submit Target',
-
-                        style: TextStyle(
-                          fontSize: 13.5,
-
-                          fontWeight: FontWeight.w800,
-                        ),
-                      ),
+                      Text('Submit Target', style: AppTextStyles.button),
                     ],
                   ),
           ),

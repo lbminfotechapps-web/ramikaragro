@@ -1,3 +1,4 @@
+import 'package:solufine/core/theme/typography/app_text_styles.dart';
 import 'package:solufine/core/theme/app_theme_context.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil_plus/flutter_screenutil_plus.dart';
@@ -37,9 +38,7 @@ class DealerSearchField extends StatelessWidget {
           children: [
             Text(
               'Dealer *',
-              style: TextStyle(
-                fontSize: 13.sp,
-                fontWeight: FontWeight.w700,
+              style: AppTextStyles.labelLarge.copyWith(
                 color: context.primaryTextColor,
               ),
             ),
@@ -50,16 +49,13 @@ class DealerSearchField extends StatelessWidget {
               controller: controller,
               onChanged: onChanged,
               textCapitalization: TextCapitalization.words,
-              style: TextStyle(
-                fontSize: 14.sp,
-                fontWeight: FontWeight.w600,
+              style: AppTextStyles.input.copyWith(
                 color: context.primaryTextColor,
               ),
               decoration: InputDecoration(
                 hintText: 'Type dealer name...',
-                hintStyle: TextStyle(
+                hintStyle: AppTextStyles.inputHint.copyWith(
                   color: context.secondaryTextColor,
-                  fontSize: 13.sp,
                 ),
                 prefixIcon: Icon(
                   Icons.search_rounded,
@@ -174,9 +170,7 @@ class DealerSearchField extends StatelessWidget {
                                     dealer.name,
                                     maxLines: 1,
                                     overflow: TextOverflow.ellipsis,
-                                    style: TextStyle(
-                                      fontSize: 13.sp,
-                                      fontWeight: FontWeight.w800,
+                                    style: AppTextStyles.labelLarge.copyWith(
                                       color: context.primaryTextColor,
                                     ),
                                   ),
@@ -185,8 +179,7 @@ class DealerSearchField extends StatelessWidget {
                                     SizedBox(height: 3.h),
                                     Text(
                                       dealer.mobile,
-                                      style: TextStyle(
-                                        fontSize: 11.sp,
+                                      style: AppTextStyles.caption.copyWith(
                                         color: context.secondaryTextColor,
                                       ),
                                     ),
