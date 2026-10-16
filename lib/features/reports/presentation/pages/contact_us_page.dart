@@ -199,21 +199,9 @@ class ContactUsPage extends StatelessWidget {
         width: double.infinity,
 
         decoration: BoxDecoration(
-          color: context.cardBackgroundColor,
+          color: Colors.transparent,
 
           borderRadius: BorderRadius.circular(24),
-
-          boxShadow: [
-            BoxShadow(
-              color: Theme.of(context).shadowColor.withOpacity(0.06),
-
-              blurRadius: 20,
-
-              spreadRadius: 1,
-
-              offset: const Offset(0, 6),
-            ),
-          ],
         ),
 
         clipBehavior: Clip.antiAlias,
@@ -222,7 +210,12 @@ class ContactUsPage extends StatelessWidget {
           children: [
             _buildSectionHeader(context),
 
-            Expanded(child: OrganizationWebView(html: html)),
+            Expanded(
+              child: OrganizationWebView(
+                html: html,
+                removeHtmlBackground: true,
+              ),
+            ),
           ],
         ),
       ),
@@ -240,7 +233,7 @@ class ContactUsPage extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
 
       decoration: BoxDecoration(
-        color: context.primaryColor.withOpacity(0.06),
+        color: Colors.transparent,
 
         border: Border(
           bottom: BorderSide(color: context.primaryColor.withOpacity(0.08)),
