@@ -10,6 +10,7 @@ import 'package:solufine/features/consultant_doctors/presentation/pages/consulta
 import 'package:solufine/features/consultant_doctors/presentation/pages/consultant_list_page.dart';
 import 'package:solufine/features/growth_report/presentation/bloc/growth_report_bloc.dart';
 import 'package:solufine/features/growth_report/presentation/pages/growth_report_page.dart';
+import 'package:solufine/features/plotmesure/plot_measurement_page.dart';
 import 'package:solufine/features/quickchartreport/presentation/bloc/gallerybloc.dart'
     as quick_chart;
 import 'package:solufine/core/utility/widgets/bottom_navigation.dart';
@@ -118,6 +119,7 @@ class AppRouter {
   static const String empActivityReport = '/empActivityReport';
   static const String empOutputReport = '/empOutputReport';
   static const String visitSummaryReport = '/visitSummaryReport';
+  static const String plotmeasurement = '/plotmeasurement';
 
   static const String aboutUs = '/aboutUs';
   static const String changePassword = '/changePassword';
@@ -213,6 +215,11 @@ class AppRouter {
         },
       ),
 
+      GoRoute(
+        path: '/plotmeasurement',
+        name: 'plotmeasurement',
+        builder: (context, state) => const PlotMeasurementPage(),
+      ),
       GoRoute(
         path: addStock,
         name: 'addStock',
@@ -544,65 +551,48 @@ class AppRouter {
         },
       ),
 
+      // ============================================================
+      // CONSULTANT DOCTOR LIST
+      // ============================================================
+      GoRoute(
+        path: AppRouter.consultantDoctors,
+        name: 'consultantDoctors',
+        builder: (context, state) {
+          return BlocProvider<ConsultantBloc>(
+            create: (_) => sl<ConsultantBloc>()..add(const LoadConsultants()),
+            child: const ConsultantListPage(),
+          );
+        },
+      ),
 
-     
+      // ============================================================
+      // ADD / EDIT CONSULTANT DOCTOR
+      // ============================================================
+      GoRoute(
+        path: AppRouter.consultantDoctorForm,
+        name: 'consultantDoctorForm',
+        builder: (context, state) {
+          final ConsultantDoctor? consultant = state.extra is ConsultantDoctor
+              ? state.extra as ConsultantDoctor
+              : null;
 
-      
-          // ============================================================
-          // CONSULTANT DOCTOR LIST
-          // ============================================================
+          return MultiBlocProvider(
+            providers: [
+              // CONSULTANT BLOC
+              BlocProvider<ConsultantBloc>(create: (_) => sl<ConsultantBloc>()),
 
-          GoRoute(
-            path: AppRouter.consultantDoctors,
-            name: 'consultantDoctors',
-            builder: (context, state) {
-              return BlocProvider<ConsultantBloc>(
-                create: (_) => sl<ConsultantBloc>()
-                  ..add(const LoadConsultants()),
-                child: const ConsultantListPage(),
-              );
-            },
-          ),
+              // STATE / DISTRICT / TALUKA CUBIT
+              BlocProvider<LocationCubit>(create: (_) => sl<LocationCubit>()),
+            ],
+            child: ConsultantFormPage(
+              consultant: consultant,
 
-          // ============================================================
-          // ADD / EDIT CONSULTANT DOCTOR
-          // ============================================================
-
-          GoRoute(
-            path: AppRouter.consultantDoctorForm,
-            name: 'consultantDoctorForm',
-            builder: (context, state) {
-              final ConsultantDoctor? consultant =
-                  state.extra is ConsultantDoctor
-                      ? state.extra as ConsultantDoctor
-                      : null;
-
-              return MultiBlocProvider(
-                providers: [
-                  // CONSULTANT BLOC
-                  BlocProvider<ConsultantBloc>(
-                    create: (_) => sl<ConsultantBloc>(),
-                  ),
-
-                  // STATE / DISTRICT / TALUKA CUBIT
-                  BlocProvider<LocationCubit>(
-                    create: (_) => sl<LocationCubit>(),
-                  ),
-                ],
-                child: ConsultantFormPage(
-                  consultant: consultant,
-
-                  // Testing with the API's supplied user_id.
-                  userId: '4',
-                ),
-              );
-            },
-          ),
-
-
-
-
-
+              // Testing with the API's supplied user_id.
+              userId: '4',
+            ),
+          );
+        },
+      ),
 
       GoRoute(
         path: monthlyPerformanceReport,

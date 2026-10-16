@@ -64,6 +64,9 @@
             android:resource="@xml/flutter_image_picker_file_paths" />
     </provider>
 
+<meta-data
+    android:name="com.google.android.geo.API_KEY"
+    android:value="AIzaSyD2UNpkxmpoO6b597wQ-Z05-wJhWbLiAC8"/>
     
     </application>
     <!-- Required to query activities that can process text, see:

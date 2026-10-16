@@ -527,7 +527,15 @@ class _QuickAccessSectionState extends State<QuickAccessSection> {
             Row(
               children: [
                 Expanded(
-                  child: Text('Menu', style: AppTextStyles.headingLarge),
+                  child: InkWell(
+                    onTap: () {
+                      debugPrint('Menu clicked');
+
+                      // Add your navigation or function here
+                      context.push('/plotmeasurement');
+                    },
+                    child: Text('Menu', style: AppTextStyles.headingLarge),
+                  ),
                 ),
 
                 SizedBox(width: 10.w),
@@ -743,9 +751,12 @@ class _QuickAccessSectionState extends State<QuickAccessSection> {
         crossAxisCount: crossAxisCount,
         crossAxisSpacing: 12.w,
         mainAxisSpacing: 10.h,
-        
+
         mainAxisExtent:
-            72.w + 4.h + MediaQuery.textScalerOf(context).scale(9.sp) * 2.8 + 10.h,
+            72.w +
+            4.h +
+            MediaQuery.textScalerOf(context).scale(9.sp) * 2.8 +
+            10.h,
       ),
       itemBuilder: (context, index) {
         if (showMore && index == menus.length) {
@@ -915,27 +926,15 @@ class _QuickAccessSectionState extends State<QuickAccessSection> {
       context.push('/growthReport');
     } else if (menu.menuId == '87') {
       context.push('/monthlyVisitPerformanceReport');
-    } 
-    
-    else if (menu.menuId == '91') {
+    } else if (menu.menuId == '91') {
       context.push('/consultantDoctors');
-    }
-    
-    else if (menu.menuId == '57' ||
+    } else if (menu.menuId == '57' ||
         menu.menuId == '63' ||
         menu.menuId == '32') {
       final userData = await SecureStorage.instance.getUserData();
       final userId = userData?['user_id']?.toString();
 
       if (!context.mounted) return;
-
-      // if (userId == null || userId.isEmpty) {
-      //   ScaffoldMessenger.of(context).showSnackBar(
-      //     const SnackBar(content: Text('User information is not available')),
-      //   );
-      //   return;
-      // }
-
       final route = switch (menu.menuId) {
         '57' => '/visitSummaryReport',
         '63' => '/empOutputReport',
