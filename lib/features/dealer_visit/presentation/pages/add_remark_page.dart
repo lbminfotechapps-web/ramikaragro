@@ -1,3 +1,4 @@
+import 'package:solufine/core/theme/typography/app_text_styles.dart';
 import 'dart:convert';
 import 'dart:io';
 import 'package:flutter_screenutil_plus/flutter_screenutil_plus.dart';
@@ -189,7 +190,7 @@ class _AddDealerVisitPageState extends State<AddDealerVisitPage> {
       ..hideCurrentSnackBar()
       ..showSnackBar(
         SnackBar(
-          content: Text(message),
+          content: Text(message, style: AppTextStyles.body),
           behavior: SnackBarBehavior.floating,
           margin: const EdgeInsets.all(16),
           shape: RoundedRectangleBorder(
@@ -602,15 +603,7 @@ class _AddDealerVisitPageState extends State<AddDealerVisitPage> {
 
             const SizedBox(width: 8),
 
-            Expanded(
-              child: Text(
-                message,
-                style: const TextStyle(
-                  fontSize: 13,
-                  fontWeight: FontWeight.w500,
-                ),
-              ),
-            ),
+            Expanded(child: Text(message, style: AppTextStyles.bodyMedium)),
           ],
         ),
 
@@ -700,6 +693,7 @@ class _AddDealerVisitPageState extends State<AddDealerVisitPage> {
                     Expanded(
                       child: Text(
                         state.errorMessage ?? 'Unable to add dealer visit',
+                        style: AppTextStyles.body,
                       ),
                     ),
                   ],
@@ -764,17 +758,14 @@ class _AddDealerVisitPageState extends State<AddDealerVisitPage> {
               title: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text(
+                  Text(
                     'Dealer Visit',
-                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
+                    style: AppTextStyles.sectionTitle,
                   ),
 
                   Text(
                     'Add follow-up details',
-                    style: TextStyle(
-                      fontSize: 11,
-                      color: Colors.white.withOpacity(.75),
-                    ),
+                    style: AppTextStyles.caption.copyWith(color: Colors.white.withOpacity(.75)),
                   ),
                 ],
               ),
@@ -940,10 +931,8 @@ class _AddDealerVisitPageState extends State<AddDealerVisitPage> {
                   children: [
                     Text(
                       'Follow-up History',
-                      style: TextStyle(
+                      style: AppTextStyles.listTitle.copyWith(
                         color: context.cardTextColor,
-                        fontSize: 14,
-                        fontWeight: FontWeight.w700,
                       ),
                     ),
 
@@ -951,9 +940,8 @@ class _AddDealerVisitPageState extends State<AddDealerVisitPage> {
 
                     Text(
                       'View previous dealer follow-ups',
-                      style: TextStyle(
+                      style: AppTextStyles.caption.copyWith(
                         color: context.secondaryTextColor,
-                        fontSize: 11.5,
                       ),
                     ),
                   ],
@@ -1039,9 +1027,7 @@ class _AddDealerVisitPageState extends State<AddDealerVisitPage> {
                 Text(
                   'DEALER',
 
-                  style: TextStyle(
-                    fontSize: 8,
-                    fontWeight: FontWeight.w700,
+                  style: AppTextStyles.badge.copyWith(
                     letterSpacing: .8,
                     color: context.secondaryTextColor,
                   ),
@@ -1056,11 +1042,7 @@ class _AddDealerVisitPageState extends State<AddDealerVisitPage> {
 
                   overflow: TextOverflow.ellipsis,
 
-                  style: TextStyle(
-                    fontSize: 15,
-                    fontWeight: FontWeight.w700,
-                    color: textColor,
-                  ),
+                  style: AppTextStyles.labelLarge.copyWith(color: textColor),
                 ),
               ],
             ),
@@ -1078,11 +1060,7 @@ class _AddDealerVisitPageState extends State<AddDealerVisitPage> {
             child: Text(
               'VISIT',
 
-              style: TextStyle(
-                fontSize: 9,
-                fontWeight: FontWeight.w800,
-                color: primaryGreen,
-              ),
+              style: AppTextStyles.labelSmall.copyWith(color: primaryGreen),
             ),
           ),
         ],
@@ -1101,15 +1079,7 @@ class _AddDealerVisitPageState extends State<AddDealerVisitPage> {
 
         const SizedBox(width: 6),
 
-        Text(
-          title,
-
-          style: TextStyle(
-            fontSize: 14,
-            fontWeight: FontWeight.w700,
-            color: textColor,
-          ),
-        ),
+        Text(title, style: AppTextStyles.listTitle.copyWith(color: textColor)),
       ],
     );
   }
@@ -1178,9 +1148,7 @@ class _AddDealerVisitPageState extends State<AddDealerVisitPage> {
                   Text(
                     'NEXT FOLLOW-UP DATE *',
 
-                    style: TextStyle(
-                      fontSize: 8,
-                      fontWeight: FontWeight.w700,
+                    style: AppTextStyles.badge.copyWith(
                       letterSpacing: .6,
                       color: context.secondaryTextColor,
                     ),
@@ -1193,10 +1161,7 @@ class _AddDealerVisitPageState extends State<AddDealerVisitPage> {
                         ? DateFormat('dd MMM yyyy').format(nextFollowUpDate!)
                         : 'Select follow-up date',
 
-                    style: TextStyle(
-                      fontSize: 12,
-                      fontWeight: FontWeight.w600,
-
+                    style: AppTextStyles.label.copyWith(
                       color: selected ? textColor : context.secondaryTextColor,
                     ),
                   ),
@@ -1242,9 +1207,7 @@ class _AddDealerVisitPageState extends State<AddDealerVisitPage> {
               children: [
                 Text(
                   'PURPOSE TYPE *',
-                  style: TextStyle(
-                    fontSize: 8,
-                    fontWeight: FontWeight.w700,
+                  style: AppTextStyles.badge.copyWith(
                     letterSpacing: .6,
                     color: context.secondaryTextColor,
                   ),
@@ -1263,9 +1226,7 @@ class _AddDealerVisitPageState extends State<AddDealerVisitPage> {
 
                       hint: Text(
                         'Select Purpose',
-                        style: TextStyle(
-                          fontSize: 12,
-                          fontWeight: FontWeight.w600,
+                        style: AppTextStyles.label.copyWith(
                           color: context.secondaryTextColor,
                         ),
                       ),
@@ -1276,11 +1237,7 @@ class _AddDealerVisitPageState extends State<AddDealerVisitPage> {
                         color: primaryGreen,
                       ),
 
-                      style: TextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w600,
-                        color: textColor,
-                      ),
+                      style: AppTextStyles.label.copyWith(color: textColor),
 
                       onChanged: purposes.isEmpty
                           ? null
@@ -1296,6 +1253,7 @@ class _AddDealerVisitPageState extends State<AddDealerVisitPage> {
                           child: Text(
                             purpose.purpose,
                             overflow: TextOverflow.ellipsis,
+                            style: AppTextStyles.body,
                           ),
                         );
                       }).toList(),
@@ -1355,9 +1313,7 @@ class _AddDealerVisitPageState extends State<AddDealerVisitPage> {
                 Text(
                   label,
 
-                  style: TextStyle(
-                    fontSize: 8,
-                    fontWeight: FontWeight.w700,
+                  style: AppTextStyles.badge.copyWith(
                     letterSpacing: .6,
                     color: context.secondaryTextColor,
                   ),
@@ -1380,11 +1336,7 @@ class _AddDealerVisitPageState extends State<AddDealerVisitPage> {
                         color: primaryGreen,
                       ),
 
-                      style: TextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w600,
-                        color: textColor,
-                      ),
+                      style: AppTextStyles.label.copyWith(color: textColor),
 
                       onChanged: onChanged,
 
@@ -1392,7 +1344,7 @@ class _AddDealerVisitPageState extends State<AddDealerVisitPage> {
                         return DropdownMenuItem<String>(
                           value: item,
 
-                          child: Text(item),
+                          child: Text(item, style: AppTextStyles.body),
                         );
                       }).toList(),
                     ),
@@ -1429,12 +1381,14 @@ class _AddDealerVisitPageState extends State<AddDealerVisitPage> {
 
         textCapitalization: TextCapitalization.sentences,
 
-        style: TextStyle(fontSize: 13, color: textColor),
+        style: AppTextStyles.input.copyWith(color: textColor),
 
         decoration: InputDecoration(
           hintText: 'Enter visit remark...',
 
-          hintStyle: TextStyle(color: context.secondaryTextColor, fontSize: 12),
+          hintStyle: AppTextStyles.inputHint.copyWith(
+            color: context.secondaryTextColor,
+          ),
 
           prefixIcon: Padding(
             padding: EdgeInsets.only(left: 11, right: 3, top: 9),
@@ -1506,7 +1460,7 @@ class _AddDealerVisitPageState extends State<AddDealerVisitPage> {
                   child: Text(
                     lastRemarks[index],
 
-                    style: TextStyle(fontSize: 11, color: textColor),
+                    style: AppTextStyles.caption.copyWith(color: textColor),
                   ),
                 ),
               ],
@@ -1595,10 +1549,8 @@ class _AddDealerVisitPageState extends State<AddDealerVisitPage> {
 
             Text(
               'Add Image',
-              style: TextStyle(
+              style: AppTextStyles.cardTitle.copyWith(
                 color: context.cardTextColor,
-                fontSize: 14.5,
-                fontWeight: FontWeight.w700,
               ),
             ),
 
@@ -1606,7 +1558,9 @@ class _AddDealerVisitPageState extends State<AddDealerVisitPage> {
 
             Text(
               'Tap to take a photo',
-              style: TextStyle(color: context.secondaryTextColor, fontSize: 12),
+              style: AppTextStyles.bodySmall.copyWith(
+                color: context.secondaryTextColor,
+              ),
             ),
           ],
         ),
@@ -1709,7 +1663,7 @@ class _AddDealerVisitPageState extends State<AddDealerVisitPage> {
                       color: context.onPrimaryColor,
                     ),
                   )
-                : const Row(
+                : Row(
                     mainAxisAlignment: MainAxisAlignment.center,
 
                     children: [
@@ -1720,9 +1674,7 @@ class _AddDealerVisitPageState extends State<AddDealerVisitPage> {
                       Text(
                         'SUBMIT VISIT',
 
-                        style: TextStyle(
-                          fontSize: 13,
-                          fontWeight: FontWeight.w800,
+                        style: AppTextStyles.labelLarge.copyWith(
                           letterSpacing: .3,
                         ),
                       ),
@@ -1901,10 +1853,8 @@ class _FollowupHistoryDialogState extends State<_FollowupHistoryDialog> {
               children: [
                 Text(
                   'Dealer Follow-up History',
-                  style: TextStyle(
+                  style: AppTextStyles.dialogTitle.copyWith(
                     color: context.onPrimaryColor,
-                    fontSize: 17,
-                    fontWeight: FontWeight.w700,
                   ),
                 ),
 
@@ -2016,10 +1966,8 @@ class _FollowupHistoryDialogState extends State<_FollowupHistoryDialog> {
 
                             Text(
                               item.followupDate,
-                              style: TextStyle(
+                              style: AppTextStyles.labelSmall.copyWith(
                                 color: context.primaryColor,
-                                fontSize: 11.5,
-                                fontWeight: FontWeight.w700,
                               ),
                             ),
                           ],
@@ -2050,10 +1998,8 @@ class _FollowupHistoryDialogState extends State<_FollowupHistoryDialog> {
 
                             Text(
                               item.followupTime,
-                              style: TextStyle(
+                              style: AppTextStyles.labelSmall.copyWith(
                                 color: context.secondaryTextColor,
-                                fontSize: 11.5,
-                                fontWeight: FontWeight.w600,
                               ),
                             ),
                           ],
@@ -2075,10 +2021,8 @@ class _FollowupHistoryDialogState extends State<_FollowupHistoryDialog> {
                 ),
                 child: Text(
                   '$index',
-                  style: TextStyle(
+                  style: AppTextStyles.labelSmall.copyWith(
                     color: context.primaryColor,
-                    fontSize: 11,
-                    fontWeight: FontWeight.w700,
                   ),
                 ),
               ),
@@ -2134,10 +2078,8 @@ class _FollowupHistoryDialogState extends State<_FollowupHistoryDialog> {
 
                     Text(
                       'Remark',
-                      style: TextStyle(
+                      style: AppTextStyles.label.copyWith(
                         color: context.primaryColor,
-                        fontSize: 12,
-                        fontWeight: FontWeight.w700,
                       ),
                     ),
                   ],
@@ -2149,9 +2091,8 @@ class _FollowupHistoryDialogState extends State<_FollowupHistoryDialog> {
                   item.followupRemark.isEmpty
                       ? 'No remark'
                       : item.followupRemark,
-                  style: TextStyle(
+                  style: AppTextStyles.bodySmall.copyWith(
                     color: context.cardTextColor,
-                    fontSize: 12.5,
                     height: 1.4,
                   ),
                 ),
@@ -2193,10 +2134,8 @@ class _FollowupHistoryDialogState extends State<_FollowupHistoryDialog> {
             children: [
               Text(
                 title,
-                style: TextStyle(
+                style: AppTextStyles.caption.copyWith(
                   color: context.secondaryTextColor,
-                  fontSize: 11,
-                  fontWeight: FontWeight.w500,
                 ),
               ),
 
@@ -2204,10 +2143,8 @@ class _FollowupHistoryDialogState extends State<_FollowupHistoryDialog> {
 
               Text(
                 value,
-                style: TextStyle(
+                style: AppTextStyles.labelLarge.copyWith(
                   color: context.cardTextColor,
-                  fontSize: 13,
-                  fontWeight: FontWeight.w600,
                 ),
               ),
             ],
@@ -2238,10 +2175,8 @@ class _FollowupHistoryDialogState extends State<_FollowupHistoryDialog> {
 
             Text(
               'No Follow-up History',
-              style: TextStyle(
+              style: AppTextStyles.labelLarge.copyWith(
                 color: context.cardTextColor,
-                fontSize: 15,
-                fontWeight: FontWeight.w700,
               ),
             ),
 
@@ -2250,7 +2185,9 @@ class _FollowupHistoryDialogState extends State<_FollowupHistoryDialog> {
             Text(
               'No previous follow-ups found for this dealer.',
               textAlign: TextAlign.center,
-              style: TextStyle(color: context.secondaryTextColor, fontSize: 12),
+              style: AppTextStyles.bodySmall.copyWith(
+                color: context.secondaryTextColor,
+              ),
             ),
           ],
         ),

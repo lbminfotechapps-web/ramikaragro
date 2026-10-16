@@ -551,30 +551,62 @@ class AppRouter {
         },
       ),
 
-      // ============================================================
-      // CONSULTANT DOCTOR LIST
-      // ============================================================
-      GoRoute(
-        path: AppRouter.consultantDoctors,
-        name: 'consultantDoctors',
-        builder: (context, state) {
-          return BlocProvider<ConsultantBloc>(
-            create: (_) => sl<ConsultantBloc>()..add(const LoadConsultants()),
-            child: const ConsultantListPage(),
-          );
-        },
-      ),
+    
 
-      // ============================================================
-      // ADD / EDIT CONSULTANT DOCTOR
-      // ============================================================
-      GoRoute(
-        path: AppRouter.consultantDoctorForm,
-        name: 'consultantDoctorForm',
-        builder: (context, state) {
-          final ConsultantDoctor? consultant = state.extra is ConsultantDoctor
-              ? state.extra as ConsultantDoctor
-              : null;
+     
+
+      
+          // ============================================================
+          // CONSULTANT DOCTOR LIST
+          // ============================================================
+
+            GoRoute(
+            path: AppRouter.consultantDoctors,
+            name: 'consultantDoctors',
+            builder: (context, state) {
+              return BlocProvider<ConsultantBloc>(
+                create: (_) => sl<ConsultantBloc>(),
+                child: const ConsultantListPage(),
+              );
+            },
+          ),
+
+          // ============================================================
+          // ADD / EDIT CONSULTANT DOCTOR
+          // ============================================================
+
+          GoRoute(
+            path: AppRouter.consultantDoctorForm,
+            name: 'consultantDoctorForm',
+            builder: (context, state) {
+              final ConsultantDoctor? consultant =
+                  state.extra is ConsultantDoctor
+                      ? state.extra as ConsultantDoctor
+                      : null;
+
+              return MultiBlocProvider(
+                providers: [
+                  // CONSULTANT BLOC
+                  BlocProvider<ConsultantBloc>(
+                    create: (_) => sl<ConsultantBloc>(),
+                  ),
+
+                  // STATE / DISTRICT / TALUKA CUBIT
+                  BlocProvider<LocationCubit>(
+                    create: (_) => sl<LocationCubit>(),
+                  ),
+                ],
+                child: ConsultantFormPage(
+                  consultant: consultant,
+
+                  // Testing with the API's supplied user_id.
+                  userId: '4',
+                ),
+              );
+            },
+          ),
+
+
 
           return MultiBlocProvider(
             providers: [

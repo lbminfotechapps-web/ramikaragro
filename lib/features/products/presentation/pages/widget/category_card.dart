@@ -1,8 +1,8 @@
+import 'package:solufine/core/theme/typography/app_text_styles.dart';
 import 'package:solufine/core/theme/app_dynamic_colors.dart';
 import 'package:solufine/core/api_constant/api_client.dart';
 import 'package:solufine/features/products/domain/entity/fertilizer_category_entity.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil_plus/flutter_screenutil_plus.dart';
 
 class CategoryCard extends StatelessWidget {
   final FertilizerCategoryEntity category;
@@ -16,12 +16,14 @@ class CategoryCard extends StatelessWidget {
     required this.index,
   });
 
-
   @override
   Widget build(BuildContext context) {
     return Card(
       elevation: 2,
-      color: Color.alphaBlend(context.appPrimary.withValues(alpha: 0.06), context.appCard),
+      color: Color.alphaBlend(
+        context.appPrimary.withValues(alpha: 0.06),
+        context.appCard,
+      ),
       clipBehavior: Clip.antiAlias,
       margin: EdgeInsets.zero,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
@@ -44,9 +46,7 @@ class CategoryCard extends StatelessWidget {
                 textAlign: TextAlign.center,
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
-                style: TextStyle(
-                  fontSize: 15,
-                  fontWeight: FontWeight.w700,
+                style: AppTextStyles.cardTitle.copyWith(
                   color: context.appOnCard,
                 ),
               ),
@@ -57,9 +57,7 @@ class CategoryCard extends StatelessWidget {
               Text(
                 '${category.products.length} Products',
                 textAlign: TextAlign.center,
-                style: TextStyle(
-                  fontSize: 12,
-                  fontWeight: FontWeight.w500,
+                style: AppTextStyles.bodySmall.copyWith(
                   color: context.appSubText,
                 ),
               ),
@@ -98,7 +96,11 @@ class CategoryCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(14),
       ),
       child: Center(
-        child: Icon(Icons.category_rounded, size: 60, color: context.appSubText),
+        child: Icon(
+          Icons.category_rounded,
+          size: 60,
+          color: context.appSubText,
+        ),
       ),
     );
   }

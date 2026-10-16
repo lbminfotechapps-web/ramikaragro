@@ -1,3 +1,4 @@
+import 'package:solufine/core/theme/typography/app_text_styles.dart';
 import 'dart:async';
 
 import 'package:solufine/core/router/app_router.dart';
@@ -146,9 +147,11 @@ class _SalesReturnHistoryPageState extends State<SalesReturnHistoryPage> {
 
   Future<void> _selectToDate() async {
     if (fromDateController.text.isEmpty) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(const SnackBar(content: Text('Please Enter From Date.!')));
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Please Enter From Date.!', style: AppTextStyles.body),
+        ),
+      );
 
       return;
     }
@@ -197,7 +200,10 @@ class _SalesReturnHistoryPageState extends State<SalesReturnHistoryPage> {
           if (state.status == SalesReturnHistoryStatus.failure) {
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
-                content: Text(state.errorMessage ?? 'Something went wrong'),
+                content: Text(
+                  state.errorMessage ?? 'Something went wrong',
+                  style: AppTextStyles.body,
+                ),
               ),
             );
           }
@@ -238,8 +244,7 @@ class _SalesReturnHistoryPageState extends State<SalesReturnHistoryPage> {
                       child: Center(
                         child: Text(
                           'No Record Found',
-                          style: TextStyle(
-                            fontWeight: FontWeight.w600,
+                          style: AppTextStyles.labelLarge.copyWith(
                             color: context.secondaryTextColor,
                           ),
                         ),
@@ -315,10 +320,8 @@ class _SalesReturnHistoryPageState extends State<SalesReturnHistoryPage> {
                     Expanded(
                       child: Text(
                         'Search & Filter',
-                        style: TextStyle(
-                          fontSize: 15.sp,
+                        style: AppTextStyles.labelLarge.copyWith(
                           color: context.primaryTextColor,
-                          fontWeight: FontWeight.w600,
                         ),
                       ),
                     ),
@@ -400,7 +403,7 @@ class _SalesReturnHistoryPageState extends State<SalesReturnHistoryPage> {
       builder: (context) {
         return AlertDialog(
           backgroundColor: context.cardBackgroundColor,
-          title: const Text('Sales Return Details'),
+          title: Text('Sales Return Details', style: AppTextStyles.dialogTitle),
           content: SizedBox(
             width: double.maxFinite,
             child: SingleChildScrollView(
@@ -413,9 +416,14 @@ class _SalesReturnHistoryPageState extends State<SalesReturnHistoryPage> {
                   const Divider(),
                   const SizedBox(height: 4),
                   if (item.salesReturnDetails.isEmpty)
-                    const Padding(
-                      padding: EdgeInsets.symmetric(vertical: 16),
-                      child: Center(child: Text('No product details found')),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                      child: Center(
+                        child: Text(
+                          'No product details found',
+                          style: AppTextStyles.body,
+                        ),
+                      ),
                     )
                   else
                     ...item.salesReturnDetails.map(
@@ -445,7 +453,7 @@ class _SalesReturnHistoryPageState extends State<SalesReturnHistoryPage> {
           actions: [
             TextButton(
               onPressed: () => Navigator.of(context).pop(),
-              child: const Text('Close'),
+              child: Text('Close', style: AppTextStyles.button),
             ),
           ],
         );
@@ -463,17 +471,18 @@ class _SalesReturnHistoryPageState extends State<SalesReturnHistoryPage> {
             width: 125,
             child: Text(
               label,
-              style: TextStyle(
-                fontWeight: FontWeight.w600,
+              style: AppTextStyles.labelLarge.copyWith(
                 color: context.primaryTextColor,
               ),
             ),
           ),
-          const Text(' : '),
+          Text(' : ', style: AppTextStyles.body),
           Expanded(
             child: Text(
               value.isEmpty ? '-' : value,
-              style: TextStyle(color: context.primaryTextColor),
+              style: AppTextStyles.body.copyWith(
+                color: context.primaryTextColor,
+              ),
             ),
           ),
         ],

@@ -1,3 +1,4 @@
+import 'package:solufine/core/theme/typography/app_text_styles.dart';
 import 'package:solufine/core/theme/app_theme_context.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -35,8 +36,7 @@ class LeaveDateSelector extends StatelessWidget {
             children: [
               Text(
                 label,
-                style: TextStyle(
-                  fontSize: 12,
+                style: AppTextStyles.bodySmall.copyWith(
                   color: context.secondaryTextColor,
                 ),
               ),
@@ -54,10 +54,7 @@ class LeaveDateSelector extends StatelessWidget {
                   const SizedBox(width: 7),
 
                   Expanded(
-                    child: Text(
-                      formattedDate,
-                      style: const TextStyle(fontWeight: FontWeight.w600),
-                    ),
+                    child: Text(formattedDate, style: AppTextStyles.labelLarge),
                   ),
                 ],
               ),

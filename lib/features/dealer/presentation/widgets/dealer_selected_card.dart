@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:solufine/core/theme/typography/app_text_styles.dart';
 import 'package:flutter_screenutil_plus/flutter_screenutil_plus.dart';
 import 'package:solufine/core/theme/app_dynamic_colors.dart';
 import 'package:solufine/features/place_order/domain/entities/dealer_entity.dart';
@@ -12,11 +13,9 @@ class DealerSelectorCard extends StatelessWidget {
 
   final ValueChanged<String> onChanged;
 
-  final ValueChanged<DealerEntity>
-      onDealerSelected;
+  final ValueChanged<DealerEntity> onDealerSelected;
 
-  final VoidCallback?
-      onClearSelected;
+  final VoidCallback? onClearSelected;
 
   const DealerSelectorCard({
     super.key,
@@ -39,19 +38,13 @@ class DealerSelectorCard extends StatelessWidget {
         padding: EdgeInsets.all(13.w),
         decoration: BoxDecoration(
           color: context.appCard,
-          borderRadius:
-              BorderRadius.circular(18.r),
-          border: Border.all(
-            color: context.appPrimary
-                .withOpacity(0.18),
-          ),
+          borderRadius: BorderRadius.circular(18.r),
+          border: Border.all(color: context.appPrimary.withOpacity(0.18)),
           boxShadow: [
             BoxShadow(
-              color: Colors.black
-                  .withOpacity(0.025),
+              color: Colors.black.withOpacity(0.025),
               blurRadius: 10,
-              offset:
-                  const Offset(0, 3),
+              offset: const Offset(0, 3),
             ),
           ],
         ),
@@ -60,19 +53,16 @@ class DealerSelectorCard extends StatelessWidget {
             Container(
               width: 45.w,
               height: 45.w,
-              decoration:
-                  BoxDecoration(
-                color:
-                    Color.alphaBlend(context.appPrimary.withValues(alpha: 0.1), context.appCard),
-                borderRadius:
-                    BorderRadius.circular(
-                        13.r),
+              decoration: BoxDecoration(
+                color: Color.alphaBlend(
+                  context.appPrimary.withValues(alpha: 0.1),
+                  context.appCard,
+                ),
+                borderRadius: BorderRadius.circular(13.r),
               ),
               child: Icon(
-                Icons
-                    .storefront_rounded,
-                color:
-                    context.appPrimary,
+                Icons.storefront_rounded,
+                color: context.appPrimary,
                 size: 22.sp,
               ),
             ),
@@ -81,16 +71,11 @@ class DealerSelectorCard extends StatelessWidget {
 
             Expanded(
               child: Column(
-                crossAxisAlignment:
-                    CrossAxisAlignment
-                        .start,
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
                     'DEALER',
-                    style: TextStyle(
-                      fontSize: 9.sp,
-                      fontWeight:
-                          FontWeight.w700,
+                    style: AppTextStyles.labelSmall.copyWith(
                       letterSpacing: 0.8,
                       color: context.appSubText,
                     ),
@@ -101,28 +86,17 @@ class DealerSelectorCard extends StatelessWidget {
                   Text(
                     selectedDealer!.name,
                     maxLines: 1,
-                    overflow:
-                        TextOverflow
-                            .ellipsis,
-                    style: TextStyle(
-                      fontSize: 14.sp,
-                      fontWeight:
-                          FontWeight.w800,
+                    overflow: TextOverflow.ellipsis,
+                    style: AppTextStyles.listTitle.copyWith(
                       color: context.appOnCard,
                     ),
                   ),
 
-                  if (selectedDealer!
-                      .mobile
-                      .isNotEmpty) ...[
-                    SizedBox(
-                        height: 2.h),
+                  if (selectedDealer!.mobile.isNotEmpty) ...[
+                    SizedBox(height: 2.h),
                     Text(
-                      selectedDealer!
-                          .mobile,
-                      style:
-                          TextStyle(
-                        fontSize: 10.sp,
+                      selectedDealer!.mobile,
+                      style: AppTextStyles.helperText.copyWith(
                         color: context.appSubText,
                       ),
                     ),
@@ -134,22 +108,19 @@ class DealerSelectorCard extends StatelessWidget {
             Container(
               width: 36.w,
               height: 36.w,
-              decoration:
-                  BoxDecoration(
-                color: Color.alphaBlend(context.appPrimary.withValues(alpha: 0.1), context.appCard),
-                borderRadius:
-                    BorderRadius.circular(
-                        10.r),
+              decoration: BoxDecoration(
+                color: Color.alphaBlend(
+                  context.appPrimary.withValues(alpha: 0.1),
+                  context.appCard,
+                ),
+                borderRadius: BorderRadius.circular(10.r),
               ),
               child: IconButton(
-                padding:
-                    EdgeInsets.zero,
-                onPressed:
-                    onClearSelected,
+                padding: EdgeInsets.zero,
+                onPressed: onClearSelected,
                 icon: Icon(
                   Icons.edit_rounded,
-                  color:
-                      context.appPrimary,
+                  color: context.appPrimary,
                   size: 18.sp,
                 ),
               ),
@@ -163,49 +134,33 @@ class DealerSelectorCard extends StatelessWidget {
     // DEALER SEARCH
     // =======================================================================
 
-    return ValueListenableBuilder<
-        TextEditingValue>(
-      valueListenable:
-          controller,
-      builder:
-          (context, value, child) {
-        final query =
-            value.text.trim();
+    return ValueListenableBuilder<TextEditingValue>(
+      valueListenable: controller,
+      builder: (context, value, child) {
+        final query = value.text.trim();
 
-        final bool showDealers =
-            query.isNotEmpty &&
-                dealers.isNotEmpty;
+        final bool showDealers = query.isNotEmpty && dealers.isNotEmpty;
 
         return Column(
-          crossAxisAlignment:
-              CrossAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Row(
               children: [
                 Icon(
-                  Icons
-                      .storefront_outlined,
+                  Icons.storefront_outlined,
                   size: 17.sp,
-                  color:
-                      context.appPrimary,
+                  color: context.appPrimary,
                 ),
                 SizedBox(width: 6.w),
                 Text(
                   'Select Dealer',
-                  style: TextStyle(
-                    fontSize: 13.sp,
-                    fontWeight:
-                        FontWeight.w700,
+                  style: AppTextStyles.labelLarge.copyWith(
                     color: context.appOnCard,
                   ),
                 ),
                 Text(
                   ' *',
-                  style: TextStyle(
-                    color:
-                        context.appError,
-                    fontSize: 13.sp,
-                  ),
+                  style: AppTextStyles.body.copyWith(color: context.appError),
                 ),
               ],
             ),
@@ -213,25 +168,19 @@ class DealerSelectorCard extends StatelessWidget {
             SizedBox(height: 7.h),
 
             Container(
-              decoration:
-                  BoxDecoration(
+              decoration: BoxDecoration(
                 color: context.appCard,
-                borderRadius:
-                    BorderRadius.circular(
-                        14.r),
-                border: Border.all(
-                  color: context.appBorder,
-                ),
+                borderRadius: BorderRadius.circular(14.r),
+                border: Border.all(color: context.appBorder),
               ),
 
-
               child: TextField(
+                style: AppTextStyles.input,
                 controller: controller,
                 onChanged: onChanged,
                 decoration: InputDecoration(
                   hintText: 'Search dealer name or mobile...',
-                  hintStyle: TextStyle(
-                    fontSize: 12.sp,
+                  hintStyle: AppTextStyles.inputHint.copyWith(
                     color: context.appSubText,
                   ),
 
@@ -247,19 +196,14 @@ class DealerSelectorCard extends StatelessWidget {
                             controller.clear();
                             onChanged('');
                           },
-                          icon: Icon(
-                            Icons.close_rounded,
-                            size: 18.sp,
-                          ),
+                          icon: Icon(Icons.close_rounded, size: 18.sp),
                         )
                       : null,
 
                   helperText:
                       '    Search after 4 characters. After searching wait for 2 sec..!',
-                  helperStyle: TextStyle(
-                    fontSize: 9.sp,
+                  helperStyle: AppTextStyles.helperText.copyWith(
                     color: context.appError,
-                    fontWeight: FontWeight.w500,
                   ),
                   helperMaxLines: 1,
 
@@ -267,164 +211,91 @@ class DealerSelectorCard extends StatelessWidget {
                   enabledBorder: InputBorder.none,
                   focusedBorder: InputBorder.none,
 
-                  contentPadding: EdgeInsets.symmetric(
-                    vertical: 14.h,
-                  ),
+                  contentPadding: EdgeInsets.symmetric(vertical: 14.h),
                 ),
               ),
-
-
             ),
 
             if (showDealers) ...[
               SizedBox(height: 6.h),
 
               Container(
-                constraints:
-                    BoxConstraints(
-                  maxHeight: 220.h,
-                ),
-                decoration:
-                    BoxDecoration(
+                constraints: BoxConstraints(maxHeight: 220.h),
+                decoration: BoxDecoration(
                   color: context.appCard,
-                  borderRadius:
-                      BorderRadius
-                          .circular(
-                              14.r),
-                  border: Border.all(
-                    color: context.appBorder,
-                  ),
+                  borderRadius: BorderRadius.circular(14.r),
+                  border: Border.all(color: context.appBorder),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black
-                          .withOpacity(
-                              0.06),
+                      color: Colors.black.withOpacity(0.06),
                       blurRadius: 16,
-                      offset:
-                          const Offset(
-                              0, 5),
+                      offset: const Offset(0, 5),
                     ),
                   ],
                 ),
-                child:
-                    ListView.separated(
+                child: ListView.separated(
                   shrinkWrap: true,
-                  padding:
-                      EdgeInsets
-                          .symmetric(
-                    vertical: 5.h,
-                  ),
-                  itemCount:
-                      dealers.length,
-                  separatorBuilder:
-                      (_, __) =>
-                          Divider(
-                    height: 1,
-                    color:
-                        context.appInputBackground,
-                  ),
-                  itemBuilder:
-                      (context, index) {
-                    final dealer =
-                        dealers[index];
+                  padding: EdgeInsets.symmetric(vertical: 5.h),
+                  itemCount: dealers.length,
+                  separatorBuilder: (_, __) =>
+                      Divider(height: 1, color: context.appInputBackground),
+                  itemBuilder: (context, index) {
+                    final dealer = dealers[index];
 
                     return InkWell(
                       onTap: () {
-                        controller.text =
-                            dealer.name;
+                        controller.text = dealer.name;
 
-                        controller
-                                .selection =
-                            TextSelection
-                                .collapsed(
-                          offset:
-                              dealer
-                                  .name
-                                  .length,
+                        controller.selection = TextSelection.collapsed(
+                          offset: dealer.name.length,
                         );
 
-                        onDealerSelected(
-                          dealer,
-                        );
+                        onDealerSelected(dealer);
 
-                        FocusScope.of(
-                                context)
-                            .unfocus();
+                        FocusScope.of(context).unfocus();
                       },
                       child: Padding(
-                        padding:
-                            EdgeInsets
-                                .all(
-                                    11.w),
+                        padding: EdgeInsets.all(11.w),
                         child: Row(
                           children: [
                             Container(
-                              width:
-                                  39.w,
-                              height:
-                                  39.w,
-                              decoration:
-                                  BoxDecoration(
-                                color:
-                                    Color.alphaBlend(context.appPrimary.withValues(alpha: 0.1), context.appCard),
-                                borderRadius:
-                                    BorderRadius
-                                        .circular(
-                                            11.r),
+                              width: 39.w,
+                              height: 39.w,
+                              decoration: BoxDecoration(
+                                color: Color.alphaBlend(
+                                  context.appPrimary.withValues(alpha: 0.1),
+                                  context.appCard,
+                                ),
+                                borderRadius: BorderRadius.circular(11.r),
                               ),
-                              child:
-                                  Icon(
-                                Icons
-                                    .storefront_rounded,
-                                color:
-                                    context.appPrimary,
-                                size:
-                                    19.sp,
+                              child: Icon(
+                                Icons.storefront_rounded,
+                                color: context.appPrimary,
+                                size: 19.sp,
                               ),
                             ),
-                            SizedBox(
-                                width:
-                                    10.w),
+                            SizedBox(width: 10.w),
                             Expanded(
-                              child:
-                                  Column(
-                                crossAxisAlignment:
-                                    CrossAxisAlignment
-                                        .start,
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Text(
-                                    dealer
-                                        .name,
-                                    style:
-                                        TextStyle(
-                                      fontSize:
-                                          12.5.sp,
-                                      fontWeight:
-                                          FontWeight.w700,
-                                    ),
+                                    dealer.name,
+                                    style: AppTextStyles.listTitle,
                                   ),
-                                  if (dealer
-                                      .mobile
-                                      .isNotEmpty)
+                                  if (dealer.mobile.isNotEmpty)
                                     Text(
-                                      dealer
-                                          .mobile,
-                                      style:
-                                          TextStyle(
-                                        fontSize:
-                                            10.5.sp,
-                                        color:
-                                            context.appSubText,
+                                      dealer.mobile,
+                                      style: AppTextStyles.caption.copyWith(
+                                        color: context.appSubText,
                                       ),
                                     ),
                                 ],
                               ),
                             ),
                             Icon(
-                              Icons
-                                  .arrow_forward_ios_rounded,
-                              size:
-                                  12.sp,
+                              Icons.arrow_forward_ios_rounded,
+                              size: 12.sp,
                               color: context.appSubText,
                             ),
                           ],

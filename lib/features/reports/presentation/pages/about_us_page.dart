@@ -1,3 +1,4 @@
+import 'package:solufine/core/theme/typography/app_text_styles.dart';
 import 'package:solufine/core/router/app_router.dart';
 import 'package:solufine/core/theme/app_theme_context.dart';
 import 'package:solufine/core/utility/widgets/custom_appbar.dart';
@@ -35,9 +36,7 @@ class AboutUsPage extends StatelessWidget {
             },
           ),
           title: 'About Us',
-          titleStyle: TextStyle(
-            fontSize: 22,
-            fontWeight: FontWeight.w600,
+          titleStyle: AppTextStyles.appBarTitle.copyWith(
             color: context.onPrimaryColor,
           ),
         ),
@@ -115,10 +114,8 @@ class AboutUsPage extends StatelessWidget {
 
           Text(
             'About Our Organization',
-            style: TextStyle(
+            style: AppTextStyles.headingMedium.copyWith(
               color: context.onPrimaryColor,
-              fontSize: 17,
-              fontWeight: FontWeight.w600,
             ),
           ),
 
@@ -126,9 +123,8 @@ class AboutUsPage extends StatelessWidget {
 
           Text(
             'Learn more about us',
-            style: TextStyle(
+            style: AppTextStyles.cardSubtitle.copyWith(
               color: context.onPrimaryColor.withOpacity(0.75),
-              fontSize: 13,
             ),
           ),
         ],
@@ -183,7 +179,9 @@ class AboutUsPage extends StatelessWidget {
         children: [
           _buildContentHeader(context),
 
-          Expanded(child: OrganizationWebView(html: html)),
+          Expanded(
+            child: OrganizationWebView(html: html, removeHtmlBackground: true),
+          ),
         ],
       ),
     );
@@ -228,9 +226,7 @@ class AboutUsPage extends StatelessWidget {
 
           Text(
             'Loading About Us...',
-            style: TextStyle(
-              fontSize: 15,
-              fontWeight: FontWeight.w600,
+            style: AppTextStyles.cardTitle.copyWith(
               color: context.primaryTextColor,
             ),
           ),
@@ -239,7 +235,9 @@ class AboutUsPage extends StatelessWidget {
 
           Text(
             'Please wait a moment',
-            style: TextStyle(fontSize: 12, color: context.secondaryTextColor),
+            style: AppTextStyles.bodySmall.copyWith(
+              color: context.secondaryTextColor,
+            ),
           ),
         ],
       ),
@@ -276,9 +274,7 @@ class AboutUsPage extends StatelessWidget {
             Text(
               'Unable to Load About Us',
               textAlign: TextAlign.center,
-              style: TextStyle(
-                fontSize: 19,
-                fontWeight: FontWeight.w700,
+              style: AppTextStyles.headingLarge.copyWith(
                 color: context.primaryTextColor,
               ),
             ),
@@ -289,8 +285,7 @@ class AboutUsPage extends StatelessWidget {
               'Something went wrong while loading '
               'the organization information.',
               textAlign: TextAlign.center,
-              style: TextStyle(
-                fontSize: 13,
+              style: AppTextStyles.cardSubtitle.copyWith(
                 height: 1.5,
                 color: context.secondaryTextColor,
               ),
@@ -311,8 +306,7 @@ class AboutUsPage extends StatelessWidget {
               child: Text(
                 message,
                 textAlign: TextAlign.center,
-                style: TextStyle(
-                  fontSize: 11,
+                style: AppTextStyles.caption.copyWith(
                   height: 1.4,
                   color: context.appColors.error,
                 ),
@@ -330,10 +324,7 @@ class AboutUsPage extends StatelessWidget {
                   );
                 },
                 icon: const Icon(Icons.refresh_rounded, size: 20),
-                label: const Text(
-                  'Try Again',
-                  style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
-                ),
+                label: Text('Try Again', style: AppTextStyles.listTitle),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: context.primaryColor,
                   foregroundColor: context.onPrimaryColor,

@@ -1,3 +1,4 @@
+import 'package:solufine/core/theme/typography/app_text_styles.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -46,11 +47,7 @@ class ContactUsPage extends StatelessWidget {
 
           title: 'Contact Us',
 
-          titleStyle: TextStyle(
-            fontSize: 22,
-
-            fontWeight: FontWeight.w600,
-
+          titleStyle: AppTextStyles.appBarTitle.copyWith(
             color: context.onPrimaryColor,
           ),
         ),
@@ -171,12 +168,8 @@ class ContactUsPage extends StatelessWidget {
           Text(
             'Get In Touch',
 
-            style: TextStyle(
+            style: AppTextStyles.headingMedium.copyWith(
               color: context.onPrimaryColor,
-
-              fontSize: 17,
-
-              fontWeight: FontWeight.w600,
             ),
           ),
 
@@ -185,10 +178,8 @@ class ContactUsPage extends StatelessWidget {
           Text(
             'We are here to help you',
 
-            style: TextStyle(
+            style: AppTextStyles.cardSubtitle.copyWith(
               color: context.onPrimaryColor.withOpacity(0.75),
-
-              fontSize: 13,
             ),
           ),
         ],
@@ -208,21 +199,9 @@ class ContactUsPage extends StatelessWidget {
         width: double.infinity,
 
         decoration: BoxDecoration(
-          color: context.cardBackgroundColor,
+          color: Colors.transparent,
 
           borderRadius: BorderRadius.circular(24),
-
-          boxShadow: [
-            BoxShadow(
-              color: Theme.of(context).shadowColor.withOpacity(0.06),
-
-              blurRadius: 20,
-
-              spreadRadius: 1,
-
-              offset: const Offset(0, 6),
-            ),
-          ],
         ),
 
         clipBehavior: Clip.antiAlias,
@@ -231,7 +210,12 @@ class ContactUsPage extends StatelessWidget {
           children: [
             _buildSectionHeader(context),
 
-            Expanded(child: OrganizationWebView(html: html)),
+            Expanded(
+              child: OrganizationWebView(
+                html: html,
+                removeHtmlBackground: true,
+              ),
+            ),
           ],
         ),
       ),
@@ -249,7 +233,7 @@ class ContactUsPage extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
 
       decoration: BoxDecoration(
-        color: context.primaryColor.withOpacity(0.06),
+        color: Colors.transparent,
 
         border: Border(
           bottom: BorderSide(color: context.primaryColor.withOpacity(0.08)),
@@ -288,12 +272,8 @@ class ContactUsPage extends StatelessWidget {
                 Text(
                   'Contact Information',
 
-                  style: TextStyle(
+                  style: AppTextStyles.listTitle.copyWith(
                     color: context.cardTextColor,
-
-                    fontSize: 14,
-
-                    fontWeight: FontWeight.w700,
                   ),
                 ),
 
@@ -302,10 +282,8 @@ class ContactUsPage extends StatelessWidget {
                 Text(
                   'Tap phone, email or website to open',
 
-                  style: TextStyle(
+                  style: AppTextStyles.caption.copyWith(
                     color: context.secondaryTextColor,
-
-                    fontSize: 10.5,
                   ),
                 ),
               ],
@@ -351,11 +329,7 @@ class ContactUsPage extends StatelessWidget {
           Text(
             'Loading Contact Information...',
 
-            style: TextStyle(
-              fontSize: 15,
-
-              fontWeight: FontWeight.w600,
-
+            style: AppTextStyles.cardTitle.copyWith(
               color: context.primaryTextColor,
             ),
           ),
@@ -365,7 +339,9 @@ class ContactUsPage extends StatelessWidget {
           Text(
             'Please wait a moment',
 
-            style: TextStyle(fontSize: 12, color: context.secondaryTextColor),
+            style: AppTextStyles.bodySmall.copyWith(
+              color: context.secondaryTextColor,
+            ),
           ),
         ],
       ),
@@ -412,11 +388,7 @@ class ContactUsPage extends StatelessWidget {
 
               textAlign: TextAlign.center,
 
-              style: TextStyle(
-                fontSize: 19,
-
-                fontWeight: FontWeight.w700,
-
+              style: AppTextStyles.headingLarge.copyWith(
                 color: context.primaryTextColor,
               ),
             ),
@@ -429,9 +401,7 @@ class ContactUsPage extends StatelessWidget {
 
               textAlign: TextAlign.center,
 
-              style: TextStyle(
-                fontSize: 13,
-
+              style: AppTextStyles.cardSubtitle.copyWith(
                 height: 1.5,
 
                 color: context.secondaryTextColor,
@@ -460,9 +430,7 @@ class ContactUsPage extends StatelessWidget {
 
                 textAlign: TextAlign.center,
 
-                style: TextStyle(
-                  fontSize: 11,
-
+                style: AppTextStyles.caption.copyWith(
                   height: 1.4,
 
                   color: context.appColors.error,
@@ -484,11 +452,7 @@ class ContactUsPage extends StatelessWidget {
 
                 icon: Icon(Icons.refresh_rounded, size: 20),
 
-                label: Text(
-                  'Try Again',
-
-                  style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
-                ),
+                label: Text('Try Again', style: AppTextStyles.listTitle),
 
                 style: ElevatedButton.styleFrom(
                   backgroundColor: context.primaryColor,

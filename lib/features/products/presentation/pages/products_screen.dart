@@ -1,3 +1,4 @@
+import 'package:solufine/core/theme/typography/app_text_styles.dart';
 import 'package:solufine/core/utility/tab_refresh.dart';
 import 'package:solufine/core/router/app_router.dart';
 import 'package:solufine/core/theme/app_dynamic_colors.dart';
@@ -69,7 +70,7 @@ import 'package:go_router/go_router.dart';
 //                 builder: (context, state) {
 //                   if (state.productStatus == ProductStatus.loading) {
 //                     return const CustomLoader(
-           
+
 //             );
 //                   }
 
@@ -161,13 +162,10 @@ import 'package:go_router/go_router.dart';
 // }
 
 class ProductCategoryScreen extends StatefulWidget {
-  const ProductCategoryScreen({
-    super.key,
-  });
+  const ProductCategoryScreen({super.key});
 
   @override
-  State<ProductCategoryScreen> createState() =>
-      _ProductCategoryScreenState();
+  State<ProductCategoryScreen> createState() => _ProductCategoryScreenState();
 }
 
 class _ProductCategoryScreenState extends State<ProductCategoryScreen> {
@@ -180,9 +178,7 @@ class _ProductCategoryScreenState extends State<ProductCategoryScreen> {
     TabRefresh.products.addListener(_onTabRefresh);
 
     // Load categories
-    context.read<ProductBloc>().add(
-          const ProductListingEvent(''),
-        );
+    context.read<ProductBloc>().add(const ProductListingEvent(''));
   }
 
   @override
@@ -202,49 +198,36 @@ class _ProductCategoryScreenState extends State<ProductCategoryScreen> {
       _searchProducts(_searchController.text);
     }
   }
+
   void _searchProducts(String value) {
     final String query = value.trim();
 
     setState(() {});
 
-    context.read<ProductBloc>().add(
-          ProductNameListingEvent(query),
-        );
+    context.read<ProductBloc>().add(ProductNameListingEvent(query));
   }
 
   // ============================================================
   // CATEGORY -> PRODUCT LIST
   // ============================================================
 
-  void openProducts(
-    FertilizerCategoryEntity category,
-  ) {
-    context.push(
-      '/productList',
-      extra: category,
-    );
+  void openProducts(FertilizerCategoryEntity category) {
+    context.push('/productList', extra: category);
   }
 
   // ============================================================
   // SEARCH RESULT -> PRODUCT DETAILS
   // ============================================================
 
-  void _openSearchProduct(
-    ProductEntityy product,
-  ) {
-    debugPrint(
-      'OPEN SEARCH PRODUCT: ${product.productName}',
-    );
+  void _openSearchProduct(ProductEntityy product) {
+    debugPrint('OPEN SEARCH PRODUCT: ${product.productName}');
 
-    debugPrint(
-      'OPEN SEARCH PRODUCT ID: ${product.productId}',
-    );
+    debugPrint('OPEN SEARCH PRODUCT ID: ${product.productId}');
 
     // Convert search API ProductEntity
     // to FertilizerProductEntity because your existing
     // ProductDetails screen expects FertilizerProductEntity.
-    final FertilizerProductEntity fertilizerProduct =
-        FertilizerProductEntity(
+    final FertilizerProductEntity fertilizerProduct = FertilizerProductEntity(
       productId: product.productId,
       productName: product.productName,
       productPath: product.productPath,
@@ -264,14 +247,9 @@ class _ProductCategoryScreenState extends State<ProductCategoryScreen> {
     // Clear search before navigation
     _searchController.clear();
 
-    context.read<ProductBloc>().add(
-          const ProductNameListingEvent(''),
-        );
+    context.read<ProductBloc>().add(const ProductNameListingEvent(''));
 
-    context.push(
-      '/productDetails',
-      extra: fertilizerProduct,
-    );
+    context.push('/productDetails', extra: fertilizerProduct);
   }
 
   // ============================================================
@@ -281,77 +259,62 @@ class _ProductCategoryScreenState extends State<ProductCategoryScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-          // backgroundColor: Colors.white,
+      // backgroundColor: Colors.white,
       backgroundColor: context.appBackground,
       appBar: CustomAppBar(
         title: 'Product Category',
         showBackButton: true,
         onBackTap: () {
-          context.go(
-            AppRouter.home,
-          );
+          context.go(AppRouter.home);
         },
       ),
       body: Padding(
-        padding: const EdgeInsets.only(
-          left: 16,
-          right: 16,
-        ),
+        padding: const EdgeInsets.only(left: 16, right: 16),
         child: Column(
           children: [
             // ==================================================
             // SEARCH BAR
             // ==================================================
-
             _buildSearchBar(),
 
-            const SizedBox(
-              height: 4,
-            ),
+            const SizedBox(height: 4),
 
             // ==================================================
             // SEARCH RESULTS
             // ==================================================
-
             BlocBuilder<ProductBloc, ProductState>(
               builder: (context, state) {
-                return _buildSearchResults(
-                  state,
-                );
+                return _buildSearchResults(state);
               },
             ),
 
-            const SizedBox(
-              height: 8,
-            ),
+            const SizedBox(height: 8),
 
             // ==================================================
             // CATEGORY GRID
             // ==================================================
-
             Expanded(
               child: BlocBuilder<ProductBloc, ProductState>(
                 builder: (context, state) {
-                  final bool isSearching =
-                      _searchController.text.trim().isNotEmpty;
+                  final bool isSearching = _searchController.text
+                      .trim()
+                      .isNotEmpty;
 
                   if (!isSearching &&
                       state.productStatus == ProductStatus.loading) {
                     return CustomLoader(color: context.appPrimary);
                   }
 
-                  if (!isSearching &&
-                      state.fertilizerCategoryList.isEmpty) {
-                    return const Center(
+                  if (!isSearching && state.fertilizerCategoryList.isEmpty) {
+                    return Center(
                       child: Text(
                         'No categories found',
+                        style: AppTextStyles.body,
                       ),
                     );
                   }
 
-                  return _buildCategoryGrid(
-                    state.fertilizerCategoryList,
-                  );
+                  return _buildCategoryGrid(state.fertilizerCategoryList);
                 },
               ),
             ),
@@ -367,39 +330,32 @@ class _ProductCategoryScreenState extends State<ProductCategoryScreen> {
 
   Widget _buildSearchBar() {
     return Padding(
-      padding: const EdgeInsets.fromLTRB(
-        0,
-        12,
-        0,
-        4,
-      ),
+      padding: const EdgeInsets.fromLTRB(0, 12, 0, 4),
       child: TextField(
         controller: _searchController,
         onChanged: _searchProducts,
         textInputAction: TextInputAction.search,
-        style: TextStyle(color: context.appText),
+        style: AppTextStyles.input.copyWith(color: context.appText),
         decoration: InputDecoration(
           hintText: 'Search product...',
-          hintStyle: TextStyle(color: context.appSubText),
+          hintStyle: AppTextStyles.inputHint.copyWith(
+            color: context.appSubText,
+          ),
           prefixIconColor: context.appPrimary,
           suffixIconColor: context.appSubText,
-          prefixIcon: const Icon(
-            Icons.search_rounded,
-          ),
+          prefixIcon: const Icon(Icons.search_rounded),
           suffixIcon: _searchController.text.isNotEmpty
               ? IconButton(
                   onPressed: () {
                     _searchController.clear();
 
                     context.read<ProductBloc>().add(
-                          const ProductNameListingEvent(''),
-                        );
+                      const ProductNameListingEvent(''),
+                    );
 
                     setState(() {});
                   },
-                  icon: const Icon(
-                    Icons.close_rounded,
-                  ),
+                  icon: const Icon(Icons.close_rounded),
                 )
               : null,
           filled: true,
@@ -409,29 +365,16 @@ class _ProductCategoryScreenState extends State<ProductCategoryScreen> {
             vertical: 14,
           ),
           border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(
-              22,
-            ),
-            borderSide: BorderSide(
-              color: context.appBorder,
-            ),
+            borderRadius: BorderRadius.circular(22),
+            borderSide: BorderSide(color: context.appBorder),
           ),
           enabledBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(
-              22,
-            ),
-            borderSide: BorderSide(
-              color: context.appBorder,
-            ),
+            borderRadius: BorderRadius.circular(22),
+            borderSide: BorderSide(color: context.appBorder),
           ),
           focusedBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(
-              22,
-            ),
-            borderSide: BorderSide(
-              color: context.appPrimary,
-              width: 1.5,
-            ),
+            borderRadius: BorderRadius.circular(22),
+            borderSide: BorderSide(color: context.appPrimary, width: 1.5),
           ),
         ),
       ),
@@ -442,9 +385,7 @@ class _ProductCategoryScreenState extends State<ProductCategoryScreen> {
   // SEARCH RESULTS
   // ============================================================
 
-  Widget _buildSearchResults(
-    ProductState state,
-  ) {
+  Widget _buildSearchResults(ProductState state) {
     final String query = _searchController.text.trim();
 
     // ==========================================================
@@ -462,28 +403,18 @@ class _ProductCategoryScreenState extends State<ProductCategoryScreen> {
     if (state.productStatus == ProductStatus.productNameLoading) {
       return Container(
         width: double.infinity,
-        margin: const EdgeInsets.only(
-          top: 4,
-        ),
-        padding: const EdgeInsets.all(
-          14,
-        ),
+        margin: const EdgeInsets.only(top: 4),
+        padding: const EdgeInsets.all(14),
         decoration: _searchDecoration(),
-        child: const Row(
+        child: Row(
           children: [
             SizedBox(
               width: 20,
               height: 20,
-              child: CircularProgressIndicator(
-                strokeWidth: 2,
-              ),
+              child: CircularProgressIndicator(strokeWidth: 2),
             ),
-            SizedBox(
-              width: 12,
-            ),
-            Text(
-              'Searching products...',
-            ),
+            SizedBox(width: 12),
+            Text('Searching products...', style: AppTextStyles.body),
           ],
         ),
       );
@@ -496,18 +427,12 @@ class _ProductCategoryScreenState extends State<ProductCategoryScreen> {
     if (state.productStatus == ProductStatus.failure) {
       return Container(
         width: double.infinity,
-        margin: const EdgeInsets.only(
-          top: 4,
-        ),
-        padding: const EdgeInsets.all(
-          14,
-        ),
+        margin: const EdgeInsets.only(top: 4),
+        padding: const EdgeInsets.all(14),
         decoration: _searchDecoration(),
         child: Text(
           state.message,
-          style: TextStyle(
-            color: context.appError,
-          ),
+          style: AppTextStyles.body.copyWith(color: context.appError),
         ),
       );
     }
@@ -520,28 +445,17 @@ class _ProductCategoryScreenState extends State<ProductCategoryScreen> {
         state.productNames.isEmpty) {
       return Container(
         width: double.infinity,
-        margin: const EdgeInsets.only(
-          top: 4,
-        ),
-        padding: const EdgeInsets.all(
-          14,
-        ),
+        margin: const EdgeInsets.only(top: 4),
+        padding: const EdgeInsets.all(14),
         decoration: _searchDecoration(),
         child: Row(
           children: [
-            Icon(
-              Icons.search_off_rounded,
-              color: context.appSubText,
-            ),
-            const SizedBox(
-              width: 10,
-            ),
+            Icon(Icons.search_off_rounded, color: context.appSubText),
+            const SizedBox(width: 10),
             Expanded(
               child: Text(
                 'No product found for "$query"',
-                style: TextStyle(
-                  color: context.appSubText,
-                ),
+                style: AppTextStyles.body.copyWith(color: context.appSubText),
               ),
             ),
           ],
@@ -558,12 +472,8 @@ class _ProductCategoryScreenState extends State<ProductCategoryScreen> {
     // ==========================================================
 
     return Container(
-      constraints: const BoxConstraints(
-        maxHeight: 250,
-      ),
-      margin: const EdgeInsets.only(
-        top: 4,
-      ),
+      constraints: const BoxConstraints(maxHeight: 250),
+      margin: const EdgeInsets.only(top: 4),
       decoration: _searchDecoration(),
       clipBehavior: Clip.antiAlias,
       child: ListView.separated(
@@ -571,40 +481,28 @@ class _ProductCategoryScreenState extends State<ProductCategoryScreen> {
         shrinkWrap: true,
         itemCount: state.productNames.length,
         separatorBuilder: (context, index) {
-          return Divider(
-            height: 1,
-            color: context.appBorder,
-          );
+          return Divider(height: 1, color: context.appBorder);
         },
         itemBuilder: (context, index) {
-          final ProductEntityy product =
-              state.productNames[index];
+          final ProductEntityy product = state.productNames[index];
 
           return InkWell(
             onTap: () {
-              _openSearchProduct(
-                product,
-              );
+              _openSearchProduct(product);
             },
             child: Padding(
-              padding: const EdgeInsets.symmetric(
-                horizontal: 14,
-                vertical: 12,
-              ),
+              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
               child: Row(
                 children: [
                   // ============================================
                   // PRODUCT ICON
                   // ============================================
-
                   Container(
                     width: 42,
                     height: 42,
                     decoration: BoxDecoration(
                       color: context.appPrimary.withValues(alpha: 0.08),
-                      borderRadius: BorderRadius.circular(
-                        10,
-                      ),
+                      borderRadius: BorderRadius.circular(10),
                     ),
                     child: Icon(
                       Icons.inventory_2_outlined,
@@ -613,14 +511,11 @@ class _ProductCategoryScreenState extends State<ProductCategoryScreen> {
                     ),
                   ),
 
-                  const SizedBox(
-                    width: 12,
-                  ),
+                  const SizedBox(width: 12),
 
                   // ============================================
                   // PRODUCT NAME
                   // ============================================
-
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -629,21 +524,16 @@ class _ProductCategoryScreenState extends State<ProductCategoryScreen> {
                           product.productName,
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
-                          style: TextStyle(
-                            fontSize: 15,
-                            fontWeight: FontWeight.w600,
+                          style: AppTextStyles.cardTitle.copyWith(
                             color: context.appOnCard,
                           ),
                         ),
 
-                        const SizedBox(
-                          height: 2,
-                        ),
+                        const SizedBox(height: 2),
 
                         Text(
                           'View product details',
-                          style: TextStyle(
-                            fontSize: 12,
+                          style: AppTextStyles.bodySmall.copyWith(
                             color: context.appSubText,
                           ),
                         ),
@@ -651,11 +541,10 @@ class _ProductCategoryScreenState extends State<ProductCategoryScreen> {
                     ),
                   ),
 
-                  const SizedBox(
-                    width: 8,
-                  ),
+                  const SizedBox(width: 8),
 
-                  Icon(Icons.arrow_forward_ios_rounded,
+                  Icon(
+                    Icons.arrow_forward_ios_rounded,
                     size: 15,
                     color: context.appSubText,
                   ),
@@ -675,22 +564,13 @@ class _ProductCategoryScreenState extends State<ProductCategoryScreen> {
   BoxDecoration _searchDecoration() {
     return BoxDecoration(
       color: context.appCard,
-      borderRadius: BorderRadius.circular(
-        14,
-      ),
-      border: Border.all(
-        color: context.appBorder,
-      ),
+      borderRadius: BorderRadius.circular(14),
+      border: Border.all(color: context.appBorder),
       boxShadow: [
         BoxShadow(
-          color: Theme.of(context).colorScheme.shadow.withOpacity(
-            0.07,
-          ),
+          color: Theme.of(context).colorScheme.shadow.withOpacity(0.07),
           blurRadius: 12,
-          offset: const Offset(
-            0,
-            4,
-          ),
+          offset: const Offset(0, 4),
         ),
       ],
     );
@@ -700,17 +580,11 @@ class _ProductCategoryScreenState extends State<ProductCategoryScreen> {
   // CATEGORY GRID
   // ============================================================
 
-  Widget _buildCategoryGrid(
-    List<FertilizerCategoryEntity> categories,
-  ) {
+  Widget _buildCategoryGrid(List<FertilizerCategoryEntity> categories) {
     return GridView.builder(
-      padding: const EdgeInsets.only(
-        top: 8,
-        bottom: 16,
-      ),
+      padding: const EdgeInsets.only(top: 8, bottom: 16),
       itemCount: categories.length,
-      gridDelegate:
-          const SliverGridDelegateWithFixedCrossAxisCount(
+      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
         crossAxisCount: 2,
         crossAxisSpacing: 12,
         mainAxisSpacing: 12,
@@ -723,9 +597,7 @@ class _ProductCategoryScreenState extends State<ProductCategoryScreen> {
           category: category,
           index: index,
           onTap: () {
-            openProducts(
-              category,
-            );
+            openProducts(category);
           },
         );
       },

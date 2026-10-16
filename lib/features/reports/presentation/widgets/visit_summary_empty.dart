@@ -1,3 +1,4 @@
+import 'package:solufine/core/theme/typography/app_text_styles.dart';
 import 'package:flutter/material.dart';
 import 'package:solufine/core/theme/app_theme_context.dart';
 
@@ -33,9 +34,7 @@ class VisitSummaryEmpty extends StatelessWidget {
 
           Text(
             'No Visit Summary Found',
-            style: TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.w800,
+            style: AppTextStyles.cardTitle.copyWith(
               color: context.cardTextColor,
             ),
           ),
@@ -45,8 +44,7 @@ class VisitSummaryEmpty extends StatelessWidget {
           Text(
             'There are no visit records for the selected date range.',
             textAlign: TextAlign.center,
-            style: TextStyle(
-              fontSize: 12,
+            style: AppTextStyles.bodySmall.copyWith(
               color: context.secondaryTextColor,
               height: 1.4,
             ),

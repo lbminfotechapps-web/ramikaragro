@@ -1,3 +1,4 @@
+import 'package:solufine/core/theme/typography/app_text_styles.dart';
 import 'package:solufine/core/api_constant/api_client.dart';
 import 'package:solufine/core/theme/app_theme_context.dart';
 
@@ -130,17 +131,14 @@ class _ProductRateBottomSheetState extends State<ProductRateBottomSheet> {
               children: [
                 Text(
                   'Select Product Rate',
-                  style: TextStyle(
-                    fontSize: 16.sp,
-                    fontWeight: FontWeight.w800,
+                  style: AppTextStyles.cardTitle.copyWith(
                     color: context.primaryTextColor,
                   ),
                 ),
                 SizedBox(height: 1.h),
                 Text(
                   'Choose packing and price',
-                  style: TextStyle(
-                    fontSize: 10.sp,
+                  style: AppTextStyles.helperText.copyWith(
                     color: context.secondaryTextColor,
                   ),
                 ),
@@ -238,9 +236,7 @@ class _ProductRateBottomSheetState extends State<ProductRateBottomSheet> {
                   widget.product.name,
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
-                  style: TextStyle(
-                    fontSize: 14.sp,
-                    fontWeight: FontWeight.w800,
+                  style: AppTextStyles.listTitle.copyWith(
                     color: context.primaryTextColor,
                   ),
                 ),
@@ -265,9 +261,7 @@ class _ProductRateBottomSheetState extends State<ProductRateBottomSheet> {
                       Text(
                         '${widget.rates.length} Rate'
                         '${widget.rates.length == 1 ? '' : 's'} Available',
-                        style: TextStyle(
-                          fontSize: 9.sp,
-                          fontWeight: FontWeight.w700,
+                        style: AppTextStyles.badge.copyWith(
                           color: context.primaryColor,
                         ),
                       ),
@@ -319,16 +313,13 @@ class _ProductRateBottomSheetState extends State<ProductRateBottomSheet> {
             children: [
               Text(
                 'Select Packing & Rate',
-                style: TextStyle(
-                  fontSize: 14.sp,
-                  fontWeight: FontWeight.w800,
+                style: AppTextStyles.listTitle.copyWith(
                   color: context.primaryTextColor,
                 ),
               ),
               Text(
                 'Choose packing before adding product',
-                style: TextStyle(
-                  fontSize: 9.5.sp,
+                style: AppTextStyles.caption.copyWith(
                   color: context.secondaryTextColor,
                 ),
               ),
@@ -411,9 +402,7 @@ class _ProductRateBottomSheetState extends State<ProductRateBottomSheet> {
                     _packingText(rate),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
-                    style: TextStyle(
-                      fontSize: 13.sp,
-                      fontWeight: FontWeight.w800,
+                    style: AppTextStyles.labelLarge.copyWith(
                       color: context.primaryTextColor,
                     ),
                   ),
@@ -452,17 +441,14 @@ class _ProductRateBottomSheetState extends State<ProductRateBottomSheet> {
               children: [
                 Text(
                   rate.displayRate,
-                  style: TextStyle(
-                    fontSize: 15.sp,
-                    fontWeight: FontWeight.w900,
+                  style: AppTextStyles.cardTitle.copyWith(
                     color: context.primaryColor,
                   ),
                 ),
                 SizedBox(height: 1.h),
                 Text(
                   'Rate',
-                  style: TextStyle(
-                    fontSize: 8.sp,
+                  style: AppTextStyles.helperText.copyWith(
                     color: context.secondaryTextColor,
                   ),
                 ),
@@ -507,8 +493,7 @@ class _ProductRateBottomSheetState extends State<ProductRateBottomSheet> {
                 text,
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
-                style: TextStyle(
-                  fontSize: 8.5.sp,
+                style: AppTextStyles.labelSmall.copyWith(
                   fontWeight: primary ? FontWeight.w800 : FontWeight.w600,
                   color: primary
                       ? context.primaryColor
@@ -571,9 +556,7 @@ class _ProductRateBottomSheetState extends State<ProductRateBottomSheet> {
 
           Text(
             'No Rate Available',
-            style: TextStyle(
-              fontSize: 14.sp,
-              fontWeight: FontWeight.w800,
+            style: AppTextStyles.listTitle.copyWith(
               color: context.primaryTextColor,
             ),
           ),
@@ -584,8 +567,7 @@ class _ProductRateBottomSheetState extends State<ProductRateBottomSheet> {
             'No packing or rate is available '
             'for this product.',
             textAlign: TextAlign.center,
-            style: TextStyle(
-              fontSize: 10.sp,
+            style: AppTextStyles.helperText.copyWith(
               color: context.secondaryTextColor,
             ),
           ),
@@ -652,8 +634,7 @@ class _ProductRateBottomSheetState extends State<ProductRateBottomSheet> {
                         children: [
                           Text(
                             'Selected Packing',
-                            style: TextStyle(
-                              fontSize: 8.sp,
+                            style: AppTextStyles.helperText.copyWith(
                               color: context.secondaryTextColor,
                             ),
                           ),
@@ -661,9 +642,7 @@ class _ProductRateBottomSheetState extends State<ProductRateBottomSheet> {
                             _packingText(selectedRate!),
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
-                            style: TextStyle(
-                              fontSize: 11.sp,
-                              fontWeight: FontWeight.w800,
+                            style: AppTextStyles.labelSmall.copyWith(
                               color: context.primaryColor,
                             ),
                           ),
@@ -685,9 +664,7 @@ class _ProductRateBottomSheetState extends State<ProductRateBottomSheet> {
                       ),
                       child: Text(
                         selectedRate!.displayCase,
-                        style: TextStyle(
-                          fontSize: 8.5.sp,
-                          fontWeight: FontWeight.w800,
+                        style: AppTextStyles.labelSmall.copyWith(
                           color: context.primaryColor,
                         ),
                       ),
@@ -701,16 +678,13 @@ class _ProductRateBottomSheetState extends State<ProductRateBottomSheet> {
                       children: [
                         Text(
                           selectedRate!.displayRate,
-                          style: TextStyle(
-                            fontSize: 14.sp,
-                            fontWeight: FontWeight.w900,
+                          style: AppTextStyles.listTitle.copyWith(
                             color: context.primaryColor,
                           ),
                         ),
                         Text(
                           'per unit',
-                          style: TextStyle(
-                            fontSize: 7.5.sp,
+                          style: AppTextStyles.helperText.copyWith(
                             color: context.secondaryTextColor,
                           ),
                         ),
@@ -728,10 +702,7 @@ class _ProductRateBottomSheetState extends State<ProductRateBottomSheet> {
                 icon: Icon(Icons.add_shopping_cart_rounded, size: 18.sp),
                 label: Text(
                   enabled ? 'Add Product to Cart' : 'Select Packing & Rate',
-                  style: TextStyle(
-                    fontSize: 13.sp,
-                    fontWeight: FontWeight.w800,
-                  ),
+                  style: AppTextStyles.labelLarge,
                 ),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: context.primaryColor,

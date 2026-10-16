@@ -1,3 +1,4 @@
+import 'package:solufine/core/theme/typography/app_text_styles.dart';
 import 'dart:io';
 import 'dart:typed_data';
 
@@ -248,17 +249,14 @@ class OrderPreviewSheet extends StatelessWidget {
               children: [
                 Text(
                   'Preview',
-                  style: TextStyle(
-                    fontSize: 17.sp,
-                    fontWeight: FontWeight.w800,
+                  style: AppTextStyles.headingMedium.copyWith(
                     color: context.primaryTextColor,
                   ),
                 ),
                 SizedBox(height: 1.h),
                 Text(
                   'Review before submitting',
-                  style: TextStyle(
-                    fontSize: 10.5.sp,
+                  style: AppTextStyles.caption.copyWith(
                     color: context.secondaryTextColor,
                   ),
                 ),
@@ -274,9 +272,7 @@ class OrderPreviewSheet extends StatelessWidget {
             ),
             child: Text(
               '${products.length} Items',
-              style: TextStyle(
-                fontSize: 10.sp,
-                fontWeight: FontWeight.w700,
+              style: AppTextStyles.labelSmall.copyWith(
                 color: context.primaryColor,
               ),
             ),
@@ -324,9 +320,7 @@ class OrderPreviewSheet extends StatelessWidget {
 
         Text(
           title,
-          style: TextStyle(
-            fontSize: 13.5.sp,
-            fontWeight: FontWeight.w800,
+          style: AppTextStyles.listTitle.copyWith(
             color: context.primaryTextColor,
           ),
         ),
@@ -342,9 +336,7 @@ class OrderPreviewSheet extends StatelessWidget {
             ),
             child: Text(
               trailing,
-              style: TextStyle(
-                fontSize: 9.sp,
-                fontWeight: FontWeight.w700,
+              style: AppTextStyles.badge.copyWith(
                 color: context.secondaryTextColor,
               ),
             ),
@@ -397,8 +389,7 @@ class OrderPreviewSheet extends StatelessWidget {
                   children: [
                     Text(
                       'Dealer',
-                      style: TextStyle(
-                        fontSize: 9.5.sp,
+                      style: AppTextStyles.caption.copyWith(
                         color: context.secondaryTextColor,
                       ),
                     ),
@@ -409,9 +400,7 @@ class OrderPreviewSheet extends StatelessWidget {
                       dealer.name,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
-                      style: TextStyle(
-                        fontSize: 14.sp,
-                        fontWeight: FontWeight.w800,
+                      style: AppTextStyles.listTitle.copyWith(
                         color: context.primaryTextColor,
                       ),
                     ),
@@ -431,8 +420,7 @@ class OrderPreviewSheet extends StatelessWidget {
 
                           Text(
                             dealer.mobile,
-                            style: TextStyle(
-                              fontSize: 10.sp,
+                            style: AppTextStyles.helperText.copyWith(
                               color: context.secondaryTextColor,
                             ),
                           ),
@@ -459,8 +447,7 @@ class OrderPreviewSheet extends StatelessWidget {
                               dealer.address,
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
-                              style: TextStyle(
-                                fontSize: 10.sp,
+                              style: AppTextStyles.helperText.copyWith(
                                 color: context.secondaryTextColor,
                               ),
                             ),
@@ -522,8 +509,7 @@ class OrderPreviewSheet extends StatelessWidget {
             children: [
               Text(
                 label,
-                style: TextStyle(
-                  fontSize: 9.sp,
+                style: AppTextStyles.badge.copyWith(
                   color: context.secondaryTextColor,
                 ),
               ),
@@ -534,9 +520,7 @@ class OrderPreviewSheet extends StatelessWidget {
                 value,
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
-                style: TextStyle(
-                  fontSize: 11.sp,
-                  fontWeight: FontWeight.w700,
+                style: AppTextStyles.labelSmall.copyWith(
                   color: context.primaryTextColor,
                 ),
               ),
@@ -624,9 +608,7 @@ class OrderPreviewSheet extends StatelessWidget {
                       product.name,
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
-                      style: TextStyle(
-                        fontSize: 13.sp,
-                        fontWeight: FontWeight.w800,
+                      style: AppTextStyles.labelLarge.copyWith(
                         color: context.primaryTextColor,
                       ),
                     ),
@@ -675,9 +657,7 @@ class OrderPreviewSheet extends StatelessWidget {
                 children: [
                   Text(
                     '₹${productTotal.toStringAsFixed(2)}',
-                    style: TextStyle(
-                      fontSize: 13.sp,
-                      fontWeight: FontWeight.w900,
+                    style: AppTextStyles.labelLarge.copyWith(
                       color: context.primaryColor,
                     ),
                   ),
@@ -686,8 +666,7 @@ class OrderPreviewSheet extends StatelessWidget {
 
                   Text(
                     '$productQuantity Qty',
-                    style: TextStyle(
-                      fontSize: 8.5.sp,
+                    style: AppTextStyles.labelSmall.copyWith(
                       color: context.secondaryTextColor,
                     ),
                   ),
@@ -715,9 +694,7 @@ class OrderPreviewSheet extends StatelessWidget {
                     children: [
                       Text(
                         'PACKING / RATE',
-                        style: TextStyle(
-                          fontSize: 8.sp,
-                          fontWeight: FontWeight.w800,
+                        style: AppTextStyles.badge.copyWith(
                           color: context.secondaryTextColor,
                           letterSpacing: .3,
                         ),
@@ -727,9 +704,7 @@ class OrderPreviewSheet extends StatelessWidget {
 
                       Text(
                         'AMOUNT',
-                        style: TextStyle(
-                          fontSize: 8.sp,
-                          fontWeight: FontWeight.w800,
+                        style: AppTextStyles.badge.copyWith(
                           color: context.secondaryTextColor,
                           letterSpacing: .3,
                         ),
@@ -897,9 +872,7 @@ class OrderPreviewSheet extends StatelessWidget {
                   rate.displayPacking,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: TextStyle(
-                    fontSize: 9.5.sp,
-                    fontWeight: FontWeight.w700,
+                  style: AppTextStyles.labelSmall.copyWith(
                     color: context.primaryTextColor,
                   ),
                 ),
@@ -908,9 +881,7 @@ class OrderPreviewSheet extends StatelessWidget {
 
                 Text(
                   'Unit/Case: ${rate.unitsPerCase}',
-                  style: TextStyle(
-                    fontSize: 8.sp,
-                    fontWeight: FontWeight.w600,
+                  style: AppTextStyles.badge.copyWith(
                     color: context.secondaryTextColor,
                   ),
                 ),
@@ -928,9 +899,7 @@ class OrderPreviewSheet extends StatelessWidget {
             ),
             child: Text(
               '${rate.unitsPerCase} × $quantity',
-              style: TextStyle(
-                fontSize: 8.sp,
-                fontWeight: FontWeight.w700,
+              style: AppTextStyles.badge.copyWith(
                 color: context.secondaryTextColor,
               ),
             ),
@@ -939,11 +908,7 @@ class OrderPreviewSheet extends StatelessWidget {
 
           Text(
             '×  ₹${price.toStringAsFixed(2)}',
-            style: TextStyle(
-              fontSize: 9.sp,
-              color: context.primaryColor,
-              fontWeight: FontWeight.w700,
-            ),
+            style: AppTextStyles.badge.copyWith(color: context.primaryColor),
           ),
 
           SizedBox(width: 5.w),
@@ -970,9 +935,7 @@ class OrderPreviewSheet extends StatelessWidget {
             child: Text(
               '₹${total.toStringAsFixed(2)}',
               textAlign: TextAlign.end,
-              style: TextStyle(
-                fontSize: 12.sp,
-                fontWeight: FontWeight.w800,
+              style: AppTextStyles.buttonSmall.copyWith(
                 color: context.primaryTextColor,
               ),
             ),
@@ -1007,9 +970,7 @@ class OrderPreviewSheet extends StatelessWidget {
 
           Text(
             'No products selected',
-            style: TextStyle(
-              fontSize: 13.sp,
-              fontWeight: FontWeight.w700,
+            style: AppTextStyles.labelLarge.copyWith(
               color: context.primaryTextColor,
             ),
           ),
@@ -1068,9 +1029,7 @@ class OrderPreviewSheet extends StatelessWidget {
               children: [
                 Text(
                   'GRAND TOTAL',
-                  style: TextStyle(
-                    fontSize: 8.sp,
-                    fontWeight: FontWeight.w700,
+                  style: AppTextStyles.badge.copyWith(
                     color: context.onPrimaryColor.withValues(alpha: .75),
                   ),
                 ),
@@ -1079,9 +1038,7 @@ class OrderPreviewSheet extends StatelessWidget {
 
                 Text(
                   '₹${totalAmount.toStringAsFixed(2)}',
-                  style: TextStyle(
-                    fontSize: 18.sp,
-                    fontWeight: FontWeight.w900,
+                  style: AppTextStyles.sectionTitle.copyWith(
                     color: context.onPrimaryColor,
                   ),
                 ),
@@ -1114,8 +1071,7 @@ class OrderPreviewSheet extends StatelessWidget {
           children: [
             Text(
               label,
-              style: TextStyle(
-                fontSize: 8.sp,
+              style: AppTextStyles.helperText.copyWith(
                 color: context.onPrimaryColor.withValues(alpha: .75),
               ),
             ),
@@ -1124,9 +1080,7 @@ class OrderPreviewSheet extends StatelessWidget {
 
             Text(
               value,
-              style: TextStyle(
-                fontSize: 14.sp,
-                fontWeight: FontWeight.w800,
+              style: AppTextStyles.listTitle.copyWith(
                 color: context.onPrimaryColor,
               ),
             ),
@@ -1259,9 +1213,7 @@ class OrderPreviewSheet extends StatelessWidget {
 
             Text(
               title,
-              style: TextStyle(
-                fontSize: 9.5.sp,
-                fontWeight: FontWeight.w800,
+              style: AppTextStyles.labelSmall.copyWith(
                 color: context.primaryTextColor,
               ),
             ),
@@ -1310,8 +1262,7 @@ class OrderPreviewSheet extends StatelessWidget {
           Expanded(
             child: Text(
               remark,
-              style: TextStyle(
-                fontSize: 11.5.sp,
+              style: AppTextStyles.labelSmall.copyWith(
                 height: 1.4,
                 color: context.primaryTextColor,
               ),
@@ -1358,9 +1309,7 @@ class OrderPreviewSheet extends StatelessWidget {
                 ),
                 child: Text(
                   'Edit Order',
-                  style: TextStyle(
-                    fontSize: 12.sp,
-                    fontWeight: FontWeight.w700,
+                  style: AppTextStyles.buttonSmall.copyWith(
                     color: context.primaryColor,
                   ),
                 ),
@@ -1391,13 +1340,7 @@ class OrderPreviewSheet extends StatelessWidget {
 
                     SizedBox(width: 5.w),
 
-                    Text(
-                      'Confirm Order',
-                      style: TextStyle(
-                        fontSize: 12.sp,
-                        fontWeight: FontWeight.w800,
-                      ),
-                    ),
+                    Text('Confirm Order', style: AppTextStyles.buttonSmall),
                   ],
                 ),
               ),

@@ -1,3 +1,4 @@
+import 'package:solufine/core/theme/typography/app_text_styles.dart';
 import 'dart:convert';
 import 'dart:io';
 
@@ -269,8 +270,6 @@ class _AddExpensePageState extends State<AddExpensePage> {
     return _expenseAmountControllers[key]!;
   }
 
-
-
   @override
   void initState() {
     super.initState();
@@ -296,8 +295,6 @@ class _AddExpensePageState extends State<AddExpensePage> {
       ),
     );
   }
-
-
 
   @override
   void dispose() {
@@ -512,21 +509,14 @@ class _AddExpensePageState extends State<AddExpensePage> {
       child: TextField(
         controller: controller,
         readOnly: readOnly,
-        style: TextStyle(
-          fontSize: 12.5.sp,
-          fontWeight: FontWeight.w500,
-          color: context.appOnCard,
-        ),
+        style: AppTextStyles.input.copyWith(color: context.appOnCard),
         decoration: InputDecoration(
           labelText: label,
-          labelStyle: TextStyle(
+          labelStyle: AppTextStyles.inputLabel.copyWith(
             color: context.appSubText,
-            fontSize: 11.5.sp,
           ),
-          floatingLabelStyle: TextStyle(
+          floatingLabelStyle: AppTextStyles.inputLabel.copyWith(
             color: context.appPrimary,
-            fontWeight: FontWeight.w600,
-            fontSize: 11.5.sp,
           ),
           prefixIcon: icon == null
               ? null
@@ -606,14 +596,19 @@ class _AddExpensePageState extends State<AddExpensePage> {
           final dialog = DialogRoute<void>(
             context: context,
             barrierDismissible: false,
-            builder: (_) => const PopScope(
+            builder: (_) => PopScope(
               canPop: false,
               child: AlertDialog(
                 content: Row(
                   children: [
                     CircularProgressIndicator(),
                     SizedBox(width: 20),
-                    Expanded(child: Text('Submitting expense...')),
+                    Expanded(
+                      child: Text(
+                        'Submitting expense...',
+                        style: AppTextStyles.body,
+                      ),
+                    ),
                   ],
                 ),
               ),
@@ -742,10 +737,8 @@ class _AddExpensePageState extends State<AddExpensePage> {
                   children: [
                     Text(
                       'Daily Expense',
-                      style: TextStyle(
+                      style: AppTextStyles.cardTitle.copyWith(
                         color: context.appOnPrimary,
-                        fontSize: 16.sp,
-                        fontWeight: FontWeight.w700,
                       ),
                     ),
                     SizedBox(height: 2.h),
@@ -753,9 +746,8 @@ class _AddExpensePageState extends State<AddExpensePage> {
                       'Review travel and add today\'s expenses',
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
-                      style: TextStyle(
+                      style: AppTextStyles.caption.copyWith(
                         color: context.appOnPrimary.withOpacity(0.82),
-                        fontSize: 10.5.sp,
                       ),
                     ),
                   ],
@@ -769,10 +761,8 @@ class _AddExpensePageState extends State<AddExpensePage> {
                 ),
                 child: Text(
                   'EXPENSE',
-                  style: TextStyle(
+                  style: AppTextStyles.badge.copyWith(
                     color: context.appOnPrimary,
-                    fontSize: 8.5.sp,
-                    fontWeight: FontWeight.w700,
                   ),
                 ),
               ),
@@ -808,7 +798,10 @@ class _AddExpensePageState extends State<AddExpensePage> {
                 width: 36.w,
                 height: 36.w,
                 decoration: BoxDecoration(
-                  color: Color.alphaBlend(context.appPrimary.withValues(alpha: 0.1), context.appCard),
+                  color: Color.alphaBlend(
+                    context.appPrimary.withValues(alpha: 0.1),
+                    context.appCard,
+                  ),
                   borderRadius: BorderRadius.circular(10.r),
                 ),
                 child: Icon(
@@ -824,18 +817,15 @@ class _AddExpensePageState extends State<AddExpensePage> {
                   children: [
                     Text(
                       'Expense Date',
-                      style: TextStyle(
+                      style: AppTextStyles.caption.copyWith(
                         color: context.appSubText,
-                        fontSize: 9.5.sp,
                       ),
                     ),
                     SizedBox(height: 1.h),
                     Text(
                       dateController.text,
-                      style: TextStyle(
+                      style: AppTextStyles.listTitle.copyWith(
                         color: context.appOnCard,
-                        fontSize: 13.sp,
-                        fontWeight: FontWeight.w700,
                       ),
                     ),
                   ],
@@ -976,7 +966,10 @@ class _AddExpensePageState extends State<AddExpensePage> {
                   width: 34.w,
                   height: 34.w,
                   decoration: BoxDecoration(
-                    color: Color.alphaBlend(context.appPrimary.withValues(alpha: 0.1), context.appCard),
+                    color: Color.alphaBlend(
+                      context.appPrimary.withValues(alpha: 0.1),
+                      context.appCard,
+                    ),
                     borderRadius: BorderRadius.circular(10.r),
                   ),
                   child: Icon(
@@ -992,19 +985,16 @@ class _AddExpensePageState extends State<AddExpensePage> {
                     children: [
                       Text(
                         'Add Expenses',
-                        style: TextStyle(
+                        style: AppTextStyles.labelLarge.copyWith(
                           color: context.appOnCard,
-                          fontSize: 12.5.sp,
-                          fontWeight: FontWeight.w700,
                         ),
                       ),
                       Text(
                         'Select receipt from gallery and enter amount',
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
-                        style: TextStyle(
+                        style: AppTextStyles.caption.copyWith(
                           color: context.appSubText,
-                          fontSize: 9.5.sp,
                         ),
                       ),
                     ],
@@ -1029,11 +1019,13 @@ class _AddExpensePageState extends State<AddExpensePage> {
         _modernCard(
           child: TextField(
             key: _expenseRemarkKey,
+            style: AppTextStyles.input,
             controller: remarkController,
             minLines: 1,
             maxLines: 2,
             decoration: InputDecoration(
               hintText: 'Remark',
+              hintStyle: AppTextStyles.inputHint,
               prefixIcon: Icon(
                 Icons.edit_note_rounded,
                 color: context.appPrimary,
@@ -1076,10 +1068,7 @@ class _AddExpensePageState extends State<AddExpensePage> {
 
               submitExpense(state);
             },
-            child: Text(
-              'SUBMIT EXPENSE',
-              style: TextStyle(fontSize: 12.5.sp, fontWeight: FontWeight.w700),
-            ),
+            child: Text('SUBMIT EXPENSE', style: AppTextStyles.labelLarge),
           ),
         ),
       ],
@@ -1097,7 +1086,10 @@ class _AddExpensePageState extends State<AddExpensePage> {
           width: 29.w,
           height: 29.w,
           decoration: BoxDecoration(
-            color: Color.alphaBlend(context.appPrimary.withValues(alpha: 0.1), context.appCard),
+            color: Color.alphaBlend(
+              context.appPrimary.withValues(alpha: 0.1),
+              context.appCard,
+            ),
             borderRadius: BorderRadius.circular(8.r),
           ),
           child: Icon(icon, color: context.appPrimary, size: 15.sp),
@@ -1105,11 +1097,7 @@ class _AddExpensePageState extends State<AddExpensePage> {
         SizedBox(width: 7.w),
         Text(
           title,
-          style: TextStyle(
-            color: context.appOnCard,
-            fontSize: 13.sp,
-            fontWeight: FontWeight.w700,
-          ),
+          style: AppTextStyles.listTitle.copyWith(color: context.appOnCard),
         ),
       ],
     );
@@ -1158,7 +1146,10 @@ class _AddExpensePageState extends State<AddExpensePage> {
                   items: state.vehicles.map((vehicle) {
                     return DropdownMenuItem<VehicleEntity>(
                       value: vehicle,
-                      child: Text(vehicle.fldVehicleType),
+                      child: Text(
+                        vehicle.fldVehicleType,
+                        style: AppTextStyles.input,
+                      ),
                     );
                   }).toList(),
                   onChanged: null,
@@ -1185,7 +1176,7 @@ class _AddExpensePageState extends State<AddExpensePage> {
 
         isDense: true,
 
-        hint: Text('Select DA Type'),
+        hint: Text('Select DA Type', style: AppTextStyles.inputHint),
 
         decoration: InputDecoration(
           filled: true,
@@ -1194,10 +1185,16 @@ class _AddExpensePageState extends State<AddExpensePage> {
           border: OutlineInputBorder(borderRadius: BorderRadius.circular(12.r)),
         ),
 
-        items: const [
-          DropdownMenuItem(value: 'DA', child: Text('DA')),
+        items: [
+          DropdownMenuItem(
+            value: 'DA',
+            child: Text('DA', style: AppTextStyles.input),
+          ),
 
-          DropdownMenuItem(value: 'NIGHT', child: Text('Night Halt DA')),
+          DropdownMenuItem(
+            value: 'NIGHT',
+            child: Text('Night Halt DA', style: AppTextStyles.input),
+          ),
         ],
 
         onChanged: (value) => selectDaType(value, state),
@@ -1233,7 +1230,10 @@ class _AddExpensePageState extends State<AddExpensePage> {
       width: double.infinity,
       padding: EdgeInsets.symmetric(horizontal: 13.w, vertical: 11.h),
       decoration: BoxDecoration(
-        color: Color.alphaBlend(context.appPrimary.withValues(alpha: 0.1), context.appCard),
+        color: Color.alphaBlend(
+          context.appPrimary.withValues(alpha: 0.1),
+          context.appCard,
+        ),
         borderRadius: BorderRadius.circular(14.r),
         border: Border.all(color: context.appBorder),
       ),
@@ -1241,14 +1241,12 @@ class _AddExpensePageState extends State<AddExpensePage> {
         children: [
           Icon(Icons.payments_rounded, color: context.appPrimary),
           SizedBox(width: 10.w),
-          Expanded(child: Text('Total Amount')),
+          Expanded(
+            child: Text('Total Amount', style: AppTextStyles.labelLarge),
+          ),
           Text(
             '₹ ${finalTotalAmount.toStringAsFixed(2)}',
-            style: TextStyle(
-              color: context.appPrimary,
-              fontSize: 16.sp,
-              fontWeight: FontWeight.w800,
-            ),
+            style: AppTextStyles.cardTitle.copyWith(color: context.appPrimary),
           ),
         ],
       ),
@@ -1275,7 +1273,7 @@ class _AddExpensePageState extends State<AddExpensePage> {
           Text(
             text,
             textAlign: TextAlign.center,
-            style: TextStyle(fontSize: 14.sp, fontWeight: FontWeight.w600),
+            style: AppTextStyles.labelLarge,
           ),
         ],
       ),
@@ -1322,7 +1320,10 @@ class _AddExpensePageState extends State<AddExpensePage> {
                       width: 36.w,
                       height: 36.w,
                       decoration: BoxDecoration(
-                        color: Color.alphaBlend(context.appPrimary.withValues(alpha: 0.1), context.appCard),
+                        color: Color.alphaBlend(
+                          context.appPrimary.withValues(alpha: 0.1),
+                          context.appCard,
+                        ),
                         borderRadius: BorderRadius.circular(10.r),
                       ),
                       child: Icon(
@@ -1335,17 +1336,10 @@ class _AddExpensePageState extends State<AddExpensePage> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(
-                            'Add Expenses',
-                            style: TextStyle(
-                              fontSize: 15.sp,
-                              fontWeight: FontWeight.w700,
-                            ),
-                          ),
+                          Text('Add Expenses', style: AppTextStyles.cardTitle),
                           Text(
                             'Enter amount and select receipt from gallery',
-                            style: TextStyle(
-                              fontSize: 9.5.sp,
+                            style: AppTextStyles.caption.copyWith(
                               color: context.appSubText,
                             ),
                           ),
@@ -1410,7 +1404,7 @@ class _AddExpensePageState extends State<AddExpensePage> {
                     Expanded(
                       child: OutlinedButton(
                         onPressed: () => Navigator.pop(sheetContext),
-                        child: Text('Cancel'),
+                        child: Text('Cancel', style: AppTextStyles.button),
                       ),
                     ),
 
@@ -1474,7 +1468,7 @@ class _AddExpensePageState extends State<AddExpensePage> {
                           Navigator.pop(sheetContext);
                         },
                         icon: Icon(Icons.save),
-                        label: Text('Save'),
+                        label: Text('Save', style: AppTextStyles.button),
                       ),
                     ),
                   ],
@@ -1581,9 +1575,10 @@ class _AddExpensePageState extends State<AddExpensePage> {
                       ScaffoldMessenger.of(context)
                         ..hideCurrentSnackBar()
                         ..showSnackBar(
-                          const SnackBar(
+                          SnackBar(
                             content: Text(
                               'Unable to select image from gallery',
+                              style: AppTextStyles.body,
                             ),
                             duration: Duration(seconds: 3),
                             behavior: SnackBarBehavior.floating,
@@ -1641,11 +1636,7 @@ class _AddExpensePageState extends State<AddExpensePage> {
                   item.fldExpName,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: TextStyle(
-                    fontWeight: FontWeight.w700,
-                    fontSize: 12.sp,
-                    color: context.appOnCard,
-                  ),
+                  style: AppTextStyles.label.copyWith(color: context.appOnCard),
                 ),
 
                 SizedBox(height: 5.h),
@@ -1653,6 +1644,7 @@ class _AddExpensePageState extends State<AddExpensePage> {
                 SizedBox(
                   height: 42.h,
                   child: TextFormField(
+                    style: AppTextStyles.input,
                     controller: controller,
 
                     readOnly: isTravelExpense,
@@ -1663,6 +1655,8 @@ class _AddExpensePageState extends State<AddExpensePage> {
 
                     decoration: InputDecoration(
                       hintText: 'Enter Amount',
+                      hintStyle: AppTextStyles.inputHint,
+                      errorStyle: AppTextStyles.inputError,
 
                       prefixText: '₹ ',
 

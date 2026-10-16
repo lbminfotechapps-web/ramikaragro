@@ -1,6 +1,7 @@
+import 'package:solufine/core/theme/typography/app_text_styles.dart';
 import 'package:solufine/core/theme/app_theme_context.dart';
 import 'package:flutter/material.dart';
-import 'package:solufine/core/theme/app_theme_context.dart';
+
 
 import '../../domain/entities/top_ten_dealer.dart';
 
@@ -53,9 +54,7 @@ class DealerCard extends StatelessWidget {
                           : 'Unknown Dealer',
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
-                      style: TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w700,
+                      style: AppTextStyles.labelLarge.copyWith(
                         color: context.cardTextColor,
                       ),
                     ),
@@ -80,8 +79,7 @@ class DealerCard extends StatelessWidget {
                                 : 'Address not available',
                             maxLines: 2,
                             overflow: TextOverflow.ellipsis,
-                            style: TextStyle(
-                              fontSize: 11,
+                            style: AppTextStyles.caption.copyWith(
                               color: context.secondaryTextColor,
                             ),
                           ),
@@ -106,17 +104,14 @@ class DealerCard extends StatelessWidget {
                     Text(
                       dealer.visitCount,
                       textAlign: TextAlign.center,
-                      style: TextStyle(
-                        fontSize: 19,
-                        fontWeight: FontWeight.w800,
+                      style: AppTextStyles.cardValue.copyWith(
                         color: context.primaryColor,
                       ),
                     ),
 
                     Text(
                       'visits',
-                      style: TextStyle(
-                        fontSize: 9,
+                      style: AppTextStyles.caption.copyWith(
                         color: context.secondaryTextColor,
                       ),
                     ),
@@ -149,9 +144,7 @@ class DealerCard extends StatelessWidget {
       child: Center(
         child: Text(
           '$rank',
-          style: TextStyle(
-            fontSize: 12,
-            fontWeight: FontWeight.w800,
+          style: AppTextStyles.label.copyWith(
             color: rank == 1
                 ? context.appColors.secondary
                 : context.secondaryTextColor,

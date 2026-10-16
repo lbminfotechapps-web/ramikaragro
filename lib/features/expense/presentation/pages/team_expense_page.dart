@@ -1,3 +1,4 @@
+import 'package:solufine/core/theme/typography/app_text_styles.dart';
 import 'package:solufine/core/theme/app_theme_context.dart';
 import 'package:solufine/core/di/auth_di.dart';
 import 'package:solufine/core/router/app_router.dart';
@@ -69,9 +70,11 @@ class _TeamExpenseViewState extends State<_TeamExpenseView> {
       if (id == null) {
         if (!mounted) return;
 
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(const SnackBar(content: Text('User ID not found')));
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('User ID not found', style: AppTextStyles.body),
+          ),
+        );
 
         return;
       }
@@ -82,9 +85,14 @@ class _TeamExpenseViewState extends State<_TeamExpenseView> {
     } catch (e) {
       if (!mounted) return;
 
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text('Unable to load user data: $e')));
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            'Unable to load user data: $e',
+            style: AppTextStyles.body,
+          ),
+        ),
+      );
     }
   }
 
@@ -226,14 +234,14 @@ class _TeamExpenseViewState extends State<_TeamExpenseView> {
       body: BlocConsumer<TeamExpenseBloc, TeamExpenseState>(
         listener: (context, state) {
           if (state is TeamExpenseUpdateSuccess) {
-            ScaffoldMessenger.of(
-              context,
-            ).showSnackBar(SnackBar(content: Text(state.message)));
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text(state.message, style: AppTextStyles.body)),
+            );
             _loadExpenses();
           } else if (state is TeamExpenseUpdateError) {
-            ScaffoldMessenger.of(
-              context,
-            ).showSnackBar(SnackBar(content: Text(state.message)));
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text(state.message, style: AppTextStyles.body)),
+            );
           }
         },
         builder: (context, state) {
@@ -267,16 +275,17 @@ class _TeamExpenseViewState extends State<_TeamExpenseView> {
         children: [
           TextField(
             controller: searchController,
-            style: TextStyle(color: context.primaryTextColor),
+            style: AppTextStyles.input.copyWith(
+              color: context.primaryTextColor,
+            ),
             textInputAction: TextInputAction.search,
             onSubmitted: (_) {
               _search();
             },
             decoration: InputDecoration(
               hintText: 'Search employee',
-              hintStyle: TextStyle(
+              hintStyle: AppTextStyles.inputHint.copyWith(
                 color: context.secondaryTextColor,
-                fontSize: 13,
               ),
               prefixIcon: Icon(
                 Icons.search_rounded,
@@ -379,18 +388,14 @@ class _TeamExpenseViewState extends State<_TeamExpenseView> {
                 children: [
                   Text(
                     title,
-                    style: TextStyle(
-                      fontSize: 9,
-                      fontWeight: FontWeight.w700,
+                    style: AppTextStyles.labelSmall.copyWith(
                       color: context.secondaryTextColor,
                     ),
                   ),
                   SizedBox(height: 3),
                   Text(
                     value,
-                    style: TextStyle(
-                      fontSize: 11,
-                      fontWeight: FontWeight.w800,
+                    style: AppTextStyles.labelSmall.copyWith(
                       color: context.primaryTextColor,
                     ),
                   ),
@@ -528,9 +533,7 @@ class _TeamExpenseViewState extends State<_TeamExpenseView> {
           Center(
             child: Text(
               'No Expense Found',
-              style: TextStyle(
-                fontSize: 17,
-                fontWeight: FontWeight.w900,
+              style: AppTextStyles.headingMedium.copyWith(
                 color: context.primaryTextColor,
               ),
             ),
@@ -541,7 +544,9 @@ class _TeamExpenseViewState extends State<_TeamExpenseView> {
               'No team expense records are available\n'
               'for the selected date or search.',
               textAlign: TextAlign.center,
-              style: TextStyle(fontSize: 12, color: context.secondaryTextColor),
+              style: AppTextStyles.bodySmall.copyWith(
+                color: context.secondaryTextColor,
+              ),
             ),
           ),
         ],
@@ -580,9 +585,7 @@ class _TeamExpenseViewState extends State<_TeamExpenseView> {
           Center(
             child: Text(
               'Something went wrong',
-              style: TextStyle(
-                fontSize: 17,
-                fontWeight: FontWeight.w900,
+              style: AppTextStyles.headingMedium.copyWith(
                 color: context.primaryTextColor,
               ),
             ),
@@ -593,7 +596,9 @@ class _TeamExpenseViewState extends State<_TeamExpenseView> {
             child: Text(
               message,
               textAlign: TextAlign.center,
-              style: TextStyle(fontSize: 12, color: context.secondaryTextColor),
+              style: AppTextStyles.bodySmall.copyWith(
+                color: context.secondaryTextColor,
+              ),
             ),
           ),
           SizedBox(height: 18),
@@ -601,7 +606,7 @@ class _TeamExpenseViewState extends State<_TeamExpenseView> {
             child: ElevatedButton.icon(
               onPressed: _loadExpenses,
               icon: Icon(Icons.refresh_rounded, size: 18),
-              label: Text('Retry'),
+              label: Text('Retry', style: AppTextStyles.button),
               style: ElevatedButton.styleFrom(
                 backgroundColor: context.primaryColor,
                 foregroundColor: context.onPrimaryColor,

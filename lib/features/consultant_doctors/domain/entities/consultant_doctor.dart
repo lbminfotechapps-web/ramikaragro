@@ -8,11 +8,15 @@ class ConsultantDoctor {
 
   final String stateId;
   final String stateName;
+
   final String districtId;
   final String districtName;
+
   final String talukaId;
   final String talukaName;
 
+  final String remark;
+  final String createdBy;
   final DateTime createdAt;
 
   const ConsultantDoctor({
@@ -28,8 +32,15 @@ class ConsultantDoctor {
     required this.talukaId,
     required this.talukaName,
     required this.createdAt,
+    this.remark = '',
+    this.createdBy = '',
   });
 
-  String get fullLocation =>
-      '$talukaName, $districtName, $stateName';
+  String get fullLocation {
+    return [
+      talukaName,
+      districtName,
+      stateName,
+    ].where((value) => value.trim().isNotEmpty).join(', ');
+  }
 }

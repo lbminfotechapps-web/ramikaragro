@@ -1,3 +1,4 @@
+import 'package:solufine/core/theme/typography/app_text_styles.dart';
 import 'dart:async';
 
 import 'package:flutter/material.dart';
@@ -407,8 +408,11 @@ class _EmployeeActivityReportPageState
       ScaffoldMessenger.of(context).hideCurrentSnackBar();
 
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Please select employee from the list'),
+        SnackBar(
+          content: Text(
+            'Please select employee from the list',
+            style: AppTextStyles.body,
+          ),
           behavior: SnackBarBehavior.floating,
         ),
       );
@@ -542,8 +546,7 @@ class _EmployeeActivityReportPageState
             SizedBox(width: 7),
             Text(
               'No employee found',
-              style: TextStyle(
-                fontSize: 11.5,
+              style: AppTextStyles.labelSmall.copyWith(
                 color: context.secondaryTextColor,
               ),
             ),
@@ -591,9 +594,7 @@ class _EmployeeActivityReportPageState
                     ),
                     child: Text(
                       name[0].toUpperCase(),
-                      style: TextStyle(
-                        fontSize: 10,
-                        fontWeight: FontWeight.w800,
+                      style: AppTextStyles.labelSmall.copyWith(
                         color: context.primaryColor,
                       ),
                     ),
@@ -604,8 +605,7 @@ class _EmployeeActivityReportPageState
                       name,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
-                      style: TextStyle(
-                        fontSize: 12,
+                      style: AppTextStyles.buttonSmall.copyWith(
                         fontWeight: selected
                             ? FontWeight.w700
                             : FontWeight.w500,
@@ -689,9 +689,7 @@ class _EmployeeActivityReportPageState
                           children: [
                             Text(
                               'Filter Activity',
-                              style: TextStyle(
-                                fontSize: 13,
-                                fontWeight: FontWeight.w800,
+                              style: AppTextStyles.labelLarge.copyWith(
                                 color: context.primaryTextColor,
                               ),
                             ),
@@ -700,8 +698,7 @@ class _EmployeeActivityReportPageState
                               '${_selectedEmployeeName.isEmpty ? 'All Employees' : _selectedEmployeeName} • $_displayDate',
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
-                              style: TextStyle(
-                                fontSize: 10,
+                              style: AppTextStyles.helperText.copyWith(
                                 color: context.secondaryTextColor,
                               ),
                             ),
@@ -745,7 +742,7 @@ class _EmployeeActivityReportPageState
                         focusNode: _employeeFocusNode,
                         onTap: _onEmployeeFieldTap,
                         onChanged: _searchEmployee,
-                        style: TextStyle(fontSize: 12),
+                        style: AppTextStyles.input,
                         decoration: InputDecoration(
                           hintText: 'Search employee',
                           filled: true,
@@ -809,9 +806,7 @@ class _EmployeeActivityReportPageState
                               Expanded(
                                 child: Text(
                                   '$_displayDate  •  $_dayName',
-                                  style: TextStyle(
-                                    fontSize: 11.5,
-                                    fontWeight: FontWeight.w600,
+                                  style: AppTextStyles.labelSmall.copyWith(
                                     color: context.primaryTextColor,
                                   ),
                                 ),
@@ -837,7 +832,7 @@ class _EmployeeActivityReportPageState
                             child: OutlinedButton.icon(
                               onPressed: _resetFilter,
                               icon: Icon(Icons.restart_alt_rounded, size: 16),
-                              label: Text('Reset'),
+                              label: Text('Reset', style: AppTextStyles.button),
                               style: OutlinedButton.styleFrom(
                                 foregroundColor: context.secondaryTextColor,
                                 minimumSize: const Size(0, 39),
@@ -854,7 +849,10 @@ class _EmployeeActivityReportPageState
                             child: ElevatedButton.icon(
                               onPressed: _searchReport,
                               icon: Icon(Icons.search_rounded, size: 16),
-                              label: Text('Search'),
+                              label: Text(
+                                'Search',
+                                style: AppTextStyles.button,
+                              ),
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: context.primaryColor,
                                 foregroundColor: context.onPrimaryColor,
@@ -898,7 +896,9 @@ class _EmployeeActivityReportPageState
         backgroundColor: context.backgroundColor,
         appBar: CustomAppBar(
           backgroundColor: context.primaryColor,
-          titleStyle: TextStyle(color: context.onPrimaryColor),
+          titleStyle: AppTextStyles.appBarTitle.copyWith(
+            color: context.onPrimaryColor,
+          ),
           leading: IconButton(
             icon: Icon(
               Icons.arrow_back_ios_new_rounded,
@@ -920,7 +920,9 @@ class _EmployeeActivityReportPageState
 
       appBar: CustomAppBar(
         backgroundColor: context.primaryColor,
-        titleStyle: TextStyle(color: context.onPrimaryColor),
+        titleStyle: AppTextStyles.appBarTitle.copyWith(
+          color: context.onPrimaryColor,
+        ),
         leading: IconButton(
           icon: Icon(
             Icons.arrow_back_ios_new_rounded,
@@ -1017,9 +1019,7 @@ class _FilterLabel extends StatelessWidget {
         const SizedBox(width: 4),
         Text(
           title,
-          style: TextStyle(
-            fontSize: 11,
-            fontWeight: FontWeight.w700,
+          style: AppTextStyles.labelSmall.copyWith(
             color: context.secondaryTextColor,
           ),
         ),
@@ -1099,16 +1099,13 @@ class _ActivityContent extends StatelessWidget {
                       employeeName,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
-                      style: TextStyle(
-                        fontSize: 12.5,
-                        fontWeight: FontWeight.w700,
+                      style: AppTextStyles.listTitle.copyWith(
                         color: context.primaryTextColor,
                       ),
                     ),
                     Text(
                       '$displayDate • $dayName',
-                      style: TextStyle(
-                        fontSize: 9.5,
+                      style: AppTextStyles.caption.copyWith(
                         color: context.secondaryTextColor,
                       ),
                     ),
@@ -1126,9 +1123,7 @@ class _ActivityContent extends StatelessWidget {
         // ======================================================
         Text(
           'Activity Summary',
-          style: TextStyle(
-            fontSize: 15,
-            fontWeight: FontWeight.w700,
+          style: AppTextStyles.cardTitle.copyWith(
             color: context.primaryTextColor,
           ),
         ),
@@ -1189,9 +1184,7 @@ class _ActivityContent extends StatelessWidget {
             Expanded(
               child: Text(
                 'Activity Timeline',
-                style: TextStyle(
-                  fontSize: 15,
-                  fontWeight: FontWeight.w700,
+                style: AppTextStyles.cardTitle.copyWith(
                   color: context.primaryTextColor,
                 ),
               ),
@@ -1204,9 +1197,7 @@ class _ActivityContent extends StatelessWidget {
               ),
               child: Text(
                 '${activities.length} Activities',
-                style: TextStyle(
-                  fontSize: 10.5,
-                  fontWeight: FontWeight.w700,
+                style: AppTextStyles.labelSmall.copyWith(
                   color: context.primaryColor,
                 ),
               ),
@@ -1275,9 +1266,7 @@ class _EmptyView extends StatelessWidget {
         Center(
           child: Text(
             'No Activity Found',
-            style: TextStyle(
-              fontSize: 17,
-              fontWeight: FontWeight.w800,
+            style: AppTextStyles.headingMedium.copyWith(
               color: context.primaryTextColor,
             ),
           ),
@@ -1287,7 +1276,9 @@ class _EmptyView extends StatelessWidget {
           child: Text(
             'No activity found for selected employee and date.',
             textAlign: TextAlign.center,
-            style: TextStyle(fontSize: 11.5, color: context.secondaryTextColor),
+            style: AppTextStyles.labelSmall.copyWith(
+              color: context.secondaryTextColor,
+            ),
           ),
         ),
       ],
@@ -1322,13 +1313,13 @@ class _ErrorView extends StatelessWidget {
             Text(
               message,
               textAlign: TextAlign.center,
-              style: TextStyle(fontSize: 12),
+              style: AppTextStyles.bodySmall,
             ),
             const SizedBox(height: 12),
             ElevatedButton.icon(
               onPressed: onRetry,
               icon: Icon(Icons.refresh_rounded, size: 17),
-              label: Text('Retry'),
+              label: Text('Retry', style: AppTextStyles.button),
               style: ElevatedButton.styleFrom(
                 backgroundColor: context.primaryColor,
                 foregroundColor: context.onPrimaryColor,

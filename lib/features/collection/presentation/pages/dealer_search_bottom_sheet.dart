@@ -1,3 +1,4 @@
+import 'package:solufine/core/theme/typography/app_text_styles.dart';
 import 'dart:async';
 
 import 'package:solufine/core/theme/app_theme_context.dart';
@@ -126,17 +127,14 @@ class _DealerSearchBottomSheetState extends State<DealerSearchBottomSheet> {
                       children: [
                         Text(
                           'Select Dealer',
-                          style: TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.w800,
+                          style: AppTextStyles.sectionTitle.copyWith(
                             color: context.appOnCard,
                           ),
                         ),
                         SizedBox(height: 2),
                         Text(
                           'Search and select a dealer',
-                          style: TextStyle(
-                            fontSize: 11,
+                          style: AppTextStyles.caption.copyWith(
                             color: context.appSubText,
                           ),
                         ),
@@ -163,7 +161,9 @@ class _DealerSearchBottomSheetState extends State<DealerSearchBottomSheet> {
               padding: const EdgeInsets.symmetric(horizontal: 16),
               child: TextField(
                 controller: searchController,
-                style: TextStyle(color: context.appInputText),
+                style: AppTextStyles.input.copyWith(
+                  color: context.appInputText,
+                ),
                 cursorColor: context.appPrimary,
 
                 onChanged: (value) {
@@ -174,7 +174,9 @@ class _DealerSearchBottomSheetState extends State<DealerSearchBottomSheet> {
 
                 decoration: InputDecoration(
                   hintText: 'Search dealer...',
-                  hintStyle: TextStyle(color: context.appSubText),
+                  hintStyle: AppTextStyles.inputHint.copyWith(
+                    color: context.appSubText,
+                  ),
                   suffixIconColor: context.appSubText,
 
                   prefixIcon: Icon(
@@ -373,9 +375,7 @@ class _DealerSearchBottomSheetState extends State<DealerSearchBottomSheet> {
 
                     overflow: TextOverflow.ellipsis,
 
-                    style: TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w800,
+                    style: AppTextStyles.labelLarge.copyWith(
                       color: context.appOnCard,
                     ),
                   ),
@@ -398,8 +398,7 @@ class _DealerSearchBottomSheetState extends State<DealerSearchBottomSheet> {
                             dealer.mobile,
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
-                            style: TextStyle(
-                              fontSize: 11,
+                            style: AppTextStyles.caption.copyWith(
                               color: context.appSubText,
                             ),
                           ),
@@ -427,8 +426,7 @@ class _DealerSearchBottomSheetState extends State<DealerSearchBottomSheet> {
                             dealer.address,
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
-                            style: TextStyle(
-                              fontSize: 10.5,
+                            style: AppTextStyles.caption.copyWith(
                               color: context.appSubText,
                             ),
                           ),
@@ -483,11 +481,7 @@ class _DealerSearchBottomSheetState extends State<DealerSearchBottomSheet> {
             Text(
               'No dealers found',
 
-              style: TextStyle(
-                fontSize: 15,
-                fontWeight: FontWeight.w800,
-                color: context.appOnCard,
-              ),
+              style: AppTextStyles.cardTitle.copyWith(color: context.appOnCard),
             ),
 
             const SizedBox(height: 4),
@@ -497,7 +491,9 @@ class _DealerSearchBottomSheetState extends State<DealerSearchBottomSheet> {
 
               textAlign: TextAlign.center,
 
-              style: TextStyle(fontSize: 12, color: context.appSubText),
+              style: AppTextStyles.bodySmall.copyWith(
+                color: context.appSubText,
+              ),
             ),
           ],
         ),
@@ -539,11 +535,7 @@ class _DealerSearchBottomSheetState extends State<DealerSearchBottomSheet> {
             Text(
               'Unable to load dealers',
 
-              style: TextStyle(
-                fontSize: 15,
-                fontWeight: FontWeight.w800,
-                color: context.appOnCard,
-              ),
+              style: AppTextStyles.cardTitle.copyWith(color: context.appOnCard),
             ),
 
             const SizedBox(height: 6),
@@ -557,7 +549,7 @@ class _DealerSearchBottomSheetState extends State<DealerSearchBottomSheet> {
 
               overflow: TextOverflow.ellipsis,
 
-              style: TextStyle(fontSize: 11, color: context.appSubText),
+              style: AppTextStyles.caption.copyWith(color: context.appSubText),
             ),
 
             const SizedBox(height: 15),
@@ -569,7 +561,7 @@ class _DealerSearchBottomSheetState extends State<DealerSearchBottomSheet> {
 
               icon: Icon(Icons.refresh_rounded),
 
-              label: Text('Retry'),
+              label: Text('Retry', style: AppTextStyles.button),
 
               style: ElevatedButton.styleFrom(
                 backgroundColor: context.appPrimary,

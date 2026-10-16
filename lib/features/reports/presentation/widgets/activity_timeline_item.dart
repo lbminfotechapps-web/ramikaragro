@@ -1,3 +1,4 @@
+import 'package:solufine/core/theme/typography/app_text_styles.dart';
 import 'package:solufine/core/api_constant/api_client.dart';
 import 'package:flutter/material.dart';
 import 'package:solufine/core/theme/app_theme_context.dart';
@@ -176,10 +177,8 @@ class ActivityTimelineItem extends StatelessWidget {
                                 : activity.activityName,
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
-                            style: TextStyle(
+                            style: AppTextStyles.labelSmall.copyWith(
                               color: _activityColor,
-                              fontSize: 11.5,
-                              fontWeight: FontWeight.w800,
                             ),
                           ),
                         ),
@@ -197,10 +196,8 @@ class ActivityTimelineItem extends StatelessWidget {
 
                       Text(
                         activity.time,
-                        style: TextStyle(
+                        style: AppTextStyles.labelSmall.copyWith(
                           color: context.secondaryTextColor,
-                          fontSize: 11,
-                          fontWeight: FontWeight.w600,
                         ),
                       ),
                     ],
@@ -358,9 +355,8 @@ class ActivityTimelineItem extends StatelessWidget {
                               SizedBox(height: 10),
                               Text(
                                 'Image not available',
-                                style: TextStyle(
+                                style: AppTextStyles.body.copyWith(
                                   color: Colors.white,
-                                  fontSize: 13,
                                 ),
                               ),
                             ],
@@ -409,7 +405,7 @@ class ActivityTimelineItem extends StatelessWidget {
                       color: Colors.black54,
                       borderRadius: BorderRadius.circular(20),
                     ),
-                    child: const Row(
+                    child: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         Icon(
@@ -420,10 +416,8 @@ class ActivityTimelineItem extends StatelessWidget {
                         SizedBox(width: 6),
                         Text(
                           'Pinch to zoom',
-                          style: TextStyle(
+                          style: AppTextStyles.labelSmall.copyWith(
                             color: Colors.white,
-                            fontSize: 11,
-                            fontWeight: FontWeight.w600,
                           ),
                         ),
                       ],
@@ -465,10 +459,8 @@ class _DetailRow extends StatelessWidget {
 
         Text(
           '$title:',
-          style: TextStyle(
-            fontSize: 11,
+          style: AppTextStyles.labelSmall.copyWith(
             color: context.secondaryTextColor,
-            fontWeight: FontWeight.w600,
           ),
         ),
 
@@ -479,10 +471,8 @@ class _DetailRow extends StatelessWidget {
             value,
             maxLines: 2,
             overflow: TextOverflow.ellipsis,
-            style: TextStyle(
-              fontSize: 11,
+            style: AppTextStyles.labelSmall.copyWith(
               color: context.cardTextColor,
-              fontWeight: FontWeight.w700,
             ),
           ),
         ),
@@ -554,9 +544,8 @@ class _SelfieImage extends StatelessWidget {
                         SizedBox(height: 4),
                         Text(
                           'Image not available',
-                          style: TextStyle(
+                          style: AppTextStyles.caption.copyWith(
                             color: context.secondaryTextColor,
-                            fontSize: 11,
                           ),
                         ),
                       ],

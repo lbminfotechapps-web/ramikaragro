@@ -1,3 +1,4 @@
+import 'package:solufine/core/theme/typography/app_text_styles.dart';
 import 'package:solufine/core/theme/app_theme_context.dart';
 
 import 'package:solufine/core/di/my_expense_di.dart';
@@ -241,9 +242,7 @@ class _MyExpensePageState extends State<MyExpensePage> {
                 children: [
                   Text(
                     title,
-                    style: TextStyle(
-                      fontSize: 9,
-                      fontWeight: FontWeight.w700,
+                    style: AppTextStyles.labelSmall.copyWith(
                       color: context.secondaryTextColor,
                     ),
                   ),
@@ -252,9 +251,7 @@ class _MyExpensePageState extends State<MyExpensePage> {
 
                   Text(
                     value,
-                    style: TextStyle(
-                      fontSize: 11,
-                      fontWeight: FontWeight.w800,
+                    style: AppTextStyles.labelSmall.copyWith(
                       color: context.cardTextColor,
                     ),
                   ),
@@ -296,7 +293,12 @@ class _MyExpensePageState extends State<MyExpensePage> {
       if (!mounted) return;
 
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('From Date cannot be after To Date')),
+        SnackBar(
+          content: Text(
+            'From Date cannot be after To Date',
+            style: AppTextStyles.body,
+          ),
+        ),
       );
 
       return;
@@ -333,7 +335,12 @@ class _MyExpensePageState extends State<MyExpensePage> {
       if (!mounted) return;
 
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('To Date cannot be before From Date')),
+        SnackBar(
+          content: Text(
+            'To Date cannot be before From Date',
+            style: AppTextStyles.body,
+          ),
+        ),
       );
 
       return;
@@ -471,9 +478,7 @@ class _MyExpensePageState extends State<MyExpensePage> {
               Expanded(
                 child: Text(
                   'Expense History',
-                  style: TextStyle(
-                    fontSize: 17,
-                    fontWeight: FontWeight.w800,
+                  style: AppTextStyles.headingMedium.copyWith(
                     color: context.cardTextColor,
                   ),
                 ),
@@ -490,9 +495,7 @@ class _MyExpensePageState extends State<MyExpensePage> {
                 ),
                 child: Text(
                   '${expenses.length} Records',
-                  style: TextStyle(
-                    fontSize: 10,
-                    fontWeight: FontWeight.w800,
+                  style: AppTextStyles.badge.copyWith(
                     color: context.primaryColor,
                   ),
                 ),
@@ -567,10 +570,8 @@ class _MyExpensePageState extends State<MyExpensePage> {
               Expanded(
                 child: Text(
                   'Total Expenses',
-                  style: TextStyle(
+                  style: AppTextStyles.label.copyWith(
                     color: context.onPrimaryColor,
-                    fontSize: 13,
-                    fontWeight: FontWeight.w600,
                   ),
                 ),
               ),
@@ -588,10 +589,8 @@ class _MyExpensePageState extends State<MyExpensePage> {
 
                 child: Text(
                   '$count Entries',
-                  style: TextStyle(
+                  style: AppTextStyles.badge.copyWith(
                     color: context.onPrimaryColor,
-                    fontSize: 10,
-                    fontWeight: FontWeight.w700,
                   ),
                 ),
               ),
@@ -603,10 +602,8 @@ class _MyExpensePageState extends State<MyExpensePage> {
           // -------------------------------------------------------------
           Text(
             '₹ ${total.toStringAsFixed(2)}',
-            style: TextStyle(
+            style: AppTextStyles.cardValue.copyWith(
               color: context.onPrimaryColor,
-              fontSize: 20,
-              fontWeight: FontWeight.w900,
               letterSpacing: -0.8,
             ),
           ),
@@ -665,9 +662,7 @@ class _MyExpensePageState extends State<MyExpensePage> {
                 'No Record Found',
                 textAlign: TextAlign.center,
 
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.w800,
+                style: AppTextStyles.sectionTitle.copyWith(
                   color: context.cardTextColor,
                 ),
               ),
@@ -702,10 +697,7 @@ class _MyExpensePageState extends State<MyExpensePage> {
 
                   icon: const Icon(Icons.refresh_rounded),
 
-                  label: const Text(
-                    'Try Again',
-                    style: TextStyle(fontWeight: FontWeight.w700),
-                  ),
+                  label: Text('Try Again', style: AppTextStyles.button),
 
                   style: ElevatedButton.styleFrom(
                     backgroundColor: context.primaryColor,
@@ -772,9 +764,7 @@ class _MyExpensePageState extends State<MyExpensePage> {
           Center(
             child: Text(
               'No Expenses Found',
-              style: TextStyle(
-                fontSize: 19,
-                fontWeight: FontWeight.w800,
+              style: AppTextStyles.headingLarge.copyWith(
                 color: context.cardTextColor,
               ),
             ),
@@ -788,7 +778,9 @@ class _MyExpensePageState extends State<MyExpensePage> {
           Center(
             child: Text(
               'Your expense records will appear here.',
-              style: TextStyle(fontSize: 12, color: context.secondaryTextColor),
+              style: AppTextStyles.bodySmall.copyWith(
+                color: context.secondaryTextColor,
+              ),
             ),
           ),
         ],

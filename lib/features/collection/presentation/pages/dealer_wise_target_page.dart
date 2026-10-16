@@ -1,3 +1,4 @@
+import 'package:solufine/core/theme/typography/app_text_styles.dart';
 import 'package:solufine/core/di/collection_target_di.dart';
 import 'package:solufine/core/router/app_router.dart';
 import 'package:solufine/core/secure_storage/secure_storage.dart';
@@ -103,9 +104,11 @@ class _DealerWiseTargetPageState extends State<DealerWiseTargetPage> {
 
       if (userId.isEmpty) {
         if (mounted) {
-          ScaffoldMessenger.of(
-            context,
-          ).showSnackBar(const SnackBar(content: Text('User ID not found')));
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('User ID not found', style: AppTextStyles.body),
+            ),
+          );
         }
 
         return;
@@ -127,7 +130,12 @@ class _DealerWiseTargetPageState extends State<DealerWiseTargetPage> {
           _optionsError = 'Unable to load user information';
         });
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Unable to load user information')),
+          SnackBar(
+            content: Text(
+              'Unable to load user information',
+              style: AppTextStyles.body,
+            ),
+          ),
         );
       }
     }
@@ -147,12 +155,11 @@ class _DealerWiseTargetPageState extends State<DealerWiseTargetPage> {
         backgroundColor: context.backgroundColor,
 
         appBar: CustomAppBar(
-      
           leading: IconButton(
             icon: Icon(
               Icons.arrow_back_ios_new,
               size: 19,
-            color: context.appThemeData.appBarTheme.foregroundColor,
+              color: context.appThemeData.appBarTheme.foregroundColor,
             ),
             onPressed: () {
               context.go(AppRouter.home);
@@ -234,7 +241,9 @@ class _DealerWiseTargetPageState extends State<DealerWiseTargetPage> {
   InputDecoration _optionDecoration(String label, IconData icon) {
     return InputDecoration(
       labelText: label,
-      labelStyle: TextStyle(color: context.secondaryTextColor, fontSize: 13),
+      labelStyle: AppTextStyles.inputLabel.copyWith(
+        color: context.secondaryTextColor,
+      ),
       prefixIcon: Icon(icon, color: context.primaryColor, size: 20),
       filled: true,
       fillColor: context.appTheme.inputBackground,
@@ -266,8 +275,11 @@ class _DealerWiseTargetPageState extends State<DealerWiseTargetPage> {
         padding: const EdgeInsets.all(14),
         child: Column(
           children: [
-            Text(_optionsError!),
-            TextButton(onPressed: _loadOptions, child: Text('Retry')),
+            Text(_optionsError!, style: AppTextStyles.body),
+            TextButton(
+              onPressed: _loadOptions,
+              child: Text('Retry', style: AppTextStyles.button),
+            ),
           ],
         ),
       );
@@ -296,9 +308,7 @@ class _DealerWiseTargetPageState extends State<DealerWiseTargetPage> {
               SizedBox(width: 8),
               Text(
                 'Collection details',
-                style: TextStyle(
-                  fontSize: 15,
-                  fontWeight: FontWeight.w700,
+                style: AppTextStyles.cardTitle.copyWith(
                   color: context.primaryTextColor,
                 ),
               ),
@@ -344,13 +354,14 @@ class _DealerWiseTargetPageState extends State<DealerWiseTargetPage> {
             borderRadius: BorderRadius.circular(16),
             dropdownColor: context.cardBackgroundColor,
             icon: Icon(Icons.expand_more_rounded, color: context.primaryColor),
-            style: TextStyle(
+            style: AppTextStyles.labelLarge.copyWith(
               color: context.primaryTextColor,
-              fontSize: 14,
-              fontWeight: FontWeight.w600,
             ),
             decoration: _optionDecoration('Dealer', Icons.storefront_outlined),
-            hint: Text(_dealers.isEmpty ? 'No dealers found' : 'Select dealer'),
+            hint: Text(
+              _dealers.isEmpty ? 'No dealers found' : 'Select dealer',
+              style: AppTextStyles.inputHint,
+            ),
 
             // Dealer dropdown items
             items: _dealers.map((dealer) {
@@ -378,10 +389,8 @@ class _DealerWiseTargetPageState extends State<DealerWiseTargetPage> {
                   displayName,
                   overflow: TextOverflow.ellipsis,
                   maxLines: 1,
-                  style: TextStyle(
-                    fontSize: 13,
+                  style: AppTextStyles.body.copyWith(
                     color: context.primaryTextColor,
-                    fontWeight: FontWeight.w500,
                   ),
                 ),
               );
@@ -409,10 +418,8 @@ class _DealerWiseTargetPageState extends State<DealerWiseTargetPage> {
             borderRadius: BorderRadius.circular(16),
             dropdownColor: context.cardBackgroundColor,
             icon: Icon(Icons.expand_more_rounded, color: context.primaryColor),
-            style: TextStyle(
+            style: AppTextStyles.labelLarge.copyWith(
               color: context.primaryTextColor,
-              fontSize: 14,
-              fontWeight: FontWeight.w600,
             ),
             decoration: _optionDecoration(
               'Collection type',
@@ -422,6 +429,7 @@ class _DealerWiseTargetPageState extends State<DealerWiseTargetPage> {
               _collectionTypes.isEmpty
                   ? 'No collection types found'
                   : 'Select collection type',
+              style: AppTextStyles.inputHint,
             ),
             items: _collectionTypes
                 .map(
@@ -430,6 +438,7 @@ class _DealerWiseTargetPageState extends State<DealerWiseTargetPage> {
                     child: Text(
                       type.collectionType,
                       overflow: TextOverflow.ellipsis,
+                      style: AppTextStyles.body,
                     ),
                   ),
                 )
@@ -495,8 +504,7 @@ class _DealerWiseTargetPageState extends State<DealerWiseTargetPage> {
                 ),
                 hint: Text(
                   'Select Month',
-                  style: TextStyle(
-                    fontSize: 14,
+                  style: AppTextStyles.body.copyWith(
                     color: context.secondaryTextColor,
                   ),
                 ),
@@ -506,9 +514,7 @@ class _DealerWiseTargetPageState extends State<DealerWiseTargetPage> {
                         value: date,
                         child: Text(
                           date.monthName,
-                          style: TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.w600,
+                          style: AppTextStyles.labelLarge.copyWith(
                             color: context.primaryTextColor,
                           ),
                         ),
@@ -679,10 +685,8 @@ class _DealerWiseTargetPageState extends State<DealerWiseTargetPage> {
                   title,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: TextStyle(
-                    fontSize: 11,
+                  style: AppTextStyles.caption.copyWith(
                     color: context.secondaryTextColor,
-                    fontWeight: FontWeight.w500,
                   ),
                 ),
 
@@ -692,10 +696,8 @@ class _DealerWiseTargetPageState extends State<DealerWiseTargetPage> {
                   value,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: TextStyle(
-                    fontSize: 16,
+                  style: AppTextStyles.cardTitle.copyWith(
                     color: context.primaryTextColor,
-                    fontWeight: FontWeight.w700,
                     letterSpacing: -0.2,
                   ),
                 ),
@@ -768,17 +770,14 @@ class _DealerWiseTargetPageState extends State<DealerWiseTargetPage> {
                   children: [
                     Text(
                       'Achievement Overview',
-                      style: TextStyle(
-                        fontSize: 15,
-                        fontWeight: FontWeight.w700,
+                      style: AppTextStyles.cardTitle.copyWith(
                         color: context.primaryTextColor,
                       ),
                     ),
                     SizedBox(height: 2),
                     Text(
                       'Target vs collection',
-                      style: TextStyle(
-                        fontSize: 11,
+                      style: AppTextStyles.caption.copyWith(
                         color: context.secondaryTextColor,
                       ),
                     ),
@@ -832,9 +831,7 @@ class _DealerWiseTargetPageState extends State<DealerWiseTargetPage> {
                       // '${achievedPercent.toStringAsFixed(0)}%',
                       '${achievedPercent.toStringAsFixed(2)}%',
 
-                      style: TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.w800,
+                      style: AppTextStyles.cardValue.copyWith(
                         color: context.primaryTextColor,
                         letterSpacing: -1,
                       ),
@@ -842,10 +839,8 @@ class _DealerWiseTargetPageState extends State<DealerWiseTargetPage> {
                     const SizedBox(height: 1),
                     Text(
                       'Achieved',
-                      style: TextStyle(
-                        fontSize: 11,
+                      style: AppTextStyles.caption.copyWith(
                         color: context.secondaryTextColor,
-                        fontWeight: FontWeight.w500,
                       ),
                     ),
                   ],
@@ -907,17 +902,14 @@ class _DealerWiseTargetPageState extends State<DealerWiseTargetPage> {
                 title,
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
-                style: TextStyle(
-                  fontSize: 11,
-                  fontWeight: FontWeight.w600,
+                style: AppTextStyles.labelSmall.copyWith(
                   color: context.primaryTextColor,
                 ),
               ),
 
               Text(
                 value,
-                style: TextStyle(
-                  fontSize: 10,
+                style: AppTextStyles.helperText.copyWith(
                   color: context.secondaryTextColor,
                 ),
               ),
@@ -958,10 +950,8 @@ class _DealerWiseTargetPageState extends State<DealerWiseTargetPage> {
             Text(
               message,
               textAlign: TextAlign.center,
-              style: TextStyle(
-                fontSize: 14,
+              style: AppTextStyles.body.copyWith(
                 color: context.secondaryTextColor,
-                fontWeight: FontWeight.w500,
               ),
             ),
           ],

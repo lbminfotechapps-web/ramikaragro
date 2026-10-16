@@ -1,22 +1,24 @@
+import 'package:solufine/core/theme/typography/app_text_styles.dart';
 import 'package:flutter/material.dart';
+import 'package:html/parser.dart' as html_parser;
 import 'package:url_launcher/url_launcher.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 
 class OrganizationWebView extends StatefulWidget {
   final String html;
+  final bool removeHtmlBackground;
 
   const OrganizationWebView({
     super.key,
     required this.html,
+    this.removeHtmlBackground = false,
   });
 
   @override
-  State<OrganizationWebView> createState() =>
-      _OrganizationWebViewState();
+  State<OrganizationWebView> createState() => _OrganizationWebViewState();
 }
 
-class _OrganizationWebViewState
-    extends State<OrganizationWebView> {
+class _OrganizationWebViewState extends State<OrganizationWebView> {
   late final WebViewController controller;
 
   @override
@@ -24,21 +26,15 @@ class _OrganizationWebViewState
     super.initState();
 
     controller = WebViewController()
-      ..setJavaScriptMode(
-        JavaScriptMode.unrestricted,
-      )
+      ..setJavaScriptMode(JavaScriptMode.unrestricted)
       ..setNavigationDelegate(
         NavigationDelegate(
           onPageStarted: (url) {
-            debugPrint(
-              'WebView started: $url',
-            );
+            debugPrint('WebView started: $url');
           },
 
           onPageFinished: (url) {
-            debugPrint(
-              'WebView finished: $url',
-            );
+            debugPrint('WebView finished: $url');
           },
 
           onWebResourceError: (error) {
@@ -51,23 +47,16 @@ class _OrganizationWebViewState
           // ================================================================
           // HANDLE LINK CLICK
           // ================================================================
+          onNavigationRequest: (NavigationRequest request) async {
+            final String url = request.url.trim();
 
-          onNavigationRequest: (
-            NavigationRequest request,
-          ) async {
-            final String url =
-                request.url.trim();
-
-            debugPrint(
-              'CLICKED URL: $url',
-            );
+            debugPrint('CLICKED URL: $url');
 
             // ------------------------------------------------------------
             // INTERNAL HTML
             // ------------------------------------------------------------
 
-            if (url.startsWith('about:') ||
-                url.startsWith('data:')) {
+            if (url.startsWith('about:') || url.startsWith('data:')) {
               return NavigationDecision.navigate;
             }
 
@@ -77,9 +66,7 @@ class _OrganizationWebViewState
             // ------------------------------------------------------------
 
             if (url.startsWith('tel:')) {
-              await _openPhone(
-                url,
-              );
+              await _openPhone(url);
 
               return NavigationDecision.prevent;
             }
@@ -90,10 +77,7 @@ class _OrganizationWebViewState
             // ------------------------------------------------------------
 
             if (url.startsWith('mailto:')) {
-              await _openExternal(
-                url,
-                'Unable to open email application',
-              );
+              await _openExternal(url, 'Unable to open email application');
 
               return NavigationDecision.prevent;
             }
@@ -107,11 +91,8 @@ class _OrganizationWebViewState
             // OPEN IN EXTERNAL BROWSER
             // ------------------------------------------------------------
 
-            if (url.startsWith('http://') ||
-                url.startsWith('https://')) {
-              await _openBrowser(
-                url,
-              );
+            if (url.startsWith('http://') || url.startsWith('https://')) {
+              await _openBrowser(url);
 
               return NavigationDecision.prevent;
             }
@@ -121,54 +102,35 @@ class _OrganizationWebViewState
         ),
       )
       ..setBackgroundColor(
-        const Color(
-          0xFFF7F9F8,
-        ),
+        widget.removeHtmlBackground
+            ? Colors.transparent
+            : const Color(0xFFF7F9F8),
       )
-      ..loadHtmlString(
-        _buildHtml(
-          widget.html,
-        ),
-      );
+      ..loadHtmlString(_buildHtml(widget.html));
   }
 
   // =========================================================================
   // OPEN PHONE
   // =========================================================================
 
-  Future<void> _openPhone(
-    String url,
-  ) async {
+  Future<void> _openPhone(String url) async {
     try {
-      final Uri uri =
-          Uri.parse(
-        url,
-      );
+      final Uri uri = Uri.parse(url);
 
-      debugPrint(
-        'OPEN PHONE: $uri',
-      );
+      debugPrint('OPEN PHONE: $uri');
 
-      final bool launched =
-          await launchUrl(
+      final bool launched = await launchUrl(
         uri,
-        mode:
-            LaunchMode.externalApplication,
+        mode: LaunchMode.externalApplication,
       );
 
       if (!launched) {
-        _showMessage(
-          'Unable to open phone dialer',
-        );
+        _showMessage('Unable to open phone dialer');
       }
     } catch (e) {
-      debugPrint(
-        'PHONE ERROR: $e',
-      );
+      debugPrint('PHONE ERROR: $e');
 
-      _showMessage(
-        'Unable to open phone dialer',
-      );
+      _showMessage('Unable to open phone dialer');
     }
   }
 
@@ -176,57 +138,35 @@ class _OrganizationWebViewState
   // OPEN BROWSER
   // =========================================================================
 
-  Future<void> _openBrowser(
-    String url,
-  ) async {
+  Future<void> _openBrowser(String url) async {
     try {
-      String finalUrl =
-          url.trim();
+      String finalUrl = url.trim();
 
       // Just additional safety
-      if (!finalUrl.startsWith(
-            'http://',
-          ) &&
-          !finalUrl.startsWith(
-            'https://',
-          )) {
-        finalUrl =
-            'https://$finalUrl';
+      if (!finalUrl.startsWith('http://') && !finalUrl.startsWith('https://')) {
+        finalUrl = 'https://$finalUrl';
       }
 
-      final Uri uri =
-          Uri.parse(
-        finalUrl,
-      );
+      final Uri uri = Uri.parse(finalUrl);
 
-      debugPrint(
-        'OPEN BROWSER: $uri',
-      );
+      debugPrint('OPEN BROWSER: $uri');
 
-      final bool launched =
-          await launchUrl(
+      final bool launched = await launchUrl(
         uri,
 
         // IMPORTANT:
         // Opens Chrome/default browser
         // instead of loading inside WebView.
-        mode:
-            LaunchMode.externalApplication,
+        mode: LaunchMode.externalApplication,
       );
 
       if (!launched) {
-        _showMessage(
-          'Unable to open website',
-        );
+        _showMessage('Unable to open website');
       }
     } catch (e) {
-      debugPrint(
-        'BROWSER ERROR: $e',
-      );
+      debugPrint('BROWSER ERROR: $e');
 
-      _showMessage(
-        'Unable to open website',
-      );
+      _showMessage('Unable to open website');
     }
   }
 
@@ -234,36 +174,22 @@ class _OrganizationWebViewState
   // OPEN EXTERNAL URI
   // =========================================================================
 
-  Future<void> _openExternal(
-    String url,
-    String errorMessage,
-  ) async {
+  Future<void> _openExternal(String url, String errorMessage) async {
     try {
-      final Uri uri =
-          Uri.parse(
-        url,
-      );
+      final Uri uri = Uri.parse(url);
 
-      final bool launched =
-          await launchUrl(
+      final bool launched = await launchUrl(
         uri,
-        mode:
-            LaunchMode.externalApplication,
+        mode: LaunchMode.externalApplication,
       );
 
       if (!launched) {
-        _showMessage(
-          errorMessage,
-        );
+        _showMessage(errorMessage);
       }
     } catch (e) {
-      debugPrint(
-        'OPEN EXTERNAL ERROR: $e',
-      );
+      debugPrint('OPEN EXTERNAL ERROR: $e');
 
-      _showMessage(
-        errorMessage,
-      );
+      _showMessage(errorMessage);
     }
   }
 
@@ -271,25 +197,17 @@ class _OrganizationWebViewState
   // MESSAGE
   // =========================================================================
 
-  void _showMessage(
-    String message,
-  ) {
+  void _showMessage(String message) {
     if (!mounted) {
       return;
     }
 
-    ScaffoldMessenger.of(
-      context,
-    )
+    ScaffoldMessenger.of(context)
       ..hideCurrentSnackBar()
       ..showSnackBar(
         SnackBar(
-          content:
-              Text(
-            message,
-          ),
-          behavior:
-              SnackBarBehavior.floating,
+          content: Text(message, style: AppTextStyles.body),
+          behavior: SnackBarBehavior.floating,
         ),
       );
   }
@@ -298,10 +216,9 @@ class _OrganizationWebViewState
   // BUILD HTML
   // =========================================================================
 
-  String _buildHtml(
-    String content,
-  ) {
-    return '''
+  String _buildHtml(String content) {
+    final html =
+        '''
 <!DOCTYPE html>
 <html>
 <head>
@@ -356,6 +273,12 @@ a {
     word-break: break-word;
 }
 
+${widget.removeHtmlBackground ? '''
+html, body, body *, body *::before, body *::after {
+    background: transparent !important;
+}
+''' : ''}
+
 </style>
 
 </head>
@@ -368,6 +291,22 @@ $content
 
 </html>
 ''';
+
+    if (!widget.removeHtmlBackground) {
+      return html;
+    }
+
+    // Inline !important declarations also override backgrounds supplied by
+    // the API's inline styles, including existing !important declarations.
+    final document = html_parser.parse(html);
+    for (final element in document.querySelectorAll('*')) {
+      element.attributes.remove('bgcolor');
+      element.attributes.remove('background');
+      final style = element.attributes['style'] ?? '';
+      element.attributes['style'] =
+          '$style; background: transparent !important;';
+    }
+    return document.outerHtml;
   }
 
   // =========================================================================
@@ -375,20 +314,17 @@ $content
   // =========================================================================
 
   @override
-  void didUpdateWidget(
-    covariant OrganizationWebView oldWidget,
-  ) {
-    super.didUpdateWidget(
-      oldWidget,
-    );
+  void didUpdateWidget(covariant OrganizationWebView oldWidget) {
+    super.didUpdateWidget(oldWidget);
 
-    if (oldWidget.html !=
-        widget.html) {
-      controller.loadHtmlString(
-        _buildHtml(
-          widget.html,
-        ),
+    if (oldWidget.html != widget.html ||
+        oldWidget.removeHtmlBackground != widget.removeHtmlBackground) {
+      controller.setBackgroundColor(
+        widget.removeHtmlBackground
+            ? Colors.transparent
+            : const Color(0xFFF7F9F8),
       );
+      controller.loadHtmlString(_buildHtml(widget.html));
     }
   }
 
@@ -397,12 +333,7 @@ $content
   // =========================================================================
 
   @override
-  Widget build(
-    BuildContext context,
-  ) {
-    return WebViewWidget(
-      controller:
-          controller,
-    );
+  Widget build(BuildContext context) {
+    return WebViewWidget(controller: controller);
   }
 }

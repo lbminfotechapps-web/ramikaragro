@@ -1,3 +1,4 @@
+import 'package:solufine/core/theme/typography/app_text_styles.dart';
 import 'package:solufine/core/router/app_router.dart';
 import 'package:solufine/core/secure_storage/secure_storage.dart';
 import 'package:solufine/core/theme/app_theme_context.dart';
@@ -248,7 +249,7 @@ class _TeamLeaveListPageState extends State<TeamLeaveListPage> {
                 },
                 icon: Icon(
                   showFilter ? Icons.close_rounded : Icons.tune_rounded,
-                
+
                   size: 23,
                 ),
               ),
@@ -349,10 +350,8 @@ class _TeamLeaveListPageState extends State<TeamLeaveListPage> {
               children: [
                 Text(
                   'Team Leave Requests',
-                  style: TextStyle(
+                  style: AppTextStyles.button.copyWith(
                     color: context.onPrimaryColor,
-                    fontSize: 14.5,
-                    fontWeight: FontWeight.w800,
                   ),
                 ),
 
@@ -360,10 +359,8 @@ class _TeamLeaveListPageState extends State<TeamLeaveListPage> {
 
                 Text(
                   '${fromDateController.text}  →  ${toDateController.text}',
-                  style: TextStyle(
+                  style: AppTextStyles.caption.copyWith(
                     color: context.onPrimaryColor.withValues(alpha: 0.80),
-                    fontSize: 9.5,
-                    fontWeight: FontWeight.w500,
                   ),
                 ),
               ],
@@ -383,18 +380,14 @@ class _TeamLeaveListPageState extends State<TeamLeaveListPage> {
               children: [
                 Text(
                   '${state.leaves.length}',
-                  style: TextStyle(
+                  style: AppTextStyles.cardTitle.copyWith(
                     color: context.primaryColor,
-                    fontSize: 16,
-                    fontWeight: FontWeight.w900,
                   ),
                 ),
                 Text(
                   'Leaves',
-                  style: TextStyle(
+                  style: AppTextStyles.badge.copyWith(
                     color: context.secondaryTextColor,
-                    fontSize: 8,
-                    fontWeight: FontWeight.w600,
                   ),
                 ),
               ],
@@ -447,10 +440,8 @@ class _TeamLeaveListPageState extends State<TeamLeaveListPage> {
 
               Text(
                 'Search & Filter',
-                style: TextStyle(
+                style: AppTextStyles.labelLarge.copyWith(
                   color: context.primaryTextColor,
-                  fontSize: 13,
-                  fontWeight: FontWeight.w800,
                 ),
               ),
             ],
@@ -477,7 +468,9 @@ class _TeamLeaveListPageState extends State<TeamLeaveListPage> {
 
           TextField(
             controller: searchController,
-            style: TextStyle(color: context.primaryTextColor),
+            style: AppTextStyles.input.copyWith(
+              color: context.primaryTextColor,
+            ),
             textInputAction: TextInputAction.search,
             onSubmitted: (_) {
               setState(() {
@@ -488,9 +481,8 @@ class _TeamLeaveListPageState extends State<TeamLeaveListPage> {
             },
             decoration: InputDecoration(
               hintText: 'Search employee...',
-              hintStyle: TextStyle(
+              hintStyle: AppTextStyles.inputHint.copyWith(
                 color: context.secondaryTextColor,
-                fontSize: 11.5,
               ),
               prefixIcon: Icon(
                 Icons.search_rounded,
@@ -532,13 +524,7 @@ class _TeamLeaveListPageState extends State<TeamLeaveListPage> {
                       borderRadius: BorderRadius.circular(9),
                     ),
                   ),
-                  child: Text(
-                    'Search',
-                    style: TextStyle(
-                      fontSize: 11.5,
-                      fontWeight: FontWeight.w700,
-                    ),
-                  ),
+                  child: Text('Search', style: AppTextStyles.labelSmall),
                 ),
               ),
 
@@ -557,13 +543,7 @@ class _TeamLeaveListPageState extends State<TeamLeaveListPage> {
                       borderRadius: BorderRadius.circular(9),
                     ),
                   ),
-                  child: Text(
-                    'Reset',
-                    style: TextStyle(
-                      fontSize: 11.5,
-                      fontWeight: FontWeight.w700,
-                    ),
-                  ),
+                  child: Text('Reset', style: AppTextStyles.labelSmall),
                 ),
               ),
             ],
@@ -585,14 +565,12 @@ class _TeamLeaveListPageState extends State<TeamLeaveListPage> {
       controller: controller,
       readOnly: true,
       onTap: () => _selectDate(controller),
-      style: TextStyle(
-        fontSize: 11.5,
-        fontWeight: FontWeight.w700,
-        color: context.primaryTextColor,
-      ),
+      style: AppTextStyles.input.copyWith(color: context.primaryTextColor),
       decoration: InputDecoration(
         labelText: label,
-        labelStyle: TextStyle(color: context.secondaryTextColor, fontSize: 10),
+        labelStyle: AppTextStyles.inputLabel.copyWith(
+          color: context.secondaryTextColor,
+        ),
         suffixIcon: Icon(
           Icons.calendar_month_rounded,
           size: 17,
@@ -635,9 +613,7 @@ class _TeamLeaveListPageState extends State<TeamLeaveListPage> {
       lastDate: DateTime(2035),
       builder: (context, child) {
         return Theme(
-          data: Theme.of(context).copyWith(
-            colorScheme: context.appColors,
-          ),
+          data: Theme.of(context).copyWith(colorScheme: context.appColors),
           child: child!,
         );
       },
@@ -728,10 +704,8 @@ class _TeamLeaveListPageState extends State<TeamLeaveListPage> {
                         leave.employeeName,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
-                        style: TextStyle(
+                        style: AppTextStyles.listTitle.copyWith(
                           color: context.primaryTextColor,
-                          fontSize: 13.5,
-                          fontWeight: FontWeight.w800,
                         ),
                       ),
 
@@ -739,9 +713,8 @@ class _TeamLeaveListPageState extends State<TeamLeaveListPage> {
 
                       Text(
                         'Leave ID: ${leave.leaveId}',
-                        style: TextStyle(
+                        style: AppTextStyles.caption.copyWith(
                           color: context.secondaryTextColor,
-                          fontSize: 9.5,
                         ),
                       ),
                     ],
@@ -937,14 +910,7 @@ class _TeamLeaveListPageState extends State<TeamLeaveListPage> {
         children: [
           Icon(icon, size: 12, color: color),
           SizedBox(width: 3),
-          Text(
-            text,
-            style: TextStyle(
-              color: color,
-              fontSize: 8.5,
-              fontWeight: FontWeight.w800,
-            ),
-          ),
+          Text(text, style: AppTextStyles.badge.copyWith(color: color)),
         ],
       ),
     );
@@ -964,10 +930,8 @@ class _TeamLeaveListPageState extends State<TeamLeaveListPage> {
             SizedBox(width: 4),
             Text(
               label,
-              style: TextStyle(
+              style: AppTextStyles.badge.copyWith(
                 color: context.secondaryTextColor,
-                fontSize: 8,
-                fontWeight: FontWeight.w700,
               ),
             ),
           ],
@@ -979,11 +943,7 @@ class _TeamLeaveListPageState extends State<TeamLeaveListPage> {
           value,
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
-          style: TextStyle(
-            color: context.primaryTextColor,
-            fontSize: 10,
-            fontWeight: FontWeight.w800,
-          ),
+          style: AppTextStyles.badge.copyWith(color: context.primaryTextColor),
         ),
       ],
     );
@@ -1017,9 +977,8 @@ class _TeamLeaveListPageState extends State<TeamLeaveListPage> {
               children: [
                 Text(
                   title,
-                  style: TextStyle(
+                  style: AppTextStyles.helperText.copyWith(
                     color: context.secondaryTextColor,
-                    fontSize: 8,
                   ),
                 ),
 
@@ -1029,10 +988,8 @@ class _TeamLeaveListPageState extends State<TeamLeaveListPage> {
                   value,
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
-                  style: TextStyle(
+                  style: AppTextStyles.caption.copyWith(
                     color: context.primaryTextColor,
-                    fontSize: 9.5,
-                    fontWeight: FontWeight.w700,
                   ),
                 ),
               ],
@@ -1064,20 +1021,16 @@ class _TeamLeaveListPageState extends State<TeamLeaveListPage> {
 
           Text(
             '$title: ',
-            style: TextStyle(
+            style: AppTextStyles.labelSmall.copyWith(
               color: context.secondaryTextColor,
-              fontSize: 9,
-              fontWeight: FontWeight.w700,
             ),
           ),
 
           Expanded(
             child: Text(
               value,
-              style: TextStyle(
+              style: AppTextStyles.labelSmall.copyWith(
                 color: context.primaryTextColor,
-                fontSize: 9,
-                fontWeight: FontWeight.w500,
                 height: 1.3,
               ),
             ),
@@ -1100,10 +1053,7 @@ class _TeamLeaveListPageState extends State<TeamLeaveListPage> {
     return ElevatedButton.icon(
       onPressed: onTap,
       icon: Icon(icon, size: 16),
-      label: Text(
-        title,
-        style: TextStyle(fontSize: 11, fontWeight: FontWeight.w800),
-      ),
+      label: Text(title, style: AppTextStyles.labelSmall),
       style: ElevatedButton.styleFrom(
         backgroundColor: color,
         foregroundColor: color == context.appColors.error
@@ -1179,9 +1129,7 @@ class _TeamLeaveListPageState extends State<TeamLeaveListPage> {
               Expanded(
                 child: Text(
                   'Reject Leave',
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w800,
+                  style: AppTextStyles.cardTitle.copyWith(
                     color: context.primaryTextColor,
                   ),
                 ),
@@ -1199,9 +1147,8 @@ class _TeamLeaveListPageState extends State<TeamLeaveListPage> {
               children: [
                 Text(
                   'Enter a reason for rejecting this leave request.',
-                  style: TextStyle(
+                  style: AppTextStyles.caption.copyWith(
                     color: context.secondaryTextColor,
-                    fontSize: 11,
                     height: 1.4,
                   ),
                 ),
@@ -1210,14 +1157,15 @@ class _TeamLeaveListPageState extends State<TeamLeaveListPage> {
 
                 TextField(
                   controller: remarkController,
-                  style: TextStyle(color: context.primaryTextColor),
+                  style: AppTextStyles.input.copyWith(
+                    color: context.primaryTextColor,
+                  ),
                   maxLines: 3,
                   textCapitalization: TextCapitalization.sentences,
                   decoration: InputDecoration(
                     hintText: 'Enter rejection remark...',
-                    hintStyle: TextStyle(
+                    hintStyle: AppTextStyles.inputHint.copyWith(
                       color: context.secondaryTextColor,
-                      fontSize: 11.5,
                     ),
                     filled: true,
                     fillColor: context.appTheme.inputBackground,
@@ -1248,9 +1196,8 @@ class _TeamLeaveListPageState extends State<TeamLeaveListPage> {
               },
               child: Text(
                 'Cancel',
-                style: TextStyle(
+                style: AppTextStyles.button.copyWith(
                   color: context.secondaryTextColor,
-                  fontWeight: FontWeight.w700,
                 ),
               ),
             ),
@@ -1264,7 +1211,10 @@ class _TeamLeaveListPageState extends State<TeamLeaveListPage> {
                     ..hideCurrentSnackBar()
                     ..showSnackBar(
                       SnackBar(
-                        content: Text('Please enter remark'),
+                        content: Text(
+                          'Please enter remark',
+                          style: AppTextStyles.body,
+                        ),
                         behavior: SnackBarBehavior.floating,
                       ),
                     );
@@ -1312,10 +1262,7 @@ class _TeamLeaveListPageState extends State<TeamLeaveListPage> {
                   borderRadius: BorderRadius.circular(10),
                 ),
               ),
-              child: Text(
-                'Reject',
-                style: TextStyle(fontSize: 12, fontWeight: FontWeight.w800),
-              ),
+              child: Text('Reject', style: AppTextStyles.buttonSmall),
             ),
           ],
         );
@@ -1350,10 +1297,8 @@ class _TeamLeaveListPageState extends State<TeamLeaveListPage> {
 
           Text(
             'No Leave Found',
-            style: TextStyle(
+            style: AppTextStyles.cardTitle.copyWith(
               color: context.primaryTextColor,
-              fontSize: 16,
-              fontWeight: FontWeight.w800,
             ),
           ),
 
@@ -1364,9 +1309,8 @@ class _TeamLeaveListPageState extends State<TeamLeaveListPage> {
             '${fromDateController.text} to '
             '${toDateController.text}.',
             textAlign: TextAlign.center,
-            style: TextStyle(
+            style: AppTextStyles.caption.copyWith(
               color: context.secondaryTextColor,
-              fontSize: 11,
               height: 1.5,
             ),
           ),
@@ -1376,10 +1320,7 @@ class _TeamLeaveListPageState extends State<TeamLeaveListPage> {
           ElevatedButton.icon(
             onPressed: _fetchLeaveList,
             icon: Icon(Icons.refresh_rounded, size: 16),
-            label: Text(
-              'Reload',
-              style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700),
-            ),
+            label: Text('Reload', style: AppTextStyles.labelSmall),
             style: ElevatedButton.styleFrom(
               backgroundColor: context.primaryColor,
               foregroundColor: context.onPrimaryColor,
@@ -1426,10 +1367,8 @@ class _TeamLeaveListPageState extends State<TeamLeaveListPage> {
         Center(
           child: Text(
             'Unable to load leave list',
-            style: TextStyle(
+            style: AppTextStyles.cardTitle.copyWith(
               color: context.primaryTextColor,
-              fontSize: 16,
-              fontWeight: FontWeight.w800,
             ),
           ),
         ),
@@ -1441,9 +1380,8 @@ class _TeamLeaveListPageState extends State<TeamLeaveListPage> {
           child: Text(
             error ?? 'Something went wrong',
             textAlign: TextAlign.center,
-            style: TextStyle(
+            style: AppTextStyles.caption.copyWith(
               color: context.secondaryTextColor,
-              fontSize: 11,
               height: 1.4,
             ),
           ),
@@ -1455,10 +1393,7 @@ class _TeamLeaveListPageState extends State<TeamLeaveListPage> {
           child: ElevatedButton.icon(
             onPressed: _fetchLeaveList,
             icon: Icon(Icons.refresh_rounded, size: 17),
-            label: Text(
-              'Try Again',
-              style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700),
-            ),
+            label: Text('Try Again', style: AppTextStyles.labelSmall),
             style: ElevatedButton.styleFrom(
               backgroundColor: context.primaryColor,
               foregroundColor: context.onPrimaryColor,
@@ -1510,12 +1445,10 @@ class _TeamLeaveListPageState extends State<TeamLeaveListPage> {
               Expanded(
                 child: Text(
                   message,
-                  style: TextStyle(
-                    fontSize: 11.5,
+                  style: AppTextStyles.labelSmall.copyWith(
                     color: isError
                         ? context.appColors.onError
                         : context.onPrimaryColor,
-                    fontWeight: FontWeight.w600,
                   ),
                 ),
               ),

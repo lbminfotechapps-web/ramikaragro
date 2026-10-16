@@ -1,3 +1,4 @@
+import 'package:solufine/core/theme/typography/app_text_styles.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil_plus/flutter_screenutil_plus.dart';
@@ -174,7 +175,12 @@ class _DealerstocksState extends State<Dealerstocks> {
 
     if (selectedDealer == null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please select dealer first')),
+        SnackBar(
+          content: Text(
+            'Please select dealer first',
+            style: AppTextStyles.body,
+          ),
+        ),
       );
 
       return;
@@ -186,8 +192,11 @@ class _DealerstocksState extends State<Dealerstocks> {
 
     if (productQuantities.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Please add at least one product quantity'),
+        SnackBar(
+          content: Text(
+            'Please add at least one product quantity',
+            style: AppTextStyles.body,
+          ),
         ),
       );
 
@@ -215,7 +224,9 @@ class _DealerstocksState extends State<Dealerstocks> {
 
     if (selectedProducts.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('No selected product found')),
+        SnackBar(
+          content: Text('No selected product found', style: AppTextStyles.body),
+        ),
       );
 
       return;
@@ -263,7 +274,7 @@ class _DealerstocksState extends State<Dealerstocks> {
   void _submitStock() {
     if (selectedDealer == null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please select dealer first')),
+        SnackBar(content: Text('Please select dealer first', style: AppTextStyles.body,)),
       );
 
       return;
@@ -271,8 +282,8 @@ class _DealerstocksState extends State<Dealerstocks> {
 
     if (productQuantities.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Please add at least one product quantity'),
+        SnackBar(
+          content: Text('Please add at least one product quantity', style: AppTextStyles.body,),
         ),
       );
 
@@ -442,11 +453,10 @@ class _DealerstocksState extends State<Dealerstocks> {
 
                                       Text(
                                         'No products available',
-                                        style: TextStyle(
-                                          fontSize: 12.sp,
-                                          fontWeight: FontWeight.w600,
-                                          color: context.appSubText,
-                                        ),
+                                        style: AppTextStyles.buttonSmall
+                                            .copyWith(
+                                              color: context.appSubText,
+                                            ),
                                       ),
                                     ],
                                   ),
@@ -472,21 +482,20 @@ class _DealerstocksState extends State<Dealerstocks> {
 
                                       Text(
                                         'No product found',
-                                        style: TextStyle(
-                                          fontSize: 12.sp,
-                                          fontWeight: FontWeight.w700,
-                                          color: context.appSubText,
-                                        ),
+                                        style: AppTextStyles.buttonSmall
+                                            .copyWith(
+                                              color: context.appSubText,
+                                            ),
                                       ),
 
                                       SizedBox(height: 3.h),
 
                                       Text(
                                         'Try another product name',
-                                        style: TextStyle(
-                                          fontSize: 10.sp,
-                                          color: context.appSubText,
-                                        ),
+                                        style: AppTextStyles.helperText
+                                            .copyWith(
+                                              color: context.appSubText,
+                                            ),
                                       ),
                                     ],
                                   ),
@@ -635,12 +644,8 @@ class _DealerstocksState extends State<Dealerstocks> {
 
                           overflow: TextOverflow.ellipsis,
 
-                          style: TextStyle(
+                          style: AppTextStyles.labelLarge.copyWith(
                             color: context.appOnPrimary,
-
-                            fontSize: 13.sp,
-
-                            fontWeight: FontWeight.w700,
                           ),
                         ),
                       ),
@@ -710,17 +715,14 @@ class _DealerstocksState extends State<Dealerstocks> {
                     children: [
                       Text(
                         'Products',
-                        style: TextStyle(
-                          fontSize: 13.sp,
-                          fontWeight: FontWeight.w800,
+                        style: AppTextStyles.labelLarge.copyWith(
                           color: context.appOnCard,
                         ),
                       ),
 
                       Text(
                         'Add stock quantity',
-                        style: TextStyle(
-                          fontSize: 9.sp,
+                        style: AppTextStyles.caption.copyWith(
                           color: context.appSubText,
                         ),
                       ),
@@ -743,10 +745,8 @@ class _DealerstocksState extends State<Dealerstocks> {
                     ),
                     child: Text(
                       '$_selectedProductCount selected',
-                      style: TextStyle(
+                      style: AppTextStyles.labelSmall.copyWith(
                         color: context.appPrimary,
-                        fontSize: 9.sp,
-                        fontWeight: FontWeight.w700,
                       ),
                     ),
                   ),
@@ -785,15 +785,14 @@ class _DealerstocksState extends State<Dealerstocks> {
                   });
                 },
 
-                style: TextStyle(fontSize: 12.sp, fontWeight: FontWeight.w600),
+                style: AppTextStyles.input,
 
                 decoration: InputDecoration(
                   hintText: selectedDealer == null
                       ? 'Select dealer first'
                       : 'Search products...',
 
-                  hintStyle: TextStyle(
-                    fontSize: 11.sp,
+                  hintStyle: AppTextStyles.inputHint.copyWith(
                     color: context.appSubText,
                   ),
 
@@ -872,11 +871,7 @@ class _DealerstocksState extends State<Dealerstocks> {
 
             Text(
               'Select a dealer',
-              style: TextStyle(
-                fontSize: 16.sp,
-                fontWeight: FontWeight.w800,
-                color: context.appOnCard,
-              ),
+              style: AppTextStyles.cardTitle.copyWith(color: context.appOnCard),
             ),
 
             SizedBox(height: 5.h),
@@ -884,8 +879,7 @@ class _DealerstocksState extends State<Dealerstocks> {
             Text(
               'Choose a dealer above to start entering product stock.',
               textAlign: TextAlign.center,
-              style: TextStyle(
-                fontSize: 12.sp,
+              style: AppTextStyles.bodySmall.copyWith(
                 height: 1.4,
                 color: context.appSubText,
               ),

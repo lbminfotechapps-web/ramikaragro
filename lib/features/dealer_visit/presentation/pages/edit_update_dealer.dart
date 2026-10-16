@@ -1,3 +1,4 @@
+import 'package:solufine/core/theme/typography/app_text_styles.dart';
 import 'dart:io';
 
 import 'package:solufine/core/router/app_router.dart';
@@ -119,9 +120,11 @@ class _EditUpdateDealerState extends State<EditUpdateDealer> {
     if (_selectedStateId == null ||
         _selectedStateId!.isEmpty ||
         _selectedStateId == '0') {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(const SnackBar(content: Text('Please select state')));
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Please select state', style: AppTextStyles.body),
+        ),
+      );
       return;
     }
 
@@ -131,9 +134,11 @@ class _EditUpdateDealerState extends State<EditUpdateDealer> {
     if (_selectedDistrictId == null ||
         _selectedDistrictId!.isEmpty ||
         _selectedDistrictId == '0') {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(const SnackBar(content: Text('Please select district')));
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Please select district', style: AppTextStyles.body),
+        ),
+      );
       return;
     }
 
@@ -143,9 +148,11 @@ class _EditUpdateDealerState extends State<EditUpdateDealer> {
     if (_selectedTalukaId == null ||
         _selectedTalukaId!.isEmpty ||
         _selectedTalukaId == '0') {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(const SnackBar(content: Text('Please select taluka')));
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Please select taluka', style: AppTextStyles.body),
+        ),
+      );
       return;
     }
 
@@ -157,9 +164,9 @@ class _EditUpdateDealerState extends State<EditUpdateDealer> {
     final userId = int.tryParse(userData?['user_id']?.toString() ?? '');
 
     if (userId == null) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(const SnackBar(content: Text('Invalid user ID')));
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Invalid user ID', style: AppTextStyles.body)),
+      );
       return;
     }
 
@@ -169,9 +176,9 @@ class _EditUpdateDealerState extends State<EditUpdateDealer> {
     final outletId = widget.dealerData?.outletId.toString() ?? '';
 
     if (outletId.isEmpty || outletId == '0') {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(const SnackBar(content: Text('Invalid dealer ID')));
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Invalid dealer ID', style: AppTextStyles.body)),
+      );
       return;
     }
 
@@ -298,9 +305,9 @@ class _EditUpdateDealerState extends State<EditUpdateDealer> {
         _submissionSent = false;
       });
 
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text(e.toString())));
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(e.toString(), style: AppTextStyles.body)),
+      );
     }
   }
 
@@ -682,9 +689,7 @@ class _EditUpdateDealerState extends State<EditUpdateDealer> {
   final _fieldKeys = {
     for (final name in _fieldOrder) name: GlobalKey<FormFieldState>(),
   };
-  final _fieldFocus = {
-    for (final name in _fieldOrder) name: FocusNode(),
-  };
+  final _fieldFocus = {for (final name in _fieldOrder) name: FocusNode()};
 
   @override
   Widget build(BuildContext context) {
@@ -700,12 +705,12 @@ class _EditUpdateDealerState extends State<EditUpdateDealer> {
           BlocBuilder<AddDealerVisitBlock, AddDealerVisitState>(
             builder: (context, state) {
               return Padding(
-                padding: const EdgeInsets.only(left: 16,right: 16),
+                padding: const EdgeInsets.only(left: 16, right: 16),
                 child: CustomButton(
                   text: 'Update Dealer',
                   onPressed: _submit,
                   isLoading: isLoading,
-                           
+
                   backgroundColor: context.primaryColor,
                   textColor: context.onPrimaryColor,
                 ),
@@ -729,8 +734,6 @@ class _EditUpdateDealerState extends State<EditUpdateDealer> {
               _submissionSent = false;
             });
 
-       
-
             AppDialog.show(
               context: context,
               message: state.errorMessage ?? 'Dealer Updated Successfully',
@@ -750,7 +753,9 @@ class _EditUpdateDealerState extends State<EditUpdateDealer> {
                 backgroundColor: context.appColors.error,
                 content: Text(
                   state.errorMessage ?? 'Submission failed',
-                  style: TextStyle(color: context.appColors.onError),
+                  style: AppTextStyles.body.copyWith(
+                    color: context.appColors.onError,
+                  ),
                 ),
               ),
             );
@@ -795,16 +800,16 @@ class _EditUpdateDealerState extends State<EditUpdateDealer> {
           }
 
           final districtItems = <DropdownMenuItem<String>>[
-            const DropdownMenuItem<String>(
+            DropdownMenuItem<String>(
               value: '0',
-              child: Text('Select District'),
+              child: Text('Select District', style: AppTextStyles.inputHint),
             ),
             ...uniqueDistricts.entries.map((entry) {
               final district = entry.value;
 
               return DropdownMenuItem<String>(
                 value: entry.key,
-                child: Text(district.fldDistName),
+                child: Text(district.fldDistName, style: AppTextStyles.input),
               );
             }),
           ];
@@ -822,16 +827,16 @@ class _EditUpdateDealerState extends State<EditUpdateDealer> {
           }
 
           final talukaItems = <DropdownMenuItem<String>>[
-            const DropdownMenuItem<String>(
+            DropdownMenuItem<String>(
               value: '0',
-              child: Text('Select Taluka'),
+              child: Text('Select Taluka', style: AppTextStyles.inputHint),
             ),
             ...uniqueTalukas.entries.map((entry) {
               final taluka = entry.value;
 
               return DropdownMenuItem<String>(
                 value: entry.key,
-                child: Text(taluka.fldName),
+                child: Text(taluka.fldName, style: AppTextStyles.input),
               );
             }),
           ];
@@ -853,7 +858,7 @@ class _EditUpdateDealerState extends State<EditUpdateDealer> {
               .map(
                 (item) => DropdownMenuItem<String>(
                   value: item.stateId.trim(),
-                  child: Text(item.stateName),
+                  child: Text(item.stateName, style: AppTextStyles.input),
                 ),
               )
               .toList();
@@ -863,11 +868,17 @@ class _EditUpdateDealerState extends State<EditUpdateDealer> {
               : null;
 
           final dealerTypeItems = dealerTypeStatus.map((status) {
-            return DropdownMenuItem<String>(value: status, child: Text(status));
+            return DropdownMenuItem<String>(
+              value: status,
+              child: Text(status, style: AppTextStyles.input),
+            );
           }).toList();
 
           final followUpTypeItem = followUpType.map((status) {
-            return DropdownMenuItem<String>(value: status, child: Text(status));
+            return DropdownMenuItem<String>(
+              value: status,
+              child: Text(status, style: AppTextStyles.input),
+            );
           }).toList();
 
           final selectedDistrictValue =
@@ -895,9 +906,7 @@ class _EditUpdateDealerState extends State<EditUpdateDealer> {
 
                     Text(
                       'Dealer Type *',
-                      style: TextStyle(
-                        fontSize: 15,
-                        fontWeight: FontWeight.w600,
+                      style: AppTextStyles.labelLarge.copyWith(
                         color: context.primaryTextColor,
                       ),
                     ),
@@ -1074,9 +1083,7 @@ class _EditUpdateDealerState extends State<EditUpdateDealer> {
 
                     Text(
                       'State *',
-                      style: TextStyle(
-                        fontSize: 15,
-                        fontWeight: FontWeight.w600,
+                      style: AppTextStyles.labelLarge.copyWith(
                         color: context.primaryTextColor,
                       ),
                     ),
@@ -1131,9 +1138,7 @@ class _EditUpdateDealerState extends State<EditUpdateDealer> {
 
                     Text(
                       'District *',
-                      style: TextStyle(
-                        fontSize: 15,
-                        fontWeight: FontWeight.w600,
+                      style: AppTextStyles.labelLarge.copyWith(
                         color: context.primaryTextColor,
                       ),
                     ),
@@ -1165,9 +1170,7 @@ class _EditUpdateDealerState extends State<EditUpdateDealer> {
 
                     Text(
                       'Taluka *',
-                      style: TextStyle(
-                        fontSize: 15,
-                        fontWeight: FontWeight.w600,
+                      style: AppTextStyles.labelLarge.copyWith(
                         color: context.primaryTextColor,
                       ),
                     ),
@@ -1249,9 +1252,7 @@ class _EditUpdateDealerState extends State<EditUpdateDealer> {
 
                     Text(
                       'Follow Up Type *',
-                      style: TextStyle(
-                        fontSize: 15,
-                        fontWeight: FontWeight.w600,
+                      style: AppTextStyles.labelLarge.copyWith(
                         color: context.primaryTextColor,
                       ),
                     ),
@@ -1292,7 +1293,7 @@ class _EditUpdateDealerState extends State<EditUpdateDealer> {
                       prefixIcon: Icons.note,
                       maxLines: 2,
                     ),
-                       SizedBox(height: 100.h),
+                    SizedBox(height: 100.h),
                   ],
                 ),
               ),

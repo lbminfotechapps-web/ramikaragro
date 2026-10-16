@@ -1,3 +1,4 @@
+import 'package:solufine/core/theme/typography/app_text_styles.dart';
 import 'package:flutter/services.dart';
 import 'package:solufine/core/theme/app_theme_context.dart';
 import 'package:solufine/features/place_order/domain/entities/product_entity.dart';
@@ -462,7 +463,7 @@ class _MultiProductRateBottomSheetState
         child: Container(
           height: MediaQuery.of(context).size.height * 0.88,
           decoration: BoxDecoration(
-            color:  context.appTheme.inputBackground,
+            color: context.appTheme.inputBackground,
             borderRadius: BorderRadius.vertical(top: Radius.circular(22.r)),
           ),
           child: Column(
@@ -527,16 +528,13 @@ class _MultiProductRateBottomSheetState
                   children: [
                     Text(
                       'Select Products',
-                      style: TextStyle(
-                        fontSize: 15.sp,
-                        fontWeight: FontWeight.w800,
+                      style: AppTextStyles.cardTitle.copyWith(
                         color: context.cardTextColor,
                       ),
                     ),
                     Text(
                       'Select one or more packings',
-                      style: TextStyle(
-                        fontSize: 9.5.sp,
+                      style: AppTextStyles.caption.copyWith(
                         color: context.secondaryTextColor,
                       ),
                     ),
@@ -613,9 +611,7 @@ class _MultiProductRateBottomSheetState
                   product.name,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: TextStyle(
-                    fontSize: 12.sp,
-                    fontWeight: FontWeight.w800,
+                  style: AppTextStyles.buttonSmall.copyWith(
                     color: context.cardTextColor,
                   ),
                 ),
@@ -624,9 +620,7 @@ class _MultiProductRateBottomSheetState
                   selectedCount == 0
                       ? 'Select packing / rate'
                       : '$selectedCount packing selected',
-                  style: TextStyle(
-                    fontSize: 8.5.sp,
-                    fontWeight: FontWeight.w600,
+                  style: AppTextStyles.labelSmall.copyWith(
                     color: selectedCount == 0
                         ? context.secondaryTextColor
                         : context.primaryColor,
@@ -669,9 +663,7 @@ class _MultiProductRateBottomSheetState
             SizedBox(height: 8.h),
             Text(
               'Loading rates...',
-              style: TextStyle(
-                fontSize: 11.sp,
-                fontWeight: FontWeight.w600,
+              style: AppTextStyles.labelSmall.copyWith(
                 color: context.secondaryTextColor,
               ),
             ),
@@ -713,9 +705,7 @@ class _MultiProductRateBottomSheetState
               Expanded(
                 child: Text(
                   'Available Packings',
-                  style: TextStyle(
-                    fontSize: 13.5.sp,
-                    fontWeight: FontWeight.w800,
+                  style: AppTextStyles.listTitle.copyWith(
                     color: context.cardTextColor,
                   ),
                 ),
@@ -736,10 +726,8 @@ class _MultiProductRateBottomSheetState
                   ),
                   child: Text(
                     'Clear',
-                    style: TextStyle(
+                    style: AppTextStyles.labelSmall.copyWith(
                       color: context.primaryColor,
-                      fontSize: 10.5.sp,
-                      fontWeight: FontWeight.w700,
                     ),
                   ),
                 ),
@@ -1074,11 +1062,7 @@ class _MultiProductRateBottomSheetState
 
                   overflow: TextOverflow.ellipsis,
 
-                  style: TextStyle(
-                    fontSize: 12.5.sp,
-
-                    fontWeight: FontWeight.w800,
-
+                  style: AppTextStyles.listTitle.copyWith(
                     color: context.cardTextColor,
                   ),
                 ),
@@ -1093,11 +1077,7 @@ class _MultiProductRateBottomSheetState
               Text(
                 rate.displayRate,
 
-                style: TextStyle(
-                  fontSize: 14.sp,
-
-                  fontWeight: FontWeight.w900,
-
+                style: AppTextStyles.listTitle.copyWith(
                   color: context.primaryColor,
                 ),
               ),
@@ -1161,11 +1141,11 @@ class _MultiProductRateBottomSheetState
       padding: EdgeInsets.symmetric(horizontal: 6.w, vertical: 4.h),
       decoration: BoxDecoration(
         color:
-        //  highlighted
+            //  highlighted
             // ? context.primaryColor
             //       .withValues(alpha: 0.1)
             //       .withValues(alpha: 0.85)
-            // : 
+            // :
             context.appTheme.inputBackground,
         borderRadius: BorderRadius.circular(6.r),
         border: Border.all(
@@ -1189,18 +1169,14 @@ class _MultiProductRateBottomSheetState
 
           Text(
             '$label: ',
-            style: TextStyle(
-              fontSize: 8.sp,
-              fontWeight: FontWeight.w600,
+            style: AppTextStyles.badge.copyWith(
               color: context.secondaryTextColor,
             ),
           ),
 
           Text(
             value,
-            style: TextStyle(
-              fontSize: 8.5.sp,
-              fontWeight: FontWeight.w800,
+            style: AppTextStyles.labelSmall.copyWith(
               color: highlighted ? context.primaryColor : context.cardTextColor,
             ),
           ),
@@ -1222,6 +1198,7 @@ class _MultiProductRateBottomSheetState
       width: 95.w,
       height: 36.h,
       child: TextFormField(
+        style: AppTextStyles.input,
         key: ValueKey('case_${productId}_$productDetailsId'),
         initialValue: quantity > 0 ? quantity.toString() : '',
         keyboardType: TextInputType.number,
@@ -1272,9 +1249,7 @@ class _MultiProductRateBottomSheetState
             Text(
               title,
               textAlign: TextAlign.center,
-              style: TextStyle(
-                fontSize: 14.sp,
-                fontWeight: FontWeight.w800,
+              style: AppTextStyles.listTitle.copyWith(
                 color: context.cardTextColor,
               ),
             ),
@@ -1284,9 +1259,7 @@ class _MultiProductRateBottomSheetState
             Text(
               subtitle,
               textAlign: TextAlign.center,
-              style: TextStyle(
-                fontSize: 10.5.sp,
-                fontWeight: FontWeight.w500,
+              style: AppTextStyles.caption.copyWith(
                 color: context.secondaryTextColor,
               ),
             ),
@@ -1346,10 +1319,7 @@ class _MultiProductRateBottomSheetState
                   enabled
                       ? 'Done ($_totalSelectedRates Selected)'
                       : 'Select Rate',
-                  style: TextStyle(
-                    fontSize: 13.sp,
-                    fontWeight: FontWeight.w800,
-                  ),
+                  style: AppTextStyles.labelLarge,
                 ),
               ],
             ),

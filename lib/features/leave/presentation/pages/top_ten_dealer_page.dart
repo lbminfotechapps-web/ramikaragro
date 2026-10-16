@@ -1,3 +1,4 @@
+import 'package:solufine/core/theme/typography/app_text_styles.dart';
 import 'package:solufine/core/router/app_router.dart';
 import 'package:solufine/core/theme/app_theme_context.dart';
 import 'package:solufine/core/utility/widgets/custom_appbar.dart';
@@ -58,7 +59,9 @@ class _TopTenDealerPageState extends State<TopTenDealerPage> {
             appBar: CustomAppBar(
               title: 'Top 10 Dealers',
               backgroundColor: context.primaryColor,
-              titleStyle: TextStyle(color: context.onPrimaryColor),
+              titleStyle: AppTextStyles.appBarTitle.copyWith(
+                color: context.onPrimaryColor,
+              ),
               leading: IconButton(
                 icon: Icon(
                   Icons.arrow_back_ios_new_rounded,
@@ -129,9 +132,7 @@ class _TopTenDealerPageState extends State<TopTenDealerPage> {
         children: [
           Text(
             'Top 10 Dealers',
-            style: TextStyle(
-              fontSize: 21,
-              fontWeight: FontWeight.w700,
+            style: AppTextStyles.pageTitle.copyWith(
               color: context.cardBackgroundColor,
             ),
           ),
@@ -139,7 +140,9 @@ class _TopTenDealerPageState extends State<TopTenDealerPage> {
           SizedBox(height: 2),
           Text(
             'Dealer visit performance',
-            style: TextStyle(fontSize: 12, color: context.cardBackgroundColor),
+            style: AppTextStyles.bodySmall.copyWith(
+              color: context.cardBackgroundColor,
+            ),
           ),
         ],
       ),
@@ -214,9 +217,7 @@ class _TopTenDealerPageState extends State<TopTenDealerPage> {
           Expanded(
             child: Text(
               'Dealer Name / Address',
-              style: TextStyle(
-                fontSize: 13,
-                fontWeight: FontWeight.w800,
+              style: AppTextStyles.labelLarge.copyWith(
                 color: context.cardTextColor,
               ),
             ),
@@ -235,9 +236,7 @@ class _TopTenDealerPageState extends State<TopTenDealerPage> {
             child: Text(
               'Visits',
               textAlign: TextAlign.center,
-              style: TextStyle(
-                fontSize: 13,
-                fontWeight: FontWeight.w800,
+              style: AppTextStyles.labelLarge.copyWith(
                 color: context.cardTextColor,
               ),
             ),
@@ -276,17 +275,16 @@ class _TopTenDealerPageState extends State<TopTenDealerPage> {
 
           SizedBox(height: 16),
 
-          Text(
-            'No Dealers Found',
-            style: TextStyle(fontSize: 17, fontWeight: FontWeight.w700),
-          ),
+          Text('No Dealers Found', style: AppTextStyles.headingMedium),
 
           SizedBox(height: 6),
 
           Text(
             'No dealer visits found for last $days days',
             textAlign: TextAlign.center,
-            style: TextStyle(fontSize: 12, color: context.secondaryTextColor),
+            style: AppTextStyles.bodySmall.copyWith(
+              color: context.secondaryTextColor,
+            ),
           ),
         ],
       ),
@@ -297,7 +295,10 @@ class _TopTenDealerPageState extends State<TopTenDealerPage> {
     if (!mounted) return;
 
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(message), behavior: SnackBarBehavior.floating),
+      SnackBar(
+        content: Text(message, style: AppTextStyles.body),
+        behavior: SnackBarBehavior.floating,
+      ),
     );
   }
 }

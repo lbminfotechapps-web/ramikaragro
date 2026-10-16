@@ -1,3 +1,4 @@
+import 'package:solufine/core/theme/typography/app_text_styles.dart';
 import 'dart:async';
 
 import 'package:flutter/material.dart';
@@ -487,8 +488,11 @@ class _VisitSummaryPageState extends State<VisitSummaryPage> {
       ScaffoldMessenger.of(context).hideCurrentSnackBar();
 
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Please select employee from the list'),
+        SnackBar(
+          content: Text(
+            'Please select employee from the list',
+            style: AppTextStyles.body,
+          ),
           behavior: SnackBarBehavior.floating,
         ),
       );
@@ -651,8 +655,7 @@ class _VisitSummaryPageState extends State<VisitSummaryPage> {
             SizedBox(width: 7),
             Text(
               'No employee found',
-              style: TextStyle(
-                fontSize: 11.5,
+              style: AppTextStyles.labelSmall.copyWith(
                 color: context.secondaryTextColor,
               ),
             ),
@@ -700,9 +703,7 @@ class _VisitSummaryPageState extends State<VisitSummaryPage> {
                     ),
                     child: Text(
                       name[0].toUpperCase(),
-                      style: TextStyle(
-                        fontSize: 10,
-                        fontWeight: FontWeight.w800,
+                      style: AppTextStyles.labelSmall.copyWith(
                         color: context.primaryColor,
                       ),
                     ),
@@ -715,8 +716,7 @@ class _VisitSummaryPageState extends State<VisitSummaryPage> {
                       name,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
-                      style: TextStyle(
-                        fontSize: 12,
+                      style: AppTextStyles.buttonSmall.copyWith(
                         fontWeight: selected
                             ? FontWeight.w700
                             : FontWeight.w500,
@@ -802,9 +802,7 @@ class _VisitSummaryPageState extends State<VisitSummaryPage> {
                           children: [
                             Text(
                               'Filter Visit Summary',
-                              style: TextStyle(
-                                fontSize: 13,
-                                fontWeight: FontWeight.w800,
+                              style: AppTextStyles.labelLarge.copyWith(
                                 color: context.cardTextColor,
                               ),
                             ),
@@ -815,8 +813,7 @@ class _VisitSummaryPageState extends State<VisitSummaryPage> {
                               '${selectedEmployeeName.isEmpty ? 'All Employees' : selectedEmployeeName} • ${_formatDateForDisplay(fromDate)}',
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
-                              style: TextStyle(
-                                fontSize: 10,
+                              style: AppTextStyles.helperText.copyWith(
                                 color: context.secondaryTextColor,
                               ),
                             ),
@@ -864,7 +861,7 @@ class _VisitSummaryPageState extends State<VisitSummaryPage> {
                         focusNode: employeeFocusNode,
                         onTap: _onEmployeeFieldTap,
                         onChanged: _searchEmployee,
-                        style: TextStyle(fontSize: 12),
+                        style: AppTextStyles.input,
                         decoration: InputDecoration(
                           hintText: 'Search employee',
                           filled: true,
@@ -956,18 +953,21 @@ class _VisitSummaryPageState extends State<VisitSummaryPage> {
                             color: context.primaryColor,
                           ),
                         ),
-                        items: const [
+                        items: [
                           DropdownMenuItem(
                             value: 'All Status',
-                            child: Text('All Status'),
+                            child: Text(
+                              'All Status',
+                              style: AppTextStyles.body,
+                            ),
                           ),
                           DropdownMenuItem(
                             value: 'Present',
-                            child: Text('Present'),
+                            child: Text('Present', style: AppTextStyles.body),
                           ),
                           DropdownMenuItem(
                             value: 'Absent',
-                            child: Text('Absent'),
+                            child: Text('Absent', style: AppTextStyles.body),
                           ),
                         ],
                         onChanged: (value) {
@@ -992,7 +992,7 @@ class _VisitSummaryPageState extends State<VisitSummaryPage> {
                             child: OutlinedButton.icon(
                               onPressed: _resetFilters,
                               icon: Icon(Icons.restart_alt_rounded, size: 16),
-                              label: Text('Reset'),
+                              label: Text('Reset', style: AppTextStyles.button),
                               style: OutlinedButton.styleFrom(
                                 foregroundColor: context.secondaryTextColor,
                                 minimumSize: const Size(0, 39),
@@ -1011,7 +1011,10 @@ class _VisitSummaryPageState extends State<VisitSummaryPage> {
                             child: ElevatedButton.icon(
                               onPressed: _searchReport,
                               icon: Icon(Icons.search_rounded, size: 16),
-                              label: Text('Search'),
+                              label: Text(
+                                'Search',
+                                style: AppTextStyles.button,
+                              ),
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: context.primaryColor,
                                 foregroundColor: context.onPrimaryColor,
@@ -1048,7 +1051,9 @@ class _VisitSummaryPageState extends State<VisitSummaryPage> {
         backgroundColor: context.backgroundColor,
         appBar: CustomAppBar(
           backgroundColor: context.primaryColor,
-          titleStyle: TextStyle(color: context.onPrimaryColor),
+          titleStyle: AppTextStyles.appBarTitle.copyWith(
+            color: context.onPrimaryColor,
+          ),
           leading: IconButton(
             icon: Icon(
               Icons.arrow_back_ios_new_rounded,
@@ -1072,7 +1077,9 @@ class _VisitSummaryPageState extends State<VisitSummaryPage> {
 
       appBar: CustomAppBar(
         backgroundColor: context.primaryColor,
-        titleStyle: TextStyle(color: context.onPrimaryColor),
+        titleStyle: AppTextStyles.appBarTitle.copyWith(
+          color: context.onPrimaryColor,
+        ),
         leading: IconButton(
           icon: Icon(
             Icons.arrow_back_ios_new_rounded,
@@ -1164,9 +1171,7 @@ class _VisitSummaryPageState extends State<VisitSummaryPage> {
                       Expanded(
                         child: Text(
                           'Visit Details',
-                          style: TextStyle(
-                            fontSize: 15,
-                            fontWeight: FontWeight.w800,
+                          style: AppTextStyles.cardTitle.copyWith(
                             color: context.cardTextColor,
                           ),
                         ),
@@ -1183,9 +1188,7 @@ class _VisitSummaryPageState extends State<VisitSummaryPage> {
                         ),
                         child: Text(
                           '${reports.length} Records',
-                          style: TextStyle(
-                            fontSize: 10.5,
-                            fontWeight: FontWeight.w700,
+                          style: AppTextStyles.labelSmall.copyWith(
                             color: context.primaryColor,
                           ),
                         ),
@@ -1234,9 +1237,7 @@ class _FilterLabel extends StatelessWidget {
 
         Text(
           title,
-          style: TextStyle(
-            fontSize: 11,
-            fontWeight: FontWeight.w700,
+          style: AppTextStyles.labelSmall.copyWith(
             color: context.secondaryTextColor,
           ),
         ),
@@ -1290,8 +1291,7 @@ class _DateField extends StatelessWidget {
                 children: [
                   Text(
                     title,
-                    style: TextStyle(
-                      fontSize: 9,
+                    style: AppTextStyles.caption.copyWith(
                       color: context.secondaryTextColor,
                     ),
                   ),
@@ -1302,9 +1302,7 @@ class _DateField extends StatelessWidget {
                     value,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
-                    style: TextStyle(
-                      fontSize: 10.5,
-                      fontWeight: FontWeight.w600,
+                    style: AppTextStyles.labelSmall.copyWith(
                       color: context.cardTextColor,
                     ),
                   ),
@@ -1343,17 +1341,16 @@ class _ErrorView extends StatelessWidget {
 
           const SizedBox(height: 8),
 
-          Text(
-            'Something went wrong',
-            style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
-          ),
+          Text('Something went wrong', style: AppTextStyles.cardTitle),
 
           const SizedBox(height: 5),
 
           Text(
             message,
             textAlign: TextAlign.center,
-            style: TextStyle(fontSize: 12, color: context.secondaryTextColor),
+            style: AppTextStyles.bodySmall.copyWith(
+              color: context.secondaryTextColor,
+            ),
           ),
 
           const SizedBox(height: 12),
@@ -1361,7 +1358,7 @@ class _ErrorView extends StatelessWidget {
           ElevatedButton.icon(
             onPressed: onRetry,
             icon: Icon(Icons.refresh_rounded, size: 17),
-            label: Text('Retry'),
+            label: Text('Retry', style: AppTextStyles.button),
             style: ElevatedButton.styleFrom(
               backgroundColor: context.primaryColor,
               foregroundColor: context.onPrimaryColor,
