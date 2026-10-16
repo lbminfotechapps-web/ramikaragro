@@ -144,39 +144,11 @@ class UserGuidelinesPage extends StatelessWidget {
       child: Container(
         width: double.infinity,
         decoration: BoxDecoration(
-          color: context.cardBackgroundColor,
+          color: Colors.transparent,
           borderRadius: BorderRadius.circular(24),
-          boxShadow: [
-            BoxShadow(
-              color: context.appColors.shadow.withValues(alpha: 0.06),
-              blurRadius: 20,
-              spreadRadius: 1,
-              offset: const Offset(0, 6),
-            ),
-          ],
         ),
         clipBehavior: Clip.antiAlias,
-        child: Column(
-          children: [
-            _buildSectionHeader(context),
-
-            Expanded(child: OrganizationWebView(html: html)),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildSectionHeader(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 14),
-      decoration: BoxDecoration(
-        color: context.primaryColor.withValues(alpha: 0.06),
-        border: Border(
-          bottom: BorderSide(
-            color: context.primaryColor.withValues(alpha: 0.08),
-          ),
-        ),
+        child: OrganizationWebView(html: html, removeHtmlBackground: true),
       ),
     );
   }

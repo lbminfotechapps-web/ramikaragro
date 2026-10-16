@@ -179,7 +179,9 @@ class AboutUsPage extends StatelessWidget {
         children: [
           _buildContentHeader(context),
 
-          Expanded(child: OrganizationWebView(html: html)),
+          Expanded(
+            child: OrganizationWebView(html: html, removeHtmlBackground: true),
+          ),
         ],
       ),
     );

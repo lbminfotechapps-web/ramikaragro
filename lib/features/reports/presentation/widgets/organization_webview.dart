@@ -1,12 +1,18 @@
 import 'package:solufine/core/theme/typography/app_text_styles.dart';
 import 'package:flutter/material.dart';
+import 'package:html/parser.dart' as html_parser;
 import 'package:url_launcher/url_launcher.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 
 class OrganizationWebView extends StatefulWidget {
   final String html;
+  final bool removeHtmlBackground;
 
-  const OrganizationWebView({super.key, required this.html});
+  const OrganizationWebView({
+    super.key,
+    required this.html,
+    this.removeHtmlBackground = false,
+  });
 
   @override
   State<OrganizationWebView> createState() => _OrganizationWebViewState();
@@ -95,7 +101,11 @@ class _OrganizationWebViewState extends State<OrganizationWebView> {
           },
         ),
       )
-      ..setBackgroundColor(const Color(0xFFF7F9F8))
+      ..setBackgroundColor(
+        widget.removeHtmlBackground
+            ? Colors.transparent
+            : const Color(0xFFF7F9F8),
+      )
       ..loadHtmlString(_buildHtml(widget.html));
   }
 
@@ -207,7 +217,8 @@ class _OrganizationWebViewState extends State<OrganizationWebView> {
   // =========================================================================
 
   String _buildHtml(String content) {
-    return '''
+    final html =
+        '''
 <!DOCTYPE html>
 <html>
 <head>
@@ -262,6 +273,12 @@ a {
     word-break: break-word;
 }
 
+${widget.removeHtmlBackground ? '''
+html, body, body *, body *::before, body *::after {
+    background: transparent !important;
+}
+''' : ''}
+
 </style>
 
 </head>
@@ -274,6 +291,22 @@ $content
 
 </html>
 ''';
+
+    if (!widget.removeHtmlBackground) {
+      return html;
+    }
+
+    // Inline !important declarations also override backgrounds supplied by
+    // the API's inline styles, including existing !important declarations.
+    final document = html_parser.parse(html);
+    for (final element in document.querySelectorAll('*')) {
+      element.attributes.remove('bgcolor');
+      element.attributes.remove('background');
+      final style = element.attributes['style'] ?? '';
+      element.attributes['style'] =
+          '$style; background: transparent !important;';
+    }
+    return document.outerHtml;
   }
 
   // =========================================================================
@@ -284,7 +317,13 @@ $content
   void didUpdateWidget(covariant OrganizationWebView oldWidget) {
     super.didUpdateWidget(oldWidget);
 
-    if (oldWidget.html != widget.html) {
+    if (oldWidget.html != widget.html ||
+        oldWidget.removeHtmlBackground != widget.removeHtmlBackground) {
+      controller.setBackgroundColor(
+        widget.removeHtmlBackground
+            ? Colors.transparent
+            : const Color(0xFFF7F9F8),
+      );
       controller.loadHtmlString(_buildHtml(widget.html));
     }
   }
