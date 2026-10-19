@@ -12,7 +12,7 @@ class GetBankDetails {
     required String dealerId,
     required String userId,
   }) {
-    return repository.getBankDetails(
+    return repository.getBankDetails( 
       dealerId: dealerId,
       userId: userId,
     );
