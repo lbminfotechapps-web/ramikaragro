@@ -10,7 +10,6 @@ class SecureStorage {
   final FlutterSecureStorage _storage = const FlutterSecureStorage();
 
   static const String userKey = 'user_data';
-  
 
   Future<void> saveUserData(Map<String, dynamic> data) async {
     await _storage.write(key: userKey, value: jsonEncode(data));

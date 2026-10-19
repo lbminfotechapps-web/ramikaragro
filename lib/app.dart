@@ -11,8 +11,6 @@ import 'package:solufine/core/notifications/notification_navigation_service.dart
 import 'package:solufine/core/router/app_router.dart';
 import 'package:solufine/core/theme/app_theme.dart';
 
-
-
 import 'package:solufine/features/addexpense/presentation/bloc/expense_bloc.dart';
 import 'package:solufine/features/ai/presentation/bloc/ai_bloc.dart';
 import 'package:solufine/features/auth/presentation/bloc/auth_bloc.dart';
@@ -154,8 +152,6 @@ class _MyAppState extends State<MyApp> {
           );
         },
       ),
-
-     
     );
   }
 }
