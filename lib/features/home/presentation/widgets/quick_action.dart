@@ -928,7 +928,22 @@ class _QuickAccessSectionState extends State<QuickAccessSection> {
       context.push('/monthlyVisitPerformanceReport');
     } else if (menu.menuId == '91') {
       context.push('/consultantDoctors');
-    } else if (menu.menuId == '57' ||
+    } 
+
+    else if (menu.menuId == '92') {
+      context.push('/plotmeasurement');
+    } 
+
+    else if (menu.menuId == '93') {
+      context.push('/plantDoctor');
+    } 
+
+
+    else if (menu.menuId == '94') {
+      context.push('/schedule');
+    }
+    
+    else if (menu.menuId == '57' ||
         menu.menuId == '63' ||
         menu.menuId == '32') {
       final userData = await SecureStorage.instance.getUserData();

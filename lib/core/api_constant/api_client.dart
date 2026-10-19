@@ -157,4 +157,11 @@ class ApiClient {
   static const String getFollowupCalendar ='/get_followup_calendar';
   static const String addDoctor = '/addDoctor';
   static const String getDoctorList = '/get_doctor_list';
+  
+  static const String getCropList ='/getCropList';
+  static const String getScheduleFarmerList ='/getFarmerList';
+
+    // IMPORTANT:
+  // Replace this with the exact endpoint from your old ApiService.java.
+  static const String getPlantRecommendedProducts ='/getMicronutrients';
 }
