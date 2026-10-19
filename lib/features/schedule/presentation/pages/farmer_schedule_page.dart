@@ -1,0 +1,2851 @@
+import 'dart:async';
+
+import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_screenutil_plus/flutter_screenutil_plus.dart';
+import 'package:go_router/go_router.dart';
+import 'package:intl/intl.dart';
+import 'package:url_launcher/url_launcher.dart';
+
+import '../../../../core/router/app_router.dart';
+import '../../../../core/theme/app_theme_context.dart';
+import '../../../../core/theme/typography/app_text_styles.dart';
+import '../../../../core/utility/widgets/custom_appbar.dart';
+
+import '../../domain/entities/crop_entity.dart';
+import '../../domain/entities/schedule_farmer_entity.dart';
+
+import '../bloc/farmer_schedule_bloc.dart';
+import '../bloc/farmer_schedule_event.dart';
+import '../bloc/farmer_schedule_state.dart';
+
+class FarmerSchedulePage extends StatefulWidget {
+  const FarmerSchedulePage({
+    super.key,
+  });
+
+  @override
+  State<FarmerSchedulePage> createState() =>
+      _FarmerSchedulePageState();
+}
+
+class _FarmerSchedulePageState
+    extends State<FarmerSchedulePage> {
+  final TextEditingController farmerController =
+      TextEditingController();
+
+  final TextEditingController cropController =
+      TextEditingController();
+
+  final TextEditingController productController =
+      TextEditingController();
+
+  final TextEditingController quantityController =
+      TextEditingController();
+
+  final TextEditingController waterController =
+      TextEditingController();
+
+  final TextEditingController remarkController =
+      TextEditingController();
+
+  Timer? farmerTimer;
+  Timer? cropTimer;
+
+  String selectedType = 'Select Type';
+  String selectedQuantityUnit = 'Select Unit';
+  String selectedWaterUnit = 'Select Unit';
+
+  final List<String> typeList = const [
+    'Select Type',
+    'Spray',
+    'Drip',
+  ];
+
+  final List<String> quantityUnits = const [
+    'Select Unit',
+    'Ltr',
+    'Ml',
+    'Kg',
+    'Gm',
+  ];
+
+  final List<String> waterUnits = const [
+    'Select Unit',
+    'Ltr',
+  ];
+
+  @override
+  void dispose() {
+    farmerTimer?.cancel();
+    cropTimer?.cancel();
+
+    farmerController.dispose();
+    cropController.dispose();
+    productController.dispose();
+    quantityController.dispose();
+    waterController.dispose();
+    remarkController.dispose();
+
+    super.dispose();
+  }
+
+  // ============================================================
+  // FARMER SEARCH
+  // ============================================================
+
+  void _searchFarmer(
+    String value,
+  ) {
+    farmerTimer?.cancel();
+
+    final String search =
+        value.trim();
+
+    if (search.length < 3) {
+      return;
+    }
+
+    farmerTimer = Timer(
+      const Duration(
+        seconds: 2,
+      ),
+      () {
+        if (!mounted) {
+          return;
+        }
+
+        context
+            .read<FarmerScheduleBloc>()
+            .add(
+              FarmerSearchChanged(
+                search,
+              ),
+            );
+      },
+    );
+  }
+
+  // ============================================================
+  // CROP SEARCH
+  // ============================================================
+
+  void _searchCrop(
+    String value,
+  ) {
+    cropTimer?.cancel();
+
+    final String search =
+        value.trim();
+
+    if (search.length < 3) {
+      return;
+    }
+
+    cropTimer = Timer(
+      const Duration(
+        seconds: 2,
+      ),
+      () {
+        if (!mounted) {
+          return;
+        }
+
+        context
+            .read<FarmerScheduleBloc>()
+            .add(
+              CropSearchChanged(
+                search,
+              ),
+            );
+      },
+    );
+  }
+
+  // ============================================================
+  // BUILD
+  // ============================================================
+
+  @override
+  Widget build(
+    BuildContext context,
+  ) {
+    return Scaffold(
+      backgroundColor:
+          const Color(
+        0xFFF5F7F5,
+      ),
+
+      appBar: CustomAppBar(
+        backgroundColor:
+            context.primaryColor,
+
+        titleStyle:
+            AppTextStyles.appBarTitle.copyWith(
+          color:
+              context.onPrimaryColor,
+        ),
+
+        leading: IconButton(
+          icon: Icon(
+            Icons.arrow_back_ios_new_rounded,
+            size: 20,
+            color:
+                context.onPrimaryColor,
+          ),
+          onPressed: () {
+            if (context.canPop()) {
+              context.pop();
+            } else {
+              context.go(
+                AppRouter.home,
+              );
+            }
+          },
+        ),
+
+        title:
+            'Schedule',
+
+        showBackButton:
+            true,
+      ),
+
+      body: BlocConsumer<
+          FarmerScheduleBloc,
+          FarmerScheduleState>(
+        listener: (
+          context,
+          state,
+        ) {
+          if (state.message.isNotEmpty) {
+            ScaffoldMessenger.of(
+              context,
+            )
+              ..hideCurrentSnackBar()
+              ..showSnackBar(
+                SnackBar(
+                  behavior:
+                      SnackBarBehavior.floating,
+
+                  backgroundColor:
+                      state.isFailure
+                          ? Colors.red
+                          : Colors.green,
+
+                  content:
+                      Text(
+                    state.message,
+                  ),
+                ),
+              );
+
+            context
+                .read<FarmerScheduleBloc>()
+                .add(
+                  const ClearScheduleMessage(),
+                );
+          }
+        },
+
+        builder: (
+          context,
+          state,
+        ) {
+          return SingleChildScrollView(
+            padding:
+                EdgeInsets.fromLTRB(
+              14.w,
+              12.h,
+              14.w,
+              30.h,
+            ),
+
+            child: Column(
+              crossAxisAlignment:
+                  CrossAxisAlignment.start,
+
+              children: [
+                _buildFarmerSection(
+                  state,
+                ),
+
+                SizedBox(
+                  height: 12.h,
+                ),
+
+                _buildScheduleForm(
+                  state,
+                ),
+
+                if (state.schedules.isNotEmpty) ...[
+                  SizedBox(
+                    height: 18.h,
+                  ),
+
+                  _buildScheduleList(
+                    state,
+                  ),
+
+                  SizedBox(
+                    height: 16.h,
+                  ),
+
+                  _buildWhatsAppButton(
+                    state,
+                  ),
+                ],
+              ],
+            ),
+          );
+        },
+      ),
+    );
+  }
+
+  // ============================================================
+  // FARMER SECTION
+  // ============================================================
+
+  Widget _buildFarmerSection(
+    FarmerScheduleState state,
+  ) {
+    return _card(
+      child: Column(
+        crossAxisAlignment:
+            CrossAxisAlignment.start,
+
+        children: [
+          _title(
+            Icons.person_search_rounded,
+            'Select Farmer',
+          ),
+
+          SizedBox(
+            height: 10.h,
+          ),
+
+          TextField(
+            controller:
+                farmerController,
+
+            onChanged:
+                _searchFarmer,
+
+            textInputAction:
+                TextInputAction.search,
+
+            decoration:
+                _inputDecoration(
+              'Search Farmer Name',
+              Icons.search_rounded,
+            ).copyWith(
+              helperText:
+                  'Search after 3 characters. Wait for 2 seconds.',
+
+              helperStyle:
+                  TextStyle(
+                fontSize: 9.sp,
+                color: Colors.red,
+              ),
+            ),
+          ),
+
+          if (state.farmerLoading)
+            Padding(
+              padding:
+                  EdgeInsets.only(
+                top: 8.h,
+              ),
+              child:
+                  const LinearProgressIndicator(),
+            ),
+
+          if (!state.farmerLoading &&
+              state.farmers.isNotEmpty)
+            Padding(
+              padding:
+                  EdgeInsets.only(
+                top: 8.h,
+                bottom: 4.h,
+              ),
+              child: Row(
+                children: [
+                  Icon(
+                    Icons.people_alt_outlined,
+                    size: 16.sp,
+                    color:
+                        context.primaryColor,
+                  ),
+
+                  SizedBox(
+                    width: 5.w,
+                  ),
+
+                  Text(
+                    '${state.farmers.length} farmers found',
+                    style: TextStyle(
+                      fontSize: 11.sp,
+                      fontWeight:
+                          FontWeight.w600,
+                      color:
+                          context.primaryColor,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+
+          if (state.farmers.isNotEmpty)
+            _buildFarmerSuggestions(
+              state.farmers,
+            ),
+
+          if (state.selectedFarmer != null)
+            _buildSelectedFarmer(
+              state.selectedFarmer!,
+            ),
+        ],
+      ),
+    );
+  }
+
+  // ============================================================
+  // SELECTED FARMER
+  // ============================================================
+
+  Widget _buildSelectedFarmer(
+    ScheduleFarmerEntity farmer,
+  ) {
+    return Container(
+      width:
+          double.infinity,
+
+      margin:
+          EdgeInsets.only(
+        top: 10.h,
+      ),
+
+      padding:
+          EdgeInsets.all(
+        12.w,
+      ),
+
+      decoration:
+          BoxDecoration(
+        color: const Color(
+          0xFFE7F5EA,
+        ),
+
+        borderRadius:
+            BorderRadius.circular(
+          12.r,
+        ),
+
+        border: Border.all(
+          color: const Color(
+            0xFFCBE8D1,
+          ),
+        ),
+      ),
+
+      child: Row(
+        crossAxisAlignment:
+            CrossAxisAlignment.start,
+
+        children: [
+          Container(
+            width: 38.w,
+            height: 38.w,
+
+            decoration:
+                BoxDecoration(
+              color: Colors.white,
+
+              borderRadius:
+                  BorderRadius.circular(
+                10.r,
+              ),
+            ),
+
+            child:
+                const Icon(
+              Icons.person_rounded,
+              color: Colors.green,
+            ),
+          ),
+
+          SizedBox(
+            width: 10.w,
+          ),
+
+          Expanded(
+            child: Column(
+              crossAxisAlignment:
+                  CrossAxisAlignment.start,
+
+              children: [
+                Text(
+                  farmer.farmerName,
+
+                  style: TextStyle(
+                    fontSize: 13.sp,
+                    fontWeight:
+                        FontWeight.w700,
+                  ),
+                ),
+
+                if (farmer
+                    .talukaName
+                    .isNotEmpty) ...[
+                  SizedBox(
+                    height: 3.h,
+                  ),
+
+                  Text(
+                    'Taluka: ${farmer.talukaName}',
+                    style: TextStyle(
+                      fontSize: 10.5.sp,
+                      color:
+                          Colors.black54,
+                    ),
+                  ),
+                ],
+
+               
+              ],
+            ),
+          ),
+
+          const Icon(
+            Icons.check_circle_rounded,
+            color: Colors.green,
+          ),
+        ],
+      ),
+    );
+  }
+
+  // ============================================================
+  // FARMER SUGGESTIONS
+  // ============================================================
+
+  Widget _buildFarmerSuggestions(
+    List<ScheduleFarmerEntity> farmers,
+  ) {
+    return Container(
+      width:
+          double.infinity,
+
+      constraints:
+          BoxConstraints(
+        maxHeight: 280.h,
+      ),
+
+      margin:
+          EdgeInsets.only(
+        top: 5.h,
+      ),
+
+      decoration:
+          BoxDecoration(
+        color:
+            Colors.white,
+
+        borderRadius:
+            BorderRadius.circular(
+          12.r,
+        ),
+
+        border:
+            Border.all(
+          color:
+              Colors.grey.shade300,
+        ),
+
+        boxShadow: [
+          BoxShadow(
+            color:
+                Colors.black.withOpacity(
+              0.04,
+            ),
+
+            blurRadius:
+                8,
+
+            offset:
+                const Offset(
+              0,
+              3,
+            ),
+          ),
+        ],
+      ),
+
+      child: ListView.separated(
+        shrinkWrap:
+            true,
+
+        padding:
+            EdgeInsets.zero,
+
+        itemCount:
+            farmers.length,
+
+        separatorBuilder: (
+          context,
+          index,
+        ) {
+          return Divider(
+            height:
+                1,
+
+            color:
+                Colors.grey.shade200,
+          );
+        },
+
+        itemBuilder: (
+          context,
+          index,
+        ) {
+          final ScheduleFarmerEntity farmer =
+              farmers[index];
+
+          final String firstLetter =
+              farmer.farmerName
+                      .trim()
+                      .isNotEmpty
+                  ? farmer
+                      .farmerName
+                      .trim()[0]
+                      .toUpperCase()
+                  : '?';
+
+          return Material(
+            color:
+                Colors.transparent,
+
+            child: InkWell(
+              onTap: () {
+                farmerController.text =
+                    farmer.farmerName;
+
+                farmerController.selection =
+                    TextSelection.fromPosition(
+                  TextPosition(
+                    offset:
+                        farmerController
+                            .text
+                            .length,
+                  ),
+                );
+
+                context
+                    .read<
+                        FarmerScheduleBloc>()
+                    .add(
+                      FarmerSelected(
+                        farmer,
+                      ),
+                    );
+
+                FocusScope.of(
+                  context,
+                ).unfocus();
+              },
+
+              child: Padding(
+                padding:
+                    EdgeInsets.symmetric(
+                  horizontal: 10.w,
+                  vertical: 10.h,
+                ),
+
+                child: Row(
+                  crossAxisAlignment:
+                      CrossAxisAlignment.start,
+
+                  children: [
+                    CircleAvatar(
+                      radius:
+                          20.r,
+
+                      backgroundColor:
+                          const Color(
+                        0xFFE8F5EA,
+                      ),
+
+                      child: Text(
+                        firstLetter,
+
+                        style: TextStyle(
+                          fontSize:
+                              14.sp,
+
+                          fontWeight:
+                              FontWeight.w700,
+
+                          color:
+                              Colors.green.shade700,
+                        ),
+                      ),
+                    ),
+
+                    SizedBox(
+                      width: 10.w,
+                    ),
+
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment:
+                            CrossAxisAlignment.start,
+
+                        children: [
+                          Text(
+                            farmer.farmerName,
+
+                            style: TextStyle(
+                              fontSize:
+                                  12.5.sp,
+
+                              fontWeight:
+                                  FontWeight.w600,
+
+                              color:
+                                  Colors.black87,
+                            ),
+                          ),
+
+                          if (farmer
+                              .talukaName
+                              .isNotEmpty) ...[
+                            SizedBox(
+                              height: 3.h,
+                            ),
+
+                            Row(
+                              children: [
+                                Icon(
+                                  Icons.location_city_outlined,
+                                  size:
+                                      12.sp,
+                                  color:
+                                      Colors.black45,
+                                ),
+
+                                SizedBox(
+                                  width: 4.w,
+                                ),
+
+                                Expanded(
+                                  child: Text(
+                                    'Taluka: ${farmer.talukaName}',
+                                    style:
+                                        TextStyle(
+                                      fontSize:
+                                          9.5.sp,
+                                      color:
+                                          Colors.black54,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
+
+                          if (farmer
+                              .address
+                              .isNotEmpty) ...[
+                            SizedBox(
+                              height: 3.h,
+                            ),
+
+                            Text(
+                              farmer.address,
+
+                              maxLines: 2,
+
+                              overflow:
+                                  TextOverflow.ellipsis,
+
+                              style:
+                                  TextStyle(
+                                fontSize:
+                                    9.sp,
+
+                                height:
+                                    1.3,
+
+                                color:
+                                    Colors.black45,
+                              ),
+                            ),
+                          ],
+                        ],
+                      ),
+                    ),
+
+                    Icon(
+                      Icons.chevron_right_rounded,
+                      color:
+                          Colors.grey.shade400,
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          );
+        },
+      ),
+    );
+  }
+
+  // ============================================================
+  // SCHEDULE FORM
+  // ============================================================
+
+  Widget _buildScheduleForm(
+    FarmerScheduleState state,
+  ) {
+    return _card(
+      child: Column(
+        crossAxisAlignment:
+            CrossAxisAlignment.start,
+
+        children: [
+          _title(
+            Icons.calendar_month_rounded,
+            'Create Schedule',
+          ),
+
+          SizedBox(
+            height: 12.h,
+          ),
+
+          // ======================================================
+          // DATE
+          // ======================================================
+
+          InkWell(
+            borderRadius:
+                BorderRadius.circular(
+              11.r,
+            ),
+
+            onTap: () =>
+                _selectDate(
+              state,
+            ),
+
+            child: InputDecorator(
+              decoration:
+                  _inputDecoration(
+                'Schedule Date',
+                Icons.calendar_today_rounded,
+              ),
+
+              child: Text(
+                state.selectedDate == null
+                    ? 'Select Schedule Date'
+                    : DateFormat(
+                        'dd/MM/yyyy',
+                      ).format(
+                        state.selectedDate!,
+                      ),
+              ),
+            ),
+          ),
+
+          SizedBox(
+            height: 10.h,
+          ),
+
+          // ======================================================
+          // CROP - NEW FARMER STYLE DESIGN
+          // ======================================================
+
+          _buildCropSection(
+            state,
+          ),
+
+          SizedBox(
+            height: 10.h,
+          ),
+
+          // ======================================================
+          // PRODUCT + TYPE
+          // ======================================================
+
+          Row(
+            children: [
+              Expanded(
+                flex: 6,
+
+                child: TextField(
+                  controller:
+                      productController,
+
+                  decoration:
+                      _inputDecoration(
+                    'Product Name',
+                    Icons.inventory_2_outlined,
+                  ),
+                ),
+              ),
+
+              SizedBox(
+                width: 8.w,
+              ),
+
+              Expanded(
+                flex: 4,
+
+                child: _dropdown(
+                  value:
+                      selectedType,
+
+                  values:
+                      typeList,
+
+                  onChanged: (
+                    value,
+                  ) {
+                    setState(
+                      () {
+                        selectedType =
+                            value ??
+                                'Select Type';
+                      },
+                    );
+                  },
+                ),
+              ),
+            ],
+          ),
+
+          SizedBox(
+            height: 10.h,
+          ),
+
+          // ======================================================
+          // QUANTITY
+          // ======================================================
+
+          Row(
+            children: [
+              Expanded(
+                flex: 6,
+
+                child: TextField(
+                  controller:
+                      quantityController,
+
+                  keyboardType:
+                      const TextInputType
+                          .numberWithOptions(
+                    decimal:
+                        true,
+                  ),
+
+                  decoration:
+                      _inputDecoration(
+                    'Quantity',
+                    Icons.numbers_rounded,
+                  ),
+                ),
+              ),
+
+              SizedBox(
+                width: 8.w,
+              ),
+
+              Expanded(
+                flex: 4,
+
+                child: _dropdown(
+                  value:
+                      selectedQuantityUnit,
+
+                  values:
+                      quantityUnits,
+
+                  onChanged: (
+                    value,
+                  ) {
+                    setState(
+                      () {
+                        selectedQuantityUnit =
+                            value ??
+                                'Select Unit';
+                      },
+                    );
+                  },
+                ),
+              ),
+            ],
+          ),
+
+          SizedBox(
+            height: 10.h,
+          ),
+
+          // ======================================================
+          // WATER
+          // ======================================================
+
+          Row(
+            children: [
+              Expanded(
+                flex: 6,
+
+                child: TextField(
+                  controller:
+                      waterController,
+
+                  keyboardType:
+                      const TextInputType
+                          .numberWithOptions(
+                    decimal:
+                        true,
+                  ),
+
+                  decoration:
+                      _inputDecoration(
+                    'Water',
+                    Icons.water_drop_outlined,
+                  ),
+                ),
+              ),
+
+              SizedBox(
+                width: 8.w,
+              ),
+
+              Expanded(
+                flex: 4,
+
+                child: _dropdown(
+                  value:
+                      selectedWaterUnit,
+
+                  values:
+                      waterUnits,
+
+                  onChanged: (
+                    value,
+                  ) {
+                    setState(
+                      () {
+                        selectedWaterUnit =
+                            value ??
+                                'Select Unit';
+                      },
+                    );
+                  },
+                ),
+              ),
+            ],
+          ),
+
+          SizedBox(
+            height: 10.h,
+          ),
+
+          // ======================================================
+          // REMARK
+          // ======================================================
+
+          TextField(
+            controller:
+                remarkController,
+
+            maxLines:
+                2,
+
+            decoration:
+                _inputDecoration(
+              'Enter Remark',
+              Icons.notes_rounded,
+            ),
+          ),
+
+          SizedBox(
+            height: 12.h,
+          ),
+
+          // ======================================================
+          // ADD SCHEDULE BUTTON
+          // ======================================================
+
+          SizedBox(
+            width:
+                double.infinity,
+
+            height:
+                46.h,
+
+            child: OutlinedButton.icon(
+              style:
+                  OutlinedButton.styleFrom(
+                side:
+                    BorderSide(
+                  color:
+                      context.primaryColor,
+                ),
+
+                shape:
+                    RoundedRectangleBorder(
+                  borderRadius:
+                      BorderRadius.circular(
+                    12.r,
+                  ),
+                ),
+              ),
+
+              onPressed:
+                  _addScheduleLine,
+
+              icon:
+                  const Icon(
+                Icons.add_rounded,
+              ),
+
+              label:
+                  const Text(
+                'Add Schedule',
+              ),
+            ),
+          ),
+
+          // ======================================================
+          // CURRENT SCHEDULE PREVIEW
+          // ======================================================
+
+          if (state.currentSchedule
+              .isNotEmpty) ...[
+            SizedBox(
+              height: 12.h,
+            ),
+
+            Container(
+              width:
+                  double.infinity,
+
+              padding:
+                  EdgeInsets.all(
+                12.w,
+              ),
+
+              decoration:
+                  BoxDecoration(
+                color:
+                    const Color(
+                  0xFFFFF4E2,
+                ),
+
+                borderRadius:
+                    BorderRadius.circular(
+                  12.r,
+                ),
+
+                border:
+                    Border.all(
+                  color:
+                      const Color(
+                    0xFFF1D7AE,
+                  ),
+                ),
+              ),
+
+              child: Column(
+                crossAxisAlignment:
+                    CrossAxisAlignment.start,
+
+                children: [
+                  Row(
+                    children: [
+                      Icon(
+                        Icons.description_outlined,
+                        size:
+                            18.sp,
+                        color:
+                            const Color(
+                          0xFFD68A22,
+                        ),
+                      ),
+
+                      SizedBox(
+                        width: 6.w,
+                      ),
+
+                      Text(
+                        'Current Schedule',
+                        style:
+                            TextStyle(
+                          fontSize:
+                              12.sp,
+                          fontWeight:
+                              FontWeight.w700,
+                        ),
+                      ),
+                    ],
+                  ),
+
+                  SizedBox(
+                    height: 8.h,
+                  ),
+
+                  Text(
+                    state.currentSchedule,
+
+                    style:
+                        TextStyle(
+                      fontSize:
+                          11.5.sp,
+                      height:
+                          1.5,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+
+            SizedBox(
+              height: 10.h,
+            ),
+
+            SizedBox(
+              width:
+                  double.infinity,
+
+              height:
+                  48.h,
+
+              child:
+                  ElevatedButton.icon(
+                style:
+                    ElevatedButton.styleFrom(
+                  backgroundColor:
+                      context.primaryColor,
+
+                  foregroundColor:
+                      context.onPrimaryColor,
+
+                  elevation:
+                      0,
+
+                  shape:
+                      RoundedRectangleBorder(
+                    borderRadius:
+                        BorderRadius.circular(
+                      12.r,
+                    ),
+                  ),
+                ),
+
+                onPressed: () {
+                  context
+                      .read<
+                          FarmerScheduleBloc>()
+                      .add(
+                        const SaveScheduleSection(),
+                      );
+
+                  cropController.clear();
+                },
+
+                icon:
+                    const Icon(
+                  Icons.add_circle_outline_rounded,
+                ),
+
+                label:
+                    const Text(
+                  'Add Crop Schedule',
+                ),
+              ),
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+
+  // ============================================================
+  // CROP SECTION
+  // SAME DESIGN STYLE AS FARMER
+  // ============================================================
+
+  Widget _buildCropSection(
+    FarmerScheduleState state,
+  ) {
+    return Column(
+      crossAxisAlignment:
+          CrossAxisAlignment.start,
+
+      children: [
+        // SEARCH
+        TextField(
+          controller:
+              cropController,
+
+          onChanged:
+              _searchCrop,
+
+          textInputAction:
+              TextInputAction.search,
+
+          decoration:
+              _inputDecoration(
+            'Search Crop Name',
+            Icons.grass_rounded,
+          ).copyWith(
+            helperText:
+                'Search after 3 characters. Wait for 2 seconds.',
+
+            helperStyle:
+                TextStyle(
+              fontSize: 9.sp,
+              color:
+                  Colors.red,
+            ),
+          ),
+        ),
+
+        // LOADING
+        if (state.cropLoading)
+          Padding(
+            padding:
+                EdgeInsets.only(
+              top: 8.h,
+            ),
+            child:
+                const LinearProgressIndicator(),
+          ),
+
+        // RESULT COUNT
+        if (!state.cropLoading &&
+            state.crops.isNotEmpty)
+          Padding(
+            padding:
+                EdgeInsets.only(
+              top: 8.h,
+              bottom: 4.h,
+            ),
+
+            child: Row(
+              children: [
+                Icon(
+                  Icons.grass_rounded,
+                  size:
+                      16.sp,
+                  color:
+                      context.primaryColor,
+                ),
+
+                SizedBox(
+                  width:
+                      5.w,
+                ),
+
+                Text(
+                  '${state.crops.length} crops found',
+
+                  style:
+                      TextStyle(
+                    fontSize:
+                        11.sp,
+
+                    fontWeight:
+                        FontWeight.w600,
+
+                    color:
+                        context.primaryColor,
+                  ),
+                ),
+              ],
+            ),
+          ),
+
+        // RESULT LIST
+        if (state.crops.isNotEmpty)
+          _buildCropSuggestions(
+            state.crops,
+          ),
+
+        // SELECTED CROP
+        if (state.selectedCropName
+            .trim()
+            .isNotEmpty)
+          _buildSelectedCrop(
+            state.selectedCropName,
+          ),
+      ],
+    );
+  }
+
+  // ============================================================
+  // SELECTED CROP
+  // ============================================================
+
+  Widget _buildSelectedCrop(
+    String cropName,
+  ) {
+    return Container(
+      width:
+          double.infinity,
+
+      margin:
+          EdgeInsets.only(
+        top: 10.h,
+      ),
+
+      padding:
+          EdgeInsets.all(
+        12.w,
+      ),
+
+      decoration:
+          BoxDecoration(
+        color:
+            const Color(
+          0xFFE7F5EA,
+        ),
+
+        borderRadius:
+            BorderRadius.circular(
+          12.r,
+        ),
+
+        border:
+            Border.all(
+          color:
+              const Color(
+            0xFFCBE8D1,
+          ),
+        ),
+      ),
+
+      child: Row(
+        children: [
+          Container(
+            width:
+                38.w,
+            height:
+                38.w,
+
+            decoration:
+                BoxDecoration(
+              color:
+                  Colors.white,
+
+              borderRadius:
+                  BorderRadius.circular(
+                10.r,
+              ),
+            ),
+
+            child:
+                const Icon(
+              Icons.grass_rounded,
+              color:
+                  Colors.green,
+            ),
+          ),
+
+          SizedBox(
+            width:
+                10.w,
+          ),
+
+          Expanded(
+            child:
+                Column(
+              crossAxisAlignment:
+                  CrossAxisAlignment.start,
+
+              children: [
+                Text(
+                  'Selected Crop',
+
+                  style:
+                      TextStyle(
+                    fontSize:
+                        9.sp,
+                    color:
+                        Colors.black45,
+                  ),
+                ),
+
+                SizedBox(
+                  height:
+                      2.h,
+                ),
+
+                Text(
+                  cropName,
+
+                  style:
+                      TextStyle(
+                    fontSize:
+                        13.sp,
+
+                    fontWeight:
+                        FontWeight.w700,
+
+                    color:
+                        Colors.black87,
+                  ),
+                ),
+              ],
+            ),
+          ),
+
+          const Icon(
+            Icons.check_circle_rounded,
+            color:
+                Colors.green,
+          ),
+        ],
+      ),
+    );
+  }
+
+  // ============================================================
+  // CROP SUGGESTIONS
+  // ============================================================
+
+  Widget _buildCropSuggestions(
+    List<CropEntity> crops,
+  ) {
+    return Container(
+      width:
+          double.infinity,
+
+      constraints:
+          BoxConstraints(
+        maxHeight:
+            280.h,
+      ),
+
+      margin:
+          EdgeInsets.only(
+        top:
+            5.h,
+      ),
+
+      decoration:
+          BoxDecoration(
+        color:
+            Colors.white,
+
+        borderRadius:
+            BorderRadius.circular(
+          12.r,
+        ),
+
+        border:
+            Border.all(
+          color:
+              Colors.grey.shade300,
+        ),
+
+        boxShadow: [
+          BoxShadow(
+            color:
+                Colors.black.withOpacity(
+              0.04,
+            ),
+
+            blurRadius:
+                8,
+
+            offset:
+                const Offset(
+              0,
+              3,
+            ),
+          ),
+        ],
+      ),
+
+      child:
+          ListView.separated(
+        shrinkWrap:
+            true,
+
+        padding:
+            EdgeInsets.zero,
+
+        itemCount:
+            crops.length,
+
+        separatorBuilder: (
+          context,
+          index,
+        ) {
+          return Divider(
+            height:
+                1,
+
+            color:
+                Colors.grey.shade200,
+          );
+        },
+
+        itemBuilder: (
+          context,
+          index,
+        ) {
+          final CropEntity crop =
+              crops[index];
+
+          return Material(
+            color:
+                Colors.transparent,
+
+            child: InkWell(
+              onTap: () {
+                cropController.text =
+                    crop.cropName;
+
+                cropController.selection =
+                    TextSelection.fromPosition(
+                  TextPosition(
+                    offset:
+                        cropController
+                            .text
+                            .length,
+                  ),
+                );
+
+                context
+                    .read<
+                        FarmerScheduleBloc>()
+                    .add(
+                      CropSelected(
+                        crop.cropName,
+                      ),
+                    );
+
+                FocusScope.of(
+                  context,
+                ).unfocus();
+              },
+
+              child: Padding(
+                padding:
+                    EdgeInsets.symmetric(
+                  horizontal:
+                      10.w,
+                  vertical:
+                      10.h,
+                ),
+
+                child: Row(
+                  children: [
+                    CircleAvatar(
+                      radius:
+                          20.r,
+
+                      backgroundColor:
+                          const Color(
+                        0xFFE8F5EA,
+                      ),
+
+                      child: Icon(
+                        Icons.grass_rounded,
+
+                        size:
+                            20.sp,
+
+                        color:
+                            Colors.green.shade700,
+                      ),
+                    ),
+
+                    SizedBox(
+                      width:
+                          10.w,
+                    ),
+
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment:
+                            CrossAxisAlignment.start,
+
+                        children: [
+                          Text(
+                            crop.cropName,
+
+                            style:
+                                TextStyle(
+                              fontSize:
+                                  12.5.sp,
+
+                              fontWeight:
+                                  FontWeight.w600,
+
+                              color:
+                                  Colors.black87,
+                            ),
+                          ),
+
+                          SizedBox(
+                            height:
+                                2.h,
+                          ),
+
+                          Text(
+                            'Tap to select crop',
+
+                            style:
+                                TextStyle(
+                              fontSize:
+                                  9.sp,
+
+                              color:
+                                  Colors.black45,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+
+                    Icon(
+                      Icons.chevron_right_rounded,
+                      color:
+                          Colors.grey.shade400,
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          );
+        },
+      ),
+    );
+  }
+
+  // ============================================================
+  // ADD PRODUCT SCHEDULE
+  // ============================================================
+
+  void _addScheduleLine() {
+    context
+        .read<FarmerScheduleBloc>()
+        .add(
+          AddScheduleLine(
+            productName:
+                productController.text,
+
+            type:
+                selectedType,
+
+            quantity:
+                quantityController.text,
+
+            quantityUnit:
+                selectedQuantityUnit,
+
+            water:
+                waterController.text,
+
+            waterUnit:
+                selectedWaterUnit,
+
+            remark:
+                remarkController.text,
+          ),
+        );
+
+    productController.clear();
+    quantityController.clear();
+    waterController.clear();
+    remarkController.clear();
+
+    setState(
+      () {
+        selectedType =
+            'Select Type';
+
+        selectedQuantityUnit =
+            'Select Unit';
+
+        selectedWaterUnit =
+            'Select Unit';
+      },
+    );
+  }
+
+  // ============================================================
+  // DATE PICKER
+  // ============================================================
+
+  Future<void> _selectDate(
+    FarmerScheduleState state,
+  ) async {
+    final DateTime now =
+        DateTime.now();
+
+    final DateTime? picked =
+        await showDatePicker(
+      context:
+          context,
+
+      initialDate:
+          state.selectedDate ??
+              now,
+
+      firstDate:
+          DateTime(
+        now.year,
+        now.month,
+        now.day,
+      ),
+
+      lastDate:
+          DateTime(
+        now.year + 5,
+        12,
+        31,
+      ),
+    );
+
+    if (picked != null &&
+        mounted) {
+      context
+          .read<FarmerScheduleBloc>()
+          .add(
+            ScheduleDateChanged(
+              picked,
+            ),
+          );
+    }
+  }
+
+  // ============================================================
+  // COMPACT SCHEDULE LIST
+  // ============================================================
+
+  // Extracts values only when the schedule text explicitly includes labels.
+  // Unlabelled schedule text is retained verbatim instead of guessing fields.
+  Map<String, String> _parseScheduleFields(String schedule) {
+    final result = <String, String>{};
+    final labels = <String, String>{
+      'product': 'Product',
+      'product name': 'Product',
+      'type': 'Type',
+      'quantity': 'Quantity',
+      'water': 'Water',
+      'remark': 'Remark',
+      'remarks': 'Remark',
+    };
+
+
+
+    
+
+    final regex = RegExp(
+      r'(product name|product|type|quantity|water|remarks|remark)\s*[:：-]\s*',
+      caseSensitive: false,
+    );
+    final matches = regex.allMatches(schedule).toList();
+    if (matches.isEmpty) return result;
+
+    for (var i = 0; i < matches.length; i++) {
+      final match = matches[i];
+      final nextStart = i + 1 < matches.length
+          ? matches[i + 1].start
+          : schedule.length;
+      final key = labels[match.group(1)!.toLowerCase()]!;
+      final value = schedule.substring(match.end, nextStart).trim();
+      if (value.isNotEmpty) result[key] = value;
+    }
+    return result;
+  }
+
+  Widget _scheduleDetail({
+    required String label,
+    required String value,
+    required IconData icon,
+    required Color color,
+  }) {
+    return Container(
+      padding: EdgeInsets.symmetric(horizontal: 9.w, vertical: 7.h),
+      decoration: BoxDecoration(
+        color: color.withOpacity(0.065),
+        borderRadius: BorderRadius.circular(9.r),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Icon(icon, size: 14.sp, color: color),
+          SizedBox(width: 6.w),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(label.toUpperCase(),
+                    style: TextStyle(
+                      fontSize: 8.5.sp,
+                      fontWeight: FontWeight.w600,
+                      color: Colors.black54,
+                    )),
+                SizedBox(height: 2.h),
+                Text(value,
+                    softWrap: true,
+                    style: TextStyle(
+                      fontSize: 11.sp,
+                      height: 1.25,
+                      fontWeight: FontWeight.w700,
+                      color: Colors.black87,
+                    )),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _scheduleContent(String schedule) {
+    final fields = _parseScheduleFields(schedule);
+    if (fields.isEmpty) {
+      // Preserve unknown BLoC string formats without mislabelling values.
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text('SCHEDULE DETAILS',
+              style: TextStyle(fontSize: 9.sp,
+                  fontWeight: FontWeight.w700, color: Colors.black54)),
+          SizedBox(height: 5.h),
+          Text(schedule, style: TextStyle(
+              fontSize: 11.sp, height: 1.5, color: Colors.black87)),
+        ],
+      );
+    }
+
+    Widget field(String label, IconData icon, Color color) {
+      return _scheduleDetail(
+        label: label,
+        value: fields[label] ?? '-',
+        icon: icon,
+        color: color,
+      );
+    }
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        if (fields.containsKey('Product')) ...[
+          field('Product', Icons.inventory_2_outlined,
+              const Color(0xFF2563EB)),
+          SizedBox(height: 6.h),
+        ],
+        if (fields.containsKey('Type')) ...[
+          field('Type', Icons.spa_outlined, const Color(0xFF16A34A)),
+          SizedBox(height: 6.h),
+        ],
+        if (fields.containsKey('Quantity') || fields.containsKey('Water'))
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              if (fields.containsKey('Quantity'))
+                Expanded(child: field('Quantity', Icons.scale_outlined,
+                    const Color(0xFFD97706))),
+              if (fields.containsKey('Quantity') &&
+                  fields.containsKey('Water')) SizedBox(width: 7.w),
+              if (fields.containsKey('Water'))
+                Expanded(child: field('Water', Icons.water_drop_outlined,
+                    const Color(0xFF0284C7))),
+            ],
+          ),
+        if (fields.containsKey('Remark')) ...[
+          SizedBox(height: 6.h),
+          field('Remark', Icons.notes_rounded,
+              const Color(0xFF64748B)),
+        ],
+      ],
+    );
+  }
+
+ 
+
+  
+Widget _buildScheduleList(FarmerScheduleState state) {
+  return Column(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [
+      Row(
+        children: [
+          const Icon(
+            Icons.list_alt_rounded,
+            color: Color(0xFF22C55E),
+            size: 22,
+          ),
+          SizedBox(width: 8.w),
+          Text(
+            'Schedule List',
+            style: TextStyle(
+              fontSize: 15.sp,
+              fontWeight: FontWeight.w700,
+              color: const Color(0xFF222222),
+            ),
+          ),
+          const Spacer(),
+          Container(
+            padding: EdgeInsets.symmetric(
+              horizontal: 10.w,
+              vertical: 4.h,
+            ),
+            decoration: BoxDecoration(
+              color: const Color(0xFFE5F6E9),
+              borderRadius: BorderRadius.circular(20.r),
+            ),
+            child: Text(
+              '${state.schedules.length}',
+              style: TextStyle(
+                color: const Color(0xFF16A34A),
+                fontSize: 11.sp,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ),
+        ],
+      ),
+
+      SizedBox(height: 10.h),
+
+      ...List.generate(state.schedules.length, (index) {
+        final item = state.schedules[index];
+
+        // Read labeled fields from existing schedule string.
+        final fields = _parseScheduleFields(item.schedule);
+
+        final product = fields['Product'] ?? '';
+        final type = fields['Type'] ?? '';
+        final quantity = fields['Quantity'] ?? '';
+        final water = fields['Water'] ?? '';
+        final remark = fields['Remark'] ?? '';
+
+        return Container(
+          width: double.infinity,
+          margin: EdgeInsets.only(bottom: 10.h),
+          padding: EdgeInsets.all(12.w),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(8.r),
+            border: Border.all(
+              color: const Color(0xFFE2E8E4),
+              width: 0.8,
+            ),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // CROP HEADER
+              Row(
+                children: [
+                  Container(
+                    width: 36.w,
+                    height: 36.w,
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFE8F6EB),
+                      borderRadius: BorderRadius.circular(7.r),
+                    ),
+                    child: const Icon(
+                      Icons.spa_outlined,
+                      color: Color(0xFF22C55E),
+                      size: 19,
+                    ),
+                  ),
+
+                  SizedBox(width: 8.w),
+
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          item.cropName,
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(
+                            fontSize: 12.sp,
+                            fontWeight: FontWeight.w700,
+                            color: const Color(0xFF15283B),
+                          ),
+                        ),
+                        SizedBox(height: 3.h),
+                        Row(
+                          children: [
+                            const Icon(
+                              Icons.calendar_today_outlined,
+                              size: 11,
+                              color: Color(0xFFCBD5E1),
+                            ),
+                            SizedBox(width: 4.w),
+                            Text(
+                              item.date,
+                              style: TextStyle(
+                                fontSize: 9.sp,
+                                color: const Color(0xFF64748B),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+
+                  IconButton(
+                    visualDensity: VisualDensity.compact,
+                    constraints: const BoxConstraints(
+                      minWidth: 32,
+                      minHeight: 32,
+                    ),
+                    padding: EdgeInsets.zero,
+                    icon: const Icon(
+                      Icons.delete_outline_rounded,
+                      color: Color(0xFFFF5252),
+                      size: 20,
+                    ),
+                    onPressed: () {
+                      context.read<FarmerScheduleBloc>().add(
+                        RemoveScheduleSection(index),
+                      );
+                    },
+                  ),
+                ],
+              ),
+
+              SizedBox(height: 9.h),
+
+              Divider(
+                color: const Color(0xFFE5EAE8),
+                height: 1,
+              ),
+
+              SizedBox(height: 10.h),
+
+              if (product.isNotEmpty ||
+                  quantity.isNotEmpty ||
+                  water.isNotEmpty) ...[
+                // PRODUCT + TYPE
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'PRODUCT',
+                            style: TextStyle(
+                              fontSize: 9.sp,
+                              color: const Color(0xFF64748B),
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                          SizedBox(height: 5.h),
+                          Text(
+                            product.isEmpty ? '-' : product,
+                            style: TextStyle(
+                              fontSize: 12.sp,
+                              fontWeight: FontWeight.w700,
+                              color: const Color(0xFF15283B),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+
+                    if (type.isNotEmpty)
+                      Container(
+                        padding: EdgeInsets.symmetric(
+                          horizontal: 10.w,
+                          vertical: 5.h,
+                        ),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFE3F7E9),
+                          borderRadius: BorderRadius.circular(20.r),
+                        ),
+                        child: Text(
+                          type,
+                          style: TextStyle(
+                            color: const Color(0xFF16803D),
+                            fontSize: 10.sp,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ),
+                  ],
+                ),
+
+                SizedBox(height: 10.h),
+
+                // QUANTITY + WATER
+                Row(
+                  children: [
+                    Expanded(
+                      child: _lightScheduleBox(
+                        label: 'QUANTITY',
+                        value: quantity.isEmpty ? '-' : quantity,
+                        icon: Icons.inventory_2_outlined,
+                      ),
+                    ),
+                    SizedBox(width: 7.w),
+                    Expanded(
+                      child: _lightScheduleBox(
+                        label: 'WATER',
+                        value: water.isEmpty ? '-' : water,
+                        icon: Icons.water_drop_outlined,
+                      ),
+                    ),
+                  ],
+                ),
+
+                if (remark.isNotEmpty) ...[
+                  SizedBox(height: 8.h),
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Icon(
+                        Icons.notes_rounded,
+                        color: Color(0xFFAAAAAA),
+                        size: 14,
+                      ),
+                      SizedBox(width: 5.w),
+                      Expanded(
+                        child: Text(
+                          'Remark: $remark',
+                          style: TextStyle(
+                            fontSize: 10.sp,
+                            color: const Color(0xFF475569),
+                            height: 1.4,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ] else
+                // Fallback for older/unlabeled schedule data
+                Text(
+                  item.schedule,
+                  style: TextStyle(
+                    color: const Color(0xFF15283B),
+                    fontSize: 11.sp,
+                    height: 1.5,
+                  ),
+                ),
+            ],
+          ),
+        );
+      }),
+    ],
+  );
+}
+
+
+Widget _lightScheduleBox({
+  required String label,
+  required String value,
+  required IconData icon,
+}) {
+  return Container(
+    padding: EdgeInsets.symmetric(
+      horizontal: 9.w,
+      vertical: 9.h,
+    ),
+    decoration: BoxDecoration(
+      color: const Color(0xFFF2F6F4),
+      borderRadius: BorderRadius.circular(7.r),
+      border: Border.all(color: const Color(0xFFE5ECE8)),
+    ),
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            Icon(
+              icon,
+              size: 11.sp,
+              color: const Color(0xFF475569),
+            ),
+            SizedBox(width: 4.w),
+            Text(
+              label,
+              style: TextStyle(
+                fontSize: 9.sp,
+                color: const Color(0xFF15283B),
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+          ],
+        ),
+
+        SizedBox(height: 7.h),
+
+        Text(
+          value,
+          maxLines: 2,
+          overflow: TextOverflow.ellipsis,
+          style: TextStyle(
+            fontSize: 12.5.sp,
+            color: const Color(0xFF15283B),
+            fontWeight: FontWeight.w700,
+          ),
+        ),
+      ],
+    ),
+  );
+}
+
+
+
+  // ============================================================
+  // WHATSAPP BUTTON
+  // ============================================================
+
+  Widget _buildWhatsAppButton(
+    FarmerScheduleState state,
+  ) {
+    return SizedBox(
+      width:
+          double.infinity,
+
+      height:
+          52.h,
+
+      child:
+          ElevatedButton.icon(
+        style:
+            ElevatedButton.styleFrom(
+          backgroundColor:
+              const Color(
+            0xFF25D366,
+          ),
+
+          foregroundColor:
+              Colors.white,
+
+          elevation:
+              1,
+
+          shape:
+              RoundedRectangleBorder(
+            borderRadius:
+                BorderRadius.circular(
+              14.r,
+            ),
+          ),
+        ),
+
+        onPressed: () {
+          _shareToWhatsApp(
+            state,
+          );
+        },
+
+        icon:
+            const Icon(
+          Icons.chat_rounded,
+        ),
+
+        label:
+            Text(
+          'Share Schedule on WhatsApp',
+
+          style:
+              TextStyle(
+            fontSize:
+                13.sp,
+
+            fontWeight:
+                FontWeight.w700,
+          ),
+        ),
+      ),
+    );
+  }
+
+  // ============================================================
+  // WHATSAPP SHARE
+  // ============================================================
+
+  Future<void> _shareToWhatsApp(
+    FarmerScheduleState state,
+  ) async {
+    final ScheduleFarmerEntity? farmer =
+        state.selectedFarmer;
+
+    if (farmer == null) {
+      _showMessage(
+        'Please select farmer.',
+      );
+      return;
+    }
+
+    if (state.schedules.isEmpty) {
+      _showMessage(
+        'Please add schedule.',
+      );
+      return;
+    }
+
+    String phone =
+        farmer.mobileNo.replaceAll(
+      RegExp(
+        r'[^0-9]',
+      ),
+      '',
+    );
+
+    if (phone.isEmpty) {
+      _showMessage(
+        'Farmer mobile number not available.',
+      );
+      return;
+    }
+
+    if (phone.length == 10) {
+      phone =
+          '91$phone';
+    }
+
+    if (phone.length == 11 &&
+        phone.startsWith(
+          '0',
+        )) {
+      phone =
+          '91${phone.substring(1)}';
+    }
+
+    final StringBuffer builder =
+        StringBuffer();
+
+    builder.writeln(
+      farmer.farmerName,
+    );
+
+    builder.writeln();
+
+    for (final item
+        in state.schedules) {
+      builder.writeln(
+        '*${item.title}*',
+      );
+
+      builder.writeln(
+        item.schedule,
+      );
+
+      builder.writeln();
+
+      builder.writeln(
+        '-------------------------------------',
+      );
+
+      builder.writeln();
+    }
+
+    final String message =
+        builder.toString().trim();
+
+    print(
+      'WHATSAPP PHONE : $phone',
+    );
+
+    print(
+      'WHATSAPP MESSAGE : $message',
+    );
+
+    final Uri url =
+        Uri.parse(
+      'https://wa.me/$phone'
+      '?text=${Uri.encodeComponent(message)}',
+    );
+
+    try {
+      final bool opened =
+          await launchUrl(
+        url,
+
+        mode:
+            LaunchMode
+                .externalApplication,
+      );
+
+      if (!opened &&
+          mounted) {
+        _showMessage(
+          'Unable to open WhatsApp.',
+        );
+      }
+    } catch (e) {
+      print(
+        'WHATSAPP ERROR : $e',
+      );
+
+      if (mounted) {
+        _showMessage(
+          'Unable to open WhatsApp.',
+        );
+      }
+    }
+  }
+
+  // ============================================================
+  // MESSAGE
+  // ============================================================
+
+  void _showMessage(
+    String message,
+  ) {
+    ScaffoldMessenger.of(
+      context,
+    )
+      ..hideCurrentSnackBar()
+      ..showSnackBar(
+        SnackBar(
+          behavior:
+              SnackBarBehavior.floating,
+
+          content:
+              Text(
+            message,
+          ),
+        ),
+      );
+  }
+
+  // ============================================================
+  // COMMON CARD
+  // ============================================================
+
+  Widget _card({
+    required Widget child,
+  }) {
+    return Container(
+      width:
+          double.infinity,
+
+      padding:
+          EdgeInsets.all(
+        14.w,
+      ),
+
+      decoration:
+          BoxDecoration(
+        color:
+            Colors.white,
+
+        borderRadius:
+            BorderRadius.circular(
+          16.r,
+        ),
+
+        border:
+            Border.all(
+          color:
+              const Color(
+            0xFFE7ECE8,
+          ),
+        ),
+
+        boxShadow: [
+          BoxShadow(
+            color:
+                Colors.black.withOpacity(
+              0.04,
+            ),
+
+            blurRadius:
+                12,
+
+            offset:
+                const Offset(
+              0,
+              4,
+            ),
+          ),
+        ],
+      ),
+
+      child:
+          child,
+    );
+  }
+
+  // ============================================================
+  // TITLE
+  // ============================================================
+
+  Widget _title(
+    IconData icon,
+    String title,
+  ) {
+    return Row(
+      children: [
+        Container(
+          width:
+              36.w,
+
+          height:
+              36.w,
+
+          decoration:
+              BoxDecoration(
+            color:
+                const Color(
+              0xFFE8F5EA,
+            ),
+
+            borderRadius:
+                BorderRadius.circular(
+              10.r,
+            ),
+          ),
+
+          child:
+              Icon(
+            icon,
+
+            size:
+                19.sp,
+
+            color:
+                context.primaryColor,
+          ),
+        ),
+
+        SizedBox(
+          width:
+              9.w,
+        ),
+
+        Text(
+          title,
+
+          style:
+              TextStyle(
+            fontSize:
+                14.sp,
+
+            fontWeight:
+                FontWeight.w700,
+          ),
+        ),
+      ],
+    );
+  }
+
+  // ============================================================
+  // INPUT DECORATION
+  // ============================================================
+
+  InputDecoration _inputDecoration(
+    String hint,
+    IconData icon,
+  ) {
+    return InputDecoration(
+      hintText:
+          hint,
+
+      hintStyle:
+          TextStyle(
+        fontSize:
+            11.5.sp,
+
+        color:
+            Colors.black45,
+      ),
+
+      prefixIcon:
+          Icon(
+        icon,
+
+        size:
+            19.sp,
+
+        color:
+            Colors.grey.shade600,
+      ),
+
+      isDense:
+          true,
+
+      filled:
+          true,
+
+      fillColor:
+          const Color(
+        0xFFF8FAF8,
+      ),
+
+      contentPadding:
+          EdgeInsets.symmetric(
+        horizontal:
+            12.w,
+
+        vertical:
+            14.h,
+      ),
+
+      border:
+          OutlineInputBorder(
+        borderRadius:
+            BorderRadius.circular(
+          11.r,
+        ),
+
+        borderSide:
+            BorderSide(
+          color:
+              Colors.grey.shade300,
+        ),
+      ),
+
+      enabledBorder:
+          OutlineInputBorder(
+        borderRadius:
+            BorderRadius.circular(
+          11.r,
+        ),
+
+        borderSide:
+            BorderSide(
+          color:
+              Colors.grey.shade300,
+        ),
+      ),
+
+      focusedBorder:
+          OutlineInputBorder(
+        borderRadius:
+            BorderRadius.circular(
+          11.r,
+        ),
+
+        borderSide:
+            BorderSide(
+          color:
+              context.primaryColor,
+
+          width:
+              1.3,
+        ),
+      ),
+    );
+  }
+
+  // ============================================================
+  // DROPDOWN
+  // ============================================================
+
+  Widget _dropdown({
+    required String value,
+    required List<String> values,
+    required ValueChanged<String?> onChanged,
+  }) {
+    return DropdownButtonFormField<String>(
+      value:
+          value,
+
+      isExpanded:
+          true,
+
+      decoration:
+          InputDecoration(
+        isDense:
+            true,
+
+        filled:
+            true,
+
+        fillColor:
+            const Color(
+          0xFFF8FAF8,
+        ),
+
+        contentPadding:
+            EdgeInsets.symmetric(
+          horizontal:
+              10.w,
+
+          vertical:
+              13.h,
+        ),
+
+        border:
+            OutlineInputBorder(
+          borderRadius:
+              BorderRadius.circular(
+            11.r,
+          ),
+        ),
+
+        enabledBorder:
+            OutlineInputBorder(
+          borderRadius:
+              BorderRadius.circular(
+            11.r,
+          ),
+
+          borderSide:
+              BorderSide(
+            color:
+                Colors.grey.shade300,
+          ),
+        ),
+
+        focusedBorder:
+            OutlineInputBorder(
+          borderRadius:
+              BorderRadius.circular(
+            11.r,
+          ),
+
+          borderSide:
+              BorderSide(
+            color:
+                context.primaryColor,
+          ),
+        ),
+      ),
+
+      items:
+          values
+              .map(
+                (
+                  item,
+                ) =>
+                    DropdownMenuItem<String>(
+                  value:
+                      item,
+
+                  child:
+                      Text(
+                    item,
+
+                    overflow:
+                        TextOverflow.ellipsis,
+
+                    style:
+                        TextStyle(
+                      fontSize:
+                          11.sp,
+                    ),
+                  ),
+                ),
+              )
+              .toList(),
+
+      onChanged:
+          onChanged,
+    );
+  }
+}

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:solufine/core/secure_storage/secure_storage.dart';
 import 'package:solufine/features/ai/presentation/bloc/ai_bloc.dart';
 import 'package:solufine/features/ai/presentation/pages/ai_chatbot.dart';
 import 'package:solufine/features/calendar_report/presentation/bloc/calendar_report_bloc.dart';
@@ -10,6 +11,8 @@ import 'package:solufine/features/consultant_doctors/presentation/pages/consulta
 import 'package:solufine/features/consultant_doctors/presentation/pages/consultant_list_page.dart';
 import 'package:solufine/features/growth_report/presentation/bloc/growth_report_bloc.dart';
 import 'package:solufine/features/growth_report/presentation/pages/growth_report_page.dart';
+import 'package:solufine/features/plant_doctor/presentation/bloc/plant_doctor_bloc.dart';
+import 'package:solufine/features/plant_doctor/presentation/pages/plant_doctor_page.dart';
 import 'package:solufine/features/plotmesure/plot_measurement_page.dart';
 import 'package:solufine/features/quickchartreport/presentation/bloc/gallerybloc.dart'
     as quick_chart;
@@ -80,6 +83,8 @@ import 'package:solufine/features/reports/presentation/bloc/visit_report_bloc.da
 import 'package:solufine/features/sales_targrt_achievement/presentation/pages/sales_wise_target_page.dart';
 import 'package:solufine/features/salesreturn/presentation/pages/sales_return_page.dart';
 import 'package:solufine/features/salesreturnhistory/presentation/presentation/sales_return_history_page.dart';
+import 'package:solufine/features/schedule/presentation/bloc/farmer_schedule_bloc.dart';
+import 'package:solufine/features/schedule/presentation/pages/farmer_schedule_page.dart';
 import 'package:solufine/features/scheme/presentation/pages/schemescreen.dart';
 import 'package:solufine/features/selfcollectionassign/presentation/presentation/assingselfcollectiontarget_page.dart';
 import 'package:solufine/features/splash/splash_screen.dart';
@@ -167,6 +172,8 @@ class AppRouter {
 
   static const String consultantDoctors = '/consultantDoctors';
   static const String consultantDoctorForm = '/consultantDoctorForm';
+  static const String plantDoctor ='/plantDoctor';
+  static const String schedule ='/schedule';
 
   static final GoRouter router = GoRouter(
     navigatorKey: navigatorKey,
@@ -551,30 +558,74 @@ class AppRouter {
         },
       ),
 
-    
+      // CONSULTANT DOCTOR LIST
+      GoRoute(
+        path: AppRouter.consultantDoctors,
+        name: 'consultantDoctors',
+        builder: (context, state) {
+          return BlocProvider<ConsultantBloc>(
+            create: (_) => sl<ConsultantBloc>(),
+            child: const ConsultantListPage(),
+          );
+        },
+      ),
 
+
+        GoRoute(
+        path: AppRouter.plantDoctor,
+        name: 'plantDoctor',
+        builder: (context, state) {
+          return BlocProvider(
+            create: (_) => sl<PlantDoctorBloc>(),
+            child: const PlantDoctorPage(),
+          );
+        },
+      ),
+
+
+        GoRoute(
+        path: AppRouter.schedule,
+        name: 'schedule',
+        builder: (context, state) {
+          return BlocProvider(
+            create: (_) => sl<FarmerScheduleBloc>(),
+            child: const FarmerSchedulePage(),
+          );
+        },
+      ),
+
+ 
+
+      // ADD / EDIT CONSULTANT DOCTOR
+      // GoRoute(
+      //   path: AppRouter.consultantDoctorForm,
+      //   name: 'consultantDoctorForm',
+      //   builder: (context, state) {
+      //     final ConsultantDoctor? consultant = state.extra is ConsultantDoctor
+      //         ? state.extra as ConsultantDoctor
+      //         : null;
+
+      //     return MultiBlocProvider(
+      //       providers: [
+      //         // CONSULTANT BLOC
+      //         BlocProvider<ConsultantBloc>(create: (_) => sl<ConsultantBloc>()),
+
+      //         // STATE / DISTRICT / TALUKA CUBIT
+      //         BlocProvider<LocationCubit>(create: (_) => sl<LocationCubit>()),
+      //       ],
+      //       child: ConsultantFormPage(
+      //         consultant: consultant,
+
+      //         // Testing with the API's supplied user_id.
+      //         userId: '4',
+      //       ),
+      //     );
+      //   },
+      // ),
+
+
+      // ADD / EDIT CONSULTANT DOCTOR
      
-
-      
-          // ============================================================
-          // CONSULTANT DOCTOR LIST
-          // ============================================================
-
-            GoRoute(
-            path: AppRouter.consultantDoctors,
-            name: 'consultantDoctors',
-            builder: (context, state) {
-              return BlocProvider<ConsultantBloc>(
-                create: (_) => sl<ConsultantBloc>(),
-                child: const ConsultantListPage(),
-              );
-            },
-          ),
-
-          // ============================================================
-          // ADD / EDIT CONSULTANT DOCTOR
-          // ============================================================
-
           GoRoute(
             path: AppRouter.consultantDoctorForm,
             name: 'consultantDoctorForm',
@@ -584,47 +635,71 @@ class AppRouter {
                       ? state.extra as ConsultantDoctor
                       : null;
 
-              return MultiBlocProvider(
-                providers: [
-                  // CONSULTANT BLOC
-                  BlocProvider<ConsultantBloc>(
-                    create: (_) => sl<ConsultantBloc>(),
-                  ),
+              return FutureBuilder<Map<String, dynamic>?>(
+                future: SecureStorage.instance.getUserData(),
+                builder: (context, snapshot) {
 
-                  // STATE / DISTRICT / TALUKA CUBIT
-                  BlocProvider<LocationCubit>(
-                    create: (_) => sl<LocationCubit>(),
-                  ),
-                ],
-                child: ConsultantFormPage(
-                  consultant: consultant,
+                  // Loading user data
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return const Scaffold(
+                      body: Center(
+                        child: CircularProgressIndicator(),
+                      ),
+                    );
+                  }
 
-                  // Testing with the API's supplied user_id.
-                  userId: '4',
-                ),
+                  // Storage error
+                  if (snapshot.hasError) {
+                    return const Scaffold(
+                      body: Center(
+                        child: Text('Unable to load user details'),
+                      ),
+                    );
+                  }
+
+                  // Get logged-in user data
+                  final userData = snapshot.data;
+
+                  final String userId =
+                      (userData?['user_id'] ?? '').toString().trim();
+
+                  debugPrint('CONSULTANT USER ID: $userId');
+
+                  // Check login
+                  if (userId.isEmpty || userId == '0') {
+                    return Scaffold(
+                      appBar: AppBar(
+                        title: const Text('Consultant Doctor'),
+                      ),
+                      body: const Center(
+                        child: Text(
+                          'Session expired. Please login again.',
+                        ),
+                      ),
+                    );
+                  }
+
+                  // Open consultant form
+                  return MultiBlocProvider(
+                    providers: [
+                      BlocProvider<ConsultantBloc>(
+                        create: (_) => sl<ConsultantBloc>(),
+                      ),
+
+                      BlocProvider<LocationCubit>(
+                        create: (_) => sl<LocationCubit>(),
+                      ),
+                    ],
+                    child: ConsultantFormPage(
+                      consultant: consultant,
+                      userId: userId, // Dynamic logged-in user ID
+                    ),
+                  );
+                },
               );
             },
           ),
 
-
-
-          return MultiBlocProvider(
-            providers: [
-              // CONSULTANT BLOC
-              BlocProvider<ConsultantBloc>(create: (_) => sl<ConsultantBloc>()),
-
-              // STATE / DISTRICT / TALUKA CUBIT
-              BlocProvider<LocationCubit>(create: (_) => sl<LocationCubit>()),
-            ],
-            child: ConsultantFormPage(
-              consultant: consultant,
-
-              // Testing with the API's supplied user_id.
-              userId: '4',
-            ),
-          );
-        },
-      ),
 
       GoRoute(
         path: monthlyPerformanceReport,
@@ -727,23 +802,8 @@ class AppRouter {
         },
       ),
 
-      // GoRoute(
-      //   path: products,
-      //   name: 'products',
-      //   builder: (context, state) {
-      //     final productCat = state.extra is FertilizerCategoryEntity
-      //         ? state.extra as FertilizerCategoryEntity
-      //         : null;
-      //     return const ProductCategoryScreen();
+    
 
-      //     //    builder: (context, state) {
-      //     // final punchStat = state.extra is PunchStatEntity
-      //     //     ? state.extra as PunchStatEntity
-      //     //     : null;
-      //     //   return LastForceOutScreen(punchStat);
-      //     // },
-      //   },
-      // ),
       GoRoute(
         path: visitSummaryReport,
         name: 'visitSummaryReport',
@@ -864,30 +924,7 @@ class AppRouter {
             ],
           ),
 
-          //   StatefulShellBranch(
-          //   routes: [
-          //     GoRoute(
-          //       path: monthlyPerformanceReport,
-          //       name: 'monthlyPerformanceReport',
-          //       builder: (context, state) {
-          //         return MultiBlocProvider(
-          //           providers: [
-          //             BlocProvider<MonthlyPerformanceBloc>(
-          //               create: (_) =>
-          //                   sl<MonthlyPerformanceBloc>(),
-          //             ),
-
-          //             BlocProvider<EmployeeOutputBloc>(
-          //               create: (_) =>
-          //                   sl<EmployeeOutputBloc>(),
-          //             ),
-          //           ],
-          //           child: const MonthlyPerformanceReportPage(),
-          //         );
-          //       },
-          //     ),
-          //   ],
-          // ),
+         
           StatefulShellBranch(
             routes: [
               GoRoute(
