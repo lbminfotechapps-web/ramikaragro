@@ -68,7 +68,7 @@ class _MonthlyPerformanceReportPageState
   // ============================================================
 
   static const double _checkWidth = 28;
-  static const double _monthWidth = 58;
+  static const double _monthWidth = 55;
   static const double _dayWidth = 50;
   static const double _hourWidth = 88;
   static const double _areaWidth = 96;
@@ -78,7 +78,7 @@ class _MonthlyPerformanceReportPageState
   static const double _topVisitWidth = 48;
   static const double _lastVisitWidth = 82;
 
-  static const double _visitWidth = 40;
+  static const double _visitWidth = 50;
   static const double _orderWidth = 84;
   static const double _dispatchWidth = 84;
   static const double _collectionWidth = 78;
@@ -2369,8 +2369,8 @@ class _MonthlyPerformanceReportPageState
     String? subtitle,
   }) {
     return Container(
-      height: 48,
-      padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 5),
+      height: 60,
+      padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 10),
       decoration: BoxDecoration(
         color: color.withValues(alpha: .055),
         borderRadius: BorderRadius.circular(9),
@@ -2400,9 +2400,10 @@ class _MonthlyPerformanceReportPageState
                   style: AppTextStyles.body.copyWith(
                     color: _secondaryText,
                     letterSpacing: .15,
+                    fontSize: 8,
                   ),
                 ),
-                SizedBox(height: 1),
+                // SizedBox(height: 1),
                 Text(
                   value,
                   maxLines: 1,
@@ -2410,8 +2411,10 @@ class _MonthlyPerformanceReportPageState
                   style: AppTextStyles.labelSmall.copyWith(
                     color: color,
                     height: 1.05,
+                    fontSize: 10,
                   ),
                 ),
+                SizedBox(height: 4),
                 if (subtitle != null)
                   Text(
                     subtitle,
@@ -2420,6 +2423,7 @@ class _MonthlyPerformanceReportPageState
                     style: AppTextStyles.body.copyWith(
                       color: _secondaryText,
                       height: 1,
+                      fontSize: 8,
                     ),
                   ),
               ],
@@ -3895,6 +3899,7 @@ class _MonthlyPerformanceReportPageState
             style: AppTextStyles.labelSmall.copyWith(
               color: context.secondaryTextColor,
               letterSpacing: .25,
+              fontSize: 9,
             ),
           ),
         ),
@@ -4119,7 +4124,7 @@ class _MonthlyPerformanceReportPageState
       ),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
-        crossAxisAlignment: CrossAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           Row(
             children: [
@@ -4139,6 +4144,7 @@ class _MonthlyPerformanceReportPageState
                   style: AppTextStyles.body.copyWith(
                     color: _secondaryText,
                     letterSpacing: .2,
+                    fontSize: 9,
                   ),
                 ),
               ),

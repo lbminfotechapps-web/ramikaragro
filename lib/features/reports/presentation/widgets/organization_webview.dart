@@ -216,98 +216,146 @@ class _OrganizationWebViewState extends State<OrganizationWebView> {
   // BUILD HTML
   // =========================================================================
 
-  String _buildHtml(String content) {
-    final html =
-        '''
+String _buildHtml(String content) {
+  final html = '''
 <!DOCTYPE html>
 <html>
 <head>
-
 <meta charset="UTF-8">
 
 <meta
   name="viewport"
-  content="width=device-width,
-  initial-scale=1.0,
-  maximum-scale=1.0"
+  content="width=device-width, initial-scale=1.0"
 />
 
 <style>
-
-html,
-body {
+  html, body {
     margin: 0;
     padding: 0;
+    width: 100%;
+    overflow-x: hidden;
     background: #F7F9F8;
-}
+  }
 
-body {
+  * {
+    box-sizing: border-box;
+  }
+
+  body {
     padding: 18px;
     color: #333333;
     font-family: Arial, sans-serif;
     font-size: 15px;
     line-height: 1.7;
-}
+    overflow-wrap: break-word;
+  }
 
-img {
+  /* Prevent API content from overlapping */
+  div {
     max-width: 100% !important;
+    box-sizing: border-box !important;
+  }
+
+  /* Fixed/sticky headings must flow with content */
+  .guideline-heading {
+    position: static !important;
+    float: none !important;
+    width: 100% !important;
     height: auto !important;
-}
+    min-height: 0 !important;
+    margin-bottom: 18px !important;
+    clear: both !important;
+  }
 
-table {
+  h2, h3, h4 {
+    max-width: 100%;
+    overflow-wrap: break-word;
+  }
+
+  h3 {
+    clear: both;
+  }
+
+  ul, ol {
+    padding-left: 22px;
+    margin: 10px 0 18px;
+  }
+
+  li {
+    margin-bottom: 8px;
+    overflow-wrap: break-word;
+  }
+
+  img, iframe, video {
     max-width: 100% !important;
-}
+    height: auto;
+  }
 
-div {
+  table {
     max-width: 100% !important;
-}
+  }
 
-/* ===========================================================
-   CLICKABLE LINKS
-   =========================================================== */
-
-a {
+  a {
     color: #0F723A !important;
     text-decoration: none !important;
     font-weight: 600;
-    word-break: break-word;
-}
+    overflow-wrap: anywhere;
+  }
 
-${widget.removeHtmlBackground ? '''
-html, body, body *, body *::before, body *::after {
+  ${widget.removeHtmlBackground ? '''
+  html, body, body *, body *::before, body *::after {
     background: transparent !important;
-}
-''' : ''}
-
+  }
+  ''' : ''}
 </style>
-
 </head>
 
 <body>
-
 $content
-
 </body>
-
 </html>
 ''';
 
-    if (!widget.removeHtmlBackground) {
-      return html;
-    }
+  final document = html_parser.parse(html);
 
-    // Inline !important declarations also override backgrounds supplied by
-    // the API's inline styles, including existing !important declarations.
-    final document = html_parser.parse(html);
+  // Fix fixed/sticky positioned elements only in guidelines.
+  if (content.contains('Guidelines For Using App')) {
+    for (final element in document.querySelectorAll('div')) {
+      final style = element.attributes['style'] ?? '';
+
+      if (RegExp(
+        r'position\s*:\s*(fixed|sticky)',
+        caseSensitive: false,
+      ).hasMatch(style)) {
+        element.classes.add('guideline-heading');
+
+        // Remove inline positioning so CSS can
+        // restore normal document flow.
+        element.attributes['style'] = style.replaceAll(
+          RegExp(
+            r'position\s*:\s*(fixed|sticky)\s*;?',
+            caseSensitive: false,
+          ),
+          '',
+        );
+      }
+    }
+  }
+
+  if (widget.removeHtmlBackground) {
     for (final element in document.querySelectorAll('*')) {
       element.attributes.remove('bgcolor');
       element.attributes.remove('background');
+
       final style = element.attributes['style'] ?? '';
+
       element.attributes['style'] =
           '$style; background: transparent !important;';
     }
-    return document.outerHtml;
   }
+
+  return document.outerHtml;
+}
 
   // =========================================================================
   // HTML UPDATE
