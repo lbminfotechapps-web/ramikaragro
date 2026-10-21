@@ -39,7 +39,7 @@ class AuthProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> login(Map<String, dynamic> userData) async {r
+  Future<void> login(Map<String, dynamic> userData) async {
     await _secureStorage.saveUserData(userData);
 
     _isLoggedIn = true;
