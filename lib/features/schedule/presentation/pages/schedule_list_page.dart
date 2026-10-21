@@ -835,7 +835,7 @@ class _ScheduleListPageState extends State<ScheduleListPage> {
 
             _detailRow('Employee', schedule.employeeName),
             _detailRow('Main Crop', schedule.cropName),
-            _detailRow('Schedule ID', schedule.scheduleId),
+          //  _detailRow('Schedule ID', schedule.scheduleId),
 
             SizedBox(height: 10.h),
 

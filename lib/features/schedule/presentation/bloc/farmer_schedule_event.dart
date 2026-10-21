@@ -1,4 +1,3 @@
-
 import 'package:equatable/equatable.dart';
 
 import '../../domain/entities/schedule_farmer_entity.dart';
@@ -73,14 +72,14 @@ class AddScheduleLine extends FarmerScheduleEvent {
 
   @override
   List<Object?> get props => [
-        productName,
-        type,
-        quantity,
-        quantityUnit,
-        water,
-        waterUnit,
-        remark,
-      ];
+    productName,
+    type,
+    quantity,
+    quantityUnit,
+    water,
+    waterUnit,
+    remark,
+  ];
 }
 
 class SaveScheduleSection extends FarmerScheduleEvent {
@@ -107,10 +106,7 @@ class LoadFarmerPlots extends FarmerScheduleEvent {
   final String empId;
   final String farmerId;
 
-  const LoadFarmerPlots({
-    required this.empId,
-    required this.farmerId,
-  });
+  const LoadFarmerPlots({required this.empId, required this.farmerId});
 
   @override
   List<Object?> get props => [empId, farmerId];
@@ -135,4 +131,11 @@ class ClearSubmittedSchedules extends FarmerScheduleEvent {
 
 class ClearSelectedFarmer extends FarmerScheduleEvent {
   const ClearSelectedFarmer();
+}
+
+class RemoveCurrentScheduleProduct extends FarmerScheduleEvent {
+  final int index;
+  const RemoveCurrentScheduleProduct(this.index);
+  @override
+  List<Object?> get props => [index];
 }

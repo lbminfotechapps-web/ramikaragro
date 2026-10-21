@@ -82,11 +82,16 @@ class _FarmerSchedulePageState extends State<FarmerSchedulePage> {
   // confirms that AddScheduleLine / SaveScheduleSection succeeded.
   String _normalizedUnit(String unit) {
     switch (unit.toLowerCase().trim()) {
-      case 'kg': return 'kg';
-      case 'gm': return 'g';
-      case 'ml': return 'ml';
-      case 'ltr': return 'L';
-      default: return unit.trim();
+      case 'kg':
+        return 'kg';
+      case 'gm':
+        return 'g';
+      case 'ml':
+        return 'ml';
+      case 'ltr':
+        return 'L';
+      default:
+        return unit.trim();
     }
   }
 
@@ -108,8 +113,10 @@ class _FarmerSchedulePageState extends State<FarmerSchedulePage> {
     _submitSubscription = _submitBloc.stream.listen((submission) {
       if (!mounted) return;
       setState(() {
-        _submittingSchedule = submission.status == AddScheduleSubmitStatus.loading;
-        if (submission.status == AddScheduleSubmitStatus.success) _scheduleSubmitted = true;
+        _submittingSchedule =
+            submission.status == AddScheduleSubmitStatus.loading;
+        if (submission.status == AddScheduleSubmitStatus.success)
+          _scheduleSubmitted = true;
       });
       if (submission.status == AddScheduleSubmitStatus.success) {
         _showSubmissionSuccessDialog(submission.message);
@@ -128,9 +135,11 @@ class _FarmerSchedulePageState extends State<FarmerSchedulePage> {
         canPop: false,
         child: AlertDialog(
           title: const Text('Schedule submitted'),
-          content: Text(message.trim().isEmpty
-              ? 'Schedule submitted successfully.'
-              : message),
+          content: Text(
+            message.trim().isEmpty
+                ? 'Schedule submitted successfully.'
+                : message,
+          ),
           actions: [
             FilledButton(
               onPressed: () => Navigator.pop(dialogContext, true),
@@ -182,10 +191,7 @@ class _FarmerSchedulePageState extends State<FarmerSchedulePage> {
   }
 
   Future<void> _openPlotRegistration(ScheduleFarmerEntity farmer) async {
-    await context.pushNamed<bool>(
-      'plotRegistration',
-      extra: farmer,
-    );
+    await context.pushNamed<bool>('plotRegistration', extra: farmer);
     if (!mounted) return;
     _clearSelectedFarmer();
   }
@@ -322,10 +328,12 @@ class _FarmerSchedulePageState extends State<FarmerSchedulePage> {
                 _pendingSectionDate != null &&
                 _pendingSectionDetails != null &&
                 _pendingSectionDetails!.isNotEmpty) {
-              _savedSections.add(_SavedScheduleSection(
-                date: _pendingSectionDate!,
-                details: List.unmodifiable(_pendingSectionDetails!),
-              ));
+              _savedSections.add(
+                _SavedScheduleSection(
+                  date: _pendingSectionDate!,
+                  details: List.unmodifiable(_pendingSectionDetails!),
+                ),
+              );
               _currentDetails.clear();
             }
             _pendingSectionDate = null;
@@ -412,7 +420,7 @@ class _FarmerSchedulePageState extends State<FarmerSchedulePage> {
           Row(
             children: [
               Expanded(
-                child: _title(Icons.person_search_rounded, 'Select Farmer'),
+                child: _title(Icons.person_search_rounded, 'Select Farmer '),
               ),
               SizedBox(width: 8.w),
               FilledButton.icon(
@@ -422,7 +430,10 @@ class _FarmerSchedulePageState extends State<FarmerSchedulePage> {
                   foregroundColor: context.onPrimaryColor,
                   elevation: 2,
                   shadowColor: context.primaryColor.withOpacity(0.25),
-                  padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 10.h),
+                  padding: EdgeInsets.symmetric(
+                    horizontal: 12.w,
+                    vertical: 10.h,
+                  ),
                   minimumSize: const Size(0, 44),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12.r),
@@ -455,7 +466,9 @@ class _FarmerSchedulePageState extends State<FarmerSchedulePage> {
                   suffixIcon: IconButton(
                     tooltip: 'Clear farmer search',
                     icon: const Icon(Icons.clear),
-                    onPressed: _submittingSchedule ? null : _clearSelectedFarmer,
+                    onPressed: _submittingSchedule
+                        ? null
+                        : _clearSelectedFarmer,
                   ),
                   helperText: 'Search after 3 characters. Wait for 2 seconds.',
 
@@ -796,7 +809,7 @@ class _FarmerSchedulePageState extends State<FarmerSchedulePage> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Select Plot',
+                      'Select Plot ',
                       style: TextStyle(
                         fontSize: 13.sp,
                         fontWeight: FontWeight.w800,
@@ -855,7 +868,7 @@ class _FarmerSchedulePageState extends State<FarmerSchedulePage> {
               value: selectedId,
               isExpanded: true,
               decoration: InputDecoration(
-                labelText: 'Plot Name',
+                labelText: 'Plot Name *',
                 prefixIcon: Icon(
                   Icons.grass_rounded,
                   color: context.primaryColor,
@@ -986,7 +999,7 @@ class _FarmerSchedulePageState extends State<FarmerSchedulePage> {
         crossAxisAlignment: CrossAxisAlignment.start,
 
         children: [
-          _title(Icons.calendar_month_rounded, 'Create Schedule'),
+          _title(Icons.calendar_month_rounded, 'Schedule Date'),
 
           SizedBox(height: 12.h),
 
@@ -1000,7 +1013,7 @@ class _FarmerSchedulePageState extends State<FarmerSchedulePage> {
 
             child: InputDecorator(
               decoration: _inputDecoration(
-                'Schedule Date',
+                'Schedule Date *',
                 Icons.calendar_today_rounded,
               ),
 
@@ -1045,6 +1058,7 @@ class _FarmerSchedulePageState extends State<FarmerSchedulePage> {
                 flex: 4,
 
                 child: _dropdown(
+                  label: 'Type *',
                   value: selectedType,
 
                   values: typeList,
@@ -1089,6 +1103,7 @@ class _FarmerSchedulePageState extends State<FarmerSchedulePage> {
                 flex: 4,
 
                 child: _dropdown(
+                  label: 'Unit *',
                   value: selectedQuantityUnit,
 
                   values: quantityUnits,
@@ -1133,6 +1148,7 @@ class _FarmerSchedulePageState extends State<FarmerSchedulePage> {
                 flex: 4,
 
                 child: _dropdown(
+                  label: 'Unit *',
                   value: selectedWaterUnit,
 
                   values: waterUnits,
@@ -1193,53 +1209,7 @@ class _FarmerSchedulePageState extends State<FarmerSchedulePage> {
           if (state.currentSchedule.isNotEmpty) ...[
             SizedBox(height: 12.h),
 
-            Container(
-              width: double.infinity,
-
-              padding: EdgeInsets.all(12.w),
-
-              decoration: BoxDecoration(
-                color: const Color(0xFFFFF4E2),
-
-                borderRadius: BorderRadius.circular(12.r),
-
-                border: Border.all(color: const Color(0xFFF1D7AE)),
-              ),
-
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-
-                children: [
-                  Row(
-                    children: [
-                      Icon(
-                        Icons.description_outlined,
-                        size: 18.sp,
-                        color: const Color(0xFFD68A22),
-                      ),
-
-                      SizedBox(width: 6.w),
-
-                      Text(
-                        'Current Schedule',
-                        style: TextStyle(
-                          fontSize: 12.sp,
-                          fontWeight: FontWeight.w700,
-                        ),
-                      ),
-                    ],
-                  ),
-
-                  SizedBox(height: 8.h),
-
-                  Text(
-                    state.currentSchedule,
-
-                    style: TextStyle(fontSize: 11.5.sp, height: 1.5),
-                  ),
-                ],
-              ),
-            ),
+            _buildCurrentProducts(state),
 
             SizedBox(height: 10.h),
 
@@ -1285,6 +1255,135 @@ class _FarmerSchedulePageState extends State<FarmerSchedulePage> {
   // CROP SECTION
   // SAME DESIGN STYLE AS FARMER
   // ============================================================
+
+  Widget _buildCurrentProducts(FarmerScheduleState state) {
+    final busy =
+        _submittingSchedule ||
+        _scheduleSubmitted ||
+        _pendingDetail != null ||
+        _pendingSectionDetails != null;
+    return Container(
+      padding: EdgeInsets.all(10.w),
+      decoration: BoxDecoration(
+        color: const Color(0xFFF0F6F2),
+        borderRadius: BorderRadius.circular(14.r),
+        border: Border.all(color: const Color(0xFFDCE8DF)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Expanded(
+                child: Text(
+                  'Current Schedule',
+                  style: TextStyle(
+                    fontSize: 12.sp,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+              ),
+              Text(
+                '${state.currentScheduleLines.length} products',
+                style: TextStyle(
+                  fontSize: 10.sp,
+                  color: const Color(0xFF16803D),
+                ),
+              ),
+            ],
+          ),
+          SizedBox(height: 4.h),
+          Text(
+            'Review products, then tap Add Crop Schedule.',
+            style: TextStyle(fontSize: 10.sp, color: const Color(0xFF64748B)),
+          ),
+          ...state.currentScheduleLines.asMap().entries.map((entry) {
+            final index = entry.key;
+            final detail = index < _currentDetails.length
+                ? _currentDetails[index]
+                : null;
+            final remarkStart = entry.value.indexOf('\nRemark : ');
+            return Container(
+              margin: EdgeInsets.only(top: 8.h),
+              padding: EdgeInsets.fromLTRB(10.w, 6.h, 2.w, 8.h),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(10.r),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Expanded(
+                        child: Text(
+                          detail?.productName ?? entry.value,
+                          style: TextStyle(
+                            fontSize: 12.sp,
+                            fontWeight: FontWeight.w700,
+                            color: const Color(0xFF15283B),
+                          ),
+                        ),
+                      ),
+                      IconButton(
+                        tooltip: 'Delete ${detail?.productName ?? "product"}',
+                        icon: const Icon(
+                          Icons.delete_outline_rounded,
+                          color: Color(0xFFDC3545),
+                          size: 20,
+                        ),
+                        onPressed: busy || detail == null
+                            ? null
+                            : () {
+                                setState(() => _currentDetails.removeAt(index));
+                                context.read<FarmerScheduleBloc>().add(
+                                  RemoveCurrentScheduleProduct(index),
+                                );
+                              },
+                      ),
+                    ],
+                  ),
+                  if (detail != null)
+                    Wrap(
+                      spacing: 10.w,
+                      runSpacing: 4.h,
+                      children: [
+                        Text(
+                          detail.productType,
+                          style: TextStyle(
+                            fontSize: 10.sp,
+                            color: const Color(0xFF16803D),
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                        Text(
+                          'Qty: ${detail.productQty} ${detail.unit}',
+                          style: TextStyle(fontSize: 10.sp),
+                        ),
+                        Text(
+                          'Water: ${detail.waterQty} ${detail.waterUnit}',
+                          style: TextStyle(fontSize: 10.sp),
+                        ),
+                      ],
+                    ),
+                  if (remarkStart >= 0) ...[
+                    SizedBox(height: 5.h),
+                    Text(
+                      entry.value.substring(remarkStart + 1),
+                      style: TextStyle(
+                        fontSize: 10.sp,
+                        color: const Color(0xFF64748B),
+                      ),
+                    ),
+                  ],
+                ],
+              ),
+            );
+          }),
+        ],
+      ),
+    );
+  }
 
   Widget _buildCropSection(FarmerScheduleState state) {
     return Column(
@@ -1574,7 +1673,8 @@ class _FarmerSchedulePageState extends State<FarmerSchedulePage> {
     final state = context.read<FarmerScheduleBloc>().state;
     if (_submittingSchedule || _scheduleSubmitted) return;
     if (state.selectedFarmer == null || state.selectedPlot == null) {
-      _showMessage('Select a farmer and registered plot first.');
+      // _showMessage('Select a farmer and registered plot first.');
+      _showMessage('Select a plot first.');
       return;
     }
     if (state.selectedDate == null) {
@@ -1582,7 +1682,8 @@ class _FarmerSchedulePageState extends State<FarmerSchedulePage> {
       return;
     }
     if (_selectedCropId.isEmpty || state.selectedCropName.isEmpty) {
-      _showMessage('Select a crop with a valid crop ID.');
+      // _showMessage('Select a crop with a valid crop ID.');
+      _showMessage('Select a crop ');
       return;
     }
     if (productController.text.trim().isEmpty) {
@@ -1960,10 +2061,15 @@ class _FarmerSchedulePageState extends State<FarmerSchedulePage> {
                         color: Color(0xFFFF5252),
                         size: 20,
                       ),
-                      onPressed: _submittingSchedule || _scheduleSubmitted ? null : () {
-                        if (index < _savedSections.length) _savedSections.removeAt(index);
-                        context.read<FarmerScheduleBloc>().add(RemoveScheduleSection(index));
-                      },
+                      onPressed: _submittingSchedule || _scheduleSubmitted
+                          ? null
+                          : () {
+                              if (index < _savedSections.length)
+                                _savedSections.removeAt(index);
+                              context.read<FarmerScheduleBloc>().add(
+                                RemoveScheduleSection(index),
+                              );
+                            },
                     ),
                   ],
                 ),
@@ -2156,7 +2262,9 @@ class _FarmerSchedulePageState extends State<FarmerSchedulePage> {
                 backgroundColor: context.primaryColor,
                 foregroundColor: context.onPrimaryColor,
               ),
-              onPressed: _submittingSchedule || _scheduleSubmitted ? null : () => _submitSchedule(state),
+              onPressed: _submittingSchedule || _scheduleSubmitted
+                  ? null
+                  : () => _submitSchedule(state),
               icon: const Icon(Icons.check_circle_outline, size: 18),
               label: const Text('Submit'),
             ),
@@ -2212,26 +2320,46 @@ class _FarmerSchedulePageState extends State<FarmerSchedulePage> {
   }
 
   Future<void> _submitSchedule(FarmerScheduleState state) async {
-    if (_submittingSchedule || _scheduleSubmitted || !_validateSchedule(state)) return;
+    if (_submittingSchedule || _scheduleSubmitted || !_validateSchedule(state))
+      return;
     if (_currentDetails.isNotEmpty) {
       _showMessage('Finish Add Crop Schedule before submitting.');
       return;
     }
     if (_employeeLoading || _employeeId.isEmpty || _employeeId == '0') {
-      _showMessage('Please log in again.'); return;
+      _showMessage('Please log in again.');
+      return;
     }
     if (_pendingDetail != null || _pendingSectionDetails != null) {
-      _showMessage('Please wait for the current schedule to finish saving.'); return;
+      _showMessage('Please wait for the current schedule to finish saving.');
+      return;
     }
-    if (_savedSections.length != state.schedules.length || _savedSections.isEmpty) {
-      _showMessage('Schedule details are incomplete. Please re-add the schedule entries.'); return;
+    if (_savedSections.length != state.schedules.length ||
+        _savedSections.isEmpty) {
+      _showMessage(
+        'Schedule details are incomplete. Please re-add the schedule entries.',
+      );
+      return;
     }
     final date = _savedSections.first.date;
-    final sameDate = _savedSections.every((entry) => entry.date.year == date.year && entry.date.month == date.month && entry.date.day == date.day);
-    if (!sameDate) { _showMessage('One submission supports one schedule date. Please submit different dates separately.'); return; }
+    final sameDate = _savedSections.every(
+      (entry) =>
+          entry.date.year == date.year &&
+          entry.date.month == date.month &&
+          entry.date.day == date.day,
+    );
+    if (!sameDate) {
+      _showMessage(
+        'One submission supports one schedule date. Please submit different dates separately.',
+      );
+      return;
+    }
     final details = _savedSections.expand((entry) => entry.details).toList();
     if (details.any((item) => item.cropId.trim().isEmpty)) {
-      _showMessage('Crop ID is missing. Backend must return fld_crop_id for selected crops.'); return;
+      _showMessage(
+        'Crop ID is missing. Backend must return fld_crop_id for selected crops.',
+      );
+      return;
     }
     final request = AddScheduleRequest(
       empId: _employeeId,
@@ -2252,10 +2380,18 @@ class _FarmerSchedulePageState extends State<FarmerSchedulePage> {
       context: context,
       builder: (dialogContext) => AlertDialog(
         title: const Text('Submit schedule?'),
-        content: Text('Farmer: ${state.selectedFarmer!.farmerName}\nPlot: ${state.selectedPlot!.plotName}\nDate: ${body['scheduleDate']}\nProducts: ${details.length}\n\nPlease confirm. The schedule will be sent to the server.'),
+        content: Text(
+          'Farmer: ${state.selectedFarmer!.farmerName}\nPlot: ${state.selectedPlot!.plotName}\nDate: ${body['scheduleDate']}\nProducts: ${details.length}\n\nPlease confirm. The schedule will be sent to the server.',
+        ),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(dialogContext, false), child: const Text('Cancel')),
-          FilledButton(onPressed: () => Navigator.pop(dialogContext, true), child: const Text('Submit')),
+          TextButton(
+            onPressed: () => Navigator.pop(dialogContext, false),
+            child: const Text('Cancel'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.pop(dialogContext, true),
+            child: const Text('Submit'),
+          ),
         ],
       ),
     );
@@ -2407,8 +2543,16 @@ class _FarmerSchedulePageState extends State<FarmerSchedulePage> {
   // ============================================================
 
   InputDecoration _inputDecoration(String hint, IconData icon) {
+    final requiredField = const [
+      'Search Farmer Name',
+      'Search Crop Name',
+      'Product Name',
+      'Quantity',
+      'Water',
+    ].contains(hint);
+    final displayLabel = requiredField ? '$hint *' : hint;
     return InputDecoration(
-      hintText: hint,
+      hintText: displayLabel,
       labelText:
           const [
             'Product Name',
@@ -2416,8 +2560,8 @@ class _FarmerSchedulePageState extends State<FarmerSchedulePage> {
             'Water',
             'Enter Remark',
           ].contains(hint)
-          ? hint
-          : null,
+          ? displayLabel
+          : (requiredField ? displayLabel : null),
       floatingLabelBehavior: FloatingLabelBehavior.auto,
 
       hintStyle: TextStyle(fontSize: 11.5.sp, color: Colors.black45),
@@ -2457,6 +2601,7 @@ class _FarmerSchedulePageState extends State<FarmerSchedulePage> {
   // ============================================================
 
   Widget _dropdown({
+    required String label,
     required String value,
     required List<String> values,
     required ValueChanged<String?> onChanged,
@@ -2467,6 +2612,7 @@ class _FarmerSchedulePageState extends State<FarmerSchedulePage> {
       isExpanded: true,
 
       decoration: InputDecoration(
+        labelText: label,
         isDense: true,
 
         filled: true,
