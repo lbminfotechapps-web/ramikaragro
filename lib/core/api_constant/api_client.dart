@@ -164,4 +164,11 @@ class ApiClient {
     // IMPORTANT:
   // Replace this with the exact endpoint from your old ApiService.java.
   static const String getPlantRecommendedProducts ='/getMicronutrients';
+  
+  static const String getPlotFarmers = '/getFarmerList';
+  static const String getFarmerPlots = '/getFarmerPlots';
+  static const String submitPlotRegistration = '/addPlot';
+   static const String addSchedule = '/addSchedule';
+   static const String getScheduleList = '/getScheduleList';
+
 }

@@ -1,9 +1,11 @@
+import 'package:solufine/core/di/add_schedule_di.dart';
 import 'package:solufine/core/di/ai_di.dart';
 import 'package:solufine/core/di/calendar_report_di.dart';
 import 'package:solufine/core/di/consultant_doctor_di.dart';
 import 'package:solufine/core/di/database_di.dart';
 import 'package:solufine/core/di/growth_report_di.dart';
 import 'package:solufine/core/di/plant_doctor_di.dart';
+import 'package:solufine/core/di/plot_registration_di.dart';
 import 'package:solufine/core/di/quick_referance_di.dart'
     show initQuickReferenceDi;
 import 'package:solufine/core/di/auth_di.dart';
@@ -37,6 +39,7 @@ import 'package:solufine/core/di/order_history_di.dart';
 import 'package:solufine/core/di/product_di.dart';
 import 'package:solufine/core/di/sales_return_history_di.dart';
 import 'package:solufine/core/di/schedule_di.dart';
+import 'package:solufine/core/di/schedule_list_di.dart';
 
 import 'package:solufine/core/di/scheme_di.dart';
 import 'package:solufine/core/di/self_target_di.dart';
@@ -100,4 +103,7 @@ await ThemeDI.register(sl);
   await initCalendarReportDi();
   await initPlantDoctorDi();
   await  initFarmerScheduleDi();
+  await initPlotRegistrationDi();
+  await initAddScheduleDi();
+  await initScheduleListDi();
 }

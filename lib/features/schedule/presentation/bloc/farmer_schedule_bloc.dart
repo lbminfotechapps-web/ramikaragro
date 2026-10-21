@@ -4,84 +4,57 @@ import 'package:intl/intl.dart';
 import '../../domain/entities/schedule_item_entity.dart';
 import '../../domain/usecases/search_crop.dart';
 import '../../domain/usecases/search_schedule_farmer.dart';
+import '../../domain/usecases/get_farmer_plots.dart';
 
 import 'farmer_schedule_event.dart';
 import 'farmer_schedule_state.dart';
 
 class FarmerScheduleBloc
-    extends Bloc<
-        FarmerScheduleEvent,
-        FarmerScheduleState> {
+    extends Bloc<FarmerScheduleEvent, FarmerScheduleState> {
   final SearchCrop searchCrop;
   final SearchScheduleFarmer searchFarmer;
+  final GetFarmerPlots getFarmerPlots;
+
+  int _plotRequestVersion = 0;
+  int _farmerSearchVersion = 0;
 
   FarmerScheduleBloc({
     required this.searchCrop,
     required this.searchFarmer,
-  }) : super(
-          const FarmerScheduleState(),
-        ) {
-    on<FarmerSearchChanged>(
-      _onFarmerSearchChanged,
-    );
+    required this.getFarmerPlots,
+  }) : super(const FarmerScheduleState()) {
+    on<FarmerSearchChanged>(_onFarmerSearchChanged);
+    on<FarmerSelected>(_onFarmerSelected);
+    on<ClearSelectedFarmer>((event, emit) {
+      _farmerSearchVersion++;
+      _plotRequestVersion++;
+      emit(const FarmerScheduleState());
+    });
+    on<CropSearchChanged>(_onCropSearchChanged);
+    on<CropSelected>(_onCropSelected);
+    on<ScheduleDateChanged>(_onDateChanged);
+    on<AddScheduleLine>(_onAddScheduleLine);
+    on<SaveScheduleSection>(_onSaveScheduleSection);
+    on<RemoveScheduleSection>(_onRemoveScheduleSection);
+    on<ClearScheduleMessage>(_onClearMessage);
+    on<ClearSubmittedSchedules>((event, emit) {
+      emit(state.copyWith(schedules: [], message: '', isFailure: false));
+    });
 
-    on<FarmerSelected>(
-      _onFarmerSelected,
-    );
-
-    on<CropSearchChanged>(
-      _onCropSearchChanged,
-    );
-
-    on<CropSelected>(
-      _onCropSelected,
-    );
-
-    on<ScheduleDateChanged>(
-      _onDateChanged,
-    );
-
-    on<AddScheduleLine>(
-      _onAddScheduleLine,
-    );
-
-    on<SaveScheduleSection>(
-      _onSaveScheduleSection,
-    );
-
-    on<RemoveScheduleSection>(
-      _onRemoveScheduleSection,
-    );
-
-    on<ClearScheduleMessage>(
-      _onClearMessage,
-    );
+    on<LoadFarmerPlots>(_onLoadFarmerPlots);
+    on<FarmerPlotSelected>(_onFarmerPlotSelected);
+    on<ClearFarmerPlot>(_onClearFarmerPlot);
   }
-
-  // ============================================================
-  // FARMER SEARCH
-  // ============================================================
 
   Future<void> _onFarmerSearchChanged(
     FarmerSearchChanged event,
     Emitter<FarmerScheduleState> emit,
   ) async {
-    final String searchText =
-        event.searchText.trim();
+    final search = event.searchText.trim();
+    final requestVersion = ++_farmerSearchVersion;
 
-    print(
-      'BLOC FARMER SEARCH : '
-      '$searchText',
-    );
-
-    if (searchText.length < 3) {
-      emit(
-        state.copyWith(
-          farmers: const [],
-          farmerLoading: false,
-        ),
-      );
-
+    if (search.length < 3) {
+      emit(state.copyWith(farmers: const [], farmerLoading: false));
       return;
     }
 
@@ -95,49 +68,17 @@ class FarmerScheduleBloc
     );
 
     try {
-      final result =
-          await searchFarmer(
-        searchKey: searchText,
-      );
+      final result = await searchFarmer(searchKey: search);
 
-      print(
-        'BLOC FARMER COUNT : '
-        '${result.length}',
-      );
+      if (requestVersion != _farmerSearchVersion) return;
 
-      for (final farmer in result) {
-        print(
-          'BLOC FARMER : '
-          '${farmer.farmerName}',
-        );
-      }
-
-      emit(
-        state.copyWith(
-          farmerLoading: false,
-          farmers: result,
-          message: '',
-          isFailure: false,
-        ),
-      );
+      emit(state.copyWith(farmerLoading: false, farmers: result));
     } catch (e) {
-      print(
-        'BLOC FARMER ERROR : $e',
-      );
+      if (requestVersion != _farmerSearchVersion) return;
 
-      emit(
-        state.copyWith(
-          farmerLoading: false,
-          farmers: const [],
-          message: e
-              .toString()
-              .replaceFirst(
-                'Exception: ',
-                '',
-              ),
-          isFailure: true,
-        ),
-      );
+      _error(emit, e.toString().replaceFirst('Exception: ', ''));
+
+      emit(state.copyWith(farmerLoading: false, farmers: const []));
     }
   }
 
@@ -145,379 +86,294 @@ class FarmerScheduleBloc
     FarmerSelected event,
     Emitter<FarmerScheduleState> emit,
   ) {
-    print(
-      'SELECTED FARMER ID : '
-      '${event.farmer.farmerId}',
-    );
+    _farmerSearchVersion++;
+    _plotRequestVersion++;
 
-    print(
-      'SELECTED FARMER : '
-      '${event.farmer.farmerName}',
-    );
+    final farmer = event.farmer;
+
+    print('SELECTED FARMER: ${farmer.farmerName}');
+    print('FARMER ID: ${farmer.farmerId}');
+    print('PLOT STATUS: ${farmer.farmerPlotStatus}');
 
     emit(
       state.copyWith(
-        selectedFarmer: event.farmer,
+        selectedFarmer: farmer,
+        schedules: const [],
+        currentSchedule: '',
+        selectedCropName: '',
+        crops: const [],
+        clearDate: true,
         farmers: const [],
+        plots: const [],
+        plotLoading: false,
+        clearSelectedPlot: true,
+        plotError: '',
         message: '',
       ),
     );
+
+    // The page dispatches LoadFarmerPlots with the
+    // logged-in employee ID once this farmer is selected.
   }
 
-  // ============================================================
-  // CROP SEARCH
-  // ============================================================
+  Future<void> _onLoadFarmerPlots(
+    LoadFarmerPlots event,
+    Emitter<FarmerScheduleState> emit,
+  ) async {
+    if (state.selectedFarmer?.farmerId != event.farmerId) {
+      return;
+    }
+
+    final version = ++_plotRequestVersion;
+
+    emit(
+      state.copyWith(
+        plotLoading: true,
+        plots: const [],
+        clearSelectedPlot: true,
+        plotError: '',
+      ),
+    );
+
+    try {
+      final plots = await getFarmerPlots(
+        empId: event.empId,
+        farmerId: event.farmerId,
+      );
+
+      if (version != _plotRequestVersion ||
+          state.selectedFarmer?.farmerId != event.farmerId) {
+        return;
+      }
+
+      emit(state.copyWith(plotLoading: false, plots: plots, plotError: ''));
+    } catch (e) {
+      if (version != _plotRequestVersion ||
+          state.selectedFarmer?.farmerId != event.farmerId) {
+        return;
+      }
+
+      emit(
+        state.copyWith(
+          plotLoading: false,
+          plots: const [],
+          clearSelectedPlot: true,
+          plotError: e.toString().replaceFirst('Exception: ', ''),
+        ),
+      );
+    }
+  }
+
+  void _onFarmerPlotSelected(
+    FarmerPlotSelected event,
+    Emitter<FarmerScheduleState> emit,
+  ) {
+    final valid = state.plots.any(
+      (plot) =>
+          plot.plotId == event.plot.plotId &&
+          plot.farmerId == state.selectedFarmer?.farmerId,
+    );
+
+    if (!valid) return;
+
+    print('SELECTED PLOT ID: ${event.plot.plotId}');
+    print('SELECTED PLOT NAME: ${event.plot.plotName}');
+
+    emit(state.copyWith(selectedPlot: event.plot, message: ''));
+  }
+
+  void _onClearFarmerPlot(
+    ClearFarmerPlot event,
+    Emitter<FarmerScheduleState> emit,
+  ) {
+    emit(state.copyWith(clearSelectedPlot: true));
+  }
 
   Future<void> _onCropSearchChanged(
     CropSearchChanged event,
     Emitter<FarmerScheduleState> emit,
   ) async {
-    final String searchText =
-        event.searchText.trim();
+    final search = event.searchText.trim();
 
-    if (searchText.length < 3) {
-      emit(
-        state.copyWith(
-          crops: const [],
-          cropLoading: false,
-        ),
-      );
-
+    if (search.length < 3) {
+      emit(state.copyWith(crops: const [], cropLoading: false));
       return;
     }
 
-    emit(
-      state.copyWith(
-        cropLoading: true,
-        crops: const [],
-        message: '',
-      ),
-    );
+    emit(state.copyWith(cropLoading: true, crops: const [], message: ''));
 
     try {
-      final result =
-          await searchCrop(
-        searchKey: searchText,
-      );
+      final result = await searchCrop(searchKey: search);
 
-      emit(
-        state.copyWith(
-          cropLoading: false,
-          crops: result,
-          message: '',
-          isFailure: false,
-        ),
-      );
+      emit(state.copyWith(cropLoading: false, crops: result, isFailure: false));
     } catch (e) {
       emit(
         state.copyWith(
           cropLoading: false,
           crops: const [],
-          message: e
-              .toString()
-              .replaceFirst(
-                'Exception: ',
-                '',
-              ),
+          message: e.toString().replaceFirst('Exception: ', ''),
           isFailure: true,
         ),
       );
     }
   }
 
-  void _onCropSelected(
-    CropSelected event,
-    Emitter<FarmerScheduleState> emit,
-  ) {
-    emit(
-      state.copyWith(
-        selectedCropName:
-            event.cropName,
-        crops: const [],
-      ),
-    );
+  void _onCropSelected(CropSelected event, Emitter<FarmerScheduleState> emit) {
+    emit(state.copyWith(selectedCropName: event.cropName, crops: const []));
   }
-
-  // ============================================================
-  // DATE
-  // ============================================================
 
   void _onDateChanged(
     ScheduleDateChanged event,
     Emitter<FarmerScheduleState> emit,
   ) {
-    emit(
-      state.copyWith(
-        selectedDate:
-            event.date,
-      ),
-    );
+    emit(state.copyWith(selectedDate: event.date));
   }
-
-  // ============================================================
-  // ADD PRODUCT SCHEDULE LINE
-  // ============================================================
 
   void _onAddScheduleLine(
     AddScheduleLine event,
     Emitter<FarmerScheduleState> emit,
   ) {
     if (state.selectedDate == null) {
-      _error(
-        emit,
-        'Please select schedule date.',
-      );
+      _error(emit, 'Please select schedule date.');
       return;
     }
 
-    if (state.selectedCropName
-        .trim()
-        .isEmpty) {
-      _error(
-        emit,
-        'Please select crop.',
-      );
+    if (state.selectedCropName.trim().isEmpty) {
+      _error(emit, 'Please select crop.');
       return;
     }
 
-    if (event.productName
-        .trim()
-        .isEmpty) {
-      _error(
-        emit,
-        'Please enter product name.',
-      );
+    if (event.productName.trim().isEmpty) {
+      _error(emit, 'Please enter product name.');
       return;
     }
 
-    if (event.type ==
-            'Select Type' ||
-        event.type.trim().isEmpty) {
-      _error(
-        emit,
-        'Please select type.',
-      );
+    if (event.type == 'Select Type' || event.type.trim().isEmpty) {
+      _error(emit, 'Please select type.');
       return;
     }
 
-    if (event.quantity
-        .trim()
-        .isEmpty) {
-      _error(
-        emit,
-        'Please enter quantity.',
-      );
+    if (event.quantity.trim().isEmpty) {
+      _error(emit, 'Please enter quantity.');
       return;
     }
 
-    if (event.quantityUnit ==
-        'Select Unit') {
-      _error(
-        emit,
-        'Please select quantity unit.',
-      );
+    if (event.quantityUnit == 'Select Unit') {
+      _error(emit, 'Please select quantity unit.');
       return;
     }
 
-    if (event.water
-        .trim()
-        .isEmpty) {
-      _error(
-        emit,
-        'Please enter water.',
-      );
+    if (event.water.trim().isEmpty) {
+      _error(emit, 'Please enter water.');
       return;
     }
 
-    if (event.waterUnit ==
-        'Select Unit') {
-      _error(
-        emit,
-        'Please select water unit.',
-      );
+    if (event.waterUnit == 'Select Unit') {
+      _error(emit, 'Please select water unit.');
       return;
     }
 
-    final StringBuffer line =
-        StringBuffer();
+    final quantity = double.tryParse(event.quantity.trim());
+    final water = double.tryParse(event.water.trim());
+    if (quantity == null || !quantity.isFinite || quantity <= 0) {
+      _error(emit, 'Please enter a valid quantity greater than zero.');
+      return;
+    }
+    if (water == null || !water.isFinite || water <= 0) {
+      _error(emit, 'Please enter valid water greater than zero.');
+      return;
+    }
+    final line = StringBuffer();
 
     line.write(
       '${event.type} :- '
       '${event.productName.trim()}'
-      '(${event.quantity.trim()} '
-      '${event.quantityUnit})'
-      '(${event.water.trim()} '
-      '${event.waterUnit})',
+      '(${event.quantity.trim()} ${event.quantityUnit})'
+      '(${event.water.trim()} ${event.waterUnit})',
     );
 
-    if (event.remark
-        .trim()
-        .isNotEmpty) {
-      line.write(
-        '\nRemark : '
-        '${event.remark.trim()}',
-      );
+    if (event.remark.trim().isNotEmpty) {
+      line.write('\nRemark : ${event.remark.trim()}');
     }
 
-    String updated =
-        state.currentSchedule;
+    var updated = state.currentSchedule;
 
     if (updated.trim().isNotEmpty) {
       updated += '\n\n';
     }
 
-    updated +=
-        line.toString();
+    updated += line.toString();
 
     emit(
       state.copyWith(
-        currentSchedule:
-            updated,
-        message:
-            'Schedule added.',
-        isFailure:
-            false,
+        currentSchedule: updated,
+        message: 'Schedule added.',
+        isFailure: false,
       ),
     );
   }
-
-  // ============================================================
-  // SAVE FINAL CROP SCHEDULE
-  // ============================================================
 
   void _onSaveScheduleSection(
     SaveScheduleSection event,
     Emitter<FarmerScheduleState> emit,
   ) {
     if (state.selectedDate == null) {
-      _error(
-        emit,
-        'Please select schedule date.',
-      );
+      _error(emit, 'Please select schedule date.');
       return;
     }
 
-    if (state.selectedCropName
-        .trim()
-        .isEmpty) {
-      _error(
-        emit,
-        'Please select crop.',
-      );
+    if (state.selectedCropName.trim().isEmpty) {
+      _error(emit, 'Please select crop.');
       return;
     }
 
-    if (state.currentSchedule
-        .trim()
-        .isEmpty) {
-      _error(
-        emit,
-        'Please add at least one schedule.',
-      );
+    if (state.currentSchedule.trim().isEmpty) {
+      _error(emit, 'Please add at least one schedule.');
       return;
     }
 
-    final String date =
-        DateFormat(
-      'dd/MM/yyyy',
-    ).format(
-      state.selectedDate!,
-    );
-
-    final ScheduleItemEntity item =
-        ScheduleItemEntity(
-      cropName:
-          state.selectedCropName,
-      date:
-          date,
-      schedule:
-          state.currentSchedule,
-    );
-
-    final List<ScheduleItemEntity>
-        updatedList = [
-      ...state.schedules,
-      item,
-    ];
-
-    emit(
-      state.copyWith(
-        schedules:
-            updatedList,
-        selectedCropName:
-            '',
-        currentSchedule:
-            '',
-        crops:
-            const [],
-        clearDate:
-            true,
-        message:
-            'Schedule added to list.',
-        isFailure:
-            false,
-      ),
-    );
-  }
-
-  // ============================================================
-  // REMOVE
-  // ============================================================
-
-  void _onRemoveScheduleSection(
-    RemoveScheduleSection event,
-    Emitter<FarmerScheduleState> emit,
-  ) {
-    if (event.index < 0 ||
-        event.index >=
-            state.schedules.length) {
-      return;
-    }
-
-    final List<ScheduleItemEntity> updated =
-        List<ScheduleItemEntity>.from(
-      state.schedules,
-    );
-
-    updated.removeAt(
-      event.index,
+    final item = ScheduleItemEntity(
+      cropName: state.selectedCropName,
+      date: DateFormat('dd/MM/yyyy').format(state.selectedDate!),
+      schedule: state.currentSchedule,
     );
 
     emit(
       state.copyWith(
-        schedules:
-            updated,
-      ),
-    );
-  }
-
-  // ============================================================
-  // CLEAR MESSAGE
-  // ============================================================
-
-  void _onClearMessage(
-    ClearScheduleMessage event,
-    Emitter<FarmerScheduleState> emit,
-  ) {
-    emit(
-      state.copyWith(
-        message: '',
+        schedules: [...state.schedules, item],
+        selectedCropName: '',
+        currentSchedule: '',
+        crops: const [],
+        clearDate: true,
+        message: 'Schedule added to list.',
         isFailure: false,
       ),
     );
   }
 
-  void _error(
+  void _onRemoveScheduleSection(
+    RemoveScheduleSection event,
     Emitter<FarmerScheduleState> emit,
-    String message,
   ) {
-    emit(
-      state.copyWith(
-        message:
-            message,
-        isFailure:
-            true,
-      ),
-    );
+    if (event.index < 0 || event.index >= state.schedules.length) {
+      return;
+    }
+
+    final updated = List<ScheduleItemEntity>.from(state.schedules);
+
+    updated.removeAt(event.index);
+
+    emit(state.copyWith(schedules: updated));
+  }
+
+  void _onClearMessage(
+    ClearScheduleMessage event,
+    Emitter<FarmerScheduleState> emit,
+  ) {
+    emit(state.copyWith(message: '', isFailure: false));
+  }
+
+  void _error(Emitter<FarmerScheduleState> emit, String message) {
+    emit(state.copyWith(message: message, isFailure: true));
   }
 }

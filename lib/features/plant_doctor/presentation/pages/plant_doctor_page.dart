@@ -64,7 +64,6 @@ class _PlantDoctorView extends StatelessWidget {
       ),
 
 
-
       body: BlocConsumer<PlantDoctorBloc, PlantDoctorState>(
         listener: (context, state) {
           if (state.status == PlantDoctorStatus.failure &&

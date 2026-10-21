@@ -1,18 +1,12 @@
 import '../../domain/entities/crop_entity.dart';
 
 class CropModel extends CropEntity {
-  const CropModel({
-    required super.cropName,
-  });
+  const CropModel({required super.cropName, super.cropId});
 
-  factory CropModel.fromJson(
-    Map<String, dynamic> json,
-  ) {
+  factory CropModel.fromJson(Map<String, dynamic> json) {
     return CropModel(
-      cropName:
-          json['fld_crop_name']
-                  ?.toString() ??
-              '',
+      cropId: json['fld_crop_id']?.toString().trim() ?? '',
+      cropName: json['fld_crop_name']?.toString() ?? '',
     );
   }
 }
