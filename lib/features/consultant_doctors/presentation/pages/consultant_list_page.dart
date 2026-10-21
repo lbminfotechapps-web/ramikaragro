@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import 'package:solufine/core/router/app_router.dart';
 import 'package:solufine/core/secure_storage/secure_storage.dart';
@@ -144,15 +145,12 @@ class _ConsultantListPageState extends State<ConsultantListPage> {
   }
 
   // ========================================================
-  // ADD / EDIT NAVIGATION
+  // ADD NAVIGATION
   // ========================================================
 
-  Future<void> _openForm([ConsultantDoctor? doctor]) async {
+  Future<void> _openForm() async {
     try {
-      final saved = await context.pushNamed<bool>(
-        'consultantDoctorForm',
-        extra: doctor,
-      );
+      final saved = await context.pushNamed<bool>('consultantDoctorForm');
 
       if (!mounted) return;
 
@@ -216,81 +214,81 @@ class _ConsultantListPageState extends State<ConsultantListPage> {
   // HEADER
   // ========================================================
 
-  Widget _buildHeader(int count) {
-    final primary = context.appPrimary;
+  // Widget _buildHeader(int count) {
+  //   final primary = context.appPrimary;
 
-    return Container(
-      padding: const EdgeInsets.all(14),
-      decoration: BoxDecoration(
-        color: primary.withValues(alpha: 0.08),
-        borderRadius: BorderRadius.circular(15),
-        border: Border.all(color: primary.withValues(alpha: 0.15)),
-      ),
-      child: Row(
-        children: [
-          Container(
-            height: 44,
-            width: 44,
-            alignment: Alignment.center,
-            decoration: BoxDecoration(
-              color: primary.withValues(alpha: 0.12),
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: Icon(
-              Icons.medical_services_outlined,
-              color: primary,
-              size: 23,
-            ),
-          ),
-          const SizedBox(width: 11),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Doctor Network',
-                  style: TextStyle(
-                    color: context.appText,
-                    fontSize: 16,
-                    fontWeight: FontWeight.w800,
-                  ),
-                ),
-                const SizedBox(height: 3),
-                Text(
-                  'Consultants from server',
-                  style: TextStyle(color: context.appSubText, fontSize: 11),
-                ),
-              ],
-            ),
-          ),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
-            decoration: BoxDecoration(
-              color: context.appCard,
-              borderRadius: BorderRadius.circular(10),
-              border: Border.all(color: context.appBorder),
-            ),
-            child: Column(
-              children: [
-                Text(
-                  '$count',
-                  style: TextStyle(
-                    color: primary,
-                    fontSize: 18,
-                    fontWeight: FontWeight.w800,
-                  ),
-                ),
-                Text(
-                  'Total',
-                  style: TextStyle(color: context.appSubText, fontSize: 10),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
+  //   return Container(
+  //     padding: const EdgeInsets.all(14),
+  //     decoration: BoxDecoration(
+  //       color: primary.withValues(alpha: 0.08),
+  //       borderRadius: BorderRadius.circular(15),
+  //       border: Border.all(color: primary.withValues(alpha: 0.15)),
+  //     ),
+  //     child: Row(
+  //       children: [
+  //         Container(
+  //           height: 44,
+  //           width: 44,
+  //           alignment: Alignment.center,
+  //           decoration: BoxDecoration(
+  //             color: primary.withValues(alpha: 0.12),
+  //             borderRadius: BorderRadius.circular(12),
+  //           ),
+  //           child: Icon(
+  //             Icons.medical_services_outlined,
+  //             color: primary,
+  //             size: 23,
+  //           ),
+  //         ),
+  //         const SizedBox(width: 11),
+  //         Expanded(
+  //           child: Column(
+  //             crossAxisAlignment: CrossAxisAlignment.start,
+  //             children: [
+  //               Text(
+  //                 'Doctor Network',
+  //                 style: TextStyle(
+  //                   color: context.appText,
+  //                   fontSize: 16,
+  //                   fontWeight: FontWeight.w800,
+  //                 ),
+  //               ),
+  //               const SizedBox(height: 3),
+  //               Text(
+  //                 'Consultants from server',
+  //                 style: TextStyle(color: context.appSubText, fontSize: 11),
+  //               ),
+  //             ],
+  //           ),
+  //         ),
+  //         Container(
+  //           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
+  //           decoration: BoxDecoration(
+  //             color: context.appCard,
+  //             borderRadius: BorderRadius.circular(10),
+  //             border: Border.all(color: context.appBorder),
+  //           ),
+  //           child: Column(
+  //             children: [
+  //               Text(
+  //                 '$count',
+  //                 style: TextStyle(
+  //                   color: primary,
+  //                   fontSize: 18,
+  //                   fontWeight: FontWeight.w800,
+  //                 ),
+  //               ),
+  //               Text(
+  //                 'Total',
+  //                 style: TextStyle(color: context.appSubText, fontSize: 10),
+  //               ),
+  //             ],
+  //           ),
+  //         ),
+  //       ],
+  //     ),
+  //   );
+  // }
 
   // ========================================================
   // SEARCH
@@ -340,6 +338,20 @@ class _ConsultantListPageState extends State<ConsultantListPage> {
   // CONSULTANT CARD
   // ========================================================
 
+  Future<void> _dialNumber(String mobile) async {
+    final number = mobile.trim().replaceAll(RegExp(r'[^0-9+]'), '');
+    if (number.isEmpty) return;
+    try {
+      final opened = await launchUrl(Uri(scheme: 'tel', path: number));
+      if (opened || !mounted) return;
+    } catch (_) {
+      if (!mounted) return;
+    }
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Unable to open the phone dialer.')),
+    );
+  }
+
   Widget _buildConsultantCard(ConsultantDoctor doctor) {
     final primary = context.appPrimary;
 
@@ -352,137 +364,150 @@ class _ConsultantListPageState extends State<ConsultantListPage> {
     return Material(
       color: context.appCard,
       borderRadius: BorderRadius.circular(14),
-      child: InkWell(
-        borderRadius: BorderRadius.circular(14),
-        onTap: () => _openForm(doctor),
-        child: Container(
-          padding: const EdgeInsets.all(12),
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(14),
-            border: Border.all(color: context.appBorder),
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                children: [
-                  Container(
-                    height: 43,
-                    width: 43,
-                    alignment: Alignment.center,
-                    decoration: BoxDecoration(
-                      color: primary.withValues(alpha: 0.1),
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: Text(
-                      _initials(doctor.doctorName),
-                      style: TextStyle(
-                        color: primary,
-                        fontSize: 13,
-                        fontWeight: FontWeight.w800,
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 10),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          doctor.doctorName,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: TextStyle(
-                            color: context.appText,
-                            fontSize: 14,
-                            fontWeight: FontWeight.w800,
-                          ),
-                        ),
-                        const SizedBox(height: 4),
-                        Text(
-                          'Owner: ${doctor.ownerName}',
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: TextStyle(
-                            color: context.appSubText,
-                            fontSize: 11,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  Icon(
-                    Icons.chevron_right_rounded,
-                    color: context.appSubText,
-                    size: 20,
-                  ),
-                ],
-              ),
-
-              const SizedBox(height: 10),
-              Divider(height: 1, color: context.appBorder),
-              const SizedBox(height: 9),
-
-              Row(
-                children: [
-                  Icon(Icons.phone_outlined, color: primary, size: 14),
-                  const SizedBox(width: 5),
-                  Text(
-                    doctor.mobile,
-                    style: TextStyle(
-                      color: context.appText,
-                      fontSize: 11,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                  const SizedBox(width: 10),
-                  Expanded(
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.end,
-                      children: [
-                        Icon(
-                          Icons.location_on_outlined,
-                          color: primary,
-                          size: 14,
-                        ),
-                        const SizedBox(width: 3),
-                        Flexible(
-                          child: Text(
-                            location.isEmpty ? 'Location not set' : location,
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            textAlign: TextAlign.end,
-                            style: TextStyle(
-                              color: context.appSubText,
-                              fontSize: 10.5,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-
-              if (doctor.remark.trim().isNotEmpty) ...[
-                const SizedBox(height: 9),
+      child: Container(
+        padding: const EdgeInsets.all(12),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(14),
+          border: Border.all(color: context.appBorder),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
                 Container(
-                  width: double.infinity,
-                  padding: const EdgeInsets.all(9),
+                  height: 43,
+                  width: 43,
+                  alignment: Alignment.center,
                   decoration: BoxDecoration(
-                    color: primary.withValues(alpha: 0.05),
-                    borderRadius: BorderRadius.circular(9),
+                    color: primary.withValues(alpha: 0.1),
+                    borderRadius: BorderRadius.circular(12),
                   ),
                   child: Text(
-                    doctor.remark,
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                    style: TextStyle(color: context.appSubText, fontSize: 11),
+                    _initials(doctor.doctorName),
+                    style: TextStyle(
+                      color: primary,
+                      fontSize: 13,
+                      fontWeight: FontWeight.w800,
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        doctor.doctorName,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          color: context.appText,
+                          fontSize: 14,
+                          fontWeight: FontWeight.w800,
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        'Owner: ${doctor.ownerName}',
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          color: context.appSubText,
+                          fontSize: 11,
+                        ),
+                      ),
+                    ],
                   ),
                 ),
               ],
+            ),
+
+            const SizedBox(height: 10),
+            Divider(height: 1, color: context.appBorder),
+            const SizedBox(height: 9),
+
+            Row(
+              children: [
+                Semantics(
+                  button: true,
+                  label: 'Call ${doctor.mobile}',
+                  child: InkWell(
+                    onTap: doctor.mobile.trim().isEmpty
+                        ? null
+                        : () => _dialNumber(doctor.mobile),
+                    borderRadius: BorderRadius.circular(6),
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(
+                        vertical: 10,
+                        horizontal: 2,
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(Icons.phone_outlined, color: primary, size: 14),
+                          const SizedBox(width: 5),
+                          Text(
+                            doctor.mobile,
+                            style: TextStyle(
+                              color: primary,
+                              fontSize: 11,
+                              fontWeight: FontWeight.w600,
+                              decoration: TextDecoration.underline,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      Icon(
+                        Icons.location_on_outlined,
+                        color: primary,
+                        size: 14,
+                      ),
+                      const SizedBox(width: 3),
+                      Flexible(
+                        child: Text(
+                          location.isEmpty ? 'Location not set' : location,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          textAlign: TextAlign.end,
+                          style: TextStyle(
+                            color: context.appSubText,
+                            fontSize: 10.5,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+
+            if (doctor.remark.trim().isNotEmpty) ...[
+              const SizedBox(height: 9),
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.all(9),
+                decoration: BoxDecoration(
+                  color: primary.withValues(alpha: 0.05),
+                  borderRadius: BorderRadius.circular(9),
+                ),
+                child: Text(
+                  doctor.remark,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(color: context.appSubText, fontSize: 11),
+                ),
+              ),
             ],
-          ),
+          ],
         ),
       ),
     );
@@ -553,7 +578,7 @@ class _ConsultantListPageState extends State<ConsultantListPage> {
           padding: const EdgeInsets.fromLTRB(14, 10, 14, 6),
           child: Column(
             children: [
-              _buildHeader(doctors.length),
+              // _buildHeader(doctors.length),
               const SizedBox(height: 11),
               _buildSearchBar(),
               const SizedBox(height: 8),
@@ -708,7 +733,6 @@ class _ConsultantListPageState extends State<ConsultantListPage> {
         onActionIconTap: _refreshList,
       ),
 
-      
       body: SafeArea(
         bottom: false,
         child: Center(

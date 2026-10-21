@@ -1,4 +1,3 @@
-
 import 'package:equatable/equatable.dart';
 
 import '../../domain/entities/crop_entity.dart';
@@ -17,6 +16,7 @@ class FarmerScheduleState extends Equatable {
   final String selectedCropName;
   final DateTime? selectedDate;
   final String currentSchedule;
+  final List<String> currentScheduleLines;
   final List<ScheduleItemEntity> schedules;
 
   final String message;
@@ -37,6 +37,7 @@ class FarmerScheduleState extends Equatable {
     this.selectedCropName = '',
     this.selectedDate,
     this.currentSchedule = '',
+    this.currentScheduleLines = const [],
     this.schedules = const [],
     this.message = '',
     this.isFailure = false,
@@ -56,6 +57,7 @@ class FarmerScheduleState extends Equatable {
     DateTime? selectedDate,
     bool clearDate = false,
     String? currentSchedule,
+    List<String>? currentScheduleLines,
     List<ScheduleItemEntity>? schedules,
     String? message,
     bool? isFailure,
@@ -68,21 +70,17 @@ class FarmerScheduleState extends Equatable {
     String? plotError,
   }) {
     return FarmerScheduleState(
-      farmerLoading:
-          farmerLoading ?? this.farmerLoading,
-      cropLoading:
-          cropLoading ?? this.cropLoading,
+      farmerLoading: farmerLoading ?? this.farmerLoading,
+      cropLoading: cropLoading ?? this.cropLoading,
       farmers: farmers ?? this.farmers,
       crops: crops ?? this.crops,
-      selectedFarmer:
-          selectedFarmer ?? this.selectedFarmer,
-      selectedCropName:
-          selectedCropName ?? this.selectedCropName,
-      selectedDate: clearDate
-          ? null
-          : (selectedDate ?? this.selectedDate),
-      currentSchedule:
-          currentSchedule ?? this.currentSchedule,
+      selectedFarmer: selectedFarmer ?? this.selectedFarmer,
+      selectedCropName: selectedCropName ?? this.selectedCropName,
+      selectedDate: clearDate ? null : (selectedDate ?? this.selectedDate),
+      currentSchedule: currentSchedule ?? this.currentSchedule,
+      currentScheduleLines:
+          currentScheduleLines ??
+          (currentSchedule == '' ? const [] : this.currentScheduleLines),
       schedules: schedules ?? this.schedules,
       message: message ?? this.message,
       isFailure: isFailure ?? this.isFailure,
@@ -98,20 +96,21 @@ class FarmerScheduleState extends Equatable {
 
   @override
   List<Object?> get props => [
-        farmerLoading,
-        cropLoading,
-        farmers,
-        crops,
-        selectedFarmer,
-        selectedCropName,
-        selectedDate,
-        currentSchedule,
-        schedules,
-        message,
-        isFailure,
-        plotLoading,
-        plots,
-        selectedPlot,
-        plotError,
-      ];
+    farmerLoading,
+    cropLoading,
+    farmers,
+    crops,
+    selectedFarmer,
+    selectedCropName,
+    selectedDate,
+    currentSchedule,
+    currentScheduleLines,
+    schedules,
+    message,
+    isFailure,
+    plotLoading,
+    plots,
+    selectedPlot,
+    plotError,
+  ];
 }

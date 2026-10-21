@@ -25,6 +25,7 @@ class ConsultantFormPage extends StatefulWidget {
 
 class _ConsultantFormPageState extends State<ConsultantFormPage> {
   final _formKey = GlobalKey<FormState>();
+  bool _submitted = false;
 
   // Initialize immediately to avoid LateInitializationError.
   final _doctorController = TextEditingController();
@@ -282,6 +283,9 @@ class _ConsultantFormPageState extends State<ConsultantFormPage> {
     return DropdownButtonFormField<String>(
       key: ValueKey('$keyName-$value'),
       initialValue: value,
+      autovalidateMode: _submitted
+          ? AutovalidateMode.always
+          : AutovalidateMode.disabled,
       isExpanded: true,
       dropdownColor: context.appCard,
       style: TextStyle(color: context.appInputText, fontSize: 13),
@@ -311,7 +315,10 @@ class _ConsultantFormPageState extends State<ConsultantFormPage> {
             ? location.districtId
             : location.talukaId;
 
-        if (currentId == null || currentId == '0') {
+        if (currentId == null ||
+            currentId.isEmpty ||
+            currentId == '0' ||
+            !items.containsKey(currentId)) {
           return 'Please select $label';
         }
         return null;
@@ -447,6 +454,8 @@ class _ConsultantFormPageState extends State<ConsultantFormPage> {
     }
 
     FocusScope.of(context).unfocus();
+
+    setState(() => _submitted = true);
 
     if (!(_formKey.currentState?.validate() ?? false)) {
       return;
@@ -636,6 +645,9 @@ class _ConsultantFormPageState extends State<ConsultantFormPage> {
                 padding: const EdgeInsets.fromLTRB(14, 8, 14, 24),
                 child: Form(
                   key: _formKey,
+                  autovalidateMode: _submitted
+                      ? AutovalidateMode.always
+                      : AutovalidateMode.disabled,
                   child: Column(
                     children: [
                       _basicDetails(),

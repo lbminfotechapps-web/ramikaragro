@@ -206,7 +206,10 @@ class _PlotRegistrationPageState extends State<PlotRegistrationPage> {
   InputDecoration _fieldDecoration(String label, IconData icon) {
     final colors = Theme.of(context).colorScheme;
     return InputDecoration(
-      labelText: label,
+      labelText:
+          const ['Plot name', 'Farmer', 'Crop', 'Sowing date'].contains(label)
+          ? '$label *'
+          : label,
       prefixIcon: Icon(icon, size: 20),
       isDense: true,
       filled: true,
@@ -779,7 +782,7 @@ class _PlotRegistrationPageState extends State<PlotRegistrationPage> {
                               )
                             : const Icon(Icons.send),
                         label: Text(
-                          submitting ? 'Submitting...' : 'Submit All',
+                          submitting ? 'Submitting...' : 'Submit',
                         ),
                       ),
                     ),

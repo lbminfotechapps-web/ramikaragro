@@ -34,6 +34,20 @@ class FarmerScheduleBloc
     on<CropSelected>(_onCropSelected);
     on<ScheduleDateChanged>(_onDateChanged);
     on<AddScheduleLine>(_onAddScheduleLine);
+    on<RemoveCurrentScheduleProduct>((event, emit) {
+      if (event.index < 0 || event.index >= state.currentScheduleLines.length)
+        return;
+      final lines = List<String>.of(state.currentScheduleLines)
+        ..removeAt(event.index);
+      emit(
+        state.copyWith(
+          currentScheduleLines: List.unmodifiable(lines),
+          currentSchedule: lines.join('\n\n'),
+          message: '',
+          isFailure: false,
+        ),
+      );
+    });
     on<SaveScheduleSection>(_onSaveScheduleSection);
     on<RemoveScheduleSection>(_onRemoveScheduleSection);
     on<ClearScheduleMessage>(_onClearMessage);
@@ -307,6 +321,10 @@ class FarmerScheduleBloc
     emit(
       state.copyWith(
         currentSchedule: updated,
+        currentScheduleLines: List.unmodifiable([
+          ...state.currentScheduleLines,
+          line.toString(),
+        ]),
         message: 'Schedule added.',
         isFailure: false,
       ),

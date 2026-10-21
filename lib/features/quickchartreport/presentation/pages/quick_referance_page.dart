@@ -37,7 +37,6 @@ class _QuickReferencePageState extends State<QuickReferencePage> {
         title: 'Quick Reference Chart Report',
 
         showBackButton: true,
-
         onBackTap: () {
           context.go(AppRouter.home);
         },
@@ -250,6 +249,9 @@ class _QuickReferenceCard extends StatelessWidget {
                     child: _ReferenceFileTile(
                       language: file.language,
                       fileUrl: fileUrl,
+                      referenceFiles: files,
+                      referenceTitle: title,
+                      baseFileUrl: baseFileUrl,
                     ),
                   );
                 },
@@ -266,7 +268,17 @@ class _ReferenceFileTile extends StatelessWidget {
   final String language;
   final String fileUrl;
 
-  const _ReferenceFileTile({required this.language, required this.fileUrl});
+  final List referenceFiles;
+  final String referenceTitle;
+  final String baseFileUrl;
+
+  const _ReferenceFileTile({
+    required this.language,
+    required this.fileUrl,
+    required this.referenceFiles,
+    required this.referenceTitle,
+    required this.baseFileUrl,
+  });
 
   bool get isPdf => fileUrl.toLowerCase().endsWith('.pdf');
 
@@ -287,13 +299,11 @@ class _ReferenceFileTile extends StatelessWidget {
         if (isImage) {
           final images = <String>[];
           final titles = <String>[];
-          for (final gallery in context.read<GalleryBloc>().state.galleryList) {
-            for (final file in gallery.data) {
-              final url = '${ApiClient.imageGalleryUrl}${file.file}';
-              if (_isImageUrl(url)) {
-                images.add(url);
-                titles.add('${gallery.title} (${file.language})');
-              }
+          for (final file in referenceFiles) {
+            final url = '$baseFileUrl${file.file}';
+            if (_isImageUrl(url)) {
+              images.add(url);
+              titles.add('$referenceTitle (${file.language})');
             }
           }
           final index = images.indexOf(fileUrl);
@@ -439,6 +449,11 @@ class _QuickReferenceImagePageState extends State<QuickReferenceImagePage> {
   late final PageController _pageController;
   late int _index;
   bool _sharing = false;
+  bool _zoomed = false;
+  final Set<int> _activePointers = {};
+  Offset? _swipeStart;
+  bool _canSwipe = false;
+  late final List<TransformationController> _transforms = _createTransforms();
 
   @override
   void initState() {
@@ -448,8 +463,66 @@ class _QuickReferenceImagePageState extends State<QuickReferenceImagePage> {
     _pageController = PageController(initialPage: _index);
   }
 
+  List<TransformationController> _createTransforms() {
+    return List.generate(_images.length, (_) {
+      final controller = TransformationController();
+      controller.addListener(_updateZoomState);
+      return controller;
+    });
+  }
+
   String get _title =>
       _index < widget.titles.length ? widget.titles[_index] : widget.title;
+
+  void _updateZoomState() {
+    final zoomed = _transforms[_index].value.getMaxScaleOnAxis() > 1.01;
+    if (mounted && zoomed != _zoomed) setState(() => _zoomed = zoomed);
+  }
+
+  void _setZoom(double scale, Size viewport) {
+    final controller = _transforms[_index];
+    final target = scale.clamp(1.0, 8.0).toDouble();
+    final center = Offset(viewport.width / 2, viewport.height / 2);
+    final scene = controller.toScene(center);
+    controller.value = Matrix4.identity()
+      ..setEntry(0, 0, target)
+      ..setEntry(1, 1, target)
+      ..setEntry(0, 3, center.dx - scene.dx * target)
+      ..setEntry(1, 3, center.dy - scene.dy * target);
+    if (target == 1) controller.value = Matrix4.identity();
+  }
+
+  void _pointerDown(PointerDownEvent event) {
+    _activePointers.add(event.pointer);
+    if (_activePointers.length == 1) {
+      _swipeStart = event.position;
+      _canSwipe = !_zoomed;
+    } else {
+      _canSwipe = false;
+    }
+  }
+
+  void _pointerUp(PointerUpEvent event) {
+    _activePointers.remove(event.pointer);
+    if (_activePointers.isNotEmpty) return;
+    final start = _swipeStart;
+    _swipeStart = null;
+    if (!_canSwipe || _zoomed || start == null) return;
+    final delta = event.position - start;
+    if (delta.dx.abs() > 60 && delta.dx.abs() > delta.dy.abs() * 1.5) {
+      _changeSlide(_index + (delta.dx < 0 ? 1 : -1));
+    }
+  }
+
+  void _changeSlide(int index) {
+    if (index < 0 || index >= _images.length) return;
+    _transforms[_index].value = Matrix4.identity();
+    _pageController.animateToPage(
+      index,
+      duration: const Duration(milliseconds: 250),
+      curve: Curves.easeOut,
+    );
+  }
 
   Future<void> _shareImage(BuildContext buttonContext) async {
     if (_sharing) return;
@@ -498,6 +571,10 @@ class _QuickReferenceImagePageState extends State<QuickReferenceImagePage> {
 
   @override
   void dispose() {
+    for (final controller in _transforms) {
+      controller.removeListener(_updateZoomState);
+      controller.dispose();
+    }
     _pageController.dispose();
     super.dispose();
   }
@@ -527,64 +604,137 @@ class _QuickReferenceImagePageState extends State<QuickReferenceImagePage> {
         ),
       ),
 
-      body: Column(
-        children: [
-          Expanded(
-            child: PageView.builder(
-              controller: _pageController,
-              itemCount: _images.length,
-              onPageChanged: (index) => setState(() => _index = index),
-              itemBuilder: (context, index) => InteractiveViewer(
-                minScale: 1,
-                maxScale: 5,
-                child: Center(
-                  child: Image.network(
-                    _images[index],
-                    fit: BoxFit.contain,
-                    loadingBuilder: (context, child, progress) =>
-                        progress == null
-                        ? child
-                        : Center(
-                            child: CircularProgressIndicator(
-                              color: context.primaryColor,
-                            ),
+      body: LayoutBuilder(
+        builder: (context, constraints) {
+          final viewport = Size(
+            constraints.maxWidth,
+            constraints.maxHeight - 64,
+          );
+          return Column(
+            children: [
+              Expanded(
+                child: PageView.builder(
+                  controller: _pageController,
+                  itemCount: _images.length,
+                  physics: const NeverScrollableScrollPhysics(),
+                  onPageChanged: (index) {
+                    _transforms[_index].value = Matrix4.identity();
+                    setState(() {
+                      _index = index;
+                      _zoomed = false;
+                    });
+                  },
+                  itemBuilder: (context, index) => Listener(
+                    onPointerDown: _pointerDown,
+                    onPointerUp: _pointerUp,
+                    onPointerCancel: (event) {
+                      _activePointers.remove(event.pointer);
+                      _canSwipe = false;
+                    },
+                    child: GestureDetector(
+                      behavior: HitTestBehavior.opaque,
+                      onDoubleTap: () => _setZoom(_zoomed ? 1 : 3, viewport),
+                      child: InteractiveViewer(
+                        transformationController: _transforms[index],
+                        panEnabled: true,
+                        scaleEnabled: true,
+                        trackpadScrollCausesScale: true,
+                        onInteractionEnd: (_) {
+                          if (_transforms[index].value.getMaxScaleOnAxis() <=
+                              1.01) {
+                            _transforms[index].value = Matrix4.identity();
+                          }
+                        },
+                        minScale: 1,
+                        maxScale: 8,
+                        boundaryMargin: EdgeInsets.zero,
+                        child: Center(
+                          child: Image.network(
+                            _images[index],
+                            fit: BoxFit.contain,
+                            loadingBuilder: (context, child, progress) =>
+                                progress == null
+                                ? child
+                                : Center(
+                                    child: CircularProgressIndicator(
+                                      color: context.primaryColor,
+                                    ),
+                                  ),
+                            errorBuilder: (context, error, stackTrace) =>
+                                Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Icon(
+                                      Icons.broken_image_outlined,
+                                      size: 60,
+                                      color: context.secondaryTextColor,
+                                    ),
+                                    SizedBox(height: 10),
+                                    Text(
+                                      'Unable to load image',
+                                      style: AppTextStyles.body.copyWith(
+                                        color: context.secondaryTextColor,
+                                      ),
+                                    ),
+                                  ],
+                                ),
                           ),
-                    errorBuilder: (context, error, stackTrace) => Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(
-                          Icons.broken_image_outlined,
-                          size: 60,
-                          color: context.secondaryTextColor,
                         ),
-                        SizedBox(height: 10),
-                        Text(
-                          'Unable to load image',
-                          style: AppTextStyles.body.copyWith(
-                            color: context.secondaryTextColor,
-                          ),
-                        ),
-                      ],
+                      ),
                     ),
                   ),
                 ),
               ),
-            ),
-          ),
-          if (_images.length > 1)
-            SafeArea(
-              top: false,
-              child: Padding(
-                padding: const EdgeInsets.all(12),
-                child: Text(
-                  '${_index + 1} / ${_images.length} · Swipe to browse',
-                  style: AppTextStyles.body.copyWith(
-                    color: context.secondaryTextColor,
-                  ),
+              SafeArea(
+                top: false,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    IconButton(
+                      tooltip: 'Previous image',
+                      onPressed: _index > 0
+                          ? () => _changeSlide(_index - 1)
+                          : null,
+                      icon: const Icon(Icons.chevron_left),
+                    ),
+                    Text(
+                      '${_index + 1} / ${_images.length}',
+                      style: AppTextStyles.body,
+                    ),
+                    IconButton(
+                      tooltip: 'Next image',
+                      onPressed: _index < _images.length - 1
+                          ? () => _changeSlide(_index + 1)
+                          : null,
+                      icon: const Icon(Icons.chevron_right),
+                    ),
+                    IconButton(
+                      tooltip: 'Zoom out',
+                      onPressed: () => _setZoom(
+                        _transforms[_index].value.getMaxScaleOnAxis() / 1.5,
+                        viewport,
+                      ),
+                      icon: const Icon(Icons.zoom_out),
+                    ),
+                    IconButton(
+                      tooltip: 'Reset zoom',
+                      onPressed: () => _setZoom(1, viewport),
+                      icon: const Icon(Icons.fit_screen),
+                    ),
+                    IconButton(
+                      tooltip: 'Zoom in',
+                      onPressed: () => _setZoom(
+                        _transforms[_index].value.getMaxScaleOnAxis() * 1.5,
+                        viewport,
+                      ),
+                      icon: const Icon(Icons.zoom_in),
+                    ),
+                  ],
                 ),
               ),
-            ),
-        ],
+            ],
+          );
+        },
       ),
     );
   }
