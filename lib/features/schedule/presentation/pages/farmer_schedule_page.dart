@@ -1,4 +1,9 @@
 import 'dart:async';
+import 'dart:convert';
+
+import 'package:get_it/get_it.dart';
+import '../../domain/entities/add_schedule_request.dart';
+import '../bloc/add_schedule_submit_bloc.dart';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -8,46 +13,38 @@ import 'package:intl/intl.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../../../core/router/app_router.dart';
+import '../../../../core/secure_storage/secure_storage.dart';
 import '../../../../core/theme/app_theme_context.dart';
 import '../../../../core/theme/typography/app_text_styles.dart';
 import '../../../../core/utility/widgets/custom_appbar.dart';
 
 import '../../domain/entities/crop_entity.dart';
 import '../../domain/entities/schedule_farmer_entity.dart';
+import '../../domain/entities/farmer_plot_entity.dart';
 
 import '../bloc/farmer_schedule_bloc.dart';
 import '../bloc/farmer_schedule_event.dart';
 import '../bloc/farmer_schedule_state.dart';
 
 class FarmerSchedulePage extends StatefulWidget {
-  const FarmerSchedulePage({
-    super.key,
-  });
+  const FarmerSchedulePage({super.key});
 
   @override
-  State<FarmerSchedulePage> createState() =>
-      _FarmerSchedulePageState();
+  State<FarmerSchedulePage> createState() => _FarmerSchedulePageState();
 }
 
-class _FarmerSchedulePageState
-    extends State<FarmerSchedulePage> {
-  final TextEditingController farmerController =
-      TextEditingController();
+class _FarmerSchedulePageState extends State<FarmerSchedulePage> {
+  final TextEditingController farmerController = TextEditingController();
 
-  final TextEditingController cropController =
-      TextEditingController();
+  final TextEditingController cropController = TextEditingController();
 
-  final TextEditingController productController =
-      TextEditingController();
+  final TextEditingController productController = TextEditingController();
 
-  final TextEditingController quantityController =
-      TextEditingController();
+  final TextEditingController quantityController = TextEditingController();
 
-  final TextEditingController waterController =
-      TextEditingController();
+  final TextEditingController waterController = TextEditingController();
 
-  final TextEditingController remarkController =
-      TextEditingController();
+  final TextEditingController remarkController = TextEditingController();
 
   Timer? farmerTimer;
   Timer? cropTimer;
@@ -56,11 +53,7 @@ class _FarmerSchedulePageState
   String selectedQuantityUnit = 'Select Unit';
   String selectedWaterUnit = 'Select Unit';
 
-  final List<String> typeList = const [
-    'Select Type',
-    'Spray',
-    'Drip',
-  ];
+  final List<String> typeList = const ['Select Type', 'Spray', 'Drip'];
 
   final List<String> quantityUnits = const [
     'Select Unit',
@@ -70,15 +63,139 @@ class _FarmerSchedulePageState
     'Gm',
   ];
 
-  final List<String> waterUnits = const [
-    'Select Unit',
-    'Ltr',
-  ];
+  final List<String> waterUnits = const ['Select Unit', 'Ltr'];
+
+  String _employeeId = '';
+  bool _employeeLoading = true;
+  bool _submittingSchedule = false;
+  late final AddScheduleSubmitBloc _submitBloc;
+  StreamSubscription<AddScheduleSubmitState>? _submitSubscription;
+  bool _scheduleSubmitted = false;
+  String _selectedCropId = '';
+  AddScheduleDetail? _pendingDetail;
+  final List<AddScheduleDetail> _currentDetails = [];
+  DateTime? _pendingSectionDate;
+  List<AddScheduleDetail>? _pendingSectionDetails;
+  final List<_SavedScheduleSection> _savedSections = [];
+
+  // Pending UI entries are committed only when the existing BLoC
+  // confirms that AddScheduleLine / SaveScheduleSection succeeded.
+  String _normalizedUnit(String unit) {
+    switch (unit.toLowerCase().trim()) {
+      case 'kg': return 'kg';
+      case 'gm': return 'g';
+      case 'ml': return 'ml';
+      case 'ltr': return 'L';
+      default: return unit.trim();
+    }
+  }
+
+  void _resetLocalScheduleData() {
+    _selectedCropId = '';
+    _pendingDetail = null;
+    _currentDetails.clear();
+    _pendingSectionDate = null;
+    _pendingSectionDetails = null;
+    _savedSections.clear();
+    _scheduleSubmitted = false;
+    _submitBloc.add(const ResetAddScheduleSubmit());
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _submitBloc = GetIt.instance<AddScheduleSubmitBloc>();
+    _submitSubscription = _submitBloc.stream.listen((submission) {
+      if (!mounted) return;
+      setState(() {
+        _submittingSchedule = submission.status == AddScheduleSubmitStatus.loading;
+        if (submission.status == AddScheduleSubmitStatus.success) _scheduleSubmitted = true;
+      });
+      if (submission.status == AddScheduleSubmitStatus.success) {
+        _showSubmissionSuccessDialog(submission.message);
+      } else if (submission.status == AddScheduleSubmitStatus.failure) {
+        _showMessage(submission.message);
+      }
+    });
+    _loadEmployeeId();
+  }
+
+  Future<void> _showSubmissionSuccessDialog(String message) async {
+    final acknowledged = await showDialog<bool>(
+      context: context,
+      barrierDismissible: false,
+      builder: (dialogContext) => PopScope(
+        canPop: false,
+        child: AlertDialog(
+          title: const Text('Schedule submitted'),
+          content: Text(message.trim().isEmpty
+              ? 'Schedule submitted successfully.'
+              : message),
+          actions: [
+            FilledButton(
+              onPressed: () => Navigator.pop(dialogContext, true),
+              child: const Text('OK'),
+            ),
+          ],
+        ),
+      ),
+    );
+    if (!mounted || acknowledged != true) return;
+    context.read<FarmerScheduleBloc>().add(const ClearSubmittedSchedules());
+    setState(_resetLocalScheduleData);
+  }
+
+  Future<void> _loadEmployeeId() async {
+    try {
+      final userData = await SecureStorage.instance.getUserData();
+      if (!mounted) return;
+      setState(() {
+        _employeeId = (userData?['user_id'] ?? userData?['userId'] ?? '')
+            .toString()
+            .trim();
+        _employeeLoading = false;
+      });
+      final farmer = context.read<FarmerScheduleBloc>().state.selectedFarmer;
+      if (farmer != null) _loadPlotsForFarmer(farmer);
+    } catch (e) {
+      if (!mounted) return;
+      setState(() {
+        _employeeLoading = false;
+      });
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Unable to read employee ID: $e')));
+    }
+  }
+
+  void _loadPlotsForFarmer(ScheduleFarmerEntity farmer) {
+    if (_employeeLoading) return;
+    if (_employeeId.isEmpty || _employeeId == '0') {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Please login again.')));
+      return;
+    }
+    context.read<FarmerScheduleBloc>().add(
+      LoadFarmerPlots(empId: _employeeId, farmerId: farmer.farmerId),
+    );
+  }
+
+  Future<void> _openPlotRegistration(ScheduleFarmerEntity farmer) async {
+    await context.pushNamed<bool>(
+      'plotRegistration',
+      extra: farmer,
+    );
+    if (!mounted) return;
+    _clearSelectedFarmer();
+  }
 
   @override
   void dispose() {
     farmerTimer?.cancel();
     cropTimer?.cancel();
+    _submitSubscription?.cancel();
+    _submitBloc.close();
 
     farmerController.dispose();
     cropController.dispose();
@@ -94,72 +211,66 @@ class _FarmerSchedulePageState
   // FARMER SEARCH
   // ============================================================
 
-  void _searchFarmer(
-    String value,
-  ) {
+  void _clearFarmerSearch() {
+    farmerTimer?.cancel();
+    farmerController.clear();
+  }
+
+  void _clearSelectedFarmer() {
+    _clearFarmerSearch();
+    cropTimer?.cancel();
+    cropController.clear();
+    productController.clear();
+    quantityController.clear();
+    waterController.clear();
+    remarkController.clear();
+    context.read<FarmerScheduleBloc>().add(const ClearSelectedFarmer());
+    setState(() {
+      _resetLocalScheduleData();
+      selectedType = 'Select Type';
+      selectedQuantityUnit = 'Select Unit';
+      selectedWaterUnit = 'Select Unit';
+    });
+  }
+
+  void _searchFarmer(String value) {
     farmerTimer?.cancel();
 
-    final String search =
-        value.trim();
+    final String search = value.trim();
 
     if (search.length < 3) {
       return;
     }
 
-    farmerTimer = Timer(
-      const Duration(
-        seconds: 2,
-      ),
-      () {
-        if (!mounted) {
-          return;
-        }
+    farmerTimer = Timer(const Duration(seconds: 2), () {
+      if (!mounted) {
+        return;
+      }
 
-        context
-            .read<FarmerScheduleBloc>()
-            .add(
-              FarmerSearchChanged(
-                search,
-              ),
-            );
-      },
-    );
+      context.read<FarmerScheduleBloc>().add(FarmerSearchChanged(search));
+    });
   }
 
   // ============================================================
   // CROP SEARCH
   // ============================================================
 
-  void _searchCrop(
-    String value,
-  ) {
+  void _searchCrop(String value) {
     cropTimer?.cancel();
 
-    final String search =
-        value.trim();
+    final String search = value.trim();
 
     if (search.length < 3) {
       return;
     }
 
-    cropTimer = Timer(
-      const Duration(
-        seconds: 2,
-      ),
-      () {
-        if (!mounted) {
-          return;
-        }
+    cropTimer = Timer(const Duration(seconds: 2), () {
+      if (!mounted) {
+        return;
+      }
 
-        context
-            .read<FarmerScheduleBloc>()
-            .add(
-              CropSearchChanged(
-                search,
-              ),
-            );
-      },
-    );
+      context.read<FarmerScheduleBloc>().add(CropSearchChanged(search));
+    });
   }
 
   // ============================================================
@@ -167,133 +278,118 @@ class _FarmerSchedulePageState
   // ============================================================
 
   @override
-  Widget build(
-    BuildContext context,
-  ) {
+  Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor:
-          const Color(
-        0xFFF5F7F5,
-      ),
+      backgroundColor: const Color(0xFFF5F7F5),
 
       appBar: CustomAppBar(
-        backgroundColor:
-            context.primaryColor,
+        backgroundColor: context.primaryColor,
 
-        titleStyle:
-            AppTextStyles.appBarTitle.copyWith(
-          color:
-              context.onPrimaryColor,
+        titleStyle: AppTextStyles.appBarTitle.copyWith(
+          color: context.onPrimaryColor,
         ),
 
         leading: IconButton(
           icon: Icon(
             Icons.arrow_back_ios_new_rounded,
             size: 20,
-            color:
-                context.onPrimaryColor,
+            color: context.onPrimaryColor,
           ),
           onPressed: () {
             if (context.canPop()) {
               context.pop();
             } else {
-              context.go(
-                AppRouter.home,
-              );
+              context.go(AppRouter.home);
             }
           },
         ),
 
-        title:
-            'Schedule',
+        title: 'Schedule',
 
-        showBackButton:
-            true,
+        showBackButton: true,
       ),
 
-      body: BlocConsumer<
-          FarmerScheduleBloc,
-          FarmerScheduleState>(
-        listener: (
-          context,
-          state,
-        ) {
+      body: BlocConsumer<FarmerScheduleBloc, FarmerScheduleState>(
+        listener: (context, state) {
+          if (state.message == 'Schedule added.') {
+            if (!state.isFailure && _pendingDetail != null) {
+              _currentDetails.add(_pendingDetail!);
+            }
+            _pendingDetail = null;
+          }
+          if (state.message == 'Schedule added to list.') {
+            if (!state.isFailure &&
+                _pendingSectionDate != null &&
+                _pendingSectionDetails != null &&
+                _pendingSectionDetails!.isNotEmpty) {
+              _savedSections.add(_SavedScheduleSection(
+                date: _pendingSectionDate!,
+                details: List.unmodifiable(_pendingSectionDetails!),
+              ));
+              _currentDetails.clear();
+            }
+            _pendingSectionDate = null;
+            _pendingSectionDetails = null;
+          }
+          if (!state.isFailure && state.message == 'Schedule added.') {
+            productController.clear();
+            quantityController.clear();
+            waterController.clear();
+            remarkController.clear();
+            setState(() {
+              selectedType = 'Select Type';
+              selectedQuantityUnit = 'Select Unit';
+              selectedWaterUnit = 'Select Unit';
+            });
+          }
+          if (!state.isFailure && state.message == 'Schedule added to list.') {
+            cropController.clear();
+          }
           if (state.message.isNotEmpty) {
-            ScaffoldMessenger.of(
-              context,
-            )
+            ScaffoldMessenger.of(context)
               ..hideCurrentSnackBar()
               ..showSnackBar(
                 SnackBar(
-                  behavior:
-                      SnackBarBehavior.floating,
+                  behavior: SnackBarBehavior.floating,
 
-                  backgroundColor:
-                      state.isFailure
-                          ? Colors.red
-                          : Colors.green,
+                  backgroundColor: state.isFailure ? Colors.red : Colors.green,
 
-                  content:
-                      Text(
-                    state.message,
-                  ),
+                  content: Text(state.message),
                 ),
               );
 
-            context
-                .read<FarmerScheduleBloc>()
-                .add(
-                  const ClearScheduleMessage(),
-                );
+            context.read<FarmerScheduleBloc>().add(
+              const ClearScheduleMessage(),
+            );
           }
         },
 
-        builder: (
-          context,
-          state,
-        ) {
+        builder: (context, state) {
           return SingleChildScrollView(
-            padding:
-                EdgeInsets.fromLTRB(
-              14.w,
-              12.h,
-              14.w,
-              30.h,
-            ),
+            padding: EdgeInsets.fromLTRB(14.w, 12.h, 14.w, 16.h),
 
             child: Column(
-              crossAxisAlignment:
-                  CrossAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.start,
 
               children: [
-                _buildFarmerSection(
-                  state,
-                ),
+                _buildFarmerSection(state),
 
-                SizedBox(
-                  height: 12.h,
-                ),
+                SizedBox(height: 12.h),
 
-                _buildScheduleForm(
-                  state,
-                ),
+                if (state.selectedFarmer?.hasRegisteredPlots == true)
+                  _buildScheduleForm(state),
 
-                if (state.schedules.isNotEmpty) ...[
-                  SizedBox(
-                    height: 18.h,
-                  ),
+                if (state.selectedFarmer?.hasRegisteredPlots == true &&
+                    state.schedules.isNotEmpty) ...[
+                  SizedBox(height: 12.h),
 
-                  _buildScheduleList(
-                    state,
-                  ),
+                  _buildScheduleList(state),
 
-                  SizedBox(
-                    height: 16.h,
-                  ),
-
-                  _buildWhatsAppButton(
-                    state,
-                  ),
+                  SizedBox(height: 12.h),
+                ],
+                if (state.selectedFarmer?.hasRegisteredPlots == true) ...[
+                  SizedBox(height: 12.h),
+                  _buildScheduleActions(state),
                 ],
               ],
             ),
@@ -307,104 +403,107 @@ class _FarmerSchedulePageState
   // FARMER SECTION
   // ============================================================
 
-  Widget _buildFarmerSection(
-    FarmerScheduleState state,
-  ) {
+  Widget _buildFarmerSection(FarmerScheduleState state) {
     return _card(
       child: Column(
-        crossAxisAlignment:
-            CrossAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.start,
 
         children: [
-          _title(
-            Icons.person_search_rounded,
-            'Select Farmer',
+          Row(
+            children: [
+              Expanded(
+                child: _title(Icons.person_search_rounded, 'Select Farmer'),
+              ),
+              SizedBox(width: 8.w),
+              FilledButton.icon(
+                onPressed: () => context.push(AppRouter.scheduleList),
+                style: FilledButton.styleFrom(
+                  backgroundColor: context.primaryColor,
+                  foregroundColor: context.onPrimaryColor,
+                  elevation: 2,
+                  shadowColor: context.primaryColor.withOpacity(0.25),
+                  padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 10.h),
+                  minimumSize: const Size(0, 44),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12.r),
+                  ),
+                  textStyle: TextStyle(
+                    fontSize: 11.sp,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                icon: Icon(Icons.calendar_month_rounded, size: 16.sp),
+                label: const Text('View Schedule'),
+              ),
+            ],
           ),
 
-          SizedBox(
-            height: 10.h,
-          ),
+          SizedBox(height: 10.h),
 
           TextField(
-            controller:
-                farmerController,
+            controller: farmerController,
 
-            onChanged:
-                _searchFarmer,
+            onChanged: _searchFarmer,
 
-            textInputAction:
-                TextInputAction.search,
+            textInputAction: TextInputAction.search,
 
             decoration:
                 _inputDecoration(
-              'Search Farmer Name',
-              Icons.search_rounded,
-            ).copyWith(
-              helperText:
-                  'Search after 3 characters. Wait for 2 seconds.',
+                  'Search Farmer Name',
+                  Icons.search_rounded,
+                ).copyWith(
+                  suffixIcon: IconButton(
+                    tooltip: 'Clear farmer search',
+                    icon: const Icon(Icons.clear),
+                    onPressed: _submittingSchedule ? null : _clearSelectedFarmer,
+                  ),
+                  helperText: 'Search after 3 characters. Wait for 2 seconds.',
 
-              helperStyle:
-                  TextStyle(
-                fontSize: 9.sp,
-                color: Colors.red,
-              ),
-            ),
+                  helperStyle: TextStyle(fontSize: 9.sp, color: Colors.red),
+                ),
           ),
 
           if (state.farmerLoading)
             Padding(
-              padding:
-                  EdgeInsets.only(
-                top: 8.h,
-              ),
-              child:
-                  const LinearProgressIndicator(),
+              padding: EdgeInsets.only(top: 8.h),
+              child: const LinearProgressIndicator(),
             ),
 
-          if (!state.farmerLoading &&
-              state.farmers.isNotEmpty)
+          if (!state.farmerLoading && state.farmers.isNotEmpty)
             Padding(
-              padding:
-                  EdgeInsets.only(
-                top: 8.h,
-                bottom: 4.h,
-              ),
+              padding: EdgeInsets.only(top: 8.h, bottom: 4.h),
               child: Row(
                 children: [
                   Icon(
                     Icons.people_alt_outlined,
                     size: 16.sp,
-                    color:
-                        context.primaryColor,
+                    color: context.primaryColor,
                   ),
 
-                  SizedBox(
-                    width: 5.w,
-                  ),
+                  SizedBox(width: 5.w),
 
                   Text(
                     '${state.farmers.length} farmers found',
                     style: TextStyle(
                       fontSize: 11.sp,
-                      fontWeight:
-                          FontWeight.w600,
-                      color:
-                          context.primaryColor,
+                      fontWeight: FontWeight.w600,
+                      color: context.primaryColor,
                     ),
                   ),
                 ],
               ),
             ),
 
-          if (state.farmers.isNotEmpty)
-            _buildFarmerSuggestions(
-              state.farmers,
-            ),
+          if (state.farmers.isNotEmpty) _buildFarmerSuggestions(state.farmers),
 
-          if (state.selectedFarmer != null)
-            _buildSelectedFarmer(
-              state.selectedFarmer!,
-            ),
+          if (state.selectedFarmer != null) ...[
+            _buildSelectedFarmer(state.selectedFarmer!),
+            SizedBox(height: 10.h),
+            if (state.selectedFarmer!.hasRegisteredPlots)
+              _buildFarmerPlotSection(state)
+            else if (state.selectedFarmer!.farmerPlotStatus == 0)
+              _buildRegisterPlotSection(state.selectedFarmer!),
+          ],
         ],
       ),
     );
@@ -414,75 +513,44 @@ class _FarmerSchedulePageState
   // SELECTED FARMER
   // ============================================================
 
-  Widget _buildSelectedFarmer(
-    ScheduleFarmerEntity farmer,
-  ) {
+  Widget _buildSelectedFarmer(ScheduleFarmerEntity farmer) {
     return Container(
-      width:
-          double.infinity,
+      width: double.infinity,
 
-      margin:
-          EdgeInsets.only(
-        top: 10.h,
-      ),
+      margin: EdgeInsets.only(top: 10.h),
 
-      padding:
-          EdgeInsets.all(
-        12.w,
-      ),
+      padding: EdgeInsets.all(12.w),
 
-      decoration:
-          BoxDecoration(
-        color: const Color(
-          0xFFE7F5EA,
-        ),
+      decoration: BoxDecoration(
+        color: const Color(0xFFE7F5EA),
 
-        borderRadius:
-            BorderRadius.circular(
-          12.r,
-        ),
+        borderRadius: BorderRadius.circular(12.r),
 
-        border: Border.all(
-          color: const Color(
-            0xFFCBE8D1,
-          ),
-        ),
+        border: Border.all(color: const Color(0xFFCBE8D1)),
       ),
 
       child: Row(
-        crossAxisAlignment:
-            CrossAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.start,
 
         children: [
           Container(
             width: 38.w,
             height: 38.w,
 
-            decoration:
-                BoxDecoration(
+            decoration: BoxDecoration(
               color: Colors.white,
 
-              borderRadius:
-                  BorderRadius.circular(
-                10.r,
-              ),
+              borderRadius: BorderRadius.circular(10.r),
             ),
 
-            child:
-                const Icon(
-              Icons.person_rounded,
-              color: Colors.green,
-            ),
+            child: const Icon(Icons.person_rounded, color: Colors.green),
           ),
 
-          SizedBox(
-            width: 10.w,
-          ),
+          SizedBox(width: 10.w),
 
           Expanded(
             child: Column(
-              crossAxisAlignment:
-                  CrossAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.start,
 
               children: [
                 Text(
@@ -490,37 +558,23 @@ class _FarmerSchedulePageState
 
                   style: TextStyle(
                     fontSize: 13.sp,
-                    fontWeight:
-                        FontWeight.w700,
+                    fontWeight: FontWeight.w700,
                   ),
                 ),
 
-                if (farmer
-                    .talukaName
-                    .isNotEmpty) ...[
-                  SizedBox(
-                    height: 3.h,
-                  ),
+                if (farmer.talukaName.isNotEmpty) ...[
+                  SizedBox(height: 3.h),
 
                   Text(
                     'Taluka: ${farmer.talukaName}',
-                    style: TextStyle(
-                      fontSize: 10.5.sp,
-                      color:
-                          Colors.black54,
-                    ),
+                    style: TextStyle(fontSize: 10.5.sp, color: Colors.black54),
                   ),
                 ],
-
-               
               ],
             ),
           ),
 
-          const Icon(
-            Icons.check_circle_rounded,
-            color: Colors.green,
-          ),
+          const Icon(Icons.check_circle_rounded, color: Colors.green),
         ],
       ),
     );
@@ -530,223 +584,133 @@ class _FarmerSchedulePageState
   // FARMER SUGGESTIONS
   // ============================================================
 
-  Widget _buildFarmerSuggestions(
-    List<ScheduleFarmerEntity> farmers,
-  ) {
+  Widget _buildFarmerSuggestions(List<ScheduleFarmerEntity> farmers) {
     return Container(
-      width:
-          double.infinity,
+      width: double.infinity,
 
-      constraints:
-          BoxConstraints(
-        maxHeight: 280.h,
-      ),
+      constraints: BoxConstraints(maxHeight: 280.h),
 
-      margin:
-          EdgeInsets.only(
-        top: 5.h,
-      ),
+      margin: EdgeInsets.only(top: 5.h),
 
-      decoration:
-          BoxDecoration(
-        color:
-            Colors.white,
+      decoration: BoxDecoration(
+        color: Colors.white,
 
-        borderRadius:
-            BorderRadius.circular(
-          12.r,
-        ),
+        borderRadius: BorderRadius.circular(12.r),
 
-        border:
-            Border.all(
-          color:
-              Colors.grey.shade300,
-        ),
+        border: Border.all(color: Colors.grey.shade300),
 
         boxShadow: [
           BoxShadow(
-            color:
-                Colors.black.withOpacity(
-              0.04,
-            ),
+            color: Colors.black.withOpacity(0.04),
 
-            blurRadius:
-                8,
+            blurRadius: 8,
 
-            offset:
-                const Offset(
-              0,
-              3,
-            ),
+            offset: const Offset(0, 3),
           ),
         ],
       ),
 
       child: ListView.separated(
-        shrinkWrap:
-            true,
+        shrinkWrap: true,
 
-        padding:
-            EdgeInsets.zero,
+        padding: EdgeInsets.zero,
 
-        itemCount:
-            farmers.length,
+        itemCount: farmers.length,
 
-        separatorBuilder: (
-          context,
-          index,
-        ) {
-          return Divider(
-            height:
-                1,
-
-            color:
-                Colors.grey.shade200,
-          );
+        separatorBuilder: (context, index) {
+          return Divider(height: 1, color: Colors.grey.shade200);
         },
 
-        itemBuilder: (
-          context,
-          index,
-        ) {
-          final ScheduleFarmerEntity farmer =
-              farmers[index];
+        itemBuilder: (context, index) {
+          final ScheduleFarmerEntity farmer = farmers[index];
 
-          final String firstLetter =
-              farmer.farmerName
-                      .trim()
-                      .isNotEmpty
-                  ? farmer
-                      .farmerName
-                      .trim()[0]
-                      .toUpperCase()
-                  : '?';
+          final String firstLetter = farmer.farmerName.trim().isNotEmpty
+              ? farmer.farmerName.trim()[0].toUpperCase()
+              : '?';
 
           return Material(
-            color:
-                Colors.transparent,
+            color: Colors.transparent,
 
             child: InkWell(
               onTap: () {
-                farmerController.text =
-                    farmer.farmerName;
+                _resetLocalScheduleData();
+                farmerController.text = farmer.farmerName;
 
-                farmerController.selection =
-                    TextSelection.fromPosition(
-                  TextPosition(
-                    offset:
-                        farmerController
-                            .text
-                            .length,
-                  ),
+                farmerController.selection = TextSelection.fromPosition(
+                  TextPosition(offset: farmerController.text.length),
                 );
 
-                context
-                    .read<
-                        FarmerScheduleBloc>()
-                    .add(
-                      FarmerSelected(
-                        farmer,
-                      ),
-                    );
+                farmerTimer?.cancel();
+                context.read<FarmerScheduleBloc>().add(FarmerSelected(farmer));
+                // Always verify against plot API. The farmer status can be stale.
+                _loadPlotsForFarmer(farmer);
 
-                FocusScope.of(
-                  context,
-                ).unfocus();
+                FocusScope.of(context).unfocus();
               },
 
               child: Padding(
-                padding:
-                    EdgeInsets.symmetric(
-                  horizontal: 10.w,
-                  vertical: 10.h,
-                ),
+                padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 10.h),
 
                 child: Row(
-                  crossAxisAlignment:
-                      CrossAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.start,
 
                   children: [
                     CircleAvatar(
-                      radius:
-                          20.r,
+                      radius: 20.r,
 
-                      backgroundColor:
-                          const Color(
-                        0xFFE8F5EA,
-                      ),
+                      backgroundColor: const Color(0xFFE8F5EA),
 
                       child: Text(
                         firstLetter,
 
                         style: TextStyle(
-                          fontSize:
-                              14.sp,
+                          fontSize: 14.sp,
 
-                          fontWeight:
-                              FontWeight.w700,
+                          fontWeight: FontWeight.w700,
 
-                          color:
-                              Colors.green.shade700,
+                          color: Colors.green.shade700,
                         ),
                       ),
                     ),
 
-                    SizedBox(
-                      width: 10.w,
-                    ),
+                    SizedBox(width: 10.w),
 
                     Expanded(
                       child: Column(
-                        crossAxisAlignment:
-                            CrossAxisAlignment.start,
+                        crossAxisAlignment: CrossAxisAlignment.start,
 
                         children: [
                           Text(
                             farmer.farmerName,
 
                             style: TextStyle(
-                              fontSize:
-                                  12.5.sp,
+                              fontSize: 12.5.sp,
 
-                              fontWeight:
-                                  FontWeight.w600,
+                              fontWeight: FontWeight.w600,
 
-                              color:
-                                  Colors.black87,
+                              color: Colors.black87,
                             ),
                           ),
 
-                          if (farmer
-                              .talukaName
-                              .isNotEmpty) ...[
-                            SizedBox(
-                              height: 3.h,
-                            ),
+                          if (farmer.talukaName.isNotEmpty) ...[
+                            SizedBox(height: 3.h),
 
                             Row(
                               children: [
                                 Icon(
                                   Icons.location_city_outlined,
-                                  size:
-                                      12.sp,
-                                  color:
-                                      Colors.black45,
+                                  size: 12.sp,
+                                  color: Colors.black45,
                                 ),
 
-                                SizedBox(
-                                  width: 4.w,
-                                ),
+                                SizedBox(width: 4.w),
 
                                 Expanded(
                                   child: Text(
                                     'Taluka: ${farmer.talukaName}',
-                                    style:
-                                        TextStyle(
-                                      fontSize:
-                                          9.5.sp,
-                                      color:
-                                          Colors.black54,
+                                    style: TextStyle(
+                                      fontSize: 9.5.sp,
+                                      color: Colors.black54,
                                     ),
                                   ),
                                 ),
@@ -754,31 +718,22 @@ class _FarmerSchedulePageState
                             ),
                           ],
 
-                          if (farmer
-                              .address
-                              .isNotEmpty) ...[
-                            SizedBox(
-                              height: 3.h,
-                            ),
+                          if (farmer.address.isNotEmpty) ...[
+                            SizedBox(height: 3.h),
 
                             Text(
                               farmer.address,
 
                               maxLines: 2,
 
-                              overflow:
-                                  TextOverflow.ellipsis,
+                              overflow: TextOverflow.ellipsis,
 
-                              style:
-                                  TextStyle(
-                                fontSize:
-                                    9.sp,
+                              style: TextStyle(
+                                fontSize: 9.sp,
 
-                                height:
-                                    1.3,
+                                height: 1.3,
 
-                                color:
-                                    Colors.black45,
+                                color: Colors.black45,
                               ),
                             ),
                           ],
@@ -788,8 +743,7 @@ class _FarmerSchedulePageState
 
                     Icon(
                       Icons.chevron_right_rounded,
-                      color:
-                          Colors.grey.shade400,
+                      color: Colors.grey.shade400,
                     ),
                   ],
                 ),
@@ -802,45 +756,250 @@ class _FarmerSchedulePageState
   }
 
   // ============================================================
+  // FARMER PLOTS - API BACKED
+  // ============================================================
+  Widget _buildFarmerPlotSection(FarmerScheduleState state) {
+    final farmer = state.selectedFarmer!;
+    final selectedId =
+        state.selectedPlot != null &&
+            state.plots.any((p) => p.plotId == state.selectedPlot!.plotId)
+        ? state.selectedPlot!.plotId
+        : null;
+
+    return Container(
+      padding: EdgeInsets.all(12.w),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12.r),
+        border: Border.all(color: const Color(0xFFE1E9E4)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Container(
+                padding: EdgeInsets.all(8.w),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFE7F5EA),
+                  borderRadius: BorderRadius.circular(9.r),
+                ),
+                child: const Icon(
+                  Icons.landscape_outlined,
+                  color: Color(0xFF16803D),
+                  size: 20,
+                ),
+              ),
+              SizedBox(width: 9.w),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Select Plot',
+                      style: TextStyle(
+                        fontSize: 13.sp,
+                        fontWeight: FontWeight.w800,
+                        color: const Color(0xFF15283B),
+                      ),
+                    ),
+                    Text(
+                      'Registered plots for this farmer',
+                      style: TextStyle(fontSize: 10.sp, color: Colors.black54),
+                    ),
+                  ],
+                ),
+              ),
+              if (!state.plotLoading)
+                Text(
+                  '${state.plots.length}',
+                  style: TextStyle(
+                    fontWeight: FontWeight.w700,
+                    color: context.primaryColor,
+                  ),
+                ),
+              IconButton(
+                tooltip: 'Refresh plots',
+                onPressed: state.plotLoading
+                    ? null
+                    : () => _loadPlotsForFarmer(farmer),
+                icon: Icon(Icons.refresh_rounded, color: context.primaryColor),
+              ),
+            ],
+          ),
+          if (state.plotLoading) const LinearProgressIndicator(),
+          if (state.plotError.isNotEmpty) ...[
+            Text(
+              state.plotError,
+              style: TextStyle(color: Colors.red.shade700, fontSize: 11.sp),
+            ),
+            TextButton(
+              onPressed: () => _loadPlotsForFarmer(farmer),
+              child: const Text('Retry'),
+            ),
+          ],
+          if (!state.plotLoading &&
+              state.plotError.isEmpty &&
+              state.plots.isEmpty)
+            Padding(
+              padding: EdgeInsets.symmetric(vertical: 8.h),
+              child: Text(
+                'No registered plots found.',
+                style: TextStyle(fontSize: 11.sp, color: Colors.black54),
+              ),
+            ),
+          if (!state.plotLoading && state.plots.isNotEmpty)
+            DropdownButtonFormField<String>(
+              // Key forces a fresh dropdown when the farmer changes.
+              key: ValueKey(farmer.farmerId),
+              value: selectedId,
+              isExpanded: true,
+              decoration: InputDecoration(
+                labelText: 'Plot Name',
+                prefixIcon: Icon(
+                  Icons.grass_rounded,
+                  color: context.primaryColor,
+                ),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(11.r),
+                ),
+                isDense: true,
+              ),
+              items: state.plots
+                  .map(
+                    (plot) => DropdownMenuItem<String>(
+                      value: plot.plotId,
+                      child: Text(
+                        plot.plotName,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                  )
+                  .toList(),
+              onChanged: (id) {
+                if (id == null) return;
+                final plot = state.plots.firstWhere((p) => p.plotId == id);
+                _resetLocalScheduleData();
+                context.read<FarmerScheduleBloc>().add(
+                  FarmerPlotSelected(plot),
+                );
+              },
+            ),
+          if (state.selectedPlot != null) ...[
+            SizedBox(height: 10.h),
+            _buildSelectedPlotDetails(state.selectedPlot!),
+          ],
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSelectedPlotDetails(FarmerPlotEntity plot) {
+    return Container(
+      width: double.infinity,
+      padding: EdgeInsets.all(11.w),
+      decoration: BoxDecoration(
+        color: const Color(0xFFE7F5EA),
+        borderRadius: BorderRadius.circular(11.r),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              const Icon(
+                Icons.check_circle_rounded,
+                color: Color(0xFF16A34A),
+                size: 18,
+              ),
+              SizedBox(width: 6.w),
+              Expanded(
+                child: Text(
+                  plot.plotName,
+                  style: TextStyle(
+                    fontSize: 13.sp,
+                    fontWeight: FontWeight.w800,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          SizedBox(height: 8.h),
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Expanded(child: _plotInfo('CROP', plot.cropName)),
+              SizedBox(width: 8.w),
+              Expanded(child: _plotInfo('SOWING DATE', plot.sowingDate)),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _plotInfo(String label, String value) {
+    return Container(
+      padding: EdgeInsets.all(9.w),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(9.r),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            label,
+            style: TextStyle(fontSize: 9.sp, color: Colors.black54),
+          ),
+          SizedBox(height: 3.h),
+          Text(
+            value.isEmpty ? '-' : value,
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+            style: TextStyle(fontSize: 11.sp, fontWeight: FontWeight.w700),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildRegisterPlotSection(ScheduleFarmerEntity farmer) {
+    return SizedBox(
+      width: double.infinity,
+      child: OutlinedButton.icon(
+        onPressed: () => _openPlotRegistration(farmer),
+        icon: const Icon(Icons.add_circle_outline_rounded),
+        label: const Text('Add Plot'),
+      ),
+    );
+  }
+
+  // ============================================================
   // SCHEDULE FORM
   // ============================================================
 
-  Widget _buildScheduleForm(
-    FarmerScheduleState state,
-  ) {
+  Widget _buildScheduleForm(FarmerScheduleState state) {
     return _card(
       child: Column(
-        crossAxisAlignment:
-            CrossAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.start,
 
         children: [
-          _title(
-            Icons.calendar_month_rounded,
-            'Create Schedule',
-          ),
+          _title(Icons.calendar_month_rounded, 'Create Schedule'),
 
-          SizedBox(
-            height: 12.h,
-          ),
+          SizedBox(height: 12.h),
 
           // ======================================================
           // DATE
           // ======================================================
-
           InkWell(
-            borderRadius:
-                BorderRadius.circular(
-              11.r,
-            ),
+            borderRadius: BorderRadius.circular(11.r),
 
-            onTap: () =>
-                _selectDate(
-              state,
-            ),
+            onTap: () => _selectDate(state),
 
             child: InputDecorator(
-              decoration:
-                  _inputDecoration(
+              decoration: _inputDecoration(
                 'Schedule Date',
                 Icons.calendar_today_rounded,
               ),
@@ -848,422 +1007,272 @@ class _FarmerSchedulePageState
               child: Text(
                 state.selectedDate == null
                     ? 'Select Schedule Date'
-                    : DateFormat(
-                        'dd/MM/yyyy',
-                      ).format(
-                        state.selectedDate!,
-                      ),
+                    : DateFormat('dd/MM/yyyy').format(state.selectedDate!),
               ),
             ),
           ),
 
-          SizedBox(
-            height: 10.h,
-          ),
+          SizedBox(height: 10.h),
 
           // ======================================================
           // CROP - NEW FARMER STYLE DESIGN
           // ======================================================
+          _buildCropSection(state),
 
-          _buildCropSection(
-            state,
-          ),
-
-          SizedBox(
-            height: 10.h,
-          ),
+          SizedBox(height: 10.h),
 
           // ======================================================
           // PRODUCT + TYPE
           // ======================================================
-
           Row(
             children: [
               Expanded(
                 flex: 6,
 
                 child: TextField(
-                  controller:
-                      productController,
+                  controller: productController,
 
-                  decoration:
-                      _inputDecoration(
+                  decoration: _inputDecoration(
                     'Product Name',
                     Icons.inventory_2_outlined,
                   ),
                 ),
               ),
 
-              SizedBox(
-                width: 8.w,
-              ),
+              SizedBox(width: 8.w),
 
               Expanded(
                 flex: 4,
 
                 child: _dropdown(
-                  value:
-                      selectedType,
+                  value: selectedType,
 
-                  values:
-                      typeList,
+                  values: typeList,
 
-                  onChanged: (
-                    value,
-                  ) {
-                    setState(
-                      () {
-                        selectedType =
-                            value ??
-                                'Select Type';
-                      },
-                    );
+                  onChanged: (value) {
+                    setState(() {
+                      selectedType = value ?? 'Select Type';
+                    });
                   },
                 ),
               ),
             ],
           ),
 
-          SizedBox(
-            height: 10.h,
-          ),
+          SizedBox(height: 10.h),
 
           // ======================================================
           // QUANTITY
           // ======================================================
-
           Row(
             children: [
               Expanded(
                 flex: 6,
 
                 child: TextField(
-                  controller:
-                      quantityController,
+                  controller: quantityController,
 
-                  keyboardType:
-                      const TextInputType
-                          .numberWithOptions(
-                    decimal:
-                        true,
+                  keyboardType: const TextInputType.numberWithOptions(
+                    decimal: true,
                   ),
 
-                  decoration:
-                      _inputDecoration(
+                  decoration: _inputDecoration(
                     'Quantity',
                     Icons.numbers_rounded,
                   ),
                 ),
               ),
 
-              SizedBox(
-                width: 8.w,
-              ),
+              SizedBox(width: 8.w),
 
               Expanded(
                 flex: 4,
 
                 child: _dropdown(
-                  value:
-                      selectedQuantityUnit,
+                  value: selectedQuantityUnit,
 
-                  values:
-                      quantityUnits,
+                  values: quantityUnits,
 
-                  onChanged: (
-                    value,
-                  ) {
-                    setState(
-                      () {
-                        selectedQuantityUnit =
-                            value ??
-                                'Select Unit';
-                      },
-                    );
+                  onChanged: (value) {
+                    setState(() {
+                      selectedQuantityUnit = value ?? 'Select Unit';
+                    });
                   },
                 ),
               ),
             ],
           ),
 
-          SizedBox(
-            height: 10.h,
-          ),
+          SizedBox(height: 10.h),
 
           // ======================================================
           // WATER
           // ======================================================
-
           Row(
             children: [
               Expanded(
                 flex: 6,
 
                 child: TextField(
-                  controller:
-                      waterController,
+                  controller: waterController,
 
-                  keyboardType:
-                      const TextInputType
-                          .numberWithOptions(
-                    decimal:
-                        true,
+                  keyboardType: const TextInputType.numberWithOptions(
+                    decimal: true,
                   ),
 
-                  decoration:
-                      _inputDecoration(
+                  decoration: _inputDecoration(
                     'Water',
                     Icons.water_drop_outlined,
                   ),
                 ),
               ),
 
-              SizedBox(
-                width: 8.w,
-              ),
+              SizedBox(width: 8.w),
 
               Expanded(
                 flex: 4,
 
                 child: _dropdown(
-                  value:
-                      selectedWaterUnit,
+                  value: selectedWaterUnit,
 
-                  values:
-                      waterUnits,
+                  values: waterUnits,
 
-                  onChanged: (
-                    value,
-                  ) {
-                    setState(
-                      () {
-                        selectedWaterUnit =
-                            value ??
-                                'Select Unit';
-                      },
-                    );
+                  onChanged: (value) {
+                    setState(() {
+                      selectedWaterUnit = value ?? 'Select Unit';
+                    });
                   },
                 ),
               ),
             ],
           ),
 
-          SizedBox(
-            height: 10.h,
-          ),
+          SizedBox(height: 10.h),
 
           // ======================================================
           // REMARK
           // ======================================================
-
           TextField(
-            controller:
-                remarkController,
+            controller: remarkController,
 
-            maxLines:
-                2,
+            maxLines: 2,
 
-            decoration:
-                _inputDecoration(
-              'Enter Remark',
-              Icons.notes_rounded,
-            ),
+            decoration: _inputDecoration('Enter Remark', Icons.notes_rounded),
           ),
 
-          SizedBox(
-            height: 12.h,
-          ),
+          SizedBox(height: 12.h),
 
           // ======================================================
           // ADD SCHEDULE BUTTON
           // ======================================================
-
           SizedBox(
-            width:
-                double.infinity,
+            width: double.infinity,
 
-            height:
-                46.h,
+            height: 46.h,
 
             child: OutlinedButton.icon(
-              style:
-                  OutlinedButton.styleFrom(
-                side:
-                    BorderSide(
-                  color:
-                      context.primaryColor,
-                ),
+              style: OutlinedButton.styleFrom(
+                side: BorderSide(color: context.primaryColor),
 
-                shape:
-                    RoundedRectangleBorder(
-                  borderRadius:
-                      BorderRadius.circular(
-                    12.r,
-                  ),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12.r),
                 ),
               ),
 
-              onPressed:
-                  _addScheduleLine,
+              onPressed: _addScheduleLine,
 
-              icon:
-                  const Icon(
-                Icons.add_rounded,
-              ),
+              icon: const Icon(Icons.add_rounded),
 
-              label:
-                  const Text(
-                'Add Schedule',
-              ),
+              label: const Text('Add Schedule'),
             ),
           ),
 
           // ======================================================
           // CURRENT SCHEDULE PREVIEW
           // ======================================================
-
-          if (state.currentSchedule
-              .isNotEmpty) ...[
-            SizedBox(
-              height: 12.h,
-            ),
+          if (state.currentSchedule.isNotEmpty) ...[
+            SizedBox(height: 12.h),
 
             Container(
-              width:
-                  double.infinity,
+              width: double.infinity,
 
-              padding:
-                  EdgeInsets.all(
-                12.w,
-              ),
+              padding: EdgeInsets.all(12.w),
 
-              decoration:
-                  BoxDecoration(
-                color:
-                    const Color(
-                  0xFFFFF4E2,
-                ),
+              decoration: BoxDecoration(
+                color: const Color(0xFFFFF4E2),
 
-                borderRadius:
-                    BorderRadius.circular(
-                  12.r,
-                ),
+                borderRadius: BorderRadius.circular(12.r),
 
-                border:
-                    Border.all(
-                  color:
-                      const Color(
-                    0xFFF1D7AE,
-                  ),
-                ),
+                border: Border.all(color: const Color(0xFFF1D7AE)),
               ),
 
               child: Column(
-                crossAxisAlignment:
-                    CrossAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.start,
 
                 children: [
                   Row(
                     children: [
                       Icon(
                         Icons.description_outlined,
-                        size:
-                            18.sp,
-                        color:
-                            const Color(
-                          0xFFD68A22,
-                        ),
+                        size: 18.sp,
+                        color: const Color(0xFFD68A22),
                       ),
 
-                      SizedBox(
-                        width: 6.w,
-                      ),
+                      SizedBox(width: 6.w),
 
                       Text(
                         'Current Schedule',
-                        style:
-                            TextStyle(
-                          fontSize:
-                              12.sp,
-                          fontWeight:
-                              FontWeight.w700,
+                        style: TextStyle(
+                          fontSize: 12.sp,
+                          fontWeight: FontWeight.w700,
                         ),
                       ),
                     ],
                   ),
 
-                  SizedBox(
-                    height: 8.h,
-                  ),
+                  SizedBox(height: 8.h),
 
                   Text(
                     state.currentSchedule,
 
-                    style:
-                        TextStyle(
-                      fontSize:
-                          11.5.sp,
-                      height:
-                          1.5,
-                    ),
+                    style: TextStyle(fontSize: 11.5.sp, height: 1.5),
                   ),
                 ],
               ),
             ),
 
-            SizedBox(
-              height: 10.h,
-            ),
+            SizedBox(height: 10.h),
 
             SizedBox(
-              width:
-                  double.infinity,
+              width: double.infinity,
 
-              height:
-                  48.h,
+              height: 48.h,
 
-              child:
-                  ElevatedButton.icon(
-                style:
-                    ElevatedButton.styleFrom(
-                  backgroundColor:
-                      context.primaryColor,
+              child: ElevatedButton.icon(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: context.primaryColor,
 
-                  foregroundColor:
-                      context.onPrimaryColor,
+                  foregroundColor: context.onPrimaryColor,
 
-                  elevation:
-                      0,
+                  elevation: 0,
 
-                  shape:
-                      RoundedRectangleBorder(
-                    borderRadius:
-                        BorderRadius.circular(
-                      12.r,
-                    ),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12.r),
                   ),
                 ),
 
                 onPressed: () {
-                  context
-                      .read<
-                          FarmerScheduleBloc>()
-                      .add(
-                        const SaveScheduleSection(),
-                      );
-
-                  cropController.clear();
+                  final current = context.read<FarmerScheduleBloc>().state;
+                  _pendingSectionDate = current.selectedDate;
+                  _pendingSectionDetails = List.of(_currentDetails);
+                  context.read<FarmerScheduleBloc>().add(
+                    const SaveScheduleSection(),
+                  );
                 },
 
-                icon:
-                    const Icon(
-                  Icons.add_circle_outline_rounded,
-                ),
+                icon: const Icon(Icons.add_circle_outline_rounded),
 
-                label:
-                    const Text(
-                  'Add Crop Schedule',
-                ),
+                label: const Text('Add Crop Schedule'),
               ),
             ),
           ],
@@ -1277,91 +1286,69 @@ class _FarmerSchedulePageState
   // SAME DESIGN STYLE AS FARMER
   // ============================================================
 
-  Widget _buildCropSection(
-    FarmerScheduleState state,
-  ) {
+  Widget _buildCropSection(FarmerScheduleState state) {
     return Column(
-      crossAxisAlignment:
-          CrossAxisAlignment.start,
+      crossAxisAlignment: CrossAxisAlignment.start,
 
       children: [
         // SEARCH
         TextField(
-          controller:
-              cropController,
+          controller: cropController,
 
-          onChanged:
-              _searchCrop,
+          onChanged: _searchCrop,
 
-          textInputAction:
-              TextInputAction.search,
+          textInputAction: TextInputAction.search,
 
-          decoration:
-              _inputDecoration(
-            'Search Crop Name',
-            Icons.grass_rounded,
-          ).copyWith(
-            helperText:
-                'Search after 3 characters. Wait for 2 seconds.',
+          decoration: _inputDecoration('Search Crop Name', Icons.grass_rounded)
+              .copyWith(
+                helperText: 'Search after 3 characters. Wait for 2 seconds.',
 
-            helperStyle:
-                TextStyle(
-              fontSize: 9.sp,
-              color:
-                  Colors.red,
+                helperStyle: TextStyle(fontSize: 9.sp, color: Colors.red),
+              ),
+        ),
+
+        Padding(
+          padding: EdgeInsets.only(top: 6.h),
+          child: Text(
+            'Note: Doses for 200 liters',
+            style: TextStyle(
+              fontSize: 11.sp,
+              fontWeight: FontWeight.w600,
+              color: Colors.green,
             ),
           ),
         ),
-
         // LOADING
         if (state.cropLoading)
           Padding(
-            padding:
-                EdgeInsets.only(
-              top: 8.h,
-            ),
-            child:
-                const LinearProgressIndicator(),
+            padding: EdgeInsets.only(top: 8.h),
+            child: const LinearProgressIndicator(),
           ),
 
         // RESULT COUNT
-        if (!state.cropLoading &&
-            state.crops.isNotEmpty)
+        if (!state.cropLoading && state.crops.isNotEmpty)
           Padding(
-            padding:
-                EdgeInsets.only(
-              top: 8.h,
-              bottom: 4.h,
-            ),
+            padding: EdgeInsets.only(top: 8.h, bottom: 4.h),
 
             child: Row(
               children: [
                 Icon(
                   Icons.grass_rounded,
-                  size:
-                      16.sp,
-                  color:
-                      context.primaryColor,
+                  size: 16.sp,
+                  color: context.primaryColor,
                 ),
 
-                SizedBox(
-                  width:
-                      5.w,
-                ),
+                SizedBox(width: 5.w),
 
                 Text(
                   '${state.crops.length} crops found',
 
-                  style:
-                      TextStyle(
-                    fontSize:
-                        11.sp,
+                  style: TextStyle(
+                    fontSize: 11.sp,
 
-                    fontWeight:
-                        FontWeight.w600,
+                    fontWeight: FontWeight.w600,
 
-                    color:
-                        context.primaryColor,
+                    color: context.primaryColor,
                   ),
                 ),
               ],
@@ -1369,18 +1356,11 @@ class _FarmerSchedulePageState
           ),
 
         // RESULT LIST
-        if (state.crops.isNotEmpty)
-          _buildCropSuggestions(
-            state.crops,
-          ),
+        if (state.crops.isNotEmpty) _buildCropSuggestions(state.crops),
 
         // SELECTED CROP
-        if (state.selectedCropName
-            .trim()
-            .isNotEmpty)
-          _buildSelectedCrop(
-            state.selectedCropName,
-          ),
+        if (state.selectedCropName.trim().isNotEmpty)
+          _buildSelectedCrop(state.selectedCropName),
       ],
     );
   }
@@ -1389,124 +1369,68 @@ class _FarmerSchedulePageState
   // SELECTED CROP
   // ============================================================
 
-  Widget _buildSelectedCrop(
-    String cropName,
-  ) {
+  Widget _buildSelectedCrop(String cropName) {
     return Container(
-      width:
-          double.infinity,
+      width: double.infinity,
 
-      margin:
-          EdgeInsets.only(
-        top: 10.h,
-      ),
+      margin: EdgeInsets.only(top: 10.h),
 
-      padding:
-          EdgeInsets.all(
-        12.w,
-      ),
+      padding: EdgeInsets.all(12.w),
 
-      decoration:
-          BoxDecoration(
-        color:
-            const Color(
-          0xFFE7F5EA,
-        ),
+      decoration: BoxDecoration(
+        color: const Color(0xFFE7F5EA),
 
-        borderRadius:
-            BorderRadius.circular(
-          12.r,
-        ),
+        borderRadius: BorderRadius.circular(12.r),
 
-        border:
-            Border.all(
-          color:
-              const Color(
-            0xFFCBE8D1,
-          ),
-        ),
+        border: Border.all(color: const Color(0xFFCBE8D1)),
       ),
 
       child: Row(
         children: [
           Container(
-            width:
-                38.w,
-            height:
-                38.w,
+            width: 38.w,
+            height: 38.w,
 
-            decoration:
-                BoxDecoration(
-              color:
-                  Colors.white,
+            decoration: BoxDecoration(
+              color: Colors.white,
 
-              borderRadius:
-                  BorderRadius.circular(
-                10.r,
-              ),
+              borderRadius: BorderRadius.circular(10.r),
             ),
 
-            child:
-                const Icon(
-              Icons.grass_rounded,
-              color:
-                  Colors.green,
-            ),
+            child: const Icon(Icons.grass_rounded, color: Colors.green),
           ),
 
-          SizedBox(
-            width:
-                10.w,
-          ),
+          SizedBox(width: 10.w),
 
           Expanded(
-            child:
-                Column(
-              crossAxisAlignment:
-                  CrossAxisAlignment.start,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
 
               children: [
                 Text(
                   'Selected Crop',
 
-                  style:
-                      TextStyle(
-                    fontSize:
-                        9.sp,
-                    color:
-                        Colors.black45,
-                  ),
+                  style: TextStyle(fontSize: 9.sp, color: Colors.black45),
                 ),
 
-                SizedBox(
-                  height:
-                      2.h,
-                ),
+                SizedBox(height: 2.h),
 
                 Text(
                   cropName,
 
-                  style:
-                      TextStyle(
-                    fontSize:
-                        13.sp,
+                  style: TextStyle(
+                    fontSize: 13.sp,
 
-                    fontWeight:
-                        FontWeight.w700,
+                    fontWeight: FontWeight.w700,
 
-                    color:
-                        Colors.black87,
+                    color: Colors.black87,
                   ),
                 ),
               ],
             ),
           ),
 
-          const Icon(
-            Icons.check_circle_rounded,
-            color:
-                Colors.green,
-          ),
+          const Icon(Icons.check_circle_rounded, color: Colors.green),
         ],
       ),
     );
@@ -1516,197 +1440,112 @@ class _FarmerSchedulePageState
   // CROP SUGGESTIONS
   // ============================================================
 
-  Widget _buildCropSuggestions(
-    List<CropEntity> crops,
-  ) {
+  Widget _buildCropSuggestions(List<CropEntity> crops) {
     return Container(
-      width:
-          double.infinity,
+      width: double.infinity,
 
-      constraints:
-          BoxConstraints(
-        maxHeight:
-            280.h,
-      ),
+      constraints: BoxConstraints(maxHeight: 280.h),
 
-      margin:
-          EdgeInsets.only(
-        top:
-            5.h,
-      ),
+      margin: EdgeInsets.only(top: 5.h),
 
-      decoration:
-          BoxDecoration(
-        color:
-            Colors.white,
+      decoration: BoxDecoration(
+        color: Colors.white,
 
-        borderRadius:
-            BorderRadius.circular(
-          12.r,
-        ),
+        borderRadius: BorderRadius.circular(12.r),
 
-        border:
-            Border.all(
-          color:
-              Colors.grey.shade300,
-        ),
+        border: Border.all(color: Colors.grey.shade300),
 
         boxShadow: [
           BoxShadow(
-            color:
-                Colors.black.withOpacity(
-              0.04,
-            ),
+            color: Colors.black.withOpacity(0.04),
 
-            blurRadius:
-                8,
+            blurRadius: 8,
 
-            offset:
-                const Offset(
-              0,
-              3,
-            ),
+            offset: const Offset(0, 3),
           ),
         ],
       ),
 
-      child:
-          ListView.separated(
-        shrinkWrap:
-            true,
+      child: ListView.separated(
+        shrinkWrap: true,
 
-        padding:
-            EdgeInsets.zero,
+        padding: EdgeInsets.zero,
 
-        itemCount:
-            crops.length,
+        itemCount: crops.length,
 
-        separatorBuilder: (
-          context,
-          index,
-        ) {
-          return Divider(
-            height:
-                1,
-
-            color:
-                Colors.grey.shade200,
-          );
+        separatorBuilder: (context, index) {
+          return Divider(height: 1, color: Colors.grey.shade200);
         },
 
-        itemBuilder: (
-          context,
-          index,
-        ) {
-          final CropEntity crop =
-              crops[index];
+        itemBuilder: (context, index) {
+          final CropEntity crop = crops[index];
 
           return Material(
-            color:
-                Colors.transparent,
+            color: Colors.transparent,
 
             child: InkWell(
               onTap: () {
-                cropController.text =
-                    crop.cropName;
+                _selectedCropId = crop.cropId;
+                cropController.text = crop.cropName;
 
-                cropController.selection =
-                    TextSelection.fromPosition(
-                  TextPosition(
-                    offset:
-                        cropController
-                            .text
-                            .length,
-                  ),
+                cropController.selection = TextSelection.fromPosition(
+                  TextPosition(offset: cropController.text.length),
                 );
 
-                context
-                    .read<
-                        FarmerScheduleBloc>()
-                    .add(
-                      CropSelected(
-                        crop.cropName,
-                      ),
-                    );
+                context.read<FarmerScheduleBloc>().add(
+                  CropSelected(crop.cropName),
+                );
 
-                FocusScope.of(
-                  context,
-                ).unfocus();
+                FocusScope.of(context).unfocus();
               },
 
               child: Padding(
-                padding:
-                    EdgeInsets.symmetric(
-                  horizontal:
-                      10.w,
-                  vertical:
-                      10.h,
-                ),
+                padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 10.h),
 
                 child: Row(
                   children: [
                     CircleAvatar(
-                      radius:
-                          20.r,
+                      radius: 20.r,
 
-                      backgroundColor:
-                          const Color(
-                        0xFFE8F5EA,
-                      ),
+                      backgroundColor: const Color(0xFFE8F5EA),
 
                       child: Icon(
                         Icons.grass_rounded,
 
-                        size:
-                            20.sp,
+                        size: 20.sp,
 
-                        color:
-                            Colors.green.shade700,
+                        color: Colors.green.shade700,
                       ),
                     ),
 
-                    SizedBox(
-                      width:
-                          10.w,
-                    ),
+                    SizedBox(width: 10.w),
 
                     Expanded(
                       child: Column(
-                        crossAxisAlignment:
-                            CrossAxisAlignment.start,
+                        crossAxisAlignment: CrossAxisAlignment.start,
 
                         children: [
                           Text(
                             crop.cropName,
 
-                            style:
-                                TextStyle(
-                              fontSize:
-                                  12.5.sp,
+                            style: TextStyle(
+                              fontSize: 12.5.sp,
 
-                              fontWeight:
-                                  FontWeight.w600,
+                              fontWeight: FontWeight.w600,
 
-                              color:
-                                  Colors.black87,
+                              color: Colors.black87,
                             ),
                           ),
 
-                          SizedBox(
-                            height:
-                                2.h,
-                          ),
+                          SizedBox(height: 2.h),
 
                           Text(
                             'Tap to select crop',
 
-                            style:
-                                TextStyle(
-                              fontSize:
-                                  9.sp,
+                            style: TextStyle(
+                              fontSize: 9.sp,
 
-                              color:
-                                  Colors.black45,
+                              color: Colors.black45,
                             ),
                           ),
                         ],
@@ -1715,8 +1554,7 @@ class _FarmerSchedulePageState
 
                     Icon(
                       Icons.chevron_right_rounded,
-                      color:
-                          Colors.grey.shade400,
+                      color: Colors.grey.shade400,
                     ),
                   ],
                 ),
@@ -1733,49 +1571,73 @@ class _FarmerSchedulePageState
   // ============================================================
 
   void _addScheduleLine() {
-    context
-        .read<FarmerScheduleBloc>()
-        .add(
-          AddScheduleLine(
-            productName:
-                productController.text,
+    final state = context.read<FarmerScheduleBloc>().state;
+    if (_submittingSchedule || _scheduleSubmitted) return;
+    if (state.selectedFarmer == null || state.selectedPlot == null) {
+      _showMessage('Select a farmer and registered plot first.');
+      return;
+    }
+    if (state.selectedDate == null) {
+      _showMessage('Please select a schedule date.');
+      return;
+    }
+    if (_selectedCropId.isEmpty || state.selectedCropName.isEmpty) {
+      _showMessage('Select a crop with a valid crop ID.');
+      return;
+    }
+    if (productController.text.trim().isEmpty) {
+      _showMessage('Enter product name.');
+      return;
+    }
+    if (selectedType == 'Select Type') {
+      _showMessage('Select product type.');
+      return;
+    }
+    if ((double.tryParse(quantityController.text.trim()) ?? 0) <= 0) {
+      _showMessage('Enter a valid quantity greater than zero.');
+      return;
+    }
+    if (selectedQuantityUnit == 'Select Unit') {
+      _showMessage('Select quantity unit.');
+      return;
+    }
+    if ((double.tryParse(waterController.text.trim()) ?? 0) <= 0) {
+      _showMessage('Enter a valid water quantity greater than zero.');
+      return;
+    }
+    if (selectedWaterUnit == 'Select Unit') {
+      _showMessage('Select water unit.');
+      return;
+    }
+    if (_pendingDetail != null) {
+      _showMessage('Wait for the previous product to be added.');
+      return;
+    }
+    _pendingDetail = AddScheduleDetail(
+      productName: productController.text.trim(),
+      cropId: _selectedCropId,
+      productType: selectedType,
+      productQty: quantityController.text.trim(),
+      unit: _normalizedUnit(selectedQuantityUnit),
+      waterQty: waterController.text.trim(),
+      waterUnit: _normalizedUnit(selectedWaterUnit),
+    );
+    context.read<FarmerScheduleBloc>().add(
+      AddScheduleLine(
+        productName: productController.text,
 
-            type:
-                selectedType,
+        type: selectedType,
 
-            quantity:
-                quantityController.text,
+        quantity: quantityController.text,
 
-            quantityUnit:
-                selectedQuantityUnit,
+        quantityUnit: selectedQuantityUnit,
 
-            water:
-                waterController.text,
+        water: waterController.text,
 
-            waterUnit:
-                selectedWaterUnit,
+        waterUnit: selectedWaterUnit,
 
-            remark:
-                remarkController.text,
-          ),
-        );
-
-    productController.clear();
-    quantityController.clear();
-    waterController.clear();
-    remarkController.clear();
-
-    setState(
-      () {
-        selectedType =
-            'Select Type';
-
-        selectedQuantityUnit =
-            'Select Unit';
-
-        selectedWaterUnit =
-            'Select Unit';
-      },
+        remark: remarkController.text,
+      ),
     );
   }
 
@@ -1783,45 +1645,21 @@ class _FarmerSchedulePageState
   // DATE PICKER
   // ============================================================
 
-  Future<void> _selectDate(
-    FarmerScheduleState state,
-  ) async {
-    final DateTime now =
-        DateTime.now();
+  Future<void> _selectDate(FarmerScheduleState state) async {
+    final DateTime now = DateTime.now();
 
-    final DateTime? picked =
-        await showDatePicker(
-      context:
-          context,
+    final DateTime? picked = await showDatePicker(
+      context: context,
 
-      initialDate:
-          state.selectedDate ??
-              now,
+      initialDate: state.selectedDate ?? now,
 
-      firstDate:
-          DateTime(
-        now.year,
-        now.month,
-        now.day,
-      ),
+      firstDate: DateTime(now.year, now.month, now.day),
 
-      lastDate:
-          DateTime(
-        now.year + 5,
-        12,
-        31,
-      ),
+      lastDate: DateTime(now.year + 5, 12, 31),
     );
 
-    if (picked != null &&
-        mounted) {
-      context
-          .read<FarmerScheduleBloc>()
-          .add(
-            ScheduleDateChanged(
-              picked,
-            ),
-          );
+    if (picked != null && mounted) {
+      context.read<FarmerScheduleBloc>().add(ScheduleDateChanged(picked));
     }
   }
 
@@ -1842,10 +1680,6 @@ class _FarmerSchedulePageState
       'remark': 'Remark',
       'remarks': 'Remark',
     };
-
-
-
-    
 
     final regex = RegExp(
       r'(product name|product|type|quantity|water|remarks|remark)\s*[:：-]\s*',
@@ -1887,21 +1721,25 @@ class _FarmerSchedulePageState
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(label.toUpperCase(),
-                    style: TextStyle(
-                      fontSize: 8.5.sp,
-                      fontWeight: FontWeight.w600,
-                      color: Colors.black54,
-                    )),
+                Text(
+                  label.toUpperCase(),
+                  style: TextStyle(
+                    fontSize: 8.5.sp,
+                    fontWeight: FontWeight.w600,
+                    color: Colors.black54,
+                  ),
+                ),
                 SizedBox(height: 2.h),
-                Text(value,
-                    softWrap: true,
-                    style: TextStyle(
-                      fontSize: 11.sp,
-                      height: 1.25,
-                      fontWeight: FontWeight.w700,
-                      color: Colors.black87,
-                    )),
+                Text(
+                  value,
+                  softWrap: true,
+                  style: TextStyle(
+                    fontSize: 11.sp,
+                    height: 1.25,
+                    fontWeight: FontWeight.w700,
+                    color: Colors.black87,
+                  ),
+                ),
               ],
             ),
           ),
@@ -1917,12 +1755,23 @@ class _FarmerSchedulePageState
       return Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('SCHEDULE DETAILS',
-              style: TextStyle(fontSize: 9.sp,
-                  fontWeight: FontWeight.w700, color: Colors.black54)),
+          Text(
+            'SCHEDULE DETAILS',
+            style: TextStyle(
+              fontSize: 9.sp,
+              fontWeight: FontWeight.w700,
+              color: Colors.black54,
+            ),
+          ),
           SizedBox(height: 5.h),
-          Text(schedule, style: TextStyle(
-              fontSize: 11.sp, height: 1.5, color: Colors.black87)),
+          Text(
+            schedule,
+            style: TextStyle(
+              fontSize: 11.sp,
+              height: 1.5,
+              color: Colors.black87,
+            ),
+          ),
         ],
       );
     }
@@ -1940,8 +1789,7 @@ class _FarmerSchedulePageState
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         if (fields.containsKey('Product')) ...[
-          field('Product', Icons.inventory_2_outlined,
-              const Color(0xFF2563EB)),
+          field('Product', Icons.inventory_2_outlined, const Color(0xFF2563EB)),
           SizedBox(height: 6.h),
         ],
         if (fields.containsKey('Type')) ...[
@@ -1953,547 +1801,541 @@ class _FarmerSchedulePageState
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               if (fields.containsKey('Quantity'))
-                Expanded(child: field('Quantity', Icons.scale_outlined,
-                    const Color(0xFFD97706))),
-              if (fields.containsKey('Quantity') &&
-                  fields.containsKey('Water')) SizedBox(width: 7.w),
+                Expanded(
+                  child: field(
+                    'Quantity',
+                    Icons.scale_outlined,
+                    const Color(0xFFD97706),
+                  ),
+                ),
+              if (fields.containsKey('Quantity') && fields.containsKey('Water'))
+                SizedBox(width: 7.w),
               if (fields.containsKey('Water'))
-                Expanded(child: field('Water', Icons.water_drop_outlined,
-                    const Color(0xFF0284C7))),
+                Expanded(
+                  child: field(
+                    'Water',
+                    Icons.water_drop_outlined,
+                    const Color(0xFF0284C7),
+                  ),
+                ),
             ],
           ),
         if (fields.containsKey('Remark')) ...[
           SizedBox(height: 6.h),
-          field('Remark', Icons.notes_rounded,
-              const Color(0xFF64748B)),
+          field('Remark', Icons.notes_rounded, const Color(0xFF64748B)),
         ],
       ],
     );
   }
 
- 
-
-  
-Widget _buildScheduleList(FarmerScheduleState state) {
-  return Column(
-    crossAxisAlignment: CrossAxisAlignment.start,
-    children: [
-      Row(
-        children: [
-          const Icon(
-            Icons.list_alt_rounded,
-            color: Color(0xFF22C55E),
-            size: 22,
-          ),
-          SizedBox(width: 8.w),
-          Text(
-            'Schedule List',
-            style: TextStyle(
-              fontSize: 15.sp,
-              fontWeight: FontWeight.w700,
-              color: const Color(0xFF222222),
+  Widget _buildScheduleList(FarmerScheduleState state) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            const Icon(
+              Icons.list_alt_rounded,
+              color: Color(0xFF22C55E),
+              size: 22,
             ),
-          ),
-          const Spacer(),
-          Container(
-            padding: EdgeInsets.symmetric(
-              horizontal: 10.w,
-              vertical: 4.h,
-            ),
-            decoration: BoxDecoration(
-              color: const Color(0xFFE5F6E9),
-              borderRadius: BorderRadius.circular(20.r),
-            ),
-            child: Text(
-              '${state.schedules.length}',
+            SizedBox(width: 8.w),
+            Text(
+              'Schedule List',
               style: TextStyle(
-                color: const Color(0xFF16A34A),
-                fontSize: 11.sp,
-                fontWeight: FontWeight.bold,
+                fontSize: 15.sp,
+                fontWeight: FontWeight.w700,
+                color: const Color(0xFF222222),
               ),
             ),
-          ),
-        ],
-      ),
-
-      SizedBox(height: 10.h),
-
-      ...List.generate(state.schedules.length, (index) {
-        final item = state.schedules[index];
-
-        // Read labeled fields from existing schedule string.
-        final fields = _parseScheduleFields(item.schedule);
-
-        final product = fields['Product'] ?? '';
-        final type = fields['Type'] ?? '';
-        final quantity = fields['Quantity'] ?? '';
-        final water = fields['Water'] ?? '';
-        final remark = fields['Remark'] ?? '';
-
-        return Container(
-          width: double.infinity,
-          margin: EdgeInsets.only(bottom: 10.h),
-          padding: EdgeInsets.all(12.w),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(8.r),
-            border: Border.all(
-              color: const Color(0xFFE2E8E4),
-              width: 0.8,
+            const Spacer(),
+            Container(
+              padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 4.h),
+              decoration: BoxDecoration(
+                color: const Color(0xFFE5F6E9),
+                borderRadius: BorderRadius.circular(20.r),
+              ),
+              child: Text(
+                '${state.schedules.length}',
+                style: TextStyle(
+                  color: const Color(0xFF16A34A),
+                  fontSize: 11.sp,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
             ),
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // CROP HEADER
-              Row(
-                children: [
-                  Container(
-                    width: 36.w,
-                    height: 36.w,
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFE8F6EB),
-                      borderRadius: BorderRadius.circular(7.r),
-                    ),
-                    child: const Icon(
-                      Icons.spa_outlined,
-                      color: Color(0xFF22C55E),
-                      size: 19,
-                    ),
-                  ),
+          ],
+        ),
 
-                  SizedBox(width: 8.w),
+        SizedBox(height: 10.h),
 
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          item.cropName,
-                          maxLines: 2,
-                          overflow: TextOverflow.ellipsis,
-                          style: TextStyle(
-                            fontSize: 12.sp,
-                            fontWeight: FontWeight.w700,
-                            color: const Color(0xFF15283B),
-                          ),
-                        ),
-                        SizedBox(height: 3.h),
-                        Row(
-                          children: [
-                            const Icon(
-                              Icons.calendar_today_outlined,
-                              size: 11,
-                              color: Color(0xFFCBD5E1),
-                            ),
-                            SizedBox(width: 4.w),
-                            Text(
-                              item.date,
-                              style: TextStyle(
-                                fontSize: 9.sp,
-                                color: const Color(0xFF64748B),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                  ),
+        ...List.generate(state.schedules.length, (index) {
+          final item = state.schedules[index];
 
-                  IconButton(
-                    visualDensity: VisualDensity.compact,
-                    constraints: const BoxConstraints(
-                      minWidth: 32,
-                      minHeight: 32,
-                    ),
-                    padding: EdgeInsets.zero,
-                    icon: const Icon(
-                      Icons.delete_outline_rounded,
-                      color: Color(0xFFFF5252),
-                      size: 20,
-                    ),
-                    onPressed: () {
-                      context.read<FarmerScheduleBloc>().add(
-                        RemoveScheduleSection(index),
-                      );
-                    },
-                  ),
-                ],
-              ),
+          // Read labeled fields from existing schedule string.
+          final fields = _parseScheduleFields(item.schedule);
 
-              SizedBox(height: 9.h),
+          final product = fields['Product'] ?? '';
+          final type = fields['Type'] ?? '';
+          final quantity = fields['Quantity'] ?? '';
+          final water = fields['Water'] ?? '';
+          final remark = fields['Remark'] ?? '';
 
-              Divider(
-                color: const Color(0xFFE5EAE8),
-                height: 1,
-              ),
-
-              SizedBox(height: 10.h),
-
-              if (product.isNotEmpty ||
-                  quantity.isNotEmpty ||
-                  water.isNotEmpty) ...[
-                // PRODUCT + TYPE
+          return Container(
+            width: double.infinity,
+            margin: EdgeInsets.only(bottom: 10.h),
+            padding: EdgeInsets.all(12.w),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(8.r),
+              border: Border.all(color: const Color(0xFFE2E8E4), width: 0.8),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // CROP HEADER
                 Row(
-                  crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
+                    Container(
+                      width: 36.w,
+                      height: 36.w,
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFE8F6EB),
+                        borderRadius: BorderRadius.circular(7.r),
+                      ),
+                      child: const Icon(
+                        Icons.spa_outlined,
+                        color: Color(0xFF22C55E),
+                        size: 19,
+                      ),
+                    ),
+
+                    SizedBox(width: 8.w),
+
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            'PRODUCT',
-                            style: TextStyle(
-                              fontSize: 9.sp,
-                              color: const Color(0xFF64748B),
-                              fontWeight: FontWeight.w500,
-                            ),
-                          ),
-                          SizedBox(height: 5.h),
-                          Text(
-                            product.isEmpty ? '-' : product,
+                            item.cropName,
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
                             style: TextStyle(
                               fontSize: 12.sp,
                               fontWeight: FontWeight.w700,
                               color: const Color(0xFF15283B),
                             ),
                           ),
+                          SizedBox(height: 3.h),
+                          Row(
+                            children: [
+                              const Icon(
+                                Icons.calendar_today_outlined,
+                                size: 11,
+                                color: Color(0xFFCBD5E1),
+                              ),
+                              SizedBox(width: 4.w),
+                              Text(
+                                item.date,
+                                style: TextStyle(
+                                  fontSize: 9.sp,
+                                  color: const Color(0xFF64748B),
+                                ),
+                              ),
+                            ],
+                          ),
                         ],
                       ),
                     ),
 
-                    if (type.isNotEmpty)
-                      Container(
-                        padding: EdgeInsets.symmetric(
-                          horizontal: 10.w,
-                          vertical: 5.h,
-                        ),
-                        decoration: BoxDecoration(
-                          color: const Color(0xFFE3F7E9),
-                          borderRadius: BorderRadius.circular(20.r),
-                        ),
-                        child: Text(
-                          type,
-                          style: TextStyle(
-                            color: const Color(0xFF16803D),
-                            fontSize: 10.sp,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
+                    IconButton(
+                      visualDensity: VisualDensity.compact,
+                      constraints: const BoxConstraints(
+                        minWidth: 32,
+                        minHeight: 32,
                       ),
+                      padding: EdgeInsets.zero,
+                      icon: const Icon(
+                        Icons.delete_outline_rounded,
+                        color: Color(0xFFFF5252),
+                        size: 20,
+                      ),
+                      onPressed: _submittingSchedule || _scheduleSubmitted ? null : () {
+                        if (index < _savedSections.length) _savedSections.removeAt(index);
+                        context.read<FarmerScheduleBloc>().add(RemoveScheduleSection(index));
+                      },
+                    ),
                   ],
                 ),
+
+                SizedBox(height: 9.h),
+
+                Divider(color: const Color(0xFFE5EAE8), height: 1),
 
                 SizedBox(height: 10.h),
 
-                // QUANTITY + WATER
-                Row(
-                  children: [
-                    Expanded(
-                      child: _lightScheduleBox(
-                        label: 'QUANTITY',
-                        value: quantity.isEmpty ? '-' : quantity,
-                        icon: Icons.inventory_2_outlined,
-                      ),
-                    ),
-                    SizedBox(width: 7.w),
-                    Expanded(
-                      child: _lightScheduleBox(
-                        label: 'WATER',
-                        value: water.isEmpty ? '-' : water,
-                        icon: Icons.water_drop_outlined,
-                      ),
-                    ),
-                  ],
-                ),
-
-                if (remark.isNotEmpty) ...[
-                  SizedBox(height: 8.h),
+                if (product.isNotEmpty ||
+                    quantity.isNotEmpty ||
+                    water.isNotEmpty) ...[
+                  // PRODUCT + TYPE
                   Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
-                      const Icon(
-                        Icons.notes_rounded,
-                        color: Color(0xFFAAAAAA),
-                        size: 14,
-                      ),
-                      SizedBox(width: 5.w),
                       Expanded(
-                        child: Text(
-                          'Remark: $remark',
-                          style: TextStyle(
-                            fontSize: 10.sp,
-                            color: const Color(0xFF475569),
-                            height: 1.4,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'PRODUCT',
+                              style: TextStyle(
+                                fontSize: 9.sp,
+                                color: const Color(0xFF64748B),
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                            SizedBox(height: 5.h),
+                            Text(
+                              product.isEmpty ? '-' : product,
+                              style: TextStyle(
+                                fontSize: 12.sp,
+                                fontWeight: FontWeight.w700,
+                                color: const Color(0xFF15283B),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+
+                      if (type.isNotEmpty)
+                        Container(
+                          padding: EdgeInsets.symmetric(
+                            horizontal: 10.w,
+                            vertical: 5.h,
                           ),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFFE3F7E9),
+                            borderRadius: BorderRadius.circular(20.r),
+                          ),
+                          child: Text(
+                            type,
+                            style: TextStyle(
+                              color: const Color(0xFF16803D),
+                              fontSize: 10.sp,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ),
+                    ],
+                  ),
+
+                  SizedBox(height: 10.h),
+
+                  // QUANTITY + WATER
+                  Row(
+                    children: [
+                      Expanded(
+                        child: _lightScheduleBox(
+                          label: 'QUANTITY',
+                          value: quantity.isEmpty ? '-' : quantity,
+                          icon: Icons.inventory_2_outlined,
+                        ),
+                      ),
+                      SizedBox(width: 7.w),
+                      Expanded(
+                        child: _lightScheduleBox(
+                          label: 'WATER',
+                          value: water.isEmpty ? '-' : water,
+                          icon: Icons.water_drop_outlined,
                         ),
                       ),
                     ],
                   ),
-                ],
-              ] else
-                // Fallback for older/unlabeled schedule data
-                Text(
-                  item.schedule,
-                  style: TextStyle(
-                    color: const Color(0xFF15283B),
-                    fontSize: 11.sp,
-                    height: 1.5,
+
+                  if (remark.isNotEmpty) ...[
+                    SizedBox(height: 8.h),
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Icon(
+                          Icons.notes_rounded,
+                          color: Color(0xFFAAAAAA),
+                          size: 14,
+                        ),
+                        SizedBox(width: 5.w),
+                        Expanded(
+                          child: Text(
+                            'Remark: $remark',
+                            style: TextStyle(
+                              fontSize: 10.sp,
+                              color: const Color(0xFF475569),
+                              height: 1.4,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ] else
+                  // Fallback for older/unlabeled schedule data
+                  Text(
+                    item.schedule,
+                    style: TextStyle(
+                      color: const Color(0xFF15283B),
+                      fontSize: 11.sp,
+                      height: 1.5,
+                    ),
                   ),
+              ],
+            ),
+          );
+        }),
+      ],
+    );
+  }
+
+  Widget _lightScheduleBox({
+    required String label,
+    required String value,
+    required IconData icon,
+  }) {
+    return Container(
+      padding: EdgeInsets.symmetric(horizontal: 9.w, vertical: 9.h),
+      decoration: BoxDecoration(
+        color: const Color(0xFFF2F6F4),
+        borderRadius: BorderRadius.circular(7.r),
+        border: Border.all(color: const Color(0xFFE5ECE8)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(icon, size: 11.sp, color: const Color(0xFF475569)),
+              SizedBox(width: 4.w),
+              Text(
+                label,
+                style: TextStyle(
+                  fontSize: 9.sp,
+                  color: const Color(0xFF15283B),
+                  fontWeight: FontWeight.w500,
                 ),
+              ),
             ],
           ),
-        );
-      }),
-    ],
-  );
-}
 
+          SizedBox(height: 7.h),
 
-Widget _lightScheduleBox({
-  required String label,
-  required String value,
-  required IconData icon,
-}) {
-  return Container(
-    padding: EdgeInsets.symmetric(
-      horizontal: 9.w,
-      vertical: 9.h,
-    ),
-    decoration: BoxDecoration(
-      color: const Color(0xFFF2F6F4),
-      borderRadius: BorderRadius.circular(7.r),
-      border: Border.all(color: const Color(0xFFE5ECE8)),
-    ),
-    child: Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          children: [
-            Icon(
-              icon,
-              size: 11.sp,
-              color: const Color(0xFF475569),
-            ),
-            SizedBox(width: 4.w),
-            Text(
-              label,
-              style: TextStyle(
-                fontSize: 9.sp,
-                color: const Color(0xFF15283B),
-                fontWeight: FontWeight.w500,
-              ),
-            ),
-          ],
-        ),
-
-        SizedBox(height: 7.h),
-
-        Text(
-          value,
-          maxLines: 2,
-          overflow: TextOverflow.ellipsis,
-          style: TextStyle(
-            fontSize: 12.5.sp,
-            color: const Color(0xFF15283B),
-            fontWeight: FontWeight.w700,
-          ),
-        ),
-      ],
-    ),
-  );
-}
-
-
-
-  // ============================================================
-  // WHATSAPP BUTTON
-  // ============================================================
-
-  Widget _buildWhatsAppButton(
-    FarmerScheduleState state,
-  ) {
-    return SizedBox(
-      width:
-          double.infinity,
-
-      height:
-          52.h,
-
-      child:
-          ElevatedButton.icon(
-        style:
-            ElevatedButton.styleFrom(
-          backgroundColor:
-              const Color(
-            0xFF25D366,
-          ),
-
-          foregroundColor:
-              Colors.white,
-
-          elevation:
-              1,
-
-          shape:
-              RoundedRectangleBorder(
-            borderRadius:
-                BorderRadius.circular(
-              14.r,
+          Text(
+            value,
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+            style: TextStyle(
+              fontSize: 12.5.sp,
+              color: const Color(0xFF15283B),
+              fontWeight: FontWeight.w700,
             ),
           ),
-        ),
-
-        onPressed: () {
-          _shareToWhatsApp(
-            state,
-          );
-        },
-
-        icon:
-            const Icon(
-          Icons.chat_rounded,
-        ),
-
-        label:
-            Text(
-          'Share Schedule on WhatsApp',
-
-          style:
-              TextStyle(
-            fontSize:
-                13.sp,
-
-            fontWeight:
-                FontWeight.w700,
-          ),
-        ),
+        ],
       ),
     );
   }
 
   // ============================================================
-  // WHATSAPP SHARE
+  // WHATSAPP BUTTON
   // ============================================================
 
-  Future<void> _shareToWhatsApp(
-    FarmerScheduleState state,
-  ) async {
-    final ScheduleFarmerEntity? farmer =
-        state.selectedFarmer;
+  Widget _buildScheduleActions(FarmerScheduleState state) {
+    return SafeArea(
+      top: false,
+      child: Row(
+        children: [
+          Expanded(
+            child: FilledButton.icon(
+              style: FilledButton.styleFrom(
+                minimumSize: const Size(0, 48),
+                backgroundColor: context.primaryColor,
+                foregroundColor: context.onPrimaryColor,
+              ),
+              onPressed: _submittingSchedule || _scheduleSubmitted ? null : () => _submitSchedule(state),
+              icon: const Icon(Icons.check_circle_outline, size: 18),
+              label: const Text('Submit'),
+            ),
+          ),
+          SizedBox(width: 8.w),
+          Expanded(
+            child: OutlinedButton.icon(
+              style: OutlinedButton.styleFrom(
+                minimumSize: const Size(0, 48),
+                foregroundColor: const Color(0xFF16803D),
+              ),
+              onPressed: () => _shareToWhatsApp(state),
+              icon: const Icon(Icons.chat_outlined, size: 18),
+              label: const Text('WhatsApp'),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  bool _validateSchedule(FarmerScheduleState state) {
+    String? error;
+    if (state.selectedFarmer == null) {
+      error = 'Please select a farmer.';
+    } else if (!state.selectedFarmer!.hasRegisteredPlots) {
+      error = 'Please register a plot first.';
+    } else if (state.plotLoading) {
+      error = 'Please wait for plots to load.';
+    } else if (state.selectedPlot == null ||
+        !state.plots.any(
+          (plot) =>
+              plot.plotId == state.selectedPlot!.plotId &&
+              plot.farmerId == state.selectedFarmer!.farmerId,
+        )) {
+      error = 'Please select a registered plot.';
+    } else if (state.currentSchedule.trim().isNotEmpty ||
+        productController.text.trim().isNotEmpty ||
+        quantityController.text.trim().isNotEmpty ||
+        waterController.text.trim().isNotEmpty ||
+        remarkController.text.trim().isNotEmpty ||
+        state.selectedCropName.isNotEmpty ||
+        state.selectedDate != null) {
+      error = 'Finish adding the current crop schedule before continuing.';
+    } else if (state.schedules.isEmpty) {
+      error = 'Please add at least one crop schedule.';
+    }
+    if (error != null) {
+      _showMessage(error);
+      return false;
+    }
+    return true;
+  }
+
+  Future<void> _submitSchedule(FarmerScheduleState state) async {
+    if (_submittingSchedule || _scheduleSubmitted || !_validateSchedule(state)) return;
+    if (_currentDetails.isNotEmpty) {
+      _showMessage('Finish Add Crop Schedule before submitting.');
+      return;
+    }
+    if (_employeeLoading || _employeeId.isEmpty || _employeeId == '0') {
+      _showMessage('Please log in again.'); return;
+    }
+    if (_pendingDetail != null || _pendingSectionDetails != null) {
+      _showMessage('Please wait for the current schedule to finish saving.'); return;
+    }
+    if (_savedSections.length != state.schedules.length || _savedSections.isEmpty) {
+      _showMessage('Schedule details are incomplete. Please re-add the schedule entries.'); return;
+    }
+    final date = _savedSections.first.date;
+    final sameDate = _savedSections.every((entry) => entry.date.year == date.year && entry.date.month == date.month && entry.date.day == date.day);
+    if (!sameDate) { _showMessage('One submission supports one schedule date. Please submit different dates separately.'); return; }
+    final details = _savedSections.expand((entry) => entry.details).toList();
+    if (details.any((item) => item.cropId.trim().isEmpty)) {
+      _showMessage('Crop ID is missing. Backend must return fld_crop_id for selected crops.'); return;
+    }
+    final request = AddScheduleRequest(
+      empId: _employeeId,
+      plotId: state.selectedPlot!.plotId,
+      farmerId: state.selectedFarmer!.farmerId,
+      scheduleDate: date,
+      details: List.unmodifiable(details),
+    );
+    final body = request.toJson();
+    debugPrint('ADD SCHEDULE POST PARAMETERS');
+    debugPrint('empId: ${body['empId']}');
+    debugPrint('plotId: ${body['plotId']}');
+    debugPrint('farmerId: ${body['farmerId']}');
+    debugPrint('scheduleDate: ${body['scheduleDate']}');
+    debugPrint('details: ${jsonEncode(body['details'])}');
+
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: const Text('Submit schedule?'),
+        content: Text('Farmer: ${state.selectedFarmer!.farmerName}\nPlot: ${state.selectedPlot!.plotName}\nDate: ${body['scheduleDate']}\nProducts: ${details.length}\n\nPlease confirm. The schedule will be sent to the server.'),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(dialogContext, false), child: const Text('Cancel')),
+          FilledButton(onPressed: () => Navigator.pop(dialogContext, true), child: const Text('Submit')),
+        ],
+      ),
+    );
+    if (!mounted || confirmed != true) return;
+    _submitBloc.add(SendAddSchedule(request));
+  }
+
+  Future<void> _shareToWhatsApp(FarmerScheduleState state) async {
+    if (!_validateSchedule(state)) return;
+    final ScheduleFarmerEntity? farmer = state.selectedFarmer;
 
     if (farmer == null) {
-      _showMessage(
-        'Please select farmer.',
-      );
+      _showMessage('Please select farmer.');
       return;
     }
 
     if (state.schedules.isEmpty) {
-      _showMessage(
-        'Please add schedule.',
-      );
+      _showMessage('Please add schedule.');
       return;
     }
 
-    String phone =
-        farmer.mobileNo.replaceAll(
-      RegExp(
-        r'[^0-9]',
-      ),
-      '',
-    );
+    String phone = farmer.mobileNo.replaceAll(RegExp(r'[^0-9]'), '');
 
     if (phone.isEmpty) {
-      _showMessage(
-        'Farmer mobile number not available.',
-      );
+      _showMessage('Farmer mobile number not available.');
       return;
     }
 
     if (phone.length == 10) {
-      phone =
-          '91$phone';
+      phone = '91$phone';
     }
 
-    if (phone.length == 11 &&
-        phone.startsWith(
-          '0',
-        )) {
-      phone =
-          '91${phone.substring(1)}';
+    if (phone.length == 11 && phone.startsWith('0')) {
+      phone = '91${phone.substring(1)}';
     }
 
-    final StringBuffer builder =
-        StringBuffer();
+    final StringBuffer builder = StringBuffer();
 
-    builder.writeln(
-      farmer.farmerName,
-    );
+    builder.writeln(farmer.farmerName);
 
     builder.writeln();
 
-    for (final item
-        in state.schedules) {
-      builder.writeln(
-        '*${item.title}*',
-      );
+    for (final item in state.schedules) {
+      builder.writeln('*${item.title}*');
 
-      builder.writeln(
-        item.schedule,
-      );
+      builder.writeln(item.schedule);
 
       builder.writeln();
 
-      builder.writeln(
-        '-------------------------------------',
-      );
+      builder.writeln('-------------------------------------');
 
       builder.writeln();
     }
 
-    final String message =
-        builder.toString().trim();
+    final String message = builder.toString().trim();
 
-    print(
-      'WHATSAPP PHONE : $phone',
-    );
+    print('WHATSAPP PHONE : $phone');
 
-    print(
-      'WHATSAPP MESSAGE : $message',
-    );
+    print('WHATSAPP MESSAGE : $message');
 
-    final Uri url =
-        Uri.parse(
+    final Uri url = Uri.parse(
       'https://wa.me/$phone'
       '?text=${Uri.encodeComponent(message)}',
     );
 
     try {
-      final bool opened =
-          await launchUrl(
+      final bool opened = await launchUrl(
         url,
 
-        mode:
-            LaunchMode
-                .externalApplication,
+        mode: LaunchMode.externalApplication,
       );
 
-      if (!opened &&
-          mounted) {
-        _showMessage(
-          'Unable to open WhatsApp.',
-        );
+      if (!opened && mounted) {
+        _showMessage('Unable to open WhatsApp.');
       }
     } catch (e) {
-      print(
-        'WHATSAPP ERROR : $e',
-      );
+      print('WHATSAPP ERROR : $e');
 
       if (mounted) {
-        _showMessage(
-          'Unable to open WhatsApp.',
-        );
+        _showMessage('Unable to open WhatsApp.');
       }
     }
   }
@@ -2502,23 +2344,11 @@ Widget _lightScheduleBox({
   // MESSAGE
   // ============================================================
 
-  void _showMessage(
-    String message,
-  ) {
-    ScaffoldMessenger.of(
-      context,
-    )
+  void _showMessage(String message) {
+    ScaffoldMessenger.of(context)
       ..hideCurrentSnackBar()
       ..showSnackBar(
-        SnackBar(
-          behavior:
-              SnackBarBehavior.floating,
-
-          content:
-              Text(
-            message,
-          ),
-        ),
+        SnackBar(behavior: SnackBarBehavior.floating, content: Text(message)),
       );
   }
 
@@ -2526,57 +2356,17 @@ Widget _lightScheduleBox({
   // COMMON CARD
   // ============================================================
 
-  Widget _card({
-    required Widget child,
-  }) {
-    return Container(
-      width:
-          double.infinity,
-
-      padding:
-          EdgeInsets.all(
-        14.w,
+  Widget _card({required Widget child}) {
+    final colors = Theme.of(context).colorScheme;
+    return Card(
+      margin: EdgeInsets.zero,
+      elevation: 0,
+      color: colors.surface,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12.r),
+        side: BorderSide(color: colors.outlineVariant),
       ),
-
-      decoration:
-          BoxDecoration(
-        color:
-            Colors.white,
-
-        borderRadius:
-            BorderRadius.circular(
-          16.r,
-        ),
-
-        border:
-            Border.all(
-          color:
-              const Color(
-            0xFFE7ECE8,
-          ),
-        ),
-
-        boxShadow: [
-          BoxShadow(
-            color:
-                Colors.black.withOpacity(
-              0.04,
-            ),
-
-            blurRadius:
-                12,
-
-            offset:
-                const Offset(
-              0,
-              4,
-            ),
-          ),
-        ],
-      ),
-
-      child:
-          child,
+      child: Padding(padding: EdgeInsets.all(12.w), child: child),
     );
   }
 
@@ -2584,60 +2374,29 @@ Widget _lightScheduleBox({
   // TITLE
   // ============================================================
 
-  Widget _title(
-    IconData icon,
-    String title,
-  ) {
+  Widget _title(IconData icon, String title) {
     return Row(
       children: [
         Container(
-          width:
-              36.w,
+          width: 36.w,
 
-          height:
-              36.w,
+          height: 36.w,
 
-          decoration:
-              BoxDecoration(
-            color:
-                const Color(
-              0xFFE8F5EA,
-            ),
+          decoration: BoxDecoration(
+            color: const Color(0xFFE8F5EA),
 
-            borderRadius:
-                BorderRadius.circular(
-              10.r,
-            ),
+            borderRadius: BorderRadius.circular(10.r),
           ),
 
-          child:
-              Icon(
-            icon,
-
-            size:
-                19.sp,
-
-            color:
-                context.primaryColor,
-          ),
+          child: Icon(icon, size: 19.sp, color: context.primaryColor),
         ),
 
-        SizedBox(
-          width:
-              9.w,
-        ),
+        SizedBox(width: 9.w),
 
         Text(
           title,
 
-          style:
-              TextStyle(
-            fontSize:
-                14.sp,
-
-            fontWeight:
-                FontWeight.w700,
-          ),
+          style: TextStyle(fontSize: 14.sp, fontWeight: FontWeight.w700),
         ),
       ],
     );
@@ -2647,97 +2406,48 @@ Widget _lightScheduleBox({
   // INPUT DECORATION
   // ============================================================
 
-  InputDecoration _inputDecoration(
-    String hint,
-    IconData icon,
-  ) {
+  InputDecoration _inputDecoration(String hint, IconData icon) {
     return InputDecoration(
-      hintText:
-          hint,
+      hintText: hint,
+      labelText:
+          const [
+            'Product Name',
+            'Quantity',
+            'Water',
+            'Enter Remark',
+          ].contains(hint)
+          ? hint
+          : null,
+      floatingLabelBehavior: FloatingLabelBehavior.auto,
 
-      hintStyle:
-          TextStyle(
-        fontSize:
-            11.5.sp,
+      hintStyle: TextStyle(fontSize: 11.5.sp, color: Colors.black45),
 
-        color:
-            Colors.black45,
+      prefixIcon: Icon(icon, size: 19.sp, color: Colors.grey.shade600),
+
+      isDense: true,
+
+      filled: true,
+
+      fillColor: const Color(0xFFF8FAF8),
+
+      contentPadding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 12.h),
+
+      border: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(11.r),
+
+        borderSide: BorderSide(color: Colors.grey.shade300),
       ),
 
-      prefixIcon:
-          Icon(
-        icon,
+      enabledBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(11.r),
 
-        size:
-            19.sp,
-
-        color:
-            Colors.grey.shade600,
+        borderSide: BorderSide(color: Colors.grey.shade300),
       ),
 
-      isDense:
-          true,
+      focusedBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(11.r),
 
-      filled:
-          true,
-
-      fillColor:
-          const Color(
-        0xFFF8FAF8,
-      ),
-
-      contentPadding:
-          EdgeInsets.symmetric(
-        horizontal:
-            12.w,
-
-        vertical:
-            14.h,
-      ),
-
-      border:
-          OutlineInputBorder(
-        borderRadius:
-            BorderRadius.circular(
-          11.r,
-        ),
-
-        borderSide:
-            BorderSide(
-          color:
-              Colors.grey.shade300,
-        ),
-      ),
-
-      enabledBorder:
-          OutlineInputBorder(
-        borderRadius:
-            BorderRadius.circular(
-          11.r,
-        ),
-
-        borderSide:
-            BorderSide(
-          color:
-              Colors.grey.shade300,
-        ),
-      ),
-
-      focusedBorder:
-          OutlineInputBorder(
-        borderRadius:
-            BorderRadius.circular(
-          11.r,
-        ),
-
-        borderSide:
-            BorderSide(
-          color:
-              context.primaryColor,
-
-          width:
-              1.3,
-        ),
+        borderSide: BorderSide(color: context.primaryColor, width: 1.3),
       ),
     );
   }
@@ -2752,100 +2462,57 @@ Widget _lightScheduleBox({
     required ValueChanged<String?> onChanged,
   }) {
     return DropdownButtonFormField<String>(
-      value:
-          value,
+      value: value,
 
-      isExpanded:
-          true,
+      isExpanded: true,
 
-      decoration:
-          InputDecoration(
-        isDense:
-            true,
+      decoration: InputDecoration(
+        isDense: true,
 
-        filled:
-            true,
+        filled: true,
 
-        fillColor:
-            const Color(
-          0xFFF8FAF8,
+        fillColor: const Color(0xFFF8FAF8),
+
+        contentPadding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 13.h),
+
+        border: OutlineInputBorder(borderRadius: BorderRadius.circular(11.r)),
+
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(11.r),
+
+          borderSide: BorderSide(color: Colors.grey.shade300),
         ),
 
-        contentPadding:
-            EdgeInsets.symmetric(
-          horizontal:
-              10.w,
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(11.r),
 
-          vertical:
-              13.h,
-        ),
-
-        border:
-            OutlineInputBorder(
-          borderRadius:
-              BorderRadius.circular(
-            11.r,
-          ),
-        ),
-
-        enabledBorder:
-            OutlineInputBorder(
-          borderRadius:
-              BorderRadius.circular(
-            11.r,
-          ),
-
-          borderSide:
-              BorderSide(
-            color:
-                Colors.grey.shade300,
-          ),
-        ),
-
-        focusedBorder:
-            OutlineInputBorder(
-          borderRadius:
-              BorderRadius.circular(
-            11.r,
-          ),
-
-          borderSide:
-              BorderSide(
-            color:
-                context.primaryColor,
-          ),
+          borderSide: BorderSide(color: context.primaryColor),
         ),
       ),
 
-      items:
-          values
-              .map(
-                (
-                  item,
-                ) =>
-                    DropdownMenuItem<String>(
-                  value:
-                      item,
+      items: values
+          .map(
+            (item) => DropdownMenuItem<String>(
+              value: item,
 
-                  child:
-                      Text(
-                    item,
+              child: Text(
+                item,
 
-                    overflow:
-                        TextOverflow.ellipsis,
+                overflow: TextOverflow.ellipsis,
 
-                    style:
-                        TextStyle(
-                      fontSize:
-                          11.sp,
-                    ),
-                  ),
-                ),
-              )
-              .toList(),
+                style: TextStyle(fontSize: 11.sp),
+              ),
+            ),
+          )
+          .toList(),
 
-      onChanged:
-          onChanged,
+      onChanged: onChanged,
     );
   }
+}
+
+class _SavedScheduleSection {
+  final DateTime date;
+  final List<AddScheduleDetail> details;
+  const _SavedScheduleSection({required this.date, required this.details});
 }

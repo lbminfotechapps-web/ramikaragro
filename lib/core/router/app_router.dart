@@ -1,3 +1,4 @@
+import 'package:solufine/features/schedule/domain/entities/schedule_farmer_entity.dart';
 import 'package:flutter/material.dart';
 import 'package:solufine/core/secure_storage/secure_storage.dart';
 import 'package:solufine/features/ai/presentation/bloc/ai_bloc.dart';
@@ -83,8 +84,12 @@ import 'package:solufine/features/reports/presentation/bloc/visit_report_bloc.da
 import 'package:solufine/features/sales_targrt_achievement/presentation/pages/sales_wise_target_page.dart';
 import 'package:solufine/features/salesreturn/presentation/pages/sales_return_page.dart';
 import 'package:solufine/features/salesreturnhistory/presentation/presentation/sales_return_history_page.dart';
+import 'package:solufine/features/plot_registration/presentation/bloc/plot_bloc.dart';
+import 'package:solufine/features/plot_registration/presentation/pages/plot_registration_page.dart';
 import 'package:solufine/features/schedule/presentation/bloc/farmer_schedule_bloc.dart';
+import 'package:solufine/features/schedule/presentation/bloc/schedule_list_bloc.dart';
 import 'package:solufine/features/schedule/presentation/pages/farmer_schedule_page.dart';
+import 'package:solufine/features/schedule/presentation/pages/schedule_list_page.dart';
 import 'package:solufine/features/scheme/presentation/pages/schemescreen.dart';
 import 'package:solufine/features/selfcollectionassign/presentation/presentation/assingselfcollectiontarget_page.dart';
 import 'package:solufine/features/splash/splash_screen.dart';
@@ -172,8 +177,10 @@ class AppRouter {
 
   static const String consultantDoctors = '/consultantDoctors';
   static const String consultantDoctorForm = '/consultantDoctorForm';
-  static const String plantDoctor ='/plantDoctor';
-  static const String schedule ='/schedule';
+  static const String plantDoctor = '/plantDoctor';
+  static const String schedule = '/schedule';
+  static const String addPlot = '/addPlot';
+   static const String scheduleList = '/scheduleList';
 
   static final GoRouter router = GoRouter(
     navigatorKey: navigatorKey,
@@ -570,8 +577,7 @@ class AppRouter {
         },
       ),
 
-
-        GoRoute(
+      GoRoute(
         path: AppRouter.plantDoctor,
         name: 'plantDoctor',
         builder: (context, state) {
@@ -583,7 +589,20 @@ class AppRouter {
       ),
 
 
-        GoRoute(
+      GoRoute(
+              path: AppRouter.scheduleList,
+              name: 'scheduleList',
+              builder: (context, state) {
+                return BlocProvider(
+                  create: (_) => sl<ScheduleListBloc>(),
+                  child: const ScheduleListPage(),
+                );
+              },
+            ),
+
+       
+
+      GoRoute(
         path: AppRouter.schedule,
         name: 'schedule',
         builder: (context, state) {
@@ -594,8 +613,26 @@ class AppRouter {
         },
       ),
 
- 
-
+      GoRoute(
+        path: AppRouter.addPlot,
+        name: 'plotRegistration',
+        builder: (context, state) {
+          final farmer = state.extra;
+          if (farmer is! ScheduleFarmerEntity ||
+              farmer.farmerId.trim().isEmpty) {
+            return Scaffold(
+              appBar: AppBar(title: const Text('Plot registration')),
+              body: const Center(
+                child: Text('Please select a farmer from Schedule first.'),
+              ),
+            );
+          }
+          return BlocProvider<PlotBloc>(
+            create: (_) => sl<PlotBloc>(),
+            child: PlotRegistrationPage(farmer: farmer),
+          );
+        },
+      ),
       // ADD / EDIT CONSULTANT DOCTOR
       // GoRoute(
       //   path: AppRouter.consultantDoctorForm,
@@ -623,83 +660,71 @@ class AppRouter {
       //   },
       // ),
 
-
       // ADD / EDIT CONSULTANT DOCTOR
-     
-          GoRoute(
-            path: AppRouter.consultantDoctorForm,
-            name: 'consultantDoctorForm',
-            builder: (context, state) {
-              final ConsultantDoctor? consultant =
-                  state.extra is ConsultantDoctor
-                      ? state.extra as ConsultantDoctor
-                      : null;
+      GoRoute(
+        path: AppRouter.consultantDoctorForm,
+        name: 'consultantDoctorForm',
+        builder: (context, state) {
+          final ConsultantDoctor? consultant = state.extra is ConsultantDoctor
+              ? state.extra as ConsultantDoctor
+              : null;
 
-              return FutureBuilder<Map<String, dynamic>?>(
-                future: SecureStorage.instance.getUserData(),
-                builder: (context, snapshot) {
+          return FutureBuilder<Map<String, dynamic>?>(
+            future: SecureStorage.instance.getUserData(),
+            builder: (context, snapshot) {
+              // Loading user data
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return const Scaffold(
+                  body: Center(child: CircularProgressIndicator()),
+                );
+              }
 
-                  // Loading user data
-                  if (snapshot.connectionState == ConnectionState.waiting) {
-                    return const Scaffold(
-                      body: Center(
-                        child: CircularProgressIndicator(),
-                      ),
-                    );
-                  }
+              // Storage error
+              if (snapshot.hasError) {
+                return const Scaffold(
+                  body: Center(child: Text('Unable to load user details')),
+                );
+              }
 
-                  // Storage error
-                  if (snapshot.hasError) {
-                    return const Scaffold(
-                      body: Center(
-                        child: Text('Unable to load user details'),
-                      ),
-                    );
-                  }
+              // Get logged-in user data
+              final userData = snapshot.data;
 
-                  // Get logged-in user data
-                  final userData = snapshot.data;
+              final String userId = (userData?['user_id'] ?? '')
+                  .toString()
+                  .trim();
 
-                  final String userId =
-                      (userData?['user_id'] ?? '').toString().trim();
+              debugPrint('CONSULTANT USER ID: $userId');
 
-                  debugPrint('CONSULTANT USER ID: $userId');
+              // Check login
+              if (userId.isEmpty || userId == '0') {
+                return Scaffold(
+                  appBar: AppBar(title: const Text('Consultant Doctor')),
+                  body: const Center(
+                    child: Text('Session expired. Please login again.'),
+                  ),
+                );
+              }
 
-                  // Check login
-                  if (userId.isEmpty || userId == '0') {
-                    return Scaffold(
-                      appBar: AppBar(
-                        title: const Text('Consultant Doctor'),
-                      ),
-                      body: const Center(
-                        child: Text(
-                          'Session expired. Please login again.',
-                        ),
-                      ),
-                    );
-                  }
+              // Open consultant form
+              return MultiBlocProvider(
+                providers: [
+                  BlocProvider<ConsultantBloc>(
+                    create: (_) => sl<ConsultantBloc>(),
+                  ),
 
-                  // Open consultant form
-                  return MultiBlocProvider(
-                    providers: [
-                      BlocProvider<ConsultantBloc>(
-                        create: (_) => sl<ConsultantBloc>(),
-                      ),
-
-                      BlocProvider<LocationCubit>(
-                        create: (_) => sl<LocationCubit>(),
-                      ),
-                    ],
-                    child: ConsultantFormPage(
-                      consultant: consultant,
-                      userId: userId, // Dynamic logged-in user ID
-                    ),
-                  );
-                },
+                  BlocProvider<LocationCubit>(
+                    create: (_) => sl<LocationCubit>(),
+                  ),
+                ],
+                child: ConsultantFormPage(
+                  consultant: consultant,
+                  userId: userId, // Dynamic logged-in user ID
+                ),
               );
             },
-          ),
-
+          );
+        },
+      ),
 
       GoRoute(
         path: monthlyPerformanceReport,
@@ -801,8 +826,6 @@ class AppRouter {
           );
         },
       ),
-
-    
 
       GoRoute(
         path: visitSummaryReport,
@@ -924,7 +947,6 @@ class AppRouter {
             ],
           ),
 
-         
           StatefulShellBranch(
             routes: [
               GoRoute(
