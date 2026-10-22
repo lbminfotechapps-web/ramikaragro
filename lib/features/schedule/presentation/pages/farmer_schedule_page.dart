@@ -35,17 +35,12 @@ class FarmerSchedulePage extends StatefulWidget {
 
 class _FarmerSchedulePageState extends State<FarmerSchedulePage> {
   final TextEditingController farmerController = TextEditingController();
-
   final TextEditingController cropController = TextEditingController();
-
   final TextEditingController productController = TextEditingController();
-
   final TextEditingController quantityController = TextEditingController();
-
   final TextEditingController waterController = TextEditingController();
-
   final TextEditingController remarkController = TextEditingController();
-
+  
   Timer? farmerTimer;
   Timer? cropTimer;
 

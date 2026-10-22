@@ -595,50 +595,109 @@ class _ProductDetailsState extends State<ProductDetails> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           // LANGUAGE SELECTOR
-          SingleChildScrollView(
-            scrollDirection: Axis.horizontal,
-            child: Row(
-              children: languages.map((language) {
-                final isSelected = language == selected;
 
-                return Padding(
-                  padding: const EdgeInsets.only(right: 7),
-                  child: ChoiceChip(
-                    label: Text(
-                      _languageLabel(language),
-                      style: AppTextStyles.chip,
-                    ),
-                    selected: isSelected,
-                    onSelected: (_) {
-                      setState(() {
-                        _selectedLanguage = language;
-                      });
-                    },
-                    backgroundColor: context.appTheme.inputBackground,
-                    selectedColor: context.appColors.primaryContainer,
-                    side: BorderSide(
-                      color: isSelected
-                          ? context.appColors.onPrimaryContainer
-                          : context.borderColor,
-                    ),
-                    showCheckmark: false,
-                    labelStyle: AppTextStyles.chip.copyWith(
-                      color: isSelected
-                          ? context.appColors.onPrimaryContainer
-                          : context.secondaryTextColor,
-                    ),
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 5,
-                      vertical: 2,
-                    ),
-                    materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                    visualDensity: VisualDensity.compact,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(9),
-                    ),
-                  ),
-                );
-              }).toList(),
+          // SingleChildScrollView(
+          //   scrollDirection: Axis.horizontal,
+          //   child: Row(
+          //     children: languages.map((language) {
+          //       final isSelected = language == selected;
+
+          //       return Padding(
+          //         padding: const EdgeInsets.only(right: 7),
+          //         child: ChoiceChip(
+          //           label: Text(
+          //             _languageLabel(language),
+          //             style: AppTextStyles.chip,
+          //           ),
+          //           selected: isSelected,
+          //           onSelected: (_) {
+          //             setState(() {
+          //               _selectedLanguage = language;
+          //             });
+          //           },
+          //           backgroundColor: context.appTheme.inputBackground,
+          //           selectedColor: context.appColors.primaryContainer,
+          //           side: BorderSide(
+          //             color: isSelected
+          //                 ? context.appColors.onPrimaryContainer
+          //                 : context.borderColor,
+          //           ),
+          //           showCheckmark: false,
+          //           labelStyle: AppTextStyles.chip.copyWith(
+          //             color: isSelected
+          //                 ? context.appColors.onPrimaryContainer
+          //                 : context.secondaryTextColor,
+          //           ),
+          //           padding: const EdgeInsets.symmetric(
+          //             horizontal: 5,
+          //             vertical: 2,
+          //           ),
+          //           materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+          //           visualDensity: VisualDensity.compact,
+          //           shape: RoundedRectangleBorder(
+          //             borderRadius: BorderRadius.circular(9),
+          //           ),
+          //         ),
+          //       );
+          //     }).toList(),
+          //   ),
+          // ),
+
+
+
+            LayoutBuilder(
+            builder: (context, constraints) => SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              child: ConstrainedBox(
+                constraints: BoxConstraints(minWidth: constraints.maxWidth),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: languages.map((language) {
+                    final isSelected = language == selected;
+
+                    return Padding(
+                      padding: EdgeInsets.only(
+                        right: language == languages.last ? 0 : 7,
+                      ),
+                      child: ChoiceChip(
+                        label: Text(
+                          _languageLabel(language),
+                          style: AppTextStyles.chip,
+                        ),
+                        selected: isSelected,
+                        onSelected: (_) {
+                          setState(() {
+                            _selectedLanguage = language;
+                          });
+                        },
+                        backgroundColor: context.appTheme.inputBackground,
+                        selectedColor: context.appColors.primaryContainer,
+                        side: BorderSide(
+                          color: isSelected
+                              ? context.appColors.onPrimaryContainer
+                              : context.borderColor,
+                        ),
+                        showCheckmark: false,
+                        labelStyle: AppTextStyles.chip.copyWith(
+                          color: isSelected
+                              ? context.appColors.onPrimaryContainer
+                              : context.secondaryTextColor,
+                        ),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 5,
+                          vertical: 2,
+                        ),
+                        materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                        visualDensity: VisualDensity.compact,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(9),
+                        ),
+                      ),
+                    );
+                  }).toList(),
+                ),
+              ),
             ),
           ),
 
