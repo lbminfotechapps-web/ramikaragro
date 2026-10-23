@@ -6,6 +6,7 @@ import 'package:solufine/core/di/database_di.dart';
 import 'package:solufine/core/di/growth_report_di.dart';
 import 'package:solufine/core/di/plant_doctor_di.dart';
 import 'package:solufine/core/di/plot_registration_di.dart';
+import 'package:solufine/core/di/plot_schedule_di.dart';
 import 'package:solufine/core/di/quick_referance_di.dart'
     show initQuickReferenceDi;
 import 'package:solufine/core/di/auth_di.dart';
@@ -106,4 +107,5 @@ await ThemeDI.register(sl);
   await initPlotRegistrationDi();
   await initAddScheduleDi();
   await initScheduleListDi();
+  await initFarmerSchedulePlotDi();
 }

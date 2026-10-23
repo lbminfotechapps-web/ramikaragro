@@ -1,4 +1,3 @@
-
 import '../../domain/entities/schedule_list_entity.dart';
 
 class ScheduleProductModel extends ScheduleProductEntity {
@@ -15,11 +14,8 @@ class ScheduleProductModel extends ScheduleProductEntity {
     required super.waterUnit,
   });
 
-  factory ScheduleProductModel.fromJson(
-    Map<String, dynamic> json,
-  ) {
-    String read(String key) =>
-        json[key]?.toString().trim() ?? '';
+  factory ScheduleProductModel.fromJson(Map<String, dynamic> json) {
+    String read(String key) => json[key]?.toString().trim() ?? '';
 
     return ScheduleProductModel(
       detailId: read('fld_schedule_det_id'),
@@ -38,6 +34,7 @@ class ScheduleProductModel extends ScheduleProductEntity {
 
 class ScheduleListModel extends ScheduleListEntity {
   const ScheduleListModel({
+    super.farmerId,
     required super.scheduleId,
     required super.plotRegistrationId,
     required super.scheduleDate,
@@ -46,14 +43,16 @@ class ScheduleListModel extends ScheduleListEntity {
     required super.cropId,
     required super.cropName,
     required super.plotName,
+    super.remark,
+    super.status,
     required super.details,
   });
 
   factory ScheduleListModel.fromJson(
-    Map<String, dynamic> json,
-  ) {
-    String read(String key) =>
-        json[key]?.toString().trim() ?? '';
+    Map<String, dynamic> json, {
+    String fallbackFarmerId = '',
+  }) {
+    String read(String key) => json[key]?.toString().trim() ?? '';
 
     final rawDetails = json['details'];
     final details = <ScheduleProductEntity>[];
@@ -62,24 +61,28 @@ class ScheduleListModel extends ScheduleListEntity {
       for (final value in rawDetails) {
         if (value is Map) {
           details.add(
-            ScheduleProductModel.fromJson(
-              Map<String, dynamic>.from(value),
-            ),
+            ScheduleProductModel.fromJson(Map<String, dynamic>.from(value)),
           );
         }
       }
     }
 
     return ScheduleListModel(
+      farmerId: read('fld_farmer_id').isNotEmpty
+          ? read('fld_farmer_id')
+          : read('farmerId').isNotEmpty
+          ? read('farmerId')
+          : fallbackFarmerId.trim(),
       scheduleId: read('fld_schedule_id'),
-      plotRegistrationId:
-          read('fld_plot_registration_id'),
+      plotRegistrationId: read('fld_plot_registration_id'),
       scheduleDate: read('fld_schedule_date'),
       employeeName: read('fld_adm_name'),
       farmerName: read('fld_farmer_name'),
       cropId: read('fld_crop_id'),
       cropName: read('fld_crop_name'),
       plotName: read('fld_plot_name'),
+      remark: read('fld_remark'),
+      status: read('fld_status') == '1' ? '1' : '0',
       details: List.unmodifiable(details),
     );
   }

@@ -204,7 +204,6 @@ class _PlotRegistrationPageState extends State<PlotRegistrationPage> {
             .toList();
 
   InputDecoration _fieldDecoration(String label, IconData icon) {
-    final colors = Theme.of(context).colorScheme;
     return InputDecoration(
       labelText:
           const ['Plot name', 'Farmer', 'Crop', 'Sowing date'].contains(label)
@@ -213,12 +212,12 @@ class _PlotRegistrationPageState extends State<PlotRegistrationPage> {
       prefixIcon: Icon(icon, size: 20),
       isDense: true,
       filled: true,
-      fillColor: colors.surfaceContainerLowest,
+      fillColor: context.appColors.surfaceContainerLow,
       contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
       border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
       enabledBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(12),
-        borderSide: BorderSide(color: colors.outlineVariant),
+        borderSide: BorderSide(color: context.borderColor),
       ),
     );
   }
@@ -256,7 +255,7 @@ class _PlotRegistrationPageState extends State<PlotRegistrationPage> {
       plot.sowingDate != null;
 
   Widget _summaryDetail(IconData icon, String text) {
-    final colors = Theme.of(context).colorScheme;
+    final colors = context.appColors;
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
@@ -265,7 +264,7 @@ class _PlotRegistrationPageState extends State<PlotRegistrationPage> {
         Flexible(
           child: Text(
             text,
-            style: TextStyle(fontSize: 12, color: colors.onSurfaceVariant),
+            style: TextStyle(fontSize: 12, color: context.secondaryTextColor),
           ),
         ),
       ],
@@ -277,17 +276,17 @@ class _PlotRegistrationPageState extends State<PlotRegistrationPage> {
     PlotState state, {
     bool showFarmer = true,
   }) {
-    final colors = Theme.of(context).colorScheme;
+    final colors = context.appColors;
     final locked =
         state.submitStatus == PlotSubmitStatus.submitting ||
         state.submitStatus == PlotSubmitStatus.success;
     return Card(
       elevation: 0,
       margin: const EdgeInsets.only(bottom: 8),
-      color: colors.surface,
+      color: context.cardBackgroundColor,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(14),
-        side: BorderSide(color: colors.outlineVariant),
+        side: BorderSide(color: context.borderColor),
       ),
       child: Padding(
         padding: const EdgeInsets.fromLTRB(12, 6, 8, 12),
@@ -314,7 +313,7 @@ class _PlotRegistrationPageState extends State<PlotRegistrationPage> {
                   icon: Icon(
                     Icons.delete_outline_rounded,
                     size: 20,
-                    color: locked ? colors.onSurfaceVariant : colors.error,
+                    color: locked ? context.secondaryTextColor : colors.error,
                   ),
                 ),
               ],
@@ -377,14 +376,14 @@ class _PlotRegistrationPageState extends State<PlotRegistrationPage> {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 3),
                 decoration: BoxDecoration(
-                  color: Theme.of(context).colorScheme.primaryContainer,
+                  color: context.appColors.primaryContainer,
                   borderRadius: BorderRadius.circular(20),
                 ),
                 child: Text(
                   '${plots.length}',
                   style: TextStyle(
                     fontSize: 12,
-                    color: Theme.of(context).colorScheme.onPrimaryContainer,
+                    color: context.appColors.onPrimaryContainer,
                   ),
                 ),
               ),
@@ -403,7 +402,7 @@ class _PlotRegistrationPageState extends State<PlotRegistrationPage> {
       plot.sowingDate != null;
 
   Widget _plotCard(PlotEntry plot, int index, PlotState state) {
-    final colors = Theme.of(context).colorScheme;
+    final colors = context.appColors;
     final expanded =
         _expanded.contains(plot.localId) ||
         !_expanded.contains('closed_${plot.localId}');
@@ -459,13 +458,13 @@ class _PlotRegistrationPageState extends State<PlotRegistrationPage> {
       key: ValueKey(plot.localId),
       margin: const EdgeInsets.only(bottom: 12),
       elevation: 0,
-      color: colors.surface,
+      color: context.cardBackgroundColor,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(18),
         side: BorderSide(
           color: complete
               ? colors.primary.withValues(alpha: .35)
-              : colors.outlineVariant,
+              : context.borderColor,
         ),
       ),
       clipBehavior: Clip.antiAlias,
@@ -494,7 +493,7 @@ class _PlotRegistrationPageState extends State<PlotRegistrationPage> {
               complete ? 'Ready to register' : 'Complete plot details',
               style: TextStyle(
                 fontSize: 12,
-                color: complete ? colors.primary : colors.onSurfaceVariant,
+                color: complete ? colors.primary : context.secondaryTextColor,
               ),
             ),
             trailing: Row(
@@ -540,17 +539,6 @@ class _PlotRegistrationPageState extends State<PlotRegistrationPage> {
                         ),
                     onChanged: (value) => context.read<PlotBloc>().add(
                       UpdatePlotNameEvent(plot.localId, value),
-                    ),
-                  ),
-                  const SizedBox(height: 12),
-                  InputDecorator(
-                    decoration: _fieldDecoration(
-                      'Farmer',
-                      Icons.person_outline_rounded,
-                    ),
-                    child: Text(
-                      widget.farmer.farmerName,
-                      style: const TextStyle(fontWeight: FontWeight.w600),
                     ),
                   ),
                   const SizedBox(height: 12),
@@ -603,7 +591,7 @@ class _PlotRegistrationPageState extends State<PlotRegistrationPage> {
   }
 
   Widget _overview(PlotState state) {
-    final colors = Theme.of(context).colorScheme;
+    final colors = context.appColors;
     final completed = state.plots.where((plot) => plot.isComplete).length;
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
@@ -618,12 +606,33 @@ class _PlotRegistrationPageState extends State<PlotRegistrationPage> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Icon(
+                Icons.person_outline_rounded,
+                color: colors.primary,
+                size: 20,
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Text(
+                  'Farmer Name : ${widget.farmer.farmerName.trim().isEmpty ? '-' : widget.farmer.farmerName.trim()}',
+                  style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                    fontWeight: FontWeight.w700,
+                    color: context.primaryTextColor,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 10),
+          Row(
             children: [
               Icon(Icons.landscape_rounded, color: colors.primary),
               const SizedBox(width: 8),
               Expanded(
                 child: Text(
-                  'Your plots',
+                  'Add Plots',
                   style: Theme.of(context).textTheme.titleMedium?.copyWith(
                     fontWeight: FontWeight.w700,
                   ),
@@ -631,21 +640,24 @@ class _PlotRegistrationPageState extends State<PlotRegistrationPage> {
               ),
               Text(
                 '$completed added',
-                style: TextStyle(color: colors.onSurfaceVariant, fontSize: 12),
+                style: TextStyle(
+                  color: context.secondaryTextColor,
+                  fontSize: 12,
+                ),
               ),
             ],
           ),
-          const SizedBox(height: 8),
-          const Text(
-            'Complete the form, add it to the list, then submit all plots.',
-          ),
+          // const SizedBox(height: 8),
+          // const Text(
+          //   'Complete the form, add it to the list, then submit all plots.',
+          // ),
           const SizedBox(height: 12),
           ClipRRect(
             borderRadius: BorderRadius.circular(8),
             child: LinearProgressIndicator(
               minHeight: 5,
               value: state.plots.isEmpty ? 0 : completed / (completed + 1),
-              backgroundColor: colors.surface,
+              backgroundColor: context.cardBackgroundColor,
             ),
           ),
         ],
@@ -705,12 +717,12 @@ class _PlotRegistrationPageState extends State<PlotRegistrationPage> {
             submitting || state.submitStatus == PlotSubmitStatus.success;
 
         return Scaffold(
-          backgroundColor: Theme.of(context).colorScheme.surfaceContainerLow,
+          backgroundColor: context.backgroundColor,
 
           // appBar: AppBar(
           //   title: const Text('Plot registration'),
           //   centerTitle: false,
-          //   backgroundColor: Theme.of(context).colorScheme.surface,
+          //   backgroundColor: context.appColors.surface,
           // ),
           appBar: CustomAppBar(
             backgroundColor: context.primaryColor,
@@ -757,7 +769,7 @@ class _PlotRegistrationPageState extends State<PlotRegistrationPage> {
             ],
           ),
           bottomNavigationBar: Material(
-            color: Theme.of(context).colorScheme.surface,
+            color: context.cardBackgroundColor,
             elevation: 6,
             child: SafeArea(
               child: Padding(
@@ -781,9 +793,7 @@ class _PlotRegistrationPageState extends State<PlotRegistrationPage> {
                                 ),
                               )
                             : const Icon(Icons.send),
-                        label: Text(
-                          submitting ? 'Submitting...' : 'Submit',
-                        ),
+                        label: Text(submitting ? 'Submitting...' : 'Submit'),
                       ),
                     ),
                   ],

@@ -31,6 +31,7 @@ class AddScheduleRemoteDataSourceImpl
       'farmerId': payload['farmerId'].toString(),
       'scheduleDate': payload['scheduleDate'].toString(),
       'details': jsonEncode(payload['details']),
+      'remark': (payload['remark'] ?? '').toString(),
     };
 
     debugPrint('========== ADD SCHEDULE REQUEST ==========');
@@ -39,6 +40,7 @@ class AddScheduleRemoteDataSourceImpl
     debugPrint('farmerId: ${postData['farmerId']}');
     debugPrint('scheduleDate: ${postData['scheduleDate']}');
     debugPrint('details: ${postData['details']}');
+    debugPrint('remark: ${postData['remark']}');
 
     try {
       final response =
