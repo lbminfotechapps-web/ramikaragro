@@ -2,6 +2,9 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:get_it/get_it.dart';
+import 'package:dio/dio.dart';
+import '../../../../core/api_constant/api_client.dart';
+import '../../../../core/api_constant/dio_client.dart';
 import '../../domain/entities/add_schedule_request.dart';
 import '../bloc/add_schedule_submit_bloc.dart';
 
@@ -34,31 +37,37 @@ class FarmerSchedulePage extends StatefulWidget {
 }
 
 class _FarmerSchedulePageState extends State<FarmerSchedulePage> {
+  Color get _themeTint => Color.alphaBlend(
+    context.primaryColor.withValues(alpha: 0.08),
+    context.cardBackgroundColor,
+  );
+
   final TextEditingController farmerController = TextEditingController();
   final TextEditingController cropController = TextEditingController();
   final TextEditingController productController = TextEditingController();
   final TextEditingController quantityController = TextEditingController();
   final TextEditingController waterController = TextEditingController();
   final TextEditingController remarkController = TextEditingController();
-  
+
   Timer? farmerTimer;
   Timer? cropTimer;
+
+  // Product autocomplete: loaded only after typing.
+  Timer? productTimer;
+  int _productSearchVersion = 0;
+  bool productLoading = false;
+  bool showProductSuggestions = false;
+  List<String> productSuggestions = [];
 
   String selectedType = 'Select Type';
   String selectedQuantityUnit = 'Select Unit';
   String selectedWaterUnit = 'Select Unit';
 
-  final List<String> typeList = const ['Select Type', 'Spray', 'Drip'];
+  final List<String> typeList = ['Select Type', 'Spray', 'Drip'];
 
-  final List<String> quantityUnits = const [
-    'Select Unit',
-    'Ltr',
-    'Ml',
-    'Kg',
-    'Gm',
-  ];
+  final List<String> quantityUnits = ['Select Unit', 'Ltr', 'Ml', 'Kg', 'Gm'];
 
-  final List<String> waterUnits = const ['Select Unit', 'Ltr'];
+  final List<String> waterUnits = ['Select Unit', 'Ltr'];
 
   String _employeeId = '';
   bool _employeeLoading = true;
@@ -78,13 +87,14 @@ class _FarmerSchedulePageState extends State<FarmerSchedulePage> {
   String _normalizedUnit(String unit) {
     switch (unit.toLowerCase().trim()) {
       case 'kg':
-        return 'kg';
+        return 'Kg';
       case 'gm':
-        return 'g';
+        return 'Gm';
       case 'ml':
-        return 'ml';
+        return 'Ml';
       case 'ltr':
-        return 'L';
+        return 'Ltr';
+
       default:
         return unit.trim();
     }
@@ -98,7 +108,7 @@ class _FarmerSchedulePageState extends State<FarmerSchedulePage> {
     _pendingSectionDetails = null;
     _savedSections.clear();
     _scheduleSubmitted = false;
-    _submitBloc.add(const ResetAddScheduleSubmit());
+    _submitBloc.add(ResetAddScheduleSubmit());
   }
 
   @override
@@ -129,7 +139,7 @@ class _FarmerSchedulePageState extends State<FarmerSchedulePage> {
       builder: (dialogContext) => PopScope(
         canPop: false,
         child: AlertDialog(
-          title: const Text('Schedule submitted'),
+          title: Text('Schedule submitted'),
           content: Text(
             message.trim().isEmpty
                 ? 'Schedule submitted successfully.'
@@ -138,14 +148,14 @@ class _FarmerSchedulePageState extends State<FarmerSchedulePage> {
           actions: [
             FilledButton(
               onPressed: () => Navigator.pop(dialogContext, true),
-              child: const Text('OK'),
+              child: Text('OK'),
             ),
           ],
         ),
       ),
     );
     if (!mounted || acknowledged != true) return;
-    context.read<FarmerScheduleBloc>().add(const ClearSubmittedSchedules());
+    context.read<FarmerScheduleBloc>().add(ClearSubmittedSchedules());
     setState(_resetLocalScheduleData);
   }
 
@@ -177,7 +187,7 @@ class _FarmerSchedulePageState extends State<FarmerSchedulePage> {
     if (_employeeId.isEmpty || _employeeId == '0') {
       ScaffoldMessenger.of(
         context,
-      ).showSnackBar(const SnackBar(content: Text('Please login again.')));
+      ).showSnackBar(SnackBar(content: Text('Please login again.')));
       return;
     }
     context.read<FarmerScheduleBloc>().add(
@@ -195,6 +205,8 @@ class _FarmerSchedulePageState extends State<FarmerSchedulePage> {
   void dispose() {
     farmerTimer?.cancel();
     cropTimer?.cancel();
+    productTimer?.cancel();
+    _productSearchVersion++;
     _submitSubscription?.cancel();
     _submitBloc.close();
 
@@ -222,10 +234,11 @@ class _FarmerSchedulePageState extends State<FarmerSchedulePage> {
     cropTimer?.cancel();
     cropController.clear();
     productController.clear();
+    _clearProductSuggestions();
     quantityController.clear();
     waterController.clear();
     remarkController.clear();
-    context.read<FarmerScheduleBloc>().add(const ClearSelectedFarmer());
+    context.read<FarmerScheduleBloc>().add(ClearSelectedFarmer());
     setState(() {
       _resetLocalScheduleData();
       selectedType = 'Select Type';
@@ -243,7 +256,7 @@ class _FarmerSchedulePageState extends State<FarmerSchedulePage> {
       return;
     }
 
-    farmerTimer = Timer(const Duration(seconds: 2), () {
+    farmerTimer = Timer(Duration(seconds: 2), () {
       if (!mounted) {
         return;
       }
@@ -265,7 +278,7 @@ class _FarmerSchedulePageState extends State<FarmerSchedulePage> {
       return;
     }
 
-    cropTimer = Timer(const Duration(seconds: 2), () {
+    cropTimer = Timer(Duration(seconds: 2), () {
       if (!mounted) {
         return;
       }
@@ -275,13 +288,148 @@ class _FarmerSchedulePageState extends State<FarmerSchedulePage> {
   }
 
   // ============================================================
+  // PRODUCT AUTOCOMPLETE (manual entry always allowed)
+  // ============================================================
+
+  void _clearProductSuggestions() {
+    productTimer?.cancel();
+    _productSearchVersion++;
+    if (!mounted) return;
+    setState(() {
+      productSuggestions = [];
+      productLoading = false;
+      showProductSuggestions = false;
+    });
+  }
+
+  void _searchProduct(String value) {
+    productTimer?.cancel();
+    final query = value.trim();
+    final version = ++_productSearchVersion;
+
+    if (query.isEmpty) {
+      setState(() {
+        productSuggestions = [];
+        productLoading = false;
+        showProductSuggestions = false;
+      });
+      return;
+    }
+
+    setState(() {
+      productLoading = true;
+      productSuggestions = [];
+      showProductSuggestions = true;
+    });
+
+    productTimer = Timer(Duration(milliseconds: 500), () async {
+      try {
+        // Reuse the app's configured DioClient from GetIt.
+        final dioClient = GetIt.I<DioClient>();
+        final response = await dioClient.client.post<dynamic>(
+          ApiClient.getProductListForSchedule,
+          options: Options(
+            contentType: Headers.formUrlEncodedContentType,
+            responseType: ResponseType.plain,
+          ),
+        );
+
+        dynamic data = response.data;
+        if (data is String) data = jsonDecode(data.trim());
+        if (data is! Map || ![true, 1, 'true'].contains(data['status'])) {
+          throw FormatException('Product API returned an error.');
+        }
+        final result = data['result'];
+        if (result is! List) {
+          throw FormatException('Product result is not a list.');
+        }
+
+        final seen = <String>{};
+        final matches = <String>[];
+        for (final item in result) {
+          if (item is! Map) continue;
+          final raw = (item['fld_product_name'] ?? '').toString();
+          final name = raw.split('*_*').first.trim();
+          if (name.isNotEmpty &&
+              name.toLowerCase().contains(query.toLowerCase()) &&
+              seen.add(name.toLowerCase())) {
+            matches.add(name);
+          }
+        }
+        if (!mounted || version != _productSearchVersion) return;
+        setState(() {
+          productSuggestions = matches;
+          productLoading = false;
+        });
+      } catch (error) {
+        debugPrint('Product autocomplete error: $error');
+        if (!mounted || version != _productSearchVersion) return;
+        setState(() {
+          productSuggestions = [];
+          productLoading = false;
+        });
+        // Keep manual entry usable even if the API fails.
+      }
+    });
+  }
+
+  Widget _buildProductSuggestions() {
+    if (!showProductSuggestions || productSuggestions.isEmpty) {
+      return SizedBox.shrink();
+    }
+    return Container(
+      margin: EdgeInsets.only(top: 6.h),
+      constraints: BoxConstraints(maxHeight: 190.h),
+      decoration: BoxDecoration(
+        color: context.cardBackgroundColor,
+        borderRadius: BorderRadius.circular(10.r),
+        border: Border.all(color: context.borderColor),
+      ),
+      child: ListView.separated(
+        shrinkWrap: true,
+        itemCount: productSuggestions.length,
+        separatorBuilder: (_, __) => Divider(height: 1),
+        itemBuilder: (context, index) {
+          final name = productSuggestions[index];
+          return InkWell(
+            onTap: () {
+              productController.text = name;
+              productController.selection = TextSelection.collapsed(
+                offset: name.length,
+              );
+              _clearProductSuggestions();
+              FocusScope.of(context).unfocus();
+            },
+            child: Padding(
+              padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 10.h),
+              child: Row(
+                children: [
+                  Icon(
+                    Icons.inventory_2_outlined,
+                    size: 16,
+                    color: context.primaryColor,
+                  ),
+                  SizedBox(width: 8.w),
+                  Expanded(
+                    child: Text(name, style: TextStyle(fontSize: 11.sp)),
+                  ),
+                ],
+              ),
+            ),
+          );
+        },
+      ),
+    );
+  }
+
+  // ============================================================
   // BUILD
   // ============================================================
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF5F7F5),
+      backgroundColor: context.backgroundColor,
 
       appBar: CustomAppBar(
         backgroundColor: context.primaryColor,
@@ -336,6 +484,7 @@ class _FarmerSchedulePageState extends State<FarmerSchedulePage> {
           }
           if (!state.isFailure && state.message == 'Schedule added.') {
             productController.clear();
+            _clearProductSuggestions();
             quantityController.clear();
             waterController.clear();
             remarkController.clear();
@@ -355,15 +504,15 @@ class _FarmerSchedulePageState extends State<FarmerSchedulePage> {
                 SnackBar(
                   behavior: SnackBarBehavior.floating,
 
-                  backgroundColor: state.isFailure ? Colors.red : Colors.green,
+                  backgroundColor: state.isFailure
+                      ? context.appColors.error
+                      : context.primaryColor,
 
                   content: Text(state.message),
                 ),
               );
 
-            context.read<FarmerScheduleBloc>().add(
-              const ClearScheduleMessage(),
-            );
+            context.read<FarmerScheduleBloc>().add(ClearScheduleMessage());
           }
         },
 
@@ -429,7 +578,7 @@ class _FarmerSchedulePageState extends State<FarmerSchedulePage> {
                     horizontal: 12.w,
                     vertical: 10.h,
                   ),
-                  minimumSize: const Size(0, 44),
+                  minimumSize: Size(0, 44),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12.r),
                   ),
@@ -439,7 +588,7 @@ class _FarmerSchedulePageState extends State<FarmerSchedulePage> {
                   ),
                 ),
                 icon: Icon(Icons.calendar_month_rounded, size: 16.sp),
-                label: const Text('View Schedule'),
+                label: Text('View Schedule'),
               ),
             ],
           ),
@@ -460,21 +609,24 @@ class _FarmerSchedulePageState extends State<FarmerSchedulePage> {
                 ).copyWith(
                   suffixIcon: IconButton(
                     tooltip: 'Clear farmer search',
-                    icon: const Icon(Icons.clear),
+                    icon: Icon(Icons.clear),
                     onPressed: _submittingSchedule
                         ? null
                         : _clearSelectedFarmer,
                   ),
                   helperText: 'Search after 3 characters. Wait for 2 seconds.',
 
-                  helperStyle: TextStyle(fontSize: 9.sp, color: Colors.red),
+                  helperStyle: TextStyle(
+                    fontSize: 9.sp,
+                    color: context.appColors.error,
+                  ),
                 ),
           ),
 
           if (state.farmerLoading)
             Padding(
               padding: EdgeInsets.only(top: 8.h),
-              child: const LinearProgressIndicator(),
+              child: LinearProgressIndicator(),
             ),
 
           if (!state.farmerLoading && state.farmers.isNotEmpty)
@@ -530,11 +682,11 @@ class _FarmerSchedulePageState extends State<FarmerSchedulePage> {
       padding: EdgeInsets.all(12.w),
 
       decoration: BoxDecoration(
-        color: const Color(0xFFE7F5EA),
+        color: _themeTint,
 
         borderRadius: BorderRadius.circular(12.r),
 
-        border: Border.all(color: const Color(0xFFCBE8D1)),
+        border: Border.all(color: context.borderColor),
       ),
 
       child: Row(
@@ -546,12 +698,12 @@ class _FarmerSchedulePageState extends State<FarmerSchedulePage> {
             height: 38.w,
 
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: context.cardBackgroundColor,
 
               borderRadius: BorderRadius.circular(10.r),
             ),
 
-            child: const Icon(Icons.person_rounded, color: Colors.green),
+            child: Icon(Icons.person_rounded, color: context.primaryColor),
           ),
 
           SizedBox(width: 10.w),
@@ -575,14 +727,17 @@ class _FarmerSchedulePageState extends State<FarmerSchedulePage> {
 
                   Text(
                     'Taluka: ${farmer.talukaName}',
-                    style: TextStyle(fontSize: 10.5.sp, color: Colors.black54),
+                    style: TextStyle(
+                      fontSize: 10.5.sp,
+                      color: context.secondaryTextColor,
+                    ),
                   ),
                 ],
               ],
             ),
           ),
 
-          const Icon(Icons.check_circle_rounded, color: Colors.green),
+          Icon(Icons.check_circle_rounded, color: context.primaryColor),
         ],
       ),
     );
@@ -601,19 +756,19 @@ class _FarmerSchedulePageState extends State<FarmerSchedulePage> {
       margin: EdgeInsets.only(top: 5.h),
 
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: context.cardBackgroundColor,
 
         borderRadius: BorderRadius.circular(12.r),
 
-        border: Border.all(color: Colors.grey.shade300),
+        border: Border.all(color: context.borderColor),
 
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.04),
+            color: context.appColors.shadow.withValues(alpha: 0.04),
 
             blurRadius: 8,
 
-            offset: const Offset(0, 3),
+            offset: Offset(0, 3),
           ),
         ],
       ),
@@ -626,7 +781,7 @@ class _FarmerSchedulePageState extends State<FarmerSchedulePage> {
         itemCount: farmers.length,
 
         separatorBuilder: (context, index) {
-          return Divider(height: 1, color: Colors.grey.shade200);
+          return Divider(height: 1, color: context.borderColor);
         },
 
         itemBuilder: (context, index) {
@@ -666,7 +821,7 @@ class _FarmerSchedulePageState extends State<FarmerSchedulePage> {
                     CircleAvatar(
                       radius: 20.r,
 
-                      backgroundColor: const Color(0xFFE8F5EA),
+                      backgroundColor: _themeTint,
 
                       child: Text(
                         firstLetter,
@@ -676,7 +831,7 @@ class _FarmerSchedulePageState extends State<FarmerSchedulePage> {
 
                           fontWeight: FontWeight.w700,
 
-                          color: Colors.green.shade700,
+                          color: context.primaryColor,
                         ),
                       ),
                     ),
@@ -696,7 +851,7 @@ class _FarmerSchedulePageState extends State<FarmerSchedulePage> {
 
                               fontWeight: FontWeight.w600,
 
-                              color: Colors.black87,
+                              color: context.primaryTextColor,
                             ),
                           ),
 
@@ -708,7 +863,7 @@ class _FarmerSchedulePageState extends State<FarmerSchedulePage> {
                                 Icon(
                                   Icons.location_city_outlined,
                                   size: 12.sp,
-                                  color: Colors.black45,
+                                  color: context.secondaryTextColor,
                                 ),
 
                                 SizedBox(width: 4.w),
@@ -718,7 +873,7 @@ class _FarmerSchedulePageState extends State<FarmerSchedulePage> {
                                     'Taluka: ${farmer.talukaName}',
                                     style: TextStyle(
                                       fontSize: 9.5.sp,
-                                      color: Colors.black54,
+                                      color: context.secondaryTextColor,
                                     ),
                                   ),
                                 ),
@@ -741,7 +896,7 @@ class _FarmerSchedulePageState extends State<FarmerSchedulePage> {
 
                                 height: 1.3,
 
-                                color: Colors.black45,
+                                color: context.secondaryTextColor,
                               ),
                             ),
                           ],
@@ -751,7 +906,7 @@ class _FarmerSchedulePageState extends State<FarmerSchedulePage> {
 
                     Icon(
                       Icons.chevron_right_rounded,
-                      color: Colors.grey.shade400,
+                      color: context.secondaryTextColor,
                     ),
                   ],
                 ),
@@ -777,9 +932,9 @@ class _FarmerSchedulePageState extends State<FarmerSchedulePage> {
     return Container(
       padding: EdgeInsets.all(12.w),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: context.cardBackgroundColor,
         borderRadius: BorderRadius.circular(12.r),
-        border: Border.all(color: const Color(0xFFE1E9E4)),
+        border: Border.all(color: context.borderColor),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -789,12 +944,12 @@ class _FarmerSchedulePageState extends State<FarmerSchedulePage> {
               Container(
                 padding: EdgeInsets.all(8.w),
                 decoration: BoxDecoration(
-                  color: const Color(0xFFE7F5EA),
+                  color: _themeTint,
                   borderRadius: BorderRadius.circular(9.r),
                 ),
-                child: const Icon(
+                child: Icon(
                   Icons.landscape_outlined,
-                  color: Color(0xFF16803D),
+                  color: context.primaryColor,
                   size: 20,
                 ),
               ),
@@ -808,12 +963,15 @@ class _FarmerSchedulePageState extends State<FarmerSchedulePage> {
                       style: TextStyle(
                         fontSize: 13.sp,
                         fontWeight: FontWeight.w800,
-                        color: const Color(0xFF15283B),
+                        color: context.primaryTextColor,
                       ),
                     ),
                     Text(
                       'Registered plots for this farmer',
-                      style: TextStyle(fontSize: 10.sp, color: Colors.black54),
+                      style: TextStyle(
+                        fontSize: 10.sp,
+                        color: context.secondaryTextColor,
+                      ),
                     ),
                   ],
                 ),
@@ -835,15 +993,15 @@ class _FarmerSchedulePageState extends State<FarmerSchedulePage> {
               ),
             ],
           ),
-          if (state.plotLoading) const LinearProgressIndicator(),
+          if (state.plotLoading) LinearProgressIndicator(),
           if (state.plotError.isNotEmpty) ...[
             Text(
               state.plotError,
-              style: TextStyle(color: Colors.red.shade700, fontSize: 11.sp),
+              style: TextStyle(color: context.appColors.error, fontSize: 11.sp),
             ),
             TextButton(
               onPressed: () => _loadPlotsForFarmer(farmer),
-              child: const Text('Retry'),
+              child: Text('Retry'),
             ),
           ],
           if (!state.plotLoading &&
@@ -853,7 +1011,10 @@ class _FarmerSchedulePageState extends State<FarmerSchedulePage> {
               padding: EdgeInsets.symmetric(vertical: 8.h),
               child: Text(
                 'No registered plots found.',
-                style: TextStyle(fontSize: 11.sp, color: Colors.black54),
+                style: TextStyle(
+                  fontSize: 11.sp,
+                  color: context.secondaryTextColor,
+                ),
               ),
             ),
           if (!state.plotLoading && state.plots.isNotEmpty)
@@ -894,6 +1055,8 @@ class _FarmerSchedulePageState extends State<FarmerSchedulePage> {
                 );
               },
             ),
+          SizedBox(height: 12.h),
+          _buildRegisterPlotSection(farmer),
           if (state.selectedPlot != null) ...[
             SizedBox(height: 10.h),
             _buildSelectedPlotDetails(state.selectedPlot!),
@@ -908,7 +1071,7 @@ class _FarmerSchedulePageState extends State<FarmerSchedulePage> {
       width: double.infinity,
       padding: EdgeInsets.all(11.w),
       decoration: BoxDecoration(
-        color: const Color(0xFFE7F5EA),
+        color: _themeTint,
         borderRadius: BorderRadius.circular(11.r),
       ),
       child: Column(
@@ -916,9 +1079,9 @@ class _FarmerSchedulePageState extends State<FarmerSchedulePage> {
         children: [
           Row(
             children: [
-              const Icon(
+              Icon(
                 Icons.check_circle_rounded,
-                color: Color(0xFF16A34A),
+                color: context.primaryColor,
                 size: 18,
               ),
               SizedBox(width: 6.w),
@@ -951,7 +1114,7 @@ class _FarmerSchedulePageState extends State<FarmerSchedulePage> {
     return Container(
       padding: EdgeInsets.all(9.w),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: context.cardBackgroundColor,
         borderRadius: BorderRadius.circular(9.r),
       ),
       child: Column(
@@ -959,7 +1122,7 @@ class _FarmerSchedulePageState extends State<FarmerSchedulePage> {
         children: [
           Text(
             label,
-            style: TextStyle(fontSize: 9.sp, color: Colors.black54),
+            style: TextStyle(fontSize: 9.sp, color: context.secondaryTextColor),
           ),
           SizedBox(height: 3.h),
           Text(
@@ -976,10 +1139,24 @@ class _FarmerSchedulePageState extends State<FarmerSchedulePage> {
   Widget _buildRegisterPlotSection(ScheduleFarmerEntity farmer) {
     return SizedBox(
       width: double.infinity,
-      child: OutlinedButton.icon(
+      child: FilledButton.icon(
         onPressed: () => _openPlotRegistration(farmer),
-        icon: const Icon(Icons.add_circle_outline_rounded),
-        label: const Text('Add Plot'),
+        style: FilledButton.styleFrom(
+          backgroundColor: context.primaryColor,
+          foregroundColor: context.onPrimaryColor,
+          minimumSize: Size.fromHeight(48),
+          padding: EdgeInsets.symmetric(horizontal: 18.w, vertical: 13.h),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(14.r),
+          ),
+          textStyle: TextStyle(
+            fontSize: 13.sp,
+            fontWeight: FontWeight.w700,
+            letterSpacing: 0.2,
+          ),
+        ),
+        icon: Icon(Icons.add_circle_outline_rounded, size: 21),
+        label: Text('Add Plot'),
       ),
     );
   }
@@ -1020,13 +1197,23 @@ class _FarmerSchedulePageState extends State<FarmerSchedulePage> {
             ),
           ),
 
+          Padding(
+            padding: EdgeInsets.only(top: 6.h),
+            child: Text(
+              'Note: Doses for 200 liters',
+              style: TextStyle(
+                fontSize: 11.sp,
+                fontWeight: FontWeight.w600,
+                color: context.primaryColor,
+              ),
+            ),
+          ),
+
           SizedBox(height: 10.h),
 
           // ======================================================
           // CROP - NEW FARMER STYLE DESIGN
           // ======================================================
-          _buildCropSection(state),
-
           SizedBox(height: 10.h),
 
           // ======================================================
@@ -1039,11 +1226,26 @@ class _FarmerSchedulePageState extends State<FarmerSchedulePage> {
 
                 child: TextField(
                   controller: productController,
+                  onChanged: _searchProduct,
 
-                  decoration: _inputDecoration(
-                    'Product Name',
-                    Icons.inventory_2_outlined,
-                  ),
+                  decoration:
+                      _inputDecoration(
+                        'Product Name',
+                        Icons.inventory_2_outlined,
+                      ).copyWith(
+                        suffixIcon: productLoading
+                            ? Padding(
+                                padding: EdgeInsets.all(13),
+                                child: SizedBox(
+                                  width: 16,
+                                  height: 16,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2,
+                                  ),
+                                ),
+                              )
+                            : null,
+                      ),
                 ),
               ),
 
@@ -1068,6 +1270,8 @@ class _FarmerSchedulePageState extends State<FarmerSchedulePage> {
             ],
           ),
 
+          _buildProductSuggestions(),
+
           SizedBox(height: 10.h),
 
           // ======================================================
@@ -1081,9 +1285,7 @@ class _FarmerSchedulePageState extends State<FarmerSchedulePage> {
                 child: TextField(
                   controller: quantityController,
 
-                  keyboardType: const TextInputType.numberWithOptions(
-                    decimal: true,
-                  ),
+                  keyboardType: TextInputType.numberWithOptions(decimal: true),
 
                   decoration: _inputDecoration(
                     'Quantity',
@@ -1126,9 +1328,7 @@ class _FarmerSchedulePageState extends State<FarmerSchedulePage> {
                 child: TextField(
                   controller: waterController,
 
-                  keyboardType: const TextInputType.numberWithOptions(
-                    decimal: true,
-                  ),
+                  keyboardType: TextInputType.numberWithOptions(decimal: true),
 
                   decoration: _inputDecoration(
                     'Water',
@@ -1192,9 +1392,9 @@ class _FarmerSchedulePageState extends State<FarmerSchedulePage> {
 
               onPressed: _addScheduleLine,
 
-              icon: const Icon(Icons.add_rounded),
+              icon: Icon(Icons.add_rounded),
 
-              label: const Text('Add Schedule'),
+              label: Text('Add Schedule'),
             ),
           ),
 
@@ -1230,14 +1430,12 @@ class _FarmerSchedulePageState extends State<FarmerSchedulePage> {
                   final current = context.read<FarmerScheduleBloc>().state;
                   _pendingSectionDate = current.selectedDate;
                   _pendingSectionDetails = List.of(_currentDetails);
-                  context.read<FarmerScheduleBloc>().add(
-                    const SaveScheduleSection(),
-                  );
+                  context.read<FarmerScheduleBloc>().add(SaveScheduleSection());
                 },
 
-                icon: const Icon(Icons.add_circle_outline_rounded),
+                icon: Icon(Icons.add_circle_outline_rounded),
 
-                label: const Text('Add Crop Schedule'),
+                label: Text('Add Crop Schedule'),
               ),
             ),
           ],
@@ -1260,9 +1458,9 @@ class _FarmerSchedulePageState extends State<FarmerSchedulePage> {
     return Container(
       padding: EdgeInsets.all(10.w),
       decoration: BoxDecoration(
-        color: const Color(0xFFF0F6F2),
+        color: context.appColors.surfaceContainerLow,
         borderRadius: BorderRadius.circular(14.r),
-        border: Border.all(color: const Color(0xFFDCE8DF)),
+        border: Border.all(color: context.borderColor),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -1280,17 +1478,17 @@ class _FarmerSchedulePageState extends State<FarmerSchedulePage> {
               ),
               Text(
                 '${state.currentScheduleLines.length} products',
-                style: TextStyle(
-                  fontSize: 10.sp,
-                  color: const Color(0xFF16803D),
-                ),
+                style: TextStyle(fontSize: 10.sp, color: context.primaryColor),
               ),
             ],
           ),
           SizedBox(height: 4.h),
           Text(
             'Review products, then tap Add Crop Schedule.',
-            style: TextStyle(fontSize: 10.sp, color: const Color(0xFF64748B)),
+            style: TextStyle(
+              fontSize: 10.sp,
+              color: context.secondaryTextColor,
+            ),
           ),
           ...state.currentScheduleLines.asMap().entries.map((entry) {
             final index = entry.key;
@@ -1302,7 +1500,7 @@ class _FarmerSchedulePageState extends State<FarmerSchedulePage> {
               margin: EdgeInsets.only(top: 8.h),
               padding: EdgeInsets.fromLTRB(10.w, 6.h, 2.w, 8.h),
               decoration: BoxDecoration(
-                color: Colors.white,
+                color: context.cardBackgroundColor,
                 borderRadius: BorderRadius.circular(10.r),
               ),
               child: Column(
@@ -1316,15 +1514,15 @@ class _FarmerSchedulePageState extends State<FarmerSchedulePage> {
                           style: TextStyle(
                             fontSize: 12.sp,
                             fontWeight: FontWeight.w700,
-                            color: const Color(0xFF15283B),
+                            color: context.primaryTextColor,
                           ),
                         ),
                       ),
                       IconButton(
                         tooltip: 'Delete ${detail?.productName ?? "product"}',
-                        icon: const Icon(
+                        icon: Icon(
                           Icons.delete_outline_rounded,
-                          color: Color(0xFFDC3545),
+                          color: context.appColors.error,
                           size: 20,
                         ),
                         onPressed: busy || detail == null
@@ -1347,7 +1545,7 @@ class _FarmerSchedulePageState extends State<FarmerSchedulePage> {
                           detail.productType,
                           style: TextStyle(
                             fontSize: 10.sp,
-                            color: const Color(0xFF16803D),
+                            color: context.primaryColor,
                             fontWeight: FontWeight.w600,
                           ),
                         ),
@@ -1367,7 +1565,7 @@ class _FarmerSchedulePageState extends State<FarmerSchedulePage> {
                       entry.value.substring(remarkStart + 1),
                       style: TextStyle(
                         fontSize: 10.sp,
-                        color: const Color(0xFF64748B),
+                        color: context.secondaryTextColor,
                       ),
                     ),
                   ],
@@ -1397,26 +1595,18 @@ class _FarmerSchedulePageState extends State<FarmerSchedulePage> {
               .copyWith(
                 helperText: 'Search after 3 characters. Wait for 2 seconds.',
 
-                helperStyle: TextStyle(fontSize: 9.sp, color: Colors.red),
+                helperStyle: TextStyle(
+                  fontSize: 9.sp,
+                  color: context.appColors.error,
+                ),
               ),
         ),
 
-        Padding(
-          padding: EdgeInsets.only(top: 6.h),
-          child: Text(
-            'Note: Doses for 200 liters',
-            style: TextStyle(
-              fontSize: 11.sp,
-              fontWeight: FontWeight.w600,
-              color: Colors.green,
-            ),
-          ),
-        ),
         // LOADING
         if (state.cropLoading)
           Padding(
             padding: EdgeInsets.only(top: 8.h),
-            child: const LinearProgressIndicator(),
+            child: LinearProgressIndicator(),
           ),
 
         // RESULT COUNT
@@ -1472,11 +1662,11 @@ class _FarmerSchedulePageState extends State<FarmerSchedulePage> {
       padding: EdgeInsets.all(12.w),
 
       decoration: BoxDecoration(
-        color: const Color(0xFFE7F5EA),
+        color: _themeTint,
 
         borderRadius: BorderRadius.circular(12.r),
 
-        border: Border.all(color: const Color(0xFFCBE8D1)),
+        border: Border.all(color: context.borderColor),
       ),
 
       child: Row(
@@ -1486,12 +1676,12 @@ class _FarmerSchedulePageState extends State<FarmerSchedulePage> {
             height: 38.w,
 
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: context.cardBackgroundColor,
 
               borderRadius: BorderRadius.circular(10.r),
             ),
 
-            child: const Icon(Icons.grass_rounded, color: Colors.green),
+            child: Icon(Icons.grass_rounded, color: context.primaryColor),
           ),
 
           SizedBox(width: 10.w),
@@ -1504,7 +1694,10 @@ class _FarmerSchedulePageState extends State<FarmerSchedulePage> {
                 Text(
                   'Selected Crop',
 
-                  style: TextStyle(fontSize: 9.sp, color: Colors.black45),
+                  style: TextStyle(
+                    fontSize: 9.sp,
+                    color: context.secondaryTextColor,
+                  ),
                 ),
 
                 SizedBox(height: 2.h),
@@ -1517,14 +1710,14 @@ class _FarmerSchedulePageState extends State<FarmerSchedulePage> {
 
                     fontWeight: FontWeight.w700,
 
-                    color: Colors.black87,
+                    color: context.primaryTextColor,
                   ),
                 ),
               ],
             ),
           ),
 
-          const Icon(Icons.check_circle_rounded, color: Colors.green),
+          Icon(Icons.check_circle_rounded, color: context.primaryColor),
         ],
       ),
     );
@@ -1543,19 +1736,19 @@ class _FarmerSchedulePageState extends State<FarmerSchedulePage> {
       margin: EdgeInsets.only(top: 5.h),
 
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: context.cardBackgroundColor,
 
         borderRadius: BorderRadius.circular(12.r),
 
-        border: Border.all(color: Colors.grey.shade300),
+        border: Border.all(color: context.borderColor),
 
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.04),
+            color: context.appColors.shadow.withValues(alpha: 0.04),
 
             blurRadius: 8,
 
-            offset: const Offset(0, 3),
+            offset: Offset(0, 3),
           ),
         ],
       ),
@@ -1568,7 +1761,7 @@ class _FarmerSchedulePageState extends State<FarmerSchedulePage> {
         itemCount: crops.length,
 
         separatorBuilder: (context, index) {
-          return Divider(height: 1, color: Colors.grey.shade200);
+          return Divider(height: 1, color: context.borderColor);
         },
 
         itemBuilder: (context, index) {
@@ -1601,14 +1794,14 @@ class _FarmerSchedulePageState extends State<FarmerSchedulePage> {
                     CircleAvatar(
                       radius: 20.r,
 
-                      backgroundColor: const Color(0xFFE8F5EA),
+                      backgroundColor: _themeTint,
 
                       child: Icon(
                         Icons.grass_rounded,
 
                         size: 20.sp,
 
-                        color: Colors.green.shade700,
+                        color: context.primaryColor,
                       ),
                     ),
 
@@ -1627,7 +1820,7 @@ class _FarmerSchedulePageState extends State<FarmerSchedulePage> {
 
                               fontWeight: FontWeight.w600,
 
-                              color: Colors.black87,
+                              color: context.primaryTextColor,
                             ),
                           ),
 
@@ -1639,7 +1832,7 @@ class _FarmerSchedulePageState extends State<FarmerSchedulePage> {
                             style: TextStyle(
                               fontSize: 9.sp,
 
-                              color: Colors.black45,
+                              color: context.secondaryTextColor,
                             ),
                           ),
                         ],
@@ -1648,7 +1841,7 @@ class _FarmerSchedulePageState extends State<FarmerSchedulePage> {
 
                     Icon(
                       Icons.chevron_right_rounded,
-                      color: Colors.grey.shade400,
+                      color: context.secondaryTextColor,
                     ),
                   ],
                 ),
@@ -1674,11 +1867,6 @@ class _FarmerSchedulePageState extends State<FarmerSchedulePage> {
     }
     if (state.selectedDate == null) {
       _showMessage('Please select a schedule date.');
-      return;
-    }
-    if (_selectedCropId.isEmpty || state.selectedCropName.isEmpty) {
-      // _showMessage('Select a crop with a valid crop ID.');
-      _showMessage('Select a crop ');
       return;
     }
     if (productController.text.trim().isEmpty) {
@@ -1711,12 +1899,13 @@ class _FarmerSchedulePageState extends State<FarmerSchedulePage> {
     }
     _pendingDetail = AddScheduleDetail(
       productName: productController.text.trim(),
-      cropId: _selectedCropId,
+      cropId: state.selectedPlot!.cropId,
       productType: selectedType,
       productQty: quantityController.text.trim(),
       unit: _normalizedUnit(selectedQuantityUnit),
       waterQty: waterController.text.trim(),
       waterUnit: _normalizedUnit(selectedWaterUnit),
+      remark: remarkController.text.trim(),
     );
     context.read<FarmerScheduleBloc>().add(
       AddScheduleLine(
@@ -1822,7 +2011,7 @@ class _FarmerSchedulePageState extends State<FarmerSchedulePage> {
                   style: TextStyle(
                     fontSize: 8.5.sp,
                     fontWeight: FontWeight.w600,
-                    color: Colors.black54,
+                    color: context.secondaryTextColor,
                   ),
                 ),
                 SizedBox(height: 2.h),
@@ -1833,7 +2022,7 @@ class _FarmerSchedulePageState extends State<FarmerSchedulePage> {
                     fontSize: 11.sp,
                     height: 1.25,
                     fontWeight: FontWeight.w700,
-                    color: Colors.black87,
+                    color: context.primaryTextColor,
                   ),
                 ),
               ],
@@ -1856,7 +2045,7 @@ class _FarmerSchedulePageState extends State<FarmerSchedulePage> {
             style: TextStyle(
               fontSize: 9.sp,
               fontWeight: FontWeight.w700,
-              color: Colors.black54,
+              color: context.secondaryTextColor,
             ),
           ),
           SizedBox(height: 5.h),
@@ -1865,7 +2054,7 @@ class _FarmerSchedulePageState extends State<FarmerSchedulePage> {
             style: TextStyle(
               fontSize: 11.sp,
               height: 1.5,
-              color: Colors.black87,
+              color: context.primaryTextColor,
             ),
           ),
         ],
@@ -1885,11 +2074,15 @@ class _FarmerSchedulePageState extends State<FarmerSchedulePage> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         if (fields.containsKey('Product')) ...[
-          field('Product', Icons.inventory_2_outlined, const Color(0xFF2563EB)),
+          field(
+            'Product',
+            Icons.inventory_2_outlined,
+            context.appColors.secondary,
+          ),
           SizedBox(height: 6.h),
         ],
         if (fields.containsKey('Type')) ...[
-          field('Type', Icons.spa_outlined, const Color(0xFF16A34A)),
+          field('Type', Icons.spa_outlined, context.primaryColor),
           SizedBox(height: 6.h),
         ],
         if (fields.containsKey('Quantity') || fields.containsKey('Water'))
@@ -1901,7 +2094,7 @@ class _FarmerSchedulePageState extends State<FarmerSchedulePage> {
                   child: field(
                     'Quantity',
                     Icons.scale_outlined,
-                    const Color(0xFFD97706),
+                    context.appColors.tertiary,
                   ),
                 ),
               if (fields.containsKey('Quantity') && fields.containsKey('Water'))
@@ -1911,14 +2104,14 @@ class _FarmerSchedulePageState extends State<FarmerSchedulePage> {
                   child: field(
                     'Water',
                     Icons.water_drop_outlined,
-                    const Color(0xFF0284C7),
+                    context.appColors.secondary,
                   ),
                 ),
             ],
           ),
         if (fields.containsKey('Remark')) ...[
           SizedBox(height: 6.h),
-          field('Remark', Icons.notes_rounded, const Color(0xFF64748B)),
+          field('Remark', Icons.notes_rounded, context.secondaryTextColor),
         ],
       ],
     );
@@ -1930,31 +2123,27 @@ class _FarmerSchedulePageState extends State<FarmerSchedulePage> {
       children: [
         Row(
           children: [
-            const Icon(
-              Icons.list_alt_rounded,
-              color: Color(0xFF22C55E),
-              size: 22,
-            ),
+            Icon(Icons.list_alt_rounded, color: context.primaryColor, size: 22),
             SizedBox(width: 8.w),
             Text(
               'Schedule List',
               style: TextStyle(
                 fontSize: 15.sp,
                 fontWeight: FontWeight.w700,
-                color: const Color(0xFF222222),
+                color: context.primaryTextColor,
               ),
             ),
-            const Spacer(),
+            Spacer(),
             Container(
               padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 4.h),
               decoration: BoxDecoration(
-                color: const Color(0xFFE5F6E9),
+                color: _themeTint,
                 borderRadius: BorderRadius.circular(20.r),
               ),
               child: Text(
                 '${state.schedules.length}',
                 style: TextStyle(
-                  color: const Color(0xFF16A34A),
+                  color: context.primaryColor,
                   fontSize: 11.sp,
                   fontWeight: FontWeight.bold,
                 ),
@@ -1982,9 +2171,9 @@ class _FarmerSchedulePageState extends State<FarmerSchedulePage> {
             margin: EdgeInsets.only(bottom: 10.h),
             padding: EdgeInsets.all(12.w),
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: context.cardBackgroundColor,
               borderRadius: BorderRadius.circular(8.r),
-              border: Border.all(color: const Color(0xFFE2E8E4), width: 0.8),
+              border: Border.all(color: context.borderColor, width: 0.8),
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -1996,12 +2185,12 @@ class _FarmerSchedulePageState extends State<FarmerSchedulePage> {
                       width: 36.w,
                       height: 36.w,
                       decoration: BoxDecoration(
-                        color: const Color(0xFFE8F6EB),
+                        color: _themeTint,
                         borderRadius: BorderRadius.circular(7.r),
                       ),
-                      child: const Icon(
+                      child: Icon(
                         Icons.spa_outlined,
-                        color: Color(0xFF22C55E),
+                        color: context.primaryColor,
                         size: 19,
                       ),
                     ),
@@ -2019,23 +2208,23 @@ class _FarmerSchedulePageState extends State<FarmerSchedulePage> {
                             style: TextStyle(
                               fontSize: 12.sp,
                               fontWeight: FontWeight.w700,
-                              color: const Color(0xFF15283B),
+                              color: context.primaryTextColor,
                             ),
                           ),
                           SizedBox(height: 3.h),
                           Row(
                             children: [
-                              const Icon(
+                              Icon(
                                 Icons.calendar_today_outlined,
                                 size: 11,
-                                color: Color(0xFFCBD5E1),
+                                color: context.borderColor,
                               ),
                               SizedBox(width: 4.w),
                               Text(
                                 item.date,
                                 style: TextStyle(
                                   fontSize: 9.sp,
-                                  color: const Color(0xFF64748B),
+                                  color: context.secondaryTextColor,
                                 ),
                               ),
                             ],
@@ -2046,14 +2235,11 @@ class _FarmerSchedulePageState extends State<FarmerSchedulePage> {
 
                     IconButton(
                       visualDensity: VisualDensity.compact,
-                      constraints: const BoxConstraints(
-                        minWidth: 32,
-                        minHeight: 32,
-                      ),
+                      constraints: BoxConstraints(minWidth: 32, minHeight: 32),
                       padding: EdgeInsets.zero,
-                      icon: const Icon(
+                      icon: Icon(
                         Icons.delete_outline_rounded,
-                        color: Color(0xFFFF5252),
+                        color: context.appColors.error,
                         size: 20,
                       ),
                       onPressed: _submittingSchedule || _scheduleSubmitted
@@ -2071,7 +2257,7 @@ class _FarmerSchedulePageState extends State<FarmerSchedulePage> {
 
                 SizedBox(height: 9.h),
 
-                Divider(color: const Color(0xFFE5EAE8), height: 1),
+                Divider(color: context.borderColor, height: 1),
 
                 SizedBox(height: 10.h),
 
@@ -2090,7 +2276,7 @@ class _FarmerSchedulePageState extends State<FarmerSchedulePage> {
                               'PRODUCT',
                               style: TextStyle(
                                 fontSize: 9.sp,
-                                color: const Color(0xFF64748B),
+                                color: context.secondaryTextColor,
                                 fontWeight: FontWeight.w500,
                               ),
                             ),
@@ -2100,7 +2286,7 @@ class _FarmerSchedulePageState extends State<FarmerSchedulePage> {
                               style: TextStyle(
                                 fontSize: 12.sp,
                                 fontWeight: FontWeight.w700,
-                                color: const Color(0xFF15283B),
+                                color: context.primaryTextColor,
                               ),
                             ),
                           ],
@@ -2114,13 +2300,13 @@ class _FarmerSchedulePageState extends State<FarmerSchedulePage> {
                             vertical: 5.h,
                           ),
                           decoration: BoxDecoration(
-                            color: const Color(0xFFE3F7E9),
+                            color: _themeTint,
                             borderRadius: BorderRadius.circular(20.r),
                           ),
                           child: Text(
                             type,
                             style: TextStyle(
-                              color: const Color(0xFF16803D),
+                              color: context.primaryColor,
                               fontSize: 10.sp,
                               fontWeight: FontWeight.w600,
                             ),
@@ -2157,9 +2343,9 @@ class _FarmerSchedulePageState extends State<FarmerSchedulePage> {
                     Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Icon(
+                        Icon(
                           Icons.notes_rounded,
-                          color: Color(0xFFAAAAAA),
+                          color: context.secondaryTextColor,
                           size: 14,
                         ),
                         SizedBox(width: 5.w),
@@ -2168,7 +2354,7 @@ class _FarmerSchedulePageState extends State<FarmerSchedulePage> {
                             'Remark: $remark',
                             style: TextStyle(
                               fontSize: 10.sp,
-                              color: const Color(0xFF475569),
+                              color: context.secondaryTextColor,
                               height: 1.4,
                             ),
                           ),
@@ -2181,7 +2367,7 @@ class _FarmerSchedulePageState extends State<FarmerSchedulePage> {
                   Text(
                     item.schedule,
                     style: TextStyle(
-                      color: const Color(0xFF15283B),
+                      color: context.primaryTextColor,
                       fontSize: 11.sp,
                       height: 1.5,
                     ),
@@ -2202,22 +2388,22 @@ class _FarmerSchedulePageState extends State<FarmerSchedulePage> {
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 9.w, vertical: 9.h),
       decoration: BoxDecoration(
-        color: const Color(0xFFF2F6F4),
+        color: context.appColors.surfaceContainerLow,
         borderRadius: BorderRadius.circular(7.r),
-        border: Border.all(color: const Color(0xFFE5ECE8)),
+        border: Border.all(color: context.borderColor),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             children: [
-              Icon(icon, size: 11.sp, color: const Color(0xFF475569)),
+              Icon(icon, size: 11.sp, color: context.secondaryTextColor),
               SizedBox(width: 4.w),
               Text(
                 label,
                 style: TextStyle(
                   fontSize: 9.sp,
-                  color: const Color(0xFF15283B),
+                  color: context.primaryTextColor,
                   fontWeight: FontWeight.w500,
                 ),
               ),
@@ -2232,7 +2418,7 @@ class _FarmerSchedulePageState extends State<FarmerSchedulePage> {
             overflow: TextOverflow.ellipsis,
             style: TextStyle(
               fontSize: 12.5.sp,
-              color: const Color(0xFF15283B),
+              color: context.primaryTextColor,
               fontWeight: FontWeight.w700,
             ),
           ),
@@ -2253,27 +2439,27 @@ class _FarmerSchedulePageState extends State<FarmerSchedulePage> {
           Expanded(
             child: FilledButton.icon(
               style: FilledButton.styleFrom(
-                minimumSize: const Size(0, 48),
+                minimumSize: Size(0, 48),
                 backgroundColor: context.primaryColor,
                 foregroundColor: context.onPrimaryColor,
               ),
               onPressed: _submittingSchedule || _scheduleSubmitted
                   ? null
                   : () => _submitSchedule(state),
-              icon: const Icon(Icons.check_circle_outline, size: 18),
-              label: const Text('Submit'),
+              icon: Icon(Icons.check_circle_outline, size: 18),
+              label: Text('Submit'),
             ),
           ),
           SizedBox(width: 8.w),
           Expanded(
             child: OutlinedButton.icon(
               style: OutlinedButton.styleFrom(
-                minimumSize: const Size(0, 48),
-                foregroundColor: const Color(0xFF16803D),
+                minimumSize: Size(0, 48),
+                foregroundColor: context.primaryColor,
               ),
               onPressed: () => _shareToWhatsApp(state),
-              icon: const Icon(Icons.chat_outlined, size: 18),
-              label: const Text('WhatsApp'),
+              icon: Icon(Icons.chat_outlined, size: 18),
+              label: Text('WhatsApp'),
             ),
           ),
         ],
@@ -2301,7 +2487,6 @@ class _FarmerSchedulePageState extends State<FarmerSchedulePage> {
         quantityController.text.trim().isNotEmpty ||
         waterController.text.trim().isNotEmpty ||
         remarkController.text.trim().isNotEmpty ||
-        state.selectedCropName.isNotEmpty ||
         state.selectedDate != null) {
       error = 'Finish adding the current crop schedule before continuing.';
     } else if (state.schedules.isEmpty) {
@@ -2350,12 +2535,6 @@ class _FarmerSchedulePageState extends State<FarmerSchedulePage> {
       return;
     }
     final details = _savedSections.expand((entry) => entry.details).toList();
-    if (details.any((item) => item.cropId.trim().isEmpty)) {
-      _showMessage(
-        'Crop ID is missing. Backend must return fld_crop_id for selected crops.',
-      );
-      return;
-    }
     final request = AddScheduleRequest(
       empId: _employeeId,
       plotId: state.selectedPlot!.plotId,
@@ -2374,18 +2553,18 @@ class _FarmerSchedulePageState extends State<FarmerSchedulePage> {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (dialogContext) => AlertDialog(
-        title: const Text('Submit schedule?'),
+        title: Text('Submit schedule?'),
         content: Text(
           'Farmer: ${state.selectedFarmer!.farmerName}\nPlot: ${state.selectedPlot!.plotName}\nDate: ${body['scheduleDate']}\nProducts: ${details.length}\n\nPlease confirm. The schedule will be sent to the server.',
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(dialogContext, false),
-            child: const Text('Cancel'),
+            child: Text('Cancel'),
           ),
           FilledButton(
             onPressed: () => Navigator.pop(dialogContext, true),
-            child: const Text('Submit'),
+            child: Text('Submit'),
           ),
         ],
       ),
@@ -2514,7 +2693,7 @@ class _FarmerSchedulePageState extends State<FarmerSchedulePage> {
           height: 36.w,
 
           decoration: BoxDecoration(
-            color: const Color(0xFFE8F5EA),
+            color: _themeTint,
 
             borderRadius: BorderRadius.circular(10.r),
           ),
@@ -2538,7 +2717,7 @@ class _FarmerSchedulePageState extends State<FarmerSchedulePage> {
   // ============================================================
 
   InputDecoration _inputDecoration(String hint, IconData icon) {
-    final requiredField = const [
+    final requiredField = [
       'Search Farmer Name',
       'Search Crop Name',
       'Product Name',
@@ -2549,38 +2728,36 @@ class _FarmerSchedulePageState extends State<FarmerSchedulePage> {
     return InputDecoration(
       hintText: displayLabel,
       labelText:
-          const [
-            'Product Name',
-            'Quantity',
-            'Water',
-            'Enter Remark',
-          ].contains(hint)
+          ['Product Name', 'Quantity', 'Water', 'Enter Remark'].contains(hint)
           ? displayLabel
           : (requiredField ? displayLabel : null),
       floatingLabelBehavior: FloatingLabelBehavior.auto,
 
-      hintStyle: TextStyle(fontSize: 11.5.sp, color: Colors.black45),
+      hintStyle: TextStyle(
+        fontSize: 11.5.sp,
+        color: context.secondaryTextColor,
+      ),
 
-      prefixIcon: Icon(icon, size: 19.sp, color: Colors.grey.shade600),
+      prefixIcon: Icon(icon, size: 19.sp, color: context.secondaryTextColor),
 
       isDense: true,
 
       filled: true,
 
-      fillColor: const Color(0xFFF8FAF8),
+      fillColor: context.appColors.surfaceContainerLow,
 
       contentPadding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 12.h),
 
       border: OutlineInputBorder(
         borderRadius: BorderRadius.circular(11.r),
 
-        borderSide: BorderSide(color: Colors.grey.shade300),
+        borderSide: BorderSide(color: context.borderColor),
       ),
 
       enabledBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(11.r),
 
-        borderSide: BorderSide(color: Colors.grey.shade300),
+        borderSide: BorderSide(color: context.borderColor),
       ),
 
       focusedBorder: OutlineInputBorder(
@@ -2612,7 +2789,7 @@ class _FarmerSchedulePageState extends State<FarmerSchedulePage> {
 
         filled: true,
 
-        fillColor: const Color(0xFFF8FAF8),
+        fillColor: context.appColors.surfaceContainerLow,
 
         contentPadding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 13.h),
 
@@ -2621,7 +2798,7 @@ class _FarmerSchedulePageState extends State<FarmerSchedulePage> {
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(11.r),
 
-          borderSide: BorderSide(color: Colors.grey.shade300),
+          borderSide: BorderSide(color: context.borderColor),
         ),
 
         focusedBorder: OutlineInputBorder(

@@ -25,6 +25,7 @@ class ScheduleProductEntity {
 }
 
 class ScheduleListEntity {
+  final String? farmerId;
   final String scheduleId;
   final String plotRegistrationId;
   final String scheduleDate;
@@ -33,9 +34,13 @@ class ScheduleListEntity {
   final String cropId;
   final String cropName;
   final String plotName;
+  final String? remark;
+  // Existing instances retained during hot reload can have no status yet.
+  final String? status;
   final List<ScheduleProductEntity> details;
 
   const ScheduleListEntity({
+    this.farmerId = '',
     required this.scheduleId,
     required this.plotRegistrationId,
     required this.scheduleDate,
@@ -44,6 +49,8 @@ class ScheduleListEntity {
     required this.cropId,
     required this.cropName,
     required this.plotName,
+    this.remark = '',
+    this.status = '0',
     required this.details,
   });
 }

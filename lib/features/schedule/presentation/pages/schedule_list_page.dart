@@ -1,4 +1,6 @@
 import 'dart:async';
+import 'plot_schedule_history_page.dart';
+import 'package:get_it/get_it.dart';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -14,6 +16,7 @@ import '../../../../core/utility/widgets/custom_appbar.dart';
 
 import '../../domain/entities/schedule_list_entity.dart';
 import '../../domain/repositories/schedule_list_repository.dart';
+import '../../domain/repositories/farmer_plot_repository.dart';
 
 import '../bloc/schedule_list_bloc.dart';
 import '../bloc/schedule_list_event.dart';
@@ -36,19 +39,29 @@ class _ScheduleListPageState extends State<ScheduleListPage> {
   String _employeeId = '';
   bool _loadingEmployee = true;
   bool _showFilters = false;
+  bool _deletingSchedule = false;
 
   ScheduleFarmerFilter? _selectedFarmer;
+
+  // Keep successful local updates selected until refreshed API data arrives.
+  final Map<String, bool> _scheduleAnswers = {};
+
+  // Track pending API requests and successfully updated schedules.
+  final Set<String> _updatingScheduleIds = {};
+  final Set<String> _completedScheduleIds = {};
 
   late DateTime _fromDate;
   late DateTime _toDate;
 
-  static const Color _bg = Color(0xFFF5F7F6);
-  static const Color _dark = Color(0xFF172B3A);
-  static const Color _muted = Color(0xFF64748B);
-  static const Color _green = Color(0xFF16803D);
-  static const Color _lightGreen = Color(0xFFE8F6EC);
-  static const Color _border = Color(0xFFE3EAE6);
-
+  Color get _bg => context.backgroundColor;
+  Color get _dark => context.primaryTextColor;
+  Color get _muted => context.secondaryTextColor;
+  Color get _green => context.primaryColor;
+  Color get _lightGreen => Color.alphaBlend(
+    context.primaryColor.withValues(alpha: 0.08),
+    context.cardBackgroundColor,
+  );
+  Color get _border => context.borderColor;
   @override
   void initState() {
     super.initState();
@@ -59,6 +72,19 @@ class _ScheduleListPageState extends State<ScheduleListPage> {
     _toDate = DateTime(now.year, now.month, now.day);
 
     _loadEmployeeId();
+  }
+
+  @override
+  void reassemble() {
+    super.reassemble();
+    // Hot reload retains schedules created before fld_status was mapped.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted || _loadingEmployee || _employeeId.isEmpty) return;
+      final schedules = context.read<ScheduleListBloc>().state.schedules;
+      if (schedules.any((schedule) => schedule.status == null)) {
+        _searchSchedules();
+      }
+    });
   }
 
   Future<void> _loadEmployeeId() async {
@@ -110,13 +136,13 @@ class _ScheduleListPageState extends State<ScheduleListPage> {
       _selectedFarmer = null;
     });
 
-    context.read<ScheduleListBloc>().add(const ResetScheduleList());
+    context.read<ScheduleListBloc>().add(ResetScheduleList());
 
     final search = value.trim();
 
     if (search.length < 3) return;
 
-    _farmerTimer = Timer(const Duration(seconds: 2), () {
+    _farmerTimer = Timer(Duration(seconds: 2), () {
       if (!mounted) return;
 
       context.read<ScheduleListBloc>().add(SearchScheduleFarmers(search));
@@ -132,7 +158,7 @@ class _ScheduleListPageState extends State<ScheduleListPage> {
       _selectedFarmer = farmer;
     });
 
-    context.read<ScheduleListBloc>().add(const ClearScheduleFarmerResults());
+    context.read<ScheduleListBloc>().add(ClearScheduleFarmerResults());
 
     FocusScope.of(context).unfocus();
   }
@@ -159,7 +185,7 @@ class _ScheduleListPageState extends State<ScheduleListPage> {
       }
     });
 
-    context.read<ScheduleListBloc>().add(const ResetScheduleList());
+    context.read<ScheduleListBloc>().add(ResetScheduleList());
   }
 
   // ================= API SEARCH =================
@@ -205,7 +231,7 @@ class _ScheduleListPageState extends State<ScheduleListPage> {
       _toDate = DateTime(now.year, now.month, now.day);
     });
 
-    context.read<ScheduleListBloc>().add(const ResetScheduleList());
+    context.read<ScheduleListBloc>().add(ResetScheduleList());
   }
 
   // ================= SCREEN =================
@@ -351,7 +377,7 @@ class _ScheduleListPageState extends State<ScheduleListPage> {
       child: Container(
         padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 11.h),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: context.cardBackgroundColor,
           borderRadius: BorderRadius.circular(12.r),
           border: Border.all(color: _border),
         ),
@@ -363,7 +389,7 @@ class _ScheduleListPageState extends State<ScheduleListPage> {
                 color: _lightGreen,
                 borderRadius: BorderRadius.circular(8.r),
               ),
-              child: const Icon(Icons.tune_rounded, color: _green, size: 18),
+              child: Icon(Icons.tune_rounded, color: _green, size: 18),
             ),
 
             SizedBox(width: 10.w),
@@ -410,7 +436,7 @@ class _ScheduleListPageState extends State<ScheduleListPage> {
     return Container(
       padding: EdgeInsets.all(12.w),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: context.cardBackgroundColor,
         borderRadius: BorderRadius.circular(12.r),
         border: Border.all(color: _border),
       ),
@@ -428,7 +454,7 @@ class _ScheduleListPageState extends State<ScheduleListPage> {
                   Icons.person_search_outlined,
                 ).copyWith(
                   suffixIcon: state.farmerLoading
-                      ? const Padding(
+                      ? Padding(
                           padding: EdgeInsets.all(13),
                           child: SizedBox(
                             width: 17,
@@ -438,7 +464,7 @@ class _ScheduleListPageState extends State<ScheduleListPage> {
                         )
                       : _farmerController.text.isNotEmpty
                       ? IconButton(
-                          icon: const Icon(Icons.close_rounded, size: 18),
+                          icon: Icon(Icons.close_rounded, size: 18),
                           onPressed: () {
                             _farmerController.clear();
                             _onFarmerSearch('');
@@ -460,11 +486,7 @@ class _ScheduleListPageState extends State<ScheduleListPage> {
               ),
               child: Row(
                 children: [
-                  const Icon(
-                    Icons.check_circle_rounded,
-                    size: 16,
-                    color: _green,
-                  ),
+                  Icon(Icons.check_circle_rounded, size: 16, color: _green),
                   SizedBox(width: 7.w),
                   Expanded(
                     child: Text(
@@ -512,10 +534,10 @@ class _ScheduleListPageState extends State<ScheduleListPage> {
                 child: OutlinedButton(
                   onPressed: _clearFilters,
                   style: OutlinedButton.styleFrom(
-                    minimumSize: const Size(0, 44),
+                    minimumSize: Size(0, 44),
                     padding: EdgeInsets.zero,
                   ),
-                  child: const Text('Clear'),
+                  child: Text('Clear'),
                 ),
               ),
 
@@ -530,15 +552,15 @@ class _ScheduleListPageState extends State<ScheduleListPage> {
                       ? null
                       : _searchSchedules,
                   style: FilledButton.styleFrom(
-                    minimumSize: const Size(0, 44),
+                    minimumSize: Size(0, 44),
                     backgroundColor: context.primaryColor,
                     foregroundColor: context.onPrimaryColor,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(9.r),
                     ),
                   ),
-                  icon: const Icon(Icons.search_rounded, size: 18),
-                  label: const Text('Search'),
+                  icon: Icon(Icons.search_rounded, size: 18),
+                  label: Text('Search'),
                 ),
               ),
             ],
@@ -555,14 +577,14 @@ class _ScheduleListPageState extends State<ScheduleListPage> {
       margin: EdgeInsets.only(top: 5.h),
       constraints: BoxConstraints(maxHeight: 200.h),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: context.cardBackgroundColor,
         border: Border.all(color: _border),
         borderRadius: BorderRadius.circular(9.r),
       ),
       child: ListView.separated(
         shrinkWrap: true,
         itemCount: farmers.length,
-        separatorBuilder: (_, __) => const Divider(height: 1),
+        separatorBuilder: (_, __) => Divider(height: 1),
         itemBuilder: (context, index) {
           final farmer = farmers[index];
 
@@ -575,7 +597,7 @@ class _ScheduleListPageState extends State<ScheduleListPage> {
                   CircleAvatar(
                     radius: 16.r,
                     backgroundColor: _lightGreen,
-                    child: const Icon(
+                    child: Icon(
                       Icons.person_outline_rounded,
                       color: _green,
                       size: 18,
@@ -601,11 +623,7 @@ class _ScheduleListPageState extends State<ScheduleListPage> {
                       ],
                     ),
                   ),
-                  const Icon(
-                    Icons.chevron_right_rounded,
-                    color: _muted,
-                    size: 18,
-                  ),
+                  Icon(Icons.chevron_right_rounded, color: _muted, size: 18),
                 ],
               ),
             ),
@@ -624,13 +642,13 @@ class _ScheduleListPageState extends State<ScheduleListPage> {
       child: Container(
         padding: EdgeInsets.symmetric(horizontal: 9.w, vertical: 9.h),
         decoration: BoxDecoration(
-          color: const Color(0xFFF8FAF9),
+          color: context.appColors.surfaceContainerLow,
           borderRadius: BorderRadius.circular(9.r),
           border: Border.all(color: _border),
         ),
         child: Row(
           children: [
-            const Icon(Icons.calendar_today_outlined, color: _green, size: 15),
+            Icon(Icons.calendar_today_outlined, color: _green, size: 15),
             SizedBox(width: 7.w),
             Expanded(
               child: Column(
@@ -666,15 +684,15 @@ class _ScheduleListPageState extends State<ScheduleListPage> {
       prefixIcon: Icon(icon, color: _green, size: 19),
       isDense: true,
       filled: true,
-      fillColor: const Color(0xFFF8FAF9),
+      fillColor: context.appColors.surfaceContainerLow,
       contentPadding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 11.h),
       enabledBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(9.r),
-        borderSide: const BorderSide(color: _border),
+        borderSide: BorderSide(color: _border),
       ),
       focusedBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(9.r),
-        borderSide: const BorderSide(color: _green, width: 1.2),
+        borderSide: BorderSide(color: _green, width: 1.2),
       ),
       border: OutlineInputBorder(borderRadius: BorderRadius.circular(9.r)),
     );
@@ -696,7 +714,7 @@ class _ScheduleListPageState extends State<ScheduleListPage> {
             color: _lightGreen,
             borderRadius: BorderRadius.circular(9.r),
           ),
-          child: const Icon(Icons.event_note_outlined, size: 19, color: _green),
+          child: Icon(Icons.event_note_outlined, size: 19, color: _green),
         ),
 
         SizedBox(width: 9.w),
@@ -742,133 +760,359 @@ class _ScheduleListPageState extends State<ScheduleListPage> {
 
   // ================= SCHEDULE CARD =================
 
+  Future<void> _confirmDeleteSchedule(ScheduleListEntity schedule) async {
+    if (_deletingSchedule) return;
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(18.r),
+        ),
+        title: Text('Delete Schedule?'),
+        content: Text(
+          'Are you sure you want to delete this schedule?\n\n'
+          'Farmer: ${schedule.farmerName}\n'
+          'Plot: ${schedule.plotName}',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(dialogContext, false),
+            child: Text('Cancel'),
+          ),
+          FilledButton(
+            style: FilledButton.styleFrom(
+              backgroundColor: context.appColors.error,
+            ),
+            onPressed: () => Navigator.pop(dialogContext, true),
+            child: Text('Delete'),
+          ),
+        ],
+      ),
+    );
+    if (!mounted || confirmed != true || _deletingSchedule) return;
+    if (_loadingEmployee || _employeeId.isEmpty || _employeeId == '0') {
+      _showMessage('Please log in again.');
+      return;
+    }
+    if (schedule.scheduleId.trim().isEmpty) {
+      _showMessage('Schedule ID is missing. Refresh the list and try again.');
+      return;
+    }
+    setState(() => _deletingSchedule = true);
+    _showMessage('Deleting schedule...');
+    try {
+      final message = await GetIt.instance<ScheduleListRepository>()
+          .deleteSchedule(scheduleId: schedule.scheduleId, empId: _employeeId);
+      if (!mounted) return;
+      setState(() {
+        final id = schedule.scheduleId.trim();
+        _scheduleAnswers.remove(id);
+        _completedScheduleIds.remove(id);
+        _updatingScheduleIds.remove(id);
+      });
+      _showMessage(message);
+      _searchSchedules();
+    } catch (error) {
+      if (!mounted) return;
+      _showMessage('Unable to delete schedule: $error');
+    } finally {
+      if (mounted) setState(() => _deletingSchedule = false);
+    }
+  }
+  // ================= UPDATE SCHEDULE (YES) =================
+
+  Future<void> _updateScheduleStatus(ScheduleListEntity schedule) async {
+    final scheduleId = schedule.scheduleId.trim();
+
+    if (scheduleId.isEmpty) {
+      _showMessage('Schedule ID is missing.');
+      return;
+    }
+
+    // _employeeId is the logged-in user_id from SecureStorage.
+    if (_loadingEmployee || _employeeId.isEmpty || _employeeId == '0') {
+      _showMessage('Please login again.');
+      return;
+    }
+
+    if (schedule.status == '1' ||
+        _updatingScheduleIds.contains(scheduleId) ||
+        _completedScheduleIds.contains(scheduleId)) {
+      return;
+    }
+
+    setState(() => _updatingScheduleIds.add(scheduleId));
+
+    try {
+      debugPrint('========== UPDATE SCHEDULE ==========');
+      debugPrint('scheduleId: $scheduleId');
+      debugPrint('empId (SecureStorage user_id): $_employeeId');
+
+      final message = await GetIt.I<ScheduleListRepository>()
+          .updateScheduleStatus(scheduleId: scheduleId, empId: _employeeId);
+
+      if (!mounted) return;
+      setState(() {
+        _scheduleAnswers[scheduleId] = true;
+        _completedScheduleIds.add(scheduleId);
+      });
+      _showMessage(message);
+    } catch (error) {
+      if (!mounted) return;
+      setState(() => _scheduleAnswers[scheduleId] = false);
+      _showMessage('Unable to update schedule: $error');
+    } finally {
+      if (mounted) {
+        setState(() => _updatingScheduleIds.remove(scheduleId));
+      }
+    }
+  }
+
+  bool _openingPlotHistory = false;
+
+  Future<void> _openPlotHistory(ScheduleListEntity schedule) async {
+    if (_openingPlotHistory) return;
+    final plotId = schedule.plotRegistrationId.trim();
+    if (plotId.isEmpty) {
+      _showMessage('The selected schedule has no plot ID.');
+      return;
+    }
+    setState(() => _openingPlotHistory = true);
+    try {
+      var farmerId = schedule.farmerId?.trim() ?? '';
+      if (farmerId.isEmpty) {
+        if (_loadingEmployee || _employeeId.isEmpty || _employeeId == '0') {
+          _showMessage(
+            'Please wait for your login details to load, then try again.',
+          );
+          return;
+        }
+        final name = schedule.farmerName.trim();
+        if (name.isEmpty) {
+          _showMessage(
+            'The schedule response is missing the farmer ID and name.',
+          );
+          return;
+        }
+        final farmers = await GetIt.I<ScheduleListRepository>().searchFarmers(
+          name,
+        );
+        if (!mounted) return;
+        final owners = <String>{};
+        for (final farmer in farmers) {
+          final plots = await GetIt.I<FarmerPlotRepository>().getFarmerPlots(
+            empId: _employeeId,
+            farmerId: farmer.farmerId,
+          );
+          if (!mounted) return;
+          if (plots.any(
+            (plot) =>
+                plot.plotId.trim() == plotId &&
+                plot.farmerId.trim() == farmer.farmerId.trim(),
+          )) {
+            owners.add(farmer.farmerId.trim());
+          }
+        }
+        if (owners.length != 1) {
+          _showMessage(
+            'Unable to identify the owner of this plot. The schedule API must include fld_farmer_id.',
+          );
+          return;
+        }
+        farmerId = owners.single;
+      }
+      if (!mounted) return;
+      await Navigator.of(context).push(
+        MaterialPageRoute<void>(
+          builder: (_) => PlotScheduleHistoryPage(
+            farmerId: farmerId,
+            plotId: plotId,
+            plotName: schedule.plotName,
+            farmerName: schedule.farmerName,
+            cropId: schedule.cropId.trim().isEmpty ? null : schedule.cropId,
+          ),
+        ),
+      );
+    } catch (error) {
+      if (mounted) _showMessage('Unable to open plot history: $error');
+    } finally {
+      if (mounted) setState(() => _openingPlotHistory = false);
+    }
+  }
+
   Widget _buildScheduleCard(ScheduleListEntity schedule) {
     return Container(
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: context.cardBackgroundColor,
         borderRadius: BorderRadius.circular(12.r),
         border: Border.all(color: _border),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.025),
+            color: context.appColors.shadow.withValues(alpha: 0.025),
             blurRadius: 10,
-            offset: const Offset(0, 3),
+            offset: Offset(0, 3),
           ),
         ],
       ),
       child: ClipRRect(
         borderRadius: BorderRadius.circular(12.r),
-        child: ExpansionTile(
-          key: ValueKey(schedule.scheduleId),
-          tilePadding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 6.h),
-          childrenPadding: EdgeInsets.fromLTRB(12.w, 0, 12.w, 12.h),
-          shape: const Border(),
-          collapsedShape: const Border(),
-          iconColor: _green,
-          collapsedIconColor: _muted,
-
-          title: Row(
-            children: [
-              Expanded(
-                child: Text(
-                  schedule.farmerName.isEmpty ? 'Farmer' : schedule.farmerName,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: TextStyle(
-                    fontSize: 12.5.sp,
-                    fontWeight: FontWeight.w800,
-                    color: _dark,
+        child: ListTileTheme.merge(
+          horizontalTitleGap: 0,
+          child: ExpansionTile(
+            enabled: false,
+            key: ValueKey(schedule.scheduleId),
+            tilePadding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 6.h),
+            childrenPadding: EdgeInsets.fromLTRB(12.w, 0, 12.w, 12.h),
+            shape: Border(),
+            collapsedShape: Border(),
+            iconColor: _green,
+            collapsedIconColor: _muted,
+            showTrailingIcon: false,
+            title: Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    'Plot Name: ${schedule.plotName.trim().isEmpty ? '#${schedule.plotRegistrationId}' : schedule.plotName}',
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                      fontSize: 12.5.sp,
+                      fontWeight: FontWeight.w800,
+                      color: _dark,
+                    ),
                   ),
                 ),
+                SizedBox(width: 8.w),
+                Semantics(
+                  button: true,
+                  label: 'View history',
+                  child: InkWell(
+                    onTap: _openingPlotHistory
+                        ? null
+                        : () => _openPlotHistory(schedule),
+                    borderRadius: BorderRadius.circular(6.r),
+                    child: _miniChip(Icons.history_rounded, 'View History'),
+                  ),
+                ),
+              ],
+            ),
+
+            subtitle: Padding(
+              padding: EdgeInsets.only(top: 4.h),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Icon(
+                        Icons.person_outline_rounded,
+                        size: 14,
+                        color: _muted,
+                      ),
+                      SizedBox(width: 4.w),
+                      Expanded(
+                        child: Text(
+                          'Farmer Name: ${schedule.farmerName.trim().isEmpty ? '-' : schedule.farmerName}',
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(fontSize: 11.sp, color: _muted),
+                        ),
+                      ),
+                    ],
+                  ),
+
+                
+
+                  Row(
+                    children: [
+                      Expanded(
+                        child: Wrap(
+                          spacing: 6.w,
+                          runSpacing: 5.h,
+                          children: [
+                            _miniChip(
+                              Icons.calendar_today_outlined,
+                              schedule.scheduleDate,
+                            ),
+                            _miniChip(
+                              Icons.inventory_2_outlined,
+                              '${schedule.details.length} Products',
+                            ),
+                          ],
+                        ),
+                      ),
+                      Builder(
+                        builder: (tileContext) {
+                          final controller = ExpansibleController.of(
+                            tileContext,
+                          );
+                          return ListenableBuilder(
+                            listenable: controller,
+                            builder: (context, child) => AnimatedRotation(
+                              turns: controller.isExpanded ? 0.5 : 0,
+                              duration: const Duration(milliseconds: 200),
+                              child: IconButton(
+                                tooltip: controller.isExpanded
+                                    ? 'Hide details'
+                                    : 'Show details',
+                                onPressed: () {
+                                  if (controller.isExpanded) {
+                                    controller.collapse();
+                                  } else {
+                                    controller.expand();
+                                  }
+                                },
+                                icon: Icon(
+                                  Icons.expand_more,
+                                  size: 24,
+                                  color: _green,
+                                ),
+                              ),
+                            ),
+                          );
+                        },
+                      ),
+                    ],
+                  ),
+                ],
               ),
+            ),
+
+            children: [
+              Divider(height: 16),
+
+              _detailRow('Employee', schedule.employeeName),
+              _detailRow('Crop', schedule.cropName),
+              //  _detailRow('Schedule ID', schedule.scheduleId),
+
+              SizedBox(height: 10.h),
+
+              Row(
+                children: [
+                  Icon(Icons.inventory_2_outlined, color: _green, size: 17),
+                  SizedBox(width: 6.w),
+                  Text(
+                    'PRODUCT DETAILS',
+                    style: TextStyle(
+                      fontSize: 10.5.sp,
+                      fontWeight: FontWeight.w800,
+                      color: _dark,
+                    ),
+                  ),
+                ],
+              ),
+
+              SizedBox(height: 8.h),
+
+              if (schedule.details.isEmpty)
+                Padding(
+                  padding: EdgeInsets.symmetric(vertical: 10.h),
+                  child: Text('No product details.'),
+                )
+              else
+                _buildProductGroup(schedule),
             ],
           ),
-
-          subtitle: Padding(
-            padding: EdgeInsets.only(top: 4.h),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  children: [
-                    const Icon(
-                      Icons.landscape_outlined,
-                      size: 14,
-                      color: _muted,
-                    ),
-                    SizedBox(width: 4.w),
-                    Expanded(
-                      child: Text(
-                        schedule.plotName.isEmpty
-                            ? 'Plot #${schedule.plotRegistrationId}'
-                            : schedule.plotName,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: TextStyle(fontSize: 11.sp, color: _muted),
-                      ),
-                    ),
-                  ],
-                ),
-
-                SizedBox(height: 7.h),
-
-                Wrap(
-                  spacing: 6.w,
-                  runSpacing: 5.h,
-                  children: [
-                    _miniChip(
-                      Icons.calendar_today_outlined,
-                      schedule.scheduleDate,
-                    ),
-                    _miniChip(
-                      Icons.inventory_2_outlined,
-                      '${schedule.details.length} Products',
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          ),
-
-          children: [
-            const Divider(height: 16),
-
-            _detailRow('Employee', schedule.employeeName),
-            _detailRow('Main Crop', schedule.cropName),
-          //  _detailRow('Schedule ID', schedule.scheduleId),
-
-            SizedBox(height: 10.h),
-
-            Row(
-              children: [
-                const Icon(Icons.inventory_2_outlined, color: _green, size: 17),
-                SizedBox(width: 6.w),
-                Text(
-                  'PRODUCT DETAILS',
-                  style: TextStyle(
-                    fontSize: 10.5.sp,
-                    fontWeight: FontWeight.w800,
-                    color: _dark,
-                  ),
-                ),
-              ],
-            ),
-
-            SizedBox(height: 8.h),
-
-            if (schedule.details.isEmpty)
-              Padding(
-                padding: EdgeInsets.all(10.w),
-                child: const Text('No product details.'),
-              )
-            else
-              ...schedule.details.asMap().entries.map(
-                (entry) => Padding(
-                  padding: EdgeInsets.only(bottom: 7.h),
-                  child: _buildProductCard(entry.key + 1, entry.value),
-                ),
-              ),
-          ],
         ),
       ),
     );
@@ -899,29 +1143,292 @@ class _ScheduleListPageState extends State<ScheduleListPage> {
     );
   }
 
-  // ================= PRODUCT CARD =================
+  // ================= ONE GROUP FOR ALL PRODUCTS =================
 
-  Widget _buildProductCard(int index, ScheduleProductEntity product) {
+  Widget _buildProductGroup(ScheduleListEntity schedule) {
+    final products = schedule.details;
+    final remark = schedule.remark?.trim() ?? '';
+    final scheduleId = schedule.scheduleId.trim();
+    final selected =
+        schedule.status == '1' || (_scheduleAnswers[scheduleId] ?? false);
+    final isUpdating = _updatingScheduleIds.contains(scheduleId);
+    final isCompleted =
+        schedule.status == '1' || _completedScheduleIds.contains(scheduleId);
+
     return Container(
-      padding: EdgeInsets.all(10.w),
       decoration: BoxDecoration(
-        color: const Color(0xFFF7FAF8),
-        borderRadius: BorderRadius.circular(9.r),
+        color: context.appColors.surfaceContainerLow,
+        borderRadius: BorderRadius.circular(10.r),
         border: Border.all(color: _border),
       ),
       child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Padding(
+            padding: EdgeInsets.symmetric(horizontal: 11.w, vertical: 3.h),
+            child: Column(
+              children: [
+                for (int i = 0; i < products.length; i++) ...[
+                  if (i > 0) Divider(height: 1, thickness: 1, color: _border),
+                  _buildProductRow(i + 1, products[i]),
+                ],
+              ],
+            ),
+          ),
+          if (remark.isNotEmpty)
+            Container(
+              margin: EdgeInsets.fromLTRB(10.w, 2.h, 10.w, 10.h),
+              padding: EdgeInsets.all(12.w),
+              decoration: BoxDecoration(
+                color: _lightGreen,
+                borderRadius: BorderRadius.circular(12.r),
+                border: Border.all(color: _border),
+              ),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Container(
+                    padding: EdgeInsets.all(7.w),
+                    decoration: BoxDecoration(
+                      color: context.cardBackgroundColor,
+                      borderRadius: BorderRadius.circular(9.r),
+                    ),
+                    child: Icon(
+                      Icons.notes_rounded,
+                      color: _green,
+                      size: 18.sp,
+                    ),
+                  ),
+                  SizedBox(width: 10.w),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Remark',
+                          style: TextStyle(
+                            color: _green,
+                            fontSize: 10.sp,
+                            fontWeight: FontWeight.w700,
+                            letterSpacing: 0.4,
+                          ),
+                        ),
+                        SizedBox(height: 4.h),
+                        Text(
+                          remark,
+                          style: TextStyle(
+                            color: _dark,
+                            fontSize: 11.5.sp,
+                            height: 1.5,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          Container(
+            padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 7.h),
+            decoration: BoxDecoration(
+              color: _lightGreen.withOpacity(0.5),
+              borderRadius: BorderRadius.only(
+                bottomLeft: Radius.circular(10.r),
+                bottomRight: Radius.circular(10.r),
+              ),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    _answerOption(
+                      text: 'Yes',
+                      value: true,
+                      selected: selected,
+                      schedule: schedule,
+                      isUpdating: isUpdating,
+                      isCompleted: isCompleted,
+                    ),
+                    SizedBox(width: 12.w),
+                    _answerOption(
+                      text: 'No',
+                      value: false,
+                      selected: selected,
+                      schedule: schedule,
+                      isUpdating: isUpdating,
+                      isCompleted: isCompleted,
+                    ),
+                    Spacer(),
+                    Semantics(
+                      button: true,
+                      enabled: !_deletingSchedule && !isUpdating,
+                      child: InkWell(
+                        onTap: _deletingSchedule || isUpdating
+                            ? null
+                            : () => _confirmDeleteSchedule(schedule),
+                        borderRadius: BorderRadius.circular(6.r),
+                        child: Container(
+                          padding: EdgeInsets.symmetric(
+                            horizontal: 7.w,
+                            vertical: 4.h,
+                          ),
+                          decoration: BoxDecoration(
+                            color: _deletingSchedule || isUpdating
+                                ? context.appColors.error.withValues(alpha: 0.4)
+                                : context.appColors.error,
+                            borderRadius: BorderRadius.circular(6.r),
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(
+                                Icons.delete_outline_rounded,
+                                size: 11,
+                                color: context.appColors.onError,
+                              ),
+                              SizedBox(width: 4.w),
+                              Text(
+                                'Delete Schedule',
+                                style: TextStyle(
+                                  fontSize: 9.5.sp,
+                                  color: context.appColors.onError,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                if (isUpdating) ...[
+                  SizedBox(height: 8.h),
+                  Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      SizedBox(
+                        width: 14,
+                        height: 14,
+                        child: CircularProgressIndicator(strokeWidth: 2),
+                      ),
+                      SizedBox(width: 7.w),
+                      Text(
+                        'Updating schedule...',
+                        style: TextStyle(fontSize: 10.sp, color: _muted),
+                      ),
+                    ],
+                  ),
+                ],
+
+                // if (isCompleted) ...[
+                //   SizedBox(height: 8.h),
+                //   Row(
+                //     children: [
+                //       Icon(Icons.check_circle, size: 16, color: _green),
+                //       SizedBox(width: 6.w),
+                //       Expanded(
+                //         child: Text(
+                //           'Schedule Updated Successfully',
+                //           style: TextStyle(
+                //             fontSize: 10.sp,
+                //             fontWeight: FontWeight.w700,
+                //             color: _green,
+                //           ),
+                //         ),
+                //       ),
+                //     ],
+                //   ),
+                // ],
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _answerOption({
+    required String text,
+    required bool value,
+    required bool selected,
+    required ScheduleListEntity schedule,
+    required bool isUpdating,
+    required bool isCompleted,
+  }) {
+    final isSelected = selected == value;
+    final disabled = isUpdating || isCompleted || _deletingSchedule;
+
+    return Semantics(
+      button: true,
+      enabled: !disabled,
+      selected: isSelected,
+      child: InkWell(
+        onTap: disabled
+            ? null
+            : () {
+                if (value) {
+                  // YES makes exactly one update request.
+                  _updateScheduleStatus(schedule);
+                } else {
+                  // NO is the default; no API call is needed.
+                  setState(() {
+                    _scheduleAnswers[schedule.scheduleId.trim()] = false;
+                  });
+                }
+              },
+        borderRadius: BorderRadius.circular(18.r),
+        child: Opacity(
+          opacity: disabled && !isSelected ? 0.42 : 1.0,
+          child: Padding(
+            padding: EdgeInsets.symmetric(horizontal: 4.w, vertical: 3.h),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(
+                  isSelected
+                      ? Icons.radio_button_checked_rounded
+                      : Icons.radio_button_unchecked_rounded,
+                  color: isSelected ? _green : _muted,
+                  size: 19,
+                ),
+                SizedBox(width: 4.w),
+                Text(
+                  text,
+                  style: TextStyle(
+                    color: isSelected ? _green : _dark,
+                    fontSize: 11.sp,
+                    fontWeight: isSelected ? FontWeight.w800 : FontWeight.w600,
+                  ),
+                ),
+                if (value && isCompleted) ...[
+                  SizedBox(width: 5.w),
+                  Icon(Icons.verified_rounded, size: 15, color: _green),
+                ],
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildProductRow(int index, ScheduleProductEntity product) {
+    return Padding(
+      padding: EdgeInsets.symmetric(vertical: 10.h),
+      child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // PRODUCT NAME + TYPE
           Row(
             children: [
               Container(
-                width: 24.w,
-                height: 24.w,
+                width: 22.w,
+                height: 22.w,
                 alignment: Alignment.center,
                 decoration: BoxDecoration(
                   color: _lightGreen,
-                  borderRadius: BorderRadius.circular(7.r),
+                  borderRadius: BorderRadius.circular(6.r),
                 ),
                 child: Text(
                   '$index',
@@ -932,132 +1439,116 @@ class _ScheduleListPageState extends State<ScheduleListPage> {
                   ),
                 ),
               ),
-
-              SizedBox(width: 8.w),
-
+              SizedBox(width: 7.w),
               Expanded(
                 child: Text(
-                  product.productName.isEmpty
-                      ? 'Unnamed Product'
-                      : product.productName,
+                  'Product Name: ${product.productName.trim().isEmpty ? 'Unnamed Product' : product.productName}',
                   maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
                   style: TextStyle(
-                    fontSize: 12.sp,
-                    fontWeight: FontWeight.w700,
+                    fontSize: 11.5.sp,
+                    fontWeight: FontWeight.w800,
                     color: _dark,
                   ),
                 ),
               ),
-
               if (product.productType.isNotEmpty)
                 Container(
-                  padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 4.h),
+                  margin: EdgeInsets.only(left: 6.w),
+                  padding: EdgeInsets.symmetric(horizontal: 7.w, vertical: 3.h),
                   decoration: BoxDecoration(
                     color: _lightGreen,
-                    borderRadius: BorderRadius.circular(15.r),
+                    borderRadius: BorderRadius.circular(5.r),
                   ),
                   child: Text(
                     product.productType,
                     style: TextStyle(
-                      fontSize: 9.5.sp,
+                      fontSize: 9.sp,
+                      fontWeight: FontWeight.w700,
                       color: _green,
-                      fontWeight: FontWeight.w600,
                     ),
                   ),
                 ),
             ],
           ),
-
           if (product.cropName.isNotEmpty) ...[
-            SizedBox(height: 7.h),
-            Row(
+            SizedBox(height: 5.h),
+            // Padding(
+            //   padding: EdgeInsets.only(left: 29.w),
+            //   child: Text.rich(
+            //     TextSpan(
+            //       children: [
+            //         TextSpan(
+            //           text: 'Crop: ',
+            //           style: TextStyle(color: _muted),
+            //         ),
+            //         TextSpan(
+            //           text: product.cropName,
+            //           style: TextStyle(
+            //             color: _dark,
+            //             fontWeight: FontWeight.w600,
+            //           ),
+            //         ),
+            //       ],
+            //     ),
+            //     maxLines: 2,
+            //     overflow: TextOverflow.ellipsis,
+            //     style: TextStyle(fontSize: 10.sp),
+            //   ),
+            // ),
+          ],
+          SizedBox(height: 6.h),
+          Padding(
+            padding: EdgeInsets.only(left: 29.w),
+            child: Row(
               children: [
-                const Icon(Icons.grass_outlined, size: 13, color: _muted),
-                SizedBox(width: 5.w),
                 Expanded(
-                  child: Text(
-                    product.cropName,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: TextStyle(fontSize: 10.sp, color: _muted),
+                  child: _inlineValue(
+                    'Qty',
+                    _quantityText(product.productQty, product.unit),
+                    Icons.scale_outlined,
+                    context.appColors.tertiary,
+                  ),
+                ),
+                SizedBox(width: 6.w),
+                Expanded(
+                  child: _inlineValue(
+                    'Water',
+                    _quantityText(product.waterQty, product.waterUnit),
+                    Icons.water_drop_outlined,
+                    context.appColors.secondary,
                   ),
                 ),
               ],
             ),
-          ],
-
-          SizedBox(height: 9.h),
-
-          // QUANTITY + WATER IN ONE ROW
-          Row(
-            children: [
-              Expanded(
-                child: _valueCard(
-                  label: 'QUANTITY',
-                  value: _quantityText(product.productQty, product.unit),
-                  icon: Icons.scale_outlined,
-                  iconColor: const Color(0xFFCA8A04),
-                ),
-              ),
-
-              SizedBox(width: 7.w),
-
-              Expanded(
-                child: _valueCard(
-                  label: 'WATER',
-                  value: _quantityText(product.waterQty, product.waterUnit),
-                  icon: Icons.water_drop_outlined,
-                  iconColor: const Color(0xFF0284C7),
-                ),
-              ),
-            ],
           ),
         ],
       ),
     );
   }
 
-  Widget _valueCard({
-    required String label,
-    required String value,
-    required IconData icon,
-    required Color iconColor,
-  }) {
-    return Container(
-      padding: EdgeInsets.symmetric(horizontal: 9.w, vertical: 8.h),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(7.r),
-        border: Border.all(color: _border),
-      ),
-      child: Row(
-        children: [
-          Icon(icon, size: 16, color: iconColor),
-          SizedBox(width: 7.w),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  label,
-                  style: TextStyle(fontSize: 8.5.sp, color: _muted),
-                ),
-                SizedBox(height: 3.h),
-                Text(
-                  value,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: TextStyle(
-                    fontSize: 12.sp,
-                    fontWeight: FontWeight.w800,
-                    color: _dark,
-                  ),
-                ),
-              ],
+  Widget _inlineValue(String label, String value, IconData icon, Color color) {
+    return Row(
+      children: [
+        Icon(icon, size: 13, color: color),
+        SizedBox(width: 3.w),
+        Text(
+          '$label: ',
+          style: TextStyle(fontSize: 9.sp, color: _muted),
+        ),
+        Expanded(
+          child: Text(
+            value,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: TextStyle(
+              fontSize: 10.sp,
+              fontWeight: FontWeight.w700,
+              color: _dark,
             ),
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 
@@ -1069,7 +1560,7 @@ class _ScheduleListPageState extends State<ScheduleListPage> {
 
   Widget _detailRow(String label, String value) {
     if (value.trim().isEmpty) {
-      return const SizedBox.shrink();
+      return SizedBox.shrink();
     }
 
     return Padding(
@@ -1104,7 +1595,7 @@ class _ScheduleListPageState extends State<ScheduleListPage> {
   Widget _loadingWidget() {
     return Padding(
       padding: EdgeInsets.symmetric(vertical: 36.h),
-      child: const Center(child: CircularProgressIndicator()),
+      child: Center(child: CircularProgressIndicator()),
     );
   }
 
@@ -1120,15 +1611,15 @@ class _ScheduleListPageState extends State<ScheduleListPage> {
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 30.h),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: context.cardBackgroundColor,
         borderRadius: BorderRadius.circular(12.r),
         border: Border.all(color: _border),
       ),
       child: Column(
         children: [
           Container(
-            padding: const EdgeInsets.all(14),
-            decoration: const BoxDecoration(
+            padding: EdgeInsets.all(14),
+            decoration: BoxDecoration(
               color: _lightGreen,
               shape: BoxShape.circle,
             ),

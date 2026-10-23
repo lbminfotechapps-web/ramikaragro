@@ -170,5 +170,10 @@ class ApiClient {
   static const String submitPlotRegistration = '/addPlot';
    static const String addSchedule = '/addSchedule';
    static const String getScheduleList = '/getScheduleList';
+   static const String deleteSchedule = '/deleteSchedule';
+
+   static const String getPlotwiseScheduleList ='/getPlotwiseScheduleList';
+   static const String updateSchedule ='/updateSchedule';
+   static const String getProductListForSchedule ='/getProductListForSchedule';
 
 }

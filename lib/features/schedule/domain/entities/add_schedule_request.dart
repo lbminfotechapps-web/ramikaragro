@@ -7,6 +7,7 @@ class AddScheduleDetail {
   final String unit;
   final String waterQty;
   final String waterUnit;
+  final String remark;
 
   const AddScheduleDetail({
     required this.productName,
@@ -16,6 +17,7 @@ class AddScheduleDetail {
     required this.unit,
     required this.waterQty,
     required this.waterUnit,
+    this.remark = '',
   });
 
   Map<String, dynamic> toJson() {
@@ -56,6 +58,10 @@ class AddScheduleRequest {
       'farmerId': farmerId.trim(),
       'scheduleDate': '$day-$month-${scheduleDate.year}',
       'details': details.map((detail) => detail.toJson()).toList(),
+      'remark': details
+          .map((detail) => detail.remark.trim())
+          .where((remark) => remark.isNotEmpty)
+          .join('\n'),
     };
   }
 }

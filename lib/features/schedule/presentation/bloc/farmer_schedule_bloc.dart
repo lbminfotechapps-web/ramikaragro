@@ -252,10 +252,6 @@ class FarmerScheduleBloc
       return;
     }
 
-    if (state.selectedCropName.trim().isEmpty) {
-      _error(emit, 'Please select crop.');
-      return;
-    }
 
     if (event.productName.trim().isEmpty) {
       _error(emit, 'Please enter product name.');
@@ -340,10 +336,6 @@ class FarmerScheduleBloc
       return;
     }
 
-    if (state.selectedCropName.trim().isEmpty) {
-      _error(emit, 'Please select crop.');
-      return;
-    }
 
     if (state.currentSchedule.trim().isEmpty) {
       _error(emit, 'Please add at least one schedule.');
@@ -351,7 +343,7 @@ class FarmerScheduleBloc
     }
 
     final item = ScheduleItemEntity(
-      cropName: state.selectedCropName,
+      cropName: state.selectedPlot?.cropName ?? '',
       date: DateFormat('dd/MM/yyyy').format(state.selectedDate!),
       schedule: state.currentSchedule,
     );

@@ -7,11 +7,14 @@ import '../models/schedule_list_model.dart';
 
 class ScheduleListRepositoryImpl
     implements ScheduleListRepository {
+
   final ScheduleListRemoteDataSource remote;
 
   const ScheduleListRepositoryImpl({
     required this.remote,
   });
+
+  // ================= GET SCHEDULES =================
 
   @override
   Future<List<ScheduleListEntity>> getSchedules(
@@ -22,9 +25,16 @@ class ScheduleListRepositoryImpl
     );
 
     return data
-        .map(ScheduleListModel.fromJson)
+        .map(
+          (json) => ScheduleListModel.fromJson(
+            json,
+            fallbackFarmerId: filter.farmerId,
+          ),
+        )
         .toList();
   }
+
+  // ================= SEARCH FARMERS =================
 
   @override
   Future<List<ScheduleFarmerFilter>> searchFarmers(
@@ -45,5 +55,31 @@ class ScheduleListRepositoryImpl
       return farmer.farmerId.isNotEmpty &&
           farmer.farmerName.isNotEmpty;
     }).toList();
+  }
+
+  // ================= DELETE SCHEDULE =================
+
+  @override
+  Future<String> deleteSchedule({
+    required String scheduleId,
+    required String empId,
+  }) {
+    return remote.deleteSchedule(
+      scheduleId: scheduleId,
+      empId: empId,
+    );
+  }
+
+  // ================= UPDATE SCHEDULE =================
+
+  @override
+  Future<String> updateScheduleStatus({
+    required String scheduleId,
+    required String empId,
+  }) {
+    return remote.updateScheduleStatus(
+      scheduleId: scheduleId,
+      empId: empId,
+    );
   }
 }
