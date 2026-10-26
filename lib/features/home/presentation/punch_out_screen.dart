@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:solufine/core/theme/app_dynamic_colors.dart';
 import 'package:solufine/core/theme/typography/app_text_styles.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -18,7 +19,9 @@ import 'package:solufine/core/secure_storage/secure_storage.dart';
 import 'package:solufine/core/utility/app_image_picker.dart';
 import 'package:solufine/core/utility/appdialog.dart';
 import 'package:solufine/core/utility/device_info_util.dart';
+import 'package:solufine/core/utility/geo_image_stamp.dart';
 import 'package:solufine/core/utility/image_compression.dart';
+import 'package:solufine/core/utility/image_side_crop.dart';
 import 'package:solufine/core/utility/location_util.dart';
 import 'package:solufine/core/utility/widgets/custom_appbar.dart';
 import 'package:solufine/core/utility/widgets/custom_textformfield.dart';
@@ -265,133 +268,321 @@ class _PunchOutScreenState extends State<PunchOutScreen> {
 
   // Future<void> _captureImage() async {
   //   try {
-  //     final File? image =
-  //         await AppImagePicker.instance.pickFromCamera();
+  //     // ============================================================
+  //     // 1. CAPTURE ORIGINAL IMAGE
+  //     // ============================================================
 
-  //     if (image == null) {
+  //     final File? originalImage = await AppImagePicker.instance
+  //         .pickFromCamera();
+
+  //     if (originalImage == null) {
   //       return;
   //     }
+
+  //     if (!await originalImage.exists()) {
+  //       debugPrint('ORIGINAL IMAGE NOT FOUND');
+
+  //       return;
+  //     }
+
+  //     // ============================================================
+  //     // 2. ORIGINAL IMAGE SIZE
+  //     // ============================================================
+
+  //     final int originalSize = await originalImage.length();
+
+  //     debugPrint('========================================');
+
+  //     debugPrint('ORIGINAL IMAGE PATH: ${originalImage.path}');
+
+  //     debugPrint(
+  //       'ORIGINAL IMAGE SIZE: '
+  //       '${(originalSize / 1024).toStringAsFixed(2)} KB',
+  //     );
+
+  //     // ============================================================
+  //     // 3. COMPRESS IMAGE
+  //     // ============================================================
+
+  //     final File? compressedImage = await ImageCompression.compressImage(
+  //       originalImage,
+  //       maxWidth: 450,
+  //       maxHeight: 450,
+  //       quality: 45,
+  //     );
+
+  //     // ============================================================
+  //     // 4. USE COMPRESSED IMAGE
+  //     // ============================================================
+
+  //     File finalImage = originalImage;
+
+  //     if (compressedImage != null && await compressedImage.exists()) {
+  //       finalImage = compressedImage;
+
+  //       final compressedSize = await compressedImage.length();
+
+  //       debugPrint(
+  //         'COMPRESSED IMAGE PATH: '
+  //         '${compressedImage.path}',
+  //       );
+
+  //       debugPrint(
+  //         'COMPRESSED IMAGE SIZE: '
+  //         '${(compressedSize / 1024).toStringAsFixed(2)} KB',
+  //       );
+  //     } else {
+  //       debugPrint('COMPRESSION FAILED - USING ORIGINAL IMAGE');
+  //     }
+
+  //     debugPrint('========================================');
+
+  //     // ============================================================
+  //     // 5. SAVE FINAL IMAGE
+  //     // ============================================================
 
   //     if (!mounted) {
   //       return;
   //     }
 
   //     setState(() {
-  //       _uploadedImage = image;
+  //       _uploadedImage = finalImage;
   //     });
-  //   } catch (e) {
+  //   } catch (e, stackTrace) {
+  //     debugPrint('CAPTURE IMAGE ERROR: $e');
+
+  //     debugPrint('$stackTrace');
+
   //     if (!mounted) {
   //       return;
   //     }
 
   //     ScaffoldMessenger.of(context).showSnackBar(
-  //       const SnackBar(
-  //         content: Text(
-  //           'Failed to capture image',
-  //         ),
+  //       SnackBar(
+  //         content: Text('Failed to capture image', style: AppTextStyles.body),
   //       ),
   //     );
   //   }
   // }
 
-  Future<void> _captureImage() async {
-    try {
-      // ============================================================
-      // 1. CAPTURE ORIGINAL IMAGE
-      // ============================================================
 
-      final File? originalImage = await AppImagePicker.instance
-          .pickFromCamera();
+   
+Future<void> _captureImage() async {
+  try {
+    // ============================================================
+    // 1. CAPTURE ORIGINAL IMAGE - EXISTING
+    // ============================================================
 
-      if (originalImage == null) {
-        return;
-      }
+    final File? originalImage =
+        await AppImagePicker.instance.pickFromCamera();
 
-      if (!await originalImage.exists()) {
-        debugPrint('ORIGINAL IMAGE NOT FOUND');
+    if (originalImage == null) {
+      return;
+    }
 
-        return;
-      }
+    if (!await originalImage.exists()) {
+      debugPrint('ORIGINAL IMAGE NOT FOUND');
+      return;
+    }
 
-      // ============================================================
-      // 2. ORIGINAL IMAGE SIZE
-      // ============================================================
+    // ============================================================
+    // 2. ORIGINAL IMAGE SIZE - EXISTING
+    // ============================================================
 
-      final int originalSize = await originalImage.length();
+    final int originalSize = await originalImage.length();
 
-      debugPrint('========================================');
+    debugPrint('========================================');
+    debugPrint('ORIGINAL IMAGE PATH: ${originalImage.path}');
 
-      debugPrint('ORIGINAL IMAGE PATH: ${originalImage.path}');
+    debugPrint(
+      'ORIGINAL IMAGE SIZE: '
+      '${(originalSize / 1024).toStringAsFixed(2)} KB',
+    );
 
-      debugPrint(
-        'ORIGINAL IMAGE SIZE: '
-        '${(originalSize / 1024).toStringAsFixed(2)} KB',
-      );
+    // ============================================================
+    // 3. COMPRESS IMAGE - EXISTING SETTINGS
+    // ============================================================
 
-      // ============================================================
-      // 3. COMPRESS IMAGE
-      // ============================================================
+    // final File? compressedImage =
+    //     await ImageCompression.compressImage(
+    //   originalImage,
+    //   maxWidth: 450,
+    //   maxHeight: 450,
+    //   quality: 45,
+    // );
+
+    // // ============================================================
+    // // 4. USE COMPRESSED IMAGE - EXISTING
+    // // ============================================================
+
+    // File finalImage = originalImage;
+
+    // if (compressedImage != null &&
+    //     await compressedImage.exists()) {
+    //   finalImage = compressedImage;
+
+    //   final int compressedSize =
+    //       await compressedImage.length();
+
+    //   debugPrint(
+    //     'COMPRESSED IMAGE PATH: ${compressedImage.path}',
+    //   );
+
+    //   debugPrint(
+    //     'COMPRESSED IMAGE SIZE: '
+    //     '${(compressedSize / 1024).toStringAsFixed(2)} KB',
+    //   );
+    // } else {
+    //   debugPrint(
+    //     'COMPRESSION FAILED - USING ORIGINAL IMAGE',
+    //   );
+    // }
+
+
 
       final File? compressedImage = await ImageCompression.compressImage(
-        originalImage,
-        maxWidth: 450,
-        maxHeight: 450,
-        quality: 45,
-      );
-
-      // ============================================================
-      // 4. USE COMPRESSED IMAGE
-      // ============================================================
-
-      File finalImage = originalImage;
-
-      if (compressedImage != null && await compressedImage.exists()) {
-        finalImage = compressedImage;
-
-        final compressedSize = await compressedImage.length();
-
-        debugPrint(
-          'COMPRESSED IMAGE PATH: '
-          '${compressedImage.path}',
+          originalImage,
+          maxWidth: 450,
+          maxHeight: 450,
+          quality: 45,
         );
 
-        debugPrint(
-          'COMPRESSED IMAGE SIZE: '
-          '${(compressedSize / 1024).toStringAsFixed(2)} KB',
+        File finalImage = originalImage;
+
+        if (compressedImage != null &&
+            await compressedImage.exists()) {
+          finalImage = compressedImage;
+        }
+
+        // REMOVE BLACK LEFT AND RIGHT BARS BEFORE GPS STAMP
+        final File croppedImage = await ImageSideCrop.crop(
+          source: finalImage,
+          sidePercent: 0.12,
         );
-      } else {
-        debugPrint('COMPRESSION FAILED - USING ORIGINAL IMAGE');
-      }
 
-      debugPrint('========================================');
+      finalImage = croppedImage;
 
-      // ============================================================
-      // 5. SAVE FINAL IMAGE
-      // ============================================================
+      debugPrint('FINAL CROPPED IMAGE: ${finalImage.path}');
 
-      if (!mounted) {
-        return;
-      }
 
-      setState(() {
-        _uploadedImage = finalImage;
-      });
-    } catch (e, stackTrace) {
-      debugPrint('CAPTURE IMAGE ERROR: $e');
 
-      debugPrint('$stackTrace');
+    // ============================================================
+    // 5. NEW - GET CURRENT LATITUDE AND LONGITUDE
+    // ============================================================
 
-      if (!mounted) {
-        return;
-      }
+    final Position? position =
+        await LocationUtil.instance.getCurrentLocation();
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Failed to capture image', style: AppTextStyles.body),
-        ),
+    if (position == null) {
+      throw Exception(
+        'Current GPS location unavailable. Enable GPS and retry.',
       );
     }
+
+    final String photoLatitude =
+        position.latitude.toStringAsFixed(6);
+
+    final String photoLongitude =
+        position.longitude.toStringAsFixed(6);
+
+    debugPrint('========== PUNCH OUT PHOTO GPS ==========');
+    debugPrint('LATITUDE: $photoLatitude');
+    debugPrint('LONGITUDE: $photoLongitude');
+    debugPrint('ACCURACY: ${position.accuracy}');
+
+    // ============================================================
+    // 6. NEW - GET CURRENT GEO ADDRESS
+    // ============================================================
+
+    String photoAddress = '';
+
+    try {
+      photoAddress =
+          await LocationUtil.instance.getAddress(
+        position.latitude,
+        position.longitude,
+      );
+    } catch (e) {
+      debugPrint('GEO ADDRESS ERROR: $e');
+    }
+
+    if (photoAddress.trim().isEmpty) {
+      photoAddress = 'Not available';
+    }
+
+    debugPrint('GEO ADDRESS: $photoAddress');
+
+    // ============================================================
+    // 7. NEW - PRINT GPS DETAILS ON COMPRESSED IMAGE
+    // ============================================================
+
+    final File gpsStampedImage =
+        await GeoImageStamp.addLocation(
+      imageFile: finalImage,
+      latitude: photoLatitude,
+      longitude: photoLongitude,
+      address: photoAddress,
+    );
+
+    if (!await gpsStampedImage.exists()) {
+      throw Exception('GPS stamped image not created');
+    }
+
+    // CHANGED: Use GPS image in existing API.
+    finalImage = gpsStampedImage;
+
+    // ============================================================
+    // 8. FINAL IMAGE DEBUG
+    // ============================================================
+
+    final int finalSize = await finalImage.length();
+
+    debugPrint('========== FINAL PUNCH OUT PHOTO ==========');
+    debugPrint('IMAGE PATH: ${finalImage.path}');
+
+    debugPrint(
+      'IMAGE SIZE: '
+      '${(finalSize / 1024).toStringAsFixed(2)} KB',
+    );
+
+    debugPrint('LATITUDE: $photoLatitude');
+    debugPrint('LONGITUDE: $photoLongitude');
+    debugPrint('ADDRESS: $photoAddress');
+
+    debugPrint('===========================================');
+
+    // ============================================================
+    // 9. SAVE FINAL IMAGE - EXISTING
+    // ============================================================
+
+    if (!mounted) {
+      return;
+    }
+
+    setState(() {
+      _uploadedImage = finalImage;
+    });
+
+  } catch (e, stackTrace) {
+    debugPrint('CAPTURE IMAGE ERROR: $e');
+    debugPrint('$stackTrace');
+
+    if (!mounted) {
+      return;
+    }
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          'Failed to capture image: $e',
+          style: AppTextStyles.body,
+        ),
+      ),
+    );
   }
+}
+
+
 
   // ===========================================================================
   // SUBMIT PUNCH
@@ -1440,20 +1631,38 @@ class _PunchOutScreenState extends State<PunchOutScreen> {
       children: [
         Stack(
           children: [
-            ClipRRect(
-              borderRadius: BorderRadius.circular(13.r),
+            // ClipRRect(
+            //   borderRadius: BorderRadius.circular(13.r),
 
-              child: Image.file(
-                _uploadedImage!,
+            //   child: Image.file(
+            //     _uploadedImage!,
 
-                width: double.infinity,
+            //     width: double.infinity,
 
-                height: 180.h,
+            //     height: 180.h,
 
-                fit: BoxFit.cover,
+            //     fit: BoxFit.cover,
+            //   ),
+            // ),
+
+            // CHANGED - Full-width image without side blank space.
+              ClipRRect(
+                borderRadius: BorderRadius.circular(13.r),
+                child: Image.file(
+                  _uploadedImage!,
+                  key: ValueKey(_uploadedImage!.path),
+                  width: double.infinity,
+
+                  // REMOVED fixed height: 180.h
+                   height: 260.h,
+                  fit: BoxFit.fitWidth,
+
+                  alignment: Alignment.center,
+                  gaplessPlayback: false,
+                ),
               ),
-            ),
 
+                
             // ---------------------------------------------------------------
             // PHOTO ADDED
             // ---------------------------------------------------------------

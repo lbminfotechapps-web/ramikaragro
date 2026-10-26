@@ -186,6 +186,7 @@ class _PlotRegistrationPageState extends State<PlotRegistrationPage> {
         return;
       }
     }
+    
 
     final payload = PlotModel.toJson(
       PlotSubmission(empId: _empId, plots: plots),
