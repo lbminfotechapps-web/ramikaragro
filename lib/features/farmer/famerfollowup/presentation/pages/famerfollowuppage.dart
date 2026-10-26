@@ -9,6 +9,9 @@ import 'package:solufine/core/router/app_router.dart';
 import 'package:solufine/core/secure_storage/secure_storage.dart';
 import 'package:solufine/core/utility/appdialog.dart';
 import 'package:solufine/core/utility/cameracapturepage.dart';
+import 'package:solufine/core/utility/geo_image_stamp.dart';
+import 'package:solufine/core/utility/image_compression.dart';
+import 'package:solufine/core/utility/image_side_crop.dart';
 import 'package:solufine/core/utility/widgets/custom_appbar.dart';
 import 'package:solufine/core/utility/widgets/custom_loader.dart';
 import 'package:solufine/features/farmer/famerfollowup/data/model/followuplist_model.dart';
@@ -296,58 +299,304 @@ class _FamerFollowupPageState extends State<FamerFollowupPage> {
   // IMAGE PICKER - CAMERA
   // ==========================================================
 
-  Future<void> _captureImage() async {
-    try {
-      debugPrint('OPENING INTERNAL CAMERA');
+  // Future<void> _captureImage() async {
+  //   try {
+  //     debugPrint('OPENING INTERNAL CAMERA');
 
-      final String? capturedImagePath = await Navigator.of(context)
-          .push<String>(
-            MaterialPageRoute(builder: (_) => const CameraCapturePage()),
-          );
+  //     final String? capturedImagePath = await Navigator.of(context)
+  //         .push<String>(
+  //           MaterialPageRoute(builder: (_) => const CameraCapturePage()),
+  //         );
 
-      if (capturedImagePath == null || capturedImagePath.isEmpty) {
-        return;
-      }
+  //     if (capturedImagePath == null || capturedImagePath.isEmpty) {
+  //       return;
+  //     }
 
-      final newFile = File(capturedImagePath);
+  //     final newFile = File(capturedImagePath);
 
-      if (!await newFile.exists()) {
-        _showMessage('Captured image not found');
-        return;
-      }
+  //     if (!await newFile.exists()) {
+  //       _showMessage('Captured image not found');
+  //       return;
+  //     }
 
-      // Delete previously captured image
-      if (imagePath != null &&
-          imagePath!.isNotEmpty &&
-          imagePath != capturedImagePath) {
-        try {
-          final oldFile = File(imagePath!);
+  //     // Delete previously captured image
+  //     if (imagePath != null &&
+  //         imagePath!.isNotEmpty &&
+  //         imagePath != capturedImagePath) {
+  //       try {
+  //         final oldFile = File(imagePath!);
 
-          if (await oldFile.exists()) {
-            await oldFile.delete();
-            debugPrint('OLD IMAGE DELETED: $imagePath');
-          }
-        } catch (e) {
-          debugPrint('OLD IMAGE DELETE ERROR: $e');
+  //         if (await oldFile.exists()) {
+  //           await oldFile.delete();
+  //           debugPrint('OLD IMAGE DELETED: $imagePath');
+  //         }
+  //       } catch (e) {
+  //         debugPrint('OLD IMAGE DELETE ERROR: $e');
+  //       }
+  //     }
+
+  //     if (!mounted) return;
+
+  //     setState(() {
+  //       imagePath = capturedImagePath;
+  //     });
+
+  //     debugPrint('NEW IMAGE: $imagePath');
+  //   } catch (e, stackTrace) {
+  //     debugPrint('CAMERA ERROR: $e');
+  //     debugPrint('$stackTrace');
+
+  //     if (!mounted) return;
+
+  //     _showMessage('Unable to capture image');
+  //   }
+  // }
+
+
+  
+Future<void> _captureImage() async {
+  try {
+    debugPrint('========== FARMER PHOTO CAPTURE ==========');
+
+    // ============================================================
+    // 1. OPEN EXISTING CAMERA PAGE - SAME
+    // ============================================================
+
+    final String? capturedImagePath =
+        await Navigator.of(context).push<String>(
+      MaterialPageRoute(
+        builder: (_) => const CameraCapturePage(),
+      ),
+    );
+
+    if (capturedImagePath == null ||
+        capturedImagePath.isEmpty) {
+      return;
+    }
+
+    final File originalImage = File(capturedImagePath);
+
+    if (!await originalImage.exists()) {
+      _showMessage('Captured image not found');
+      return;
+    }
+
+    // ============================================================
+    // 2. ORIGINAL IMAGE SIZE - NEW
+    // ============================================================
+
+    final int originalSize = await originalImage.length();
+
+    debugPrint('ORIGINAL IMAGE: ${originalImage.path}');
+    debugPrint(
+      'ORIGINAL SIZE: '
+      '${(originalSize / 1024).toStringAsFixed(2)} KB',
+    );
+
+    // ============================================================
+    // 3. COMPRESS IMAGE - NEW
+    // ============================================================
+
+    // final File? compressedImage = await ImageCompression.compressImage(
+    //   originalImage,
+    //   maxWidth: 450,
+    //   maxHeight: 450,
+    //   quality: 45,
+    // );
+
+    // File finalImage = originalImage;
+
+    // if (compressedImage != null &&
+    //     await compressedImage.exists()) {
+    //   finalImage = compressedImage;
+
+    //   debugPrint(
+    //     'COMPRESSED IMAGE: ${compressedImage.path}',
+    //   );
+    // } else {
+    //   debugPrint('COMPRESSION FAILED - USING ORIGINAL');
+    // }
+
+
+        final File? compressedImage = await ImageCompression.compressImage(
+          originalImage,
+          maxWidth: 450,
+          maxHeight: 450,
+          quality: 45,
+        );
+
+        File finalImage = originalImage;
+
+        if (compressedImage != null &&
+            await compressedImage.exists()) {
+          finalImage = compressedImage;
         }
+
+        // REMOVE BLACK LEFT AND RIGHT BARS BEFORE GPS STAMP
+        final File croppedImage = await ImageSideCrop.crop(
+          source: finalImage,
+          sidePercent: 0.12,
+        );
+
+      finalImage = croppedImage;
+
+      debugPrint('FINAL CROPPED IMAGE: ${finalImage.path}');
+
+
+    // ============================================================
+    // 4. GET CURRENT LOCATION - NEW
+    // ============================================================
+
+    // Uses your existing high accuracy location flow.
+    final Position position =
+        await Geolocator.getCurrentPosition(
+      locationSettings: const LocationSettings(
+        accuracy: LocationAccuracy.high,
+      ),
+    );
+
+    final String photoLatitude =
+        position.latitude.toStringAsFixed(6);
+
+    final String photoLongitude =
+        position.longitude.toStringAsFixed(6);
+
+    debugPrint('PHOTO LATITUDE: $photoLatitude');
+    debugPrint('PHOTO LONGITUDE: $photoLongitude');
+    debugPrint('ACCURACY: ${position.accuracy}');
+
+    // ============================================================
+    // 5. GET GEO ADDRESS - NEW
+    // ============================================================
+
+    String photoAddress = '';
+
+    try {
+      final List<Placemark> placemarks =
+          await _geocoding.placemarkFromCoordinates(
+        position.latitude,
+        position.longitude,
+      );
+
+      if (placemarks.isNotEmpty) {
+        final Placemark place = placemarks.first;
+
+        final List<String?> addressFields = [
+          place.name,
+          place.street,
+          place.subLocality,
+          place.locality,
+          place.administrativeArea,
+          place.postalCode,
+          place.country,
+        ];
+
+        final List<String> addressParts = [];
+
+        for (final field in addressFields) {
+          for (final part in (field ?? '').split(',')) {
+            final String value = part.trim();
+
+            if (value.isEmpty) continue;
+
+            final String normalized =
+                value.toLowerCase();
+
+            final bool alreadyIncluded =
+                addressParts.any(
+              (existing) =>
+                  existing.toLowerCase() == normalized,
+            );
+
+            if (!alreadyIncluded) {
+              addressParts.add(value);
+            }
+          }
+        }
+
+        photoAddress = addressParts.join(', ');
       }
+    } catch (e) {
+      debugPrint('PHOTO ADDRESS ERROR: $e');
+    }
 
-      if (!mounted) return;
+    if (photoAddress.trim().isEmpty) {
+      photoAddress = 'Not available';
+    }
 
-      setState(() {
-        imagePath = capturedImagePath;
-      });
+    debugPrint('PHOTO GEO ADDRESS: $photoAddress');
 
-      debugPrint('NEW IMAGE: $imagePath');
-    } catch (e, stackTrace) {
-      debugPrint('CAMERA ERROR: $e');
-      debugPrint('$stackTrace');
+    // ============================================================
+    // 6. PRINT GPS ON COMPRESSED IMAGE - NEW
+    // ============================================================
 
-      if (!mounted) return;
+    final File gpsStampedImage =
+        await GeoImageStamp.addLocation(
+      imageFile: finalImage,
+      latitude: photoLatitude,
+      longitude: photoLongitude,
+      address: photoAddress,
+    );
 
-      _showMessage('Unable to capture image');
+    if (!await gpsStampedImage.exists()) {
+      throw Exception('GPS stamped image not created');
+    }
+
+    // CHANGED: Final image now includes GPS information.
+    finalImage = gpsStampedImage;
+
+    // ============================================================
+    // 7. DELETE PREVIOUS IMAGE - EXISTING LOGIC
+    // ============================================================
+
+    if (imagePath != null &&
+        imagePath!.isNotEmpty &&
+        imagePath != finalImage.path) {
+      try {
+        final File oldFile = File(imagePath!);
+
+        if (await oldFile.exists()) {
+          await oldFile.delete();
+
+          debugPrint('OLD IMAGE DELETED: $imagePath');
+        }
+      } catch (e) {
+        debugPrint('OLD IMAGE DELETE ERROR: $e');
+      }
+    }
+
+    // ============================================================
+    // 8. SAVE FINAL IMAGE PATH - EXISTING
+    // ============================================================
+
+    if (!mounted) return;
+
+    setState(() {
+      imagePath = finalImage.path;
+    });
+
+    debugPrint('========== FINAL FARMER IMAGE ==========');
+    debugPrint('IMAGE PATH: $imagePath');
+    debugPrint('LATITUDE: $photoLatitude');
+    debugPrint('LONGITUDE: $photoLongitude');
+    debugPrint('ADDRESS: $photoAddress');
+    debugPrint(
+      'SIZE: ${(await finalImage.length() / 1024).toStringAsFixed(2)} KB',
+    );
+    debugPrint('=======================================');
+
+  } catch (e, stackTrace) {
+    debugPrint('CAMERA ERROR: $e');
+    debugPrint('$stackTrace');
+
+    if (mounted) {
+      _showMessage('Unable to prepare GPS photo: $e');
     }
   }
+}
+
+
+
 
   void _submitFollowup() {
     if (!_formKey.currentState!.validate()) {
@@ -1018,15 +1267,34 @@ class _FamerFollowupPageState extends State<FamerFollowupPage> {
     if (imagePath != null) {
       return Stack(
         children: [
-          ClipRRect(
-            borderRadius: BorderRadius.circular(20),
-            child: Image.file(
-              File(imagePath!),
-              width: double.infinity,
-              height: 210,
-              fit: BoxFit.cover,
+          // ClipRRect(
+          //   borderRadius: BorderRadius.circular(20),
+          //   child: Image.file(
+          //     File(imagePath!),
+          //     width: double.infinity,
+          //     height: 210,
+          //     fit: BoxFit.cover,
+          //   ),
+          // ),
+
+          // CHANGED: Full image without cropping GPS address.
+            ClipRRect(
+              borderRadius: BorderRadius.circular(20),
+              child: SizedBox(
+                width: double.infinity,
+                child: Image.file(
+                  File(imagePath!),
+                  key: ValueKey(imagePath),
+                  width: double.infinity,
+
+                  height: 260.h,
+                  fit: BoxFit.fitWidth,
+                  alignment: Alignment.center,
+               gaplessPlayback: false,
+                ),
+              ),
             ),
-          ),
+
 
           Positioned(
             top: 12,

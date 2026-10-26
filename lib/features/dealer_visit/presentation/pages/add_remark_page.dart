@@ -6,6 +6,9 @@ import 'package:solufine/core/location_tracking/app_database.dart';
 import 'package:solufine/core/location_tracking/location_repository.dart';
 import 'package:solufine/core/utility/appdialog.dart';
 import 'package:solufine/core/utility/device_info_util.dart';
+import 'package:solufine/core/utility/geo_image_stamp.dart';
+import 'package:solufine/core/utility/image_compression.dart';
+import 'package:solufine/core/utility/image_side_crop.dart';
 import 'package:solufine/core/utility/location_util.dart';
 
 import 'package:flutter/material.dart';
@@ -845,16 +848,7 @@ class _AddDealerVisitPageState extends State<AddDealerVisitPage> {
 
                           const SizedBox(height: 14),
 
-                          // ======================================
-                          // LAST REMARKS
-                          // ======================================
-                          // _sectionTitle(Icons.history_rounded, 'Last Remarks'),
-
-                          //  const SizedBox(height: 6),
-
-                          //  _buildLastRemarks(),
-
-                          // const SizedBox(height: 14),
+                        
 
                           // ======================================
                           // DEALER IMAGE
@@ -1480,12 +1474,27 @@ class _AddDealerVisitPageState extends State<AddDealerVisitPage> {
         children: [
           ClipRRect(
             borderRadius: BorderRadius.circular(20),
+
+            // child:
+            // Image.file(
+            //   File(imagePath!),
+            //   key: ValueKey(imagePath),
+            //   width: double.infinity,
+            //   fit: BoxFit.fitWidth,
+            //   alignment: Alignment.center,
+            //   gaplessPlayback: false,
+            // )
+
             child: Image.file(
               File(imagePath!),
+              key: ValueKey(imagePath),
               width: double.infinity,
-              height: 210,
-              fit: BoxFit.cover,
+               height: 260.h,
+              fit: BoxFit.fitWidth,
+              alignment: Alignment.center,
+              gaplessPlayback: false,
             ),
+
           ),
 
           Positioned(
@@ -1586,26 +1595,242 @@ class _AddDealerVisitPageState extends State<AddDealerVisitPage> {
     );
   }
 
-  Future<void> _captureImage() async {
-    FocusScope.of(context).unfocus();
+
+  // Future<void> _captureImage() async {
+  //   FocusScope.of(context).unfocus();
+  //   try {
+  //     final capturedPath = await Navigator.of(context, rootNavigator: true)
+  //         .push<String>(
+  //           MaterialPageRoute(builder: (_) => const CameraCapturePage()),
+  //         );
+
+  //     if (capturedPath == null || !mounted) return;
+
+  //     setState(() {
+  //       imagePath = capturedPath;
+  //     });
+  //   } catch (e) {
+  //     debugPrint('CAMERA ERROR: $e');
+  //     if (mounted) {
+  //       _showMessage('Unable to capture image');
+  //     }
+  //   }
+  // }
+
+
+  
+Future<void> _captureImage() async {
+  FocusScope.of(context).unfocus();
+
+  try {
+    // ============================================================
+    // 1. OPEN EXISTING CAMERA PAGE - NO CHANGE
+    // ============================================================
+
+    final String? capturedPath =
+        await Navigator.of(context, rootNavigator: true)
+            .push<String>(
+      MaterialPageRoute(
+        builder: (_) => const CameraCapturePage(),
+      ),
+    );
+
+    if (capturedPath == null || !mounted) {
+      return;
+    }
+
+    // ============================================================
+    // 2. READ ORIGINAL CAPTURED IMAGE - NEW
+    // ============================================================
+
+    final File originalImage = File(capturedPath);
+
+    if (!await originalImage.exists()) {
+      throw Exception('Captured image not found');
+    }
+
+    final int originalSize = await originalImage.length();
+
+    debugPrint('========== DEALER PHOTO ==========');
+    debugPrint('ORIGINAL IMAGE: ${originalImage.path}');
+
+    debugPrint(
+      'ORIGINAL SIZE: '
+      '${(originalSize / 1024).toStringAsFixed(2)} KB',
+    );
+
+    // ============================================================
+    // 3. COMPRESS ORIGINAL IMAGE - NEW
+    // SAME SETTINGS AS PUNCH IN / OUT
+    // ============================================================
+
+    // final File? compressedImage =
+    //     await ImageCompression.compressImage(
+    //   originalImage,
+    //   maxWidth: 450,
+    //   maxHeight: 450,
+    //   quality: 45,
+    // );
+
+    // File finalImage = originalImage;
+
+    // if (compressedImage != null &&
+    //     await compressedImage.exists()) {
+    //   finalImage = compressedImage;
+
+    //   final int compressedSize = await compressedImage.length();
+
+    //   debugPrint('COMPRESSED IMAGE: ${compressedImage.path}');
+
+    //   debugPrint(
+    //     'COMPRESSED SIZE: '
+    //     '${(compressedSize / 1024).toStringAsFixed(2)} KB',
+    //   );
+    // } else {
+    //   debugPrint(
+    //     'COMPRESSION FAILED - USING ORIGINAL IMAGE',
+    //   );
+    // }
+
+
+
+         final File? compressedImage = await ImageCompression.compressImage(
+          originalImage,
+          maxWidth: 450,
+          maxHeight: 450,
+          quality: 45,
+        );
+
+        File finalImage = originalImage;
+
+        if (compressedImage != null &&
+            await compressedImage.exists()) {
+          finalImage = compressedImage;
+        }
+
+        // REMOVE BLACK LEFT AND RIGHT BARS BEFORE GPS STAMP
+        final File croppedImage = await ImageSideCrop.crop(
+          source: finalImage,
+          sidePercent: 0.12,
+        );
+
+      finalImage = croppedImage;
+
+      debugPrint('FINAL CROPPED IMAGE: ${finalImage.path}');
+
+
+
+
+
+
+
+
+    // ============================================================
+    // 4. GET CURRENT GPS LOCATION - NEW
+    // ============================================================
+
+    final position =
+        await LocationUtil.instance.getCurrentLocation();
+
+    if (position == null) {
+      throw Exception(
+        'Current GPS location unavailable. Enable GPS and retry.',
+      );
+    }
+
+    final String photoLatitude =
+        position.latitude.toStringAsFixed(6);
+
+    final String photoLongitude =
+        position.longitude.toStringAsFixed(6);
+
+    debugPrint('PHOTO LATITUDE: $photoLatitude');
+    debugPrint('PHOTO LONGITUDE: $photoLongitude');
+    debugPrint('PHOTO ACCURACY: ${position.accuracy}');
+
+    // ============================================================
+    // 5. GET GEO ADDRESS - NEW
+    // ============================================================
+
+    String photoAddress = '';
+
     try {
-      final capturedPath = await Navigator.of(context, rootNavigator: true)
-          .push<String>(
-            MaterialPageRoute(builder: (_) => const CameraCapturePage()),
-          );
-
-      if (capturedPath == null || !mounted) return;
-
-      setState(() {
-        imagePath = capturedPath;
-      });
+      photoAddress = await LocationUtil.instance.getAddress(
+        position.latitude,
+        position.longitude,
+      );
     } catch (e) {
-      debugPrint('CAMERA ERROR: $e');
-      if (mounted) {
-        _showMessage('Unable to capture image');
-      }
+      debugPrint('GEO ADDRESS ERROR: $e');
+    }
+
+    if (photoAddress.trim().isEmpty) {
+      photoAddress = 'Not available';
+    }
+
+    debugPrint('PHOTO GEO ADDRESS: $photoAddress');
+
+    // ============================================================
+    // 6. PRINT LOCATION ON COMPRESSED IMAGE - NEW
+    // ============================================================
+
+    final File gpsStampedImage =
+        await GeoImageStamp.addLocation(
+      imageFile: finalImage,
+      latitude: photoLatitude,
+      longitude: photoLongitude,
+      address: photoAddress,
+    );
+
+    if (!await gpsStampedImage.exists()) {
+      throw Exception('GPS stamped image not created');
+    }
+
+    // CHANGED: Use the stamped image for API and preview.
+    finalImage = gpsStampedImage;
+
+    // ============================================================
+    // 7. FINAL IMAGE DEBUG LOG
+    // ============================================================
+
+    final int finalSize = await finalImage.length();
+
+    debugPrint('========== FINAL DEALER IMAGE ==========');
+    debugPrint('IMAGE PATH: ${finalImage.path}');
+    debugPrint(
+      'IMAGE SIZE: '
+      '${(finalSize / 1024).toStringAsFixed(2)} KB',
+    );
+    debugPrint('LATITUDE: $photoLatitude');
+    debugPrint('LONGITUDE: $photoLongitude');
+    debugPrint('ADDRESS: $photoAddress');
+    debugPrint('========================================');
+
+    // ============================================================
+    // 8. SAVE IMAGE PATH - EXISTING BEHAVIOR
+    // ============================================================
+
+    if (!mounted) {
+      return;
+    }
+
+    setState(() {
+      // Same variable already used by your API event.
+      imagePath = finalImage.path;
+    });
+
+  } catch (e, stackTrace) {
+    debugPrint('DEALER CAPTURE IMAGE ERROR: $e');
+    debugPrint('$stackTrace');
+
+    if (mounted) {
+      _showMessage('Unable to prepare GPS photo: $e');
     }
   }
+}
+
+
+
+
 
   // ============================================================
   // SUBMIT BUTTON
