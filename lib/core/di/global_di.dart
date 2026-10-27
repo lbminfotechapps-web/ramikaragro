@@ -1,5 +1,7 @@
 import 'package:solufine/core/di/add_schedule_di.dart';
 import 'package:solufine/core/di/ai_di.dart';
+import 'package:solufine/core/di/assign_task_di.dart';
+import 'package:solufine/core/di/assigned_task_di.dart';
 import 'package:solufine/core/di/calendar_report_di.dart';
 import 'package:solufine/core/di/consultant_doctor_di.dart';
 import 'package:solufine/core/di/database_di.dart';
@@ -108,4 +110,6 @@ await ThemeDI.register(sl);
   await initAddScheduleDi();
   await initScheduleListDi();
   await initFarmerSchedulePlotDi();
+  await initAssignTaskDi();
+  await initAssignedTaskDi();
 }
