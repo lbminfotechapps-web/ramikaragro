@@ -1,3 +1,8 @@
+import 'package:get_it/get_it.dart';
+import 'package:solufine/features/assigntask/presentation/bloc/assigned_task_bloc.dart';
+import 'package:solufine/features/assigntask/presentation/bloc/task_bloc.dart';
+import 'package:solufine/features/assigntask/presentation/pages/assign_task_page.dart';
+import 'package:solufine/features/assigntask/presentation/pages/assigned_task_list_page.dart';
 import 'package:solufine/features/schedule/domain/entities/schedule_farmer_entity.dart';
 import 'package:flutter/material.dart';
 import 'package:solufine/core/secure_storage/secure_storage.dart';
@@ -181,6 +186,8 @@ class AppRouter {
   static const String schedule = '/schedule';
   static const String addPlot = '/addPlot';
    static const String scheduleList = '/scheduleList';
+   static const String assignTask = '/assignTask';
+   static const String assignTaskList = '/assignTaskList';
 
   static final GoRouter router = GoRouter(
     navigatorKey: navigatorKey,
@@ -304,6 +311,34 @@ class AppRouter {
           return const SchemeScreen();
         },
       ),
+
+
+
+
+      GoRoute(
+      path: AppRouter.assignTask,
+      name: 'assignTask',
+      builder: (context, state) {
+        return BlocProvider<TaskBloc>(
+          create: (_) => GetIt.instance<TaskBloc>(),
+          child: const AssignTaskPage(),
+        );
+      },
+    ),
+
+
+      GoRoute(
+      path: AppRouter.assignTaskList,
+      name: 'assignTaskList',
+      builder: (context, state) {
+        return BlocProvider<AssignedTaskBloc>(
+          create: (_) => GetIt.instance<AssignedTaskBloc>(),
+          child: const AssignedTaskListPage(),
+        );
+      },
+    ),
+
+    
 
       GoRoute(
         path: farmerregistration,

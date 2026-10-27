@@ -13,6 +13,9 @@ class ApiClient {
   static const String imageExpensetUrl =
       "https://agroaicrm.com/solufine_agritech/uploads/Expense_Images/";
 
+  static const String baseUrlForAssignTask ='https://agroaicrm.com/solufine_agritech/uploads/Task_img/';
+
+
   //  //=========================== For Local ===================================================================================
   //   static const String baseUrl ="http://192.168.1.253:85/solufine_agritech/mobileapi/Mobile_app_for_businessplus_kotlin_new";
   //   static const String imageBaseUrl ="http://192.168.1.253:85/solufine_agritech/uploads/";
@@ -175,5 +178,9 @@ class ApiClient {
    static const String getPlotwiseScheduleList ='/getPlotwiseScheduleList';
    static const String updateSchedule ='/updateSchedule';
    static const String getProductListForSchedule ='/getProductListForSchedule';
+   static const String addTask = '/add_task';
+   static const String createdTaskList = '/created_task_list';
+   static const String updateTaskStatus = '/updateTaskStatus';
+   static const String assignedTaskList ='/assigned_task_list';
 
 }

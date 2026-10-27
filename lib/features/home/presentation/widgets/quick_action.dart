@@ -942,6 +942,15 @@ class _QuickAccessSectionState extends State<QuickAccessSection> {
     else if (menu.menuId == '94') {
       context.push('/schedule');
     }
+
+     else if (menu.menuId == '95') {
+      context.push('/assignTask');
+    }
+
+     else if (menu.menuId == '96') {
+      context.push('/assignTaskList');
+    }
+
     
     else if (menu.menuId == '57' ||
         menu.menuId == '63' ||
