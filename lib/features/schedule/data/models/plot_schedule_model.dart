@@ -16,6 +16,7 @@ class PlotScheduleProductModel extends PlotScheduleProductEntity {
     required super.unit,
     required super.waterQuantity,
     required super.waterUnit,
+    super.remark,
   });
 
   factory PlotScheduleProductModel.fromJson(Map<String, dynamic> json) {
@@ -30,6 +31,7 @@ class PlotScheduleProductModel extends PlotScheduleProductEntity {
       unit: _s(json, 'fld_unit'),
       waterQuantity: _s(json, 'fld_water_qty'),
       waterUnit: _s(json, 'fld_water_unit'),
+      remark: _s(json, 'fld_remark').trim(),
     );
   }
 }

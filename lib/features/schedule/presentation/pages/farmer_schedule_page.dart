@@ -157,6 +157,7 @@ class _FarmerSchedulePageState extends State<FarmerSchedulePage> {
     if (!mounted || acknowledged != true) return;
     context.read<FarmerScheduleBloc>().add(ClearSubmittedSchedules());
     setState(_resetLocalScheduleData);
+    context.go(AppRouter.scheduleList);
   }
 
   Future<void> _loadEmployeeId() async {
@@ -844,7 +845,9 @@ class _FarmerSchedulePageState extends State<FarmerSchedulePage> {
 
                         children: [
                           Text(
-                            farmer.farmerName,
+                            farmer.mobileNo.trim().isEmpty
+                                ? farmer.farmerName
+                                : '${farmer.farmerName} - ${farmer.mobileNo.trim()}',
 
                             style: TextStyle(
                               fontSize: 12.5.sp,
@@ -1394,7 +1397,7 @@ class _FarmerSchedulePageState extends State<FarmerSchedulePage> {
 
               icon: Icon(Icons.add_rounded),
 
-              label: Text('Add Schedule'),
+              label: Text('Add Product'),
             ),
           ),
 
@@ -1427,6 +1430,11 @@ class _FarmerSchedulePageState extends State<FarmerSchedulePage> {
                 ),
 
                 onPressed: () {
+                  if (_submittingSchedule ||
+                      _scheduleSubmitted ||
+                      _pendingDetail != null ||
+                      _pendingSectionDetails != null)
+                    return;
                   final current = context.read<FarmerScheduleBloc>().state;
                   _pendingSectionDate = current.selectedDate;
                   _pendingSectionDetails = List.of(_currentDetails);
@@ -1495,6 +1503,9 @@ class _FarmerSchedulePageState extends State<FarmerSchedulePage> {
             final detail = index < _currentDetails.length
                 ? _currentDetails[index]
                 : null;
+            final productDate = RegExp(
+              r'\nDate : ([^\n]+)',
+            ).firstMatch(entry.value)?.group(1);
             final remarkStart = entry.value.indexOf('\nRemark : ');
             return Container(
               margin: EdgeInsets.only(top: 8.h),
@@ -1536,6 +1547,16 @@ class _FarmerSchedulePageState extends State<FarmerSchedulePage> {
                       ),
                     ],
                   ),
+                  if (productDate != null) ...[
+                    Text(
+                      'Date: $productDate',
+                      style: TextStyle(
+                        fontSize: 10.sp,
+                        color: context.secondaryTextColor,
+                      ),
+                    ),
+                    SizedBox(height: 4.h),
+                  ],
                   if (detail != null)
                     Wrap(
                       spacing: 10.w,
@@ -1898,6 +1919,7 @@ class _FarmerSchedulePageState extends State<FarmerSchedulePage> {
       return;
     }
     _pendingDetail = AddScheduleDetail(
+      scheduleDate: state.selectedDate!,
       productName: productController.text.trim(),
       cropId: state.selectedPlot!.cropId,
       productType: selectedType,
@@ -2157,14 +2179,9 @@ class _FarmerSchedulePageState extends State<FarmerSchedulePage> {
         ...List.generate(state.schedules.length, (index) {
           final item = state.schedules[index];
 
-          // Read labeled fields from existing schedule string.
-          final fields = _parseScheduleFields(item.schedule);
-
-          final product = fields['Product'] ?? '';
-          final type = fields['Type'] ?? '';
-          final quantity = fields['Quantity'] ?? '';
-          final water = fields['Water'] ?? '';
-          final remark = fields['Remark'] ?? '';
+          final savedDetails = index < _savedSections.length
+              ? _savedSections[index].details
+              : const <AddScheduleDetail>[];
 
           return Container(
             width: double.infinity,
@@ -2261,117 +2278,36 @@ class _FarmerSchedulePageState extends State<FarmerSchedulePage> {
 
                 SizedBox(height: 10.h),
 
-                if (product.isNotEmpty ||
-                    quantity.isNotEmpty ||
-                    water.isNotEmpty) ...[
-                  // PRODUCT + TYPE
-                  Row(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              'PRODUCT',
-                              style: TextStyle(
-                                fontSize: 9.sp,
-                                color: context.secondaryTextColor,
-                                fontWeight: FontWeight.w500,
-                              ),
-                            ),
-                            SizedBox(height: 5.h),
-                            Text(
-                              product.isEmpty ? '-' : product,
-                              style: TextStyle(
-                                fontSize: 12.sp,
-                                fontWeight: FontWeight.w700,
-                                color: context.primaryTextColor,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-
-                      if (type.isNotEmpty)
-                        Container(
-                          padding: EdgeInsets.symmetric(
-                            horizontal: 10.w,
-                            vertical: 5.h,
-                          ),
-                          decoration: BoxDecoration(
-                            color: _themeTint,
-                            borderRadius: BorderRadius.circular(20.r),
-                          ),
-                          child: Text(
-                            type,
+                if (savedDetails.isNotEmpty)
+                  ...savedDetails.asMap().entries.map((entry) {
+                    final detail = entry.value;
+                    return Padding(
+                      padding: EdgeInsets.only(bottom: 10.h),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            '${entry.key + 1}. ${detail.productName}',
                             style: TextStyle(
-                              color: context.primaryColor,
-                              fontSize: 10.sp,
-                              fontWeight: FontWeight.w600,
+                              fontSize: 12.sp,
+                              fontWeight: FontWeight.w700,
                             ),
                           ),
-                        ),
-                    ],
-                  ),
-
-                  SizedBox(height: 10.h),
-
-                  // QUANTITY + WATER
-                  Row(
-                    children: [
-                      Expanded(
-                        child: _lightScheduleBox(
-                          label: 'QUANTITY',
-                          value: quantity.isEmpty ? '-' : quantity,
-                          icon: Icons.inventory_2_outlined,
-                        ),
-                      ),
-                      SizedBox(width: 7.w),
-                      Expanded(
-                        child: _lightScheduleBox(
-                          label: 'WATER',
-                          value: water.isEmpty ? '-' : water,
-                          icon: Icons.water_drop_outlined,
-                        ),
-                      ),
-                    ],
-                  ),
-
-                  if (remark.isNotEmpty) ...[
-                    SizedBox(height: 8.h),
-                    Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Icon(
-                          Icons.notes_rounded,
-                          color: context.secondaryTextColor,
-                          size: 14,
-                        ),
-                        SizedBox(width: 5.w),
-                        Expanded(
-                          child: Text(
-                            'Remark: $remark',
-                            style: TextStyle(
-                              fontSize: 10.sp,
-                              color: context.secondaryTextColor,
-                              height: 1.4,
-                            ),
+                          SizedBox(height: 4.h),
+                          Text(
+                            'Date: ${DateFormat('dd/MM/yyyy').format(detail.scheduleDate)}',
                           ),
-                        ),
-                      ],
-                    ),
-                  ],
-                ] else
-                  // Fallback for older/unlabeled schedule data
-                  Text(
-                    item.schedule,
-                    style: TextStyle(
-                      color: context.primaryTextColor,
-                      fontSize: 11.sp,
-                      height: 1.5,
-                    ),
-                  ),
+                          Text('Type: ${detail.productType}'),
+                          Text('Quantity: ${detail.productQty} ${detail.unit}'),
+                          Text('Water: ${detail.waterQty} ${detail.waterUnit}'),
+                          if (detail.remark.trim().isNotEmpty)
+                            Text('Remark: ${detail.remark.trim()}'),
+                        ],
+                      ),
+                    );
+                  })
+                else
+                  Text(item.schedule),
               ],
             ),
           );
@@ -2521,41 +2457,41 @@ class _FarmerSchedulePageState extends State<FarmerSchedulePage> {
       );
       return;
     }
-    final date = _savedSections.first.date;
-    final sameDate = _savedSections.every(
-      (entry) =>
-          entry.date.year == date.year &&
-          entry.date.month == date.month &&
-          entry.date.day == date.day,
-    );
-    if (!sameDate) {
-      _showMessage(
-        'One submission supports one schedule date. Please submit different dates separately.',
-      );
-      return;
+    final detailsByDate = <DateTime, List<AddScheduleDetail>>{};
+    for (final section in _savedSections) {
+      for (final detail in section.details) {
+        final date = DateTime(
+          detail.scheduleDate.year,
+          detail.scheduleDate.month,
+          detail.scheduleDate.day,
+        );
+        detailsByDate.putIfAbsent(date, () => []).add(detail);
+      }
     }
-    final details = _savedSections.expand((entry) => entry.details).toList();
-    final request = AddScheduleRequest(
-      empId: _employeeId,
-      plotId: state.selectedPlot!.plotId,
-      farmerId: state.selectedFarmer!.farmerId,
-      scheduleDate: date,
-      details: List.unmodifiable(details),
-    );
-    final body = request.toJson();
-    debugPrint('ADD SCHEDULE POST PARAMETERS');
-    debugPrint('empId: ${body['empId']}');
-    debugPrint('plotId: ${body['plotId']}');
-    debugPrint('farmerId: ${body['farmerId']}');
-    debugPrint('scheduleDate: ${body['scheduleDate']}');
-    debugPrint('details: ${jsonEncode(body['details'])}');
+    final requests = detailsByDate.entries
+        .map(
+          (entry) => AddScheduleRequest(
+            empId: _employeeId,
+            plotId: state.selectedPlot!.plotId,
+            farmerId: state.selectedFarmer!.farmerId,
+            scheduleDate: entry.key,
+            details: List.unmodifiable(entry.value),
+          ),
+        )
+        .toList();
+    final summary = detailsByDate.entries
+        .map(
+          (entry) =>
+              '${DateFormat('dd/MM/yyyy').format(entry.key)}: ${entry.value.length} products',
+        )
+        .join('\n');
 
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (dialogContext) => AlertDialog(
-        title: Text('Submit schedule?'),
+        title: Text('Submit schedule'),
         content: Text(
-          'Farmer: ${state.selectedFarmer!.farmerName}\nPlot: ${state.selectedPlot!.plotName}\nDate: ${body['scheduleDate']}\nProducts: ${details.length}\n\nPlease confirm. The schedule will be sent to the server.',
+          'Farmer: ${state.selectedFarmer!.farmerName}\nPlot: ${state.selectedPlot!.plotName}\nDate-wise requests: ${requests.length}\n$summary\n\nAre you sure you want to submit this schedule',
         ),
         actions: [
           TextButton(
@@ -2570,7 +2506,7 @@ class _FarmerSchedulePageState extends State<FarmerSchedulePage> {
       ),
     );
     if (!mounted || confirmed != true) return;
-    _submitBloc.add(SendAddSchedule(request));
+    _submitBloc.add(SendAddSchedule.batch(List.unmodifiable(requests)));
   }
 
   Future<void> _shareToWhatsApp(FarmerScheduleState state) async {

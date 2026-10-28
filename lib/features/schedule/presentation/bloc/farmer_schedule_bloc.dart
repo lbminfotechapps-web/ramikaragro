@@ -302,6 +302,8 @@ class FarmerScheduleBloc
       '(${event.water.trim()} ${event.waterUnit})',
     );
 
+    line.write('\nDate : ${DateFormat('dd/MM/yyyy').format(state.selectedDate!)}');
+
     if (event.remark.trim().isNotEmpty) {
       line.write('\nRemark : ${event.remark.trim()}');
     }
@@ -351,6 +353,7 @@ class FarmerScheduleBloc
     emit(
       state.copyWith(
         schedules: [...state.schedules, item],
+        currentScheduleLines: const [],
         selectedCropName: '',
         currentSchedule: '',
         crops: const [],

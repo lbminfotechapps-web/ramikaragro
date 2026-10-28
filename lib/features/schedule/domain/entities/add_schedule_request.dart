@@ -1,4 +1,3 @@
-
 class AddScheduleDetail {
   final String productName;
   final String cropId;
@@ -8,6 +7,7 @@ class AddScheduleDetail {
   final String waterQty;
   final String waterUnit;
   final String remark;
+  final DateTime scheduleDate;
 
   const AddScheduleDetail({
     required this.productName,
@@ -18,6 +18,7 @@ class AddScheduleDetail {
     required this.waterQty,
     required this.waterUnit,
     this.remark = '',
+    required this.scheduleDate,
   });
 
   Map<String, dynamic> toJson() {
@@ -29,6 +30,9 @@ class AddScheduleDetail {
       'unit': unit.trim(),
       'waterQty': waterQty.trim(),
       'waterUnit': waterUnit.trim(),
+      'remark': remark.trim(),
+      'date':
+          '${scheduleDate.year.toString().padLeft(4, '0')}-${scheduleDate.month.toString().padLeft(2, '0')}-${scheduleDate.day.toString().padLeft(2, '0')}',
     };
   }
 }

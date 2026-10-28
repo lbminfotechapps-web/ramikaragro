@@ -186,7 +186,6 @@ class _PlotRegistrationPageState extends State<PlotRegistrationPage> {
         return;
       }
     }
-    
 
     final payload = PlotModel.toJson(
       PlotSubmission(empId: _empId, plots: plots),
@@ -414,6 +413,19 @@ class _PlotRegistrationPageState extends State<PlotRegistrationPage> {
     final cropField = DropdownButtonFormField<String>(
       key: ValueKey('${plot.localId}_${plot.crop?.id ?? ""}'),
       initialValue: plot.crop?.name,
+      selectedItemBuilder: (context) => state.crops
+          .map(
+            (crop) => Align(
+              alignment: Alignment.centerLeft,
+              child: Text(
+                crop.name,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: const TextStyle(fontSize: 12),
+              ),
+            ),
+          )
+          .toList(),
       isExpanded: true,
       decoration: _fieldDecoration('Crop', Icons.spa_outlined).copyWith(
         errorText: _showDraftErrors && plot.crop == null

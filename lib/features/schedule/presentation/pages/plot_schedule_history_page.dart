@@ -96,7 +96,9 @@ class _HistoryBodyState extends State<_HistoryBody> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
       if (context.read<PlotScheduleBloc>().state.schedules.any(
-        (schedule) => schedule.status == null,
+        (schedule) =>
+            schedule.status == null ||
+            schedule.products.any((product) => product.remark == null),
       )) {
         _load();
       }
@@ -686,7 +688,6 @@ class _HistoryBodyState extends State<_HistoryBody> {
   // =====================================
 
   Widget _schedule(PlotScheduleEntity schedule) {
-    final remark = schedule.remark?.trim() ?? '';
     final isCompleted =
         schedule.status == '1' ||
         (_scheduleAnswers[schedule.id.trim()] ?? false);
@@ -748,19 +749,6 @@ class _HistoryBodyState extends State<_HistoryBody> {
             for (int i = 0; i < schedule.products.length; i++)
               _product(i + 1, schedule.products[i]),
           Divider(height: 16, color: line),
-          if (remark.isNotEmpty)
-            Text.rich(
-              TextSpan(
-                children: [
-                  TextSpan(
-                    text: 'Remark : ',
-                    style: TextStyle(fontWeight: FontWeight.w700, color: green),
-                  ),
-                  TextSpan(text: remark),
-                ],
-              ),
-              style: TextStyle(color: ink, fontSize: 12, height: 1.35),
-            ),
           SizedBox(height: 8),
           Container(
             padding: EdgeInsets.symmetric(horizontal: 6, vertical: 4),
@@ -857,6 +845,7 @@ class _HistoryBodyState extends State<_HistoryBody> {
   }
 
   Widget _product(int number, PlotScheduleProductEntity product) {
+    final remark = product.remark?.trim() ?? '';
     return Padding(
       padding: EdgeInsets.symmetric(vertical: 8),
       child: Column(
@@ -909,6 +898,21 @@ class _HistoryBodyState extends State<_HistoryBody> {
               ],
             ),
           ),
+          if (remark.isNotEmpty) ...[
+            SizedBox(height: 7),
+            Text.rich(
+              TextSpan(
+                children: [
+                  TextSpan(
+                    text: 'Remark: ',
+                    style: TextStyle(fontWeight: FontWeight.w700, color: green),
+                  ),
+                  TextSpan(text: remark),
+                ],
+              ),
+              style: TextStyle(color: ink, fontSize: 12, height: 1.35),
+            ),
+          ],
         ],
       ),
     );
