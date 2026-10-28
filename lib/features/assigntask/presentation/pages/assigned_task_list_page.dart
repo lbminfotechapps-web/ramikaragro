@@ -51,6 +51,7 @@ class _AssignedTaskListPageState
   AssignedTaskFilter _draft =
       const AssignedTaskFilter();
 
+  String _selectedSummary = 'Total';
   bool _showFilters = false;
   String _searchQuery = '';
 
@@ -74,7 +75,7 @@ class _AssignedTaskListPageState
   // ========================================================
 
   bool _isOverdue(AssignedTask task) {
-    // Uses fld_overdue_status returned by the API.
+    // Display overdue only when fld_overdue_status is 1.
     return task.isOverdue;
   }
 
@@ -123,22 +124,54 @@ class _AssignedTaskListPageState
     await completed;
   }
 
-  Future<void> _pickFromDate() async {
+  Future<void> _pickDate(bool from) async {
+    final current = from ? _draft.fromDate : _draft.toDate;
     final picked = await showDatePicker(
       context: context,
-      initialDate:
-          _draft.fromDate ?? DateTime.now(),
+      initialDate: current ?? DateTime.now(),
       firstDate: DateTime(2020),
       lastDate: DateTime(2100),
     );
-
     if (picked == null || !mounted) return;
-
+    final other = from ? _draft.toDate : _draft.fromDate;
+    if (other != null &&
+        (from ? picked.isAfter(other) : picked.isBefore(other))) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Invalid date range')),
+      );
+      return;
+    }
     setState(() {
-      _draft = _draft.copyWith(fromDate: picked);
+      _draft = from
+          ? _draft.copyWith(fromDate: picked)
+          : _draft.copyWith(toDate: picked);
     });
   }
 
+  Widget _dateFilter(bool from) {
+    final date = from ? _draft.fromDate : _draft.toDate;
+    final label = from ? 'From Date' : 'To Date';
+    return Expanded(
+      child: TextFormField(
+        key: ValueKey('$label:$date'),
+        initialValue: date == null ? '' : DateFormat('dd-MM-yyyy').format(date),
+        readOnly: true,
+        onTap: () => _pickDate(from),
+        style: TextStyle(fontSize: 12, color: context.primaryTextColor),
+        decoration: _inputDecoration(label, Icons.calendar_month_outlined).copyWith(
+          suffixIcon: date == null ? null : IconButton(
+            tooltip: 'Clear date',
+            icon: const Icon(Icons.close, size: 17),
+            onPressed: () => setState(() {
+              _draft = from
+                  ? _draft.copyWith(clearDate: true)
+                  : _draft.copyWith(clearToDate: true);
+            }),
+          ),
+        ),
+      ),
+    );
+  }
   // ========================================================
   // INPUT DECORATION
   // ========================================================
@@ -280,69 +313,14 @@ class _AssignedTaskListPageState
 
           const SizedBox(height: 9),
 
-          // FROM DATE
-          InkWell(
-            onTap: _pickFromDate,
-            borderRadius: BorderRadius.circular(11),
-            child: Container(
-              height: 47,
-              padding: const EdgeInsets.symmetric(
-                horizontal: 11,
-              ),
-              decoration: BoxDecoration(
-                color: context.backgroundColor,
-                borderRadius:
-                    BorderRadius.circular(11),
-                border: Border.all(
-                  color: context.borderColor,
-                ),
-              ),
-              child: Row(
-                children: [
-                  Icon(
-                    Icons.calendar_month_outlined,
-                    size: 18,
-                    color: context.primaryColor,
-                  ),
-                  const SizedBox(width: 9),
-                  Expanded(
-                    child: Text(
-                      _draft.fromDate == null
-                          ? 'From Date'
-                          : DateFormat(
-                              'dd MMM yyyy',
-                            ).format(_draft.fromDate!),
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: context.primaryTextColor,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  ),
-                  if (_draft.fromDate != null)
-                    IconButton(
-                      tooltip: 'Clear date',
-                      visualDensity:
-                          VisualDensity.compact,
-                      icon: Icon(
-                        Icons.close,
-                        size: 17,
-                      ),
-                      onPressed: () {
-                        setState(() {
-                          _draft = _draft.copyWith(
-                            clearDate: true,
-                          );
-                        });
-                      },
-                    ),
-                ],
-              ),
-            ),
+          Row(
+            children: [
+              _dateFilter(true),
+              const SizedBox(width: 8),
+              _dateFilter(false),
+            ],
           ),
-
           const SizedBox(height: 9),
-
           // EMPLOYEE FILTER
           DropdownButtonFormField<String>(
             key: ValueKey(
@@ -439,7 +417,10 @@ class _AssignedTaskListPageState
       Color color,
     ) {
       return Expanded(
-        child: Container(
+        child: InkWell(
+          onTap: () => setState(() => _selectedSummary = title),
+          borderRadius: BorderRadius.circular(11),
+          child: Container(
           padding: const EdgeInsets.symmetric(
             horizontal: 5,
             vertical: 10,
@@ -448,7 +429,8 @@ class _AssignedTaskListPageState
             color: context.cardBackgroundColor,
             borderRadius: BorderRadius.circular(11),
             border: Border.all(
-              color: context.borderColor,
+              color: _selectedSummary == title ? color : context.borderColor,
+              width: _selectedSummary == title ? 2 : 1,
             ),
           ),
           child: Column(
@@ -477,6 +459,7 @@ class _AssignedTaskListPageState
                 ),
               ),
             ],
+          ),
           ),
         ),
       );
@@ -614,7 +597,7 @@ class _AssignedTaskListPageState
               _searchQuery.trim().toLowerCase();
 
           // Keep your existing search logic.
-          final tasks = state.tasks.where((task) {
+          final summaryTasks = state.tasks.where((task) {
             if (query.isEmpty) return true;
 
             return task.title
@@ -631,6 +614,19 @@ class _AssignedTaskListPageState
           // ============================================
           // OVERDUE TASKS FIRST
           // ============================================
+
+          final tasks = summaryTasks.where((task) {
+            switch (_selectedSummary) {
+              case 'Pending':
+                return _isPending(task);
+              case 'Done':
+                return _isCompleted(task);
+              case 'Overdue':
+                return _isOverdue(task);
+              default:
+                return true;
+            }
+          }).toList();
 
           tasks.sort((a, b) {
             final aOverdue = _isOverdue(a);
@@ -658,17 +654,17 @@ class _AssignedTaskListPageState
           // SUMMARY COUNTS
           // ============================================
 
-          final totalCount = tasks.length;
+          final totalCount = summaryTasks.length;
 
-          final pendingCount = tasks
+          final pendingCount = summaryTasks
               .where(_isPending)
               .length;
 
-          final completedCount = tasks
+          final completedCount = summaryTasks
               .where(_isCompleted)
               .length;
 
-          final overdueCount = tasks
+          final overdueCount = summaryTasks
               .where(_isOverdue)
               .length;
 
@@ -729,7 +725,11 @@ class _AssignedTaskListPageState
                   children: [
                     Expanded(
                       child: Text(
-                        'Task List',
+                        _selectedSummary == 'Total'
+                            ? 'Task List'
+                            : _selectedSummary == 'Done'
+                                ? 'Completed Tasks'
+                                : '$_selectedSummary Tasks',
                         style: TextStyle(
                           color: context.primaryTextColor,
                           fontSize: 15,
@@ -1219,8 +1219,8 @@ class _AssignedTaskCard extends StatelessWidget {
                         children: [
                           Text(
                             task.title.isEmpty
-                                ? 'Untitled Task'
-                                : task.title,
+                                ? 'Task : Untitled Task'
+                                : 'Task : ${task.title}',
                             maxLines: 2,
                             overflow:
                                 TextOverflow.ellipsis,
@@ -1243,7 +1243,7 @@ class _AssignedTaskCard extends StatelessWidget {
                               const SizedBox(width: 4),
                               Expanded(
                                 child: Text(
-                                  task.assigneeName,
+                                  'Emp Name : ${task.assigneeName}',
                                   maxLines: 1,
                                   overflow:
                                       TextOverflow.ellipsis,
@@ -1277,7 +1277,7 @@ class _AssignedTaskCard extends StatelessWidget {
                   ...[
                     const SizedBox(height: 9),
                     Text(
-                      task.description,
+                      'Description : ${task.description}',
                       style: TextStyle(
                         color: context.primaryTextColor,
                         fontSize: 11,
@@ -1392,7 +1392,7 @@ class _AssignedTaskCard extends StatelessWidget {
                             const SizedBox(height: 6),
 
                             Text(
-                              task.remark.trim(),
+                              'Remark : ${task.remark.trim()}',
                               style: TextStyle(
                                 color: context.primaryTextColor,
                                 fontSize: 11,

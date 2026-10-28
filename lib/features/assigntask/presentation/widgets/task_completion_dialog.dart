@@ -213,7 +213,7 @@ class _TaskCompletionDialogState
                           CrossAxisAlignment.start,
                       children: [
                         Text(
-                          widget.task.title,
+                          'Task : ${widget.task.title}',
                           maxLines: 2,
                           overflow: TextOverflow.ellipsis,
                           style: const TextStyle(
@@ -224,8 +224,8 @@ class _TaskCompletionDialogState
                         ),
                         const SizedBox(height: 3),
                         Text(
-                          '#${widget.task.id}  •  '
-                          '${widget.task.employeeName}',
+                         // '#${widget.task.id}  •  '
+                          'Emp Name : ${widget.task.employeeName}',
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                           style: const TextStyle(

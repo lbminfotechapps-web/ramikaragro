@@ -33,6 +33,7 @@ class AssignTaskPage extends StatefulWidget {
 class _AssignTaskPageState extends State<AssignTaskPage> {
   final _searchController = TextEditingController();
 
+  String _selectedSummary = 'Total';
   bool _showFilters = false;
   String _query = '';
   String? _employeeId;
@@ -346,23 +347,23 @@ class _AssignTaskPageState extends State<AssignTaskPage> {
             );
         },
         builder: (context, state) {
-          final tasks = [...state.filteredTasks];
-
-          // Display overdue tasks first, then normal tasks.
-          tasks.sort((a, b) {
-            final aOverdue = _isOverdue(a);
-            final bOverdue = _isOverdue(b);
-
-            if (aOverdue != bOverdue) {
-              return aOverdue ? -1 : 1;
+          final summaryTasks = state.filteredTasks;
+          final tasks = summaryTasks.where((task) {
+            switch (_selectedSummary) {
+              case 'Pending':
+                return _isPending(task);
+              case 'Done':
+                return _isCompleted(task);
+              case 'Overdue':
+                return _isOverdue(task);
+              default:
+                return true;
             }
+          }).toList();
 
-            // Show newest assigned tasks first.
-            return b.assignedAt.compareTo(a.assignedAt);
-          });
-
+          // Preserve API order when filtering tasks.
           final overdueCount =
-              tasks.where(_isOverdue).length;
+              summaryTasks.where(_isOverdue).length;
 
           return RefreshIndicator(
             onRefresh: () async {
@@ -385,11 +386,11 @@ class _AssignTaskPageState extends State<AssignTaskPage> {
               ),
               children: [
                 _summary(
-                  total: tasks.length,
-                  pending: tasks
+                  total: summaryTasks.length,
+                  pending: summaryTasks
                       .where((t) => _isPending(t))
                       .length,
-                  completed: tasks
+                  completed: summaryTasks
                       .where((t) => _isCompleted(t))
                       .length,
                   overdue: overdueCount,
@@ -409,7 +410,11 @@ class _AssignTaskPageState extends State<AssignTaskPage> {
                   children: [
                     Expanded(
                       child: Text(
-                        'Created Tasks',
+                        _selectedSummary == 'Total'
+                            ? 'Created Tasks'
+                            : _selectedSummary == 'Done'
+                                ? 'Completed Tasks'
+                                : '$_selectedSummary Tasks',
                         style: TextStyle(
                           color: context.primaryTextColor,
                           fontSize: 15,
@@ -469,7 +474,10 @@ class _AssignTaskPageState extends State<AssignTaskPage> {
       Color color,
     ) {
       return Expanded(
-        child: Container(
+        child: InkWell(
+          onTap: () => setState(() => _selectedSummary = title),
+          borderRadius: BorderRadius.circular(11),
+          child: Container(
           padding: const EdgeInsets.symmetric(
             horizontal: 5,
             vertical: 10,
@@ -477,7 +485,10 @@ class _AssignTaskPageState extends State<AssignTaskPage> {
           decoration: BoxDecoration(
             color: context.cardBackgroundColor,
             borderRadius: BorderRadius.circular(11),
-            border: Border.all(color: context.borderColor),
+            border: Border.all(
+              color: _selectedSummary == title ? color : context.borderColor,
+              width: _selectedSummary == title ? 2 : 1,
+            ),
           ),
           child: Column(
             mainAxisSize: MainAxisSize.min,
@@ -502,6 +513,7 @@ class _AssignTaskPageState extends State<AssignTaskPage> {
                 ),
               ),
             ],
+          ),
           ),
         ),
       );
@@ -621,7 +633,7 @@ class _AssignTaskPageState extends State<AssignTaskPage> {
                   Text(
                     date == null
                         ? 'Any date'
-                        : taskDateFormat.format(date),
+                        : DateFormat('dd-MM-yyyy').format(date),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     style: TextStyle(
@@ -1007,7 +1019,7 @@ class _AssignTaskPageState extends State<AssignTaskPage> {
                             CrossAxisAlignment.start,
                         children: [
                           Text(
-                            task.title,
+                            'Task : ${task.title}',
                             maxLines: 2,
                             overflow:
                                 TextOverflow.ellipsis,
@@ -1019,8 +1031,8 @@ class _AssignTaskPageState extends State<AssignTaskPage> {
                           ),
                           const SizedBox(height: 3),
                           Text(
-                            '#${task.id} · '
-                            '${task.employeeName}',
+                           // '#${task.id} · '
+                            'Emp Name : ${task.employeeName}',
                             maxLines: 1,
                             overflow:
                                 TextOverflow.ellipsis,
@@ -1061,7 +1073,7 @@ class _AssignTaskPageState extends State<AssignTaskPage> {
                 if (task.description.trim().isNotEmpty) ...[
                   const SizedBox(height: 9),
                   Text(
-                    task.description,
+                    'Description : ${task.description}',
                     style: TextStyle(
                       color: context.secondaryTextColor,
                       fontSize: 11,
@@ -1137,7 +1149,7 @@ class _AssignTaskPageState extends State<AssignTaskPage> {
                             true) ...[
                           const SizedBox(height: 6),
                           Text(
-                            task.completionRemark!,
+                            'Remark : ${task.completionRemark!}',
                             style: TextStyle(
                               color: context.primaryTextColor,
                               fontSize: 11,
@@ -1200,12 +1212,12 @@ class _AssignTaskPageState extends State<AssignTaskPage> {
 
                     const SizedBox(width: 8),
 
-                    if (pending)
                       SizedBox(
                         height: 35,
                         child: FilledButton.icon(
-                          onPressed: () =>
-                              _openCompletion(task),
+                          onPressed: pending
+                              ? () => _openCompletion(task)
+                              : null,
                           style: FilledButton.styleFrom(
                             backgroundColor: context.primaryColor,
                             foregroundColor: context.onPrimaryColor,
@@ -1223,7 +1235,7 @@ class _AssignTaskPageState extends State<AssignTaskPage> {
                             size: 15,
                           ),
                           label: const Text(
-                            'Complete',
+                            'Complete Task',
                             style: TextStyle(
                               fontSize: 11,
                             ),

@@ -57,8 +57,11 @@ class AssignedTaskRemoteDataSourceImpl
       'status': filter.status,
       'from_date': filter.fromDate == null
           ? ''
-          : DateFormat('dd/MM/yyyy')
+          : DateFormat('dd-MM-yyyy')
               .format(filter.fromDate!),
+      'to_date': filter.toDate == null
+          ? ''
+          : DateFormat('dd-MM-yyyy').format(filter.toDate!),
       'emp_id': filter.employeeId,
     };
 
