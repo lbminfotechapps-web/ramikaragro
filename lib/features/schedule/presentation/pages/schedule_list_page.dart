@@ -31,6 +31,7 @@ class ScheduleListPage extends StatefulWidget {
 
 class _ScheduleListPageState extends State<ScheduleListPage> {
   final TextEditingController _farmerController = TextEditingController();
+  final TextEditingController _plotController = TextEditingController();
 
   final DateFormat _dateFormat = DateFormat('dd-MM-yyyy');
 
@@ -77,11 +78,18 @@ class _ScheduleListPageState extends State<ScheduleListPage> {
   @override
   void reassemble() {
     super.reassemble();
-    // Hot reload retains schedules created before fld_status was mapped.
+    // Refresh older objects retained by hot reload after adding API fields.
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted || _loadingEmployee || _employeeId.isEmpty) return;
       final schedules = context.read<ScheduleListBloc>().state.schedules;
-      if (schedules.any((schedule) => schedule.status == null)) {
+      if (schedules.any(
+        (schedule) =>
+            schedule.status == null ||
+            schedule.details.any(
+              (product) =>
+                  product.scheduleDate == null || product.remark == null,
+            ),
+      )) {
         _searchSchedules();
       }
     });
@@ -114,6 +122,7 @@ class _ScheduleListPageState extends State<ScheduleListPage> {
   void dispose() {
     _farmerTimer?.cancel();
     _farmerController.dispose();
+    _plotController.dispose();
     super.dispose();
   }
 
@@ -208,6 +217,7 @@ class _ScheduleListPageState extends State<ScheduleListPage> {
         ScheduleListFilter(
           empId: _employeeId,
           farmerId: _selectedFarmer?.farmerId ?? '',
+          plotSearch: _plotController.text.trim(),
           fromDate: _fromDate,
           toDate: _toDate,
         ),
@@ -222,6 +232,7 @@ class _ScheduleListPageState extends State<ScheduleListPage> {
   void _clearFilters() {
     _farmerTimer?.cancel();
     _farmerController.clear();
+    _plotController.clear();
 
     final now = DateTime.now();
 
@@ -238,130 +249,140 @@ class _ScheduleListPageState extends State<ScheduleListPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: _bg,
-      appBar: CustomAppBar(
-        title: 'Schedule List',
-        showBackButton: true,
-        backgroundColor: context.primaryColor,
-        titleStyle: AppTextStyles.appBarTitle.copyWith(
-          color: context.onPrimaryColor,
-        ),
-        leading: IconButton(
-          icon: Icon(
-            Icons.arrow_back_ios_new_rounded,
-            size: 20,
+    return PopScope(
+      canPop: context.canPop(),
+      onPopInvokedWithResult: (didPop, result) {
+        if (!didPop && mounted) {
+          context.go(AppRouter.home);
+        }
+      },
+      child: Scaffold(
+        backgroundColor: _bg,
+        appBar: CustomAppBar(
+          title: 'Schedule List',
+          showBackButton: true,
+          backgroundColor: context.primaryColor,
+          titleStyle: AppTextStyles.appBarTitle.copyWith(
             color: context.onPrimaryColor,
           ),
-          onPressed: () {
-            if (context.canPop()) {
-              context.pop();
-            } else {
-              context.go(AppRouter.home);
-            }
-          },
-        ),
-        action: IconButton(
-          tooltip: 'Show / Hide Filters',
-          icon: Icon(
-            _showFilters ? Icons.filter_alt_rounded : Icons.filter_alt_outlined,
-            color: context.onPrimaryColor,
-          ),
-          onPressed: () {
-            setState(() {
-              _showFilters = !_showFilters;
-            });
-          },
-        ),
-      ),
-
-      body: BlocConsumer<ScheduleListBloc, ScheduleListState>(
-        listenWhen: (previous, current) =>
-            previous.errorMessage != current.errorMessage &&
-            current.errorMessage.isNotEmpty,
-        listener: (context, state) {
-          _showMessage(state.errorMessage);
-        },
-        builder: (context, state) {
-          return RefreshIndicator(
-            onRefresh: () async {
-              if (_loadingEmployee ||
-                  _employeeId.isEmpty ||
-                  _fromDate.isAfter(_toDate)) {
-                return;
-              }
-
-              final bloc = context.read<ScheduleListBloc>();
-
-              final completion = bloc.stream.firstWhere(
-                (s) =>
-                    s.status == ScheduleListStatus.success ||
-                    s.status == ScheduleListStatus.failure,
-              );
-
-              _searchSchedules();
-              await completion;
-            },
-            child: ListView(
-              padding: EdgeInsets.fromLTRB(12.w, 10.h, 12.w, 24.h),
-              children: [
-                // COMPACT FILTER SUMMARY
-                _buildFilterSummary(),
-
-                if (_showFilters) ...[
-                  SizedBox(height: 10.h),
-                  _buildFilterCard(state),
-                ],
-
-                SizedBox(height: 14.h),
-
-                if (state.status == ScheduleListStatus.loading)
-                  _loadingWidget(),
-
-                if (state.status == ScheduleListStatus.failure)
-                  _statusWidget(
-                    icon: Icons.error_outline_rounded,
-                    title: 'Unable to load schedules',
-                    subtitle: state.errorMessage,
-                    buttonText: 'Retry',
-                    onPressed: _searchSchedules,
-                  ),
-
-                if (state.status == ScheduleListStatus.success &&
-                    state.schedules.isEmpty)
-                  _statusWidget(
-                    icon: Icons.event_busy_outlined,
-                    title: 'No schedules found',
-                    subtitle:
-                        'No records found for the selected farmer '
-                        'and date range.',
-                  ),
-
-                if (state.status == ScheduleListStatus.success &&
-                    state.schedules.isNotEmpty) ...[
-                  _buildListHeader(state.schedules),
-                  SizedBox(height: 10.h),
-
-                  ...state.schedules.map(
-                    (schedule) => Padding(
-                      padding: EdgeInsets.only(bottom: 9.h),
-                      child: _buildScheduleCard(schedule),
-                    ),
-                  ),
-                ],
-
-                if (state.status == ScheduleListStatus.initial)
-                  _statusWidget(
-                    icon: Icons.manage_search_rounded,
-                    title: 'Find Farmer Schedules',
-                    subtitle:
-                        'Choose a date range and optionally a farmer to '
-                        'view registered schedules.',
-                  ),
-              ],
+          leading: IconButton(
+            icon: Icon(
+              Icons.arrow_back_ios_new_rounded,
+              size: 20,
+              color: context.onPrimaryColor,
             ),
-          );
-        },
+            onPressed: () {
+              if (context.canPop()) {
+                context.pop();
+              } else {
+                context.go(AppRouter.home);
+              }
+            },
+          ),
+          action: IconButton(
+            tooltip: 'Show / Hide Filters',
+            icon: Icon(
+              _showFilters
+                  ? Icons.filter_alt_rounded
+                  : Icons.filter_alt_outlined,
+              color: context.onPrimaryColor,
+            ),
+            onPressed: () {
+              setState(() {
+                _showFilters = !_showFilters;
+              });
+            },
+          ),
+        ),
+
+        body: BlocConsumer<ScheduleListBloc, ScheduleListState>(
+          listenWhen: (previous, current) =>
+              previous.errorMessage != current.errorMessage &&
+              current.errorMessage.isNotEmpty,
+          listener: (context, state) {
+            _showMessage(state.errorMessage);
+          },
+          builder: (context, state) {
+            return RefreshIndicator(
+              onRefresh: () async {
+                if (_loadingEmployee ||
+                    _employeeId.isEmpty ||
+                    _fromDate.isAfter(_toDate)) {
+                  return;
+                }
+
+                final bloc = context.read<ScheduleListBloc>();
+
+                final completion = bloc.stream.firstWhere(
+                  (s) =>
+                      s.status == ScheduleListStatus.success ||
+                      s.status == ScheduleListStatus.failure,
+                );
+
+                _searchSchedules();
+                await completion;
+              },
+              child: ListView(
+                padding: EdgeInsets.fromLTRB(12.w, 10.h, 12.w, 24.h),
+                children: [
+                  // COMPACT FILTER SUMMARY
+                  _buildFilterSummary(),
+
+                  if (_showFilters) ...[
+                    SizedBox(height: 10.h),
+                    _buildFilterCard(state),
+                  ],
+
+                  SizedBox(height: 14.h),
+
+                  if (state.status == ScheduleListStatus.loading)
+                    _loadingWidget(),
+
+                  if (state.status == ScheduleListStatus.failure)
+                    _statusWidget(
+                      icon: Icons.error_outline_rounded,
+                      title: 'Unable to load schedules',
+                      subtitle: state.errorMessage,
+                      buttonText: 'Retry',
+                      onPressed: _searchSchedules,
+                    ),
+
+                  if (state.status == ScheduleListStatus.success &&
+                      state.schedules.isEmpty)
+                    _statusWidget(
+                      icon: Icons.event_busy_outlined,
+                      title: 'No schedules found',
+                      subtitle:
+                          'No records found for the selected farmer '
+                          'and date range.',
+                    ),
+
+                  if (state.status == ScheduleListStatus.success &&
+                      state.schedules.isNotEmpty) ...[
+                    _buildListHeader(state.schedules),
+                    SizedBox(height: 10.h),
+
+                    ...state.schedules.map(
+                      (schedule) => Padding(
+                        padding: EdgeInsets.only(bottom: 9.h),
+                        child: _buildScheduleCard(schedule),
+                      ),
+                    ),
+                  ],
+
+                  if (state.status == ScheduleListStatus.initial)
+                    _statusWidget(
+                      icon: Icons.manage_search_rounded,
+                      title: 'Find Farmer Schedules',
+                      subtitle:
+                          'Choose a date range and optionally a farmer to '
+                          'view registered schedules.',
+                    ),
+                ],
+              ),
+            );
+          },
+        ),
       ),
     );
   }
@@ -505,6 +526,18 @@ class _ScheduleListPageState extends State<ScheduleListPage> {
             ),
           ],
 
+          SizedBox(height: 10.h),
+
+          TextField(
+            controller: _plotController,
+            textInputAction: TextInputAction.search,
+            onSubmitted: (_) => _searchSchedules(),
+            style: TextStyle(fontSize: 12.sp),
+            decoration: _inputDecoration(
+              'Search Plot Name (optional)',
+              Icons.grass_outlined,
+            ),
+          ),
           SizedBox(height: 10.h),
 
           // DATES IN SAME ROW
@@ -941,14 +974,40 @@ class _ScheduleListPageState extends State<ScheduleListPage> {
   }
 
   Widget _buildScheduleCard(ScheduleListEntity schedule) {
-    return Container(
+    final completed =
+        schedule.status == '1' ||
+        _completedScheduleIds.contains(schedule.scheduleId.trim());
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final completionColor = isDark
+        ? Colors.green.shade300
+        : Colors.green.shade900;
+    return AnimatedContainer(
+      duration: const Duration(milliseconds: 200),
       decoration: BoxDecoration(
         color: context.cardBackgroundColor,
+        gradient: completed
+            ? LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [
+                  Color.alphaBlend(
+                    completionColor.withValues(alpha: 0.10),
+                    context.cardBackgroundColor,
+                  ),
+                  context.cardBackgroundColor,
+                ],
+              )
+            : null,
         borderRadius: BorderRadius.circular(12.r),
-        border: Border.all(color: _border),
+        border: Border.all(
+          color: completed ? completionColor : _border,
+          width: 1,
+        ),
         boxShadow: [
           BoxShadow(
-            color: context.appColors.shadow.withValues(alpha: 0.025),
+            color: completed
+                ? completionColor.withValues(alpha: 0.10)
+                : context.appColors.shadow.withValues(alpha: 0.025),
             blurRadius: 10,
             offset: Offset(0, 3),
           ),
@@ -1021,24 +1080,60 @@ class _ScheduleListPageState extends State<ScheduleListPage> {
                     ],
                   ),
 
-                
-
                   Row(
                     children: [
                       Expanded(
-                        child: Wrap(
-                          spacing: 6.w,
-                          runSpacing: 5.h,
+                        child: FittedBox(
+                          fit: BoxFit.scaleDown,
+                          alignment: Alignment.centerLeft,
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              _miniChip(Icons.inventory_2_outlined, '${schedule.details.length} Products'),
+                              SizedBox(width: 6.w),
+                              _miniChip(Icons.calendar_today_outlined, schedule.scheduleDate),
+                              if (completed) ...[
+                                SizedBox(width: 6.w),
+                    Semantics(
+                      label: 'Schedule completed',
+                      child: Container(
+                        padding: EdgeInsets.symmetric(
+                          horizontal: 10.w,
+                          vertical: 6.h,
+                        ),
+                        decoration: BoxDecoration(
+                          color: completionColor.withValues(alpha: 0.12),
+                          borderRadius: BorderRadius.circular(20.r),
+                          border: Border.all(
+                            color: completionColor.withValues(alpha: 0.25),
+                          ),
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
                           children: [
-                            _miniChip(
-                              Icons.calendar_today_outlined,
-                              schedule.scheduleDate,
+                            Icon(
+                              Icons.check_circle_rounded,
+                              size: 16.sp,
+                              color: completionColor,
                             ),
-                            _miniChip(
-                              Icons.inventory_2_outlined,
-                              '${schedule.details.length} Products',
+                            SizedBox(width: 6.w),
+                            Flexible(
+                              child: Text(
+                                'Completed Schedule',
+                                style: TextStyle(
+                                  fontSize: 10.5.sp,
+                                  fontWeight: FontWeight.w800,
+                                  color: completionColor,
+                                ),
+                              ),
                             ),
                           ],
+                        ),
+                      ),
+                    ),
+                              ],
+                            ],
+                          ),
                         ),
                       ),
                       Builder(
@@ -1147,7 +1242,6 @@ class _ScheduleListPageState extends State<ScheduleListPage> {
 
   Widget _buildProductGroup(ScheduleListEntity schedule) {
     final products = schedule.details;
-    final remark = schedule.remark?.trim() ?? '';
     final scheduleId = schedule.scheduleId.trim();
     final selected =
         schedule.status == '1' || (_scheduleAnswers[scheduleId] ?? false);
@@ -1175,59 +1269,6 @@ class _ScheduleListPageState extends State<ScheduleListPage> {
               ],
             ),
           ),
-          if (remark.isNotEmpty)
-            Container(
-              margin: EdgeInsets.fromLTRB(10.w, 2.h, 10.w, 10.h),
-              padding: EdgeInsets.all(12.w),
-              decoration: BoxDecoration(
-                color: _lightGreen,
-                borderRadius: BorderRadius.circular(12.r),
-                border: Border.all(color: _border),
-              ),
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Container(
-                    padding: EdgeInsets.all(7.w),
-                    decoration: BoxDecoration(
-                      color: context.cardBackgroundColor,
-                      borderRadius: BorderRadius.circular(9.r),
-                    ),
-                    child: Icon(
-                      Icons.notes_rounded,
-                      color: _green,
-                      size: 18.sp,
-                    ),
-                  ),
-                  SizedBox(width: 10.w),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'Remark',
-                          style: TextStyle(
-                            color: _green,
-                            fontSize: 10.sp,
-                            fontWeight: FontWeight.w700,
-                            letterSpacing: 0.4,
-                          ),
-                        ),
-                        SizedBox(height: 4.h),
-                        Text(
-                          remark,
-                          style: TextStyle(
-                            color: _dark,
-                            fontSize: 11.5.sp,
-                            height: 1.5,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-            ),
           Container(
             padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 7.h),
             decoration: BoxDecoration(
@@ -1415,6 +1456,12 @@ class _ScheduleListPageState extends State<ScheduleListPage> {
   }
 
   Widget _buildProductRow(int index, ScheduleProductEntity product) {
+    final productDate = product.scheduleDate?.trim() ?? '';
+    final remark = product.remark?.trim() ?? '';
+    final parsedDate = DateTime.tryParse(productDate);
+    final date = parsedDate == null
+        ? productDate
+        : _dateFormat.format(parsedDate);
     return Padding(
       padding: EdgeInsets.symmetric(vertical: 10.h),
       child: Column(
@@ -1522,6 +1569,26 @@ class _ScheduleListPageState extends State<ScheduleListPage> {
               ],
             ),
           ),
+          if (date.trim().isNotEmpty) ...[
+            SizedBox(height: 6.h),
+            Padding(
+              padding: EdgeInsets.only(left: 29.w),
+              child: Text(
+                'Date: $date',
+                style: TextStyle(fontSize: 10.sp, color: _muted),
+              ),
+            ),
+          ],
+          if (remark.isNotEmpty) ...[
+            SizedBox(height: 6.h),
+            Padding(
+              padding: EdgeInsets.only(left: 29.w),
+              child: Text(
+                'Remark: $remark',
+                style: TextStyle(fontSize: 11.sp, color: _dark, height: 1.5),
+              ),
+            ),
+          ],
         ],
       ),
     );

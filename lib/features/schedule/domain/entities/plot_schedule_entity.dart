@@ -9,6 +9,7 @@ class PlotScheduleProductEntity {
   final String unit;
   final String waterQuantity;
   final String waterUnit;
+  final String? remark;
 
   const PlotScheduleProductEntity({
     required this.id,
@@ -21,6 +22,7 @@ class PlotScheduleProductEntity {
     required this.unit,
     required this.waterQuantity,
     required this.waterUnit,
+    this.remark = '',
   });
 }
 

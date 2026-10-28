@@ -9,6 +9,8 @@ class ScheduleProductEntity {
   final String unit;
   final String waterQty;
   final String waterUnit;
+  final String? remark;
+  final String? scheduleDate;
 
   const ScheduleProductEntity({
     required this.detailId,
@@ -21,6 +23,8 @@ class ScheduleProductEntity {
     required this.unit,
     required this.waterQty,
     required this.waterUnit,
+    this.remark = '',
+    this.scheduleDate = '',
   });
 }
 
@@ -58,12 +62,14 @@ class ScheduleListEntity {
 class ScheduleListFilter {
   final String empId;
   final String farmerId;
+  final String plotSearch;
   final DateTime fromDate;
   final DateTime toDate;
 
   const ScheduleListFilter({
     required this.empId,
     this.farmerId = '',
+    this.plotSearch = '',
     required this.fromDate,
     required this.toDate,
   });
@@ -78,6 +84,7 @@ class ScheduleListFilter {
   Map<String, String> toPostData() => {
     'empId': empId.trim(),
     if (farmerId.trim().isNotEmpty) 'farmerId': farmerId.trim(),
+    if (plotSearch.trim().isNotEmpty) 'plotsearch': plotSearch.trim(),
     'fromDate': formatDate(fromDate),
     'toDate': formatDate(toDate),
   };

@@ -12,6 +12,8 @@ class ScheduleProductModel extends ScheduleProductEntity {
     required super.unit,
     required super.waterQty,
     required super.waterUnit,
+    super.remark,
+    super.scheduleDate,
   });
 
   factory ScheduleProductModel.fromJson(Map<String, dynamic> json) {
@@ -28,6 +30,8 @@ class ScheduleProductModel extends ScheduleProductEntity {
       unit: read('fld_unit'),
       waterQty: read('fld_water_qty'),
       waterUnit: read('fld_water_unit'),
+      remark: read('fld_remark'),
+      scheduleDate: read('fld_schedule_date'),
     );
   }
 }
