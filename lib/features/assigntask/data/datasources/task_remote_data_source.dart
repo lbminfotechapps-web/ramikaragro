@@ -178,9 +178,7 @@ class TaskRemoteDataSourceImpl
       );
     }
 
-    tasks.sort(
-      (a, b) => b.createdAt.compareTo(a.createdAt),
-    );
+    // Keep the order returned by the API.
 
     debugPrint('MAPPED TASKS: ${tasks.length}');
 

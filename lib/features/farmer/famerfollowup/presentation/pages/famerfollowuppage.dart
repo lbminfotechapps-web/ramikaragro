@@ -1149,7 +1149,9 @@ Future<void> _captureImage() async {
 
   Widget _buildFollowUpType() {
     return DropdownButtonFormField<String>(
-      style: AppTextStyles.input,
+      style: AppTextStyles.input.copyWith(color: context.appOnCard),
+      dropdownColor: context.appCard,
+      isExpanded: true,
       key: _fieldKeys['type'],
       focusNode: _fieldFocus['type'],
       value: selectedFollowUpType,
@@ -1169,7 +1171,10 @@ Future<void> _captureImage() async {
       items: followUpTypes.map((type) {
         return DropdownMenuItem<String>(
           value: type,
-          child: Text(type, style: AppTextStyles.bodyMedium),
+          child: Text(
+            type,
+            style: AppTextStyles.bodyMedium.copyWith(color: context.appOnCard),
+          ),
         );
       }).toList(),
 

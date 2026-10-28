@@ -49,11 +49,7 @@ class AssignedTask {
     }
   }
 
-  bool get isOverdue =>
-      overdueStatus == '1' ||
-      (dueDate != null &&
-          dueDate!.isBefore(DateTime.now()) &&
-          status == '0');
+  bool get isOverdue => overdueStatus.trim() == '1';
 }
 
 // =====================================================
@@ -65,20 +61,24 @@ class AssignedTaskFilter {
     this.priority = '',
     this.status = '',
     this.fromDate,
+    this.toDate,
     this.employeeId = '',
   });
 
   final String priority;
   final String status;
   final DateTime? fromDate;
+  final DateTime? toDate;
   final String employeeId;
 
   AssignedTaskFilter copyWith({
     String? priority,
     String? status,
     DateTime? fromDate,
+    DateTime? toDate,
     String? employeeId,
     bool clearDate = false,
+    bool clearToDate = false,
   }) {
     return AssignedTaskFilter(
       priority: priority ?? this.priority,
@@ -86,6 +86,7 @@ class AssignedTaskFilter {
       fromDate: clearDate
           ? null
           : fromDate ?? this.fromDate,
+      toDate: clearToDate ? null : toDate ?? this.toDate,
       employeeId: employeeId ?? this.employeeId,
     );
   }

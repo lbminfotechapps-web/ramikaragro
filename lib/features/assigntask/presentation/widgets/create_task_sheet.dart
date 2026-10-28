@@ -16,7 +16,6 @@ import 'task_photo.dart';
 
 const _green = Color(0xFF16803D);
 const _dark = Color(0xFF172B3A);
-const _muted = Color(0xFF64748B);
 const _border = Color(0xFFE2EAE5);
 const _background = Color(0xFFF5F7F6);
 
@@ -326,55 +325,29 @@ class _CreateTaskSheetState
     String label,
     String value,
     IconData icon,
-    VoidCallback onTap,
+    VoidCallback? onTap,
   ) {
     return Expanded(
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(10),
-        child: Container(
-          padding: const EdgeInsets.all(10),
-          decoration: BoxDecoration(
-            color: _background,
-            borderRadius: BorderRadius.circular(10),
-            border: Border.all(color: _border),
-          ),
-          child: Row(
-            children: [
-              Icon(icon, color: _green, size: 16),
-              const SizedBox(width: 6),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment:
-                      CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      label,
-                      style: const TextStyle(
-                        color: _muted,
-                        fontSize: 10,
-                      ),
-                    ),
-                    Text(
-                      value,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(
-                        color: _dark,
-                        fontSize: 11,
-                        fontWeight: FontWeight.w700,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
+      child: TextFormField(
+        key: ValueKey('$label:$value'),
+        initialValue: value,
+        readOnly: true,
+        enabled: onTap != null,
+        onTap: onTap == null ? null : () {
+          FocusManager.instance.primaryFocus?.unfocus();
+          onTap();
+        },
+        style: const TextStyle(
+          color: _dark,
+          fontSize: 11,
+          fontWeight: FontWeight.w700,
+        ),
+        decoration: _input(label, icon).copyWith(
+          suffixIcon: onTap == null ? null : const Icon(Icons.arrow_drop_down, size: 20),
         ),
       ),
     );
   }
-
   @override
   Widget build(BuildContext context) {
     return BlocListener<TaskBloc, TaskState>(
@@ -518,7 +491,7 @@ class _CreateTaskSheetState
                               DateFormat('dd MMM yyyy')
                                   .format(_assignedAt),
                               Icons.event,
-                              () => _pickDate(true),
+                              null,
                             ),
                             const SizedBox(width: 8),
                             _tile(
@@ -526,7 +499,7 @@ class _CreateTaskSheetState
                               DateFormat('HH:mm')
                                   .format(_assignedAt),
                               Icons.schedule,
-                              () => _pickTime(true),
+                              null,
                             ),
                           ],
                         ),
