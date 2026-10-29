@@ -1292,7 +1292,8 @@ class _FarmerSchedulePageState extends State<FarmerSchedulePage> {
 
                   decoration: _inputDecoration(
                     'Quantity',
-                    Icons.numbers_rounded,
+                  //  Icons.numbers_rounded,
+                    Icons.scale_outlined,
                   ),
                 ),
               ),
