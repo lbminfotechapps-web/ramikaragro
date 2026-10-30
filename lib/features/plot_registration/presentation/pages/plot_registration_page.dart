@@ -1,5 +1,6 @@
 import 'package:solufine/features/schedule/domain/entities/schedule_farmer_entity.dart';
 import 'dart:convert';
+import 'package:flutter/services.dart';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -30,6 +31,7 @@ class _PlotRegistrationPageState extends State<PlotRegistrationPage> {
 
   final Set<String> _expanded = {};
   final Map<String, TextEditingController> _names = {};
+  final Map<String, TextEditingController> _acres = {};
 
   @override
   void initState() {
@@ -70,7 +72,7 @@ class _PlotRegistrationPageState extends State<PlotRegistrationPage> {
 
   @override
   void dispose() {
-    for (final controller in _names.values) {
+    for (final controller in [..._names.values, ..._acres.values]) {
       controller.dispose();
     }
     super.dispose();
@@ -90,6 +92,11 @@ class _PlotRegistrationPageState extends State<PlotRegistrationPage> {
       () => TextEditingController(text: plot.plotName),
     );
   }
+
+  TextEditingController _acreController(PlotEntry plot) => _acres.putIfAbsent(
+    plot.localId,
+    () => TextEditingController(text: plot.acres),
+  );
 
   Future<void> _selectDate(PlotEntry plot) async {
     final selected = await showDatePicker(
@@ -114,6 +121,8 @@ class _PlotRegistrationPageState extends State<PlotRegistrationPage> {
     String? error;
     if (name.isEmpty) {
       error = 'Please enter the plot name.';
+    } else if (!plot.hasValidAcres) {
+      error = 'Please enter a valid area in acres greater than zero.';
     } else if (plot.farmer == null) {
       error = 'Please select a farmer.';
     } else if (plot.crop == null) {
@@ -206,17 +215,27 @@ class _PlotRegistrationPageState extends State<PlotRegistrationPage> {
   InputDecoration _fieldDecoration(String label, IconData icon) {
     return InputDecoration(
       labelText:
-          const ['Plot name', 'Farmer', 'Crop', 'Sowing date'].contains(label)
+          const [
+            'Plot name',
+            'Farmer',
+            'Crop',
+            'Sowing date',
+            'Plot area',
+          ].contains(label)
           ? '$label *'
           : label,
-      prefixIcon: Icon(icon, size: 20),
+      prefixIcon: Icon(icon, size: 20, color: context.appColors.primary),
       isDense: true,
       filled: true,
       fillColor: context.appColors.surfaceContainerLow,
       contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
-      border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+      focusedBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(16),
+        borderSide: BorderSide(color: context.appColors.primary, width: 1.6),
+      ),
+      border: OutlineInputBorder(borderRadius: BorderRadius.circular(16)),
       enabledBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(16),
         borderSide: BorderSide(color: context.borderColor),
       ),
     );
@@ -250,6 +269,7 @@ class _PlotRegistrationPageState extends State<PlotRegistrationPage> {
 
   bool _hasDraftValues(PlotEntry plot) =>
       plot.plotName.trim().isNotEmpty ||
+      plot.acres.trim().isNotEmpty ||
       plot.farmer != null ||
       plot.crop != null ||
       plot.sowingDate != null;
@@ -330,6 +350,10 @@ class _PlotRegistrationPageState extends State<PlotRegistrationPage> {
               runSpacing: 8,
               children: [
                 _summaryDetail(
+                  Icons.square_foot_rounded,
+                  '${plot.acres} acres',
+                ),
+                _summaryDetail(
                   Icons.spa_outlined,
                   plot.crop?.name ?? 'Crop not selected',
                 ),
@@ -396,6 +420,7 @@ class _PlotRegistrationPageState extends State<PlotRegistrationPage> {
   }
 
   bool _isComplete(PlotEntry plot) =>
+      plot.hasValidAcres &&
       plot.plotName.trim().isNotEmpty &&
       plot.farmer?.id.isNotEmpty == true &&
       plot.crop?.id.isNotEmpty == true &&
@@ -555,6 +580,38 @@ class _PlotRegistrationPageState extends State<PlotRegistrationPage> {
                     ),
                   ),
                   const SizedBox(height: 12),
+                  TextField(
+                    controller: _acreController(plot),
+                    enabled: !submitting,
+                    keyboardType: const TextInputType.numberWithOptions(
+                      decimal: true,
+                    ),
+                    textInputAction: TextInputAction.next,
+                    inputFormatters: [
+                      TextInputFormatter.withFunction(
+                        (oldValue, newValue) =>
+                            RegExp(r'^\d*\.?\d*$').hasMatch(newValue.text)
+                            ? newValue
+                            : oldValue,
+                      ),
+                    ],
+                    decoration:
+                        _fieldDecoration(
+                          'Plot area',
+                          Icons.square_foot_rounded,
+                        ).copyWith(
+                          hintText: 'e.g. 2.5',
+                          suffixText: 'acres',
+                          helperText: 'Enter the cultivated area of this plot',
+                          errorText: _showDraftErrors && !plot.hasValidAcres
+                              ? 'Enter an area greater than zero'
+                              : null,
+                        ),
+                    onChanged: (value) => context.read<PlotBloc>().add(
+                      UpdatePlotAcresEvent(plot.localId, value),
+                    ),
+                  ),
+                  const SizedBox(height: 16),
                   LayoutBuilder(
                     builder: (context, constraints) {
                       if (constraints.maxWidth < 330 ||
@@ -645,7 +702,7 @@ class _PlotRegistrationPageState extends State<PlotRegistrationPage> {
               const SizedBox(width: 8),
               Expanded(
                 child: Text(
-                  'Add Plots',
+                  'Register your plots',
                   style: Theme.of(context).textTheme.titleMedium?.copyWith(
                     fontWeight: FontWeight.w700,
                   ),

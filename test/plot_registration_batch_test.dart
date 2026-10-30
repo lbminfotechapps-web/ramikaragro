@@ -28,6 +28,7 @@ Future<void> _completeDraft(PlotBloc bloc, String name) async {
   final id = bloc.state.plots.last.localId;
   final ready = bloc.stream.firstWhere((s) => s.plots.last.sowingDate != null);
   bloc.add(UpdatePlotNameEvent(id, name));
+  bloc.add(UpdatePlotAcresEvent(id, '2.5'));
   bloc.add(
     UpdatePlotFarmerEvent(id, const FarmerOption(id: '7', name: 'Farmer')),
   );
@@ -37,6 +38,16 @@ Future<void> _completeDraft(PlotBloc bloc, String name) async {
 }
 
 void main() {
+  test('acreage must be positive and finite and survives plot changes', () {
+    const plot = PlotEntry(localId: 'area');
+    for (final value in ['', '0', '-1', 'NaN', 'Infinity', 'abc']) {
+      expect(plot.copyWith(acres: value).hasValidAcres, isFalse);
+    }
+    final updated = plot.copyWith(acres: '2.5').copyWith(plotName: 'Field');
+    expect(updated.hasValidAcres, isTrue);
+    expect(updated.acres, '2.5');
+    expect(plot.copyWith(acres: '2.5').isBlank, isFalse);
+  });
   test('schedule farmer is retained for plots, submission and reset', () async {
     final repository = _Repository();
     final bloc = PlotBloc(
@@ -66,6 +77,11 @@ void main() {
     await saved;
     expect(repository.requests.single.plots, hasLength(1));
     expect(repository.requests.single.plots.single.farmer?.id, '42');
+    expect(
+      (PlotModel.toJson(repository.requests.single)['plots'] as List)
+          .single['acres'],
+      '2.5',
+    );
     final reset = bloc.stream.firstWhere(
       (s) => s.submitStatus == PlotSubmitStatus.initial,
     );
@@ -75,52 +91,45 @@ void main() {
     expect(bloc.state.plots.single.isBlank, isTrue);
   });
 
-  test(
-    'add captures visible name and accepts selected crop with missing API ID',
-    () async {
-      final repository = _Repository();
-      final bloc = PlotBloc(
-        searchFarmers: SearchPlotFarmers(repository),
-        getCrops: GetPlotCrops(repository),
-        submitPlotRegistration: SubmitPlotRegistration(repository),
-      );
-      addTearDown(bloc.close);
-      await bloc.stream.firstWhere((s) => s.plots.isNotEmpty);
-      final id = bloc.state.plots.last.localId;
-      final ready = bloc.stream.firstWhere(
-        (s) => s.plots.last.sowingDate != null,
-      );
-      bloc.add(
-        UpdatePlotFarmerEvent(id, const FarmerOption(id: '7', name: 'Farmer')),
-      );
-      bloc.add(UpdatePlotCropEvent(id, const CropOption(id: '', name: 'Crop')));
-      bloc.add(UpdatePlotDateEvent(id, DateTime(2026, 10, 19)));
-      await ready;
-      final added = bloc.stream.firstWhere((s) => s.plots.length == 2);
-      bloc.add(const AddPlotEvent(plotName: 'Visible name'));
-      await added;
-      expect(bloc.state.plots.first.plotName, 'Visible name');
-      expect(bloc.state.plots.last.plotName, isEmpty);
-      expect(bloc.state.plots.last.farmer, isNull);
-      final rejected = bloc.stream.firstWhere(
-        (s) => s.submitStatus == PlotSubmitStatus.failure,
-      );
-      bloc.add(const SubmitPlotsEvent('4'));
-      await rejected;
-      expect(repository.requests, isEmpty);
-    },
-  );
+  test('add rejects a selected crop with missing API ID', () async {
+    final repository = _Repository();
+    final bloc = PlotBloc(
+      searchFarmers: SearchPlotFarmers(repository),
+      getCrops: GetPlotCrops(repository),
+      submitPlotRegistration: SubmitPlotRegistration(repository),
+    );
+    addTearDown(bloc.close);
+    await bloc.stream.firstWhere((s) => s.plots.isNotEmpty);
+    final id = bloc.state.plots.last.localId;
+    final ready = bloc.stream.firstWhere(
+      (s) => s.plots.last.sowingDate != null,
+    );
+    bloc.add(
+      UpdatePlotFarmerEvent(id, const FarmerOption(id: '7', name: 'Farmer')),
+    );
+    bloc.add(UpdatePlotCropEvent(id, const CropOption(id: '', name: 'Crop')));
+    bloc.add(UpdatePlotDateEvent(id, DateTime(2026, 10, 19)));
+    await ready;
+    final rejected = bloc.stream.firstWhere(
+      (s) => s.submitStatus == PlotSubmitStatus.failure,
+    );
+    bloc.add(const AddPlotEvent(plotName: 'Visible name'));
+    await rejected;
+    expect(repository.requests, isEmpty);
+  });
 
   test('JSON preview safely displays incomplete retained entries', () {
     const empty = PlotEntry(localId: 'old');
     expect(PlotModel.previewJson(empty), {
       'plotName': '',
+      'acres': '',
       'scheduleDate': null,
       'cropId': null,
       'farmerId': null,
     });
     final complete = empty.copyWith(
       plotName: 'Field',
+      acres: '2.5',
       farmer: const FarmerOption(id: '7', name: 'Farmer'),
       crop: const CropOption(id: '9', name: 'Crop'),
       sowingDate: DateTime(2026, 10, 19),
@@ -200,7 +209,7 @@ void main() {
     await rejectedAdd;
     expect(bloc.state.plots, hasLength(1));
     final rejectedSubmit = bloc.stream.firstWhere(
-      (s) => s.message.contains('before submitting'),
+      (s) => s.submitStatus == PlotSubmitStatus.failure,
     );
     bloc.add(const SubmitPlotsEvent('4'));
     await rejectedSubmit;

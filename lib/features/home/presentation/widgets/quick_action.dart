@@ -56,6 +56,9 @@ class _QuickAccessSectionState extends State<QuickAccessSection> {
   static const int initialItemCount = 11;
   static const reportMenuIds = ['32', '63', '65', '64', '57', '86', '87', '89'];
   static const informationMenuIds = ['22', '23', '60', '19', '20', '56', '21'];
+  static const marketingMenuIds = ['35', '40', '42', '36'];
+
+
   int? userId;
   int visibleItemCount = initialItemCount;
   bool _showAllReports = false;
@@ -419,9 +422,12 @@ class _QuickAccessSectionState extends State<QuickAccessSection> {
         .where(
           (menu) =>
               !informationMenuIds.contains(menu.menuId) &&
-              !reportMenuIds.contains(menu.menuId),
+              !reportMenuIds.contains(menu.menuId) &&
+              !marketingMenuIds.contains(menu.menuId),
+             
         )
         .toList();
+
     final informationMenus =
         widget.menus
             .where((menu) => informationMenuIds.contains(menu.menuId))
@@ -431,6 +437,7 @@ class _QuickAccessSectionState extends State<QuickAccessSection> {
                 .indexOf(a.menuId)
                 .compareTo(informationMenuIds.indexOf(b.menuId)),
           );
+
     final reportMenus =
         widget.menus
             .where((menu) => reportMenuIds.contains(menu.menuId))
@@ -440,6 +447,20 @@ class _QuickAccessSectionState extends State<QuickAccessSection> {
                 .indexOf(a.menuId)
                 .compareTo(reportMenuIds.indexOf(b.menuId)),
           );
+
+         
+
+    final marketingMenus =
+        widget.menus
+            .where((menu) => marketingMenuIds.contains(menu.menuId))
+            .toList()
+          ..sort(
+            (a, b) => marketingMenuIds
+                .indexOf(a.menuId)
+                .compareTo(marketingMenuIds.indexOf(b.menuId)),
+          );
+
+
     final hasMore = visibleItemCount < actionMenus.length;
 
     return BlocListener<QuickAcessBloc, QuickAccessState>(
@@ -655,6 +676,11 @@ class _QuickAccessSectionState extends State<QuickAccessSection> {
                 final filteredReports = reportMenus
                     .where(matchesSearch)
                     .toList();
+                 
+                final filteredMarketing = marketingMenus
+                    .where(matchesSearch)
+                    .toList();
+
                 final visibleReports = _searchText.isNotEmpty || _showAllReports
                     ? filteredReports
                     : filteredReports.take(5).toList();
@@ -663,6 +689,7 @@ class _QuickAccessSectionState extends State<QuickAccessSection> {
                     : filteredActions.take(visibleItemCount).toList();
                 if (visibleActions.isEmpty &&
                     filteredReports.isEmpty &&
+                    filteredMarketing.isEmpty &&
                     filteredInformation.isEmpty) {
                   return Padding(
                     padding: EdgeInsets.symmetric(vertical: 30.h),
@@ -685,6 +712,7 @@ class _QuickAccessSectionState extends State<QuickAccessSection> {
                         showMore: _searchText.isEmpty && hasMore,
                       ),
                     ],
+
                     if (filteredReports.isNotEmpty) ...[
                       SizedBox(height: 18.h),
                       Divider(color: context.appBorder),
@@ -710,9 +738,20 @@ class _QuickAccessSectionState extends State<QuickAccessSection> {
                       ),
                       _menuGrid(visibleReports, crossAxisCount),
                     ],
+
+
+                    if (filteredMarketing.isNotEmpty) ...[
+                      SizedBox(height: 18.h),
+                      Divider(color: context.appBorder),
+                      SizedBox(height: 10.h),
+                      _groupTitle('Marketing'),
+                      _menuGrid(filteredMarketing, crossAxisCount),
+                    ],
+
                     if (filteredInformation.isNotEmpty) ...[
                       if (visibleActions.isNotEmpty ||
-                          filteredReports.isNotEmpty) ...[
+                          filteredReports.isNotEmpty ||
+                          filteredMarketing.isNotEmpty) ...[
                         SizedBox(height: 18.h),
                         Divider(color: context.appBorder),
                         SizedBox(height: 10.h),
@@ -950,6 +989,15 @@ class _QuickAccessSectionState extends State<QuickAccessSection> {
      else if (menu.menuId == '96') {
       context.push('/assignTaskList');
     }
+
+     else if (menu.menuId == '40') {
+      context.push('/addActivityNewDealerDistributor');
+    }
+
+     else if (menu.menuId == '36') {
+      context.push('/addFieldDayVisit');
+    }
+
 
     
     else if (menu.menuId == '57' ||

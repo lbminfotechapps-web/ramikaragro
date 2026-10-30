@@ -1,3 +1,4 @@
+import 'package:solufine/core/di/field_day_di.dart' show initFieldDayDi;
 import 'package:solufine/core/di/add_schedule_di.dart';
 import 'package:solufine/core/di/ai_di.dart';
 import 'package:solufine/core/di/assign_task_di.dart';
@@ -5,6 +6,7 @@ import 'package:solufine/core/di/assigned_task_di.dart';
 import 'package:solufine/core/di/calendar_report_di.dart';
 import 'package:solufine/core/di/consultant_doctor_di.dart';
 import 'package:solufine/core/di/database_di.dart';
+import 'package:solufine/core/di/dealer_activity_di.dart';
 import 'package:solufine/core/di/growth_report_di.dart';
 import 'package:solufine/core/di/plant_doctor_di.dart';
 import 'package:solufine/core/di/plot_registration_di.dart';
@@ -112,4 +114,7 @@ await ThemeDI.register(sl);
   await initFarmerSchedulePlotDi();
   await initAssignTaskDi();
   await initAssignedTaskDi();
+  await initDealerActivityDi();
+  await initFieldDayDi();
+ 
 }

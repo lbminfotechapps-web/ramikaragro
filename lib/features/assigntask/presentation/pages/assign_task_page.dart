@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -14,7 +13,6 @@ import '../widgets/task_completion_dialog.dart';
 import '../widgets/task_image_row.dart';
 import '../widgets/create_task_sheet.dart';
 
-
 const kOverdue = Color(0xFFDC2626);
 const kOverdueBackground = Color(0xFFFFF7F7);
 const kOverdueBorder = Color(0xFFF4BBBB);
@@ -26,8 +24,7 @@ class AssignTaskPage extends StatefulWidget {
   const AssignTaskPage({super.key});
 
   @override
-  State<AssignTaskPage> createState() =>
-      _AssignTaskPageState();
+  State<AssignTaskPage> createState() => _AssignTaskPageState();
 }
 
 class _AssignTaskPageState extends State<AssignTaskPage> {
@@ -79,7 +76,6 @@ class _AssignTaskPageState extends State<AssignTaskPage> {
         return Colors.orange;
       case TaskPriority.high:
         return Colors.deepOrange;
-     
     }
   }
 
@@ -89,7 +85,6 @@ class _AssignTaskPageState extends State<AssignTaskPage> {
         return const Color(0xFFD97706);
       case TaskStatus.completed:
         return context.primaryColor;
-    
     }
   }
 
@@ -99,7 +94,6 @@ class _AssignTaskPageState extends State<AssignTaskPage> {
         return Icons.pending_actions_rounded;
       case TaskStatus.completed:
         return Icons.check_circle_rounded;
-     
     }
   }
 
@@ -154,11 +148,9 @@ class _AssignTaskPageState extends State<AssignTaskPage> {
     if (other != null &&
         ((from && selected.isAfter(other)) ||
             (!from && selected.isBefore(other)))) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Invalid date range'),
-        ),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Invalid date range')));
       return;
     }
 
@@ -176,6 +168,189 @@ class _AssignTaskPageState extends State<AssignTaskPage> {
   // ======================================================
   // COMPLETE TASK DIALOG
   // ======================================================
+
+  Future<void> _viewCompletionDetails(TaskEntity task) {
+    return showDialog<void>(
+      context: context,
+      builder: (dialogContext) => Dialog(
+        backgroundColor: dialogContext.cardBackgroundColor,
+        insetPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+        clipBehavior: Clip.antiAlias,
+        child: ConstrainedBox(
+          constraints: BoxConstraints(
+            maxWidth: 480,
+            maxHeight: MediaQuery.sizeOf(dialogContext).height * 0.85,
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Container(
+                padding: const EdgeInsets.fromLTRB(18, 14, 8, 14),
+                color: dialogContext.primaryColor.withValues(alpha: 0.08),
+                child: Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(9),
+                      decoration: BoxDecoration(
+                        color: dialogContext.primaryColor.withValues(
+                          alpha: 0.12,
+                        ),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Icon(
+                        Icons.task_alt_rounded,
+                        color: dialogContext.primaryColor,
+                        size: 22,
+                      ),
+                    ),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Completion Details',
+                            style: TextStyle(
+                              color: dialogContext.primaryTextColor,
+                              fontSize: 16,
+                              fontWeight: FontWeight.w800,
+                            ),
+                          ),
+                          if (task.completedAt != null) ...[
+                            const SizedBox(height: 3),
+                            Text(
+                              DateFormat(
+                                'dd MMM yyyy · hh:mm a',
+                              ).format(task.completedAt!),
+                              style: TextStyle(
+                                fontSize: 11,
+                                color: dialogContext.secondaryTextColor,
+                              ),
+                            ),
+                          ],
+                        ],
+                      ),
+                    ),
+                    IconButton(
+                      tooltip: 'Close',
+                      onPressed: () => Navigator.of(dialogContext).pop(),
+                      icon: Icon(
+                        Icons.close_rounded,
+                        color: dialogContext.secondaryTextColor,
+                        size: 21,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Flexible(
+                child: SingleChildScrollView(
+                  padding: const EdgeInsets.fromLTRB(18, 16, 18, 18),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        task.title,
+                        style: TextStyle(
+                          color: dialogContext.primaryTextColor,
+                          fontSize: 15,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                      if (task.completionRemark?.trim().isNotEmpty == true) ...[
+                        const SizedBox(height: 12),
+                        Container(
+                          width: double.infinity,
+                          padding: const EdgeInsets.all(12),
+                          decoration: BoxDecoration(
+                            color: dialogContext.appTheme.inputBackground,
+                            borderRadius: BorderRadius.circular(12),
+                            border: Border.all(
+                              color: dialogContext.borderColor,
+                            ),
+                          ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'COMPLETION REMARK',
+                                style: TextStyle(
+                                  color: dialogContext.secondaryTextColor,
+                                  fontSize: 10,
+                                  fontWeight: FontWeight.w700,
+                                  letterSpacing: 0.7,
+                                ),
+                              ),
+                              const SizedBox(height: 5),
+                              Text(
+                                task.completionRemark!.trim(),
+                                style: TextStyle(
+                                  color: dialogContext.primaryTextColor,
+                                  fontSize: 13,
+                                  height: 1.4,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                      const SizedBox(height: 14),
+                      Row(
+                        children: [
+                          Icon(
+                            Icons.photo_library_outlined,
+                            size: 16,
+                            color: dialogContext.primaryColor,
+                          ),
+                          const SizedBox(width: 6),
+                          Text(
+                            'Task Photos',
+                            style: TextStyle(
+                              color: dialogContext.primaryTextColor,
+                              fontSize: 12,
+                              fontWeight: FontWeight.w700,
+                            ),
+                          ),
+                          const Spacer(),
+                          Text(
+                            'Tap to enlarge',
+                            style: TextStyle(
+                              color: dialogContext.secondaryTextColor,
+                              fontSize: 10,
+                            ),
+                          ),
+                        ],
+                      ),
+                      TaskImageRow(
+                        taskImageUrl: task.imageUrl,
+                        taskLocalPath: task.attachmentPath,
+                        completedImageUrl: task.completedImageUrl,
+                      ),
+                      if ((task.imageUrl?.trim().isEmpty ?? true) &&
+                          (task.attachmentPath?.trim().isEmpty ?? true) &&
+                          (task.completedImageUrl?.trim().isEmpty ?? true))
+                        Padding(
+                          padding: const EdgeInsets.only(top: 12),
+                          child: Text(
+                            'No photos attached.',
+                            style: TextStyle(
+                              color: dialogContext.secondaryTextColor,
+                              fontSize: 12,
+                            ),
+                          ),
+                        ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
 
   Future<void> _openCompletion(TaskEntity task) async {
     // Overdue does NOT block task completion.
@@ -197,15 +372,11 @@ class _AssignTaskPageState extends State<AssignTaskPage> {
   // ASSIGN TASK SHEET
   // ======================================================
 
-  Future<void> _openCreate(
-    List<EmployeeEntity> employees,
-  ) async {
+  Future<void> _openCreate(List<EmployeeEntity> employees) async {
     if (employees.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Employees not loaded'),
-        ),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Employees not loaded')));
       return;
     }
 
@@ -217,9 +388,7 @@ class _AssignTaskPageState extends State<AssignTaskPage> {
       useSafeArea: true,
       backgroundColor: context.cardBackgroundColor,
       shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(
-          top: Radius.circular(22),
-        ),
+        borderRadius: BorderRadius.vertical(top: Radius.circular(22)),
       ),
       builder: (_) => BlocProvider.value(
         value: bloc,
@@ -266,57 +435,46 @@ class _AssignTaskPageState extends State<AssignTaskPage> {
       //     ),
       //   ],
       // ),
-
-
-        appBar: CustomAppBar(
-          backgroundColor: context.primaryColor,
-          titleStyle: AppTextStyles.appBarTitle.copyWith(
-            color: context.onPrimaryColor,
-          ),
-          leading: IconButton(
-            icon: Icon(
-              Icons.arrow_back_ios_new_rounded,
-              size: 20,
-              color: context.onPrimaryColor,
-            ),
-            onPressed: () => context.go(AppRouter.home),
-          ),
-          
-         action:Row(
-          children: [
-           IconButton(
-          tooltip: 'Show / Hide Filters',
+      appBar: CustomAppBar(
+        backgroundColor: context.primaryColor,
+        titleStyle: AppTextStyles.appBarTitle.copyWith(
+          color: context.onPrimaryColor,
+        ),
+        leading: IconButton(
           icon: Icon(
-            Icons.tune_rounded,
+            Icons.arrow_back_ios_new_rounded,
+            size: 20,
             color: context.onPrimaryColor,
           ),
-          onPressed: () {
-            setState(() {
-              _showFilters = !_showFilters;
-            });
-          },
-        ), 
-
-         IconButton(
-            tooltip: 'Refresh',
-            onPressed: () => context.read<TaskBloc>().add(
-                  const LoadTasks(),
-                ),
-            icon: Icon(Icons.refresh_rounded),
-          ),
-
-          ],
-         ),
-        
-          title: 'Assign Task',
-          showBackButton: true,
-          onBackTap: () => context.go(AppRouter.home),
+          onPressed: () => context.go(AppRouter.home),
         ),
 
+        action: Row(
+          children: [
+            IconButton(
+              tooltip: 'Show / Hide Filters',
+              icon: Icon(Icons.tune_rounded, color: context.onPrimaryColor),
+              onPressed: () {
+                setState(() {
+                  _showFilters = !_showFilters;
+                });
+              },
+            ),
 
+            IconButton(
+              tooltip: 'Refresh',
+              onPressed: () => context.read<TaskBloc>().add(const LoadTasks()),
+              icon: Icon(Icons.refresh_rounded),
+            ),
+          ],
+        ),
 
-      floatingActionButton:
-          BlocBuilder<TaskBloc, TaskState>(
+        title: 'Assign Task',
+        showBackButton: true,
+        onBackTap: () => context.go(AppRouter.home),
+      ),
+
+      floatingActionButton: BlocBuilder<TaskBloc, TaskState>(
         builder: (context, state) {
           return FloatingActionButton.extended(
             backgroundColor: context.primaryColor,
@@ -331,8 +489,7 @@ class _AssignTaskPageState extends State<AssignTaskPage> {
       ),
       body: BlocConsumer<TaskBloc, TaskState>(
         listenWhen: (previous, current) =>
-            previous.notificationId !=
-            current.notificationId,
+            previous.notificationId != current.notificationId,
         listener: (context, state) {
           if (state.message.isEmpty) return;
 
@@ -341,8 +498,9 @@ class _AssignTaskPageState extends State<AssignTaskPage> {
             ..showSnackBar(
               SnackBar(
                 content: Text(state.message),
-                backgroundColor:
-                    state.error ? Colors.red : context.primaryColor,
+                backgroundColor: state.error
+                    ? Colors.red
+                    : context.primaryColor,
               ),
             );
         },
@@ -362,8 +520,7 @@ class _AssignTaskPageState extends State<AssignTaskPage> {
           }).toList();
 
           // Preserve API order when filtering tasks.
-          final overdueCount =
-              summaryTasks.where(_isOverdue).length;
+          final overdueCount = summaryTasks.where(_isOverdue).length;
 
           return RefreshIndicator(
             onRefresh: () async {
@@ -371,28 +528,20 @@ class _AssignTaskPageState extends State<AssignTaskPage> {
 
               final future = bloc.stream.firstWhere(
                 (value) =>
-                    value.loadStatus ==
-                        TaskLoadStatus.success ||
-                    value.loadStatus ==
-                        TaskLoadStatus.failure,
+                    value.loadStatus == TaskLoadStatus.success ||
+                    value.loadStatus == TaskLoadStatus.failure,
               );
 
               bloc.add(const LoadTasks());
               await future;
             },
             child: ListView(
-              padding: const EdgeInsets.fromLTRB(
-                12, 10, 12, 95,
-              ),
+              padding: const EdgeInsets.fromLTRB(12, 10, 12, 95),
               children: [
                 _summary(
                   total: summaryTasks.length,
-                  pending: summaryTasks
-                      .where((t) => _isPending(t))
-                      .length,
-                  completed: summaryTasks
-                      .where((t) => _isCompleted(t))
-                      .length,
+                  pending: summaryTasks.where((t) => _isPending(t)).length,
+                  completed: summaryTasks.where((t) => _isCompleted(t)).length,
                   overdue: overdueCount,
                 ),
                 const SizedBox(height: 10),
@@ -400,7 +549,6 @@ class _AssignTaskPageState extends State<AssignTaskPage> {
                 // Enable this if you want search visible.
                 // _searchBox(),
                 // const SizedBox(height: 8),
-
                 if (_showFilters) ...[
                   _filters(state.employees),
                   const SizedBox(height: 10),
@@ -413,8 +561,8 @@ class _AssignTaskPageState extends State<AssignTaskPage> {
                         _selectedSummary == 'Total'
                             ? 'Created Tasks'
                             : _selectedSummary == 'Done'
-                                ? 'Completed Tasks'
-                                : '$_selectedSummary Tasks',
+                            ? 'Completed Tasks'
+                            : '$_selectedSummary Tasks',
                         style: TextStyle(
                           color: context.primaryTextColor,
                           fontSize: 15,
@@ -434,16 +582,12 @@ class _AssignTaskPageState extends State<AssignTaskPage> {
                 ),
                 const SizedBox(height: 9),
 
-                if (state.loadStatus ==
-                    TaskLoadStatus.loading)
+                if (state.loadStatus == TaskLoadStatus.loading)
                   const Padding(
                     padding: EdgeInsets.all(35),
-                    child: Center(
-                      child: CircularProgressIndicator(),
-                    ),
+                    child: Center(child: CircularProgressIndicator()),
                   )
-                else if (state.loadStatus ==
-                    TaskLoadStatus.failure)
+                else if (state.loadStatus == TaskLoadStatus.failure)
                   _empty(state.message)
                 else if (tasks.isEmpty)
                   _empty('No tasks found')
@@ -467,53 +611,45 @@ class _AssignTaskPageState extends State<AssignTaskPage> {
     required int completed,
     required int overdue,
   }) {
-    Widget item(
-      String title,
-      int count,
-      IconData icon,
-      Color color,
-    ) {
+    Widget item(String title, int count, IconData icon, Color color) {
       return Expanded(
         child: InkWell(
           onTap: () => setState(() => _selectedSummary = title),
           borderRadius: BorderRadius.circular(11),
           child: Container(
-          padding: const EdgeInsets.symmetric(
-            horizontal: 5,
-            vertical: 10,
-          ),
-          decoration: BoxDecoration(
-            color: context.cardBackgroundColor,
-            borderRadius: BorderRadius.circular(11),
-            border: Border.all(
-              color: _selectedSummary == title ? color : context.borderColor,
-              width: _selectedSummary == title ? 2 : 1,
+            padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 10),
+            decoration: BoxDecoration(
+              color: context.cardBackgroundColor,
+              borderRadius: BorderRadius.circular(11),
+              border: Border.all(
+                color: _selectedSummary == title ? color : context.borderColor,
+                width: _selectedSummary == title ? 2 : 1,
+              ),
             ),
-          ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Icon(icon, color: color, size: 19),
-              const SizedBox(height: 3),
-              Text(
-                '$count',
-                style: TextStyle(
-                  color: context.primaryTextColor,
-                  fontSize: 17,
-                  fontWeight: FontWeight.w800,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(icon, color: color, size: 19),
+                const SizedBox(height: 3),
+                Text(
+                  '$count',
+                  style: TextStyle(
+                    color: context.primaryTextColor,
+                    fontSize: 17,
+                    fontWeight: FontWeight.w800,
+                  ),
                 ),
-              ),
-              Text(
-                title,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: TextStyle(
-                  color: context.secondaryTextColor,
-                  fontSize: 10,
+                Text(
+                  title,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    color: context.secondaryTextColor,
+                    fontSize: 10,
+                  ),
                 ),
-              ),
-            ],
-          ),
+              ],
+            ),
           ),
         ),
       );
@@ -521,33 +657,13 @@ class _AssignTaskPageState extends State<AssignTaskPage> {
 
     return Row(
       children: [
-        item(
-          'Total',
-          total,
-          Icons.assignment_outlined,
-          context.primaryColor,
-        ),
+        item('Total', total, Icons.assignment_outlined, context.primaryColor),
         const SizedBox(width: 6),
-        item(
-          'Pending',
-          pending,
-          Icons.pending_actions,
-          Colors.orange,
-        ),
+        item('Pending', pending, Icons.pending_actions, Colors.orange),
         const SizedBox(width: 6),
-        item(
-          'Overdue',
-          overdue,
-          Icons.warning_amber_rounded,
-          kOverdue,
-        ),
+        item('Overdue', overdue, Icons.warning_amber_rounded, kOverdue),
         const SizedBox(width: 6),
-        item(
-          'Done',
-          completed,
-          Icons.task_alt,
-          Colors.teal,
-        ),
+        item('Done', completed, Icons.task_alt, Colors.teal),
       ],
     );
   }
@@ -566,10 +682,7 @@ class _AssignTaskPageState extends State<AssignTaskPage> {
       decoration: InputDecoration(
         hintText: 'Search task or employee',
         hintStyle: TextStyle(fontSize: 12),
-        prefixIcon: Icon(
-          Icons.search,
-          color: context.primaryColor,
-        ),
+        prefixIcon: Icon(Icons.search, color: context.primaryColor),
         suffixIcon: _query.isEmpty
             ? null
             : IconButton(
@@ -578,10 +691,7 @@ class _AssignTaskPageState extends State<AssignTaskPage> {
                   setState(() => _query = '');
                   _applyFilters();
                 },
-                icon: Icon(
-                  Icons.close,
-                  size: 18,
-                ),
+                icon: Icon(Icons.close, size: 18),
               ),
         filled: true,
         fillColor: context.appTheme.inputBackground,
@@ -590,9 +700,7 @@ class _AssignTaskPageState extends State<AssignTaskPage> {
           borderRadius: BorderRadius.circular(11),
           borderSide: BorderSide(color: context.borderColor),
         ),
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(11),
-        ),
+        border: OutlineInputBorder(borderRadius: BorderRadius.circular(11)),
       ),
     );
   }
@@ -620,8 +728,7 @@ class _AssignTaskPageState extends State<AssignTaskPage> {
             child: InkWell(
               onTap: select,
               child: Column(
-                crossAxisAlignment:
-                    CrossAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
                     title,
@@ -650,10 +757,7 @@ class _AssignTaskPageState extends State<AssignTaskPage> {
             IconButton(
               onPressed: clear,
               visualDensity: VisualDensity.compact,
-              icon: Icon(
-                Icons.close,
-                size: 16,
-              ),
+              icon: Icon(Icons.close, size: 16),
             ),
         ],
       ),
@@ -664,9 +768,7 @@ class _AssignTaskPageState extends State<AssignTaskPage> {
   // FILTER PANEL
   // ======================================================
 
-  Widget _filters(
-    List<EmployeeEntity> employees,
-  ) {
+  Widget _filters(List<EmployeeEntity> employees) {
     InputDecoration decoration(String label) {
       return InputDecoration(
         labelText: label,
@@ -719,8 +821,7 @@ class _AssignTaskPageState extends State<AssignTaskPage> {
           Row(
             children: [
               Expanded(
-                child:
-                    DropdownButtonFormField<TaskPriority?>(
+                child: DropdownButtonFormField<TaskPriority?>(
                   key: ValueKey('priority_$_priority'),
                   initialValue: _priority,
                   isExpanded: true,
@@ -784,10 +885,7 @@ class _AssignTaskPageState extends State<AssignTaskPage> {
               ...employees.map(
                 (employee) => DropdownMenuItem<String?>(
                   value: employee.id,
-                  child: Text(
-                    employee.name,
-                    overflow: TextOverflow.ellipsis,
-                  ),
+                  child: Text(employee.name, overflow: TextOverflow.ellipsis),
                 ),
               ),
             ],
@@ -800,10 +898,7 @@ class _AssignTaskPageState extends State<AssignTaskPage> {
             alignment: Alignment.centerRight,
             child: TextButton.icon(
               onPressed: _clearFilters,
-              icon: Icon(
-                Icons.restart_alt,
-                size: 17,
-              ),
+              icon: Icon(Icons.restart_alt, size: 17),
               label: const Text('Clear Filters'),
             ),
           ),
@@ -826,23 +921,16 @@ class _AssignTaskPageState extends State<AssignTaskPage> {
       child: Container(
         padding: const EdgeInsets.all(9),
         decoration: BoxDecoration(
-          color: highlight
-              ? const Color(0xFFFFEEEE)
-              : context.backgroundColor,
+          color: highlight ? const Color(0xFFFFEEEE) : context.backgroundColor,
           borderRadius: BorderRadius.circular(10),
         ),
         child: Row(
           children: [
-            Icon(
-              Icons.calendar_today_outlined,
-              size: 15,
-              color: color,
-            ),
+            Icon(Icons.calendar_today_outlined, size: 15, color: color),
             const SizedBox(width: 7),
             Expanded(
               child: Column(
-                crossAxisAlignment:
-                    CrossAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
                     title,
@@ -887,10 +975,7 @@ class _AssignTaskPageState extends State<AssignTaskPage> {
     required Color color,
   }) {
     return Container(
-      padding: const EdgeInsets.symmetric(
-        horizontal: 9,
-        vertical: 6,
-      ),
+      padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 6),
       decoration: BoxDecoration(
         color: color.withValues(alpha: 0.10),
         borderRadius: BorderRadius.circular(18),
@@ -898,11 +983,7 @@ class _AssignTaskPageState extends State<AssignTaskPage> {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(
-            icon,
-            color: color,
-            size: 14,
-          ),
+          Icon(icon, color: color, size: 14),
           const SizedBox(width: 5),
           Text(
             text,
@@ -928,26 +1009,23 @@ class _AssignTaskPageState extends State<AssignTaskPage> {
     // This is based ONLY on fld_overdue_status.
     final overdue = _isOverdue(task);
 
-    final priorityColor =
-        _priorityColor(task.priority);
+    final priorityColor = _priorityColor(task.priority);
     final statusColor = _statusColor(task.status);
 
     return Container(
       margin: const EdgeInsets.only(bottom: 9),
       decoration: BoxDecoration(
-        color: overdue
-            ? kOverdueBackground
-            : context.cardBackgroundColor,
+        color: overdue ? kOverdueBackground : context.cardBackgroundColor,
         borderRadius: BorderRadius.circular(15),
         border: Border.all(
-          color: overdue ? kOverdueBorder : context.borderColor,
-          width: overdue ? 1.2 : 1,
+          color: completed
+              ? Colors.green
+              : (overdue ? kOverdueBorder : context.borderColor),
+          width: completed ? 2 : (overdue ? 1.2 : 1),
         ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(
-              alpha: 0.025,
-            ),
+            color: Colors.black.withValues(alpha: 0.025),
             blurRadius: 9,
             offset: const Offset(0, 3),
           ),
@@ -959,23 +1037,14 @@ class _AssignTaskPageState extends State<AssignTaskPage> {
           if (overdue)
             Container(
               width: double.infinity,
-              padding: const EdgeInsets.symmetric(
-                horizontal: 12,
-                vertical: 8,
-              ),
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
               decoration: const BoxDecoration(
                 color: Color(0xFFFFEAEA),
-                borderRadius: BorderRadius.vertical(
-                  top: Radius.circular(14),
-                ),
+                borderRadius: BorderRadius.vertical(top: Radius.circular(14)),
               ),
               child: Row(
                 children: [
-                  Icon(
-                    Icons.warning_amber_rounded,
-                    color: kOverdue,
-                    size: 16,
-                  ),
+                  Icon(Icons.warning_amber_rounded, color: kOverdue, size: 16),
                   SizedBox(width: 6),
                   Text(
                     'OVERDUE TASK',
@@ -992,8 +1061,7 @@ class _AssignTaskPageState extends State<AssignTaskPage> {
           Padding(
             padding: const EdgeInsets.all(12),
             child: Column(
-              crossAxisAlignment:
-                  CrossAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 // TASK TITLE + EMPLOYEE + PRIORITY
                 Row(
@@ -1003,8 +1071,7 @@ class _AssignTaskPageState extends State<AssignTaskPage> {
                       height: 35,
                       decoration: BoxDecoration(
                         color: context.primaryColor.withValues(alpha: 0.10),
-                        borderRadius:
-                            BorderRadius.circular(10),
+                        borderRadius: BorderRadius.circular(10),
                       ),
                       child: Icon(
                         Icons.assignment_outlined,
@@ -1015,14 +1082,12 @@ class _AssignTaskPageState extends State<AssignTaskPage> {
                     const SizedBox(width: 9),
                     Expanded(
                       child: Column(
-                        crossAxisAlignment:
-                            CrossAxisAlignment.start,
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
                             'Task : ${task.title}',
                             maxLines: 2,
-                            overflow:
-                                TextOverflow.ellipsis,
+                            overflow: TextOverflow.ellipsis,
                             style: TextStyle(
                               color: context.primaryTextColor,
                               fontSize: 13,
@@ -1031,11 +1096,10 @@ class _AssignTaskPageState extends State<AssignTaskPage> {
                           ),
                           const SizedBox(height: 3),
                           Text(
-                           // '#${task.id} · '
+                            // '#${task.id} · '
                             'Emp Name : ${task.employeeName}',
                             maxLines: 1,
-                            overflow:
-                                TextOverflow.ellipsis,
+                            overflow: TextOverflow.ellipsis,
                             style: TextStyle(
                               color: context.secondaryTextColor,
                               fontSize: 10,
@@ -1051,11 +1115,8 @@ class _AssignTaskPageState extends State<AssignTaskPage> {
                         vertical: 5,
                       ),
                       decoration: BoxDecoration(
-                        color: priorityColor.withValues(
-                          alpha: 0.10,
-                        ),
-                        borderRadius:
-                            BorderRadius.circular(20),
+                        color: priorityColor.withValues(alpha: 0.10),
+                        borderRadius: BorderRadius.circular(20),
                       ),
                       child: Text(
                         task.priority.label,
@@ -1087,99 +1148,15 @@ class _AssignTaskPageState extends State<AssignTaskPage> {
                 // ASSIGNED / DUE DATES
                 Row(
                   children: [
-                    _dateBox(
-                      'Assigned',
-                      task.assignedAt,
-                      context.primaryColor,
-                    ),
+                    _dateBox('Assigned', task.assignedAt, context.primaryColor),
                     const SizedBox(width: 8),
                     _dateBox(
                       'Due Date',
                       task.dueAt,
-                      overdue
-                          ? kOverdue
-                          : Colors.orange,
+                      overdue ? kOverdue : Colors.orange,
                       highlight: overdue,
                     ),
                   ],
-                ),
-
-                // COMPLETION DETAILS
-                if (completed &&
-                    ((task.completionRemark
-                            ?.isNotEmpty ?? false) ||
-                        task.completedAt != null ||
-                        task.completedImageUrl != null)) ...[
-                  const SizedBox(height: 10),
-                  Container(
-                    width: double.infinity,
-                    padding: const EdgeInsets.all(10),
-                    decoration: BoxDecoration(
-                      color: context.primaryColor.withValues(alpha: 0.06),
-                      borderRadius:
-                          BorderRadius.circular(10),
-                      border: Border.all(
-                        color: context.primaryColor.withValues(alpha: 0.18),
-                      ),
-                    ),
-                    child: Column(
-                      crossAxisAlignment:
-                          CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          children: [
-                            Icon(
-                              Icons.verified_rounded,
-                              color: context.primaryColor,
-                              size: 16,
-                            ),
-                            SizedBox(width: 6),
-                            Text(
-                              'Completion Details',
-                              style: TextStyle(
-                                color: context.primaryColor,
-                                fontSize: 12,
-                                fontWeight: FontWeight.w800,
-                              ),
-                            ),
-                          ],
-                        ),
-                        if (task.completionRemark
-                                ?.isNotEmpty ==
-                            true) ...[
-                          const SizedBox(height: 6),
-                          Text(
-                            'Remark : ${task.completionRemark!}',
-                            style: TextStyle(
-                              color: context.primaryTextColor,
-                              fontSize: 11,
-                            ),
-                          ),
-                        ],
-                        if (task.completedAt != null) ...[
-                          const SizedBox(height: 5),
-                          Text(
-                            DateFormat(
-                              'dd MMM yyyy, hh:mm a',
-                            ).format(task.completedAt!),
-                            style: TextStyle(
-                              color: context.secondaryTextColor,
-                              fontSize: 10,
-                            ),
-                          ),
-                        ],
-                      ],
-                    ),
-                  ),
-                ],
-
-                // ORIGINAL + COMPLETION PHOTOS IN ONE ROW.
-                // Unavailable images do not take up space.
-                TaskImageRow(
-                  key: ValueKey('task_images_${task.id}_${task.imageUrl}_${task.completedImageUrl}_${task.attachmentPath}'),
-                  taskImageUrl: task.imageUrl,
-                  taskLocalPath: task.attachmentPath,
-                  completedImageUrl: task.completedImageUrl,
                 ),
 
                 const SizedBox(height: 10),
@@ -1212,36 +1189,45 @@ class _AssignTaskPageState extends State<AssignTaskPage> {
 
                     const SizedBox(width: 8),
 
-                      SizedBox(
-                        height: 35,
-                        child: FilledButton.icon(
-                          onPressed: pending
-                              ? () => _openCompletion(task)
-                              : null,
-                          style: FilledButton.styleFrom(
-                            backgroundColor: context.primaryColor,
-                            foregroundColor: context.onPrimaryColor,
-                            padding:
-                                const EdgeInsets.symmetric(
-                              horizontal: 10,
-                            ),
-                            shape: RoundedRectangleBorder(
-                              borderRadius:
-                                  BorderRadius.circular(9),
-                            ),
-                          ),
-                          icon: Icon(
-                            Icons.task_alt_rounded,
-                            size: 15,
-                          ),
-                          label: const Text(
-                            'Complete Task',
-                            style: TextStyle(
-                              fontSize: 11,
-                            ),
+                    SizedBox(
+                      height: 35,
+                      child: OutlinedButton.icon(
+                        onPressed: () => _viewCompletionDetails(task),
+                        style: OutlinedButton.styleFrom(
+                          foregroundColor: context.primaryColor,
+                          padding: const EdgeInsets.symmetric(horizontal: 10),
+                          side: BorderSide(color: context.primaryColor),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(9),
                           ),
                         ),
+                        icon: const Icon(Icons.visibility_outlined, size: 15),
+                        label: const Text(
+                          'View',
+                          style: TextStyle(fontSize: 11),
+                        ),
                       ),
+                    ),
+                    const SizedBox(width: 6),
+                    SizedBox(
+                      height: 35,
+                      child: FilledButton.icon(
+                        onPressed: pending ? () => _openCompletion(task) : null,
+                        style: FilledButton.styleFrom(
+                          backgroundColor: context.primaryColor,
+                          foregroundColor: context.onPrimaryColor,
+                          padding: const EdgeInsets.symmetric(horizontal: 10),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(9),
+                          ),
+                        ),
+                        icon: Icon(Icons.task_alt_rounded, size: 15),
+                        label: const Text(
+                          'Complete Task',
+                          style: TextStyle(fontSize: 11),
+                        ),
+                      ),
+                    ),
                   ],
                 ),
               ],
@@ -1275,10 +1261,7 @@ class _AssignTaskPageState extends State<AssignTaskPage> {
           Text(
             message,
             textAlign: TextAlign.center,
-            style: TextStyle(
-              color: context.secondaryTextColor,
-              fontSize: 12,
-            ),
+            style: TextStyle(color: context.secondaryTextColor, fontSize: 12),
           ),
         ],
       ),

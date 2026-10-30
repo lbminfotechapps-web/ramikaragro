@@ -25,6 +25,7 @@
 // class PlotEntry {
 //   final String localId;
 //   final String plotName;
+//   final String acres;
 //   final FarmerOption? farmer;
 //   final CropOption? crop;
 //   final DateTime? sowingDate;
@@ -32,6 +33,7 @@
 //   const PlotEntry({
 //     required this.localId,
 //     this.plotName = '',
+//     this.acres = '',
 //     this.farmer,
 //     this.crop,
 //     this.sowingDate,
@@ -39,6 +41,7 @@
 
 //   PlotEntry copyWith({
 //     String? plotName,
+//     String? acres,
 //     FarmerOption? farmer,
 //     CropOption? crop,
 //     DateTime? sowingDate,
@@ -46,6 +49,7 @@
 //     return PlotEntry(
 //       localId: localId,
 //       plotName: plotName ?? this.plotName,
+//       acres: acres ?? this.acres,
 //       farmer: farmer ?? this.farmer,
 //       crop: crop ?? this.crop,
 //       sowingDate: sowingDate ?? this.sowingDate,
@@ -103,6 +107,7 @@ class CropOption {
 class PlotEntry {
   final String localId;
   final String plotName;
+  final String acres;
   final FarmerOption? farmer;
   final CropOption? crop;
   final DateTime? sowingDate;
@@ -110,6 +115,7 @@ class PlotEntry {
   const PlotEntry({
     required this.localId,
     this.plotName = '',
+    this.acres = '',
     this.farmer,
     this.crop,
     this.sowingDate,
@@ -117,6 +123,7 @@ class PlotEntry {
 
   PlotEntry copyWith({
     String? plotName,
+    String? acres,
     FarmerOption? farmer,
     CropOption? crop,
     DateTime? sowingDate,
@@ -124,6 +131,7 @@ class PlotEntry {
     return PlotEntry(
       localId: localId,
       plotName: plotName ?? this.plotName,
+      acres: acres ?? this.acres,
       farmer: farmer ?? this.farmer,
       crop: crop ?? this.crop,
       sowingDate: sowingDate ?? this.sowingDate,
@@ -131,9 +139,18 @@ class PlotEntry {
   }
 
   bool get isBlank =>
-      plotName.trim().isEmpty && crop == null && sowingDate == null;
+      plotName.trim().isEmpty &&
+      acres.trim().isEmpty &&
+      crop == null &&
+      sowingDate == null;
+
+  bool get hasValidAcres {
+    final value = double.tryParse(acres.trim());
+    return value != null && value.isFinite && value > 0;
+  }
 
   bool get isComplete =>
+      hasValidAcres &&
       plotName.trim().isNotEmpty &&
       farmer?.id.trim().isNotEmpty == true &&
       crop?.id.trim().isNotEmpty == true &&
