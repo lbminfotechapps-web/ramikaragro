@@ -33,6 +33,12 @@ class UpdatePlotNameEvent extends PlotEvent {
   const UpdatePlotNameEvent(this.id, this.name);
 }
 
+class UpdatePlotAcresEvent extends PlotEvent {
+  final String id;
+  final String acres;
+  const UpdatePlotAcresEvent(this.id, this.acres);
+}
+
 class UpdatePlotFarmerEvent extends PlotEvent {
   final String id;
   final FarmerOption farmer;
@@ -184,6 +190,10 @@ class PlotBloc extends Bloc<PlotEvent, PlotState> {
     on<UpdatePlotNameEvent>(
       (event, emit) =>
           _update(event.id, (p) => p.copyWith(plotName: event.name), emit),
+    );
+    on<UpdatePlotAcresEvent>(
+      (event, emit) =>
+          _update(event.id, (p) => p.copyWith(acres: event.acres), emit),
     );
     on<UpdatePlotFarmerEvent>(
       (event, emit) => _update(

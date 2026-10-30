@@ -1,4 +1,4 @@
-
+import '../widgets/task_image_row.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -16,7 +16,6 @@ import '../bloc/assigned_task_bloc.dart';
 // ========================================================
 // THEME
 // ========================================================
-
 
 const Color kTaskOverdue = Color(0xFFDC2626);
 const Color kTaskOverdueBg = Color(0xFFFFF8F8);
@@ -39,17 +38,13 @@ class AssignedTaskListPage extends StatefulWidget {
   final List<AssignedTaskEmployee> employees;
 
   @override
-  State<AssignedTaskListPage> createState() =>
-      _AssignedTaskListPageState();
+  State<AssignedTaskListPage> createState() => _AssignedTaskListPageState();
 }
 
-class _AssignedTaskListPageState
-    extends State<AssignedTaskListPage> {
-  final TextEditingController _searchController =
-      TextEditingController();
+class _AssignedTaskListPageState extends State<AssignedTaskListPage> {
+  final TextEditingController _searchController = TextEditingController();
 
-  AssignedTaskFilter _draft =
-      const AssignedTaskFilter();
+  AssignedTaskFilter _draft = const AssignedTaskFilter();
 
   String _selectedSummary = 'Total';
   bool _showFilters = false;
@@ -59,9 +54,7 @@ class _AssignedTaskListPageState
   void initState() {
     super.initState();
 
-    context.read<AssignedTaskBloc>().add(
-      const LoadAssignedTasks(),
-    );
+    context.read<AssignedTaskBloc>().add(const LoadAssignedTasks());
   }
 
   @override
@@ -94,9 +87,7 @@ class _AssignedTaskListPageState
   void _loadTasks() {
     FocusManager.instance.primaryFocus?.unfocus();
 
-    context.read<AssignedTaskBloc>().add(
-      LoadAssignedTasks(filter: _draft),
-    );
+    context.read<AssignedTaskBloc>().add(LoadAssignedTasks(filter: _draft));
   }
 
   void _clearFilters() {
@@ -117,9 +108,7 @@ class _AssignedTaskListPageState
         .skipWhile((state) => !state.loading)
         .firstWhere((state) => !state.loading);
 
-    bloc.add(
-      LoadAssignedTasks(filter: _draft),
-    );
+    bloc.add(LoadAssignedTasks(filter: _draft));
 
     await completed;
   }
@@ -136,9 +125,9 @@ class _AssignedTaskListPageState
     final other = from ? _draft.toDate : _draft.fromDate;
     if (other != null &&
         (from ? picked.isAfter(other) : picked.isBefore(other))) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Invalid date range')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Invalid date range')));
       return;
     }
     setState(() {
@@ -158,17 +147,20 @@ class _AssignedTaskListPageState
         readOnly: true,
         onTap: () => _pickDate(from),
         style: TextStyle(fontSize: 12, color: context.primaryTextColor),
-        decoration: _inputDecoration(label, Icons.calendar_month_outlined).copyWith(
-          suffixIcon: date == null ? null : IconButton(
-            tooltip: 'Clear date',
-            icon: const Icon(Icons.close, size: 17),
-            onPressed: () => setState(() {
-              _draft = from
-                  ? _draft.copyWith(clearDate: true)
-                  : _draft.copyWith(clearToDate: true);
-            }),
-          ),
-        ),
+        decoration: _inputDecoration(label, Icons.calendar_month_outlined)
+            .copyWith(
+              suffixIcon: date == null
+                  ? null
+                  : IconButton(
+                      tooltip: 'Clear date',
+                      icon: const Icon(Icons.close, size: 17),
+                      onPressed: () => setState(() {
+                        _draft = from
+                            ? _draft.copyWith(clearDate: true)
+                            : _draft.copyWith(clearToDate: true);
+                      }),
+                    ),
+            ),
       ),
     );
   }
@@ -176,37 +168,23 @@ class _AssignedTaskListPageState
   // INPUT DECORATION
   // ========================================================
 
-  InputDecoration _inputDecoration(
-    String label,
-    IconData icon,
-  ) {
+  InputDecoration _inputDecoration(String label, IconData icon) {
     return InputDecoration(
       labelText: label,
       labelStyle: TextStyle(fontSize: 12),
-      prefixIcon: Icon(
-        icon,
-        color: context.primaryColor,
-        size: 18,
-      ),
+      prefixIcon: Icon(icon, color: context.primaryColor, size: 18),
       isDense: true,
       filled: true,
       fillColor: context.backgroundColor,
-      contentPadding: const EdgeInsets.symmetric(
-        horizontal: 10,
-        vertical: 12,
-      ),
-      border: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(11),
-      ),
+      contentPadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 12),
+      border: OutlineInputBorder(borderRadius: BorderRadius.circular(11)),
       enabledBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(11),
-        borderSide:
-            BorderSide(color: context.borderColor),
+        borderSide: BorderSide(color: context.borderColor),
       ),
       focusedBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(11),
-        borderSide:
-            BorderSide(color: context.primaryColor),
+        borderSide: BorderSide(color: context.primaryColor),
       ),
     );
   }
@@ -234,38 +212,19 @@ class _AssignedTaskListPageState
               // PRIORITY FILTER
               Expanded(
                 child: DropdownButtonFormField<String>(
-                  key: ValueKey(
-                    'priority_${_draft.priority}',
-                  ),
+                  key: ValueKey('priority_${_draft.priority}'),
                   initialValue: _draft.priority,
                   isExpanded: true,
-                  decoration: _inputDecoration(
-                    'Priority',
-                    Icons.flag_outlined,
-                  ),
+                  decoration: _inputDecoration('Priority', Icons.flag_outlined),
                   items: const [
-                    DropdownMenuItem(
-                      value: '',
-                      child: Text('All'),
-                    ),
-                    DropdownMenuItem(
-                      value: 'Low',
-                      child: Text('Low'),
-                    ),
-                    DropdownMenuItem(
-                      value: 'Medium',
-                      child: Text('Medium'),
-                    ),
-                    DropdownMenuItem(
-                      value: 'High',
-                      child: Text('High'),
-                    ),
+                    DropdownMenuItem(value: '', child: Text('All')),
+                    DropdownMenuItem(value: 'Low', child: Text('Low')),
+                    DropdownMenuItem(value: 'Medium', child: Text('Medium')),
+                    DropdownMenuItem(value: 'High', child: Text('High')),
                   ],
                   onChanged: (value) {
                     setState(() {
-                      _draft = _draft.copyWith(
-                        priority: value ?? '',
-                      );
+                      _draft = _draft.copyWith(priority: value ?? '');
                     });
                   },
                 ),
@@ -276,9 +235,7 @@ class _AssignedTaskListPageState
               // STATUS FILTER
               Expanded(
                 child: DropdownButtonFormField<String>(
-                  key: ValueKey(
-                    'status_${_draft.status}',
-                  ),
+                  key: ValueKey('status_${_draft.status}'),
                   initialValue: _draft.status,
                   isExpanded: true,
                   decoration: _inputDecoration(
@@ -286,24 +243,13 @@ class _AssignedTaskListPageState
                     Icons.task_alt_outlined,
                   ),
                   items: const [
-                    DropdownMenuItem(
-                      value: '',
-                      child: Text('All'),
-                    ),
-                    DropdownMenuItem(
-                      value: '0',
-                      child: Text('Pending'),
-                    ),
-                    DropdownMenuItem(
-                      value: '1',
-                      child: Text('Completed'),
-                    ),
+                    DropdownMenuItem(value: '', child: Text('All')),
+                    DropdownMenuItem(value: '0', child: Text('Pending')),
+                    DropdownMenuItem(value: '1', child: Text('Completed')),
                   ],
                   onChanged: (value) {
                     setState(() {
-                      _draft = _draft.copyWith(
-                        status: value ?? '',
-                      );
+                      _draft = _draft.copyWith(status: value ?? '');
                     });
                   },
                 ),
@@ -323,41 +269,27 @@ class _AssignedTaskListPageState
           const SizedBox(height: 9),
           // EMPLOYEE FILTER
           DropdownButtonFormField<String>(
-            key: ValueKey(
-              'employee_${_draft.employeeId}',
-            ),
-            initialValue: validEmployee
-                ? _draft.employeeId
-                : '',
+            key: ValueKey('employee_${_draft.employeeId}'),
+            initialValue: validEmployee ? _draft.employeeId : '',
             isExpanded: true,
-            decoration: _inputDecoration(
-              'Employee',
-              Icons.person_outline,
-            ),
+            decoration: _inputDecoration('Employee', Icons.person_outline),
             items: [
-              const DropdownMenuItem(
-                value: '',
-                child: Text('All Employees'),
-              ),
+              const DropdownMenuItem(value: '', child: Text('All Employees')),
               ...widget.employees
                   .where((e) => e.id.isNotEmpty)
                   .map(
-                    (employee) =>
-                        DropdownMenuItem<String>(
+                    (employee) => DropdownMenuItem<String>(
                       value: employee.id,
                       child: Text(
                         employee.name,
-                        overflow:
-                            TextOverflow.ellipsis,
+                        overflow: TextOverflow.ellipsis,
                       ),
                     ),
                   ),
             ],
             onChanged: (value) {
               setState(() {
-                _draft = _draft.copyWith(
-                  employeeId: value ?? '',
-                );
+                _draft = _draft.copyWith(employeeId: value ?? '');
               });
             },
           ),
@@ -368,10 +300,7 @@ class _AssignedTaskListPageState
             children: [
               TextButton.icon(
                 onPressed: _clearFilters,
-                icon: Icon(
-                  Icons.restart_alt_rounded,
-                  size: 18,
-                ),
+                icon: Icon(Icons.restart_alt_rounded, size: 18),
                 label: const Text('Clear'),
               ),
               const Spacer(),
@@ -387,10 +316,7 @@ class _AssignedTaskListPageState
                   backgroundColor: context.primaryColor,
                   foregroundColor: context.cardBackgroundColor,
                 ),
-                icon: Icon(
-                  Icons.check,
-                  size: 18,
-                ),
+                icon: Icon(Icons.check, size: 18),
                 label: const Text('Apply'),
               ),
             ],
@@ -410,56 +336,44 @@ class _AssignedTaskListPageState
     required int completed,
     required int overdue,
   }) {
-    Widget item(
-      String title,
-      int count,
-      IconData icon,
-      Color color,
-    ) {
+    Widget item(String title, int count, IconData icon, Color color) {
       return Expanded(
         child: InkWell(
           onTap: () => setState(() => _selectedSummary = title),
           borderRadius: BorderRadius.circular(11),
           child: Container(
-          padding: const EdgeInsets.symmetric(
-            horizontal: 5,
-            vertical: 10,
-          ),
-          decoration: BoxDecoration(
-            color: context.cardBackgroundColor,
-            borderRadius: BorderRadius.circular(11),
-            border: Border.all(
-              color: _selectedSummary == title ? color : context.borderColor,
-              width: _selectedSummary == title ? 2 : 1,
+            padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 10),
+            decoration: BoxDecoration(
+              color: context.cardBackgroundColor,
+              borderRadius: BorderRadius.circular(11),
+              border: Border.all(
+                color: _selectedSummary == title ? color : context.borderColor,
+                width: _selectedSummary == title ? 2 : 1,
+              ),
             ),
-          ),
-          child: Column(
-            children: [
-              Icon(
-                icon,
-                color: color,
-                size: 19,
-              ),
-              const SizedBox(height: 4),
-              Text(
-                '$count',
-                style: TextStyle(
-                  color: context.primaryTextColor,
-                  fontSize: 17,
-                  fontWeight: FontWeight.w800,
+            child: Column(
+              children: [
+                Icon(icon, color: color, size: 19),
+                const SizedBox(height: 4),
+                Text(
+                  '$count',
+                  style: TextStyle(
+                    color: context.primaryTextColor,
+                    fontSize: 17,
+                    fontWeight: FontWeight.w800,
+                  ),
                 ),
-              ),
-              Text(
-                title,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: TextStyle(
-                  color: context.secondaryTextColor,
-                  fontSize: 10,
+                Text(
+                  title,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    color: context.secondaryTextColor,
+                    fontSize: 10,
+                  ),
                 ),
-              ),
-            ],
-          ),
+              ],
+            ),
           ),
         ),
       );
@@ -467,33 +381,13 @@ class _AssignedTaskListPageState
 
     return Row(
       children: [
-        item(
-          'Total',
-          total,
-          Icons.assignment_outlined,
-          context.primaryColor,
-        ),
+        item('Total', total, Icons.assignment_outlined, context.primaryColor),
         const SizedBox(width: 6),
-        item(
-          'Pending',
-          pending,
-          Icons.pending_actions_rounded,
-          kTaskPending,
-        ),
+        item('Pending', pending, Icons.pending_actions_rounded, kTaskPending),
         const SizedBox(width: 6),
-        item(
-          'Overdue',
-          overdue,
-          Icons.warning_amber_rounded,
-          kTaskOverdue,
-        ),
+        item('Overdue', overdue, Icons.warning_amber_rounded, kTaskOverdue),
         const SizedBox(width: 6),
-        item(
-          'Done',
-          completed,
-          Icons.task_alt_rounded,
-          context.primaryColor,
-        ),
+        item('Done', completed, Icons.task_alt_rounded, context.primaryColor),
       ],
     );
   }
@@ -539,76 +433,56 @@ class _AssignedTaskListPageState
       //     ),
       //   ],
       // ),
-
-
-
-       appBar: CustomAppBar(
-          backgroundColor: context.primaryColor,
-          titleStyle: AppTextStyles.appBarTitle.copyWith(
-            color: context.onPrimaryColor,
-          ),
-          leading: IconButton(
-            icon: Icon(
-              Icons.arrow_back_ios_new_rounded,
-              size: 20,
-              color: context.onPrimaryColor,
-            ),
-            onPressed: () => context.go(AppRouter.home),
-          ),
-          
-         action:Row(
-          children: [
-           IconButton(
-          tooltip: 'Show / Hide Filters',
+      appBar: CustomAppBar(
+        backgroundColor: context.primaryColor,
+        titleStyle: AppTextStyles.appBarTitle.copyWith(
+          color: context.onPrimaryColor,
+        ),
+        leading: IconButton(
           icon: Icon(
-            Icons.tune_rounded,
+            Icons.arrow_back_ios_new_rounded,
+            size: 20,
             color: context.onPrimaryColor,
           ),
-          onPressed: () {
-            setState(() {
-              _showFilters = !_showFilters;
-            });
-          },
-        ), 
-
-          IconButton(
-            tooltip: 'Refresh',
-            onPressed: _loadTasks,
-            icon: Icon(
-              Icons.refresh_rounded,
-            ),
-          ),
-
-          ],
-         ),
-        
-          title: 'Assigned Tasks List',
-          showBackButton: true,
-          onBackTap: () => context.go(AppRouter.home),
+          onPressed: () => context.go(AppRouter.home),
         ),
 
+        action: Row(
+          children: [
+            IconButton(
+              tooltip: 'Show / Hide Filters',
+              icon: Icon(Icons.tune_rounded, color: context.onPrimaryColor),
+              onPressed: () {
+                setState(() {
+                  _showFilters = !_showFilters;
+                });
+              },
+            ),
 
+            IconButton(
+              tooltip: 'Refresh',
+              onPressed: _loadTasks,
+              icon: Icon(Icons.refresh_rounded),
+            ),
+          ],
+        ),
 
-      body: BlocBuilder<
-          AssignedTaskBloc,
-          AssignedTaskState>(
+        title: 'Assigned Tasks List',
+        showBackButton: true,
+        onBackTap: () => context.go(AppRouter.home),
+      ),
+
+      body: BlocBuilder<AssignedTaskBloc, AssignedTaskState>(
         builder: (context, state) {
-          final query =
-              _searchQuery.trim().toLowerCase();
+          final query = _searchQuery.trim().toLowerCase();
 
           // Keep your existing search logic.
           final summaryTasks = state.tasks.where((task) {
             if (query.isEmpty) return true;
 
-            return task.title
-                    .toLowerCase()
-                    .contains(query) ||
-                task.description
-                    .toLowerCase()
-                    .contains(query) ||
-                task.assigneeName
-                    .toLowerCase()
-                    .contains(query);
+            return task.title.toLowerCase().contains(query) ||
+                task.description.toLowerCase().contains(query) ||
+                task.assigneeName.toLowerCase().contains(query);
           }).toList();
 
           // ============================================
@@ -656,27 +530,18 @@ class _AssignedTaskListPageState
 
           final totalCount = summaryTasks.length;
 
-          final pendingCount = summaryTasks
-              .where(_isPending)
-              .length;
+          final pendingCount = summaryTasks.where(_isPending).length;
 
-          final completedCount = summaryTasks
-              .where(_isCompleted)
-              .length;
+          final completedCount = summaryTasks.where(_isCompleted).length;
 
-          final overdueCount = summaryTasks
-              .where(_isOverdue)
-              .length;
+          final overdueCount = summaryTasks.where(_isOverdue).length;
 
           return RefreshIndicator(
             color: context.primaryColor,
             onRefresh: _refresh,
             child: ListView(
-              physics:
-                  const AlwaysScrollableScrollPhysics(),
-              padding: const EdgeInsets.fromLTRB(
-                12, 12, 12, 28,
-              ),
+              physics: const AlwaysScrollableScrollPhysics(),
+              padding: const EdgeInsets.fromLTRB(12, 12, 12, 28),
               children: [
                 // =====================================
                 // SUMMARY
@@ -709,7 +574,6 @@ class _AssignedTaskListPageState
                 // =====================================
                 // FILTERS
                 // =====================================
-
                 if (_showFilters) ...[
                   const SizedBox(height: 9),
                   _filterPanel(),
@@ -720,7 +584,6 @@ class _AssignedTaskListPageState
                 // =====================================
                 // TASK LIST HEADING
                 // =====================================
-
                 Row(
                   children: [
                     Expanded(
@@ -728,8 +591,8 @@ class _AssignedTaskListPageState
                         _selectedSummary == 'Total'
                             ? 'Task List'
                             : _selectedSummary == 'Done'
-                                ? 'Completed Tasks'
-                                : '$_selectedSummary Tasks',
+                            ? 'Completed Tasks'
+                            : '$_selectedSummary Tasks',
                         style: TextStyle(
                           color: context.primaryTextColor,
                           fontSize: 15,
@@ -753,7 +616,6 @@ class _AssignedTaskListPageState
                 // =====================================
                 // LOADING
                 // =====================================
-
                 if (state.loading)
                   Padding(
                     padding: EdgeInsets.all(35),
@@ -767,9 +629,7 @@ class _AssignedTaskListPageState
                 // =====================================
                 // ERROR
                 // =====================================
-
-                if (!state.loading &&
-                    state.errorMessage.isNotEmpty)
+                if (!state.loading && state.errorMessage.isNotEmpty)
                   _MessageCard(
                     message: state.errorMessage,
                     icon: Icons.error_outline,
@@ -779,31 +639,24 @@ class _AssignedTaskListPageState
                 // =====================================
                 // EMPTY
                 // =====================================
-
                 if (!state.loading &&
                     state.errorMessage.isEmpty &&
                     tasks.isEmpty)
                   const _MessageCard(
-                    message:
-                        'No assigned tasks found',
-                    icon:
-                        Icons.assignment_outlined,
+                    message: 'No assigned tasks found',
+                    icon: Icons.assignment_outlined,
                   ),
 
                 // =====================================
                 // TASK CARDS
                 // =====================================
-
-                if (!state.loading &&
-                    state.errorMessage.isEmpty)
+                if (!state.loading && state.errorMessage.isEmpty)
                   ...tasks.map(
                     (task) => Padding(
-                      padding:
-                          const EdgeInsets.only(bottom: 9),
+                      padding: const EdgeInsets.only(bottom: 9),
                       child: _AssignedTaskCard(
                         task: task,
-                        imageBaseUrl:
-                            widget.imageBaseUrl,
+                        imageBaseUrl: widget.imageBaseUrl,
                       ),
                     ),
                   ),
@@ -821,11 +674,7 @@ class _AssignedTaskListPageState
 // ========================================================
 
 class _MessageCard extends StatelessWidget {
-  const _MessageCard({
-    required this.message,
-    required this.icon,
-    this.action,
-  });
+  const _MessageCard({required this.message, required this.icon, this.action});
 
   final String message;
   final IconData icon;
@@ -834,39 +683,24 @@ class _MessageCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(
-        horizontal: 18,
-        vertical: 32,
-      ),
+      padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 32),
       decoration: BoxDecoration(
         color: context.cardBackgroundColor,
         borderRadius: BorderRadius.circular(14),
-        border: Border.all(
-          color: context.borderColor,
-        ),
+        border: Border.all(color: context.borderColor),
       ),
       child: Column(
         children: [
-          Icon(
-            icon,
-            size: 38,
-            color: context.primaryColor,
-          ),
+          Icon(icon, size: 38, color: context.primaryColor),
           const SizedBox(height: 10),
           Text(
             message,
             textAlign: TextAlign.center,
-            style: TextStyle(
-              color: context.secondaryTextColor,
-              fontSize: 12,
-            ),
+            style: TextStyle(color: context.secondaryTextColor, fontSize: 12),
           ),
           if (action != null) ...[
             const SizedBox(height: 8),
-            TextButton(
-              onPressed: action,
-              child: const Text('Retry'),
-            ),
+            TextButton(onPressed: action, child: const Text('Retry')),
           ],
         ],
       ),
@@ -880,13 +714,190 @@ class _MessageCard extends StatelessWidget {
 // ========================================================
 
 class _AssignedTaskCard extends StatelessWidget {
-  const _AssignedTaskCard({
-    required this.task,
-    required this.imageBaseUrl,
-  });
+  const _AssignedTaskCard({required this.task, required this.imageBaseUrl});
 
   final AssignedTask task;
   final String imageBaseUrl;
+
+  Future<void> _viewCompletionDetails(BuildContext context) {
+    return showDialog<void>(
+      context: context,
+      builder: (dialogContext) => Dialog(
+        backgroundColor: dialogContext.cardBackgroundColor,
+        insetPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+        clipBehavior: Clip.antiAlias,
+        child: ConstrainedBox(
+          constraints: BoxConstraints(
+            maxWidth: 480,
+            maxHeight: MediaQuery.sizeOf(dialogContext).height * 0.85,
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Container(
+                padding: const EdgeInsets.fromLTRB(18, 14, 8, 14),
+                color: dialogContext.primaryColor.withValues(alpha: 0.08),
+                child: Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(9),
+                      decoration: BoxDecoration(
+                        color: dialogContext.primaryColor.withValues(
+                          alpha: 0.12,
+                        ),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Icon(
+                        Icons.task_alt_rounded,
+                        color: dialogContext.primaryColor,
+                        size: 22,
+                      ),
+                    ),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Completion Details',
+                            style: TextStyle(
+                              color: dialogContext.primaryTextColor,
+                              fontSize: 16,
+                              fontWeight: FontWeight.w800,
+                            ),
+                          ),
+                          if (task.completedDate.trim().isNotEmpty) ...[
+                            const SizedBox(height: 3),
+                            Text(
+                              task.completedDate,
+                              style: TextStyle(
+                                fontSize: 11,
+                                color: dialogContext.secondaryTextColor,
+                              ),
+                            ),
+                          ],
+                        ],
+                      ),
+                    ),
+                    IconButton(
+                      tooltip: 'Close',
+                      onPressed: () => Navigator.of(dialogContext).pop(),
+                      icon: Icon(
+                        Icons.close_rounded,
+                        color: dialogContext.secondaryTextColor,
+                        size: 21,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Flexible(
+                child: SingleChildScrollView(
+                  padding: const EdgeInsets.fromLTRB(18, 16, 18, 18),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        task.title,
+                        style: TextStyle(
+                          color: dialogContext.primaryTextColor,
+                          fontSize: 15,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                      if (task.remark.trim().isNotEmpty) ...[
+                        const SizedBox(height: 12),
+                        Container(
+                          width: double.infinity,
+                          padding: const EdgeInsets.all(12),
+                          decoration: BoxDecoration(
+                            color: dialogContext.appTheme.inputBackground,
+                            borderRadius: BorderRadius.circular(12),
+                            border: Border.all(
+                              color: dialogContext.borderColor,
+                            ),
+                          ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'COMPLETION REMARK',
+                                style: TextStyle(
+                                  color: dialogContext.secondaryTextColor,
+                                  fontSize: 10,
+                                  fontWeight: FontWeight.w700,
+                                  letterSpacing: 0.7,
+                                ),
+                              ),
+                              const SizedBox(height: 5),
+                              Text(
+                                task.remark.trim(),
+                                style: TextStyle(
+                                  color: dialogContext.primaryTextColor,
+                                  fontSize: 13,
+                                  height: 1.4,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                      const SizedBox(height: 14),
+                      Row(
+                        children: [
+                          Icon(
+                            Icons.photo_library_outlined,
+                            size: 16,
+                            color: dialogContext.primaryColor,
+                          ),
+                          const SizedBox(width: 6),
+                          Text(
+                            'Task Photos',
+                            style: TextStyle(
+                              color: dialogContext.primaryTextColor,
+                              fontSize: 12,
+                              fontWeight: FontWeight.w700,
+                            ),
+                          ),
+                          const Spacer(),
+                          Text(
+                            'Tap to enlarge',
+                            style: TextStyle(
+                              color: dialogContext.secondaryTextColor,
+                              fontSize: 10,
+                            ),
+                          ),
+                        ],
+                      ),
+                      TaskImageRow(
+                        taskImageUrl: _imageUrl(task.image),
+                        completedImageUrl: _imageUrl(task.completedImage),
+                      ),
+                      if ((_imageUrl(task.image)?.trim().isEmpty ?? true) &&
+                          (_imageUrl(task.completedImage)?.trim().isEmpty ??
+                              true))
+                        Padding(
+                          padding: const EdgeInsets.only(top: 12),
+                          child: Text(
+                            'No photos attached.',
+                            style: TextStyle(
+                              color: dialogContext.secondaryTextColor,
+                              fontSize: 12,
+                            ),
+                          ),
+                        ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
 
   bool get _isOverdue => task.isOverdue;
 
@@ -952,9 +963,7 @@ class _AssignedTaskCard extends StatelessWidget {
   String _formatDate(DateTime? value) {
     if (value == null) return '-';
 
-    return DateFormat(
-      'dd MMM, hh:mm a',
-    ).format(value);
+    return DateFormat('dd MMM, hh:mm a').format(value);
   }
 
   // ========================================================
@@ -964,33 +973,26 @@ class _AssignedTaskCard extends StatelessWidget {
   String? _imageUrl(String filename) {
     final value = filename.trim();
 
-    if (value.isEmpty ||
-        value.toLowerCase() == 'null') {
+    if (value.isEmpty || value.toLowerCase() == 'null') {
       return null;
     }
 
     final parsed = Uri.tryParse(value);
 
     if (parsed != null &&
-        (parsed.scheme == 'https' ||
-            parsed.scheme == 'http') &&
+        (parsed.scheme == 'https' || parsed.scheme == 'http') &&
         parsed.hasAuthority) {
       return value;
     }
 
     // Filename from API, e.g. TASK_IMAGE_123.png
-    if (value.contains('/') ||
-        value.contains('\\')) {
+    if (value.contains('/') || value.contains('\\')) {
       return null;
     }
 
-    final base = imageBaseUrl.endsWith('/')
-        ? imageBaseUrl
-        : '$imageBaseUrl/';
+    final base = imageBaseUrl.endsWith('/') ? imageBaseUrl : '$imageBaseUrl/';
 
-    return Uri.parse(base)
-        .resolve(Uri.encodeComponent(value))
-        .toString();
+    return Uri.parse(base).resolve(Uri.encodeComponent(value)).toString();
   }
 
   // ========================================================
@@ -1003,10 +1005,7 @@ class _AssignedTaskCard extends StatelessWidget {
     required IconData icon,
   }) {
     return Container(
-      padding: const EdgeInsets.symmetric(
-        horizontal: 9,
-        vertical: 6,
-      ),
+      padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 6),
       decoration: BoxDecoration(
         color: color.withValues(alpha: 0.10),
         borderRadius: BorderRadius.circular(20),
@@ -1014,11 +1013,7 @@ class _AssignedTaskCard extends StatelessWidget {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(
-            icon,
-            size: 14,
-            color: color,
-          ),
+          Icon(icon, size: 14, color: color),
           const SizedBox(width: 5),
           Text(
             text,
@@ -1044,14 +1039,9 @@ class _AssignedTaskCard extends StatelessWidget {
     bool warning = false,
   }) {
     return Container(
-      padding: const EdgeInsets.symmetric(
-        horizontal: 9,
-        vertical: 9,
-      ),
+      padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 9),
       decoration: BoxDecoration(
-        color: warning
-            ? const Color(0xFFFFEDED)
-            : context.backgroundColor,
+        color: warning ? const Color(0xFFFFEDED) : context.backgroundColor,
         borderRadius: BorderRadius.circular(9),
       ),
       child: Row(
@@ -1059,22 +1049,17 @@ class _AssignedTaskCard extends StatelessWidget {
           Icon(
             Icons.calendar_today_outlined,
             size: 15,
-            color: warning
-                ? kTaskOverdue
-                : context.primaryColor,
+            color: warning ? kTaskOverdue : context.primaryColor,
           ),
           const SizedBox(width: 6),
           Expanded(
             child: Column(
-              crossAxisAlignment:
-                  CrossAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
                   label,
                   style: TextStyle(
-                    color: warning
-                        ? kTaskOverdue
-                        : context.secondaryTextColor,
+                    color: warning ? kTaskOverdue : context.secondaryTextColor,
                     fontSize: 10,
                   ),
                 ),
@@ -1084,9 +1069,7 @@ class _AssignedTaskCard extends StatelessWidget {
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
                   style: TextStyle(
-                    color: warning
-                        ? kTaskOverdue
-                        : context.primaryTextColor,
+                    color: warning ? kTaskOverdue : context.primaryTextColor,
                     fontSize: 11,
                     fontWeight: FontWeight.w700,
                   ),
@@ -1105,38 +1088,26 @@ class _AssignedTaskCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Both original and completion photos.
-    final imageUrl =
-        _imageUrl(task.image);
-
-    final completedImageUrl =
-        _imageUrl(task.completedImage);
-
     return Container(
       decoration: BoxDecoration(
-        color: _isOverdue
-            ? kTaskOverdueBg
-            : context.cardBackgroundColor,
+        color: _isOverdue ? kTaskOverdueBg : context.cardBackgroundColor,
         borderRadius: BorderRadius.circular(14),
         border: Border.all(
-          color: _isOverdue
-              ? kTaskOverdueBorder
-              : context.borderColor,
-          width: _isOverdue ? 1.2 : 1,
+          color: _isCompleted
+              ? Colors.green
+              : (_isOverdue ? kTaskOverdueBorder : context.borderColor),
+          width: _isCompleted ? 2 : (_isOverdue ? 1.2 : 1),
         ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(
-              alpha: 0.025,
-            ),
+            color: Colors.black.withValues(alpha: 0.025),
             blurRadius: 10,
             offset: const Offset(0, 3),
           ),
         ],
       ),
       child: Column(
-        crossAxisAlignment:
-            CrossAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           // ============================================
           // OVERDUE HEADER
@@ -1145,15 +1116,10 @@ class _AssignedTaskCard extends StatelessWidget {
           if (_isOverdue)
             Container(
               width: double.infinity,
-              padding: const EdgeInsets.symmetric(
-                horizontal: 11,
-                vertical: 8,
-              ),
+              padding: const EdgeInsets.symmetric(horizontal: 11, vertical: 8),
               decoration: const BoxDecoration(
                 color: Color(0xFFFFEAEA),
-                borderRadius: BorderRadius.vertical(
-                  top: Radius.circular(13),
-                ),
+                borderRadius: BorderRadius.vertical(top: Radius.circular(13)),
               ),
               child: Row(
                 children: [
@@ -1178,16 +1144,14 @@ class _AssignedTaskCard extends StatelessWidget {
           Padding(
             padding: const EdgeInsets.all(11),
             child: Column(
-              crossAxisAlignment:
-                  CrossAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 // ====================================
                 // TASK TITLE + PRIORITY
                 // ====================================
 
                 Row(
-                  crossAxisAlignment:
-                      CrossAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Container(
                       width: 34,
@@ -1196,17 +1160,14 @@ class _AssignedTaskCard extends StatelessWidget {
                         color: _isOverdue
                             ? const Color(0xFFFFE4E4)
                             : context.primaryColor.withValues(alpha: 0.10),
-                        borderRadius:
-                            BorderRadius.circular(9),
+                        borderRadius: BorderRadius.circular(9),
                       ),
                       child: Icon(
                         _isOverdue
                             ? Icons.warning_amber_rounded
                             : Icons.assignment_outlined,
                         size: 19,
-                        color: _isOverdue
-                            ? kTaskOverdue
-                            : context.primaryColor,
+                        color: _isOverdue ? kTaskOverdue : context.primaryColor,
                       ),
                     ),
 
@@ -1214,16 +1175,14 @@ class _AssignedTaskCard extends StatelessWidget {
 
                     Expanded(
                       child: Column(
-                        crossAxisAlignment:
-                            CrossAxisAlignment.start,
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
                             task.title.isEmpty
                                 ? 'Task : Untitled Task'
                                 : 'Task : ${task.title}',
                             maxLines: 2,
-                            overflow:
-                                TextOverflow.ellipsis,
+                            overflow: TextOverflow.ellipsis,
                             style: TextStyle(
                               color: context.primaryTextColor,
                               fontSize: 13,
@@ -1243,10 +1202,9 @@ class _AssignedTaskCard extends StatelessWidget {
                               const SizedBox(width: 4),
                               Expanded(
                                 child: Text(
-                                  'Emp Name : ${task.assigneeName}',
+                                  'Assigned by : ${task.assigneeName}',
                                   maxLines: 1,
-                                  overflow:
-                                      TextOverflow.ellipsis,
+                                  overflow: TextOverflow.ellipsis,
                                   style: TextStyle(
                                     color: context.secondaryTextColor,
                                     fontSize: 10,
@@ -1272,34 +1230,27 @@ class _AssignedTaskCard extends StatelessWidget {
                 // ====================================
                 // DESCRIPTION
                 // ====================================
-
-                if (task.description.trim().isNotEmpty)
-                  ...[
-                    const SizedBox(height: 9),
-                    Text(
-                      'Description : ${task.description}',
-                      style: TextStyle(
-                        color: context.primaryTextColor,
-                        fontSize: 11,
-                        height: 1.4,
-                      ),
+                if (task.description.trim().isNotEmpty) ...[
+                  const SizedBox(height: 9),
+                  Text(
+                    'Description : ${task.description}',
+                    style: TextStyle(
+                      color: context.primaryTextColor,
+                      fontSize: 11,
+                      height: 1.4,
                     ),
-                  ],
+                  ),
+                ],
 
                 const SizedBox(height: 10),
 
                 // ====================================
                 // ASSIGNED DATE / DUE DATE
                 // ====================================
-
                 Row(
                   children: [
                     Expanded(
-                      child: _dateCell(
-                        context,
-                        'Assigned',
-                        task.taskDate,
-                      ),
+                      child: _dateCell(context, 'Assigned', task.taskDate),
                     ),
 
                     const SizedBox(width: 8),
@@ -1320,492 +1271,45 @@ class _AssignedTaskCard extends StatelessWidget {
                 // ====================================
                 // TWO INDEPENDENT STATUS BADGES
                 // ====================================
-
-                Wrap(
-                  spacing: 7,
-                  runSpacing: 7,
+                Row(
                   children: [
-                    // Actual task status.
-                    _badge(
-                      text: _statusText,
-                      color: _statusColor(context),
-                      icon: _statusIcon,
-                    ),
-
-                    // Backend overdue flag.
-                    if (_isOverdue)
-                      _badge(
-                        text: 'Overdue',
-                        color: kTaskOverdue,
-                        icon:
-                            Icons.warning_amber_rounded,
-                      ),
-                  ],
-                ),
-
-                // ====================================
-                // COMPLETION REMARK AND DATE
-                // ====================================
-
-                if (task.remark.trim().isNotEmpty ||
-                    task.completedDate
-                        .trim()
-                        .isNotEmpty) ...[
-                  const SizedBox(height: 10),
-
-                  Container(
-                    width: double.infinity,
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 10,
-                      vertical: 9,
-                    ),
-                    decoration: BoxDecoration(
-                      color: context.primaryColor.withValues(alpha: 0.06),
-                      borderRadius:
-                          BorderRadius.circular(10),
-                    ),
-                    child: Column(
-                      crossAxisAlignment:
-                          CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          children: [
-                            Icon(
-                              Icons.verified_rounded,
-                              color: context.primaryColor,
-                              size: 16,
-                            ),
-                            SizedBox(width: 6),
-                            Text(
-                              'Completion Details',
-                              style: TextStyle(
-                                color: context.primaryColor,
-                                fontSize: 11,
-                                fontWeight: FontWeight.w800,
-                              ),
-                            ),
-                          ],
-                        ),
-
-                        if (task.remark.trim().isNotEmpty)
-                          ...[
-                            const SizedBox(height: 6),
-
-                            Text(
-                              'Remark : ${task.remark.trim()}',
-                              style: TextStyle(
-                                color: context.primaryTextColor,
-                                fontSize: 11,
-                                height: 1.3,
-                              ),
-                            ),
-                          ],
-
-                        if (task.completedDate
-                            .trim()
-                            .isNotEmpty) ...[
-                          const SizedBox(height: 5),
-
-                          Text(
-                            'Completed · ${task.completedDate}',
-                            style: TextStyle(
-                              color: context.primaryColor,
-                              fontSize: 10,
-                              fontWeight: FontWeight.w700,
-                            ),
+                    Expanded(
+                      child: Wrap(
+                        spacing: 7,
+                        runSpacing: 7,
+                        children: [
+                          // Actual task status.
+                          _badge(
+                            text: _statusText,
+                            color: _statusColor(context),
+                            icon: _statusIcon,
                           ),
+
+                          // Backend overdue flag.
+                          if (_isOverdue)
+                            _badge(
+                              text: 'Overdue',
+                              color: kTaskOverdue,
+                              icon: Icons.warning_amber_rounded,
+                            ),
                         ],
-                      ],
-                    ),
-                  ),
-                ],
-
-                // ====================================
-                // TASK AND COMPLETION IMAGES
-                // ====================================
-
-                if (imageUrl != null ||
-                    completedImageUrl != null)
-                  _TaskImageGallery(
-                    key: ValueKey(
-                      'gallery_${task.id}_'
-                      '${imageUrl}_$completedImageUrl',
-                    ),
-                    assignedUrl: imageUrl,
-                    completedUrl: completedImageUrl,
-                  ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-// ========================================================
-// SPACE-OPTIMIZED IMAGE GALLERY
-// ========================================================
-
-class _TaskImageGallery extends StatefulWidget {
-  const _TaskImageGallery({
-    super.key,
-    this.assignedUrl,
-    this.completedUrl,
-  });
-
-  final String? assignedUrl;
-  final String? completedUrl;
-
-  @override
-  State<_TaskImageGallery> createState() =>
-      _TaskImageGalleryState();
-}
-
-class _TaskImageGalleryState
-    extends State<_TaskImageGallery> {
-  late Future<List<_TaskImageInfo>> _images;
-
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    _images = _checkImages();
-  }
-
-  @override
-  void didUpdateWidget(
-    covariant _TaskImageGallery oldWidget,
-  ) {
-    super.didUpdateWidget(oldWidget);
-
-    if (oldWidget.assignedUrl !=
-            widget.assignedUrl ||
-        oldWidget.completedUrl !=
-            widget.completedUrl) {
-      _images = _checkImages();
-    }
-  }
-
-  Future<List<_TaskImageInfo>> _checkImages() async {
-    final entries = <_TaskImageInfo>[
-      if (widget.assignedUrl != null)
-        _TaskImageInfo(
-          widget.assignedUrl!,
-          'Task Image',
-          false,
-        ),
-
-      if (widget.completedUrl != null)
-        _TaskImageInfo(
-          widget.completedUrl!,
-          'Completed Image',
-          true,
-        ),
-    ];
-
-    final results = await Future.wait(
-      entries.map((entry) async {
-        try {
-          await precacheImage(
-            NetworkImage(entry.url),
-            context,
-          );
-
-          return entry;
-        } catch (_) {
-          return null;
-        }
-      }),
-    );
-
-    return results
-        .whereType<_TaskImageInfo>()
-        .toList();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return FutureBuilder<List<_TaskImageInfo>>(
-      future: _images,
-      builder: (context, snapshot) {
-        final images = snapshot.data ??
-            const <_TaskImageInfo>[];
-
-        if (images.isEmpty) {
-          return const SizedBox.shrink();
-        }
-
-        return Padding(
-          padding: const EdgeInsets.only(top: 10),
-          child: LayoutBuilder(
-            builder: (context, constraints) {
-              final twoColumns =
-                  images.length == 2 &&
-                  constraints.maxWidth >= 270 &&
-                  MediaQuery.textScalerOf(context)
-                          .scale(12) <=
-                      18;
-
-              final width = twoColumns
-                  ? (constraints.maxWidth - 8) / 2
-                  : constraints.maxWidth;
-
-              return Wrap(
-                spacing: 8,
-                runSpacing: 8,
-                children: images.map((image) {
-                  return SizedBox(
-                    width: width,
-                    child: _TaskImageTile(
-                      info: image,
-                      height:
-                          twoColumns ? 112 : 150,
-                    ),
-                  );
-                }).toList(),
-              );
-            },
-          ),
-        );
-      },
-    );
-  }
-}
-
-// ========================================================
-// IMAGE INFORMATION
-// ========================================================
-
-class _TaskImageInfo {
-  const _TaskImageInfo(
-    this.url,
-    this.label,
-    this.completed,
-  );
-
-  final String url;
-  final String label;
-  final bool completed;
-}
-
-// ========================================================
-// IMAGE TILE
-// ========================================================
-
-class _TaskImageTile extends StatelessWidget {
-  const _TaskImageTile({
-    required this.info,
-    required this.height,
-  });
-
-  final _TaskImageInfo info;
-  final double height;
-
-  @override
-  Widget build(BuildContext context) {
-    return Material(
-      color: context.backgroundColor,
-      clipBehavior: Clip.antiAlias,
-      borderRadius: BorderRadius.circular(11),
-      child: InkWell(
-        onTap: () {
-          Navigator.of(context).push(
-            MaterialPageRoute<void>(
-              builder: (_) => _TaskImageZoomPage(
-                url: info.url,
-                title: info.label,
-              ),
-            ),
-          );
-        },
-        child: SizedBox(
-          height: height,
-          child: Stack(
-            fit: StackFit.expand,
-            children: [
-              Image.network(
-                info.url,
-                fit: BoxFit.cover,
-                errorBuilder: (_, __, ___) =>
-                    const SizedBox.shrink(),
-              ),
-
-              Positioned(
-                left: 0,
-                right: 0,
-                bottom: 0,
-                child: Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 8,
-                    vertical: 7,
-                  ),
-                  decoration: const BoxDecoration(
-                    gradient: LinearGradient(
-                      begin: Alignment.topCenter,
-                      end: Alignment.bottomCenter,
-                      colors: [
-                        Colors.transparent,
-                        Color(0xC9000000),
-                      ],
-                    ),
-                  ),
-                  child: Row(
-                    children: [
-                      Icon(
-                        info.completed
-                            ? Icons.task_alt_rounded
-                            : Icons.image_outlined,
-                        color: Colors.white,
-                        size: 14,
                       ),
-
-                      const SizedBox(width: 4),
-
-                      Expanded(
-                        child: Text(
-                          info.label,
-                          maxLines: 1,
-                          overflow:
-                              TextOverflow.ellipsis,
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontWeight: FontWeight.w700,
-                            fontSize: 10,
-                          ),
+                    ),
+                    const SizedBox(width: 8),
+                    OutlinedButton.icon(
+                      onPressed: () => _viewCompletionDetails(context),
+                      style: OutlinedButton.styleFrom(
+                        foregroundColor: context.primaryColor,
+                        side: BorderSide(color: context.primaryColor),
+                        visualDensity: VisualDensity.compact,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(9),
                         ),
                       ),
-
-                      Icon(
-                        Icons.zoom_in_rounded,
-                        color: Colors.white,
-                        size: 16,
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-// ========================================================
-// FULL SCREEN ZOOM VIEWER
-// ========================================================
-
-class _TaskImageZoomPage extends StatefulWidget {
-  const _TaskImageZoomPage({
-    required this.url,
-    required this.title,
-  });
-
-  final String url;
-  final String title;
-
-  @override
-  State<_TaskImageZoomPage> createState() =>
-      _TaskImageZoomPageState();
-}
-
-class _TaskImageZoomPageState
-    extends State<_TaskImageZoomPage> {
-  final TransformationController _controller =
-      TransformationController();
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
-
-  void _zoom(double multiplier) {
-    final current =
-        _controller.value.getMaxScaleOnAxis();
-
-    final scale = (current * multiplier)
-        .clamp(1.0, 5.0)
-        .toDouble();
-
-    _controller.value = Matrix4.identity()
-      ..setEntry(0, 0, scale)
-      ..setEntry(1, 1, scale);
-  }
-
-  void _reset() {
-    _controller.value = Matrix4.identity();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.black,
-      appBar: AppBar(
-        backgroundColor: Colors.black,
-        foregroundColor: context.cardBackgroundColor,
-        title: Text(
-          widget.title,
-          style: TextStyle(fontSize: 15),
-        ),
-      ),
-      body: Column(
-        children: [
-          Expanded(
-            child: Center(
-              child: InteractiveViewer(
-                transformationController:
-                    _controller,
-                minScale: 1,
-                maxScale: 5,
-                panEnabled: true,
-                scaleEnabled: true,
-                child: Image.network(
-                  widget.url,
-                  fit: BoxFit.contain,
-                  errorBuilder: (_, __, ___) {
-                    return const Text(
-                      'Image unavailable',
-                      style: TextStyle(
-                        color: Colors.white,
-                      ),
-                    );
-                  },
-                ),
-              ),
-            ),
-          ),
-
-          SafeArea(
-            top: false,
-            child: Row(
-              mainAxisAlignment:
-                  MainAxisAlignment.center,
-              children: [
-                IconButton(
-                  tooltip: 'Zoom out',
-                  onPressed: () => _zoom(0.8),
-                  icon: Icon(
-                    Icons.zoom_out_rounded,
-                    color: Colors.white,
-                  ),
-                ),
-                IconButton(
-                  tooltip: 'Reset zoom',
-                  onPressed: _reset,
-                  icon: Icon(
-                    Icons.center_focus_strong,
-                    color: Colors.white,
-                  ),
-                ),
-                IconButton(
-                  tooltip: 'Zoom in',
-                  onPressed: () => _zoom(1.25),
-                  icon: Icon(
-                    Icons.zoom_in_rounded,
-                    color: Colors.white,
-                  ),
+                      icon: const Icon(Icons.visibility_outlined, size: 15),
+                      label: const Text('View', style: TextStyle(fontSize: 11)),
+                    ),
+                  ],
                 ),
               ],
             ),

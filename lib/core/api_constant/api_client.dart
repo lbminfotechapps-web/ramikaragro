@@ -182,5 +182,7 @@ class ApiClient {
    static const String createdTaskList = '/created_task_list';
    static const String updateTaskStatus = '/updateTaskStatus';
    static const String assignedTaskList ='/assigned_task_list';
+   static const String submitDealerDistributor ='/submitDealerDistributor';
+   static const String submitFieldDayProgram ='/submitFieldDayProgram';
 
 }
