@@ -1,5 +1,10 @@
+import 'package:solufine/features/marketing/dsi/presentation/bloc/dsi_bloc.dart';
+import 'package:solufine/features/marketing/dsi/presentation/pages/add_dsi_page.dart';
+import 'package:solufine/features/marketing/dsi/presentation/pages/dsi_list_page.dart';
 import 'package:solufine/features/marketing/farmer_coupon_booking/presentation/bloc/farmer_coupon_bloc.dart';
 import 'package:solufine/features/marketing/farmer_coupon_booking/presentation/pages/farmer_coupon_page.dart';
+import 'package:solufine/features/marketing/field_visit/presentation/bloc/field_visit_bloc.dart';
+import 'package:solufine/features/marketing/field_visit/presentation/pages/field_visit_page.dart';
 import 'package:solufine/features/marketing/jeep_campaign/presentation/bloc/jeep_campaign_bloc.dart';
 import 'package:solufine/features/marketing/jeep_campaign/presentation/pages/jeep_campaign_page.dart';
 import 'package:solufine/features/marketing/field_day_visit/presentation/bloc/field_day_bloc.dart';
@@ -204,7 +209,9 @@ class AppRouter {
    static const String farmerCouponBooking = '/farmerCouponBooking';
    static const String jeepCampaning = '/jeepCampaning';
    static const String successStory = '/successStory';
-  
+   static const String dsiList = '/dsi';
+   static const String addDsi = '/dsi/add';
+   static const String fieldVisitForm = '/fieldVisitForm';
   
 
   static final GoRouter router = GoRouter(
@@ -427,8 +434,41 @@ class AppRouter {
             },
           ),
 
-              
 
+          
+          GoRoute(
+            path: '/dsi',
+            builder: (context, state) {
+              return BlocProvider(
+                create: (_) => sl<DsiBloc>(),
+                child: const DsiListPage(),
+              );
+            },
+            routes: [
+              GoRoute(
+                path: 'add',
+                builder: (context, state) {
+                  return BlocProvider(
+                    create: (_) => sl<DsiBloc>(),
+                    child: const AddDsiPage(),
+                  );
+                },
+              ),
+            ],
+          ),
+
+
+          GoRoute(
+            path: fieldVisitForm,
+            name: 'fieldVisitForm',
+            builder: (context, state) {
+              return BlocProvider<FieldVisitBloc>(
+                create: (_) => sl<FieldVisitBloc>(),
+                child: const FieldVisitPage(),
+              );
+            },
+          ),
+              
 
       GoRoute(
         path: leaveList,
