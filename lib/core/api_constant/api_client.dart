@@ -1,4 +1,5 @@
 class ApiClient {
+  
   //=========================== For Live ===================================================================================
   static const String baseUrl =
       "https://agroaicrm.com/solufine_agritech/mobileapi/Mobile_app_for_businessplus_kotlin_new";
@@ -184,5 +185,9 @@ class ApiClient {
    static const String assignedTaskList ='/assigned_task_list';
    static const String submitDealerDistributor ='/submitDealerDistributor';
    static const String submitFieldDayProgram ='/submitFieldDayProgram';
-
+   static const String submitFarmerCoupon = '/submitFarmerCoupon';
+   static const String getSeason = '/getSeason';
+   static const String submitJeepCampaining ='/submitJeepCampaining';
+   static const String submitSuccessStory ='/submitDealerDistributor';
+   static const String successStoryCrops ='/getCropAndIrigationDetails';
 }

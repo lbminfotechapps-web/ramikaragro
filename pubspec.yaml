@@ -45,7 +45,13 @@ dependencies:
   url_launcher: ^6.3.2
   syncfusion_flutter_pdfviewer: ^34.2.6
   intl: ^0.20.2
+ 
+  # Video playback and preview
+  video_player: ^2.14.1
 
+# Video trimming and compression
+  compress_video:
+    path: third_party/compress_video
  
   bloc_concurrency: ^0.3.0
   android_intent_plus: ^5.3.0
