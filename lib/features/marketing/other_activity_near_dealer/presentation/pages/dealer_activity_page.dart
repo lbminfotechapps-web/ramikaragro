@@ -1,3 +1,4 @@
+import 'package:solufine/core/utility/image_compression.dart';
 import 'dart:io';
 import 'dart:async';
 
@@ -255,11 +256,21 @@ class _DealerActivityPageState extends State<DealerActivityPage> {
 
       if (!mounted) return;
 
+      final compressed = await ImageCompression.compressImage(file);
+      if (!mounted) return;
+      if (compressed == null || !await compressed.exists()) {
+        if (mounted) {
+          _showMessage('Could not compress the photo. Please select it again.');
+        }
+        return;
+      }
+      if (!mounted) return;
+
       setState(() {
         if (isShopBoard) {
-          _shopBoardImage = file;
+          _shopBoardImage = compressed;
         } else {
-          _dealerProofImage = file;
+          _dealerProofImage = compressed;
         }
       });
     } catch (e) {

@@ -1,3 +1,7 @@
+import 'package:solufine/features/marketing/farmer_coupon_booking/presentation/bloc/farmer_coupon_bloc.dart';
+import 'package:solufine/features/marketing/farmer_coupon_booking/presentation/pages/farmer_coupon_page.dart';
+import 'package:solufine/features/marketing/jeep_campaign/presentation/bloc/jeep_campaign_bloc.dart';
+import 'package:solufine/features/marketing/jeep_campaign/presentation/pages/jeep_campaign_page.dart';
 import 'package:solufine/features/marketing/field_day_visit/presentation/bloc/field_day_bloc.dart';
 import 'package:get_it/get_it.dart';
 import 'package:solufine/features/marketing/field_day_visit/presentation/pages/field_day_page.dart';
@@ -7,6 +11,8 @@ import 'package:solufine/features/assigntask/presentation/bloc/task_bloc.dart';
 import 'package:solufine/features/assigntask/presentation/pages/assign_task_page.dart';
 import 'package:solufine/features/assigntask/presentation/pages/assigned_task_list_page.dart';
 import 'package:solufine/features/marketing/other_activity_near_dealer/presentation/pages/dealer_activity_page.dart';
+import 'package:solufine/features/marketing/success_story/presentation/bloc/success_story_bloc.dart';
+import 'package:solufine/features/marketing/success_story/presentation/pages/success_story_page.dart';
 import 'package:solufine/features/schedule/domain/entities/schedule_farmer_entity.dart';
 import 'package:flutter/material.dart';
 import 'package:solufine/core/secure_storage/secure_storage.dart';
@@ -195,6 +201,11 @@ class AppRouter {
 
    static const String addFieldDayVisit = '/addFieldDayVisit';
    static const String addActivityNewDealerDistributor = '/addActivityNewDealerDistributor';
+   static const String farmerCouponBooking = '/farmerCouponBooking';
+   static const String jeepCampaning = '/jeepCampaning';
+   static const String successStory = '/successStory';
+  
+  
 
   static final GoRouter router = GoRouter(
     navigatorKey: navigatorKey,
@@ -379,7 +390,45 @@ class AppRouter {
         },
       ),
 
-    
+      GoRoute(
+            path: farmerCouponBooking,
+            name: 'farmerCouponBooking',
+            builder: (context, state) {
+              return BlocProvider<FarmerCouponBloc>(
+                create: (_) => sl<FarmerCouponBloc>(),
+                child: const FarmerCouponPage(),
+              );
+            },
+          ),
+
+
+
+        GoRoute(
+            path: jeepCampaning,
+            name: 'jeepCampaning',
+            builder: (context, state) {
+              return BlocProvider<JeepCampaignBloc>(
+                create: (_) => sl<JeepCampaignBloc>(),
+                child: const JeepCampaignPage(),
+              );
+            },
+          ),
+
+
+
+            GoRoute(
+            path: successStory,
+            name: 'successStory',
+            builder: (context, state) {
+              return BlocProvider<SuccessStoryBloc>(
+                create: (_) => sl<SuccessStoryBloc>(),
+                child: const SuccessStoryPage(),
+              );
+            },
+          ),
+
+              
+
 
       GoRoute(
         path: leaveList,
