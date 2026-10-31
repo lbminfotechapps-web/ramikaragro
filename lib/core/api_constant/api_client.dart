@@ -5,6 +5,7 @@ class ApiClient {
       "https://agroaicrm.com/solufine_agritech/mobileapi/Mobile_app_for_businessplus_kotlin_new";
   static const String imageBaseUrl =
       "https://agroaicrm.com/solufine_agritech/uploads/";
+  static const String dsiImageBaseUrl = '${imageBaseUrl}dsi_img/';
   static const String imageGalleryUrl =
       "https://agroaicrm.com/solufine_agritech/uploads/gallery/";
   static const String imageCropscheduleUrl =
@@ -190,4 +191,7 @@ class ApiClient {
    static const String submitJeepCampaining ='/submitJeepCampaining';
    static const String submitSuccessStory ='/submitDealerDistributor';
    static const String successStoryCrops ='/getCropAndIrigationDetails';
+   static const String dsiList = '/dsi_list';
+   static const String addDsi = '/add_dsi';
+   static const String insertFieldVisitForm ='/insertFieldVisitForm';
 }

@@ -1,3 +1,5 @@
+import 'package:solufine/core/di/field_visit_di.dart';
+import 'package:solufine/core/di/dsi_di.dart';
 import 'package:solufine/core/di/farmer_coupon_di.dart';
 import 'package:solufine/core/di/field_day_di.dart' show initFieldDayDi;
 import 'package:solufine/core/di/add_schedule_di.dart';
@@ -122,5 +124,7 @@ await ThemeDI.register(sl);
   await initFarmerCouponDi();
   await initJeepCampaignDi();
   await initSuccessStoryDi();
+  await initDsiDi();
+  await initFieldVisitDi();
  
 }
